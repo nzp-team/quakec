@@ -1,0 +1,88 @@
+name: Compile QuakeC and Publish Release
+on: [push]
+jobs:
+  Compile-QC:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Clone Repository
+        working-directory: ./tools
+        run: |
+          sudo -i
+          ./qc-compiler-lin.sh
+          echo "QC COMPILE STATUS - ${{ job.status }}."
+      - name: Zip Progs
+        working-directory: ./build
+        run: |
+          zip -r -j pc-nzp-qc.zip pc/*
+          zip -r -j psp-nzp-qc.zip psp/*
+          zip -r -j nx-nzp-qc.zip nx/*
+          zip -r -j vita-nzp-qc.zip vita/*
+      - name: Generate Build Date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M-%S')"
+      - name: Delete Old Release
+        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          delete_release: true
+          tag_name: bleeding-edge
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: bleeding-edge
+          release_name: Automated Release ${{ steps.date.outputs.date }}
+          body: |
+            This is a **bleeding edge** NZ:P QuakeC release, stability is not guarenteed and you may need to grab an updated asset release if this update depends on new models/textures/etc.
+
+            To install:
+            - Grab the .ZIP archive for your desired platform below (*-nzp-qc.zip)
+            - Extract the contents of the .ZIP archive to your nzp folder (Example: copy `progs.dat` and `progs.lno` to `PSP/GAME/nzportable/nzp`).
+          draft: true
+          prerelease: false
+      - name: Upload NX QC
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/nx-nzp-qc.zip
+          asset_name: nx-nzp-qc.zip
+          asset_content_type: application/zip
+      - name: Upload PC QC
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/pc-nzp-qc.zip
+          asset_name: pc-nzp-qc.zip
+          asset_content_type: application/zip
+      - name: Upload PSP QC
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/psp-nzp-qc.zip
+          asset_name: psp-nzp-qc.zip
+          asset_content_type: application/zip
+      - name: Upload VITA QC
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/vita-nzp-qc.zip
+          asset_name: vita-nzp-qc.zip
+          asset_content_type: application/zip
+      - name: Publish Release
+        uses: StuYarrow/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          id: ${{ steps.create_release.outputs.id }}
