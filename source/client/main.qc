@@ -176,7 +176,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	//
 	// get the build date
 	//
-	float file = fopen("build_date.txt", FILE_READ);
+	float file = fopen("version.txt", FILE_READ);
 
 	if (file != -1) {
 		build_datetime = fgets(file);

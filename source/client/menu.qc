@@ -1847,11 +1847,7 @@ void() Draw_Menu =
 		|| in_menu == MENU_CUSTOMS || in_menu == MENU_SETTINGS) {
 		string vers_string;
 
-		if (cvar("cl_showbuildtime") > 0) {
-			vers_string = build_datetime;
-		} else {
-			vers_string = VERSION_STRING;
-		}
+		vers_string = build_datetime;
 
 		drawstring([(0.975*g_width -  stringwidth(vers_string, 0, [0.03*g_height, 0.03*g_height, 0])), 0.025*g_height, 0], vers_string, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
 	}
