@@ -1149,6 +1149,10 @@ void() power_switch =
 	if (!self.oldmodel)
 		self.oldmodel = "sounds/machines/power.wav";
 
+	// Skin
+	if (!self.skin)
+		self.skin = 0;
+
 	self.solid = SOLID_TRIGGER;
 	Precache_Set(self.model);
 	precache_sound(self.oldmodel);
