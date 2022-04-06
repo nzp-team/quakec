@@ -1096,7 +1096,16 @@ void() touch_power_Switch =
 	if (other.button7 && !isPowerOn) {
 		turnpower1();
 		isPowerOn = true;
-		sound(self, CHAN_ITEM, "sounds/machines/power.wav", 1, ATTN_NONE);
+		sound(self, CHAN_ITEM, self.oldmodel, 1, ATTN_NONE);
+
+		// Print message
+		if (self.message) {
+			entity players = find(world, classname, "player");
+			while (players != world) {
+				centerprint(players, strcat(self.message, "\n"));
+				players = find(players, classname, "player");
+			}
+		}
 
 		tempe = find (world, classname, "door_nzp");// trigger all paired doors
 		while (tempe) {
@@ -1122,20 +1131,33 @@ void() touch_power_Switch =
 			}
 		}
 		Turn_Lights();
+		SUB_UseTargets();
 	}
 }
 
 void() power_switch =
 {
+	//
+	// Set Default Stats for Compatibility
+	//
+
+    // Model
+    if (!self.model)
+        self.model = "models/machines/power_switch.mdl";
+
+	// Sound
+	if (!self.oldmodel)
+		self.oldmodel = "sounds/machines/power.wav";
+
 	self.solid = SOLID_TRIGGER;
-	precache_model ("models/machines/power_switch.mdl");
-	precache_sound ("sounds/machines/power.wav");
+	Precache_Set(self.model);
+	precache_sound(self.oldmodel);
 	setorigin (self, self.origin);
-	setmodel (self, "models/machines/power_switch.mdl");
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "power_switch";
-	isPowerOn = false;
 	self.touch = touch_power_Switch;
+
+	isPowerOn = false;
 }
 
 //

@@ -65,11 +65,11 @@ void() L_Setup =
        return;
 
     // Set the Light to be Off if the spawnflag is set.
-    if ((self.spawnflags & LIGHT_SPAWNFLAG_STARTOFF)) {
+    /*if ((self.spawnflags & LIGHT_SPAWNFLAG_STARTOFF)) {
         // Store the other value for later.
-        self.score = self.style;
+        //self.score = self.style;
         lightstyle(self.style, "a");
-    }
+    }*/
 }
 
 //
