@@ -1968,12 +1968,12 @@ void() perk_pap =
 		self.requirespower = false;
 	}
 
-	precache_model ("models/machines/pap.mdl");
+	precache_model ("models/machines/quake_scale/pap.mdl");
 	precache_model ("models/machines/v_pap.mdl");
 	precache_sound ("sounds/machines/papsound.wav");
 	precache_sound ("sounds/machines/papsound.wav");
 	setorigin(self, self.origin);
-	setmodel (self, "models/machines/pap.mdl");
+	setmodel (self, "models/machines/quake_scale/pap.mdl");
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "perk_pap";
 	self.touch = touch_pap;

@@ -439,6 +439,8 @@ string(string asset) convert_old_asset_path =
 			return "models/machines/quake_scale/deadshot.mdl";
 		case "models/machines/mulekick.mdl":
 			return "models/machines/quake_scale/mulekick.mdl";
+		case "models/machines/pap.mdl":
+			return "models/machines/quake_scale/pap.mdl";
 		case "progs/Sprites/lamp_glow.spr":
 			return "models/sprites/lamp_glow.spr";
 		case "progs/Sprites/lamp_glow2.spr":
