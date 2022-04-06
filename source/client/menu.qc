@@ -520,7 +520,7 @@ void() settings_apply = {
 	if (in_menu == MENU_GSETTINGS) {
 		localcmd(strcat("vid_width ", ftos(active_swidth), "\n"));
 		localcmd(strcat("vid_height ", ftos(active_sheight), "\n"));
-		localcmd(strcat("vid_fullscreen_standalone ", ftos(fullscreenval), "\n"));
+		localcmd(strcat("vid_fullscreen ", ftos(fullscreenval), "\n"));
 		localcmd("vid_restart\n");
 	}
 

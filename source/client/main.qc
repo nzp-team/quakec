@@ -99,7 +99,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	// default/current width and height
 	active_swidth = cvar("vid_width");
 	active_sheight = cvar("vid_height");
-	fullscreenval = cvar("vid_fullscreen_standalone");
+	fullscreenval = cvar("vid_fullscreen");
 
 	// 5:4
 	screen_width_54[0] = 1280;
