@@ -26,7 +26,7 @@
 
 */
 
-void() LightStyles_setup;
+void() LS_Setup;
 void() SUB_Remove = {remove(self);}
 
 //called when starting server/loading the map
@@ -306,7 +306,9 @@ void() precaches =
 void() worldspawn =
 {
 	precaches();
-	LightStyles_setup();
+
+	// Define all of our Light Styles
+	LS_Setup();
 
 	#ifdef PC
 	clientstat(STAT_CURRENTMAG, EV_FLOAT, currentmag);

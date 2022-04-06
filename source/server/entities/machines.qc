@@ -1049,15 +1049,31 @@ void()	turnpower4	=[	4,		SUB_Null	] {self.frame = 4;};
 
 //
 // Turn_Lights()
-// Activates Perk Light Effects
+// Activates Perk Light Effects and LightStyles
 //
 void() Turn_Lights =
 {
-	local entity tempe = findfloat(world, requirespower, 1);
+	// Perk Lights
+	entity tempe = findfloat(world, requirespower, 1);
 	while (tempe)
 	{
 		Turn_PerkLight_On(tempe);
 		tempe = findfloat (tempe, requirespower, 1);
+	}
+
+	// Light Styles
+	tempe = find(world, classname, "light");
+	while(tempe)
+	{
+		if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTOFF) {
+			tempe.style = tempe.score;
+			LS_Setup();
+		}/* else if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTON) {
+			tempe.style = 64;
+			lightstyle(tempe.style, "a");
+		}*/
+
+		tempe = find(tempe, classname, "light");
 	}
 } 
 

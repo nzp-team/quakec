@@ -476,6 +476,13 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 // Unrelated to engine, but custom functions
 // *****************************************
 
+void(string modelname) Precache_Set = // Precache model, and set myself to it
+{
+    precache_model(modelname);
+    setmodel(self, modelname);
+};
+
+
 float(entity who, entity target) isFacing =
 {
 	float who_angle = who.angles_y;
