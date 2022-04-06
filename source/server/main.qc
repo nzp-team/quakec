@@ -423,6 +423,22 @@ void() EndFrame =
 string(string asset) convert_old_asset_path =
 {
 	switch(asset) {
+		case "models/machines/quick_revive.mdl":
+			return "models/machines/quake_scale/quick_revive.mdl";
+		case "models/machines/juggernog.mdl":
+			return "models/machines/quake_scale/juggernog.mdl";
+		case "models/machines/speed_cola.mdl":
+			return "models/machines/quake_scale/speed_cola.mdl";
+		case "models/machines/double_tap.mdl":
+			return "models/machines/quake_scale/double_tap.mdl";
+		case "models/machines/flopper.mdl":
+			return "models/machines/quake_scale/flopper.mdl";
+		case "models/machines/staminup.mdl":
+			return "models/machines/quake_scale/staminup.mdl";
+		case "models/machines/deadshot.mdl":
+			return "models/machines/quake_scale/deadshot.mdl";
+		case "models/machines/mulekick.mdl":
+			return "models/machines/quake_scale/mulekick.mdl";
 		case "progs/Sprites/lamp_glow.spr":
 			return "models/sprites/lamp_glow.spr";
 		case "progs/Sprites/lamp_glow2.spr":

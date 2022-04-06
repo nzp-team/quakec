@@ -273,7 +273,7 @@ void DrinkPerk(float perk) {
 
 	self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	
-	self.knife_delay = self.reload_delay2 = self.fire_delay2 = self.fire_delay = self.reload_delay = 4.5 + time;		
+	self.knife_delay = self.reload_delay2 = self.fire_delay2 = self.fire_delay = self.reload_delay = 3 + time;		
 	Set_W_Frame (tempe.weapon_animduration, tempe.weapon2_animduration, 0, 0, PERK, GivePerk, tempe.weapon2model, true, S_RIGHT);
 	self = tempe;
 	sound(other, CHAN_ITEM, self.oldmodel, 1, ATTN_NORM);
@@ -538,7 +538,7 @@ void() perk_revive =
 	
 	// Model
 	if (!self.model) {
-		self.model = "models/machines/quick_revive.mdl";
+		self.model = "models/machines/quake_scale/quick_revive.mdl";
 	}
 
 	// Perk Cost
@@ -603,7 +603,7 @@ void() perk_flopper =
 	
 	// Model
 	if (!self.model) {
-		self.model = "models/machines/flopper.mdl";
+		self.model = "models/machines/quake_scale/flopper.mdl";
 	}
 
 	// Perk Cost
@@ -665,7 +665,7 @@ void() perk_juggernog =
 	
 	// Model
 	if (!self.model) {
-		self.model = "models/machines/juggernog.mdl";
+		self.model = "models/machines/quake_scale/juggernog.mdl";
 	}
 
 	// Perk Cost
@@ -727,7 +727,7 @@ void() perk_staminup =
 	
 	// Model
 	if (!self.model) {
-		self.model = "models/machines/staminup.mdl";
+		self.model = "models/machines/quake_scale/staminup.mdl";
 	}
 
 	// Perk Cost
@@ -789,7 +789,7 @@ void() perk_speed =
 	
 	// Model
 	if (!self.model) {
-		self.model = "models/machines/speed_cola.mdl";
+		self.model = "models/machines/quake_scale/speed_cola.mdl";
 	}
 
 	// Perk Cost
@@ -851,7 +851,7 @@ void() perk_double =
 	
 	// Model
 	if (!self.model) {
-		self.model = "models/machines/double_tap.mdl";
+		self.model = "models/machines/quake_scale/double_tap.mdl";
 	}
 
 	// Perk Cost
@@ -913,7 +913,7 @@ void() perk_deadshot =
 	
 	// Model
 	if (!self.model) {
-		self.model = "models/machines/deadshot.mdl";
+		self.model = "models/machines/quake_scale/deadshot.mdl";
 	}
 
 	// Perk Cost
@@ -983,7 +983,7 @@ void() perk_mule =
 	
 	// Model
 	if (!self.model) {
-		self.model = "models/machines/mulekick.mdl";
+		self.model = "models/machines/quake_scale/mulekick.mdl";
 	}
 
 	// Perk Cost
