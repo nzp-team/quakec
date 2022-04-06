@@ -3,7 +3,7 @@
 
 	mbox, perks, pap
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -435,7 +435,7 @@ void() touch_perk =
 			}
 		} else if (other.button7) {
 			// We tried to use, but we don't have the cash..
-			centerprint(other, "Not enough points\n");
+			centerprint(other, STR_NOTENOUGHPOINTS);
 		}
 	}
 }
@@ -1526,7 +1526,7 @@ void() mystery_touch =
 				self.spins++;
 			}
 			else {
-        		centerprint (other, "Not enough points\n");
+        		centerprint (other, STR_NOTENOUGHPOINTS);
 			}
 		}
 		if (self.boxstatus == 2)
@@ -1859,7 +1859,7 @@ void touch_pap() {
 		
 		}
 		else if (other.button7 && other.weapon) {
-			centerprint (other, "Not enough points\n");
+			centerprint (other, STR_NOTENOUGHPOINTS);
 		}
 	} else if (self.papState == 2) {
 		float startframe;

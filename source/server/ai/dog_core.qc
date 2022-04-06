@@ -154,7 +154,7 @@ void() Dog_Death =
 	self.movetype = MOVETYPE_NONE;
 	self.takedamage = DAMAGE_NO;
 	
-	sound(self,CHAN_WEAPON,"sounds/null.wav",1,ATTN_NORM);
+	sound(self,CHAN_VOICE,"sounds/null.wav",1,ATTN_NORM);
 	
 	self.usedent = world;
 	
@@ -179,10 +179,10 @@ void() Dog_Death =
 	float r = random();
 
 	// explode chance
-	if (r < 0.75) {
+	if (r < 0.75 || self.electro_targeted == true) {
 		self.frame = 0;
 		setmodel (self, "models/sprites/explosion.spr");
-		sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);
+		sound (self, CHAN_VOICE, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);
 		dog_explodeanim();
 	} else {
 		dog_deathanim();
@@ -246,6 +246,8 @@ void(entity where) spawn_a_dogB =
 	sdog.th_melee = dog_meleeanim;
 	sdog.th_idle = dog_idleanim;
 	sdog.th_diewunder = die_dog_wunder1;
+
+	sdog.electro_targeted = 0;
 
 	SetZombieWalk(sdog);
 	sdog.walktype = 5;

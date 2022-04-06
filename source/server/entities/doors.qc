@@ -295,7 +295,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		{
 			if(other.classname == "player" && !other.downed)
 			{
-				centerprint (other, "You do not have enough points\n");
+				centerprint (other, STR_NOTENOUGHPOINTS);
 				other.semiuse = 1;
 			}
 		}

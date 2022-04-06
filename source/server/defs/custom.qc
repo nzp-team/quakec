@@ -3,7 +3,7 @@
 
 	put custom server-only globals and fields here
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -31,19 +31,21 @@
 #endif
 #endif 
 
-#define true 1
-#define false 0
+#define true 				1
+#define false 				0
 
-#define FL_JUMPRELEASED  4096
+#define FL_JUMPRELEASED  	4096
+
+#define STR_NOTENOUGHPOINTS	"Not Enough Points\n"	// To help aid consistency with these..
 
 // achievement tracking
 .float 	ach_tracker_npnp;
 .float 	ach_tracker_abst;
-float 	ach_tracker_spin;
-float 	ach_tracker_luck;
 .float 	ach_tracker_coll;
 float 	ach_tracker_col2;
 float 	ach_tracker_barr;
+float 	ach_tracker_spin;
+float 	ach_tracker_luck;
 
 float framecount;
 float deathmatch;
@@ -94,6 +96,11 @@ entity activator;
 .float zoom;
 #endif
 
+.float damage_timer;								// Used for time-based damage infliction such as Traps.
+.float speed_penalty;								// A multiplier for limiting player speed. Also 
+													// prohibits sprinting.
+.float speed_penalty_time;							// A timer for how long speed_penalty is applied for.
+
 float sprint_max_time = 4.0;
 .float sprinting;
 .float weaponskin;
@@ -110,7 +117,6 @@ void() W_SprintStop;
 .float into_sprint;
 .float dive;
 .float dive_delay;
-.float damagetimer;
 .vector movement;
 
 //Weaponsystem defines
@@ -216,10 +222,17 @@ void() SUB_Null2 = {};
 
 vector	trace_plane_normal;
 
-
+//
 // AI definitions
-//Used for global one-zombie-at-a-time type ai
+// Used for global one-zombie-at-a-time type ai
+//
 void Do_Zombie_AI();
+void Z_ElectroShock();
+
+.float electro_targeted; 							// Marks Zombie as waiting to die via Electro-Shock
+.float death_timer; 								// A timer that will kill a Zombie when it expires.
+.float death_timer_activated; 						// To prevent Zombies just dying because of this..
+
 .string aistatus;
 entity lastzombie;
 float zombie_spawn_delay; // time before spawning, in seconds.
@@ -253,7 +266,10 @@ float crawler_num;
 .float chase_time;
 .float enemy_timeout;
 //.float pathing;
-.float calc_time; //used as a delay thing (so zombie ai doesn't run 100% of the time
+.float calc_time; 									// used as a delay thing (so zombie ai doesn't run
+													// 100% of the time
+.string zappername;									// An identifier similar to targetname used to link
+													// Electric Trap components.
 .string target2;
 .string target3;
 .string target4;
@@ -262,12 +278,12 @@ float crawler_num;
 .string target7;
 .string target8;
 .string wayTarget;
-.entity active_door;//Set in waypoint mode
-.string targetname;//the name of an entitys
-entity lastspawn;//last spawn point used by spawning code
-.entity goaldummy; //Used to store the origin of the zombies target
-.float goalway; //Used to store the origin of the zombies target
-.float walktype;//decides animations and moving speeds for zombies
+.entity active_door;								// Set in waypoint mode
+.string targetname;									// the name of an entitys
+entity lastspawn;									// last spawn point used by spawning code
+.entity goaldummy; 									// Used to store the origin of the zombies target
+.float goalway; 									// Used to store the origin of the zombies target
+.float walktype;									// decides animations and moving speeds for zombies
 .void() th_walk;
 //.void() th_run;
 .void() th_die;

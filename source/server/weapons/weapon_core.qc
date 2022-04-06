@@ -114,7 +114,7 @@ void() W_SprintStop =
 	float endframe = GetFrame(self.weapon,SPRINT_OUT_END);
 	string modelname = GetWeaponModel(self.weapon, 0);
 	
-	if (self.isBuying || self.damagetimer > time || !self.sprinting)
+	if (self.isBuying || !self.sprinting)
 		return;
 	
 	//TEMPORARY
@@ -134,6 +134,9 @@ void() W_SprintStop =
 
 
 void W_SprintStart () {	
+	if (self.speed_penalty_time > time)
+		return;
+	
 	self.sprint_start_time = time;
 	
 	if (self.sprint_rest_time > sprint_max_time)

@@ -435,8 +435,11 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 		victim.punchangle_x = distance_x;
 		victim.punchangle_y = distance_y;
 
-		// play hurt sound
-		sound (self, CHAN_AUTO, "sounds/player/pain4.wav", 1, ATTN_NORM);
+		// Play pain noise if this isn't done by an electric barrier.
+		if (d_style != S_ZAPPER)
+			sound (self, CHAN_AUTO, "sounds/player/pain4.wav", 1, ATTN_NORM);
+		else
+			sound (self, CHAN_AUTO, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
 
 		if (victim.health <= 20)
 		{

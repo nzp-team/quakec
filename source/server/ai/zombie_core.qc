@@ -195,6 +195,10 @@ void(float what) play_sound_z =
 				sound(self,CHAN_VOICE,"sounds/zombie/t4.wav",1,ATTN_NORM);  
 			return;
 		}
+		if (what == 5) // Electric Zap
+		{
+			sound(self, CHAN_VOICE, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+		}
 	}
 };
 
@@ -408,6 +412,10 @@ void() Zombie_Think = //called every frame for zombies
 				self.onfire = false;
 			}
 		}
+	}
+
+	if (self.death_timer < time && self.death_timer_activated == true) {
+		self.th_die();
 	}
 
 	if (self.classname == "wunder") {
@@ -867,7 +875,7 @@ void() zombie_attack =
 {
 	self.velocity = '0 0 0';
 
-	if (self.classname == "wunder")
+	if (self.classname == "wunder" || self.electro_targeted == true)
 		return;
 
 	if(self.outside == TRUE)
@@ -1105,7 +1113,12 @@ void() Zombie_Death =
 	self.health = 0;
 	Remaining_Zombies = Remaining_Zombies - 1;
 	
-	play_sound_z(3);
+	// Death Noises
+	if (self.electro_targeted == false)
+		play_sound_z(3);
+	else
+		play_sound_z(5);
+
 	//Gotta' make sure we set it back down instead of glitching it up, yo'
 	if(self.s_time > 0 && sounds_playing > 0)
 	{
@@ -1147,6 +1160,75 @@ void() Zombie_Death =
 		}
 	}
 };
+
+//
+// --------------------
+// Electric Damage
+// --------------------
+//
+void() Zombie_Tesla_Light;
+
+//
+// Z_ElectroShock
+// Mark Zombie to die by non-Waffe Electricity.
+//
+void() Z_ElectroShock =
+{
+	// Mark the Zombie as to-be-dead
+	self.electro_targeted = true;
+
+	// Determine a time for the Zombie to die. (0.1-1.25s)
+	self.death_timer = (rint((random() * 11.5) + 1)/10) + time;
+	self.death_timer_activated = true;
+
+	// Spawn a Sparkle
+	Zombie_Tesla_Light();
+
+	// Decide what to Gib
+	float r = random();
+
+	// Head?
+	if (r < 0.20 && self.head.deadflag) {
+		self.head.frame = 0;
+		self.head.health = 0;
+		self.head.deadflag = false;
+		self.head.solid = SOLID_NOT;
+		setmodel(self.head, "");
+		makevectors(self.angles);
+		spawn_gibs(self.origin + (self.head.view_ofs_x * v_right) 
+		+ (self.head.view_ofs_y * v_forward) + (self.head.view_ofs_z * v_up));
+		SpawnBlood(self.origin, self.origin, 50);
+	}
+	// Right Arm?
+	r = random();
+	if (r < 0.20 && self.rarm.deadflag) {
+		self.rarm.frame = 0;
+		self.rarm.health = 0;
+		self.rarm.deadflag = false;
+		self.rarm.solid = SOLID_NOT;
+		setmodel(self.rarm, "");
+		makevectors(self.angles);
+		spawn_gibs(self.origin + (self.rarm.view_ofs_x * v_right) 
+		+ (self.rarm.view_ofs_y * v_forward) + (self.rarm.view_ofs_z * v_up));
+		SpawnBlood(self.origin, self.origin, 50);
+	}
+	// Left Arm?
+	r = random();
+	if (r < 0.20 && self.larm.deadflag) {
+		self.larm.frame = 0;
+		self.larm.health = 0;
+		self.larm.deadflag = false;
+		self.larm.solid = SOLID_NOT;
+		setmodel(self.larm, "");
+		makevectors(self.angles);
+		spawn_gibs(self.origin + (self.larm.view_ofs_x * v_right) 
+		+ (self.larm.view_ofs_y * v_forward) + (self.larm.view_ofs_z * v_up));
+		SpawnBlood(self.origin, self.origin, 50);
+	}
+
+	// Play the first Electro-Sound
+	play_sound_z(5);
+}
 
 /////////////////////ZOMBIE WAFFE STUFF/////////////////////
 
@@ -1617,6 +1699,9 @@ void(entity where) spawn_a_zombieB =
 	szombie.ideal_yaw = szombie.angles_y;
 	szombie.yaw_speed = 20;
 	szombie.iszomb = 1;
+	szombie.death_timer = 0;
+	szombie.death_timer_activated = false;
+	szombie.electro_targeted = false;
 	
 	// We used to set different limb health, too, but we now handle any limb damage differences in weapon stats.
 	szombie.health = szombie.head.health = szombie.larm.health = szombie.rarm.health = z_health;

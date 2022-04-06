@@ -3,7 +3,7 @@
 
 	misc map entity spawn and logic
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -125,7 +125,7 @@ void() button_touch =
 				}
 				else
 				{
-					centerprint(other,"You do not have enough points\n");
+					centerprint(other, STR_NOTENOUGHPOINTS);
 
 				}
 			}
@@ -275,7 +275,7 @@ void () buy_weapon_touch =
 
 		other.semiuse = true;
 		if ((other.points < self.cost2 && !IsPapWeapon(other.weapon)) || (other.points < 4500 && IsPapWeapon(other.weapon))) {
-			centerprint(other, "You do not have enough points\n");
+			centerprint(other, STR_NOTENOUGHPOINTS);
 			return;
 		}
 
@@ -313,7 +313,7 @@ void () buy_weapon_touch =
 			return;
 		if (other.points < self.cost2)
 		{
-			centerprint(other, "You do not have enough points\n");
+			centerprint(other, STR_NOTENOUGHPOINTS);
 			sound(other, 0,"sounds/misc/denybuy.wav", 1, 1);
 			return;
 		}
@@ -347,7 +347,7 @@ void () buy_weapon_touch =
 			return;
 		if (other.points < self.cost)
 		{
-			centerprint(other, "You do not have enough points\n");
+			centerprint(other, STR_NOTENOUGHPOINTS);
 			sound(other, 0,"sounds/misc/denybuy.wav", 1, 1);
 
 			return;
@@ -399,7 +399,7 @@ void () buy_weapon_touch =
 
 		other.semiuse = 1;
 		if (other.points < self.cost) {
-			centerprint (other, "Not enough points\n");
+			centerprint (other, STR_NOTENOUGHPOINTS);
 			return;
 		}
 
@@ -619,194 +619,6 @@ void() item_radio =
 	self.th_die = radio_hit;
 };
 
-.string zappername;
-void()	turnswitch1	=[	1,		turnswitch2	] {self.frame = 0;};
-void()	turnswitch2	=[	2,		turnswitch3	] {self.frame = 1;};
-void()	turnswitch3	=[	3,		turnswitch4	] {self.frame = 2;};
-void()	turnswitch4	=[	4,		SUB_Null	] {self.frame = 2;};
-
-void()	offswitch2		=[	2,		offswitch3		] {self.frame = 2;};
-void()	offswitch3		=[	3,		offswitch4		] {self.frame = 1;};
-void()	offswitch4		=[	4,		SUB_Null		] {self.frame = 0;};
-
-
-void zap_zombie () {
-	entity tempe;
-
-	if (other.classname == "ai_zombie") {
-		tempe = self;
-		self = other;
-		self.th_die();
-		self = tempe;	
-	} else if (other.classname == "player") {
-		if (other.damagetimer < time) {
-			DamageHandler (other, self, 50, S_ZAPPER);
-			other.damagetimer = time + 1.5;
-		}
-	}
-}
-
-
-void zapper_play () {
-	entity zents = find(world, targetname, self.target);
-	local vector org = self.origin;
-	local vector targetorg = zents.origin;
-
-	if (zents) {
-		#ifdef PC
-		te_lightning2(self, self.origin, zents.origin);
-		#endif
-		#ifdef PSP
-		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
-		WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
-		WriteEntity (MSG_BROADCAST, self);
-		WriteCoord (MSG_BROADCAST, org_x);
-		WriteCoord (MSG_BROADCAST, org_y);
-		WriteCoord (MSG_BROADCAST, org_z);
-		WriteCoord (MSG_BROADCAST, targetorg_x);
-		WriteCoord (MSG_BROADCAST, targetorg_y);
-		WriteCoord (MSG_BROADCAST, targetorg_z);
-		#endif
-	}
-
-	zents.touch = zap_zombie;
-	
-	self.think = zapper_play;
-	self.nextthink = time + (0.5*random());
-}
-
-void() zapper_touch;
-void() zapper_cooldown =
-{
-	offswitch2();
-	self.touch = zapper_touch;
-}
-
-void zapper_stop() {
-	entity zents;
-	entity tempe;
-
-	zents = find(world, zappername, self.zappername);
-	while (zents)
-	{
-		if (zents.classname == "zapper_light") {
-			zents.skin = 0;
-		} else if (zents.classname == "zapper_switch") {
-			tempe = self;
-			self = zents;
-			self.state = 0;
-			self.think = zapper_cooldown;
-			self.nextthink = time + 30;
-			self = tempe;
-		} else if (zents.classname == "zapper_node" && zents.target) {
-			zents.think = SUB_Null;
-			zents.nextthink = 0;
-		}
-		zents.touch = SUB_Null;
-		zents = find(zents, zappername, self.zappername);
-	}
-
-	remove(self);
-}
-
-void zapper_start(string zapper) {
-	entity zents;
-	entity tempe;
-
-	zents = find(world, zappername, zapper);
-	while (zents)
-	{
-		if (zents.classname == "zapper_light") {
-			zents.skin = 1;
-		} else if (zents.classname == "zapper_switch") {
-			tempe = self;
-			self = zents;
-			self.state = 1;
-			turnswitch1();
-			self = tempe;
-		} else if (zents.classname == "zapper_node" && zents.target) {
-			zents.think = zapper_play;
-			zents.nextthink = time + 0.1;
-		}
-		zents = find(zents, zappername, zapper);
-	}
-
-	tempe = spawn();
-	tempe.think = zapper_stop;
-	tempe.nextthink = time + 30;
-	tempe.zappername = zapper;
-}
-
-void zapper_touch () {
-	if (other.classname != "player") {
-		return;
-	}
-
-	if (self.requirespower == true && !isPowerOn) {
-		useprint (other, 8, 0, 0);
-		return;
-	}	
-
-	if (self.state == 0) {
-		useprint (other, 11, self.cost, self.weapon);
-
-		if (!other.button7) {
-			return;
-		}
-
-		if (other.points < self.cost) {
-			centerprint(other, "You do not have enough points\n");
-			return;
-		}
-
-		zapper_start(self.zappername);
-		addmoney(other, -1*self.cost, false);
-	}
-}
-
-void() zapper_switch = 
-{
-	precache_model ("models/machines/zapper/z_switch.mdl");
-	self.movetype = MOVETYPE_NONE;
-	self.solid = SOLID_TRIGGER;
-	self.classname = "zapper_switch";
-	setmodel(self, "models/machines/zapper/z_switch.mdl");
-	setsize (self, '-4 -4 -4', '4 4 4');
-
-	self.state = 0;
-	self.touch = zapper_touch;
-};
-
-void() zapper_node = 
-{
-	precache_model ("models/machines/zapper/z_zap.mdl");
-	self.movetype = MOVETYPE_NONE;
-	self.solid = SOLID_TRIGGER;
-	self.classname = "zapper_node";
-	setmodel(self, "models/machines/zapper/z_zap.mdl");
-	setsize (self, '-4 -4 -4', '4 4 4');
-};
-
-void() zapper_light = 
-{
-	precache_model ("models/machines/zapper/z_light.mdl");
-	self.movetype = MOVETYPE_NONE;
-	self.solid = SOLID_TRIGGER;
-	//self.touch = switch_touch;
-	self.classname = "zapper_light";
-	setmodel(self, "models/machines/zapper/z_light.mdl");
-	setsize (self, '-4 -4 -4', '4 4 4');
-};
-
-
-void() trigger_electro =
-{
-	self.classname = "zapper_field";
-	InitTrigger ();
-	//self.touch = electro_touch;
-	self.solid = SOLID_TRIGGER;
-};
-
 /* ================
    Custom Teddy Code
    ================*/
@@ -1017,7 +829,7 @@ void() teleport_touch =
 	if (other.button7) {
 
 		if (other.points < self.cost) {
-			centerprint(other, "Not enough points");
+			centerprint(other, STR_NOTENOUGHPOINTS);
 			return;
 		}
 

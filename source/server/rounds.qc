@@ -3,7 +3,7 @@
 
 	wave logic
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -26,6 +26,7 @@
 */
 
 float() spawn_a_dogA;
+void() zapper_cooldown;
 
 void() Spawn_Enemy = 
 {
@@ -274,6 +275,16 @@ void() NewRound =
 
 	if (rounds >= 10 && ach_tracker_spin == 0) {
 		GiveAchievement(10);
+	}
+
+	// Refresh Electric Traps
+	entity zaps = find(world, classname, "zapper_switch");
+	while(zaps != world) {
+		if (zaps.mode == 1) {
+			zaps.think = zapper_cooldown;
+            zaps.nextthink = time + 0.1;
+		}
+		zaps = find(zaps, classname, "zapper_switch");
 	}
 }
 void() Round_Core =

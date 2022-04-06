@@ -21,6 +21,7 @@
 ../source/server/entities/sounds.qc
 ../source/server/entities/triggers.qc
 ../source/server/entities/map_entities.qc
+../source/server/entities/traps.qc
 ../source/server/entities/lights.qc
 ../source/server/entities/doors.qc
 ../source/server/entities/window.qc

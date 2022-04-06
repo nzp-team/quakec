@@ -242,8 +242,14 @@ void() PlayerPreThink =
 		#endif
 		} else if (self.zoom != 3) {
 			self.maxspeed *= 0.5;
-		} if (self.damagetimer > time) {
-			self.maxspeed *= 0.5;
+		} 
+
+		// Speed Penalty
+		if (self.speed_penalty_time > time)
+		{
+			self.maxspeed *= self.speed_penalty;
+		} else {
+			self.speed_penalty = 1;
 		}
 		
 		switch(self.stance) {
