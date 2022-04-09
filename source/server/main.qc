@@ -515,7 +515,7 @@ string(string asset) convert_old_asset_path =
 		case "progs/gmodels/g_betty.mdl":
 			return "models/weapons/grenade/g_betty.mdl";
 		case "progs/GModels/g_fg.mdl":
-			return "models/weapons/fg/g_fg.mdl";
+			return "models/weapons/fg42/g_fg.mdl";
 		case "progs/gmodels/g_m1.mdl":
 			return "models/weapons/garand/g_m1.mdl";
 		case "progs/gmodels/g_trench.mdl":

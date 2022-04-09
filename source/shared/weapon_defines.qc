@@ -3346,7 +3346,7 @@ void(float weptype) precache_extra =
 			break;
 		case W_TESLA:
 		case W_DG3:
-			precache_model("models/misc/lightning.spr");
+			precache_model("models/sprites/lightning.spr");
 			precache_sound("sounds/weapons/tesla/switchoff.wav");
 			precache_sound("sounds/weapons/tesla/pulllever.wav");
 			precache_sound("sounds/weapons/tesla/glassbreak.wav");
