@@ -18,6 +18,12 @@ echo ""
 ./fteqcc-cli-lin -srcfile ../progs/fte-server.src
 echo ""
 echo "===================="
+echo "compiling FTE MENUQC"
+echo "===================="
+echo ""
+./fteqcc-cli-lin -srcfile ../progs/fte-menu.src
+echo ""
+echo "===================="
 echo "  compiling PSP QC  "
 echo "===================="
 echo ""

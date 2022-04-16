@@ -1,0 +1,7 @@
+../../build/pc/menu.dat
+
+../source/menu/defs/fte.qc
+../source/menu/defs/custom.qc
+../source/shared/sui_sys.qc
+../source/menu/menu.qc
+../source/menu/main.qc

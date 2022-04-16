@@ -581,20 +581,16 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	//does what you think it does
 	renderscene();
 
-	if(in_menu)
-	{
-		//in menu.qc
-		Draw_Menu();
-	}
-	else
+	if (!menushown)
 	{
 		HUD_Draw(g_width, g_height);
 	}
-	if(serverkey("constate") != "active" && serverkey("disconnected"))
+
+	/*if(serverkey("constate") != "active" && serverkey("disconnected"))
 	{
 		drawfill('0 0 0',  [width, height, 0], '0.2 0.4 0.7', 1, 0);
 		drawstring([width/2 - 60, height/2, 0], "Loading...", [16,16,0],[1,1,1],1,0);
-	}
+	}*/
 };
 
 noref float(string cmd) CSQC_ConsoleCommand =
