@@ -28,7 +28,7 @@
 
 ../source/server/entities/powerups.qc
 
-../source/server/ai/pathfind_code.qc
+../source/server/ai/pathfind_core.qc
 ../source/server/ai/ai_core.qc
 ../source/server/ai/fte/waypoints_core.qc
 ../source/server/ai/zombie_core.qc
