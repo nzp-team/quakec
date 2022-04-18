@@ -55,6 +55,14 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #endif
 #endif
 
+
+// NAVMESH BEGIN - Increases stringtable size, adds support for memalloc.
+#ifdef PC
+#pragma target FTE
+#endif
+// NAVMESH END
+
+
 //nzp weapon defines
 //id list
 #define W_NOWEP        0

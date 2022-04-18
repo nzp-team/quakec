@@ -117,6 +117,7 @@ void() W_SprintStop;
 .float into_sprint;
 .float dive;
 .float dive_delay;
+.float damagetimer;
 .vector movement;
 
 //Weaponsystem defines
@@ -215,9 +216,9 @@ void() SUB_Null2 = {};
 #define     VEC_VIEW_OFS  '0 0 32'
 
 #ifdef PSP
-#define 	MAX_ZOMB 	  12
+#define 	MAX_ZOMBIES 	  12
 #else
-#define 	MAX_ZOMB 	  24
+#define 	MAX_ZOMBIES 	  100
 #endif
 
 vector	trace_plane_normal;
@@ -316,6 +317,7 @@ float sounds_playing;
 //.vector lastOrg;//Zombie's last origin, for checking stuckness
 //.float OrgStuckCount;
 .float crawling;
+.float true_org_z;//Zombie's actual current origin (origin_z lerps)
 
 .float washit;
 .float hitamount;
@@ -333,6 +335,7 @@ float dogWave;
 float z_health;
 .float bleedingtime;
 .float time_to_die;
+.float index;//Used as a zombie ID (zombie uses it to access it's own AI Pathfinding struct)
 
 
 float crandom();
@@ -409,6 +412,7 @@ float rounds_change;
 void () Waypoint_Logic;
 entity current_way;
 float waypoint_mode;
+float cl_navmesh_edit_mode;
 entity active_way;
 
 #define MAX_WAY_TARGETS		10
@@ -416,7 +420,9 @@ entity active_way;
 .string targets[MAX_WAY_TARGETS];
 
 
-//pathfinds
+
+
+//Pathfind Defs
 #define MAX_WAYPOINTS 256 //max waypoints
 void LoadWaypointData();
 typedef struct
@@ -451,6 +457,16 @@ string world_fog;
 #define UT_HM				3
 #define UT_ZOOM2			4
 #define UT_CROSSHAIR		5
+
+//======================= Navmesh defs ============================
+void() Navmesh_Editor_Logic;
+void() sv_load_navmesh_data;
+
+//One struct for temp pathfinding calculations per zombie 
+//pathfind_result sv_zombie_pathfind_result[MAX_ZOMBIES];
+pathfind_result *sv_zombie_pathfind_result;
+
+//=================================================================
 
 //Misc patch definitions
 .string teddyremovetarget;

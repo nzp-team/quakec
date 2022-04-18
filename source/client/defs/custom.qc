@@ -31,6 +31,13 @@
 #define true    1
 #define false   0
 
+#define	VEC_HULL_MIN  '-16 -16 -32'
+#define	VEC_HULL_MAX  '16 16 40'
+
+#define	VEC_HULL2_MIN  '-32 -32 -24'
+#define	VEC_HULL2_MAX  '32 32 64'
+string mappath;
+
 vector cursor_pos; /* Current mouse cursor position, updated in csqc_inputevent */
 float g_width, g_height; /* Globals for screen width and height */
 
@@ -135,6 +142,11 @@ float achievement_pages;
 
 
 float K_LEFTDOWN, K_RIGHTDOWN, K_BACKDOWN, K_FORWARDDOWN;
+
+//Navmesh defs
+void() cl_register_navmesh_commands;
+float(string cmd) cl_navmesh_console_commands;
+void() cl_navmesh_editor_draw;
 
 #define 	P_JUG		1
 #define 	P_DOUBLE	2
