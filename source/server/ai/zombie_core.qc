@@ -645,7 +645,9 @@ void() zombie_attack2 =
 	{
 		Window_Damage_Setup();
 	}
-	else if (self.enemy.classname == "player")
+	// motolegacy -- Prohibit damage to the Player if the Nuke Power-Up logic is currently
+	// running.
+	else if (self.enemy.classname == "player" && nuke_powerup_active == false)
 	{
 		if(vlen(self.enemy.origin - self.origin) < 60)
 		{
