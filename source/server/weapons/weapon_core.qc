@@ -1395,6 +1395,9 @@ void(float side) W_Fire =
 	if (self.weapon == W_M2 || self.weapon == W_FIW && self.cooldown)
 		return;
 
+	if (self.semiswitch == true)
+		return;
+
 	//First check that we can actualy fire
 	if (side == S_RIGHT &&
 		(time < self.fire_delay ||
@@ -1742,7 +1745,7 @@ void () W_Knife =
 
 void() switch_nade = 
 { 
-	if (self.downed || self.isBuying || !(self.grenades & 2) || self.semiswitch)
+	if (self.downed || self.isBuying || !(self.grenades & 2) || self.seminade)
       return;
 
 	if (self.pri_grenade_state == 0)
@@ -1911,7 +1914,6 @@ void() W_ThrowGrenade =
 	endframe = GetFrame(self.weapon,TAKE_OUT_END);
 	modelname = GetWeaponModel(self.weapon, 0);
 	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
-	self.semiswitch = false;
 
 	SetUpdate(self, UT_HUD, 6, 0, 0);
 }
@@ -1970,7 +1972,7 @@ void() W_Betty = {
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
 	self.secondary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.semiswitch = true;
+	self.seminade = true;
 }
 
 void() W_Grenade =
@@ -1983,7 +1985,7 @@ void() W_Grenade =
 	self.primary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
 	self.grenade_delay = time + 5;
-    self.semiswitch = true;
+    self.seminade = true;
 } 
 
 void(float wepnum) CheckButton = {
@@ -2486,20 +2488,20 @@ void () Weapon_Logic =
 	{
 		W_PutOut();
 		self.semiswitch = true;
-	} else if (!self.button4) {
+	} else if (!self.button4 && self.semiswitch) {
 		self.semiswitch = false;
 	}
 	
-	if (self.button3 && self.isBuying != true && self.semiswitch != true)
+	if (self.button3 && self.isBuying != true && self.seminade != true)
 	{
         if (self.pri_grenade_state == 0)
 		    W_Grenade();
         else
             W_Betty();
-		self.semiswitch = true;
+		self.seminade = true;
+	} else if (!self.button3 && self.seminade) {
+		self.seminade = false;
 	}
-	else if (!self.button3)
-		self.semiswitch = false;
 
 	if (self.button5 && !self.semireload)
 	{

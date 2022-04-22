@@ -144,7 +144,8 @@ void Weapon_Logic();
 .float semi;
 .float semi2;
 .float semiuse;
-.float semiswitch;
+.float semiswitch;		// Weapon Swap Toggle
+.float seminade;		// Grenade Toggle
 .float semireload;
 .float secondarymag;
 .float secondarymag2;
