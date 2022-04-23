@@ -16,6 +16,7 @@
 ../source/server/entities/sub_functions.qc
 ../source/server/entities/sounds.qc
 ../source/server/entities/triggers.qc
+../source/server/entities/explosive_barrel.qc
 ../source/server/entities/map_entities.qc
 ../source/server/entities/traps.qc
 ../source/server/entities/lights.qc

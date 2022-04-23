@@ -876,7 +876,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 			self = hit_ent;
 			self.health = self.health - damage;
 			
-			barrel_hit ();
+			Barrel_Hit();
 			
 			self = oldself;
 			return;
