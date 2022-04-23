@@ -28,9 +28,6 @@
 
 #pragma warning disable Q302
 
-#define true    1
-#define false   0
-
 vector cursor_pos; /* Current mouse cursor position, updated in csqc_inputevent */
 float g_width, g_height; /* Globals for screen width and height */
 

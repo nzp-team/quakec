@@ -79,12 +79,12 @@ void(float width, float height) HUD_Ammo =
 	benis2 = strlen(ftos(curmag));
 	benis = benis + benis2;
 	
-	if (GetLowAmmo(getstatf(STAT_ACTIVEWEAPON), 1) >= getstatf(STAT_CURRENTMAG))
+	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_CURRENTMAG), true))
 		color = [215/255, 0, 0];
 	else
 		color = [1, 1, 1];
 	
-	if (GetLowAmmo(getstatf(STAT_ACTIVEWEAPON), 0) >= getstatf(STAT_AMMO))
+	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_AMMO), false))
 		vector color_2 = [215/255, 0, 0];
 	else
 		color_2 = [1, 1, 1];
@@ -103,44 +103,73 @@ void(float width, float height) HUD_Ammo =
 	}
 }
 
+//
+// HUD_AmmoString()
+// Draws the "LOW AMMO", "Reload", etc. text
+//
 float ammoopac, ammoloop;
 void() HUD_AmmoString =
 {
-	vector textcolor = [1, 1, 1];
-	string message = "";
-	
-	if (GetLowAmmo(getstatf(STAT_ACTIVEWEAPON), 1) >= getstatf(STAT_CURRENTMAG) && getstatf(STAT_WEAPONZOOM) != 2)
-	{
-		if (0 < getstatf(STAT_AMMO) && getstatf(STAT_CURRENTMAG) >= 0) {
+	vector 	textcolor = [1, 1, 1];
+	string 	message = "";
+	float	reserve_is_low;
+	float	mag_is_low;
+
+	// Is the Reserve low?
+	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_AMMO), false)) {
+		reserve_is_low = true;
+	} else {
+		reserve_is_low = false;
+	}
+
+	// Is the Magazine low?
+	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_CURRENTMAG), true)) {
+		mag_is_low = true;
+	} else {
+		mag_is_low = false;
+	}
+
+	// Nothing to do.
+	if (mag_is_low == false && reserve_is_low == false) {
+		ammoopac = 1;
+		ammoloop = 0;
+		return;
+	} else {
+		// Display Reload text if the mag is low but reserve is not.
+		if (mag_is_low == true && reserve_is_low == false) {
 			message = "Reload";
 			textcolor = [1, 1, 1];
-		} else if (0 < getstatf(STAT_CURRENTMAG)) {
+		}
+		// Display LOW AMMO if both are low.
+		else if (reserve_is_low == true && mag_is_low == true)
+		{
 			message = "LOW AMMO";
-			textcolor = [219/255, 203/255, 19/255];		
-		} else {
+			textcolor = [219/255, 203/255, 19/255];	
+		}
+		// Report NO AMMO if both are empty
+		else if (getstatf(STAT_CURRENTMAG) <= 0 && getstatf(STAT_AMMO) <= 0)
+		{
 			message = "NO AMMO";
 			textcolor = [215/255, 0, 0];
 		}
+	}
 
-		if (ammoloop == 0) {
+	// Blink the text and draw it.
+	if (ammoloop == 0) {
 			ammoopac -= frametime;
 			if (ammoopac < 0.5) {
 				ammoopac = 0.5;
 				ammoloop = 1;
 			}
-		} else {
-			ammoopac += frametime;
-			if (ammoopac >= 1) {
-				ammoopac = 1;
-				ammoloop = 0;
-			}
-		}
-
-		drawstring([g_width/2, g_height/2 + (30/272)*g_height, 0], message, [0.02*g_width, 0.02*g_width, 0], textcolor, ammoopac, 0);
 	} else {
-		ammoopac = 1;
-		ammoloop = 0;
+		ammoopac += frametime;
+		if (ammoopac >= 1) {
+			ammoopac = 1;
+			ammoloop = 0;
+		}
 	}
+
+	drawstring([g_width/2, g_height/2 + (30/272)*g_height, 0], message, [0.02*g_width, 0.02*g_width, 0], textcolor, ammoopac, 0);
 }
 
 /*******************

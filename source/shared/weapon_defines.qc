@@ -3764,62 +3764,31 @@ float(float weapon, float stance) CrossHairMaxSpread =
 	}
 }
 
-float(float weapon, float type) GetLowAmmo = // determine what ammo value you should have that turns shells red
+//
+// W_IsLowAmmo(weapon, value, mag_not_reserve)
+// Determine if the weapon is low on ammo on the Magazine
+// or in its Reserve.
+//
+float(float weapon, float value, float mag_not_reserve) W_IsLowAmmo =
 {
-
-	if (isCustomWeapon(weapon)) {
-		if (type) return CustomWeapons[weapon - 70].lowmag; else return CustomWeapons[weapon - 70].lowreserve;
+	// Check the Reserve
+	if (mag_not_reserve == false) {
+		// If there's 20% or less of maximum capacity
+		if (value / getWeaponAmmo(weapon) <= 0.2)
+			return true;
+		return false;
 	}
+	// Check the Magazine
+	else {
+		// Initial check: always return true if there's only one
+		// round left and that's not the maximum clip size.
+		if (value == 1 && value != getWeaponMag(weapon))
+			return true;
 
-	switch (weapon)
-	{
-		case W_COLT: if (type) return 2; else return 16; 
-		case W_KAR: if (type) return 1; else return 10;
-		case W_KAR_SCOPE: if (type) return 1; else return 10;
-		case W_M1A1: if (type) return 4; else return 24;
-		case W_SAWNOFF: if (type) return 1; else return 12;
-		case W_DB: if (type) return 1; else return 12;
-		case W_THOMPSON: if (type) return 6; else return 40;
-		case W_BAR: if (type) return 6; else return 28;
-		case W_BIATCH: if (type) return 2; else return 16;
-		case W_FG: if (type) return 8; else return 32;
-		case W_357: if (type) return 2; else return 12; 
-		case W_BROWNING: if (type) return 25; else return 125;
-		case W_GEWEHR: if (type) return 3; else return 20;
-		case W_M1: if (type) return 2; else return 24;
-		case W_MP40: if (type) return 8; else return 64; 
-		case W_MG: if (type) return 25; else return 125;
-		case W_PANZER: if (type) return 0; else return 4;
-		case W_PPSH: if (type) return 25; else return 71;
-		case W_PTRS: if (type) return 2; else return 12; 
-		case W_RAY: if (type) return 5; else return 40;
-		case W_STG: if (type) return 12; else return 60;
-		case W_TRENCH: if (type) return 2; else return 12;
-		case W_TYPE: if (type) return 12; else return 60;
-		case W_COMPRESSOR: if (type) return 3; else return 36;
-		case W_M1000: if (type) return 3; else return 36;
-		case W_GIBS: if (type) return 8; else return 80;
-		case W_SAMURAI: if (type) return 12; else return 60;
-		case W_AFTERBURNER: if (type) return 12; else return 64;
-		case W_SPATZ: if (type) return 12; else return 120;
-		case W_SNUFF: if (type) return 1; else return 14;
-		case W_BORE: if (type) return 1; else return 14;
-		case W_IMPELLER: if (type) return 12; else return 128;
-		case W_BARRACUDA: if (type) return 25; else return 125;
-		case W_ACCELERATOR: if (type) return 25; else return 125;
-		case W_GUT: if (type) return 3; else return 15;
-		case W_REAPER: if (type) return 23; else return 115;
-		case W_HEADCRACKER: if (type) return 2; else return 16;
-		case W_LONGINUS: if (type) return 1; else return 12;
-		case W_PENETRATOR: if (type) return 2; else return 16;
-		case W_WIDOW: if (type) return 6; else return 60;
-		case W_PORTER: if (type) return 8; else return 40;
-		case W_ARMAGEDDON: if (type) return 2; else return 15;
-		case W_WIDDER: if (type) return 4; else return 30;
-		case W_KILLU: if (type) return 2; else return 20;
-		case W_TESLA: if (type) return 1; else return 6;
-		case 0: if (type) return -1; else return -1;
-		default: return 0;
+		// If there's less than 33%
+		if (value / getWeaponMag(weapon) < 0.33)
+			return true;
+		return false;
 	}
 }
 

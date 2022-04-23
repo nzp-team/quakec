@@ -25,6 +25,9 @@
 
 */
 
+#define true    1
+#define false   0
+
 const float EVENT_WEAPONCHANGE 			= 9;
 const float EVENT_PISTOLFIRE 			= 10;
 const float EVENT_USEPRINT 				= 11;
