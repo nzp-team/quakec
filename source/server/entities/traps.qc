@@ -242,7 +242,7 @@ void() zapper_switch =
 
     // Model
     if (!self.model)
-        self.model = "models/machines/zapper/z_switch.mdl";
+        self.model = "models/machines/quake_scale/zapper/z_switch.mdl";
 
     // Cost
     if (!self.cost)
@@ -276,7 +276,7 @@ void() zapper_node =
 
     // Model
     if (!self.model)
-        self.model = "models/machines/zapper/z_zap.mdl";
+        self.model = "models/machines/quake_scale/zapper/z_zap.mdl";
 
     self.solid = SOLID_TRIGGER;
 	precache_model(self.model);
@@ -295,7 +295,7 @@ void() zapper_light =
 
     // Model
     if (!self.model)
-        self.model = "models/machines/zapper/z_light.mdl";
+        self.model = "models/machines/quake_scale/zapper/z_light.mdl";
 
     self.solid = SOLID_TRIGGER;
 	precache_model(self.model);

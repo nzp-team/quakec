@@ -1143,7 +1143,7 @@ void() power_switch =
 
     // Model
     if (!self.model)
-        self.model = "models/machines/power_switch.mdl";
+        self.model = "models/machines/quake_scale/power_switch.mdl";
 
 	// Sound
 	if (!self.oldmodel)
