@@ -225,7 +225,6 @@ void() NewRound =
 	Current_Zombies = 0;
 	spawn_delay = 0;
 	totalpowerups = 0;
-	powerup_activate = powerup_activate*1.14;
 	
 	if (rounds == dogRound && gotdog) {
 		roundtype = 2;
@@ -342,7 +341,8 @@ void() InitRounds =
 	roundtype = 1;
 	delay_at_round = 2/0.95;
 	totalpowerups = 0;
-	powerup_activate = 2000/1.14;
+	powerup_activate = 2000;
+	powerup_score_threshold = ((player_count + 1) * G_STARTPOINTS) + powerup_activate;
 	spawnAllZombEnts();
 	round_changetime = time + 3.5;
 	rounds_change = 1;

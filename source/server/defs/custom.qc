@@ -380,6 +380,7 @@ float x2_finished;
 float x2_blink;
 float total_windows_down;
 float total_powerup_points;
+float powerup_score_threshold;
 float powerup_activate;
 float nuke_powerup_active;
 float nuke_powerups_activated;

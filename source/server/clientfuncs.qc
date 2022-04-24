@@ -543,6 +543,10 @@ void(entity person, float expamt, float doublepoint) addmoney =
 		person.score += expamt;
 	}
 
+	// Combine the positive score with the powerup score tally
+	if (expamt > 0)
+		total_powerup_points += expamt;
+
 	person.points += expamt;
 		
 	UpdatePlayerPoints(person.playernum, person.points, expamt, person.kills, person.netname, person);
