@@ -219,6 +219,34 @@ void() PU_NukeFinalize =
 };
 
 //
+// PU_NukeExplosionThink()
+// Think function for Nuke explosions.
+//
+void() PU_NukeExplosionThink =
+{
+	self.frame++;
+
+	if (self.frame >= 5)
+		remove(self);
+
+	self.nextthink = time + 0.10;
+}
+
+//
+// PU_NukeExplode()
+// Spawns an explosion sprite.
+//
+void(vector org) PU_NukeExplode =
+{
+	entity explosion = spawn();
+	setmodel(explosion, "models/sprites/explosion.spr");
+	setorigin(explosion, org);
+	explosion.think = PU_NukeExplosionThink;
+	explosion.nextthink = time + 0.10;
+	explosion.ltime = time + 3;
+}
+
+//
 // PU_NukeKill()
 // Kills Targets when Nuke is active.
 //
@@ -236,6 +264,9 @@ void() PU_NukeKill =
 	} else {
 		self = self.goaldummy;
 	}
+
+	// play explosion effects
+	PU_NukeExplode(self.origin + '0 0 13');
 
 	// kill a target
 	self.th_die();
