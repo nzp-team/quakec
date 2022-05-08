@@ -1,9 +1,9 @@
 /*
 	server/entities/powerups.qc
 
-	powerup logic
+	Power-Up Spawn and Use Logic
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -25,78 +25,178 @@
 
 */
 
-.float zombie_drop_id;
-.float flashtime;
-.float flash_step;
+#define MAX_POWERUPS	8
 
-// the powerup's model
-string(float type) getPowerupModel = 
+#define PU_NUKE			0
+#define PU_INSTAKILL	1
+#define PU_DOUBLEPTS	2
+#define PU_CARPENTER	3
+#define PU_MAXAMMO		4
+
+var struct powerup_struct
 {
-	switch(type) {
-		case 1: return "models/pu/maxammo!.mdl"; break;
-		case 2: return "models/pu/x2!.mdl"; break;
-		case 3: return "models/pu/instakill!.mdl"; break;
-		case 4: return "models/pu/nuke!.mdl"; break;
-		case 5: return "models/pu/carpenter!.mdl"; break;
-		case 6: return "models/pu/perkbottle!.mdl"; break;
-		default: return ""; break;
+	float 	id;
+	float 	occupied;
+	float	flash_screen;
+	string	model_path;
+	string 	voiceover_path;
+	void()	function;
+	float() requirement_function;
+} powerup_array[MAX_POWERUPS] = {};
+
+float 	powerup_count;
+float	powerup_index;
+
+.float 	zombie_drop_id;
+
+//
+// PU_AddToStruct(id, model_path, voiceover_path)
+// Adds the Power-Up and info to the powerup struct
+//
+void(float id, float flash_screen, string model_path, string voiceover_path, void() function, float() requirement_function) 
+PU_AddToStruct =
+{
+	if (id > MAX_POWERUPS - 1)
+		return;
+
+	// Precache Model and VO
+	precache_model(model_path);
+	precache_sound(voiceover_path);
+
+	// Populate the Struct at Index
+	powerup_array[powerup_count].id = id;
+	powerup_array[powerup_count].occupied = true;
+	powerup_array[powerup_count].flash_screen = flash_screen;
+	powerup_array[powerup_count].model_path = model_path;
+	powerup_array[powerup_count].voiceover_path = voiceover_path;
+	powerup_array[powerup_count].function = function;
+	powerup_array[powerup_count].requirement_function = requirement_function;
+
+	// Increment Index
+	powerup_count++;
+};
+
+//
+// PU_PopulateArray()
+// Generates a Power-Up array with the Fisher-Yates shuffle
+//
+void() PU_PopulateArray =
+{
+	float amount = powerup_count;
+
+	while(amount > 0) {
+		float i = floor(random() * amount);
+		amount -= 1;
+
+		powerup_struct temp;
+		temp = powerup_array[i];
+		powerup_array[i] = powerup_array[amount];
+		powerup_array[amount] = temp;
 	}
-}
+};
 
-// the powerup's pick up voice clip
-string(float type) getPowerupVO =
+//
+// PU_GetNextPowerUp()
+// Returns the next valid Power-Up, and refreshes array if needbe.
+//
+float() PU_GetNextPowerUp =
 {
-	switch(type) {
-		case 1: return "sounds/pu/maxammo.wav"; break;
-		case 2: return "sounds/pu/double_points.wav"; break;
-		case 3: return "sounds/pu/insta_kill.wav"; break;
-		case 4: return "sounds/pu/nuke.wav"; break;
-		case 5: return "sounds/pu/carpenter.wav"; break;
-		default: return ""; break;
-	}
+	float id;
+	float found;
+	id = -1;
+	found = false;
 
-}
-
-void() maxammo =
-{
-	entity tempe, temp;
-	
-	tempe = find (world, classname, "player");
-	while (tempe)
-	{	
-		if (!tempe.downed)
-		{
-			if (tempe.weapon)
-			{
-				tempe.currentammo = getWeaponAmmo(tempe.weapon);
-				if (!tempe.currentmag)
-				{
-					temp = self;
-					self = tempe;
-					W_Reload(S_BOTH);
-					self = temp;
-				}
-			}
-			if (tempe.secondaryweapon)
-				tempe.secondaryammo = getWeaponAmmo(tempe.secondaryweapon);
-			
-			tempe.primary_grenades = 4;
-			
-			if (tempe.grenades & 2)
-        		tempe.secondary_grenades = 2;
+	while(found == false) {
+		// Refresh the Array if we're at the end
+		if (powerup_index >= MAX_POWERUPS - 1) {
+			PU_PopulateArray();
+			powerup_index = 0;
 		}
-		#ifdef PC
-		ScrollText("MAX AMMO!", tempe);
-		#endif
-		#ifdef PSP
-		nzp_maxammo();
-		#endif
-		
-		tempe = find (tempe, classname, "player");
-	}
-}
 
-void() nuke_finalize =
+		// Grab a Power-Up
+		powerup_struct pu = powerup_array[powerup_index];
+		powerup_index++;
+
+		// Found a valid Power-Up
+		if (pu.occupied == true) {
+			// Check if we meet the requirements
+			if (pu.requirement_function() == true) {
+				id = pu.id;
+				found = true;
+			}
+		}
+	}
+
+	return id;
+};
+
+//
+// PU_ShouldFlashScreen(id)
+// Returns flash_screen from Power-Up struct.
+//
+float(float id) PU_ShouldFlashScreen =
+{
+	if (id == -1)
+		return false;
+
+	for(float i = 0; i < MAX_POWERUPS - 1; i++) {
+		if (powerup_array[i].id == id)
+			return powerup_array[i].flash_screen;
+	}
+	return false;
+};
+
+//
+// PU_ModelPath(id)
+// Returns model_path from Power-Up struct.
+//
+string(float id) PU_ModelPath =
+{
+	if (id == -1)
+		return "";
+	for(float i = 0; i < MAX_POWERUPS - 1; i++) {
+		if (powerup_array[i].id == id)
+			return powerup_array[i].model_path;
+	}
+	return "";
+};
+
+//
+// PU_VoiceoverPath(id)
+// Returns model_path from Power-Up struct.
+//
+string(float id) PU_VoiceoverPath =
+{
+	if (id == -1)
+		return "";
+
+	for(float i = 0; i < MAX_POWERUPS - 1; i++) {
+		if (powerup_array[i].id == id)
+			return powerup_array[i].voiceover_path;
+	}
+	return "";
+};
+
+//
+// PU_LogicFunction(id)
+// Returns function() from Power-Up struct.
+//
+void(float id) PU_LogicFunction =
+{
+	if (id == -1)
+		return;
+
+	for(float i = 0; i < MAX_POWERUPS - 1; i++) {
+		if (powerup_array[i].id == id)
+			powerup_array[i].function();
+	}
+};
+
+//
+// PU_NukeFinalize
+// Wrap Nuke stuff up.
+//
+void() PU_NukeFinalize =
 {
 	entity players;
 
@@ -116,9 +216,13 @@ void() nuke_finalize =
 	}
 
 	nuke_powerup_active = false;
-}
+};
 
-void() do_nuke_kill =
+//
+// PU_NukeKill()
+// Kills Targets when Nuke is active.
+//
+void() PU_NukeKill =
 {
 	// back up ourselves
 	entity oldself;
@@ -126,7 +230,7 @@ void() do_nuke_kill =
 
 	// switch to goaldummy, is goaldummy world?
 	if (self.goaldummy == world) {
-		nuke_finalize();
+		PU_NukeFinalize();
 		remove(self);
 		return;
 	} else {
@@ -146,9 +250,14 @@ void() do_nuke_kill =
 	self.goaldummy = findfloat(self.goaldummy, iszomb, 1);
 
 	self.nextthink = (rint((random() * 6) + 1)/10) + time; // random number from 0.1 to 0.7
-}
+};
 
-void() nuke =
+
+//
+// PU_Nuke()
+// Nuke Power-Up Function
+//
+void() PU_Nuke =
 {
 	// if there's already one active, just increment the point multiplier
 	if (nuke_powerup_active == true) {
@@ -166,251 +275,236 @@ void() nuke =
 	nuke_watcher = spawn();
 	nuke_watcher.goaldummy = findfloat(world, iszomb, 1);
 
-	nuke_watcher.think = do_nuke_kill;
+	nuke_watcher.think = PU_NukeKill;
 	nuke_watcher.nextthink = (rint((random() * 6) + 1)/10) + time; // random number from 0.1 to 0.7
-}
+};
 
-void() carpenter =
+//
+// PU_InstaKill()
+// Insta-Kill Power-Up Fuction
+//
+void() PU_InstaKill =
 {
-	local entity oldself;
-	local entity who;
-	oldself = self;
-	
-	who = find(world,classname,"window");
-	while(who != world)
-	{
-		if(who.health < 6 && who.health != -10)//-10 is for boardless windows
-		{
-			self = who;
-			window_carpenter_1 ();
-			who.health = 6;
-			self = oldself;
-		}
-		
-		who = find(who,classname,"window");
-	}
-	
-	who = find(world,classname,"player");
-	while(who)
-	{
-		addmoney(who, 200, 1);
-		
-		who = find(who,classname,"player");
-	}
-	total_windows_down = 0;
-}
+	instakill_finished = time + 30;
+	other.insta_icon = true;
+};
 
-void(entity who) give_perkdrop_logic =
+//
+// PU_DoublePoints()
+// Double Points Power-Up Function
+//
+void() PU_DoublePoints =
 {
-	// Return here if we already have all of the Perks
-	if ((who.perks & P_REVIVE) && (who.perks & P_JUG) && (who.perks & P_SPEED) && (who.perks & P_DOUBLE) && 
-		(who.perks & P_FLOP) && (who.perks & P_STAMIN) && (who.perks & P_DEAD) && (who.perks & P_MULE)) {
-		return;
-	}
+	x2_finished = time + 30;
+	other.x2_icon = true;
+};
 
-	local float perk;
-	perk = 0;
-
-	while(perk == 0) {
-		local float num;
-		num = rint((random() * 7)) + 1;
-
-		switch(num) {
-			case 1:
-				if (!(who.perks & P_JUG)) {
-					perk = 1;
-				}
-				break;
-			case 2:
-				if (!(who.perks & P_DOUBLE)) {
-					perk = 2;
-				}
-				break;
-			case 3:
-				if (!(who.perks & P_SPEED)) {
-					perk = 4;
-				}
-				break;
-			case 4:
-				if (!(who.perks & P_REVIVE)) {
-					perk = 8;
-				}
-				break;
-			case 5:
-				if (!(who.perks & P_FLOP)) {
-					perk = 16;
-				}
-				break;
-			case 6:
-				if (!(who.perks & P_STAMIN)) {
-					perk = 32;
-				}
-				break;
-			case 7:
-				if (!(who.perks & P_DEAD)) {
-					perk = 64;
-				}
-				break;
-			case 8:
-				if (!(who.perks & P_MULE)) {
-					perk = 128;
-				}
-				break;
-			default: break;
-		}
-
-		who.perks = who.perks | perk;
-	}
-	SetPerk(who, who.perks);
-}
-
-void() give_perk =
+//
+// PU_Carpenter()
+// Carpenter Power-Up Function
+//
+void() PU_Carpenter =
 {
-	// Individual Power-Up
-	if (self.style == 1) {
-		give_perkdrop_logic(other);
-	}
-	// OUR Power-Up
-	else {
-		local entity who;
-		who = find(world, classname, "player");
+	entity tempe;
+	entity tempe2;
+	tempe2 = self;
 
-		while(who) {
-			give_perkdrop_logic(who);
-			who = find(who, classname, "player");
-		}
-	}
-}
+	tempe = find(world, classname, "window");
 
-
-
-
-void() powerup_flash =
-{
-	if(self.flash_step == 0)
-	{
-		self.flash_step = 1;
-		self.flashtime = time + 3;
-		self.nextthink = time + 0.6;
-	}
-	else if(self.flash_step == 1)
-	{
-		self.nextthink = time + 0.6;
-		
-		if(self.flashtime < time)
-		{
-			self.flash_step = 2;
-			self.nextthink = time + 0.3;
-			self.flashtime = time + 3;
+	// Repair Barricades
+	while(tempe != world) {
+		// Target non-full and board-able Barricades
+		if (tempe.health < 6 && tempe.health != -10) {
+			self = tempe;
+			window_carpenter_1();
+			self.health = 6;
+			self = tempe2;
 		}
 
+		tempe = find(tempe, classname, "window");
 	}
-	else if(self.flash_step == 2)
-	{
-		self.nextthink = time + 0.3;
-		
-		if(self.flashtime < time)
-		{
-			self.flash_step = 3;
-			self.nextthink = time + 0.15;
-			self.flashtime = time + 3;
-		}
-		
-	}
-	else if(self.flash_step == 3)
-	{
-		self.nextthink = time + 0.15;
-		if(self.flashtime < time)
-		{
-			// moto - we used to setmodel blank here too, but it caused errors with the sprite.
-			remove(self.owner);
-			remove(self);
-			return;
-		}
-	}
-	
-	if(self.model == "") {
-		setmodel(self, getPowerupModel(self.zombie_drop_id));
-	} else {
-		setmodel(self,"");
+
+	tempe = find(world, classname, "player");
+
+	// Reward Players with Points
+	while(tempe) {
+		addmoney(tempe, 200, 1);
+
+		tempe = find(tempe, classname, "player");
 	}
 };
 
-void() powerup_play_sound =
+//
+// PU_CarpenterRequirement()
+// Requirements for Carpenter Power-Up.
+//
+float() PU_CarpenterRequirement =
 {
-	// play the VO clip if its not the perk bottle
-	if (self.zombie_drop_id != 6)
-		sound(self, CHAN_VOICE, self.powerup_vo, 1, ATTN_NONE);
-
-	// finally, remove the (invisible/inactive) powerup.
-	remove(self);
+	if (total_windows_down >= 5)
+		return true;
+	return false;
 }
 
-void() powerup_touch =
+//
+// PU_MaxAmmo()
+// Max Ammo Power-Up Function
+//
+void() PU_MaxAmmo =
 {
-  local float t;
-  
-  t = random();
-  
-	if(other.classname == "player")
-	{
-		// pickup sound
-		sound(self.owner,CHAN_VOICE,"sounds/pu/pickup.wav",1,ATTN_NONE);
+	entity tempe;
+	
+	tempe = find(world, classname, "player");
 
-		// add a slight delay before VO play
-		self.think = powerup_play_sound;
+	while(tempe) {
+		// Fill Primary Weapon
+		if (tempe.weapon) tempe.currentammo = getWeaponAmmo(tempe.weapon);
+		// Fill Secondary Weapon
+		if (tempe.secondaryweapon) tempe.secondaryammo = getWeaponAmmo(tempe.secondaryweapon);
+		// Fill Third Weapon
+		if (tempe.thirdweapon) tempe.thirdammo = getWeaponAmmo(tempe.thirdweapon);
+		// Give Grenades
+		tempe.primary_grenades = 4;
+		// Give Betties
+		if (tempe.grenades & 2) tempe.secondary_grenades = 2;
+
+		// MAX AMMO! text
+		#ifdef PC
+		ScrollText("MAX AMMO!", tempe);
+		#endif
+		#ifdef PSP
+		nzp_maxammo();
+		#endif
+		tempe = find(tempe, classname, "player");
+	}
+};
+
+//
+// PU_NullRequirement()
+// Power-Up has no requirements. Always return true.
+//
+float() PU_NullRequirement =
+{
+	return true;
+};
+
+//
+// PU_Init()
+// Fill the Power-Up array for the first time and 
+// define used Power-Ups
+//
+void() PU_Init =
+{
+	// Start with 0 Power-Ups accessible
+	powerup_count = 0;
+
+	// Set the Power-Up array IDs to empty
+	for(float i = 0; i < MAX_POWERUPS; i++) {
+		powerup_array[i].id = -1;
+	}
+
+	// Just add all of them for now
+	PU_AddToStruct(PU_NUKE, 		true,	"models/pu/nuke!.mdl",		"sounds/pu/nuke.wav",			PU_Nuke,			
+					PU_NullRequirement		);
+	PU_AddToStruct(PU_INSTAKILL, 	false,	"models/pu/instakill!.mdl",	"sounds/pu/insta_kill.wav", 	PU_InstaKill,	
+					PU_NullRequirement		);
+	PU_AddToStruct(PU_DOUBLEPTS, 	false,	"models/pu/x2!.mdl",		"sounds/pu/double_points.wav",	PU_DoublePoints,	
+					PU_NullRequirement		);
+	PU_AddToStruct(PU_CARPENTER,	false,	"models/pu/carpenter!.mdl",	"sounds/pu/carpenter.wav",		PU_Carpenter,	
+					PU_CarpenterRequirement	);
+	PU_AddToStruct(PU_MAXAMMO,		false,	"models/pu/maxammo!.mdl",	"sounds/pu/maxammo.wav", 		PU_MaxAmmo,		
+					PU_NullRequirement		);
+
+	// Fill the array
+	PU_PopulateArray();
+};
+
+//
+// PU_Flash()
+// Flash Power-Up model in and out
+//
+void() PU_Flash =
+{
+	// Toggle the Power-Up model on and off
+	if (self.hitcount % 2) {
+		// Store model
+		if (!self.oldmodel)
+			self.oldmodel = self.model;
+		
+		// Disappear
+		setmodel(self, "");
+	}
+	else {
+		// Reappear
+		setmodel(self, self.oldmodel);
+	}
+
+	if (self.hitcount < 15)
+		self.nextthink = time + 0.5;
+	else if (self.hitcount < 25)
+		self.nextthink = time + 0.25;
+	else
+		self.nextthink = time + 0.1;
+
+	self.hitcount++;
+
+	// Too late, delete the Power-Up
+	if (self.hitcount >= 40) {
+		remove(self.owner);
+		remove(self);
+	}
+};
+
+//
+// PU_PlayVO()
+// Play the assigned Voiceover clip before destroying ourself.
+//
+void() PU_PlayVO =
+{
+	sound(self, CHAN_VOICE, self.powerup_vo, 1, ATTN_NONE);
+	remove(self);
+};
+
+//
+// PU_Touch()
+// Run assigned functions and prep for Deletion
+//
+void() PU_Touch =
+{
+	if (other.classname == "player")
+	{
+		// Acquire sound
+		sound(self.owner, CHAN_VOICE, "sounds/pu/pickup.wav", 1, ATTN_NONE);
+
+		// Prepare for VO and destruction
+		self.think = PU_PlayVO;
 		self.nextthink = time + 1;
 
-		// hide powerup until we remove (after sound)
+		// Hide the Power-Up
 		setmodel(self, "");
-		self.effects = 0;
+		Light_None(self);
 		self.touch = SUB_Null;
 		remove(self.owner);
 
-		// slight screen flash
-		stuffcmd(other, "bf\n");
+		// Flash the Screen if permitted
+		if (PU_ShouldFlashScreen(self.walktype) == true)
+			stuffcmd(other, "bf\n");
 
-		// powerup effects
-		switch(self.zombie_drop_id) {
-			// max ammo
-			case 1:
-				maxammo();
-				break;
-			// double points
-			case 2:
-				x2_finished = time + 30;
-				other.x2_icon = true;
-				break;
-			// insta kill
-			case 3:
-				instakill_finished = time + 30;
-				other.insta_icon = true;
-				break;
-			// nuke
-			case 4:
-				nuke();
-				break;
-			// carpenter
-			case 5:
-				carpenter();
-				break;
-			// free perk
-			case 6:
-				give_perk();
-				break;
-			// broken!
-			default:
-				centerprint(other, strcat("INVALID POWER-UP ID: ", ftos(self.zombie_drop_id)));
-				break;
-		}
+		// Run Power-Up function
+		PU_LogicFunction(self.walktype);
 	}
 };
 
-void() sparkle_think =
+//
+// PU_SparkleThink()
+// Increment Frames for the Power-Up Sparkle.
+//
+void() PU_SparkleThink =
 {
-	local float f;
+	float f;
+	float r;
+
 	f = self.frame;
-	local float r;
+
 	while(f == self.frame)
 	{
 		r = random();
@@ -419,7 +513,7 @@ void() sparkle_think =
 	}
 	self.frame = f;
 	
-	self.think = sparkle_think;
+	self.think = PU_SparkleThink;
 	self.nextthink = time + 0.1;
 	
 	if(self.calc_time <= time)
@@ -427,150 +521,65 @@ void() sparkle_think =
 		sound(self,CHAN_VOICE,"sounds/pu/powerup.wav",0.6,ATTN_NORM);
 		self.calc_time = time + 2.998;
 	}
-	
 };
 
 //
-// GetPowerupID()
-// Returns a powerup id, checks if the game allows for
-// one and if requirements for said powerup are met.
+// Spawn_Powerup(where, type)
+// Power-Up spawning function. Use type to force what spawns.
 //
-float() GetPowerupID =
-{
-	float found;
-	float carpenter_able;
-	float perk_able;
-	float id;
-
-	id = carpenter_able = perk_able = 0;
-
-	// Check if we can get a carpenter or a free perk drop
-	if (total_windows_down >= 5)
-		carpenter_able = true;
-	if (rounds >= 15)
-		perk_able = true;
-
-	float total_powerups = 5; // nuke, insta, 2x, maxammo, carpenter, free perk
-
-	// Start ID loop
-	found = false;
-	while(found == false) {
-		float t = random();
-
-		// loop through all IDs
-		for (float i = 0; i < total_powerups + 1; i++) {
-			// check if the ID we got was viable
-			if (t > (i/total_powerups)) {
-				switch(i) {
-					case 1:
-						found = true;
-						id = i;
-						break;
-					case 2:
-						found = true;
-						id = i;
-						break;
-					case 3:
-						found = true;
-						id = i;
-						break;
-					case 4:
-						found = true;
-						id = i;
-						break;
-					case 5:
-						if (carpenter_able) {
-							found = true;
-							id = i;
-						}
-						break;
-					case 6:
-						/*if (perk_able) {
-							found = true;
-							id = i;
-						}*/
-						break;
-					default:
-						break;
-				}
-			}
-		}
-	}
-
-	return id;
-}
-
-float last_pu;
 void(vector where, float type) Spawn_Powerup =
 {
-	entity new_powerup;
-	float id;
+	entity 	powerup;
+	entity	sparkle;
 
-	new_powerup = spawn();
-	new_powerup.origin = where;
-	setorigin(new_powerup, new_powerup.origin);
-	new_powerup.solid = SOLID_TRIGGER;
-	new_powerup.classname = "item_powerup";
+	// Set Up Power-Up
+	powerup = spawn();
 
-	
-	setsize (new_powerup, VEC_HULL_MIN, VEC_HULL_MAX);
-	new_powerup.movetype = MOVETYPE_NONE;
-    Light_Green(new_powerup);
-	
-	//=================== Sparkle Effects =====================
-	
-	entity twlt_Sparkle;
-	twlt_Sparkle = spawn();
-	new_powerup.owner = twlt_Sparkle; //just a reference so power up can delete the sparkle later on
-	
-	setorigin(twlt_Sparkle,where);
+	powerup.origin = where;
+	setorigin(powerup, powerup.origin);
+
+	powerup.solid = SOLID_TRIGGER;
+	powerup.classname = "item_powerup";
+
+	setsize(powerup, VEC_HULL_MIN, VEC_HULL_MAX);
+	powerup.movetype = MOVETYPE_NONE;
+
+    Light_Green(powerup);
+
+	// Set Up Sparkle Effect
+	sparkle = spawn();
+	powerup.owner = sparkle;
+
+	sparkle.origin = where;
+	setorigin(sparkle, sparkle.origin);
+
 	#ifndef PC
-	setmodel(twlt_Sparkle,"models/sprites/sprkle.spr");
+	setmodel(sparkle,"models/sprites/sprkle.spr");
 	#endif
-	twlt_Sparkle.think = sparkle_think;
-	twlt_Sparkle.nextthink = time + 0.1;
-	sound(twlt_Sparkle,CHAN_VOICE,"sounds/pu/powerup.wav",0.6,ATTN_NORM);
-	
-	sound(new_powerup,CHAN_AUTO,"sounds/pu/drop.wav",1,ATTN_NONE);
-	
-	//========================================================
 
-	// Specific Power-Ups (for dogs)
-	if (type) {
-		setmodel(new_powerup, getPowerupModel(type));
-		new_powerup.zombie_drop_id = type;
-		new_powerup.powerup_vo = getPowerupVO(type);
-	} else {
-		// Grab a powerup ID
-		id = GetPowerupID();
+	sparkle.think = PU_SparkleThink;
+	sparkle.nextthink = time + 0.1;
 
-		// Should perk drops be individual?
-		if (id == 6) {
-			// Yes!
-			if (random() > (1/2)) {
-				// Set Style and make light Blue to symbolize it is an individual drop
-				// TODO: Make a sprite too??
-				new_powerup.style = 1;
-				Light_None(new_powerup);
-				Light_Blue(new_powerup);
-			}
-			// No!
-			else {
-				// failsafe
-				new_powerup.style = 0;
-			}
-		}
+	// Drop Sounds
+	sound(sparkle, CHAN_VOICE, "sounds/pu/powerup.wav", 0.6, ATTN_NORM);
+	sound(powerup, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NONE);
 
-		// finally, assign the id and model to our id.
-		setmodel(new_powerup, getPowerupModel(id));
-		new_powerup.zombie_drop_id = id;
-		new_powerup.powerup_vo = getPowerupVO(id);
+	// Check if we were forcefully assigned an ID
+	if (type != -1) {
+		powerup.walktype = type;
 	}
-	
-	last_pu = new_powerup.zombie_drop_id;
-	new_powerup.touch = powerup_touch;
-	
-	new_powerup.think = powerup_flash;
-	new_powerup.nextthink = time + 21;
+	// No, so let's grab one from the array.
+	else {
+		powerup.walktype = PU_GetNextPowerUp();
+	}
+
+	// Assign the Power-Up model and sound
+	setmodel(powerup, PU_ModelPath(powerup.walktype));
+	powerup.powerup_vo = PU_VoiceoverPath(powerup.walktype);
+
+	// Finally assign collision function
+	powerup.touch = PU_Touch;
+
 	totalpowerups++;
-}
+};
+

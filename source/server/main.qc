@@ -27,6 +27,7 @@
 */
 
 void() LS_Setup;
+void() PU_Init;
 void() SUB_Remove = {remove(self);}
 
 //called when starting server/loading the map
@@ -102,7 +103,6 @@ void() StartFrame =
 		Round_Core();
 		Do_Zombie_AI ();
 	} else {
-	
 		entity SpawnedIn;
 		SpawnedIn = find(world, classname, "player");
 	
@@ -164,11 +164,6 @@ void() precaches =
 	precache_model ("models/ai/zchead.mdl");
 
 	// powerups
-	precache_model ("models/pu/maxammo!.mdl");
-	precache_model ("models/pu/x2!.mdl");
-	precache_model ("models/pu/instakill!.mdl");
-	precache_model ("models/pu/nuke!.mdl");
-	precache_model ("models/pu/carpenter!.mdl");
 	precache_model ("models/pu/perkbottle!.mdl");
 
 	// start weapons
@@ -227,11 +222,6 @@ void() precaches =
 
 	// power-ups
 	precache_sound ("sounds/pu/pickup.wav");
-	precache_sound ("sounds/pu/carpenter.wav");
-	precache_sound ("sounds/pu/maxammo.wav");
-	precache_sound ("sounds/pu/double_points.wav");
-	precache_sound ("sounds/pu/insta_kill.wav");
-	precache_sound ("sounds/pu/nuke.wav");
 	precache_sound ("sounds/pu/byebye.wav");
 	precache_sound ("sounds/pu/powerup.wav");
 	precache_sound ("sounds/pu/drop.wav");
@@ -309,6 +299,9 @@ void() worldspawn =
 
 	// Define all of our Light Styles
 	LS_Setup();
+
+	// Init Power-Ups
+	PU_Init();
 
 	#ifdef PC
 	clientstat(STAT_CURRENTMAG, EV_FLOAT, currentmag);
