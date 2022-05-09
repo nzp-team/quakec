@@ -733,6 +733,24 @@ void(string com) SV_ParseClientCommand =
 		self = benis;
 		#endif
 	}
+	else if (com == "god")
+	{
+		#ifndef PC
+		entity benis2 = self;
+		other = find(world, classname, "player");
+		self = other;
+		#endif
+
+		if (!(self.flags & FL_GODMODE))
+			self.flags = self.flags | FL_GODMODE;
+		else
+			self.flags = self.flags & (~FL_GODMODE);
+
+		#ifndef PC
+		localcmd(com);
+		self = benis2;
+		#endif
+	}
 	else
 	{		
 		tokenize(com);
@@ -777,13 +795,7 @@ void(string com) SV_ParseClientCommand =
 					self.Weapon_Name = GetWeaponName(self.weapon);
 					#endif
 				}
-			break;
-			case "god":
-					if (!(self.flags & FL_GODMODE))
-						self.flags = self.flags | FL_GODMODE;
-					else
-						self.flags = self.flags & (~FL_GODMODE);
-					break;
+				break;
 			case "nextround":
 					rounds++;
 					break;
