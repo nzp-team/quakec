@@ -164,6 +164,7 @@ void() precaches =
 	precache_model ("models/ai/zchead.mdl");
 
 	// powerups
+	precache_model ("models/sprites/explosion.spr");
 	precache_model ("models/pu/perkbottle!.mdl");
 
 	// start weapons
