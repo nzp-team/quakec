@@ -243,7 +243,6 @@ void(vector org) PU_NukeExplode =
 	setorigin(explosion, org);
 	explosion.think = PU_NukeExplosionThink;
 	explosion.nextthink = time + 0.10;
-	explosion.ltime = time + 3;
 }
 
 //
@@ -457,10 +456,6 @@ void() PU_Flash =
 {
 	// Toggle the Power-Up model on and off
 	if (self.hitcount % 2) {
-		// Store model
-		if (!self.oldmodel)
-			self.oldmodel = self.model;
-		
 		// Disappear
 		setmodel(self, "");
 	}
@@ -584,9 +579,7 @@ void(vector where, float type) Spawn_Powerup =
 	sparkle.origin = where;
 	setorigin(sparkle, sparkle.origin);
 
-	#ifndef PC
 	setmodel(sparkle,"models/sprites/sprkle.spr");
-	#endif
 
 	sparkle.think = PU_SparkleThink;
 	sparkle.nextthink = time + 0.1;
@@ -605,8 +598,13 @@ void(vector where, float type) Spawn_Powerup =
 	}
 
 	// Assign the Power-Up model and sound
-	setmodel(powerup, PU_ModelPath(powerup.walktype));
+	powerup.model = powerup.oldmodel = PU_ModelPath(powerup.walktype);
+	setmodel(powerup, powerup.model);
 	powerup.powerup_vo = PU_VoiceoverPath(powerup.walktype);
+
+	// Time out
+	powerup.think = PU_Flash;
+	powerup.nextthink = time + 15;
 
 	// Finally assign collision function
 	powerup.touch = PU_Touch;

@@ -1383,7 +1383,6 @@ void() findboxspot =
 	newspot.angles_y += 90;
 
 	// Spawn the Box Glow if permitted
-	#ifndef PC
 	if (!(self.owner.spawnflags & 2))
 	{
 		local entity g;
@@ -1393,7 +1392,6 @@ void() findboxspot =
 		setorigin(g,newspot.origin);
 		g.angles = newspot.angles;
 	}
-	#endif
 	
 	// Remove teddy
 	remove(self);
@@ -1732,7 +1730,6 @@ void() mystery_box =
 	setmodel (self, "models/machines/mystery.mdl");
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	
-	#ifndef PC
 	if (!(self.spawnflags & 2))
 	{
 		local entity g;
@@ -1742,7 +1739,6 @@ void() mystery_box =
 		setorigin(g,self.origin);
 		g.angles = self.angles;
 	}
-	#endif
 
 	self.touch = mystery_touch;
 	boxOrigin = self.origin;
