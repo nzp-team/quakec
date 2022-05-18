@@ -414,11 +414,21 @@ void() touch_perk =
 
 	// Don't prompt if our hands or busy or we already have the perk
 	if (!(other.perks & self.style) && other.fire_delay < time && self.revivesoda < 3) {
-		// sequence = perk ID in client
-		useprint(other, 9, self.cost, self.sequence);
+		float price;
 
-		if (other.points >= self.cost && other.button7) {
-			addmoney(other, -self.cost, 0);
+		// Check if this is Quick Revive and we are playing in Co-Op,
+		// adjust price if so.
+		if (self.classname == "perk_revive" && player_count > 1)
+			price = self.cost2;
+		// Nope, use normal cost.
+		else
+			price = self.cost;
+
+		// sequence = perk ID in client
+		useprint(other, 9, price, self.sequence);
+
+		if (other.points >= price && other.button7) {
+			addmoney(other, -price, 0);
 
 			// Pass along the Perk information to the Player to avoid complications later on, then Drink!
 			other.style = self.style;
