@@ -377,12 +377,18 @@ void () buy_weapon_touch =
 			useprint(other, 3, self.cost2, self.weapon);
 			if (other.button7)
 			{
-				other.ach_tracker_coll++;
-				entity tempz;
-				tempz = self;
-				self = other;
-				Set_W_Frame(15, 30, 0, 0, 0, ReturnWeaponModel, "models/weapons/knife/v_bowie.mdl", false, S_BOTH);
-				self.bowie = 1;
+				if (other.points < self.cost2) {
+					centerprint(other, STR_NOTENOUGHPOINTS);
+					return;
+				} else {
+					addmoney(other, -self.cost2, FALSE);
+					other.ach_tracker_coll++;
+					entity tempz;
+					tempz = self;
+					self = other;
+					Set_W_Frame(15, 30, 0, 0, 0, ReturnWeaponModel, "models/weapons/knife/v_bowie.mdl", false, S_BOTH);
+					self.bowie = 1;
+				}
 			}
 		}
 	}
