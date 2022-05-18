@@ -381,7 +381,7 @@ void () buy_weapon_touch =
 				entity tempz;
 				tempz = self;
 				self = other;
-				Set_W_Frame(15, 30, 0, 0, 0, ReturnWeaponModel, "progs/VModels/v_bowie.mdl", false, S_BOTH);
+				Set_W_Frame(15, 30, 0, 0, 0, ReturnWeaponModel, "models/weapons/knife/v_bowie.mdl", false, S_BOTH);
 				self.bowie = 1;
 			}
 		}
