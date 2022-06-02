@@ -678,146 +678,24 @@ void() SetChangeParms =
 {
 };
 
-void(string com) SV_ParseClientCommand =
-{	
-	
-	if(com == "joingame")
+void(string command_string) SV_ParseClientCommand =
+{
+	float skip = true;
+	float fvalue;
+	tokenize(command_string);
+	string cmd = argv(0);
+
+	switch (cmd)
 	{
-		if(self.isspec)
-		{
-			bprint(PRINT_HIGH, self.netname);
-			bprint(PRINT_HIGH, " has joined the game.\n");
-			PlayerSpawn();
-		}
-		else
-			sprint(self, PRINT_HIGH, "You're already in game!\n");
+		case "addmoney":
+			fvalue = stof(argv(1));
+			addmoney(self, fvalue, 0);
+		default: skip = false; break;
 	}
-	else if(com == "specgame")
-	{
-		if(self.isspec)
-			return;
-		else
-		{
-			coop = 1;
-
-			/*SpectatorSpawn();
-			bprint(PRINT_HIGH, self.netname); //print player name
-			bprint(PRINT_HIGH, " has joined the spectators.\n");*/
-			
-			PlayerSpawn();
-		}
-	}
-	else if(com == "pause")
-	{
-		static float paused;
-		paused = !paused;
-		#ifdef PC
-		setpause(paused);
-		#endif
-	}
-	else if (com == "noclip")
-	{		
-		#ifndef PC
-		entity benis = self;
-		other = find(world, classname, "player");
-		self = other;
-		#endif 
-		
-		if (self.movetype == MOVETYPE_WALK)
-			self.movetype = MOVETYPE_NOCLIP;
-		else
-			self.movetype = MOVETYPE_WALK;
-			
-		#ifndef PC
-		localcmd(com);
-		self = benis;
-		#endif
-	}
-	else if (com == "god")
-	{
-		#ifndef PC
-		entity benis2 = self;
-		other = find(world, classname, "player");
-		self = other;
-		#endif
-
-		if (!(self.flags & FL_GODMODE))
-			self.flags = self.flags | FL_GODMODE;
-		else
-			self.flags = self.flags & (~FL_GODMODE);
-
-		#ifndef PC
-		localcmd(com);
-		self = benis2;
-		#endif
-	}
-	else
-	{		
-		tokenize(com);
-
-		switch(argv(0))
-		{
-			case "give":
-				entity tempe = self;
-				other = find(world, classname, "player");
-				self = other;
-				
-				float wep = stof(argv(1));
-
-				if (wep) {
-					if (!self.secondaryweapon) {
-						WeaponSwitch(self);
-					}
-					
-					float startframe, endframe;
-					string modelname;
-
-					self.weapon = wep;
-					self.currentammo = getWeaponAmmo(wep);
-					self.currentmag = getWeaponMag(wep);
-					if (IsDualWeapon(wep)) {
-						self.currentmag2 = self.currentmag;
-					}
-
-					self.weaponskin = GetWepSkin(self.weapon);
-
-					startframe = GetFrame(self.weapon,TAKE_OUT_START);
-					endframe = GetFrame(self.weapon,TAKE_OUT_END);
-					modelname = GetWeaponModel(wep, 0);
-
-					SwitchWeapon(wep);
-					
-					Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
-					
-					self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
-					
-					#ifndef PC
-					self.Weapon_Name = GetWeaponName(self.weapon);
-					#endif
-				}
-				break;
-			case "nextround":
-					rounds++;
-					break;
-			case "prevround":
-					rounds--;
-					break;
-			case "addmoney":
-					entity tempe1 = self;
-					other = find(world, classname, "player");
-					self = other;
-					
-					addmoney(self, stof(argv(1)), 1);
-					
-					self = tempe1;
-					break;
-			default: 
-					#ifndef PC
-					bprint(PRINT_HIGH, "Command not found in QC\n");
-					#endif
-					break;
-		}
-	}
+#ifdef PC
+	if (skip == false)
+		clientcommand(self, command_string);
+#endif // PC
 };
 
 #ifdef PC
