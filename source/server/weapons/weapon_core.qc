@@ -2264,6 +2264,7 @@ void() CheckPlayer =
 	}
 	
 	/* Check player push start */
+#ifdef PC
 	entity ent;
 	ent = findradius(self.origin, 70);
 		
@@ -2325,6 +2326,7 @@ void() CheckPlayer =
 		}
 		ent = ent.chain;
 	}
+#endif
 	/* Check for player push end */
 	
 	if (!self.button2 && self.flags & FL_ONGROUND) {
