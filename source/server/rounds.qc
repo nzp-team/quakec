@@ -286,53 +286,48 @@ void() NewRound =
 		zaps = find(zaps, classname, "zapper_switch");
 	}
 }
+
 void() Round_Core =
 {
 	if (game_over)
 		return;
-	
-	if (round_changetime <= (time + 2) && !rounds && round_changetime) {
-		rounds_change = 2;
+
+	if (round_changetime) {
+		if (round_changetime <= (time + 2)) {
+			if (!rounds)
+				rounds_change = 2;
+			else
+				rounds_change = 5;
+		}
+	}
+	if (blink_return && blink_return < time) {
+		if (rounds_change == 6) {
+			blink_return = time + 3;
+			rounds_change = 7;
+		} else {
+			blink_return = 0;
+			rounds_change = 0;
+		}
 	}
 
-	if (round_changetime <= (time + 2) && rounds && round_changetime) {
-		rounds_change = 5;
-	}
-
-	if (blink_return && blink_return < time && rounds_change == 6)
-	{
-		blink_return = time + 3;
-		rounds_change = 7;
-	}
-	if (blink_return && blink_return < time && rounds_change == 7)
-	{
-		blink_return = 0;
-		rounds_change = 0;
-	}
-	if (round_changetime >= time)
-		return;
-	if (round_changetime)
-	{
+	if (round_changetime < time && round_changetime != 0) {
 		roundtype = 1;
-			
 		NewRound();
 		return;
-	}
-	if (Total_Zombies > Current_Zombies && spawn_time < time)
-	{
+	} else if (round_changetime != 0) return;
+
+	if (Total_Zombies > Current_Zombies && spawn_time < time) {
 		Spawn_Enemy();
 	}
-	if (Remaining_Zombies < 1 && !Delay_Time)
-	{
+
+	if (Remaining_Zombies < 1 && !Delay_Time) {
 		Delay_Time = time + 2;
 		rounds_change = 3;
-	}
-	else if (Delay_Time && Delay_Time < time)
-	{
+	} else if (Delay_Time && Delay_Time < time) {
 		Delay_Time = 0;
 		EndRound();
 	}
-	
+
 	SetUpdate(self, UT_ROUNDS_CHANGE, rounds_change, 0, 0);
 }
 
