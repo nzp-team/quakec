@@ -227,7 +227,6 @@ void() place_model =
 	precache_model (self.model);
 	setmodel (self, self.model);
   
-	self.skin = 0;
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.angles = self.angles;
 	self.solid = SOLID_NOT;
