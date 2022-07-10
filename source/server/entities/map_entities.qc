@@ -34,6 +34,10 @@ void() func_wall =
 	self.movetype = MOVETYPE_PUSH;	// so it doesn't get pushed by anything
 	self.solid = SOLID_BSP;
 	setmodel (self, self.model);
+
+	#ifdef PC
+	HalfLife_DoRender();
+	#endif
 };
 
 void() func_illusionary =
@@ -193,6 +197,10 @@ void() func_button =
 
 	self.pos1 = self.origin;
 	self.pos2 = self.pos1 + self.movedir*(fabs(self.movedir*self.size) - self.lip);
+
+	#ifdef PC
+	HalfLife_DoRender();
+	#endif
 };
 
 void() flame_update = {	

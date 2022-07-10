@@ -597,6 +597,10 @@ void() func_door =
 // the sizes can be detected properly.
 	self.think = LinkDoors;
 	self.nextthink = self.ltime + 0.1;
+
+	#ifdef PC
+	HalfLife_DoRender();
+	#endif
 };
 
 void() func_door_nzp =
@@ -693,4 +697,8 @@ void() func_door_nzp =
 // the sizes can be detected properly.
 	self.think = LinkDoors;
 	self.nextthink = self.ltime + 0.1;
+
+	#ifdef PC
+	HalfLife_DoRender();
+	#endif
 };
