@@ -585,12 +585,14 @@ void () W_LoadAmmo =
 		startframe = 4;
 		endframe = 13;
 		reloadcancelframe = 9;
-		delay = 0.9;
+		delay = 1.2;
 		endanimfunc = W_LoadAmmoDone;
 	}	
 
 	if (delay) {
-		
+		if (self.perks & P_DOUBLE)
+			delay *= 0.66;
+
 		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, FIRE, W_LoadAmmoDone, modelname, false, S_RIGHT);
 		self.fire_delay = delay + time;
 	}
