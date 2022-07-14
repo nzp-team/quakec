@@ -186,11 +186,13 @@ void() precaches =
 	//
 	
 	// player-made
+#ifdef PC
 	precache_sound("sounds/player/footstep1.wav");
 	precache_sound("sounds/player/footstep2.wav");
 	precache_sound("sounds/player/footstep3.wav");
 	precache_sound("sounds/player/footstep4.wav");
 	precache_sound("sounds/player/footstep5.wav");
+#endif // PC
 	precache_sound("sounds/player/jump.wav");
 	precache_sound("sounds/player/land.wav");
 	precache_sound("sounds/player/pain4.wav");
