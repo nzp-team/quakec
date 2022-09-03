@@ -27,7 +27,9 @@
 
 #ifndef PSP
 #ifndef NX
+#ifndef CTR
 #pragma target FTE
+#endif
 #endif
 #endif 
 
@@ -215,10 +217,12 @@ void() SUB_Null2 = {};
 
 #define     VEC_VIEW_OFS  '0 0 32'
 
+#define 	MAX_ZOMB 		24
+
 #ifdef PSP
-#define 	MAX_ZOMB 	  12
-#else
-#define 	MAX_ZOMB 	  24
+#ifdef CTR
+#define 	MAX_ZOMB		12
+#endif
 #endif
 
 vector	trace_plane_normal;

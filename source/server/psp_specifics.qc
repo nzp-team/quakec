@@ -168,8 +168,6 @@ void() Soft_Restart = {
 		power.frame = 0;
 	}
 
-
-
 	self = oldself;
 	self.downed = 0;
 	game_over = false;
@@ -177,6 +175,12 @@ void() Soft_Restart = {
 	self.score = 0;
 	self.points = 0;
 	self.secondaryweapon = 0;
+
+	// naievil -- clear betty
+	self.secondary_grenades = 0;
+	self.grenades = 1;
+	self.pri_grenade_state = 0;
+
 	InitRounds();
 	self.isspec = false;
 	PutClientInServer();

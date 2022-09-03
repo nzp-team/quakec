@@ -170,7 +170,7 @@ void() EndGameSetup =
 }
 
 // rec_downed is used as a recursive loop where we consistently check to see if ALL players are downed
-//    if they aren't dead, we keep looping until our OWN death (30 seconds, so 300 loops)
+//    if they aren't dead, we keep looping until our OWN death (45 seconds, so 300 loops)
 void() rec_downed = 
 {
 	self.downedloop++;

@@ -5,6 +5,7 @@ MKDIR build\pc\ 2>nul
 MKDIR build\psp\ 2>nul
 MKDIR build\nx\ 2>nul
 MKDIR build\vita\ 2>nul
+MKDIR build\ctr\ 2>nul
 CD bin/
 echo.
 echo ====================
@@ -36,4 +37,10 @@ echo  compiling VITA QC
 echo ====================
 echo.
 fteqcc-cli-win.exe -srcfile ../progs/vita.src
+echo.
+echo ====================
+echo  compiling 3DS QC
+echo ====================
+echo.
+fteqcc-cli-win.exe -srcfile ../progs/ctr.src
 pause

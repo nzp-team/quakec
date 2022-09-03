@@ -28,7 +28,7 @@
 float() spawn_a_dogA;
 void() zapper_cooldown;
 
-void() Spawn_Enemy = 
+void() Spawn_Enemy =
 {
 	// temporarily prevent spawning
 	if (nuke_powerup_spawndelay > time)
@@ -69,7 +69,7 @@ float() getZombieTotal = {
 			multiplier *= rounds * 0.15;
 
 		if (plrcnt == 1)
-			count += rint((0.5 * 6) * multiplier); 
+			count += rint((0.5 * 6) * multiplier);
 		else
 			count += rint((plrcnt * 6) * multiplier);
 
@@ -135,7 +135,7 @@ void() EndRound =
 	if (rounds >= 10) {
 		entity players;
 		players = find(world, classname, "player");
-		
+
 		while(players != world) {
 			if (players.ach_tracker_npnp == 0) {
 				GiveAchievement(5, players);
@@ -152,7 +152,7 @@ void() EndRound =
 void() PlayerSpawn;
 
 void() NewRound =
-{		
+{
 	entity who = find(world,classname,"spectator");
 	while(who != world)
 	{
@@ -162,7 +162,7 @@ void() NewRound =
 			PlayerSpawn();
 			break;
 		}
-		
+
 	}
 
 	entity tempe;
@@ -216,7 +216,7 @@ void() NewRound =
 	}
 
 	set_z_health();
-	
+
 	maxreward = 50 * rounds;
 	if (maxreward > 500)
 		maxreward = 500;
@@ -225,13 +225,13 @@ void() NewRound =
 	Current_Zombies = 0;
 	spawn_delay = 0;
 	totalpowerups = 0;
-	
+
 	if (rounds == dogRound && gotdog) {
 		roundtype = 2;
-		localcmd("fog 0.25\n"); 
+		localcmd("fog 0.25\n");
 	} else {
 		roundtype = 1;
-		
+
 		if (world.fog) {
 			#ifdef PSP
 			localcmd(strcat("fog ", world.fog));
@@ -332,7 +332,7 @@ void() Round_Core =
 }
 
 void() InitRounds =
-{		
+{
 	roundtype = 1;
 	delay_at_round = 2/0.95;
 	totalpowerups = 0;

@@ -2,7 +2,7 @@
 
 cd ../
 # create build directories
-mkdir -p build/{pc,psp,nx,vita}
+mkdir -p build/{pc,psp,nx,vita,ctr}
 cd bin/
 echo ""
 echo "===================="
@@ -34,3 +34,9 @@ echo " compiling VITA QC  "
 echo "===================="
 echo ""
 ./fteqcc-cli-lin -srcfile ../progs/vita.src
+echo ""
+echo "===================="
+echo " compiling 3DS QC  "
+echo "===================="
+echo ""
+./fteqcc-cli-lin -srcfile ../progs/ctr.src

@@ -66,6 +66,7 @@ var struct {
 
 string(float wep) GetWeaponName =
 {
+
 	switch (wep)
 	{
 		case W_COLT:
@@ -204,6 +205,7 @@ string(float perk) GetPerkName =
 
 float(float wep) GetFiretype =
 {
+
 	switch (wep)
 	{
 		case W_COLT:
@@ -518,6 +520,7 @@ float(float wep, float type) getWeaponMultiplier =
 
 float(float wep) getWeaponMag =
 {
+
 	switch (wep)
 	{
 		case W_COLT:
@@ -619,6 +622,7 @@ float(float wep) getWeaponMag =
 
 float(float wep) getWeaponAmmo =
 {
+
 	switch (wep)
 	{
 		case W_COLT:
@@ -722,6 +726,7 @@ float(float wep) getWeaponAmmo =
 
 float(float wep) getWeaponDamage =
 {
+
 	switch (wep)
 	{
 		case W_COLT:
@@ -819,6 +824,7 @@ float(float wep) getWeaponDamage =
 
 float(float wep) GetWeaponShotcount =
 {
+
 	switch(wep)
 	{
 		case W_DB:
@@ -953,6 +959,7 @@ float(float wep, float penetration_times) getWeaponPenetration =
 
 float(float wep) GetWeaponSpread =
 {
+
 	switch (wep)
 	{
 		case W_COLT:
@@ -1056,6 +1063,7 @@ float(float wep) GetWeaponSpread =
 
 float(float wep, float delaytype) getWeaponDelay =
 {
+
 	switch (wep)
 	{
 		case W_COLT:
@@ -2443,6 +2451,7 @@ string(float wep, float gorvmodel) GetWeaponModel =
 
 string(float wep) GetWeapon2Model =
 {
+
 	switch (wep)
 	{
 		case W_BIATCH:
@@ -2461,6 +2470,7 @@ string(float wep) GetWeapon2Model =
 
 string(float wep) GetWeaponSound =
 {
+
 	switch (wep)
 	{
 		case W_BIATCH:
@@ -2540,6 +2550,7 @@ string(float wep) GetWeaponSound =
 }
 
 float(float wep) IsDualWeapon = {
+
 	switch(wep) {
 		case W_BIATCH:
 			return 1;
@@ -2551,6 +2562,7 @@ float(float wep) IsDualWeapon = {
 }
 
 string(float wep) GetLeftWeaponModel = {
+
 	switch(wep) {
 		case W_BIATCH:
 			return "models/weapons/m1911/v_biatch_left.mdl";
@@ -2562,6 +2574,7 @@ string(float wep) GetLeftWeaponModel = {
 }
 
 float(float wep) IsPapWeapon = {
+
 	switch(wep) {
 		case W_BIATCH:
 		case W_ARMAGEDDON:
@@ -2593,6 +2606,7 @@ float(float wep) IsPapWeapon = {
 }
 
 float(float wep) GetWepSkin = {
+
 	switch(wep) {
 		case W_BIATCH:
 			return 0;
@@ -2610,6 +2624,7 @@ float(float wep) GetWepSkin = {
 
 float(float wep)  EqualNonPapWeapon = 
 {
+
 	switch (wep) {
 		case W_BIATCH:
 			return W_COLT;
@@ -2673,6 +2688,7 @@ float(float wep)  EqualNonPapWeapon =
 }
 float(float wep)  EqualPapWeapon = 
 {
+
 	switch (wep) {
 		case W_COLT:
 			return W_BIATCH;
@@ -3051,6 +3067,7 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 
 void(float weptype) precache_extra =
 {
+
 	switch (weptype) {
 		case W_COLT:
 		case W_BIATCH:
@@ -3242,6 +3259,7 @@ void(float weptype) precache_extra =
 
 float(float wep) getWeaponRecoilReturn =
 {
+
 	switch (wep)
 	{
 		case W_COLT:

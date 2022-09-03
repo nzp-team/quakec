@@ -54,7 +54,9 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 // Define our PC version if we don't have NX or PSP 
 #ifndef NX
 #ifndef PSP
+#ifndef CTR
 #define PC
+#endif
 #endif
 #endif
 

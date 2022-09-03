@@ -590,9 +590,10 @@ void () W_LoadAmmo =
 	}	
 
 	if (delay) {
+
 		if (self.perks & P_DOUBLE)
 			delay *= 0.66;
-
+			
 		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, FIRE, W_LoadAmmoDone, modelname, false, S_RIGHT);
 		self.fire_delay = delay + time;
 	}
@@ -1038,7 +1039,7 @@ void(float side) W_FireGrenade =
 	nade.velocity = v_forward*1000;		
 	nade.avelocity = '50 -50 50';
 
-	centerprint(self, vtos(nade.angles));
+	//centerprint(self, vtos(nade.angles));
 
 	nade.touch = GrenadeExplode;
 	setsize(nade, '0 0 0', '0 0 0');
@@ -2109,7 +2110,7 @@ void () Impulse_Functions =
 			W_SprintStop();
 			break;
 		case 25:
-			#ifdef PSP
+			#if defined (PSP) || defined (CTR)
 			switch_nade();
 			#else
 			W_Betty();
@@ -2518,7 +2519,7 @@ void () Weapon_Logic =
 	
 	if (self.button6 && !self.semiknife)
 	{ 
-		#ifdef PSP
+		#if defined (PSP) || defined (CTR)
 		if (self.sprinting) {
 			dolphin_dive();
 			return;
