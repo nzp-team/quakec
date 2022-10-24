@@ -254,55 +254,64 @@ void () buy_weapon_touch =
 	float startframe,endframe;
 	string modelname;
 
-	if (other.classname != "player" || other.downed || other.isBuying/* || !isFacing(other, self)*/) {
+	if (other.classname != "player" || other.downed || other.isBuying) {
 		return;
 	}
-	
+
 	#ifndef PC
 	other.Weapon_Name_Touch = GetWeaponName(self.weapon);
 	#endif
-	
-	if (self.weapon == other.weapon || self.weapon == other.secondaryweapon 
-	|| self.weapon == EqualNonPapWeapon(other.weapon) 
-	|| self.weapon == EqualNonPapWeapon(other.secondaryweapon)) {
 
-		if (self.weapon == EqualNonPapWeapon(other.secondaryweapon) 
-		|| self.weapon == EqualNonPapWeapon(other.weapon))
-			useprint (other, 3, 4500, other.weapon);
-		else
-			useprint (other, 3, self.cost2, self.weapon);
+	float slot;
+
+	// Player has this weapon in any of their slots, PaP'd or not.
+	if ((slot = Util_PlayerHasWeapon(other, self.weapon, true)) != 0) {
+		float is_pap = true;
+
+
+		// But the utility function returns the same value if we are NOT PaP'd
+		if (Util_PlayerHasWeapon(other, self.weapon, false) == slot)
+			is_pap = false;
+
+		// Set the cost and weapon value (for useprint).
+		float wcost = (is_pap) ? 4500 : self.cost2;
+		float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
+
+		useprint(other, 3, wcost, wep);
 
 		if (!other.button7 || other.semiuse || other.isBuying) {
 			return;
 		}
-		if ((self.weapon == other.weapon && other.currentammo >= getWeaponAmmo(self.weapon))
-			||(self.weapon == other.secondaryweapon && other.secondaryammo >= getWeaponAmmo(self.weapon))) {
-				return;
-			}
+
+		// Store current Ammo value.
+		float ammo = Util_GetPlayerAmmoInSlot(other, slot);
+
+		// Max carrying capacity of the wall weapon
+		float wall_ammo = (is_pap) ? getWeaponAmmo(EqualPapWeapon(self.weapon)) : getWeaponAmmo(self.weapon);
+
+		// Weapon is already full. Abort.
+		if (ammo >= wall_ammo)
+			return;
 
 		other.semiuse = true;
-		if ((other.points < self.cost2 && !IsPapWeapon(other.weapon)) || (other.points < 4500 && IsPapWeapon(other.weapon))) {
+
+		// Player doesn't have enough points. Abort.
+		if (other.points < wcost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			return;
 		}
 
 		other.ach_tracker_coll++;
 
-		if (self.weapon == other.weapon || (self.weapon == EqualNonPapWeapon(other.weapon))) {
-			other.currentammo = getWeaponAmmo(self.weapon);
-		} else if (self.weapon == other.secondaryweapon || (self.weapon == EqualNonPapWeapon(other.secondaryweapon)) ) {
-			other.secondaryammo = getWeaponAmmo(self.weapon);
-		}
-		
+		// Set the weapon's ammo to the max capacity.
+		Util_SetPlayerAmmoInSlot(other, slot, wall_ammo);
 
 		sound(other, 0,"sounds/misc/ching.wav", 1, 1);
 		other.reload_delay = 0;
-		
-		if (!IsPapWeapon(other.weapon))
-			addmoney(other, -1*self.cost2, 0);
-		else
-			addmoney(other, -1*4500, 0);
-			
+
+		// Subtract the cost from player points.
+		addmoney(other, wcost*-1, 0);
+
 		if (self.enemy) {
 			oldent = self;
 			self = self.enemy;
@@ -402,7 +411,7 @@ void () buy_weapon_touch =
 	else
 	{
 		entity tempe;
-      
+
 		//centerprint(other, self.message);
       	useprint (other, 4, self.cost, self.weapon);
 
@@ -416,6 +425,7 @@ void () buy_weapon_touch =
 			return;
 		}
 
+		other.semiuse = true;
 		other.ach_tracker_coll++;
 
 		if (other.weapon && !other.secondaryweapon) {
@@ -458,7 +468,7 @@ void () buy_weapon_touch =
 			other.currentmag = 0;
 			other.weapon = 0;
 		}
-		
+
 		sound(other, 0,"sounds/misc/ching.wav", 1, 1);
 		other.reload_delay = 0;
 		addmoney(other, -1*self.cost, 0);
@@ -469,7 +479,7 @@ void () buy_weapon_touch =
 			self = oldent;
 		}
 		other.weapon = self.weapon;
-		
+
 		other.currentammo = getWeaponAmmo(self.weapon);
 		other.currentmag = getWeaponMag(self.weapon);
 		tempe = self;
@@ -477,20 +487,20 @@ void () buy_weapon_touch =
 		startframe = GetFrame(self.weapon,TAKE_OUT_START);
 		endframe = GetFrame(self.weapon,TAKE_OUT_END);
 		modelname = GetWeaponModel(self.weapon, 0);
-		
+
 		if (self.weapon != W_KAR_SCOPE && self.weapon != W_HEADCRACKER && !IsDualWeapon(self.weapon)) {
 			self.weapon2model = "";
 		}
 
 		SwitchWeapon(self.weapon);
 		Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);//FIXME
-		
+
 		#ifndef PC
 		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 		self.Flash_Size = GetWeaponFlash_Size(self.weapon);
 		self.Weapon_Name = GetWeaponName(self.weapon);
 		#endif
-		
+
 		self = tempe;
 	}
 

@@ -3,7 +3,7 @@
 
 	used to communicate between server and client
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -99,7 +99,7 @@ void NotifyNewRound(float to) {
 	WriteByte(MSG_MULTICAST, EVENT_NEWROUND);
 	WriteByte(MSG_MULTICAST, to);
 	multicast('0 0 0', MULTICAST_ALL);
-	
+
 	#endif
 	#endif
 	#endif
@@ -115,24 +115,24 @@ void SetRound(entity client, float to) {
 	WriteByte(MSG_MULTICAST, to);
 	msg_entity = client;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	#endif
 	#endif
 	#endif
 }
 
-void SetPerk(entity client, float to) 
+void SetPerk(entity client, float to)
 {
 	#ifndef PSP
 	#ifndef NX
 	#ifndef CTR
-	
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PERK);
 	WriteLong(MSG_MULTICAST, to);
 	msg_entity = client;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	#endif
 	#endif
 	#endif
@@ -143,7 +143,7 @@ void(float to) SwitchWeapon =
 	#ifndef PSP
 	#ifndef NX
 	#ifndef CTR
-	
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_WEAPONCHANGE);
 	WriteByte(MSG_MULTICAST, to);
@@ -152,7 +152,7 @@ void(float to) SwitchWeapon =
 
 	// hotfix for weapon2models not reseting
 	self.weapon2model = GetWeapon2Model(to);
-	
+
 	#endif
 	#endif
 	#endif
@@ -170,7 +170,7 @@ void(string to, float skin) UpdateVmodel =
 	WriteByte(MSG_MULTICAST, skin);
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	#endif
 	#endif
 	#endif
@@ -188,7 +188,7 @@ void(string to, float skin) UpdateV2model =
 	WriteByte(MSG_MULTICAST, skin);
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
-	#endif	
+	#endif
 	#endif
 	#endif
 }
@@ -203,7 +203,7 @@ void(float broadcast_time, float type) BroadcastMessage =
 	WriteByte(MSG_MULTICAST, broadcast_time);
 	WriteByte(MSG_MULTICAST, type);
 	multicast('0 0 0', MULTICAST_ALL);
-	
+
 	#endif
 	#endif
 	#endif
@@ -235,7 +235,7 @@ void(float playernum, float points, float am, float kills, string name, entity p
 		WriteString(MSG_MULTICAST, name);
 		multicast('0 0 0', MULTICAST_ALL);
 	}
-	
+
 	#endif
 	#endif
 	#endif
@@ -259,7 +259,7 @@ void(float count) UpdatePlayerCount = {
 	#endif
 }
 
-void(float newtime, float newtype, entity change) PromptLevelChange = 
+void(float newtime, float newtype, entity change) PromptLevelChange =
 {
 	#ifndef PSP
 	#ifndef NX
@@ -271,14 +271,14 @@ void(float newtime, float newtype, entity change) PromptLevelChange =
 	WriteByte(MSG_MULTICAST, newtype);
 	msg_entity = change;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	#endif
 	#endif
 	#endif
 }
 
-void(entity who) UpdatePunchangle =	
-{		
+void(entity who) UpdatePunchangle =
+{
 
 	// naievil -- shit logic lol...but result looks clean as fuck...
 	#ifndef PSP
@@ -291,9 +291,9 @@ void(entity who) UpdatePunchangle =
 	WriteCoord(MSG_MULTICAST, who.punchangle_z);
 	msg_entity = who;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	vector tempv = who.punchangle;
-		
+
 	if (fabs(who.punchangle_x) > 0.01) {
 		if (who.punchangle_x >= 0.05*tempv_x)
 			who.punchangle_x -= 0.05*tempv_x;
@@ -301,29 +301,29 @@ void(entity who) UpdatePunchangle =
 			who.punchangle_x -= 0.05*tempv_x;
 		else
 			who.punchangle_x = 0;
-	} else 
+	} else
 		who.punchangle_x = 0;
-		
+
 	if (fabs(who.punchangle_y) > 0.01) {
 		if (who.punchangle_y >= 0.05*tempv_y)
 			who.punchangle_y -= 0.05*tempv_y;
 		else if (who.punchangle_y <= -0.05*tempv_y)
 			who.punchangle_y -= 0.05*tempv_y;
-		else 
+		else
 			who.punchangle_y = 0;
-	} else 
+	} else
 		who.punchangle_y = 0;
-		
+
 	if (fabs(who.punchangle_z) > 0.01) {
 		if (who.punchangle_z >= 0.05*tempv_z)
 			who.punchangle_z -= 0.05*tempv_z;
 		else if (who.punchangle_z <= -0.05*tempv_z)
 			who.punchangle_z -= 0.05*tempv_z;
-		else 
+		else
 			who.punchangle_z = 0;
-	} else 
+	} else
 		who.punchangle_z = 0;
-		
+
 	#endif
 	#endif
 	#endif
@@ -579,6 +579,69 @@ void(entity person, float expamt, float doublepoint) addmoney =
 		total_powerup_points += expamt;
 
 	person.points += expamt;
-		
+
 	UpdatePlayerPoints(person.playernum, person.points, expamt, person.kills, person.netname, person);
+};
+
+//
+// Util_GetPlayerAmmoInSlot(person, slot)
+// Returns the reserve ammo the player has in a weapon slot.
+//
+float(entity person, float slot) Util_GetPlayerAmmoInSlot =
+{
+	switch(slot) {
+		case 1: return person.currentammo;
+		case 2: return person.secondaryammo;
+		case 3: return person.thirdammo;
+		default: return 0;
+	}
+}
+
+//
+// Util_SetPlayerAmmoInSlot(person, slot, ammo)
+// Sets the player's reserve ammo in a slot to param3.
+//
+void(entity person, float slot, float ammo) Util_SetPlayerAmmoInSlot =
+{
+	switch(slot) {
+		case 1: person.currentammo = ammo;
+		case 2: person.secondaryammo = ammo;
+		case 3: person.thirdammo = ammo;
+		default: return;
+	}
+};
+
+//
+// Util_PlayerHasWeapon(peron, comparison, include_pap)
+// Checks to see if the Player is holding a weapon in any
+// of their three slots. `include_pap` dictates whether to
+// consider Pack-A-Punch'd varients. Returns 1, 2, 3 depending
+// on the slot the weapon is contained in.
+//
+float(entity person, float comparison, float include_pap) Util_PlayerHasWeapon =
+{
+	// Storage.
+	float first, second, third;
+
+	// If we're including pap'd weapons, just convert the weapon set to the base
+	// ones to save on comparison checks.
+	if (include_pap == true) {
+		first = EqualNonPapWeapon(person.weapon);
+		second = EqualNonPapWeapon(person.secondaryweapon);
+		third = EqualNonPapWeapon(person.thirdweapon);
+	} else {
+		first = person.weapon;
+		second = person.secondaryweapon;
+		third = person.thirdweapon;
+	}
+
+	// Now do the comparisons
+	if (first == comparison)
+		return 1;
+	if (second == comparison)
+		return 2;
+	if (third == comparison)
+		return 3;
+
+	return 0;
 };

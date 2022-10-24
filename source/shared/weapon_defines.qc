@@ -3,7 +3,7 @@
 
 	all weapon stats are stored here
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -2622,7 +2622,7 @@ float(float wep) GetWepSkin = {
 }
 
 
-float(float wep)  EqualNonPapWeapon = 
+loat(float wep)  EqualNonPapWeapon =
 {
 
 	switch (wep) {
@@ -2683,7 +2683,7 @@ float(float wep)  EqualNonPapWeapon =
 		case W_FIW:
 			return W_M2;
 		default:
-			return 0;
+			return wep;
 	}
 }
 float(float wep)  EqualPapWeapon = 
