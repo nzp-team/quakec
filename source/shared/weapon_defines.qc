@@ -2622,7 +2622,7 @@ float(float wep) GetWepSkin = {
 }
 
 
-loat(float wep)  EqualNonPapWeapon =
+float(float wep)  EqualNonPapWeapon =
 {
 
 	switch (wep) {
