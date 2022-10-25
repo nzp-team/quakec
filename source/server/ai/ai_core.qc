@@ -88,8 +88,9 @@ entity(entity blarg) find_new_enemy =
 		//////////////////////////////
 		while(player) {
       		if (player.downed == true) {
-        		return world;
-			  }
+				player = find(player,classname,"player");
+				continue;
+			}
         
 			dist = vlen(self.origin - player.origin);
 			if (dist < bestdist) {
