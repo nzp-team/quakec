@@ -3,7 +3,7 @@
 
 	HUD Drawing Code
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -179,6 +179,8 @@ void() HUD_AmmoString =
 #define MAX_POINT_ELEMENTS 		64 		// the maximum amount of point differential elements that can be spawned before
 								   		// we iterate back from 0
 
+float active_point_elements;
+
 var struct
 {
 	float 	difference; 				// the difference of points
@@ -188,6 +190,7 @@ var struct
 	float 	y_velocity; 				// how fast the element moves on the y axis
 	float 	opacity; 					// the opacity of the text_string as it progresses
 	float 	string_width; 				// the width of text_string
+	float 	occupied;					// is this array being used/occupied?
 	string 	text_string; 				// either '+(difference)' or '-(difference)'
 } point_elements[MAX_POINT_ELEMENTS];
 
@@ -237,15 +240,28 @@ void(float amount) RegisterPointChange =
 	// start with an opacity of 1
 	point_elements[index].opacity = 1;
 
+	// the element is being used
+	point_elements[index].occupied = true;
+
 	// iterate
 	last_point_element_index++;
+	active_point_elements++;
 }
 
 void(float pwidth, float width, float height) PointUpdate = 
 {
+	if (active_point_elements == 0)
+		return;
+
 	vector POINT_DIFF_COLOR;
 
 	for (float i = 0; i < MAX_POINT_ELEMENTS; i++) {
+		if (point_elements[i].opacity <= 0 && point_elements[i].occupied == true) {
+			point_elements[i].occupied = false;
+			active_point_elements--;
+			continue;
+		}
+
 		// should the text be red or orange?
 		if (point_elements[i].difference > 0) {
 			POINT_DIFF_COLOR = TEXT_ORANGE;
