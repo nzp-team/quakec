@@ -656,7 +656,7 @@ float(float weapon) Util_WeaponFiresTraceshot =
 	float firetype = GetFiretype(weapon);
 
 	// Valid firetypes
-	if (firetype == 0 || firetype == 1 || firetype == 3)
+	if (firetype == 0 || firetype == 1)
 		return true;
 
 	return false;
