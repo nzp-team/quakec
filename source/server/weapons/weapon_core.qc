@@ -1507,36 +1507,36 @@ void(float side) W_Fire =
 	if (self.downed)
 		playdownfire();
 
-	// MOTO - should probably reorganize this whole firetype chunk in the future..
-
-	//Fire weapons
-	if (firetype == 1 || firetype == 3)
-	{
+	// Check if weapon is semi-automatic and if it is, if it's ready to be fired.
+	if (Util_WeaponIsSemiAutomatic(self.weapon)) {
 		if (side == S_RIGHT) {
-			if (self.semi) {
-				return;
-			}
-			self.semi = TRUE;
+			if (self.semi) return;
+			self.semi = true;
 		} else if (side == S_LEFT) {
-			if (self.semi2) {
-				return;
-			}
-			self.semi2 = TRUE;
+			if (self.semi2) return;
+			self.semi2 == true;
 		}
-
-		if (firetype == 3) {
-			W_FireGrenade(side);
-		}
-	} else if (firetype == 4) {
-		W_FireRay();
-	} else if (firetype == 5) {
-		W_FireTesla();
-	} else if (firetype == 6) {
-		W_FireM2();
 	}
 
+	// Weapon Projectile/Trace Logic.
 	if (Util_WeaponFiresTraceshot(self.weapon)) {
 		FireTrace(shotcount, spread, damage, side);
+	}
+
+	switch(firetype) {
+		case FIRETYPE_GRENADE:
+			W_FireGrenade(side);
+			break;
+		case FIRETYPE_RAYBEAM:
+			W_FireRay();
+			break;
+		case FIRETYPE_TESLA:
+			W_FireTesla();
+			break;
+		case FIRETYPE_FLAME:
+			W_FireM2();
+			break;
+		default: break;
 	}
 
 	//Play weapon animation and sound

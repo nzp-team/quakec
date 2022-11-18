@@ -647,6 +647,23 @@ float(entity person, float comparison, float include_pap) Util_PlayerHasWeapon =
 };
 
 //
+// Util_WeaponIsSemiAutomatic(float weapon)
+// Checks weapon firetypes and returns true if intended
+// to be semi-automatic.
+//
+float(float weapon) Util_WeaponIsSemiAutomatic =
+{
+	float firetype = GetFiretype(weapon);
+
+	// Valid firetypes
+	if (firetype == FIRETYPE_SEMIAUTO || firetype == FIRETYPE_GRENADE ||
+	firetype == FIRETYPE_RAYBEAM || firetype == FIRETYPE_TESLA)
+		return true;
+
+	return false;
+}
+
+//
 // Util_WeaponFiresTraceshot(weapon)
 // Simply returns true if given weapon's firetype requires a
 // firetrace to be used properly.
@@ -656,7 +673,7 @@ float(float weapon) Util_WeaponFiresTraceshot =
 	float firetype = GetFiretype(weapon);
 
 	// Valid firetypes
-	if (firetype == 0 || firetype == 1)
+	if (firetype == FIRETYPE_FULLAUTO || firetype == FIRETYPE_SEMIAUTO)
 		return true;
 
 	return false;
