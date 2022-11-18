@@ -534,7 +534,6 @@ void() PathfindToEnemy =
 	path_result = Do_Pathfind(self, self.enemy);
 	#endif
 
-	//FIXME - further test if this can equate to 0 in FTE..
 	if (path_result >= 1) {
 
 		#ifndef PC
