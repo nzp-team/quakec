@@ -3,7 +3,7 @@
 
 	weapon logic
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -264,9 +264,6 @@ void() W_Switch =
 			UpdateVmodel(modelname, GetWepSkin(self.weapon));
 	
 		
-		//UpdateWeapons(1);
-		//if (self.weaponslot1.dualwield)
-		//	Set_W2_Frame (self.weaponslot1.TakeWeaponStart, self.weaponslot1.TakeWeaponEnd, 0, 0, 0, SUB_Null, self.weaponslot1.v_model2, false);//FIXME
 		Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);//FIXME
 		
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0; 
@@ -1538,8 +1535,7 @@ void(float side) W_Fire =
 		W_FireM2();
 	}
 
-    // FIXME - clean this up lol
-	if (firetype == 1 || firetype == 0 || firetype == 3) {
+	if (Util_WeaponFiresTraceshot(self.weapon)) {
 		FireTrace(shotcount, spread, damage, side);
 	}
 

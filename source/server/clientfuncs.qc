@@ -645,3 +645,19 @@ float(entity person, float comparison, float include_pap) Util_PlayerHasWeapon =
 
 	return 0;
 };
+
+//
+// Util_WeaponFiresTraceshot(weapon)
+// Simply returns true if given weapon's firetype requires a
+// firetrace to be used properly.
+//
+float(float weapon) Util_WeaponFiresTraceshot =
+{
+	float firetype = GetFiretype(weapon);
+
+	// Valid firetypes
+	if (firetype == 0 || firetype == 1 || firetype == 3)
+		return true;
+
+	return false;
+}
