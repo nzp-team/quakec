@@ -60,6 +60,14 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #endif
 #endif
 
+// Weapon Firetype definitions
+#define FIRETYPE_FULLAUTO	0
+#define FIRETYPE_SEMIAUTO	1
+#define FIRETYPE_GRENADE	3
+#define FIRETYPE_RAYBEAM	4
+#define FIRETYPE_TESLA		5
+#define FIRETYPE_FLAME		6
+
 //nzp weapon defines
 //id list
 #define W_NOWEP        0
