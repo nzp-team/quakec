@@ -1597,7 +1597,6 @@ void(float side) W_Fire =
 * W_Knife                     *
 ******************************/
 
-// FIXME - knife & nade vmodels change skin on PSP!
 void () W_Knife =
 {
 	if (time < self.knife_delay || self.new_anim_stop ||
@@ -2369,70 +2368,64 @@ void () Weapon_Logic =
 	#else 
 	UpdatePunchangle(self);
 	#endif
-			
-	//FIXME - cleanup!
-	if (IsDualWeapon(self.weapon)) { 
-		if (self.button0) {
-			#ifdef PC
-			W_Fire(S_LEFT);
-			#else
-			W_Fire(S_RIGHT);
-			#endif
-		} else {
-			#ifdef PC
-			self.semi2 = FALSE;
-			#else
-			self.semi = FALSE;
-			#endif
-		}
-		
-		if (self.button8) {
-			#ifdef PC
-			W_Fire(S_RIGHT);
-			#else
-			W_Fire(S_LEFT);
-			#endif
-		} else {
-			#ifdef PC
-			self.semi = FALSE;
-			#else
-			self.semi2 = FALSE;
-			#endif
-		}
+
+	//
+	// Fire Button Logic
+	// NOTE: Since the right weapon is the "normal" side there's some
+	// flip flop logic on PC so that LMB will fire the left side instead.
+	//
+
+	// Right Trigger/LMB/etc.
+	if (self.button0) {
+#ifdef PC
+		if (IsDualWeapon(self.weapon)) { W_Fire(S_LEFT); } else { W_Fire(S_RIGHT); }
+#else
+		W_Fire(S_RIGHT);
+#endif // PC
 	} else {
-		if (self.button0) {
+		// Check for release for semi automatic weapons.
+#ifdef PC
+		if (IsDualWeapon(self.weapon)) { self.semi2 = false; } else { self.semi = false; }
+#else
+		self.semi = false;
+#endif // PC
+	}
+
+	// Left Trigger/RMB/etc.
+	if (self.button8) {
+		if (IsDualWeapon(self.weapon)) {
+#ifdef PC
 			W_Fire(S_RIGHT);
+#else
+			W_Fire(S_LEFT);
+#endif // PC
 		} else {
-			self.semi = FALSE;
-		}
-		if (cvar("cl_adsmode")) {
-			if (self.button8) {
+			// Toggle ADS back and forth
+			if (cvar("cl_adsmode")) {
 				self.ads_toggle = !self.ads_toggle;
 
 				if (self.ads_toggle == false) {
 					W_AimOut();
 					self.zoom = 0;
 
-					#ifdef PC
+#ifdef PC
 					self.viewzoom = 1;
 					UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 					UpdateV2model(self.weapon2model, 0);
-					#endif
+#endif // PC
 				} else {
 					W_AimIn();
 					self.zoom = 1;
 
-					#ifdef PC
+#ifdef PC
 					self.viewzoom = 0.9;
-					#endif
+#endif // PC
 				}
-			}
-		} else {
-			if (self.button8) {
+			} else {
 				if (!self.zoom) {
 					W_AimIn();
 				} 
-				#ifdef PC
+#ifdef PC
 				else {
 				
 					if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
@@ -2448,39 +2441,47 @@ void () Weapon_Logic =
 							self.viewzoom = 0.89999;
 					}
 				}
-				#endif
-			} else if (!self.button8 && self.zoom) {
-			
-				#ifdef PC
-				if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-					if (self.viewzoom == 0.5) {
-						self.viewzoom += 0.05;
-						ReturnWeaponModel();
-					} else {
-						UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-						UpdateV2model(self.weapon2model, 0);
-						self.viewzoom += 0.05;
-					}
-				} else {
-					if (self.viewzoom == 0.9) {
-						W_AimOut();
-					} else {
-						self.viewzoom += 0.015;
-					}
-				}
-				
-				if (self.viewzoom >= 1) {
-					self.viewzoom = 1;
-					self.zoom = 0;
-				}
-				#else
-				W_AimOut();
-				#endif	
+#endif // PC
 			}
 		}
+	} else if (!self.button8 && self.zoom) {
+#ifdef PC
+		if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
+			self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
+			if (self.viewzoom == 0.5) {
+				self.viewzoom += 0.05;
+				ReturnWeaponModel();
+			} else {
+				UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
+				UpdateV2model(self.weapon2model, 0);
+				self.viewzoom += 0.05;
+			}
+		} else {
+			if (self.viewzoom == 0.9) {
+				W_AimOut();
+			} else {
+				self.viewzoom += 0.015;
+			}
+		}
+		
+		if (self.viewzoom >= 1) {
+			self.viewzoom = 1;
+			self.zoom = 0;
+		}
+#else
+		W_AimOut();
+#endif // PC
+	} else {
+		// Check for release for semi automatic weapons.
+		if (IsDualWeapon(self.weapon)) {
+#ifdef PC
+			self.semi = false;
+#else
+			self.semi2 = false;
+#endif // PC
+		}
 	}
-
+	
 	if (!self.button7) {
 		self.semiuse = false;
 	}
