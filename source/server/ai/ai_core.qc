@@ -3,7 +3,7 @@
 
 	ai stuff
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -73,7 +73,6 @@ entity(entity blarg) find_new_enemy =
 	bestdist = 10000;
 	closest = 0;
 
-    // FIXME - change to hellhound for old/unreleased Demo map support?
 	if(self.classname == "ai_zombie" || self.classname == "ai_dog") {
 		player = find(world,classname,"monkey");
 		if(player) {
