@@ -1966,6 +1966,11 @@ void() W_Betty = {
 	if (self.throw_delay > time || self.zoom || self.downed || self.secondary_grenades < 1 || self.isBuying)
 		return;
 
+	// Prevent the Player from Sprinting and also avoid issues with
+	// the equipment being completely cancelled..
+	if (self.sprinting)
+		W_SprintStop();
+
 	Set_W_Frame (0, 18, 0, 0, GRENADE, checkHoldB, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
 	self.secondary_grenades -= 1;
@@ -1977,6 +1982,11 @@ void() W_Grenade =
 {
 	if (self.throw_delay > time || self.zoom || self.downed || self.primary_grenades < 1 || self.isBuying)
 		return;
+
+	// Prevent the Player from Sprinting and also avoid issues with
+	// the equipment being completely cancelled..
+	if (self.sprinting)
+		W_SprintStop();
 
 	Set_W_Frame (0, 2, 0, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
