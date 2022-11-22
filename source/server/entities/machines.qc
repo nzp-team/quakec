@@ -1538,7 +1538,6 @@ void() mystery_box_tp_spot =
 	
 	if (self.model == "progs/Misc/teddy.mdl") {
 		self.frame = 2;
-		self.angles_y -= 90;
 	}
 	
 	boxLocations[boxCount] = self;
