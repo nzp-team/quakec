@@ -1119,7 +1119,9 @@ void() Draw_Extra_Main =
 	// Division lines
 	drawfill ([0.025*g_width, 0.275*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
 	drawfill ([0.025*g_width, 0.400*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
-	drawfill ([0.025*g_width, 0.475*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
+	
+	if (platform_is_web == false)
+		drawfill ([0.025*g_width, 0.475*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
 
 	// Get description for menu option
 	switch(lastActive) {
@@ -1335,33 +1337,35 @@ void() Draw_Extra_GSettings =
 	local string resval;
 	local string gset_desc = "";
 
-	// Resolution
-	resval = strcat(ftos(active_swidth), "x", ftos(active_sheight));
-	drawstring([0.475*g_width, 0.175*g_height, 0], resval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
-
-	// Aspect Ratio
-	switch(aspectratio) {
-		case 0:
-			arval = "4:3";
-			break;
-		case 1:
-			arval = "5:4";
-			break;
-		case 2:
-			arval = "16:9";
-			break;
-		case 3:
-			arval = "16:10";
-			break;
-		case 4:
-			arval = "21:9";
-			break;
-		default:
-			arval = "ERR";
-			break;
+	if (platform_is_web == false) {
+		// Resolution
+		resval = strcat(ftos(active_swidth), "x", ftos(active_sheight));
+		drawstring([0.475*g_width, 0.175*g_height, 0], resval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	
+		// Aspect Ratio
+		switch(aspectratio) {
+			case 0:
+				arval = "4:3";
+				break;
+			case 1:
+				arval = "5:4";
+				break;
+			case 2:
+				arval = "16:9";
+				break;
+			case 3:
+				arval = "16:10";
+				break;
+			case 4:
+				arval = "21:9";
+				break;
+			default:
+				arval = "ERR";
+				break;
+		}
+		drawstring([0.475*g_width, 0.225*g_height, 0], arval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 	}
-	drawstring([0.475*g_width, 0.225*g_height, 0], arval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
-
+	
 	// Fullscreen
 	if (fullscreenval == 0)
 		sval = S_DISABLED;
@@ -1386,13 +1390,15 @@ void() Draw_Extra_GSettings =
 		drawstring([0.475*g_width, 0.375*g_height, 0], ftos(cvar("cl_maxfps")), [g_height * 0.030, g_height * 0.030, 1], [0.4,0.4,0.4], 1, 0);
 
 	// VSync
-	if (cvar("vid_vsync") == 0)
-		vsyncval = S_DISABLED;
-	else
-		vsyncval = S_ENABLED;
+	if (platform_is_web == false) {
+		if (cvar("vid_vsync") == 0)
+			vsyncval = S_DISABLED;
+		else
+			vsyncval = S_ENABLED;
 
-	drawstring([0.475*g_width, 0.425*g_height, 0], vsyncval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
-	
+		drawstring([0.475*g_width, 0.425*g_height, 0], vsyncval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	}
+
 	// Field of View
 	drawstring([0.475*g_width, 0.475*g_height, 0], ftos(cvar("fov")), [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 
