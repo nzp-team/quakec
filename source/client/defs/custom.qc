@@ -196,6 +196,8 @@ float screen_height_169[MAX_169];
 float screen_width_219[MAX_219];
 float screen_height_219[MAX_219];
 
+int 	platform_is_web;
+
 //controller buttons
 
 /*

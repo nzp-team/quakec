@@ -70,6 +70,12 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	registercommand("showscores");
 
 	cvar_set("sv_cheats", ftos(1));
+
+	// Runtime check if we're running this in WebASM/WebGL.
+	if (cvar_string("sys_platform") == "Web")
+		platform_is_web = true;
+	else
+		platform_is_web = false;
 		
 	//print("CSQC Started\n");
 	dummy = spawn();
