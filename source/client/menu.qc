@@ -224,6 +224,28 @@ void() settings_fps = {
 	cvar_set("show_fps", ftos(fps));
 }
 
+void() settings_rescale = {
+	float renderscale = cvar("r_renderscale");
+
+	renderscale += 0.05;
+
+	if (renderscale > 1)
+		renderscale = 1;
+
+	cvar_set("r_renderscale", ftos(renderscale));
+}
+
+void() settings_rescale2 = {
+	float renderscale = cvar("r_renderscale");
+
+	renderscale -= 0.05;
+
+	if (renderscale < 0.10)
+		renderscale = 0.10;
+
+	cvar_set("r_renderscale", ftos(renderscale));
+}
+
 void() settings_brite = {
 	local float br = cvar("gamma");
 
@@ -981,10 +1003,13 @@ var struct
 	{[0.025, 0.375, 0], "Channel 4 Volume", -1, setting_chann4vol, setting_chann4vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 58
 	{[0.025, 0.425, 0], "Channel 5 Volume", -1, setting_chann5vol, setting_chann5vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 59
 	{[0.025, 0.475, 0], "Channel 6 Volume", -1, setting_chann6vol, setting_chann6vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 60
+
+	// Web specific options
+	{[0.025, 0.175, 0], "Render Scale", -1, settings_rescale, settings_rescale2, MENU_GSETTINGS, 0, OPTION_WEB_ONLY}, // 61
 };
 
 //REMEMBER TO UPDATE THIS CONST IF YOU ADD BUTTONS
-const float BUTTONS_COUNT = 61;
+const float BUTTONS_COUNT = 62;
 float lastActive;
 
 
@@ -1340,7 +1365,6 @@ void() Draw_Extra_GSettings =
 	if (platform_is_web == false) {
 		// Resolution
 		resval = strcat(ftos(active_swidth), "x", ftos(active_sheight));
-		drawstring([0.475*g_width, 0.175*g_height, 0], resval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 	
 		// Aspect Ratio
 		switch(aspectratio) {
@@ -1364,7 +1388,12 @@ void() Draw_Extra_GSettings =
 				break;
 		}
 		drawstring([0.475*g_width, 0.225*g_height, 0], arval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	} else {
+		// Render Scale
+		resval = strcat(itos(ftoi(cvar("r_renderscale")*100)), "%");
 	}
+
+	drawstring([0.475*g_width, 0.175*g_height, 0], resval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 	
 	// Fullscreen
 	if (fullscreenval == 0)
@@ -1475,6 +1504,9 @@ void() Draw_Extra_GSettings =
 			break;
 		case 28:
 			gset_desc = "Toggle texture filtering.";
+			break;
+		case 61:
+			gset_desc = "Adjust scale factor for 3D rendering.";
 			break;
 		default:
 			gset_desc = "";
