@@ -1476,7 +1476,10 @@ void() Draw_Extra_GSettings =
 			gset_desc = "Change Window Aspect Ratio.";
 			break;
 		case 19:
-			gset_desc = "Toggle Fullscreen (May fail depending on GPU).";
+			if (platform_is_web == false)
+				gset_desc = "Toggle Fullscreen (May fail depending on GPU).";
+			else
+				gset_desc = "Put Browser in Fullscreen when loaded in World.";
 			break;
 		case 20:
 			gset_desc = "Toggle Framerate Overlay.";
