@@ -198,6 +198,10 @@ float screen_height_219[MAX_219];
 
 int 	platform_is_web;
 
+#define 	OPTION_EXE_ONLY 	0
+#define 	OPTION_WEB_ONLY 	1
+#define 	OPTION_WEB_AND_EXE	2
+
 //controller buttons
 
 /*
