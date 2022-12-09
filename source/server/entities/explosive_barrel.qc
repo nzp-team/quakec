@@ -117,6 +117,9 @@ void() explosive_barrel =
     Precache_Set(self.model);
 	setsize (self, '-10 -10 ', '10 10 38');
 
+    // Instantly die when shot with the Wunderwaffe
+    self.th_diewunder = Barrel_Explode;
+
 	self.takedamage = DAMAGE_YES;
 	self.state = 0;
 };
