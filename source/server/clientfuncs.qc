@@ -657,7 +657,7 @@ float(float weapon) Util_WeaponIsSemiAutomatic =
 
 	// Valid firetypes
 	if (firetype == FIRETYPE_SEMIAUTO || firetype == FIRETYPE_GRENADE ||
-	firetype == FIRETYPE_RAYBEAM || firetype == FIRETYPE_TESLA)
+	firetype == FIRETYPE_TESLA)
 		return true;
 
 	return false;
