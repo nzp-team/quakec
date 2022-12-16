@@ -1,5 +1,5 @@
 /*
-	server/nzdparser.qc
+	server/player.qc
 
 	Various stuff done for the player, including per-frame functions 
 	like PlayerPreThink and PlayerPostThink, also client specific 
@@ -676,54 +676,6 @@ void() SetNewParms =
 
 void() SetChangeParms =
 {
-};
-
-//
-// SV_ParseClientCommand(command_string)
-// Server-Side client command parser to add special
-// gameplay commands that interact with QuakeC.
-//
-void(string command_string) SV_ParseClientCommand =
-{
-	// If true, we will avoid sending the command info
-	// to the client.
-	float client_parse_override = true;
-
-	// Get the string ready for arg parsing
-	tokenize(command_string);
-
-	// Grab the command string
-	string command = argv(0);
-
-	// Check for 'say' prefix (`cl_chatmode 2` will append it
-	// to everything unregistered by the client). Re-tokenize
-	// if found.
-	if (command == "say") {
-		string fixed_command_string = argv(1);
-		tokenize(fixed_command_string);
-		command = argv(0);
-	}
-
-	// Now iterate over our commands
-	switch(command) {
-		// addmoney <point_value>:
-		//   gives `point_value` amount of points to the client
-		//   who requested it.
-		case "addmoney":
-			float point_value = stof(argv(1));
-			addmoney(self, point_value, 0);
-			break;
-		default:
-			client_parse_override = false;
-			break;
-	}
-
-	// Client override was disabled, so let the engine
-	// deal with whatever was sent.
-#ifdef PC
-	if (client_parse_override == false)
-		clientcommand(self, command_string);
-#endif // PC
 };
 
 #ifdef PC
