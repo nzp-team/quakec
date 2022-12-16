@@ -5,7 +5,7 @@
 	like PlayerPreThink and PlayerPostThink, also client specific 
 	stuff like PutClientInServer etc.
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -678,22 +678,50 @@ void() SetChangeParms =
 {
 };
 
+//
+// SV_ParseClientCommand(command_string)
+// Server-Side client command parser to add special
+// gameplay commands that interact with QuakeC.
+//
 void(string command_string) SV_ParseClientCommand =
 {
-	float skip = true;
-	float fvalue;
-	tokenize(command_string);
-	string cmd = argv(0);
+	// If true, we will avoid sending the command info
+	// to the client.
+	float client_parse_override = true;
 
-	switch (cmd)
-	{
-		case "addmoney":
-			fvalue = stof(argv(1));
-			addmoney(self, fvalue, 0);
-		default: skip = false; break;
+	// Get the string ready for arg parsing
+	tokenize(command_string);
+
+	// Grab the command string
+	string command = argv(0);
+
+	// Check for 'say' prefix (`cl_chatmode 2` will append it
+	// to everything unregistered by the client). Re-tokenize
+	// if found.
+	if (command == "say") {
+		string fixed_command_string = argv(1);
+		tokenize(fixed_command_string);
+		command = argv(0);
 	}
+
+	// Now iterate over our commands
+	switch(command) {
+		// addmoney <point_value>:
+		//   gives `point_value` amount of points to the client
+		//   who requested it.
+		case "addmoney":
+			float point_value = stof(argv(1));
+			addmoney(self, point_value, 0);
+			break;
+		default:
+			client_parse_override = false;
+			break;
+	}
+
+	// Client override was disabled, so let the engine
+	// deal with whatever was sent.
 #ifdef PC
-	if (skip == false)
+	if (client_parse_override == false)
 		clientcommand(self, command_string);
 #endif // PC
 };
