@@ -425,6 +425,21 @@ void() ContinueReload = //Special reloads
 	}
 }
 
+void(float side) W_AdvanceAnim =
+{
+	float startframe, endframe, delay, reloadcancelframe;
+	string modelname;
+
+	startframe = GetFrame(self.weapon, RELOAD_START);
+	endframe = GetFrame(self.weapon, RELOAD_END);
+	delay = getWeaponDelay(self.weapon, RELOAD);
+	reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
+
+	modelname = GetWeaponModel(self.weapon, 0);
+
+	Set_W_Frame (startframe, endframe, delay, reloadcancelframe, RELOAD, W_Give_Ammo, modelname, false, side);
+}
+
 void(float side) W_Reload =
 {
 	if (self.weapon == W_M2 || self.weapon == W_FIW)
