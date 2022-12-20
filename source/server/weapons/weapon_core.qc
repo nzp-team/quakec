@@ -2168,15 +2168,10 @@ void () Impulse_Functions =
 			self.sprintflag = 1;
 			break;
 		#endif
-		/*case 110:
-			CheckButton(1);
-			break;
-		case 111:
-			CheckButton(0);
-			break;	*/
 		case 110:
 		case 111:
 			W_PutOut();
+			self.semiswitch = true;
 			break;	
 		case 100:
 			cvar_set("waypoint_mode", "1");
@@ -2532,7 +2527,7 @@ void () Weapon_Logic =
 	{
 		W_PutOut();
 		self.semiswitch = true;
-	} else if (!self.button4 && self.semiswitch) {
+	} else if (!self.button4 && self.semiswitch && self.impulse != 110 && self.impulse != 111) {
 		self.semiswitch = false;
 	}
 	
