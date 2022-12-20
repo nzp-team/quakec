@@ -164,6 +164,21 @@ void () W_Frame_Update =
 	}
 };
 
+float(string path) model_should_hide_weapon2 =
+{
+	switch(path) {
+		case "progs/VModels/v_nade.mdl":
+		case "progs/VModels/v_betty.mdl":
+		case "models/weapons/bk/v_bk.mdl":
+		case "models/weapons/knife/v_bowie.mdl":
+		case "models/weapons/knife/v_knife.mdl":
+			return true;
+			break;
+	}
+
+	return false;
+}
+
 void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side) =
 {
 	float math, reversed;
@@ -217,8 +232,7 @@ void Set_W_Frame (float startframe, float endframe, float duration, float funcca
 			else	
 				UpdateVmodel(self.weaponmodel, self.weaponskin);
 
-			
-			if (set_model == "progs/VModels/v_nade.mdl" || set_model == "progs/VModels/v_betty.mdl") {
+			if (model_should_hide_weapon2(set_model) == true) {
 				self.weapon2model = "";
 				UpdateV2model(self.weapon2model, 0);
 			} else if (self.weapon == W_KAR_SCOPE) {	
