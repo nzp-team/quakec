@@ -30,6 +30,8 @@
 void (float achievement_id, optional entity who) GiveAchievement;
 #endif // NX
 
+void() Barrel_Hit;
+
 void() EndGame_Restart = 
 {
 	localcmd("restart");
@@ -528,6 +530,22 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				}
 				DamageHandler (attacker, attacker, final_damage, S_EXPLOSIVE);
 			}
+		}
+		else if (ent.classname == "explosive_barrel")
+		{
+			final_damage = radius - vlen(inflictor.origin - ent.origin);
+			final_damage *= 4;
+
+			if (final_damage < 0)
+				continue;
+
+			ent.health -= final_damage;
+
+			entity oldself;
+			oldself  = self;
+			self = ent;
+			Barrel_Hit();
+			self = oldself;
 		}
 		else if (ent.takedamage && ent.classname != "ai_zombie_head" && ent.classname != "ai_zombie_larm" && ent.classname != "ai_zombie_rarm")
 		{			
