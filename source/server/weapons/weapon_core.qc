@@ -482,6 +482,7 @@ void(float side) W_Reload =
 		delay = getWeaponDelay(self.weapon,RELOAD);
 		void(optional float t) endanimfunc = SUB_Null;
 
+		// TODO: Make browning use new reload status frames
 		if (self.weapon == W_BROWNING || self.weapon ==  W_ACCELERATOR) {
 			if (!self.currentmag) {
 				startframe = 26;
@@ -502,7 +503,22 @@ void(float side) W_Reload =
 			reloadcancelframe = 0;
 			delay = 0.8;
 			endanimfunc = ContinueReload;
-		} else if (self.weapon == W_M1 || self.weapon == W_M1000) {
+		}
+		// Check for special reload type
+		else if (GetFrame(self.weapon, RELOAD_EMPTY_START) != 0) {
+			//reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
+			if (self.currentmag > 0) {
+				startframe = GetFrame(self.weapon, RELOAD_PART_START);
+				endframe = GetFrame(self.weapon, RELOAD_PART_END);
+				delay = getWeaponDelay(self.weapon, RELOAD_PAR);
+			} else {
+				startframe = GetFrame(self.weapon, RELOAD_EMPTY_START);
+				endframe = GetFrame(self.weapon, RELOAD_EMPTY_END);
+				delay = getWeaponDelay(self.weapon, RELOAD_EMP);
+			}
+			endanimfunc = W_AdvanceAnim;
+		}
+		/* else if (self.weapon == W_M1 || self.weapon == W_M1000) {
 			if (self.currentmag > 0) {
 				startframe = 4;
 				endframe = 44;
@@ -516,7 +532,7 @@ void(float side) W_Reload =
 				delay = 3.6;
 				endanimfunc = W_Give_Ammo;
 			}
-		} else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
+		} */else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
 			if (self.currentmag == 0) {
 				self.NeedLoad = true;
 			}
