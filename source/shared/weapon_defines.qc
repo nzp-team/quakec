@@ -1354,7 +1354,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-3.9, 3.5, 1.84];
 		case W_PPSH:
 		case W_REAPER:
-			return [-9.79, 5.5, 2.94];
+			return [-3.79, 3.75, 1.5];
 		case W_PTRS:
 		case W_PENETRATOR:
 			return [-9.79, 6.6, 2.44];
@@ -1428,7 +1428,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-6550, 4400, 0];
 		case W_PPSH:
 		case W_REAPER:
-			return [-11000, 3700, 0];
+			return [-7500, 3000, 0];
 		case W_MP40:
 		case W_AFTERBURNER:
 			return [-12320, 7600, 0];
@@ -2052,29 +2052,29 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 0;
 				case FIRE_END:
-					return 0;
+					return 1;
 				case RELOAD_START:
-					return 4;
+					return 5;
 				case RELOAD_END:
-					return 34;
+					return 38;
 				case SPRINT_IN_START:
-					return 44;
+					return 40;
 				case SPRINT_IN_END:
-					return 45;
+					return 42;
 				case SPRINT_OUT_START:
-					return 47;
-				case SPRINT_OUT_END:
-					return 49;
-				case TAKE_OUT_START:
-					return 46;
-				case TAKE_OUT_END:
-					return 49;
-				case PUT_OUT_START:
 					return 43;
-				case PUT_OUT_END:
+				case SPRINT_OUT_END:
+					return 45;
+				case TAKE_OUT_START:
+					return 49;
+				case TAKE_OUT_END:
+					return 52;
+				case PUT_OUT_START:
 					return 46;
+				case PUT_OUT_END:
+					return 48;
 				case RELOAD_CANCEL:
-					return 16;
+					return 22;
 			}
 			break;
 		case W_PTRS:
@@ -2978,15 +2978,15 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_PPSH:
     	case W_REAPER:
-				if (curweaponframe == 7) {
+				if (curweaponframe == 8) {
 				sound (self ,5, "sounds/weapons/ppsh/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 15) {
+			} else if (curweaponframe == 20) {
 				sound (self ,5, "sounds/weapons/ppsh/magin.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 19) {
+			} else if (curweaponframe == 22) {
 				sound (self ,5, "sounds/weapons/ppsh/maghit.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 26) {
+			} else if (curweaponframe == 30) {
 				sound (self ,5, "sounds/weapons/ppsh/boltback.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 28) {
+			} else if (curweaponframe == 33) {
 				sound (self ,5, "sounds/weapons/ppsh/boltrelease.wav", 1, ATTN_NORM);
 			}
 			break;
