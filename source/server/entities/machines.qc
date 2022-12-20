@@ -1854,7 +1854,7 @@ void PapUpgrade(entity pap, entity buyer) {
 
 	////////////////////////////////////////
 
-	self.fire_delay = self.reload_delay = 4.0 + time;
+	self.fire_delay = self.reload_delay = 4.5 + time;
 	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NONE);
 
 	pap.weapon = self.weapon;
@@ -1889,6 +1889,10 @@ void touch_pap() {
 	if (other.classname != "player" || other.downed || !isFacing(other, self)) {
 		return;
 	}
+
+	if (other.reload_delay > time || other.reload_delay2 > time || 
+	other.fire_delay > time || other.fire_delay2 > time)
+		return;
     
 	if (self.requirespower == true && !isPowerOn) {
 		useprint (other, 8, 0, 0);
