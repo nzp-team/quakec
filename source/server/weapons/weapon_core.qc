@@ -437,6 +437,8 @@ void(float side) W_AdvanceAnim =
 
 	modelname = GetWeaponModel(self.weapon, 0);
 
+	self.reload_delay = self.reload_delay2 = delay + time;
+
 	Set_W_Frame (startframe, endframe, delay, reloadcancelframe, RELOAD, W_Give_Ammo, modelname, false, side);
 }
 
@@ -533,21 +535,7 @@ void(float side) W_Reload =
 			}
 			endanimfunc = W_AdvanceAnim;
 		}
-		/* else if (self.weapon == W_M1 || self.weapon == W_M1000) {
-			if (self.currentmag > 0) {
-				startframe = 4;
-				endframe = 44;
-				reloadcancelframe = 25;
-				delay = 3.9;
-				endanimfunc = W_Give_Ammo;
-			} else {
-				startframe = 8;
-				endframe = 44;
-				reloadcancelframe = 25;
-				delay = 3.6;
-				endanimfunc = W_Give_Ammo;
-			}
-		} */else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
+		else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
 			if (self.currentmag == 0) {
 				self.NeedLoad = true;
 			}
