@@ -590,10 +590,10 @@ void(entity person, float expamt, float doublepoint) addmoney =
 float(entity person, float slot) Util_GetPlayerAmmoInSlot =
 {
 	switch(slot) {
-		case 1: return person.currentammo;
-		case 2: return person.secondaryammo;
-		case 3: return person.thirdammo;
-		default: return 0;
+		case 1: return person.currentammo; break;
+		case 2: return person.secondaryammo; break;
+		case 3: return person.thirdammo; break;
+		default: return 0; break;
 	}
 }
 
@@ -604,10 +604,10 @@ float(entity person, float slot) Util_GetPlayerAmmoInSlot =
 void(entity person, float slot, float ammo) Util_SetPlayerAmmoInSlot =
 {
 	switch(slot) {
-		case 1: person.currentammo = ammo;
-		case 2: person.secondaryammo = ammo;
-		case 3: person.thirdammo = ammo;
-		default: return;
+		case 1: person.currentammo = ammo; break;
+		case 2: person.secondaryammo = ammo; break;
+		case 3: person.thirdammo = ammo; break;
+		default: return; break;
 	}
 };
 
