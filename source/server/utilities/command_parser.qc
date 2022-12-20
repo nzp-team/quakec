@@ -28,11 +28,56 @@
 */
 
 // Needed to iterate through all of the command table.
-#define NUMBER_OF_COMMANDS  1
+#define NUMBER_OF_COMMANDS  2
 
 // Success/Failure return codes
 #define COMMAND_SUCCESS     0
 #define COMMAND_FAILURE     1
+
+//
+// Command_give(params)
+// Usage: give <weapon_number>
+//
+float(string params) Command_give =
+{
+	float wep = stof(argv(1));
+
+	if (wep) {
+		if (!self.secondaryweapon) {
+			WeaponSwitch(self);
+		}
+
+	    float startframe, endframe;
+		string modelname;
+
+		self.weapon = wep;
+		self.currentammo = getWeaponAmmo(wep);
+		self.currentmag = getWeaponMag(wep);
+		if (IsDualWeapon(wep)) {
+			self.currentmag2 = self.currentmag;
+		}
+
+		self.weaponskin = GetWepSkin(self.weapon);
+
+		startframe = GetFrame(self.weapon,TAKE_OUT_START);
+		endframe = GetFrame(self.weapon,TAKE_OUT_END);
+		modelname = GetWeaponModel(wep, 0);
+
+		SwitchWeapon(wep);
+
+		Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
+
+		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
+
+		#ifndef PC
+		self.Weapon_Name = GetWeaponName(self.weapon);
+	    #endif
+
+        return COMMAND_SUCCESS;
+    }
+
+    return COMMAND_FAILURE;
+}
 
 //
 // Command_addmoney(params)
@@ -73,7 +118,8 @@ var struct {
     float                   requires_arguments;
     string                  command_description;
 } server_commands[] = {
-    {"addmoney", Command_addmoney, true, "Usage: addmoney <point_value>\n  Gives `point_value` amount of points to the client who requested it.\n"}
+    {"addmoney", Command_addmoney, true, "Usage: addmoney <point_value>\n  Gives `point_value` amount of points to the client who requested it.\n"},
+    {"give", Command_give, true, "Usage: give <weapon number>\n  Gives `weapon` of index.\n"}
 };
 
 //
