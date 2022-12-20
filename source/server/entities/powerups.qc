@@ -77,6 +77,23 @@ PU_AddToStruct =
 };
 
 //
+// PU_CopyStruct(to, from)
+// Copies a powerup_struct from to.
+//
+powerup_struct(powerup_struct to, powerup_struct from) PU_CopyStruct =
+{
+	to.id = from.id;
+	to.occupied = from.occupied;
+	to.flash_screen = from.flash_screen;
+	to.model_path = from.model_path;
+	to.voiceover_path = from.voiceover_path;
+	to.function = from.function;
+	to.requirement_function = from.requirement_function;
+
+	return to;
+}
+
+//
 // PU_PopulateArray()
 // Generates a Power-Up array with the Fisher-Yates shuffle
 //
@@ -89,9 +106,10 @@ void() PU_PopulateArray =
 		amount -= 1;
 
 		powerup_struct temp;
-		temp = powerup_array[i];
-		powerup_array[i] = powerup_array[amount];
-		powerup_array[amount] = temp;
+
+		PU_CopyStruct(temp, powerup_array[i]);
+		PU_CopyStruct(powerup_array[i], powerup_array[amount]);
+		PU_CopyStruct(powerup_array[amount], temp);
 	}
 };
 
