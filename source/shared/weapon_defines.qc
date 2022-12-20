@@ -1145,8 +1145,12 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.200;
 		case W_M1:
 		case W_M1000:
+			if (delaytype == RELOAD_EMP)
+				return 0.4;
+			if (delaytype == RELOAD_PAR)
+				return 1.4;
 			if (delaytype == RELOAD)
-				return 3.2;
+				return 1.4;
 			else if (delaytype == FIRE)
 				return 0.275;
 		case W_M1A1:
@@ -1342,7 +1346,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-2.19, 2.67, 0.42];
 		case W_M1:
 		case W_M1000:
-			return [-2.6, 1.46, 1.12];
+			return [-4.6, 3.90, 1.12];
 		case W_M1A1:
 		case W_WIDDER:
 			return [-0.6, 2.7, 1.94];
@@ -1440,7 +1444,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-14534, 8920, 0];
 		case W_M1:
 		case W_M1000:
-			return [-2860, 2000, 0];
+			return [-7700, 2200, 0];
 		case W_BROWNING:
 		case W_ACCELERATOR:
 			return [-15200, 11620, 0];
@@ -1862,29 +1866,37 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 3;
+					return 5;
+				case RELOAD_EMPTY_START:
+					return 5;
+				case RELOAD_EMPTY_END:
+					return 17;
+				case RELOAD_PART_START:
+					return 40;
+				case RELOAD_PART_END:
+					return 54;
 				case RELOAD_START:
-					return 8;
+					return 18;
 				case RELOAD_END:
-					return 44;
+					return 36;
 				case SPRINT_IN_START:
 					return 58;
 				case SPRINT_IN_END:
-					return 59;
+					return 62;
 				case SPRINT_OUT_START:
-					return 60;
-				case SPRINT_OUT_END:
-					return 61;
-				case TAKE_OUT_START:
-					return 59;
-				case TAKE_OUT_END:
 					return 63;
+				case SPRINT_OUT_END:
+					return 67;
+				case TAKE_OUT_START:
+					return 78;
+				case TAKE_OUT_END:
+					return 84;
 				case PUT_OUT_START:
-					return 56;
+					return 68;
 				case PUT_OUT_END:
-					return 59;
+					return 73;
 				case RELOAD_CANCEL:
-					return 16;
+					return 26;
 			}
 			break;
 		case W_M1A1:
@@ -2928,14 +2940,14 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_M1:
 		case W_M1000:
-			if (curweaponframe == 6) {
+			if (curweaponframe == 6 || curweaponframe == 46) {
 				sound (self ,5, "sounds/weapons/garand/clipout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 20) {
+			} else if (curweaponframe == 23) {
 				sound (self ,5, "sounds/weapons/garand/clipin.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 26) {
-				sound (self ,5, "sounds/weapons/garand/clippush.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 37) {
+			} else if (curweaponframe == 27) {
 				sound (self ,5, "sounds/weapons/garand/boltrelease.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 44) {
+				sound (self ,5, "sounds/weapons/garand/clippush.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_M1A1:
@@ -3923,7 +3935,7 @@ vector (float wep) GetWeaponFlash_Offset =
 					return [14300, -16230, 100000];
 				case W_M1:
 				case W_M1000:
-					return [2896, -4142, 28300];
+					return [3506, -1500, 33000];
 				case W_BROWNING:
 				case W_ACCELERATOR:
 					return [15726, -23375, 170713];
