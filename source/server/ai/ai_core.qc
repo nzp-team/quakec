@@ -26,6 +26,7 @@
 */
 
 void(float what) play_sound_z;
+void() LinkZombiesHitbox;
 
 void() path_corner_touch =
 {
@@ -489,6 +490,8 @@ void(float dist) Window_Hop =
 		self.enemy = find_new_enemy(self);
 		//self.th_die();
 		self.th_walk();
+		LinkZombiesHitbox();
+		//bprint (PRINT_HIGH, "Linked hitboxes");
 	}
 }
 

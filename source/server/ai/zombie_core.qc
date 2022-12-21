@@ -29,6 +29,7 @@ void() Zombie_Walk_Setup;
 void() crawler_rip_board1;
 void() crawler_da1;
 void() crawler_die1;
+void() LinkZombiesHitbox;
 
 
 float EMPTY_BBOX = 0;
@@ -1379,6 +1380,8 @@ void() zombieRise =
 	self.frame ++;
 	self.think = zombieRise;
 	self.nextthink = time + 0.1;
+	LinkZombiesHitbox();
+	//bprint (PRINT_HIGH, "Linked hitboxes");
 };
 void() spawn_zombie =
 {
@@ -1650,6 +1653,7 @@ void(entity where) spawn_a_zombieB =
 	
 	szombie.mins = '-8 -8 -32';//-16 16 -32
 	szombie.maxs = '8 8 30';//16 16 40
+	
 	setsize (szombie, szombie.mins, szombie.maxs);//-16,-16,-32,16,16,40
 	//Setting Uniform skin=================
 	/*if(random() > 0.5)
@@ -1728,7 +1732,7 @@ void(entity where) spawn_a_zombieB =
 	SetZombieWalk(szombie);
 	//==================================================================================================
 	
-	SetUpHitBoxes(szombie);
+	SetUpHitBoxes(szombie); 
 	//szombie.walktype = 5;
 	////////////////////////////////////////////////////
 	szombie.reload_delay = 30 + time;//save  floats, equals respawn time.
@@ -1742,6 +1746,9 @@ void(entity where) spawn_a_zombieB =
 	else
 		self.th_walk();
 	self = old_self;
+	
+	LinkZombiesHitbox();
+	//bprint (PRINT_HIGH, "Linked hitboxes");
 
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;
