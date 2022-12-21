@@ -1655,23 +1655,6 @@ void(entity where) spawn_a_zombieB =
 	szombie.maxs = '8 8 30';//16 16 40
 	
 	setsize (szombie, szombie.mins, szombie.maxs);//-16,-16,-32,16,16,40
-	//Setting Uniform skin=================
-	/*if(random() > 0.5)
-	{
-		szombie.skin = 1;
-		szombie.larm.skin = 1;
-		szombie.rarm.skin = 1;
-	}
-	//Setting Skin
-	if(random() < 0.5)
-		szombie.head.skin = 0;
-	else
-		szombie.head.skin = 1;*/
-	
-	local float tex;
-	tex = random();
-
-	szombie.skin = 0;
 		
 	
 	//====================================
@@ -1748,7 +1731,25 @@ void(entity where) spawn_a_zombieB =
 	self = old_self;
 	
 	LinkZombiesHitbox();
-	//bprint (PRINT_HIGH, "Linked hitboxes");
+	
+#ifdef CTR
+	//
+	// Zombie skin setting
+	//
+	float tex;
+	tex = random();
+
+	if (tex > 0.75)
+		szombie.skin = 0;
+	else if (tex > 0.50)
+		szombie.skin = 1;
+	else if (tex > 0.25)
+		szombie.skin = 2;
+	else
+		szombie.skin = 3;
+#endif // CTR
+
+	szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
 
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;
