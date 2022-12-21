@@ -1732,7 +1732,7 @@ void(entity where) spawn_a_zombieB =
 	
 	LinkZombiesHitbox();
 	
-#ifdef CTR
+#ifndef PC
 	//
 	// Zombie skin setting
 	//
@@ -1747,7 +1747,7 @@ void(entity where) spawn_a_zombieB =
 		szombie.skin = 2;
 	else
 		szombie.skin = 3;
-#endif // CTR
+#endif // PC
 
 	szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
 
