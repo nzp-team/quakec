@@ -2054,7 +2054,7 @@ void() Change_Stance = {
 
 void() dolphin_dive =		//naievil
 {    
-	if (self.stance != 2)
+	if (self.stance != 2 || self.view_ofs_z != 32)
 		return;
  	if (self.flags & FL_WATERJUMP)
 		return;
