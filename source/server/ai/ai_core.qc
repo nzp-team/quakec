@@ -67,44 +67,71 @@ void() Respawn =
 
 entity(entity blarg) find_new_enemy =
 {
-	local entity player;
-	local entity closest;
-	local float bestdist;
-	local float dist;
-	bestdist = 10000;
-	closest = 0;
+	entity  targets;
+	entity  best_target;
+	float 	best_distance;
+	float 	distance;
+	
+	best_distance = 10000;
+	best_target = world;
 
-	if(self.classname == "ai_zombie" || self.classname == "ai_dog") {
-		player = find(world,classname,"monkey");
-		if(player) {
-			return player;
+	if (blarg.classname == "ai_zombie" || blarg.classname == "ai_dog") {
+		// Monkey Bomb (TODO -- if multiple, target first one thrown)
+		targets = find(world, classname, "monkey_bomb");
+		if (targets != world && blarg.classname != "ai_dog") {
+			best_target = targets;
+			return best_target;
 		}
-		
-		player = find(world,classname,"player");
-		///////////////////////////////
-		if(!player) {
-			return world;
-		}
-		//////////////////////////////
-		while(player) {
-      		if (player.downed == true) {
-				player = find(player,classname,"player");
+
+		// Now, try and find a viable player
+		targets = find(world, classname, "player");
+
+		while(targets != world) {
+			// Don't target downed players.
+			if (targets.downed == true) {
+				targets = find(targets, classname, "player");
 				continue;
 			}
-        
-			dist = vlen(self.origin - player.origin);
-			if (dist < bestdist) {
-				closest = player;
-				bestdist = dist;
+
+			// Found one, let's see if it's closer than our last ideal target.
+			distance = vlen(blarg.origin - targets.origin);
+
+			if (distance < best_distance) {
+				best_target = targets;
+				best_distance = distance;
 			}
-			player = find(player,classname,"player");
+
+			// Continue iterating
+			targets = find(targets, classname, "player");
 		}
-		return closest;
-		
+
+		// Return a good player if we found one.
+		if (best_target != world)
+			return best_target;
+
+		// We couldn't find a good player. How about a horde point?
+		targets = find(world, classname, "zombie_horde_point");
+
+		while(targets != world) {
+			// Found one, let's see if it's closer than our last ideal target.
+			distance = vlen(blarg.origin - targets.origin);
+
+			if (distance < best_distance) {
+				best_target = targets;
+				best_distance = distance;
+			}
+
+			// Continue iterating
+			targets = find(targets, classname, "zombie_horde_point");
+		}
+
+		// Return a horde point if we found one.
+		if (best_target != world)
+			return best_target;
 	}
-	if (self.classname != "wunder")
-		bprint(PRINT_HIGH, "Error: Find_New_Enemy returns world! \n");
-	return world;
+
+	// We didn't have much luck, just return the world.
+	return best_target;
 };
 
 float() avoid_zombies =
@@ -605,7 +632,7 @@ float(vector start, vector min, vector max, vector end, float nomonsters, entity
 #endif
 
 void(float dist) Inside_Walk = {
-	if(self.enemy_timeout < time || self.enemy == world) {
+	if(self.enemy_timeout < time || self.enemy == world || self.enemy.downed == true) {
 		self.enemy_timeout = time + 5;
 		local entity oldEnemy;
 		oldEnemy = self.enemy;
@@ -613,13 +640,15 @@ void(float dist) Inside_Walk = {
 	}
 	//================Check for proximity to player ===========
 	if(vlen(self.enemy.origin - self.origin) < 60) {
-		if(self.enemy.classname == "monkey") {
+		if(self.enemy.classname == "monkey_bomb") {
 			self.th_idle();
 		}
 		
 		if(self.attack_delay < time) {
 			self.attack_delay = time + 1 + (1 * random());
 			self.th_melee();  
+			if (self.enemy.downed == true)
+				self.enemy = find_new_enemy(self);
 			self.goalentity = self.enemy;
 			self.chase_time = time + 5;
 		}
@@ -642,9 +671,9 @@ void(float dist) Inside_Walk = {
 		self.chase_time = 0;
 	}
 	//============= No Target ====================
-	if(self.goalentity == world) {//not sure when this would ever occur... but whatever.
-		self.goalentity = self.goaldummy;
-	}
+	//if(self.goalentity == world) {//not sure when this would ever occur... but whatever.
+	//	self.goalentity = self.goaldummy;
+	//}
 	//============ GoalDummy is Target ============
 	if(self.goalentity == self.goaldummy) {
 		if(nearby(self.goaldummy.origin)) {
