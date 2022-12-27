@@ -213,6 +213,16 @@ void() GetDown =
 	// Get Rid of Mule Kick Weapon (FIXME -- this just obliterates the third slot)
 	self.thirdweapon = 0;
 
+	// Calculate the loss in points, take away points from downed Player.
+	float point_difference;
+	point_difference = self.points;
+	point_difference -= 10*rint((self.points*0.95)/10);
+	addmoney(self, point_difference * -1, false);
+	self.requirespower = point_difference;
+
+	// Broadcast that the player has downed.
+	BroadcastMessage(time + 3, 2);
+
 	// Reset state
 	self.velocity = self.zoom = 0;
 	self.downed = true;
@@ -234,16 +244,6 @@ void() GetDown =
 		self.progress_bar_time = 10;
 		self.progress_bar_percent = 1;
 	}
-
-	// Calculate the loss in points, take away points from downed Player.
-	float point_difference;
-	point_difference = self.points;
-	point_difference -= 10*rint((self.points*0.95)/10);
-	addmoney(self, point_difference * -1, false);
-	self.requirespower = point_difference;
-
-	// Broadcast that the player has downed.
-	BroadcastMessage(time + 3, 2);
 
 	// Take away weapons and Perks
 	self.perks = 0;
@@ -371,6 +371,10 @@ void () GetUp =
 		self.secondaryammo -= self.teslacount;
 	}
 	self.teslacount = 0;
+
+	if (!coop) {
+		addmoney(self, self.requirespower, false);
+	}
 
 	if (self.weaponbk)
 	{

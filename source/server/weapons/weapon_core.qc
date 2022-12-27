@@ -2328,6 +2328,7 @@ void() CheckPlayer =
 					self.progress_bar_time = 0;
 					self.progress_bar_percent = 0;
 					self.revived = 0;
+					addmoney(self, ent.requirespower, false);
 				}
 			}
 			else if (!self.button7 && self.reviving) {
