@@ -194,98 +194,157 @@ void() rec_downed =
 
 void() GetDown =
 {
-	float startframe;
-	float endframe;
-	local string modelname;
-
-	if (rounds <= 1 && self.currentmag == 0 && self.currentmag2 == 0 && self.currentammo == 0 && self.secondarymag == 0 &&
-	self.secondarymag2 == 0 && self.secondaryammo == 0) {
+	// 'Pro Gamer Move' achievement.
+	if (rounds <= 1 && self.currentmag == 0 && 
+	self.currentmag2 == 0 && self.currentammo == 0 && 
+	self.secondarymag == 0 && self.secondarymag2 == 0 && 
+	self.secondaryammo == 0) {
 		GiveAchievement(9, self);
 	}
-	
-	playdown();
-	
-	switch(self.stance) {
-		case 2:
-			self.new_ofs_z = self.view_ofs_z - 42;
-			self.stance = 0;
-			break;
-		case 1:
-			self.new_ofs_z = self.view_ofs_z - 24;
-			self.stance = 0;
-			break;
-		default: break;
-	}
 
-	// remove third weapon
+	// Play Last Stand Animation
+	PAnim_GetDown1();
+
+	// Force the player to prone.
+	if (self.stance == 2) self.new_ofs_z = self.view_ofs_z - 42;
+	if (self.stance == 1) self.new_ofs_z = self.view_ofs_z - 24;
+	self.stance = 0;
+
+	// Get Rid of Mule Kick Weapon (FIXME -- this just obliterates the third slot)
 	self.thirdweapon = 0;
 
-	self.velocity = '-80 0 -80';           			// Stop any old movement
-	self.zoom = 0;
+	// Reset state
+	self.velocity = self.zoom = 0;
 	self.downed = true;
 	self.dive_delay = 0;
 	self.movetype = MOVETYPE_NONE;
-	
-	float gotalive = PollPlayersAlive();	
-	
-	if ((coop && !gotalive) || (!coop && !(self.perks & P_REVIVE))) {
+
+	float players_still_alive = PollPlayersAlive();
+
+	if ((coop && !players_still_alive) || (!coop && !(self.perks & P_REVIVE))) {
 		EndGameSetup();
 		return;
 	} else {
 		self.health = 19; 
 	}
-	
+
+	// Initiate Self-Revive on Solo
 	if ((self.perks & P_REVIVE) && !coop) {	
 		self.progress_bar = 10 + time;     
 		self.progress_bar_time = 10;
 		self.progress_bar_percent = 1;
-		self.downed = true;
 	}
-	
-	self.points = 10*rint((self.points*0.95)/10);
-	addmoney(self, 0, true);						// used to call a broadcast
+
+	// Calculate the loss in points, take away points from downed Player.
+	float point_difference;
+	point_difference = self.points;
+	point_difference -= 10*rint((self.points*0.95)/10);
+	addmoney(self, point_difference * -1, false);
+	self.requirespower = point_difference;
+
+	// Broadcast that the player has downed.
 	BroadcastMessage(time + 3, 2);
-	
+
+	// Take away weapons and Perks
 	self.perks = 0;
+	SetPerk(self, self.perks);
 	self.weaponbk = self.weapon;
 	self.currentammobk = self.currentammo;
 	self.currentmagbk = self.currentmag;
 	self.currentmagbk2 = self.currentmag2;
-	
-	if (self.weapon == W_BIATCH || self.secondaryweapon == W_BIATCH || self.progress_bar_percent > 0) {
-		self.weapon = W_BIATCH;
-		self.currentammo = 12;
-		self.currentmag = 6;
-		self.currentmag2 = 6;
+
+	if(Util_PlayerHasWeapon(self, W_BIATCH, false) || 
+	Util_PlayerHasWeapon(self, W_RAY, true) ||
+	Util_PlayerHasWeapon(self, W_357, true)) {
+		float weapon_slot;
+		float total_ammo;
+
+		weapon_slot = Util_PlayerHasWeapon(self, W_RAY, true);
+		if (weapon_slot == 0) weapon_slot = Util_PlayerHasWeapon(self, W_BIATCH, false);
+		if (weapon_slot == 0) weapon_slot = Util_PlayerHasWeapon(self, W_357, true);
+
+		switch(weapon_slot) {
+			case 1:
+				total_ammo = self.currentmag + self.currentmag2 + self.currentammo;
+				break;
+			case 2:
+				total_ammo = self.secondarymag + self.secondarymag2 + self.secondaryammo;
+				self.weapon = self.secondaryweapon;
+				break;
+		}
+
+		// If it's greater than the mag size, we can fill the magazine.
+		if (total_ammo > getWeaponMag(self.weapon)) {
+			self.currentmag = getWeaponMag(self.weapon);
+
+			// subtract it from the total ammo
+			total_ammo -= self.currentmag;
+		} else {
+			self.currentmag = total_ammo;
+			total_ammo = 0;
+		}
+
+		// Check for dual wield mag too
+		if (IsDualWeapon(self.weapon)) {
+			if (total_ammo > getWeaponMag(self.weapon)) {
+				self.currentmag2 = getWeaponMag(self.weapon);
+
+				// subtract it from the total ammo
+				total_ammo -= self.currentmag2;
+			} else {
+				self.currentmag2 = total_ammo;
+				total_ammo = 0;
+			}
+		}
+
+		// Ray Gun has a special case where we DON'T fill its reserve
+		if (self.weapon != W_RAY && self.weapon != W_PORTER) {
+			// Now see if the reserve ammo is more than max downed capacity
+			if (total_ammo > getWeaponMag(self.weapon)*2) {
+				self.currentammo = getWeaponMag(self.weapon)*2;
+			} else {
+				// It's not so just fill it
+				self.currentammo = total_ammo;
+			}
+		} else {
+			self.currentammo = 0;
+		}
 	} else {
-		self.weapon = W_COLT;
-		self.currentammo = 16;
-		self.currentmag = 8;
+		if (!coop) {
+			self.weapon = W_BIATCH;
+			self.currentammo = 12;
+			self.currentmag = self.currentmag2 = 6;
+		} else {
+			self.weapon = W_COLT;
+			self.currentmag = 8;
+			self.currentammo = 16;
+		}
 	}
-      
-  	modelname = GetWeaponModel(self.weapon, 0);
-	self.weaponmodel = modelname;
+
+	// Play Switch Animation
+	self.weaponmodel = GetWeaponModel(self.weapon, 0);
 	SwitchWeapon(self.weapon);
 	
-	startframe = GetFrame(self.weapon,TAKE_OUT_START);
-	endframe = GetFrame(self.weapon,TAKE_OUT_END);
-	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
-	
-	local entity revive;
-	
-	revive = spawn ();
-	revive.owner = self;
-	revive.movetype = MOVETYPE_NONE;
-	revive.solid = SOLID_NOT;
-	revive.think = remove_revive;
-	revive.nextthink = time + 0.1;
+	float startframe = GetFrame(self.weapon,TAKE_OUT_START);
+	float endframe = GetFrame(self.weapon,TAKE_OUT_END);
+	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, self.weaponmodel, false, S_BOTH);
 
-	setmodel (revive, "models/sprites/revive.spr");
-	revive.origin = self.origin + VEC_VIEW_OFS;
-	setorigin (revive, revive.origin);
-	
-	SetPerk(self, 0);
-	
+	// Spawn Revive Sprite in Co-Op
+	if (coop) {
+		entity revive_sprite;
+
+		revive_sprite = spawn();
+		revive_sprite.owner = self;
+		revive_sprite.movetype = MOVETYPE_NONE;
+		revive_sprite.solid = SOLID_NOT;
+		revive_sprite.think = remove_revive;
+		revive_sprite.nextthink = time + 0.1;
+
+		setmodel(revive_sprite, "models/sprites/revive.spr");
+		revive_sprite.origin = self.origin + VEC_VIEW_OFS;
+		setorigin(revive_sprite, revive_sprite.origin);
+	}
+
 	self.think = rec_downed;
 	self.nextthink = time + 0.1;
 }
@@ -304,6 +363,15 @@ void () GetUp =
 	self.downedloop = 0;		// used for death timing vs endgame
 	self.downed = 0;
 	self.classname = "player";
+
+	// Take away the ammo that was fired while in last stand.
+	if (self.weapon == self.weaponbk) {
+		self.currentammobk -= self.teslacount;
+	} else if (self.weapon == self.secondaryweapon) {
+		self.secondaryammo -= self.teslacount;
+	}
+	self.teslacount = 0;
+
 	if (self.weaponbk)
 	{
 		self.weapon = self.weaponbk;
