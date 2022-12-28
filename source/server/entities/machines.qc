@@ -1536,8 +1536,9 @@ void() mystery_box_tp_spot =
 	setmodel (self, "models/props/teddy.mdl");
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	
-	if (self.model == "progs/Misc/teddy.mdl") {
+	if (self.model == "models/props/teddy.mdl") {
 		self.frame = 2;
+		self.angles_y -= 90;
 	}
 	
 	boxLocations[boxCount] = self;

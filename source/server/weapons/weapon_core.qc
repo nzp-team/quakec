@@ -1562,7 +1562,10 @@ void(float side) W_Fire =
 	//Play weapon animation and sound
 	startframe = GetFrame(self.weapon,FIRE_START);
 	endframe = GetFrame(self.weapon,FIRE_END);
-	
+
+	// Increment the amount of shots fired while downed
+	if (self.downed == true)
+		self.teslacount++;
 
 	if (self.perks & P_DOUBLE) {
 		delay *= 0.66;
@@ -2325,6 +2328,7 @@ void() CheckPlayer =
 					self.progress_bar_time = 0;
 					self.progress_bar_percent = 0;
 					self.revived = 0;
+					addmoney(self, ent.requirespower, false);
 				}
 			}
 			else if (!self.button7 && self.reviving) {

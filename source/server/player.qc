@@ -29,14 +29,18 @@
 
 void(entity e) Light_None;
 
-// player animations
+//
+// Player 3rd Person Animations
+//
 
-void() playdown 	 	=[	1,		playdown1	  	] {self.frame = 32;}
-void() playdown1  		=[	2,		playdown2	  	] {self.frame = 33;} 
-void() playdown2  		=[	2,		playdown3	  	] {self.frame = 34;} 
-void() playdown3  		=[	2,		playdown4	  	] {self.frame = 35;} 
-void() playdown4  		=[	2,		playdown5	  	] {self.frame = 36;} 
-void() playdown5  		=[	2,		playdown5	  	] {self.frame = 37;} 
+// Enter Last Stand
+void() PAnim_GetDown1	=[	1, 		PAnim_GetDown2	]	{self.frame = 32;};
+void() PAnim_GetDown2	=[	1, 		PAnim_GetDown3	]	{self.frame = 33;};
+void() PAnim_GetDown3	=[	1, 		PAnim_GetDown4	]	{self.frame = 34;};
+void() PAnim_GetDown4	=[	1, 		PAnim_GetDown5	]	{self.frame = 35;};
+void() PAnim_GetDown5	=[	1, 		PAnim_GetDown6	]	{self.frame = 36;};
+void() PAnim_GetDown6	=[	1, 		PAnim_GetDown6	]	{self.frame = 37;};
+
 //
 void() playreload   	=[	1,		playreload1	  	] {self.frame = 11;}
 void() playreload1  	=[	2,		playreload2	  	] {self.frame = 12;}

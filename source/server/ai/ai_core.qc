@@ -671,9 +671,9 @@ void(float dist) Inside_Walk = {
 		self.chase_time = 0;
 	}
 	//============= No Target ====================
-	//if(self.goalentity == world) {//not sure when this would ever occur... but whatever.
-	//	self.goalentity = self.goaldummy;
-	//}
+	if(self.goalentity == world) {//not sure when this would ever occur... but whatever.
+		self.goalentity = self.goaldummy;
+	}
 	//============ GoalDummy is Target ============
 	if(self.goalentity == self.goaldummy) {
 		if(nearby(self.goaldummy.origin)) {
