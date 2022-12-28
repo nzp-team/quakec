@@ -517,7 +517,7 @@ void(float dist) Window_Hop =
 		self.enemy = find_new_enemy(self);
 		//self.th_die();
 		self.th_walk();
-		LinkZombiesHitbox();
+		//LinkZombiesHitbox();
 		//bprint (PRINT_HIGH, "Linked hitboxes");
 	}
 }

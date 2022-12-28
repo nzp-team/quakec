@@ -1380,7 +1380,7 @@ void() zombieRise =
 	self.frame ++;
 	self.think = zombieRise;
 	self.nextthink = time + 0.1;
-	LinkZombiesHitbox();
+	//LinkZombiesHitbox();
 	//bprint (PRINT_HIGH, "Linked hitboxes");
 };
 void() spawn_zombie =
@@ -1635,9 +1635,9 @@ void(entity where) spawn_a_zombieB =
 	szombie.larm.deadflag = 1;
 	szombie.rarm.deadflag = 1;
 
-	setmodel(szombie.head, "models/ai/zhead.mdl");
-	setmodel(szombie.rarm, "models/ai/zrarm.mdl");
-	setmodel(szombie.larm, "models/ai/zlarm.mdl");
+	setmodel(szombie.head, "models/ai/zh^.mdl");
+	setmodel(szombie.rarm, "models/ai/zar(.mdl");
+	setmodel(szombie.larm, "models/ai/zal(.mdl");
 	#ifndef PC
 	updateLimb (szombie, 0, szombie.head);
 	updateLimb (szombie, 1, szombie.larm);
@@ -1647,7 +1647,7 @@ void(entity where) spawn_a_zombieB =
 	
 	szombie.solid = szombie.head.solid = SOLID_CORPSE;
 	szombie.movetype = MOVETYPE_WALK;
-	setmodel(szombie, "models/ai/zbod.mdl");
+	setmodel(szombie, "models/ai/zb#.mdl");
 	szombie.hop_step = 0;
 	szombie.gravity = 1.0;
 	
@@ -1730,7 +1730,7 @@ void(entity where) spawn_a_zombieB =
 		self.th_walk();
 	self = old_self;
 	
-	LinkZombiesHitbox();
+	//LinkZombiesHitbox();
 	
 #ifndef PC
 	//
