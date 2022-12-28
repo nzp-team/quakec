@@ -1,7 +1,7 @@
 /*
 	server/clientfuncs.qc
 
-	used to communicate between server and client
+	Used to communicate between server and client
 
 	Copyright (C) 2021-2022 NZ:P Team
 
