@@ -16,10 +16,9 @@ jobs:
         working-directory: ./build
         run: |
           zip -r -j pc-nzp-qc.zip pc/*
-          zip -r -j psp-nzp-qc.zip psp/*
+          zip -r -j handheld-nzp-qc.zip handheld/*
           zip -r -j nx-nzp-qc.zip nx/*
           zip -r -j vita-nzp-qc.zip vita/*
-          zip -r -j ctr-nzp-qc.zip ctr/*
       - name: Generate Build Date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M-%S')"
@@ -42,19 +41,10 @@ jobs:
             This is a **bleeding edge** NZ:P QuakeC release, stability is not guarenteed and you may need to grab an updated asset release if this update depends on new models/textures/etc.
 
             To install:
-            - Grab the .ZIP archive for your desired platform below (*-nzp-qc.zip)
+            - Grab the .ZIP archive for your desired platform below (*-nzp-qc.zip, use `handheld-nzp-qc.zip` for 3DS and PSP).
             - Extract the contents of the .ZIP archive to your nzp folder (Example: copy `progs.dat` and `progs.lno` to `PSP/GAME/nzportable/nzp`).
           draft: true
           prerelease: false
-      - name: Upload CTR QC
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/ctr-nzp-qc.zip
-          asset_name: ctr-nzp-qc.zip
-          asset_content_type: application/zip
       - name: Upload NX QC
         uses: actions/upload-release-asset@v1
         env:
@@ -73,14 +63,14 @@ jobs:
           asset_path: ./build/pc-nzp-qc.zip
           asset_name: pc-nzp-qc.zip
           asset_content_type: application/zip
-      - name: Upload PSP QC
+      - name: Upload HANDHELD QC
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/psp-nzp-qc.zip
-          asset_name: psp-nzp-qc.zip
+          asset_path: ./build/handheld-nzp-qc.zip
+          asset_name: handheld-nzp-qc.zip
           asset_content_type: application/zip
       - name: Upload VITA QC
         uses: actions/upload-release-asset@v1

@@ -605,7 +605,7 @@ void() func_door =
 
 void() func_door_nzp =
 {
-	#ifdef PSP
+	#ifdef HANDHELD
 	if (!self.renderamt)
 		self.renderamt = 255;
 	

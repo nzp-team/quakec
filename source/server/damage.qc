@@ -258,6 +258,7 @@ void() GetDown =
 	Util_PlayerHasWeapon(self, W_357, true)) {
 		float weapon_slot;
 		float total_ammo;
+		total_ammo = 0;
 
 		weapon_slot = Util_PlayerHasWeapon(self, W_RAY, true);
 		if (weapon_slot == 0) weapon_slot = Util_PlayerHasWeapon(self, W_BIATCH, false);

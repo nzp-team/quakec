@@ -27,9 +27,8 @@
 
 void SetUpdate(entity client, float type, float val1, float val2, float val3)
 {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 
 	if (type != 2)
 	{
@@ -54,12 +53,10 @@ void SetUpdate(entity client, float type, float val1, float val2, float val3)
 	}
 	#endif
 	#endif
-	#endif
 }
 
-#ifndef PSP
+#ifndef HANDHELD
 #ifndef NX
-#ifndef CTR
 void(entity to, float type, float cost, float weapon) useprint = {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_USEPRINT);
@@ -69,7 +66,6 @@ void(entity to, float type, float cost, float weapon) useprint = {
 	msg_entity = to;
 	multicast('0 0 0', MULTICAST_ONE);
 }
-#endif
 #endif
 #endif
 
@@ -91,9 +87,8 @@ void(vector org) CallExplosion = {
 }
 
 void NotifyNewRound(float to) {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_NEWROUND);
@@ -102,13 +97,11 @@ void NotifyNewRound(float to) {
 
 	#endif
 	#endif
-	#endif
 }
 
 void SetRound(entity client, float to) {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_SETROUND);
@@ -118,14 +111,12 @@ void SetRound(entity client, float to) {
 
 	#endif
 	#endif
-	#endif
 }
 
 void SetPerk(entity client, float to)
 {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PERK);
@@ -135,14 +126,12 @@ void SetPerk(entity client, float to)
 
 	#endif
 	#endif
-	#endif
 }
 
 void(float to) SwitchWeapon =
 {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_WEAPONCHANGE);
@@ -155,14 +144,12 @@ void(float to) SwitchWeapon =
 
 	#endif
 	#endif
-	#endif
 }
 
 void(string to, float skin) UpdateVmodel =
 {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEVMODEL);
@@ -173,14 +160,12 @@ void(string to, float skin) UpdateVmodel =
 
 	#endif
 	#endif
-	#endif
 }
 
 void(string to, float skin) UpdateV2model =
 {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEV2MODEL);
@@ -190,14 +175,12 @@ void(string to, float skin) UpdateV2model =
 	multicast('0 0 0', MULTICAST_ONE);
 	#endif
 	#endif
-	#endif
 }
 
 void(float broadcast_time, float type) BroadcastMessage =
 {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
 	WriteByte(MSG_MULTICAST, broadcast_time);
@@ -206,14 +189,12 @@ void(float broadcast_time, float type) BroadcastMessage =
 
 	#endif
 	#endif
-	#endif
 }
 
 void(float playernum, float points, float am, float kills, string name, entity person) UpdatePlayerPoints =
 {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_POINTUPDATE);
@@ -238,13 +219,11 @@ void(float playernum, float points, float am, float kills, string name, entity p
 
 	#endif
 	#endif
-	#endif
 }
 
 void(float count) UpdatePlayerCount = {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 	if (count == 0)
 		return;
 	else {
@@ -256,14 +235,12 @@ void(float count) UpdatePlayerCount = {
 
 	#endif
 	#endif
-	#endif
 }
 
 void(float newtime, float newtype, entity change) PromptLevelChange =
 {
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BLACKOUT);
@@ -274,16 +251,14 @@ void(float newtime, float newtype, entity change) PromptLevelChange =
 
 	#endif
 	#endif
-	#endif
 }
 
 void(entity who) UpdatePunchangle =
 {
 
 	// naievil -- shit logic lol...but result looks clean as fuck...
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
-	#ifndef CTR
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PUNCHANGLE);
 	WriteCoord(MSG_MULTICAST, who.punchangle_x);
@@ -326,12 +301,10 @@ void(entity who) UpdatePunchangle =
 
 	#endif
 	#endif
-	#endif
 }
 
-#ifndef PSP
+#ifndef HANDHELD
 #ifndef NX
-#ifndef CTR
 void(string h, float h2, entity who) pushHUD = {
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -420,7 +393,6 @@ void(string chaptertitle, string location, string date, string person, entity wh
 		multicast('0 0 0', MULTICAST_ALL);
 	}
 }
-#endif
 #endif
 #endif
 
@@ -519,7 +491,7 @@ float(entity who, entity target) isFacing =
 
 	float difference_angle = target_angle - who_angle;
 
-	#ifdef PSP
+	#ifdef HANDHELD
 	if (difference_angle < -45) {
 		difference_angle += 360;
 	}

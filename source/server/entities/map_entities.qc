@@ -225,7 +225,7 @@ void() place_fire =
 
 void() place_model =
 {  
-	#ifdef PSP
+	#ifdef HANDHELD
 	if (self.spawnflags & 2)
 		remove(self);
 	#endif

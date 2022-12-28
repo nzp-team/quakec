@@ -50,7 +50,7 @@ void() screen_shake =
   else
     zoom_factor = 1;
 	
-	#ifdef PSP
+	#ifdef HANDHELD
     self.enemy.punchangle_y = r * 8 * zoom_factor;
     self.enemy.punchangle_x = (4 + (s * 4)) * zoom_factor;
 	#else

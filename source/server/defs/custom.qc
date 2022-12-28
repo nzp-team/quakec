@@ -25,13 +25,11 @@
 
 */
 
-#ifndef PSP
 #ifndef NX
-#ifndef CTR
+#ifndef HANDHELD
 #pragma target FTE
-#endif
-#endif
-#endif 
+#endif // HANDHELD
+#endif // NX
 
 #define true 				1
 #define false 				0
@@ -219,8 +217,8 @@ void() SUB_Null2 = {};
 
 #define 	MAX_ZOMB 		24
 
-#ifdef PSP
-#ifdef CTR
+#ifndef PC
+#ifndef NX
 #define 	MAX_ZOMB		12
 #endif
 #endif
@@ -372,11 +370,11 @@ entity boxLocations[32];
 float boxCount;
 vector boxOrigin;
 
-#ifndef PSP
+#ifndef HANDHELD
 //powerups
 .float x2_icon;
 .float insta_icon;
-#endif
+#endif // HANDHELD
 .string powerup_vo;
 float instakill_finished;
 float insta_blink;

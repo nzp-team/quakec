@@ -233,7 +233,7 @@ void() NewRound =
 		roundtype = 1;
 
 		if (world.fog) {
-			#ifdef PSP
+			#ifdef HANDHELD
 			localcmd(strcat("fog ", world.fog));
 			#else
 			#ifdef PC
