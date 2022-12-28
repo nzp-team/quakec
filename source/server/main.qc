@@ -165,7 +165,7 @@ void() precaches =
 	precache_model ("models/ai/zbc#.mdl");
 	precache_model ("models/ai/zalc(.mdl");
 	precache_model ("models/ai/zarc(.mdl");
-	precache_model ("models/ai/zch^.mdl");
+	precache_model ("models/ai/zhc^.mdl");
 
 	// powerups
 	precache_model ("models/sprites/explosion.spr");

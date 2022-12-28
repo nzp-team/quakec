@@ -726,6 +726,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					
 						body_ent.usedent = self;
 						body_ent.bleedingtime = time + 2;
+						updateLimb (body_ent.head.owner, 0, world);
 					}
 				}
 				
