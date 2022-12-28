@@ -155,17 +155,17 @@ void() precaches =
 
 	// zombie
 	precache_model ("models/ai/zfull.mdl");
-	precache_model ("models/ai/zlarm.mdl");
-	precache_model ("models/ai/zrarm.mdl");
-	precache_model ("models/ai/zbod.mdl");
-	precache_model ("models/ai/zhead.mdl");
+	precache_model ("models/ai/zal(.mdl");
+	precache_model ("models/ai/zar(.mdl");
+	precache_model ("models/ai/zb#.mdl");
+	precache_model ("models/ai/zh^.mdl");
 
 	// zombie crawler
 	precache_model ("models/ai/zcfull.mdl");
-	precache_model ("models/ai/zcbod.mdl");
-	precache_model ("models/ai/zclarm.mdl");
-	precache_model ("models/ai/zcrarm.mdl");
-	precache_model ("models/ai/zchead.mdl");
+	precache_model ("models/ai/zcb#.mdl");
+	precache_model ("models/ai/zalc(.mdl");
+	precache_model ("models/ai/zarc(.mdl");
+	precache_model ("models/ai/zch^.mdl");
 
 	// powerups
 	precache_model ("models/sprites/explosion.spr");
@@ -396,7 +396,7 @@ void() RelinkZombies =
 				//if(OnlyOrigin)
 				//	continue;
 				
-				/*
+				
 				min = ent2.bbmins + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
 				max = ent2.bbmaxs + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
 
@@ -405,7 +405,7 @@ void() RelinkZombies =
 				if(min_z > max_z) { min_z += max_z; max_z = min_z - max_z; min_z -= max_z; }
 
 				setsize(ent2,min,max);
-				*/
+				
 			}
 
 		}
