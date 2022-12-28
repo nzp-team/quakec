@@ -244,20 +244,20 @@ void(entity who) makeCrawler =
 	//who.th_grabledge = zombie_grabledge1;
 	//who.th_diewunder = die_wunder1;
 	
-	setmodel(who,"models/ai/zcbod.mdl");
+	setmodel(who,"models/ai/zbc#.mdl");
 	if(who.head.deadflag)
 	{
-		setmodel(who.head,"models/ai/zchead.mdl");
+		setmodel(who.head,"models/ai/zhc^.mdl");
 		//updateLimb (who, 0, world);
 	}
 	if(who.larm.deadflag)
 	{
-		setmodel(who.larm,"models/ai/zclarm.mdl");
+		setmodel(who.larm,"models/ai/zalc(.mdl");
 		//updateLimb (who, 1, world);
 	}
 	if(who.rarm.deadflag)
 	{
-		setmodel(who.rarm,"models/ai/zcrarm.mdl");
+		setmodel(who.rarm,"models/ai/zarc(.mdl");
 		//updateLimb (who, 2, world);
 	}
 	who.crawling = 1;
