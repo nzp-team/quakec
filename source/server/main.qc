@@ -162,7 +162,7 @@ void() precaches =
 
 	// zombie crawler
 	precache_model ("models/ai/zcfull.mdl");
-	precache_model ("models/ai/zcb#.mdl");
+	precache_model ("models/ai/zbc#.mdl");
 	precache_model ("models/ai/zalc(.mdl");
 	precache_model ("models/ai/zarc(.mdl");
 	precache_model ("models/ai/zch^.mdl");
