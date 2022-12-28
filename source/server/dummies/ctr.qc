@@ -33,6 +33,3 @@ void LoadWaypointData() = {};
 float gotdog;
 
 void(string chaptertitle, string location, string date, string person, entity who) WorldText = {};
-
-void GiveAchievement(float achievement_id, optional entity who) = {};
-
