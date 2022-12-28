@@ -747,7 +747,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.larm.solid = SOLID_NOT;
 					setmodel(body_ent.larm,"");
 					body_ent.larm.frame = 0;
-					updateLimb (body_ent.larm.owner, 1, world);
+					//updateLimb (body_ent.larm.owner, 1, world);
 				}
 
 				body_ent.larm.washit = 0;
@@ -767,7 +767,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.rarm.solid = SOLID_NOT;
 					setmodel(body_ent.rarm,"");
 					body_ent.rarm.frame = 0;
-					updateLimb (body_ent.rarm.owner, 2, world);
+					//updateLimb (body_ent.rarm.owner, 2, world);
 				}
 
 				body_ent.rarm.washit = 0;
