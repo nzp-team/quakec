@@ -119,6 +119,8 @@ void() updateDogRound =
 	}
 }
 
+void() PlayerSpawn;
+
 void() EndRound =
 {
 	entity who = find(world,classname,"spectator");
@@ -159,8 +161,6 @@ void() EndRound =
 		}
 	}
 }
-
-void() PlayerSpawn;
 
 void() NewRound =
 {
