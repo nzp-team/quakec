@@ -500,6 +500,7 @@ float sndActivCnt;
 .float tpTimer;
 .float isTimed;
 .entity host;
+.entity entities[4];
 
 // GIBBING
 #ifdef PC
