@@ -88,7 +88,7 @@ entity(entity blarg) find_new_enemy =
 
 		while(targets != world) {
 			// Don't target downed players.
-			if (targets.downed == true) {
+			if (targets.downed == true || targets.isspec == true) {
 				targets = find(targets, classname, "player");
 				continue;
 			}

@@ -121,6 +121,17 @@ void() updateDogRound =
 
 void() EndRound =
 {
+	entity who = find(world,classname,"spectator");
+	while(who != world)
+	{
+		if(who.isspec)
+		{
+			self = who;
+			PlayerSpawn();
+		}
+		who = find(who, classname, "spectator");
+	}
+
 	rounds_change = 4;
 	SetUpdate(self, UT_ROUNDS_CHANGE, rounds_change, 0, 0);
 	if (gotdog && rounds == dogRound) {
@@ -153,18 +164,6 @@ void() PlayerSpawn;
 
 void() NewRound =
 {
-	entity who = find(world,classname,"spectator");
-	while(who != world)
-	{
-		if(who.isspec)
-		{
-			self = who;
-			PlayerSpawn();
-			break;
-		}
-
-	}
-
 	entity tempe;
 	round_changetime = 0;
 	spawn_time = time + 5;

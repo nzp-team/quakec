@@ -176,7 +176,7 @@ void() EndGameSetup =
 void() rec_downed = 
 {
 	self.downedloop++;
-	if (self.downedloop == 300) {
+	if (self.downedloop >= 300) {
 		startspectate();
 		return;
 	}
