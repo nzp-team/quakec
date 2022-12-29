@@ -1352,7 +1352,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-0.6, 2.7, 1.94];
 		case W_MP40:
 		case W_AFTERBURNER:
-			return [-3.79, 6.1, 4.04];
+			return [-3.79, 5.74, 3.25];
 		case W_MG:
 		case W_BARRACUDA:
 			return [-3.9, 3.5, 1.84];
@@ -1435,7 +1435,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-7500, 3000, 0];
 		case W_MP40:
 		case W_AFTERBURNER:
-			return [-12320, 7600, 0];
+			return [-11400, 6700, 0];
 		case W_TYPE:
 		case W_SAMURAI:
 			return [-400, -200, 0];
@@ -1966,29 +1966,29 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 2;
+					return 4;
 				case RELOAD_START:
-					return 3;
-				case RELOAD_END:
-					return 21;
-				case SPRINT_IN_START:
-					return 37;
-				case SPRINT_IN_END:
-					return 38;
-				case SPRINT_OUT_START:
-					return 39;
-				case SPRINT_OUT_END:
-					return 40;
-				case TAKE_OUT_START:
-					return 32;
-				case TAKE_OUT_END:
-					return 35;
-				case PUT_OUT_START:
 					return 30;
+				case RELOAD_END:
+					return 60;
+				case SPRINT_IN_START:
+					return 72;
+				case SPRINT_IN_END:
+					return 76;
+				case SPRINT_OUT_START:
+					return 77;
+				case SPRINT_OUT_END:
+					return 83;
+				case TAKE_OUT_START:
+					return 65;
+				case TAKE_OUT_END:
+					return 71;
+				case PUT_OUT_START:
+					return 61;
 				case PUT_OUT_END:
-					return 32;
+					return 65;
 				case RELOAD_CANCEL:
-					return 16;
+					return 45;
 			}
 			break;
 		case W_MG:
@@ -2964,10 +2964,12 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_MP40:
 		case W_AFTERBURNER:
-			if (curweaponframe == 10) {
+			if (curweaponframe == 33) {
 				sound (self ,5, "sounds/weapons/mp40/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 17) {
+			} else if (curweaponframe == 43) {
 				sound (self ,5, "sounds/weapons/mp40/magin.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 52) {
+				sound (self ,5, "sounds/weapons/mp40/boltback.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_PANZER:
@@ -3195,6 +3197,7 @@ void(float weptype) precache_extra =
 			precache_sound ("sounds/weapons/mp40/shoot.wav");
 			precache_sound ("sounds/weapons/mp40/magout.wav");
 			precache_sound ("sounds/weapons/mp40/magin.wav");
+			precache_sound ("sounds/weapons/mp40/boltback.wav");
 			break;
 		case W_MG:
 		case W_BARRACUDA:
@@ -3929,7 +3932,7 @@ vector (float wep) GetWeaponFlash_Offset =
 					return [11100, -9000, 86300];
 				case W_MP40:
 				case W_AFTERBURNER:
-					return [11300, -11300, 80000];
+					return [11300, -11300, 85000];
 				case W_STG:
 				case W_SPATZ:
 					return [14300, -16230, 100000];
