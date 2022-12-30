@@ -2442,9 +2442,20 @@ string(float wep, float gorvmodel) GetWeaponModel =
 			else
 				return ("models/weapons/type/v_type.mdl");
 		case W_GRENADE:
-			return ("models/weapons/grenade/g_grenade.mdl");
+			if (gorvmodel)
+				return ("models/weapons/grenade/g_grenade.mdl");
+			else
+				return ("models/weapons/grenade/v_grenade.mdl");
 		case W_BETTY:
-			return ("models/weapons/grenade/g_betty.mdl");
+			if (gorvmodel)
+				return ("models/weapons/grenade/g_betty.mdl");
+			else
+				return ("models/weapons/grenade/v_betty.mdl");
+		case W_BOWIE:
+			if (gorvmodel)
+				return ("models/weapons/knife/g_bowie.mdl");
+			else
+				return ("models/weapons/knife/v_bowie.mdl");
 		case W_DG3:
 		case W_TESLA:
 			if (gorvmodel)

@@ -521,15 +521,20 @@ void() buy_weapon_link_target =
 
 void() buy_weapon =
 {
-	local string weaponname;
+	string weaponname;
 	InitTrigger ();
+
 	weaponname = GetWeaponModel (self.weapon, 0);
 	if (weaponname != "")
 		precache_model (weaponname);
-	weaponname = GetWeaponModel(self.weapon, 1);
+
+	// Use the grenade bag instead for nades
+	if (self.weapon == W_GRENADE)
+		weaponname = "models/props/grenade_bag.mdl";
+	else
+		weaponname = GetWeaponModel(self.weapon, 1);
 	if (weaponname != "")
 		precache_model (weaponname);
-	
 	
 	precache_extra (self.weapon);
 	self.touch = buy_weapon_touch;
