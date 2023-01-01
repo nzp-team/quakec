@@ -1232,7 +1232,7 @@ float(float wep, float delaytype) getWeaponDelay =
 			if (delaytype == RELOAD)
 				return 3.2;
 			else if (delaytype == FIRE)
-				return 0.208;
+				return 0.085;
 		case W_MG:
 			if (delaytype == RELOAD)
 				return 4;
@@ -2702,6 +2702,7 @@ float(float wep) IsPapWeapon = {
 		case W_M1000:
 		case W_WIDDER:
 		case W_AFTERBURNER:
+		case W_KOLLIDER:
 		case W_BARRACUDA:
 		case W_LONGINUS:
 		case W_REAPER:
