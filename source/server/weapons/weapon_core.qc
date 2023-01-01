@@ -726,7 +726,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					
 						body_ent.usedent = self;
 						body_ent.bleedingtime = time + 2;
-						#ifndef PC
+						#ifdef HANDHELD
 						updateLimb (body_ent.head.owner, 0, world);
 						#endif
 					}
@@ -750,7 +750,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.larm.solid = SOLID_NOT;
 					setmodel(body_ent.larm,"");
 					body_ent.larm.frame = 0;
-					#ifndef PC
+					#ifdef HANDHELD
 					updateLimb (body_ent.larm.owner, 1, world);
 					#endif
 				}
@@ -772,7 +772,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.rarm.solid = SOLID_NOT;
 					setmodel(body_ent.rarm,"");
 					body_ent.rarm.frame = 0;
-					#ifndef PC
+					#ifdef HANDHELD
 					updateLimb (body_ent.rarm.owner, 2, world);
 					#endif
 				}
