@@ -523,10 +523,6 @@ void() PlayerSpawn =
 	self.movetype = MOVETYPE_WALK;
 	self.max_health = self.health = 100;
 
-	//custom weapon stuff (we want to put this here so we can send the info to the client with an entity)
-	// DISGUSTING.
-	//nzd_defineweapon(self);
-	
 	entity who = find(world,classname,"player");
 	while(who != self && !self.playernum)
 	{
@@ -625,9 +621,6 @@ void() PlayerSpawn =
 		rounds = G_STARTROUND - 1;
 	}
 
-	#ifndef PSP
-	//pushHUD(G_HUD, G_HUDHOR, self); //FIXME - breaks mp!
-	#endif
 };
 
 void() SpectatorSpawn =

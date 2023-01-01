@@ -1856,7 +1856,7 @@ void PapUpgrade(entity pap, entity buyer) {
 	////////////////////////////////////////
 
 	self.fire_delay = self.reload_delay = 4.5 + time;
-	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NONE);
+	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NORM);
 
 	pap.weapon = self.weapon;
 

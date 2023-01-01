@@ -128,7 +128,7 @@ void() precaches =
 {
 	precache_model ("models/player.mdl");
 
-	#ifndef PSP
+	#ifndef HANDHELD
 	#ifndef NX
 	if (world.song != "")
 		precache_sound (world.song);

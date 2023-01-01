@@ -1,8 +1,8 @@
-../../build/psp/progs.dat
+../../build/handheld/progs.dat
 
 #pragma warning disable Q208
 
-../source/server/defs/psp.qc
+../source/server/defs/handheld.qc
 ../source/shared/defs/custom.qc
 ../source/shared/weapon_defines.qc
 ../source/server/defs/custom.qc
@@ -22,6 +22,7 @@
 ../source/server/entities/sounds.qc
 ../source/server/entities/triggers.qc
 ../source/server/entities/explosive_barrel.qc
+../source/server/entities/teleporter.qc
 ../source/server/entities/map_entities.qc
 ../source/server/entities/traps.qc
 ../source/server/entities/lights.qc

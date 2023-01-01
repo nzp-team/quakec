@@ -122,7 +122,7 @@ void zapper_play () {
 		#ifdef PC
 		te_lightning2(self, self.origin, zents.origin);
 		#endif
-		#ifdef PSP
+		#ifdef HANDHELD
 		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 		WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
 		WriteEntity (MSG_BROADCAST, self);

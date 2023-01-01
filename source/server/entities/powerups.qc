@@ -419,7 +419,7 @@ void() PU_MaxAmmo =
 		#ifdef PC
 		ScrollText("MAX AMMO!", tempe);
 		#endif
-		#ifdef PSP
+		#ifdef HANDHELD
 		nzp_maxammo();
 		#endif
 		tempe = find(tempe, classname, "player");

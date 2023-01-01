@@ -726,7 +726,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					
 						body_ent.usedent = self;
 						body_ent.bleedingtime = time + 2;
-						#ifndef NX
+						#ifdef HANDHELD
 						updateLimb (body_ent.head.owner, 0, world);
 						#endif
 					}
@@ -750,7 +750,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.larm.solid = SOLID_NOT;
 					setmodel(body_ent.larm,"");
 					body_ent.larm.frame = 0;
-					#ifndef NX
+					#ifdef HANDHELD
 					updateLimb (body_ent.larm.owner, 1, world);
 					#endif
 				}
@@ -772,7 +772,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.rarm.solid = SOLID_NOT;
 					setmodel(body_ent.rarm,"");
 					body_ent.rarm.frame = 0;
-					#ifndef NX
+					#ifdef HANDHELD
 					updateLimb (body_ent.rarm.owner, 2, world);
 					#endif
 				}
@@ -1086,7 +1086,7 @@ void() RayBulletExplode =
 	te_smallflash(self.origin);
 	#else
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
-	#ifdef PSP
+	#ifdef HANDHELD
 	if (self.effects & EF_RAYGREEN)
 		WriteByte (MSG_BROADCAST, TE_RAYSPLASHGREEN);
 	else
@@ -1146,13 +1146,13 @@ void() W_FireRay =
 
 	
 	if (self.weapon == W_PORTER) {
-		#ifdef PSP
+		#ifdef HANDHELD
 		porter.effects = EF_RAYRED;
 		#else
 		porter.effects = EF_RED;
 		#endif
 	} else {
-		#ifdef PSP
+		#ifdef HANDHELD
 		porter.effects = EF_RAYGREEN;
 		#else
 		porter.effects = EF_GREEN;
@@ -1270,7 +1270,7 @@ void() W_FireTesla =
 	#ifdef PC
 	te_lightning2(self, source, trace_endpos);
 	#endif
-	#ifdef PSP
+	#ifdef HANDHELD
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
 	WriteEntity (MSG_BROADCAST, self);
@@ -1902,11 +1902,7 @@ void() W_ThrowGrenade =
 
 		makevectors (self.v_angle);
 
-		#ifndef PSP
-		nade.velocity = v_forward*500;
-		#else
-		nade.velocity = v_forward*800;	// on PSP, we need more OOMFPH
-		#endif
+		nade.velocity = v_forward*800;
 		
 		nade.avelocity = '400 -400 400';
 
@@ -2145,7 +2141,7 @@ void () Impulse_Functions =
 			W_SprintStop();
 			break;
 		case 25:
-			#if defined (PSP) || defined (CTR)
+			#ifdef HANDHELD
 			switch_nade();
 			#else
 			W_Betty();
@@ -2394,7 +2390,7 @@ void () Weapon_Logic =
 	Impulse_Functions();
 
 	#ifndef PC
-	// For PSP only to tell our engine to display the scope 
+	// For HANDHELD only to tell our engine to display the scope 
 	if ((self.scopetime < time) && self.scopetime) {
 		self.scopetime = 0;
 		self.zoom = 2;
@@ -2552,7 +2548,7 @@ void () Weapon_Logic =
 	
 	if (self.button6 && !self.semiknife)
 	{ 
-		#if defined (PSP) || defined (CTR)
+		#ifdef HANDHELD
 		if (self.sprinting) {
 			dolphin_dive();
 			return;
