@@ -192,10 +192,10 @@ void() precaches =
 	precache_sound("sounds/player/footstep3.wav");
 	precache_sound("sounds/player/footstep4.wav");
 	precache_sound("sounds/player/footstep5.wav");
+	#endif // PC
 	precache_sound("sounds/player/jump.wav");
 	precache_sound("sounds/player/land.wav");
 	precache_sound("sounds/player/pain4.wav");
-#endif // PC
 
 	// weapons
 	precache_sound("sounds/weapons/colt/magin.wav");
