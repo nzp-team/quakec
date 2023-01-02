@@ -4,7 +4,7 @@
 	mostly functions that will be called from the engine and are
 	expected to exist
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
