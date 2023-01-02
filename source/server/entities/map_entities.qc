@@ -225,7 +225,7 @@ void() place_fire =
 
 void() place_model =
 {  
-	#ifdef PSP
+	#ifdef HANDHELD
 	if (self.spawnflags & 2)
 		remove(self);
 	#endif
@@ -521,15 +521,20 @@ void() buy_weapon_link_target =
 
 void() buy_weapon =
 {
-	local string weaponname;
+	string weaponname;
 	InitTrigger ();
+
 	weaponname = GetWeaponModel (self.weapon, 0);
 	if (weaponname != "")
 		precache_model (weaponname);
-	weaponname = GetWeaponModel(self.weapon, 1);
+
+	// Use the grenade bag instead for nades
+	if (self.weapon == W_GRENADE)
+		weaponname = "models/props/grenade_bag.mdl";
+	else
+		weaponname = GetWeaponModel(self.weapon, 1);
 	if (weaponname != "")
 		precache_model (weaponname);
-	
 	
 	precache_extra (self.weapon);
 	self.touch = buy_weapon_touch;
@@ -650,252 +655,6 @@ void() trigger_song = {
 	self.touch = touch_songtrigger;
 
 	sndTriggerCnt++;
-}
-
-/* 
-   ============
-    Teleporter
-   ============ 
-
-	Teleporters have 3 different modes
-
-	0: Default Patch 1.0.4 Mode
-		- Interact with teleporter and go to pad (credit: Naievil and PerikiyoXD)
-
-	1: Linked Mode
-		- One-Time-Link teleporter with pad, teleport to pad
-
-	2: Timed Mode
-		- Link teleporter with pad, teleport to other destination
-		  for a set amount of time, then return to pad. Link every time.
-   
-   TODO:
-		- Sounds
-		- Keep track of whether player is touching instead of locking movement
-*/
-
-void() teleporter_cooldown =
-{
-	self.activated = false;
-
-	if (self.mode == 2) {
-		self.isLinked = false;
-	}
-
-	self.cooldown = false;
-}
-
-void() start_cooldown =
-{
-	self.cooldown = true;
-	self.think = teleporter_cooldown;
-	self.nextthink = time + 5;
-}
-
-void() teleport_entity =
-{
-  	local entity who, en; 
-  
-  	who = find(world, classname ,"player");
-	en = find(world, targetname, self.target2);
-  
-  
-    SUB_UseTargets ();
-        
-    setorigin (who, who.tele_target.origin);
-
-	if (self.isTimed || en.classname == "func_teleporter_pad") {
-		setorigin(who, who.origin + '0 0 40');
-	}
-
-    who.fire_delay = who.reload_delay = 3.0 + time;
-    who.zoom = 0;
-    who.weaponmodel = "";
-    who.weapon2model = ""; 
-	who.movetype = MOVETYPE_WALK;
-      
-    if (who.classname == "player") {
-      if (who.flags & FL_ONGROUND)
-        who.flags = who.flags - FL_ONGROUND;
-      who.velocity = v_forward * 0;
-      
-    }
-
-    who.flags = who.flags - who.flags & FL_ONGROUND;
-
-	if (self.mode == 0) {
-		self.activated = false;
-	} else if (self.mode == 2 && !self.isTimed) {
-		who.tele_target = find(world, targetname, self.target2);
-
-		self.nextthink = time + self.tpTimer;
-		self.think = teleport_entity;
-		self.isTimed = true;
-	} else {
-		start_cooldown();
-		self.isTimed = false;
-	}
-}
-
-void() teleport_pad_touch =
-{
-	if (other.classname != "player" || self.host.isLinked)
-		return;
-
-	if (!isPowerOn) {
-     	useprint(other, 8, 0, 0);
-    	return;
-    } 
-
-	if (self.host.waitLink) {
-		useprint(other, 19, 0, 0);
-
-		if (other.button7) {
-			self.host.isLinked = true;
-			self.host.waitLink = false;
-		}
-	} else {
-		if (self.host.mode == 2) {
-			useprint(other, 18, 0, 0);
-		}
-	}
-}
-
-void() teleporter_link_touch =
-{
-
-	if (!self.waitLink)
-		useprint(other, 17, 0, 0);
-
-	if (other.button7) {
-		local entity en;
-
-		en = find(world, targetname, self.target2);
-		self.waitLink = true;
-		en.host = self;
-	}
-}
-
-void() teleport_touch =
-{
-	if (self.cooldown) {
-		useprint(other, 16, 0, 0);
-		return;
-	}
-
-  	if (other.classname != "player" || self.activated)
-    	return;  
-  
-  	if (!isPowerOn) {
-     	useprint(other, 8, 0, 0);
-    	return;
-    } 
-
-	if (self.mode != 0 && !self.isLinked) {
-		teleporter_link_touch();
-		return;
-	}
-    
-	if (!self.cost)
-  		useprint(other, 14, 0, 0);
-	else
-		useprint(other, 15, self.cost, 0);
-	
-
-	if (other.button7) {
-
-		if (other.points < self.cost) {
-			centerprint(other, STR_NOTENOUGHPOINTS);
-			return;
-		}
-
-		addmoney(other, -self.cost, 0);
-
-		SUB_UseTargets();
-		other.tele_target = find(world, targetname, self.target);
-
-		if (!other.tele_target)
-			objerror("Couldn't find target!");
-
-		self.activated = true;
-
-		other.movetype = MOVETYPE_NONE;
-
-		self.think = teleport_entity;
-		self.nextthink = time + 3;
-	}
-
-	if (other.button1) {
-    	if (self.targetname) {
-      		if (self.nextthink < time)
-        		return;		// not fired yet
-      	}
-    }
-}
-
-void() teleport_use =
-{
-	self.nextthink = time + 2;
-	force_retouch = 2;		// make sure even still objects get hit
-	self.think = SUB_Null;
-}
-
-void() func_teleporter_entrance =
-{		
-	precache_model ("models/props/teleporter.mdl");
-	
-	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything
-	self.solid = SOLID_TRIGGER;
-	self.classname = "func_teleporter_entrance";
-  	setmodel(self, "models/props/teleporter.mdl");
-  	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	
-    self.touch = teleport_touch;
-
-    // find the destination 
-    if (!self.target)
-		objerror("No target!");
-
-	if (self.mode != 0) {
-		if (!self.target2)
-			objerror("No mainframe!");
-
-		if (self.mode == 2) {
-			local entity tempe;
-			tempe = find(world, targetname, self.target2);
-			tempe.host = self;
-		}
-	}
-
-    self.use = teleport_use;
-}
-
-void() func_teleporter_destination =
-{
-	// this does nothing, just serves as a target spot
-	self.origin = self.origin + '0 0 40';
-	self.classname = "func_teleporter_destination";
-}
-
-void() func_teleporter_timed =
-{
-	// this does nothing, just serves as a target spot
-	self.origin = self.origin + '0 0 40';
-	self.classname = "func_teleporter_timed";
-}
-
-
-void() func_teleporter_pad =
-{
-	precache_model ("models/props/mainframe_pad.mdl");
-	
-	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything
-	self.solid = SOLID_TRIGGER;
-	self.classname = "func_teleporter_pad";
-  	setmodel(self, "models/props/mainframe_pad.mdl");
-  	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	
-    self.touch = teleport_pad_touch;
 }
 
 /* ================

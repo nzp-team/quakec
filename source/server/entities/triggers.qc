@@ -133,8 +133,7 @@ void() InitTrigger =
 	self.model = "";
 };
 
-#ifndef PSP
-#ifndef CTR
+#ifndef HANDHELD
 entity last_act_trigger;
 void() trigger_activator_touch =
 {
@@ -242,7 +241,6 @@ void() trigger_activator =
 	self.touch = trigger_activator_touch;
 }
 #endif
-#endif
 
 void() use_wall_weapon =
 {
@@ -256,7 +254,10 @@ void() use_wall_weapon =
 	newent.solid=SOLID_NOT;
 	newent.classname = "wall_weapon";
 	setorigin(newent, self.origin);
-	setmodel (newent, GetWeaponModel(self.sequence + 1, 1));
+	if (self.sequence + 1 != 26)
+		setmodel (newent, GetWeaponModel(self.sequence + 1, 1));
+	else
+		setmodel(newent, "models/props/grenade_bag.mdl");
 	setsize (newent, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	newent.angles = self.angles;
 	
@@ -274,6 +275,7 @@ void() weapon_wall =
 	self.frame = self.sequence;
 	self.use = use_wall_weapon;
 	self.classname = "weapon_wall";
+	self.effects = EF_FULLBRIGHT;
 	//self.effects = EF_WEPLIGHT;
 }
 

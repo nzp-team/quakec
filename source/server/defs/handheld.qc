@@ -13,7 +13,7 @@
 +=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+
 */
 
-#define CTR
+#define HANDHELD
 
 // These lines CANNOT be altered/moved
 entity      self;
@@ -26,7 +26,7 @@ string		mapname;
 float		deathmatch;
 float		coop;
 float		teamplay;
-float		serverflags;
+float		serverflags;		// propagated from level to level, used to
 float		rounds;
 float		rounds_change;
 float		parm1, parm2, parm3, parm4, parm5, parm6, parm7, parm8, parm9, parm10, parm11, parm12, parm13, parm14, parm15, parm16;
@@ -73,6 +73,7 @@ void		end_sys_globals;		// flag for structure dumping
 .string		model;
 .float		frame;
 .float		skin;
+.float		iframetime;
 .float		effects;
 .vector		mins, maxs;		// bounding box extents reletive to origin
 .vector		size;			// maxs - mins
@@ -84,10 +85,10 @@ void		end_sys_globals;		// flag for structure dumping
 .entity		groundentity;
 .float		health;
 .float		points;
-.float 		kills;
+.float		kills;
 .float		weapon;			// one of the W_COLT, etc flags
 .string		weaponmodel;
-.string 	weapon2model;
+.string		weapon2model;
 .float		weaponframe;
 .float		weapon2frame;
 .float		currentammo;
@@ -129,7 +130,7 @@ void		end_sys_globals;		// flag for structure dumping
 .float		yaw_speed;
 .entity		aiment;
 .entity 	head;
-.entity 	larm;
+.entity		larm;
 .entity 	rarm;
 .entity 	goalentity;		// a movetarget or an enemy
 //.entity 	goalorigin;		// a movetarget location
@@ -371,7 +372,7 @@ string(float num) argv = #442;
 
 //Half Life View Offset is 64
 //64 units above ground, for our purposes it's, 64 - (how low bounding box goes)
-vector VEC_VIEW_OFS = '0 0 32';
+//vector VEC_VIEW_OFS = '0 0 32';
 
 //Standard Quake Hull
 //vector	VEC_HULL_MIN = '-16 -16 -24';

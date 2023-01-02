@@ -2,41 +2,35 @@
 
 cd ../
 # create build directories
-mkdir -p build/{pc,psp,nx,vita,ctr}
+mkdir -p build/{pc,handheld,nx,vita}
 cd bin/
 echo ""
-echo "===================="
-echo " compiling FTE CCQC "
-echo "===================="
+echo "========================"
+echo "   compiling FTE CCQC   "
+echo "========================"
 echo ""
 ./fteqcc-cli-lin -srcfile ../progs/fte-client.src
 echo ""
-echo "===================="
-echo " compiling FTE SSQC "
-echo "===================="
+echo "========================"
+echo "   compiling FTE SSQC   "
+echo "========================"
 echo ""
 ./fteqcc-cli-lin -srcfile ../progs/fte-server.src
 echo ""
-echo "===================="
-echo "  compiling PSP QC  "
-echo "===================="
+echo "========================"
+echo " compiling PSP & 3DS QC "
+echo "========================"
 echo ""
-./fteqcc-cli-lin -srcfile ../progs/psp.src
+./fteqcc-cli-lin -srcfile ../progs/handheld.src
 echo ""
-echo "===================="
-echo " compiling NX-QS QC "
-echo "===================="
+echo "========================"
+echo "   compiling NX-QS QC   "
+echo "========================"
 echo ""
 ./fteqcc-cli-lin -srcfile ../progs/nx.src
 echo ""
-echo "===================="
-echo " compiling VITA QC  "
-echo "===================="
+echo "========================"
+echo "   compiling VITA QC    "
+echo "========================"
 echo ""
 ./fteqcc-cli-lin -srcfile ../progs/vita.src
-echo ""
-echo "===================="
-echo " compiling 3DS QC  "
-echo "===================="
-echo ""
-./fteqcc-cli-lin -srcfile ../progs/ctr.src
