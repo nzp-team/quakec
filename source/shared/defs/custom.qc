@@ -100,7 +100,7 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #define W_KILLU        29 //357
 #define W_COMPRESSOR   30 // Gewehr
 #define W_M1000        31 //garand
-//#define W_KOLLIDER   32
+#define W_KOLLIDER     32
 #define W_PORTER       33 // Ray
 #define W_WIDDER       34 // M1A1
 #define W_FIW          35 //upgraded flamethrower
@@ -122,7 +122,7 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #define W_PENETRATOR   51 //ptrs
 #define W_WIDOW        52 //bar
 //#define W_KRAUS      53 //ballistic
-#define W_MP5          54
+#define W_MP5K         54
 #define W_M14          55
 
 #define W_TESLA  	   56
