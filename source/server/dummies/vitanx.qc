@@ -29,7 +29,7 @@
 void GiveAchievement(float achievement_id, optional entity who) = {};
 void print(string s) = {};
 
-float tracemove(vector start, vector min, vector max, vector end, float nomonsters, entity forent) = {return 0;};
+float (vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove = #99; //sB adding tracemove to NX/Vita
 
 void(vector o, vector d, float color, float count) particle = {};
 
