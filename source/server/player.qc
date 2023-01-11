@@ -594,7 +594,7 @@ void() PlayerSpawn =
 			pl1 = self;
 	}
 
-	if (rounds < 1) {
+	if (rounds < 1 && player_count == 0) {
 		sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
 	}
 
