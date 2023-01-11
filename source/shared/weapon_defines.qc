@@ -1283,7 +1283,7 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.283;
 		case W_STG:
 			if (delaytype == RELOAD)
-				return 2.15;
+				return 2.5;
 			else if (delaytype == FIRE)
 				return 0.110;
 		case W_SPATZ:
@@ -1421,7 +1421,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-9.79, 6.6, 2.44];
 		case W_STG:
 		case W_SPATZ:
-			return [-9.79, 7.3, 4.94];
+			return [-9.79, 4.9, 1.54];
 		case W_TRENCH:
 		case W_GUT:
 			return [0, 2.85, 1.4];
@@ -1501,7 +1501,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-400, -200, 0];
 		case W_STG:
 		case W_SPATZ:
-			return [-14534, 8920, 0];
+			return [-9834, 2920, 0];
 		case W_M1:
 		case W_M1000:
 			return [-7700, 2200, 0];
@@ -2256,29 +2256,29 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 2;
-				case RELOAD_START:
 					return 3;
+				case RELOAD_START:
+					return 6;
 				case RELOAD_END:
-					return 24;
+					return 49;
 				case SPRINT_IN_START:
-					return 40;
+					return 63;
 				case SPRINT_IN_END:
-					return 42;
+					return 67;
 				case SPRINT_OUT_START:
-					return 43;
+					return 68;
 				case SPRINT_OUT_END:
-					return 45;
+					return 73;
 				case TAKE_OUT_START:
-					return 42;
+					return 54;
 				case TAKE_OUT_END:
-					return 46;
+					return 61;
 				case PUT_OUT_START:
-					return 39;
+					return 50;
 				case PUT_OUT_END:
-					return 42;
+					return 53;
 				case RELOAD_CANCEL:
-					return 16;
+					return 30;
 			}
 			break;
 		case W_TRENCH:
@@ -3153,10 +3153,14 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_STG:
 		case W_SPATZ:
-			if (curweaponframe == 11) {
+			if (curweaponframe == 15) {
 				sound (self ,5, "sounds/weapons/stg/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 21) {
+			} else if (curweaponframe == 28) {
 				sound (self ,5, "sounds/weapons/stg/magin.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 37) {
+				sound (self ,5, "sounds/weapons/stg/boltback.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 41) {
+				sound (self ,5, "sounds/weapons/stg/boltrelease.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_TRENCH:
@@ -3374,6 +3378,8 @@ void(float weptype) precache_extra =
 			precache_sound ("sounds/weapons/stg/magout.wav");
 			precache_sound ("sounds/weapons/stg/magin.wav");
 			precache_sound ("sounds/weapons/stg/shoot.wav");
+			precache_sound ("sounds/weapons/stg/boltback.wav");
+			precache_sound ("sounds/weapons/stg/boltrelease.wav");
 			break;
 		case W_TRENCH:
 		case W_GUT:
@@ -4079,7 +4085,7 @@ vector (float wep) GetWeaponFlash_Offset =
 					return [19300, -15300, 85000];
 				case W_STG:
 				case W_SPATZ:
-					return [14300, -16230, 100000];
+					return [10300, -10230, 100000];
 				case W_M1:
 				case W_M1000:
 					return [3506, -1500, 33000];
