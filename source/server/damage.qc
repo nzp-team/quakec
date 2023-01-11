@@ -574,7 +574,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 	
 	while (ent != world)
 	{
-		if(ent.classname == "player")
+		if(ent.classname == "player" && ent == attacker) // we don't want OUR explosives to harm other players..
 		{
 			if (ent.perks & P_FLOP)
 				final_damage = 0;
@@ -601,7 +601,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					final_damage /= radius;
 					final_damage *= 60;
 				}
-				DamageHandler (attacker, attacker, final_damage, S_EXPLOSIVE);
+				DamageHandler (ent, ent, final_damage, S_EXPLOSIVE);
 			}
 		}
 		else if (ent.classname == "explosive_barrel")
