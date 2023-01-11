@@ -664,6 +664,12 @@ void() ClientDisconnect =
 	bprint(PRINT_HIGH, " has left the game.\n");
 	player_count--;
 	UpdatePlayerCount(player_count);
+	
+	self.classname = "disconnected";
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_TOSS;
+	self.nextthink = -1;
+	setmodel(self, "models/sprites/null.spr");
 };
 
 

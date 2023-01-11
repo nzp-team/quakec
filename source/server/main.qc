@@ -144,6 +144,7 @@ void() precaches =
 	precache_model ("models/sprites/revive_white.spr");
 	precache_model ("models/sprites/sprkle.spr");
 	precache_model ("models/sprites/lightning.spr");
+	precache_model ("models/sprites/null.spr");
 	precache_model ("models/way/current_way.spr");
 	precache_model ("models/way/current_way_door.spr");
 	precache_model ("models/way/last_way.spr");
