@@ -226,7 +226,6 @@ void() precaches =
 	precache_sound("sounds/misc/wood_door.wav");
 	precache_sound("sounds/misc/debris.wav");
 	precache_sound("sounds/misc/denybuy.wav");
-	precache_sound("sounds/misc/what.wav");
 
 	// power-ups
 	precache_sound ("sounds/pu/pickup.wav");
