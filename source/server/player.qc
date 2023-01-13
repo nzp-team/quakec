@@ -511,11 +511,9 @@ void() PollPlayerPoints =
 
 void() PlayerSpawn =
 {	
-	local entity spawnpoint;
+	entity spawnpoint;
 	local_client = self;
-	
-	spawnpoint = find(world, classname, "info_player_start");
-	
+
 	self.isspec = FALSE;
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
@@ -534,21 +532,38 @@ void() PlayerSpawn =
 		}
 	}
 
-	switch(player_count) {
-		default: spawnpoint = find(world, classname, "info_player_start"); if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-		case 1: spawnpoint = find(world, classname, "info_player_nikolai");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-		case 2: spawnpoint = find(world, classname, "info_player_takeo");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-		case 3: spawnpoint = find(world, classname, "info_player_doctor");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");}  break;
+	if (!self.playernum) {
+		self.playernum = player_count + 1;
+		if (self.playernum == 1)
+			pl1 = self;
 	}
-	
-	if (self.playernum) {
+
+	// Solo Play, pick any Spot.
+	if (player_count == 0) {
+		float number = random();
+
+		if (number < 0.25)
+			spawnpoint = find(world, classname, "info_player_tank");
+		else if (number < 0.50)
+			spawnpoint = find(world, classname, "info_player_nikolai");
+		else if (number < 0.75)
+			spawnpoint = find(world, classname, "info_player_takeo");
+		else
+			spawnpoint = find(world, classname, "info_player_doctor");
+	} else {
 		switch(self.playernum) {
-			default: spawnpoint = find(world, classname, "info_player_start"); if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-			case 1: spawnpoint = find(world, classname, "info_player_nikolai");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-			case 2: spawnpoint = find(world, classname, "info_player_takeo");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-			case 3: spawnpoint = find(world, classname, "info_player_doctor");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");}  break;
-	    }
+			case 1: spawnpoint = find(world, classname, "info_player_tank"); break;
+			case 2: spawnpoint = find(world, classname, "info_player_nikolai"); break;
+			case 3: spawnpoint = find(world, classname, "info_player_takeo"); break;
+			case 4: spawnpoint = find(world, classname, "info_player_doctor");  break;
+	    	default: break;
+		}
 	}
+
+	// Mapper doesn't have our co-op spawn set up..
+	if (!spawnpoint)
+		spawnpoint = find(world, classname, "info_player_start");
+
 	
 	self.origin = spawnpoint.origin + [0,0,1];
 	self.angles = spawnpoint.angles;
@@ -587,12 +602,6 @@ void() PlayerSpawn =
 	SetPerk(self, self.perks);
 	
 	//self.zoom = 1;			// This is to fix an aimin bug for the kar scope
-	
-	if (!self.playernum) {
-		self.playernum = player_count + 1;
-		if (self.playernum == 1)
-			pl1 = self;
-	}
 
 	if (rounds < 1 && player_count == 0) {
 		sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
