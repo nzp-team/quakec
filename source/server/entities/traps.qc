@@ -282,7 +282,8 @@ void() zapper_node =
 	precache_model(self.model);
     setorigin(self, self.origin);
     setmodel(self, self.model);
-    setsize (self, '-4 -4 -4', '4 4 4');
+	makevectors(self.angles);
+    setsize (self, '-20 -20 -4', '20 20 0' + (v_up * 100));
 	self.movetype = MOVETYPE_NONE;
 	self.classname = "zapper_node";
 };
