@@ -1186,13 +1186,16 @@ void() HUD_Broadcast = {
 	string broadcast_msg = "";
 	float health = getstatf(STAT_HEALTH);
 	
-		switch(broadcast_type) {
-			case 2: broadcast_msg = "A Player needs to be revived"; break;
-			default: broadcast_msg = "benis"; break;
-		}
+	switch(broadcast_type) {
+		case 2: broadcast_msg = strcat(broadcast_string, " needs to be revived"); break;
+		case 3: broadcast_msg = strcat(broadcast_string, " is reviving you"); break;
+		default: break;
+	}
+
 	float print_width = stringwidth (broadcast_msg, 0, [0.015*g_width, 0.015*g_width, 0]);
 	float x = (g_width - print_width)/2;
-	if (broadcast_type == 2 && health > 19)
+
+	if (broadcast_msg != "")
 		drawstring([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
 }
 

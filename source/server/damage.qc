@@ -221,7 +221,7 @@ void() GetDown =
 	self.requirespower = point_difference;
 
 	// Broadcast that the player has downed.
-	BroadcastMessage(time + 3, 2);
+	BroadcastMessage(time + 3, 2, self.netname);
 
 	// Reset state
 	self.velocity = self.zoom = 0;

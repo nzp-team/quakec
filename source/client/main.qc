@@ -1005,6 +1005,7 @@ noref void() CSQC_Parse_Event =
 		case EVENT_BROADCAST:
 			broadcast_time = readbyte();
 			broadcast_type = readbyte();
+			broadcast_string = readstring();
 			break;
 		case EVENT_POINTUPDATE:
 			float playernum = readbyte();

@@ -177,7 +177,7 @@ void(string to, float skin) UpdateV2model =
 	#endif
 }
 
-void(float broadcast_time, float type) BroadcastMessage =
+void(entity who, float broadcast_time, float type, string str) BroadcastMessageToClient =
 {
 	#ifndef HANDHELD
 	#ifndef NX
@@ -185,6 +185,22 @@ void(float broadcast_time, float type) BroadcastMessage =
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
 	WriteByte(MSG_MULTICAST, broadcast_time);
 	WriteByte(MSG_MULTICAST, type);
+	WriteString(MSG_MULTICAST, str);
+	msg_entity = who;
+	multicast('0 0 0', MULTICAST_ONE);
+	#endif
+	#endif
+}
+
+void(float broadcast_time, float type, string str) BroadcastMessage =
+{
+	#ifndef HANDHELD
+	#ifndef NX
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
+	WriteByte(MSG_MULTICAST, broadcast_time);
+	WriteByte(MSG_MULTICAST, type);
+	WriteString(MSG_MULTICAST, str);
 	multicast('0 0 0', MULTICAST_ALL);
 
 	#endif

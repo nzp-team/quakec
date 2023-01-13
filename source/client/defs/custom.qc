@@ -94,6 +94,7 @@ float crosshair_spread_time;
 float zoom_2_time;
 float broadcast_time;
 float broadcast_type;
+string broadcast_string;
 
 float weaponframetime;
 float weapon2frametime;

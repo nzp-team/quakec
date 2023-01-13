@@ -2304,7 +2304,10 @@ void() CheckPlayer =
 			useprint (self, 13, 0, 0);
 			
 			if (self.button7 && !ent.invoke_revive) {
-				centerprint(ent, "Another player is reviving you...");
+
+				// Broadcast that they're being revived
+				BroadcastMessageToClient(ent, time + 0.1, 3, self.netname);
+
 				ent.beingrevived = true;
 				
 				if (!self.progress_bar_percent) {
