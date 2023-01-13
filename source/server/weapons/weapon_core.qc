@@ -2312,7 +2312,7 @@ void() CheckPlayer =
 				
 				if (!self.progress_bar_percent) {
 					self.movetype = MOVETYPE_NONE;
-					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/v_morphine.mdl", false, S_BOTH);
+					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_BOTH);
 					
 					if !(self.perks & P_REVIVE)
 						self.progress_bar_time = 4;
