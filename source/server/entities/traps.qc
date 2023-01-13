@@ -92,6 +92,11 @@ void() zapper_do_damage
 	// - Has a chance to gib.
 	// - No normal death sound, play elec sound on contact, then
 	// again on death.
+	if (other.classname == "ai_zombie_head" || other.classname == "ai_zombie_rarm"
+	|| other.classname == "ai_zombie_larm") {
+		// If we're a limb, grab our body.
+		other = other.owner;
+	}
 	if (other.classname == "ai_zombie" && !other.electro_targeted) {
 		tempe = self;
 		self = other;
