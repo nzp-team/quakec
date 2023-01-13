@@ -1027,6 +1027,7 @@ noref void() CSQC_Parse_Event =
 			revive_icons[reviveoff_id].org[1] = 0;
 			revive_icons[reviveoff_id].org[2] = 0;
 			revive_icons[reviveoff_id].state = 0;
+			revive_icons[reviveoff_id].timer = 0;
 			revive_icons[reviveoff_id].draw = false;
 			active_revive_icons--;
 			break;
