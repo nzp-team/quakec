@@ -254,69 +254,112 @@ void () buy_weapon_touch =
 	float startframe,endframe;
 	string modelname;
 
+	float wcost;
+
 	if (other.classname != "player" || other.downed || other.isBuying) {
 		return;
 	}
 
-	#ifndef PC
-	other.Weapon_Name_Touch = GetWeaponName(self.weapon);
-	#endif
+	if (self.weapon != 99) {
+		#ifndef PC
+		other.Weapon_Name_Touch = GetWeaponName(self.weapon);
+		#endif
 
-	float slot;
+		float slot;
 
-	// Player has this weapon in any of their slots, PaP'd or not.
-	if ((slot = Util_PlayerHasWeapon(other, self.weapon, true)) != 0) {
-		float is_pap = true;
+		// Player has this weapon in any of their slots, PaP'd or not.
+		if ((slot = Util_PlayerHasWeapon(other, self.weapon, true)) != 0) {
+			float is_pap = true;
 
 
-		// But the utility function returns the same value if we are NOT PaP'd
-		if (Util_PlayerHasWeapon(other, self.weapon, false) == slot)
-			is_pap = false;
+			// But the utility function returns the same value if we are NOT PaP'd
+			if (Util_PlayerHasWeapon(other, self.weapon, false) == slot)
+				is_pap = false;
 
-		// Set the cost and weapon value (for useprint).
-		float wcost = (is_pap) ? 4500 : self.cost2;
-		float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
+			// Set the cost and weapon value (for useprint).
+			wcost = (is_pap) ? 4500 : self.cost2;
+			float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
 
-		useprint(other, 3, wcost, wep);
+			useprint(other, 3, wcost, wep);
 
-		if (!other.button7 || other.semiuse || other.isBuying) {
-			return;
+			if (!other.button7 || other.semiuse || other.isBuying) {
+				return;
+			}
+
+			// Store current Ammo value.
+			float ammo = Util_GetPlayerAmmoInSlot(other, slot);
+
+			// Max carrying capacity of the wall weapon
+			float wall_ammo = (is_pap) ? getWeaponAmmo(EqualPapWeapon(self.weapon)) : getWeaponAmmo(self.weapon);
+
+			// Weapon is already full. Abort.
+			if (ammo >= wall_ammo)
+				return;
+
+			other.semiuse = true;
+
+			// Player doesn't have enough points. Abort.
+			if (other.points < wcost) {
+				centerprint(other, STR_NOTENOUGHPOINTS);
+				return;
+			}
+
+			other.ach_tracker_coll++;
+
+			// Set the weapon's ammo to the max capacity.
+			Util_SetPlayerAmmoInSlot(other, slot, wall_ammo);
+
+			sound(other, 0,"sounds/misc/ching.wav", 1, 1);
+			other.reload_delay = 0;
+
+			// Subtract the cost from player points.
+			addmoney(other, wcost*-1, 0);
+
+			if (self.enemy) {
+				oldent = self;
+				self = self.enemy;
+				self.use();
+				self = oldent;
+			}
 		}
+	} else 
+	// Universal Ammo buy
+	{
+		#ifndef PC
+		other.Weapon_Name_Touch = GetWeaponName(other.weapon);
+		#endif
 
-		// Store current Ammo value.
-		float ammo = Util_GetPlayerAmmoInSlot(other, slot);
+		if (other.currentammo < getWeaponAmmo(other.weapon)) {
 
-		// Max carrying capacity of the wall weapon
-		float wall_ammo = (is_pap) ? getWeaponAmmo(EqualPapWeapon(self.weapon)) : getWeaponAmmo(self.weapon);
+			// Set the cost and weapon value (for useprint).
+			wcost = (IsPapWeapon(other.weapon)) ? 4500 : self.cost2;
 
-		// Weapon is already full. Abort.
-		if (ammo >= wall_ammo)
-			return;
+			useprint(other, 3, wcost, other.weapon);
 
-		other.semiuse = true;
+			if (!other.button7 || other.semiuse || other.isBuying) {
+				return;
+			}
 
-		// Player doesn't have enough points. Abort.
-		if (other.points < wcost) {
-			centerprint(other, STR_NOTENOUGHPOINTS);
-			return;
-		}
+			// Player doesn't have enough points. Abort.
+			if (other.points < wcost) {
+				centerprint(other, STR_NOTENOUGHPOINTS);
+				return;
+			}
 
-		other.ach_tracker_coll++;
+			other.currentammo = getWeaponAmmo(other.weapon);
 
-		// Set the weapon's ammo to the max capacity.
-		Util_SetPlayerAmmoInSlot(other, slot, wall_ammo);
+			sound(other, 0,"sounds/misc/ching.wav", 1, 1);
+			other.reload_delay = 0;
 
-		sound(other, 0,"sounds/misc/ching.wav", 1, 1);
-		other.reload_delay = 0;
+			// Subtract the cost from player points.
+			addmoney(other, wcost*-1, 0);
 
-		// Subtract the cost from player points.
-		addmoney(other, wcost*-1, 0);
-
-		if (self.enemy) {
-			oldent = self;
-			self = self.enemy;
-			self.use();
-			self = oldent;
+			if (self.enemy) {
+				oldent = self;
+				self = self.enemy;
+				self.use();
+				self = oldent;
+			}
 		}
 	}
 	if (self.weapon == W_BETTY)
@@ -408,7 +451,7 @@ void () buy_weapon_touch =
 			}
 		}
 	}
-	else
+	else if (self.weapon != 99)
 	{
 		entity tempe;
 
@@ -543,7 +586,7 @@ void() buy_weapon =
 	self.nextthink = time + 0.2; 
 
 	ach_tracker_col2++;
-
+	
 	precache_sound("sounds/misc/ching.wav");
 };
 
