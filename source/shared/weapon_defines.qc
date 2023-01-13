@@ -1926,37 +1926,37 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 5;
+					return 2;
 				case RELOAD_EMPTY_START:
-					return 5;
+					return 4;
 				case RELOAD_EMPTY_END:
-					return 17;
+					return 10;
 				case RELOAD_PART_START:
-					return 40;
+					return 21;
 				case RELOAD_PART_END:
-					return 54;
+					return 30;
 				case RELOAD_START:
-					return 18;
+					return 10;
 				case RELOAD_END:
-					return 36;
+					return 20;
 				case SPRINT_IN_START:
-					return 58;
+					return 32;
 				case SPRINT_IN_END:
-					return 62;
+					return 33;
 				case SPRINT_OUT_START:
-					return 63;
+					return 34;
 				case SPRINT_OUT_END:
-					return 67;
+					return 35;
 				case TAKE_OUT_START:
-					return 78;
+					return 40;
 				case TAKE_OUT_END:
-					return 84;
+					return 43;
 				case PUT_OUT_START:
-					return 68;
+					return 36;
 				case PUT_OUT_END:
-					return 73;
+					return 39;
 				case RELOAD_CANCEL:
-					return 26;
+					return 14;
 			}
 			break;
 		case W_M1A1:
@@ -2026,29 +2026,29 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 4;
+					return 2;
 				case RELOAD_START:
-					return 30;
+					return 4;
 				case RELOAD_END:
-					return 60;
+					return 31;
 				case SPRINT_IN_START:
-					return 72;
+					return 39;
 				case SPRINT_IN_END:
-					return 76;
+					return 41;
 				case SPRINT_OUT_START:
-					return 77;
+					return 42;
 				case SPRINT_OUT_END:
-					return 83;
+					return 46;
 				case TAKE_OUT_START:
-					return 65;
+					return 35;
 				case TAKE_OUT_END:
-					return 71;
+					return 37;
 				case PUT_OUT_START:
-					return 61;
+					return 32;
 				case PUT_OUT_END:
-					return 65;
+					return 34;
 				case RELOAD_CANCEL:
-					return 45;
+					return 18;
 			}
 			break;
 		case W_MP5K:
@@ -3053,13 +3053,13 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_M1:
 		case W_M1000:
-			if (curweaponframe == 6 || curweaponframe == 46) {
+			if (curweaponframe == 5 || curweaponframe == 25) {
 				sound (self ,5, "sounds/weapons/garand/clipout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 23) {
+			} else if (curweaponframe == 13) {
 				sound (self ,5, "sounds/weapons/garand/clipin.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 27) {
+			} else if (curweaponframe == 15) {
 				sound (self ,5, "sounds/weapons/garand/boltrelease.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 44) {
+			} else if (curweaponframe == 24) {
 				sound (self ,5, "sounds/weapons/garand/clippush.wav", 1, ATTN_NORM);
 			}
 			break;
@@ -3077,11 +3077,11 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_MP40:
 		case W_AFTERBURNER:
-			if (curweaponframe == 33) {
+			if (curweaponframe == 7) {
 				sound (self ,5, "sounds/weapons/mp40/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 43) {
+			} else if (curweaponframe == 17) {
 				sound (self ,5, "sounds/weapons/mp40/magin.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 52) {
+			} else if (curweaponframe == 25) {
 				sound (self ,5, "sounds/weapons/mp40/boltback.wav", 1, ATTN_NORM);
 			}
 			break;
