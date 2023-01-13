@@ -1007,6 +1007,29 @@ noref void() CSQC_Parse_Event =
 			broadcast_type = readbyte();
 			broadcast_string = readstring();
 			break;
+		case EVENT_REVIVECHANGE:
+			float revivechange_id = readbyte();
+			float state = readbyte();
+			revive_icons[revivechange_id].state = state;
+			break;
+		case EVENT_REVIVEON:
+			float reviveon_id = readbyte();
+			revive_icons[reviveon_id].org[0] = readcoord();
+			revive_icons[reviveon_id].org[1] = readcoord();
+			revive_icons[reviveon_id].org[2] = readcoord();
+			revive_icons[reviveon_id].state = 1;
+			revive_icons[reviveon_id].draw = true;
+			active_revive_icons++;
+			break;
+		case EVENT_REVIVEOFF:
+			float reviveoff_id = readbyte();
+			revive_icons[reviveoff_id].org[0] = 0;
+			revive_icons[reviveoff_id].org[1] = 0;
+			revive_icons[reviveoff_id].org[2] = 0;
+			revive_icons[reviveoff_id].state = 0;
+			revive_icons[reviveoff_id].draw = false;
+			active_revive_icons--;
+			break;
 		case EVENT_POINTUPDATE:
 			float playernum = readbyte();
 			float temppoints = readlong();

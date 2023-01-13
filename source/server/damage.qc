@@ -80,22 +80,6 @@ void() EndGame =
 	self.nextthink = time + 33;
 }
 
-// removes revive icon from downed player heads, used as a recursive think function
-void() remove_revive =
-{
-	if (self.owner.beingrevived)
-		setmodel (self, "models/sprites/revive_white.spr");
-	else
-		setmodel (self, "models/sprites/revive.spr");
-
-	if (!self.owner.downed || self.owner.isspec)
-		SUB_Remove ();
-	else {
-		self.think = remove_revive;
-		self.nextthink = time + 0.1;
-	}
-}
-
 // when dead and other players exist and are alive, throw user into spectate mode
 void() startspectate =
 {
@@ -177,6 +161,7 @@ void() rec_downed =
 {
 	self.downedloop++;
 	if (self.downedloop >= 300) {
+		DisableReviveIcon(self.electro_targeted);
 		startspectate();
 		return;
 	}
@@ -332,18 +317,9 @@ void() GetDown =
 
 	// Spawn Revive Sprite in Co-Op
 	if (coop) {
-		entity revive_sprite;
-
-		revive_sprite = spawn();
-		revive_sprite.owner = self;
-		revive_sprite.movetype = MOVETYPE_NONE;
-		revive_sprite.solid = SOLID_NOT;
-		revive_sprite.think = remove_revive;
-		revive_sprite.nextthink = time + 0.1;
-
-		setmodel(revive_sprite, "models/sprites/revive.spr");
-		revive_sprite.origin = self.origin + VEC_VIEW_OFS;
-		setorigin(revive_sprite, revive_sprite.origin);
+		EnableReviveIcon(revive_index, self.origin + VEC_VIEW_OFS);
+		self.electro_targeted = revive_index;
+		revive_index++;
 	}
 
 	self.think = rec_downed;
@@ -401,6 +377,8 @@ void(entity ent) CheckRevive =
 {
 	if (self.invoke_revive) {
 		GetUp();
+		DisableReviveIcon(self.electro_targeted);
+		revive_index--;
 		self.invoke_revive = 0;
 	}
 }

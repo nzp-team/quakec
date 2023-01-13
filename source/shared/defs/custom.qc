@@ -50,6 +50,9 @@ const float EVENT_HUDUPDATE 			= 33;
 const float EVENT_EXPLOSION 			= 34;
 const float EVENT_BLOOD 				= 35;
 const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
+const float EVENT_REVIVEON 				= 37;
+const float EVENT_REVIVEOFF 			= 38;
+const float EVENT_REVIVECHANGE 			= 39;
 
 // Define our PC version if we don't have NX or PSP 
 #ifndef NX

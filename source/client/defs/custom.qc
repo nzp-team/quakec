@@ -96,6 +96,15 @@ float broadcast_time;
 float broadcast_type;
 string broadcast_string;
 
+var struct revive_s {
+	float draw;
+	float timer;
+	float state;
+	float org[3];
+} revive_icons[4];
+
+float active_revive_icons;
+
 float weaponframetime;
 float weapon2frametime;
 float oldweaponframe;

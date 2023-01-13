@@ -520,3 +520,5 @@ float sndActivCnt;
 .float renderamt;
 .vector rendercolor;
 #endif
+
+float revive_index;

@@ -1399,6 +1399,30 @@ void(float width, float height) HUD_PlayerNames =
 	}
 }
 
+void(float width, float height) HUD_ReviveIcons =
+{
+	for (float i = 0; i < active_revive_icons; i++) {
+		if (revive_icons[i].draw == true) {
+			revive_icons[i].timer += frametime;
+			vector revive_origin;
+			revive_origin_x = revive_icons[i].org[0];
+			revive_origin_y = revive_icons[i].org[1];
+			revive_origin_z = revive_icons[i].org[2];
+			vector screen_position = project(revive_origin);
+			screen_position_x -= (0.075*height)/2;
+
+			if (screen_position_z > 0) {
+				// being revived
+				if (revive_icons[i].state == 2)
+					drawpic(screen_position, "gfx/hud/revive_icon.tga", [0.075*height, 0.075*height, 1], [1,1,1], 1);
+				else {
+					drawpic(screen_position, "gfx/hud/revive_icon.tga", [0.075*height, 0.075*height, 1], [1,1 - (revive_icons[i].timer/30),0], 1);
+				}
+			}
+		}
+	}
+}
+
 /*******************
 *     HUD Draw     *
 *******************/
@@ -1409,7 +1433,6 @@ void(float width, float height) HUD_Draw =
 		return;
 
 	HUD_Achievements(width, height);
-	HUD_PlayerNames(width, height);
 
 	
 	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 10) && !score_show)
@@ -1451,6 +1474,9 @@ void(float width, float height) HUD_Draw =
 				scrollopacity = 1;
 				scrollheight = 0.80;
 			}
+
+			HUD_PlayerNames(width, height);
+			HUD_ReviveIcons(width, height);
 		} else {
 			HUD_Waypoint(width, height);
 		}

@@ -177,6 +177,46 @@ void(string to, float skin) UpdateV2model =
 	#endif
 }
 
+void(float index, float state) ChangeReviveIconState =
+{
+	#ifndef HANDHELD
+	#ifndef NX
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_REVIVECHANGE);
+	WriteByte(MSG_MULTICAST, index);
+	WriteByte(MSG_MULTICAST, state);
+	multicast('0 0 0', MULTICAST_ALL);
+	#endif
+	#endif
+}
+
+void(float index, vector org) EnableReviveIcon =
+{
+	#ifndef HANDHELD
+	#ifndef NX
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_REVIVEON);
+	WriteByte(MSG_MULTICAST, index);
+	WriteCoord(MSG_MULTICAST, org_x);
+	WriteCoord(MSG_MULTICAST, org_y);
+	WriteCoord(MSG_MULTICAST, org_z);
+	multicast('0 0 0', MULTICAST_ALL);
+	#endif
+	#endif
+}
+
+void(float index) DisableReviveIcon =
+{
+	#ifndef HANDHELD
+	#ifndef NX
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_REVIVEOFF);
+	WriteByte(MSG_MULTICAST, index);
+	multicast('0 0 0', MULTICAST_ALL);
+	#endif
+	#endif
+}
+
 void(entity who, float broadcast_time, float type, string str) BroadcastMessageToClient =
 {
 	#ifndef HANDHELD
@@ -202,7 +242,6 @@ void(float broadcast_time, float type, string str) BroadcastMessage =
 	WriteByte(MSG_MULTICAST, type);
 	WriteString(MSG_MULTICAST, str);
 	multicast('0 0 0', MULTICAST_ALL);
-
 	#endif
 	#endif
 }

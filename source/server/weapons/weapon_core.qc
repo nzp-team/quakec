@@ -2311,6 +2311,7 @@ void() CheckPlayer =
 				ent.beingrevived = true;
 				
 				if (!self.progress_bar_percent) {
+					ChangeReviveIconState(ent.electro_targeted, 2);
 					self.movetype = MOVETYPE_NONE;
 					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_BOTH);
 					
@@ -2338,6 +2339,7 @@ void() CheckPlayer =
 				}
 			}
 			else if (!self.button7 && self.reviving) {
+				ChangeReviveIconState(ent.electro_targeted, 1);
 				self.movetype = MOVETYPE_WALK;
 				ent.beingrevived = false;
 				W_TakeOut();
