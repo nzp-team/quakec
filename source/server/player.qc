@@ -638,6 +638,7 @@ void() SpectatorSpawn =
 	spawnpoint = find(world, classname, "info_player_start");
 	
 	self.isspec = TRUE;
+	self.health = 420;
 	self.classname = "spectator";
 	self.solid = SOLID_NOT;
 	setmodel(self, "");
