@@ -239,7 +239,7 @@ void(vector org, float scale) interpolateToVector =
 
 float(vector where) nearby = 
 {
-	if(self.classname == "ai_zombie")
+	if(self.classname == "ai_zombie" || self.classname == "ai_dog")
 	{
 		float xdist;
 		float ydist;
@@ -257,20 +257,6 @@ float(vector where) nearby =
 		}
 		return 0;
 	}
-	/*else if(self.classname == "ai_hellhound")
-	{
-		if(vlen(self.origin - what.origin) < 35)
-		{
-			if(vlen(self.origin - what.origin) < 6)
-			{
-				return 1;
-			}
-			else
-			{
-				interpolateToVector(what.origin,0.25);
-			}
-		}
-	}*/
 	return 0;
 };
 
@@ -640,7 +626,7 @@ void(float dist) Inside_Walk = {
 	}
 	//================Check for proximity to player ===========
 	if(vlen(self.enemy.origin - self.origin) < 60) {
-		if(self.enemy.classname == "monkey_bomb") {
+		if(self.enemy.classname == "monkey_bomb" && self.classname != "ai_dog") {
 			self.th_idle();
 		}
 		
@@ -709,7 +695,8 @@ void(float dist) Zombie_Walk =  {
 		} else if (self.droptime < time) {
 			self.droptime = 0;
 			//bprint(PRINT_HIGH, "not on ground\n");
-			self.th_fall();
+			if (self.classname != "ai_dog")
+				self.th_fall();
 			return;
 		}
 	}
@@ -758,6 +745,11 @@ void() Zombie_AI = {
 	}
 }
 
+void() Hellhound_AI =
+{
+	Inside_Walk(0);
+}
+
 //This function ensures that only one zombie's ai is done at a time, brings down lag significantly
 void() Do_Zombie_AI = {
 	local entity z;
@@ -772,8 +764,10 @@ void() Do_Zombie_AI = {
 	local entity oself;	
 	oself = self;
 	self = z;
-	//if(z.classname == "ai_zombie")//removed because only zombies atm
-	Zombie_AI();
+	if(z.classname == "ai_zombie")
+		Zombie_AI();
+	else if (z.classname == "ai_dog")
+		Hellhound_AI();
 	self = oself;
 	lastzombie = z;
 }
