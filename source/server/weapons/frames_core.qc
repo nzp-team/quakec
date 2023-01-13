@@ -107,10 +107,11 @@ void () W_Frame_Update =
 	// note: call whenever weapon frames are called!
 	if (self.anim_weapon_time > time)
 		return; //don't call every frame, if it is the animations will play too fast
+
+	if (IsDualWeapon(self.weapon))
+		W2_Frame_Update();
 	
 	self.anim_weapon_time = time + self.weapon_animduration;
-
-
 
 	if (self.weaponframe != self.weaponframe_end && !self.anim_reversed)
 	{   // continue an animation
@@ -161,7 +162,8 @@ void () W_Frame_Update =
 			temp(S_RIGHT);
 	}
 
-	W2_Frame_Update();
+	if (!IsDualWeapon(self.weapon))
+		W2_Frame_Update();
 };
 
 float(string path) model_should_hide_weapon2 =
