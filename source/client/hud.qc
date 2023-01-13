@@ -1372,6 +1372,33 @@ void(float width, float height) HUD_Waypoint =
 	drawstring([0.015*width, 0.305*height, 0], strcat("Press ", "-", " to save current waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
 }
 
+void(float width, float height) HUD_PlayerNames =
+{
+	for (float i = 3; i >= 0; i = i - 1) {
+		if ((i+1) == getstatf(STAT_PLAYERNUM))
+			continue;
+		
+		float player_number = getplayerkeyfloat(i, "viewentity");
+
+		string text = getplayerkeyvalue(i, "name");
+		vector player_origin = getentity(player_number, GE_ORIGIN) + '0 0 48';
+		vector screen_position = project(player_origin);
+		vector text_color = '1 1 1';
+
+		screen_position_x -= stringwidth(text, 0, [0.014*width, 0.014*width, 0])/2;
+
+		switch(i) {
+			case 1: text_color = TEXT_LIGHTBLUE; break;
+			case 2: text_color = TEXT_ORANGE; break;
+			case 3: text_color = TEXT_GREEN; break;
+			default: break;
+		}
+
+		if (screen_position_z > 0)
+			drawstring(screen_position, text, [0.014*g_width, 0.014*g_width, 0], text_color, 1, 0);
+	}
+}
+
 /*******************
 *     HUD Draw     *
 *******************/
@@ -1382,6 +1409,8 @@ void(float width, float height) HUD_Draw =
 		return;
 
 	HUD_Achievements(width, height);
+	HUD_PlayerNames(width, height);
+
 	
 	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 10) && !score_show)
 	{
