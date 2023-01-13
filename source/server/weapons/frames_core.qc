@@ -107,8 +107,6 @@ void () W_Frame_Update =
 	// note: call whenever weapon frames are called!
 	if (self.anim_weapon_time > time)
 		return; //don't call every frame, if it is the animations will play too fast
-
-	W2_Frame_Update();
 	
 	self.anim_weapon_time = time + self.weapon_animduration;
 
@@ -162,6 +160,8 @@ void () W_Frame_Update =
 		if (temp)
 			temp(S_RIGHT);
 	}
+
+	W2_Frame_Update();
 };
 
 float(string path) model_should_hide_weapon2 =
