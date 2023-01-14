@@ -129,7 +129,7 @@ void() precaches =
 	precache_model ("models/player.mdl");
 
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	if (world.song != "")
 		precache_sound (world.song);
 	#endif

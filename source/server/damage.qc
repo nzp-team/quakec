@@ -26,9 +26,9 @@
 
 */
 
-#ifndef NX
+#ifndef QUAKESPASM
 void (float achievement_id, optional entity who) GiveAchievement;
-#endif // NX
+#endif // QUAKESPASM
 
 void() Barrel_Hit;
 
@@ -429,7 +429,7 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 				if (victim.crawling != TRUE && !(victim.health <= 0) && crawler_num < 5 && victim.classname != "ai_dog")
 				{
 					makeCrawler(victim);
-					#ifndef NX
+					#ifndef QUAKESPASM
 					GiveAchievement(3, attacker);
 					#endif
 				}

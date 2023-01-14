@@ -429,7 +429,7 @@ void() PlayerPostThink =
 
 	// Perform a traceline to keep track of entities directly
 	// in front of the player.
-	#ifndef NX
+	#ifndef QUAKESPASM
 	vector source;
 
 	makevectors (self.v_angle);

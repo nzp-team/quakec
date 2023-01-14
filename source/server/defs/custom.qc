@@ -25,11 +25,11 @@
 
 */
 
-#ifndef NX
+#ifndef QUAKESPASM
 #ifndef HANDHELD
 #pragma target FTE
 #endif // HANDHELD
-#endif // NX
+#endif // QUAKESPASM
 
 #define true 				1
 #define false 				0
@@ -218,7 +218,7 @@ void() SUB_Null2 = {};
 #define 	MAX_ZOMB 		24
 
 #ifndef PC
-#ifndef NX
+#ifndef QUAKESPASM
 #define 	MAX_ZOMB		12
 #endif
 #endif

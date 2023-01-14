@@ -29,8 +29,8 @@
 #define CHAN_MUSIC      1
 #define CHAN_SFX        2
 
-#ifndef PSP
-#ifndef NX
+#ifndef HANDHELD
+#ifndef QUAKESPASM
 void(string soundname, optional float channel, optional float volume) localsound_enhanced =
 {
     if (!volume)

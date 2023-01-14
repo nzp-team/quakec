@@ -4003,7 +4003,7 @@ vector(float wep) GetWeaponRecoil =
 	temp1 = change_1 + change_2;
 	temp2 = change_1 + change_2 + change_3;
 	
-	#ifndef PSP
+	#ifndef HANDHELD
 	if (r < change_1)
 		final_kick_y = kick_change_x*0.25;
 	else if (r < temp1)
@@ -4035,7 +4035,7 @@ vector(float wep) GetWeaponRecoil =
 vector (float wep) GetWeaponFlash_Offset = 
 {
 		switch(wep) {
-			#ifndef NX
+			#ifndef QUAKESPASM
 				case W_COLT:
 					return [5488, -2742, 35300];
 				case W_BIATCH:
@@ -4102,7 +4102,7 @@ vector (float wep) GetWeaponFlash_Offset =
 					return [5488, -2742, 35300];
 			#endif
 
-			#ifdef NX
+			#ifdef QUAKESPASM
 				case W_COLT:
 				case W_BIATCH:
 					return [1950, -6250, 35300];

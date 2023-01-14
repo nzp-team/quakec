@@ -175,6 +175,9 @@ void zapper_stop() {
 			self = tempe;
 		} else if (zents.classname == "zapper_node" && zents.target) {
 			zents.think = SUB_Null;
+			entity zent_target = find(world, targetname, self.target);
+			if (zent_target != world)
+				zent_target.touch = SUB_Null;
 			zents.nextthink = 0;
 		}
 		zents.touch = SUB_Null;
@@ -208,7 +211,7 @@ void zapper_start(string zapper) {
 
 	tempe = spawn();
 	tempe.think = zapper_stop;
-	tempe.nextthink = time + self.calc_time;
+	tempe.nextthink = time + 2;
 	tempe.zappername = zapper;
 }
 

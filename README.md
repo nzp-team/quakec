@@ -23,4 +23,4 @@ Before you can build the NZ:P QuakeC, you must either [download](https://github.
 
 To build, simply navigate to the `tools` directory and run the `qc-compiler-*` script for your platform. If unfamiliar with executing shell (`.sh`) scripts on Linux systems, give this [itsFOSS article](https://itsfoss.com/run-shell-script-linux/) a read.
 
-After having done this, a `build` directory will have been created, and inside of it will be more directories named after every platform. Copy the contents of the platform directories into your `nzp` game directory. (Example: copy `progs.dat` and `progs.lno` from `build/psp` to `PSP/GAME/nzportable/nzp`).
+After having done this, a `build` directory will have been created, and inside of it will be more directories named after every platform. Copy the contents of the platform directories into your `nzp` game directory. (Example: For PSP, copy `progs.dat` and `progs.lno` from `build/handheld` to `PSP/GAME/nzportable/nzp`).

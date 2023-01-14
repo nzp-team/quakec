@@ -54,8 +54,8 @@ const float EVENT_REVIVEON 				= 37;
 const float EVENT_REVIVEOFF 			= 38;
 const float EVENT_REVIVECHANGE 			= 39;
 
-// Define our PC version if we don't have NX or PSP 
-#ifndef NX
+// Define our PC version
+#ifndef QUAKESPASM
 #ifndef HANDHELD
 #define PC
 #endif
@@ -231,7 +231,7 @@ float invertfloat(float input) {
 }
 
 //elements
-#ifndef NX
+#ifndef QUAKESPASM
 string G_HUD;
 float G_HUDHOR;
 #endif

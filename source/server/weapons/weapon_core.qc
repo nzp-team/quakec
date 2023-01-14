@@ -67,7 +67,7 @@ void() W_AimIn =
 	if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 		SetUpdate(self, UT_ZOOM2, 0, 0, 0);
-		#ifdef NX
+		#ifdef QUAKESPASM
 		self.zoom = 1;
 		#else
 		self.zoom = 2;
@@ -145,7 +145,7 @@ void W_SprintStart () {
 	else
 		self.sprint_duration -= self.sprint_rest_time;
 
-#ifdef NX
+#ifdef QUAKESPASM
 	if (!self.sprintflag) {
 		return;
 	}
@@ -2154,7 +2154,7 @@ void () Impulse_Functions =
 			else
 				Change_Stance();
 			break;
-		#ifdef NX
+		#ifdef QUAKESPASM
 		case 31:
 			self.sprintflag = 0;
 			break;
@@ -2270,7 +2270,7 @@ void() CheckPlayer =
 	CheckPowerups(self);
 	CheckRevive(self);
 
-#ifdef NX
+#ifdef QUAKESPASM
 	if (!self.sprintflag && self.sprinting) {
 		W_SprintStop();
 	}

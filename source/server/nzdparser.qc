@@ -247,7 +247,7 @@ void(string weaponFile) nzd_defineweapon = {
 //basically copying the waypoint code.. yikes
 void() load_nzd = {
 
-	#ifndef NX
+	#ifndef QUAKESPASM
     float file, point;
     string h;
     float loop;

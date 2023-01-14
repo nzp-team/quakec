@@ -17,8 +17,7 @@ jobs:
         run: |
           zip -r -j pc-nzp-qc.zip pc/*
           zip -r -j handheld-nzp-qc.zip handheld/*
-          zip -r -j nx-nzp-qc.zip nx/*
-          zip -r -j vita-nzp-qc.zip vita/*
+          zip -r -j quakespasm-nzp-qc.zip quakespasm/*
       - name: Generate Build Date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M-%S')"
@@ -41,18 +40,18 @@ jobs:
             This is a **bleeding edge** NZ:P QuakeC release, stability is not guarenteed and you may need to grab an updated asset release if this update depends on new models/textures/etc.
 
             To install:
-            - Grab the .ZIP archive for your desired platform below (*-nzp-qc.zip, use `handheld-nzp-qc.zip` for 3DS and PSP).
+            - Grab the .ZIP archive for your desired platform below (*-nzp-qc.zip, use `handheld-nzp-qc.zip` for 3DS/PSP and `quakespasm-nzp-qc.zip` for Switch/VITA).
             - Extract the contents of the .ZIP archive to your nzp folder (Example: copy `progs.dat` and `progs.lno` to `PSP/GAME/nzportable/nzp`).
           draft: true
           prerelease: false
-      - name: Upload NX QC
+      - name: Upload QUAKESPASM QC
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/nx-nzp-qc.zip
-          asset_name: nx-nzp-qc.zip
+          asset_path: ./build/quakespasm-nzp-qc.zip
+          asset_name: quakespasm-nzp-qc.zip
           asset_content_type: application/zip
       - name: Upload PC QC
         uses: actions/upload-release-asset@v1
@@ -71,15 +70,6 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/handheld-nzp-qc.zip
           asset_name: handheld-nzp-qc.zip
-          asset_content_type: application/zip
-      - name: Upload VITA QC
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/vita-nzp-qc.zip
-          asset_name: vita-nzp-qc.zip
           asset_content_type: application/zip
       - name: Publish Release
         uses: StuYarrow/publish-release@v1

@@ -3,7 +3,7 @@ CD ../
 REM ****** create build directories ******
 MKDIR build\pc\ 2>nul
 MKDIR build\handheld\ 2>nul
-MKDIR build\nx\ 2>nul
+MKDIR build\quakespasm\ 2>nul
 MKDIR build\vita\ 2>nul
 CD bin/
 echo.
@@ -26,14 +26,8 @@ echo.
 fteqcc-cli-win.exe -srcfile ../progs/handheld.src
 echo.
 echo ========================
-echo    compiling NX-QS QC
+echo  compiling QUAKESPASM QC
 echo ========================
 echo.
-fteqcc-cli-win.exe -srcfile ../progs/nx.src
-echo.
-echo ========================
-echo    compiling VITA QC
-echo ========================
-echo.
-fteqcc-cli-win.exe -srcfile ../progs/vita.src
+fteqcc-cli-win.exe -srcfile ../progs/quakespasm.src
 pause

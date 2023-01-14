@@ -28,7 +28,7 @@
 void SetUpdate(entity client, float type, float val1, float val2, float val3)
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 
 	if (type != 2)
 	{
@@ -56,7 +56,7 @@ void SetUpdate(entity client, float type, float val1, float val2, float val3)
 }
 
 #ifndef HANDHELD
-#ifndef NX
+#ifndef QUAKESPASM
 void(entity to, float type, float cost, float weapon) useprint = {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_USEPRINT);
@@ -88,7 +88,7 @@ void(vector org) CallExplosion = {
 
 void NotifyNewRound(float to) {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_NEWROUND);
@@ -101,7 +101,7 @@ void NotifyNewRound(float to) {
 
 void SetRound(entity client, float to) {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_SETROUND);
@@ -116,7 +116,7 @@ void SetRound(entity client, float to) {
 void SetPerk(entity client, float to)
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PERK);
@@ -131,7 +131,7 @@ void SetPerk(entity client, float to)
 void(float to) SwitchWeapon =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_WEAPONCHANGE);
@@ -149,7 +149,7 @@ void(float to) SwitchWeapon =
 void(string to, float skin) UpdateVmodel =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEVMODEL);
@@ -165,7 +165,7 @@ void(string to, float skin) UpdateVmodel =
 void(string to, float skin) UpdateV2model =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEV2MODEL);
@@ -180,7 +180,7 @@ void(string to, float skin) UpdateV2model =
 void(float index, float state) ChangeReviveIconState =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVECHANGE);
 	WriteByte(MSG_MULTICAST, index);
@@ -193,7 +193,7 @@ void(float index, float state) ChangeReviveIconState =
 void(float index, vector org) EnableReviveIcon =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVEON);
 	WriteByte(MSG_MULTICAST, index);
@@ -208,7 +208,7 @@ void(float index, vector org) EnableReviveIcon =
 void(float index) DisableReviveIcon =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVEOFF);
 	WriteByte(MSG_MULTICAST, index);
@@ -220,7 +220,7 @@ void(float index) DisableReviveIcon =
 void(entity who, float broadcast_time, float type, string str) BroadcastMessageToClient =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
 	WriteByte(MSG_MULTICAST, broadcast_time);
@@ -235,7 +235,7 @@ void(entity who, float broadcast_time, float type, string str) BroadcastMessageT
 void(float broadcast_time, float type, string str) BroadcastMessage =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
 	WriteByte(MSG_MULTICAST, broadcast_time);
@@ -249,7 +249,7 @@ void(float broadcast_time, float type, string str) BroadcastMessage =
 void(float playernum, float points, float am, float kills, string name, entity person) UpdatePlayerPoints =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_POINTUPDATE);
@@ -278,7 +278,7 @@ void(float playernum, float points, float am, float kills, string name, entity p
 
 void(float count) UpdatePlayerCount = {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	if (count == 0)
 		return;
 	else {
@@ -295,7 +295,7 @@ void(float count) UpdatePlayerCount = {
 void(float newtime, float newtype, entity change) PromptLevelChange =
 {
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BLACKOUT);
@@ -313,7 +313,7 @@ void(entity who) UpdatePunchangle =
 
 	// naievil -- shit logic lol...but result looks clean as fuck...
 	#ifndef HANDHELD
-	#ifndef NX
+	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PUNCHANGLE);
 	WriteCoord(MSG_MULTICAST, who.punchangle_x);
@@ -359,7 +359,7 @@ void(entity who) UpdatePunchangle =
 }
 
 #ifndef HANDHELD
-#ifndef NX
+#ifndef QUAKESPASM
 void(string h, float h2, entity who) pushHUD = {
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -451,7 +451,7 @@ void(string chaptertitle, string location, string date, string person, entity wh
 #endif
 #endif
 
-#ifndef NX
+#ifndef QUAKESPASM
 void (float achievement_id, optional entity who) GiveAchievement =
 {
 #ifndef PC
@@ -526,7 +526,7 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 #endif // PC
 	}
 }
-#endif // NX
+#endif // QUAKESPASM
 
 // *****************************************
 // Unrelated to engine, but custom functions

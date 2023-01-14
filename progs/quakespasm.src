@@ -1,20 +1,20 @@
-../../build/vita/progs.dat
+../../build/quakespasm/progs.dat
 
 #pragma warning disable Q208
 
-../source/server/defs/vita.qc
+../source/server/defs/quakespasm.qc
 ../source/shared/defs/custom.qc
 ../source/shared/weapon_defines.qc
 ../source/server/defs/custom.qc
 ../source/server/clientfuncs.qc
 
-../source/server/dummies/vitanx.qc
+../source/server/dummies/quakespasm.qc
 
 ../source/server/dummies/generic.qc  
 ../source/server/rounds.qc
 ../source/server/nzdparser.qc
-../source/server/main.qc 
-../source/server/utilities/command_parser.qc   
+../source/server/main.qc   
+../source/server/utilities/command_parser.qc 
 ../source/server/player.qc
 ../source/server/damage.qc
 

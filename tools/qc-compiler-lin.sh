@@ -2,7 +2,7 @@
 
 cd ../
 # create build directories
-mkdir -p build/{pc,handheld,nx,vita}
+mkdir -p build/{pc,handheld,quakespasm,vita}
 cd bin/
 echo ""
 echo "========================"
@@ -24,13 +24,7 @@ echo ""
 ./fteqcc-cli-lin -srcfile ../progs/handheld.src
 echo ""
 echo "========================"
-echo "   compiling NX-QS QC   "
+echo "compiling QUAKESPASM QC "
 echo "========================"
 echo ""
-./fteqcc-cli-lin -srcfile ../progs/nx.src
-echo ""
-echo "========================"
-echo "   compiling VITA QC    "
-echo "========================"
-echo ""
-./fteqcc-cli-lin -srcfile ../progs/vita.src
+./fteqcc-cli-lin -srcfile ../progs/quakespasm.src

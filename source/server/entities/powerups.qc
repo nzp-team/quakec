@@ -219,7 +219,7 @@ void() PU_NukeFinalize =
 	entity players;
 
 	// give 'The F Bomb'
-	#ifndef NX
+	#ifndef QUAKESPASM
 	if (self.kills == 1) {
 		GiveAchievement(4);
 	}
