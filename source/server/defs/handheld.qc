@@ -13,7 +13,7 @@
 +=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+
 */
 
-#define PSP 
+#define HANDHELD
 
 // These lines CANNOT be altered/moved
 entity      self;
@@ -155,6 +155,7 @@ void		end_sys_globals;		// flag for structure dumping
 .float      currentmag2;
 .float      maxspeed;
 .float      facingenemy;
+//.float      scale;
 void		end_sys_fields;			// flag for structure dumping
 // End. Lines below this MAY be altered, to some extent
 

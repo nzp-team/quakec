@@ -1,11 +1,11 @@
 /*
-	server/nzdparser.qc
+	server/player.qc
 
 	Various stuff done for the player, including per-frame functions 
 	like PlayerPreThink and PlayerPostThink, also client specific 
 	stuff like PutClientInServer etc.
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -29,14 +29,18 @@
 
 void(entity e) Light_None;
 
-// player animations
+//
+// Player 3rd Person Animations
+//
 
-void() playdown 	 	=[	1,		playdown1	  	] {self.frame = 32;}
-void() playdown1  		=[	2,		playdown2	  	] {self.frame = 33;} 
-void() playdown2  		=[	2,		playdown3	  	] {self.frame = 34;} 
-void() playdown3  		=[	2,		playdown4	  	] {self.frame = 35;} 
-void() playdown4  		=[	2,		playdown5	  	] {self.frame = 36;} 
-void() playdown5  		=[	2,		playdown5	  	] {self.frame = 37;} 
+// Enter Last Stand
+void() PAnim_GetDown1	=[	1, 		PAnim_GetDown2	]	{self.frame = 32;};
+void() PAnim_GetDown2	=[	1, 		PAnim_GetDown3	]	{self.frame = 33;};
+void() PAnim_GetDown3	=[	1, 		PAnim_GetDown4	]	{self.frame = 34;};
+void() PAnim_GetDown4	=[	1, 		PAnim_GetDown5	]	{self.frame = 35;};
+void() PAnim_GetDown5	=[	1, 		PAnim_GetDown6	]	{self.frame = 36;};
+void() PAnim_GetDown6	=[	1, 		PAnim_GetDown6	]	{self.frame = 37;};
+
 //
 void() playreload   	=[	1,		playreload1	  	] {self.frame = 11;}
 void() playreload1  	=[	2,		playreload2	  	] {self.frame = 12;}
@@ -123,6 +127,7 @@ void() playgetup10		=[	11,		playgetup10		] {self.frame = 48;}
 #define left 		2
 #define right 		3
 #define all_move    -1
+
 float(float dir) checkMovement =
 {
 	makevectors(self.movement);
@@ -211,6 +216,7 @@ void(float override) JumpCheck =
 	} else
 		self.flags = self.flags | FL_JUMPRELEASED;
 }
+
 
 void() PlayerPreThink =
 {
@@ -425,7 +431,7 @@ void() PlayerPostThink =
 
 	// Perform a traceline to keep track of entities directly
 	// in front of the player.
-	#ifndef NX
+	#ifndef QUAKESPASM
 	vector source;
 
 	makevectors (self.v_angle);
@@ -507,11 +513,9 @@ void() PollPlayerPoints =
 
 void() PlayerSpawn =
 {	
-	local entity spawnpoint;
+	entity spawnpoint;
 	local_client = self;
-	
-	spawnpoint = find(world, classname, "info_player_start");
-	
+
 	self.isspec = FALSE;
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
@@ -519,12 +523,6 @@ void() PlayerSpawn =
 	self.movetype = MOVETYPE_WALK;
 	self.max_health = self.health = 100;
 
-	//custom weapon stuff (we want to put this here so we can send the info to the client with an entity)
-	// DISGUSTING.
-	//nzd_defineweapon(self);
-
-	//centerprint(self, CustomWeapons[0].vmodel);
-	
 	entity who = find(world,classname,"player");
 	while(who != self && !self.playernum)
 	{
@@ -536,21 +534,38 @@ void() PlayerSpawn =
 		}
 	}
 
-	switch(player_count) {
-		default: spawnpoint = find(world, classname, "info_player_start"); if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-		case 1: spawnpoint = find(world, classname, "info_player_nikolai");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-		case 2: spawnpoint = find(world, classname, "info_player_takeo");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-		case 3: spawnpoint = find(world, classname, "info_player_doctor");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");}  break;
+	if (!self.playernum) {
+		self.playernum = player_count + 1;
+		if (self.playernum == 1)
+			pl1 = self;
 	}
-	
-	if (self.playernum) {
+
+	// Solo Play, pick any Spot.
+	if (player_count == 0) {
+		float number = random();
+
+		if (number < 0.25)
+			spawnpoint = find(world, classname, "info_player_tank");
+		else if (number < 0.50)
+			spawnpoint = find(world, classname, "info_player_nikolai");
+		else if (number < 0.75)
+			spawnpoint = find(world, classname, "info_player_takeo");
+		else
+			spawnpoint = find(world, classname, "info_player_doctor");
+	} else {
 		switch(self.playernum) {
-			default: spawnpoint = find(world, classname, "info_player_start"); if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-			case 1: spawnpoint = find(world, classname, "info_player_nikolai");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-			case 2: spawnpoint = find(world, classname, "info_player_takeo");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");} break;
-			case 3: spawnpoint = find(world, classname, "info_player_doctor");  if (!spawnpoint) {spawnpoint = find(world, classname, "info_player_start");}  break;
-	    }
+			case 1: spawnpoint = find(world, classname, "info_player_tank"); break;
+			case 2: spawnpoint = find(world, classname, "info_player_nikolai"); break;
+			case 3: spawnpoint = find(world, classname, "info_player_takeo"); break;
+			case 4: spawnpoint = find(world, classname, "info_player_doctor");  break;
+	    	default: break;
+		}
 	}
+
+	// Mapper doesn't have our co-op spawn set up..
+	if (!spawnpoint)
+		spawnpoint = find(world, classname, "info_player_start");
+
 	
 	self.origin = spawnpoint.origin + [0,0,1];
 	self.angles = spawnpoint.angles;
@@ -589,14 +604,8 @@ void() PlayerSpawn =
 	SetPerk(self, self.perks);
 	
 	//self.zoom = 1;			// This is to fix an aimin bug for the kar scope
-	
-	if (!self.playernum) {
-		self.playernum = player_count + 1;
-		if (self.playernum == 1)
-			pl1 = self;
-	}
 
-	if (rounds < 1) {
+	if (rounds < 1 && player_count == 0) {
 		sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
 	}
 
@@ -623,9 +632,6 @@ void() PlayerSpawn =
 		rounds = G_STARTROUND - 1;
 	}
 
-	#ifndef PSP
-	//pushHUD(G_HUD, G_HUDHOR, self); //FIXME - breaks mp!
-	#endif
 };
 
 void() SpectatorSpawn =
@@ -634,6 +640,7 @@ void() SpectatorSpawn =
 	spawnpoint = find(world, classname, "info_player_start");
 	
 	self.isspec = TRUE;
+	self.health = 420;
 	self.classname = "spectator";
 	self.solid = SOLID_NOT;
 	setmodel(self, "");
@@ -669,6 +676,12 @@ void() ClientDisconnect =
 	bprint(PRINT_HIGH, " has left the game.\n");
 	player_count--;
 	UpdatePlayerCount(player_count);
+	
+	self.classname = "disconnected";
+	self.solid = SOLID_NOT;
+	self.movetype = MOVETYPE_TOSS;
+	self.nextthink = -1;
+	setmodel(self, "models/sprites/null.spr");
 };
 
 
@@ -678,136 +691,6 @@ void() SetNewParms =
 
 void() SetChangeParms =
 {
-};
-
-void(string com) SV_ParseClientCommand =
-{	
-	
-	if(com == "joingame")
-	{
-		if(self.isspec)
-		{
-			bprint(PRINT_HIGH, self.netname);
-			bprint(PRINT_HIGH, " has joined the game.\n");
-			PlayerSpawn();
-		}
-		else
-			sprint(self, PRINT_HIGH, "You're already in game!\n");
-	}
-	else if(com == "specgame")
-	{
-		if(self.isspec)
-			return;
-		else
-		{
-			coop = 1;
-
-			/*SpectatorSpawn();
-			bprint(PRINT_HIGH, self.netname); //print player name
-			bprint(PRINT_HIGH, " has joined the spectators.\n");*/
-			
-			PlayerSpawn();
-		}
-	}
-	else if(com == "pause")
-	{
-		static float paused;
-		paused = !paused;
-		#ifdef PC
-		setpause(paused);
-		#endif
-	}
-	else if (com == "noclip")
-	{		
-		#ifndef PC
-		entity benis = self;
-		other = find(world, classname, "player");
-		self = other;
-		#endif 
-		
-		if (self.movetype == MOVETYPE_WALK)
-			self.movetype = MOVETYPE_NOCLIP;
-		else
-			self.movetype = MOVETYPE_WALK;
-			
-		#ifndef PC
-		localcmd(com);
-		self = benis;
-		#endif
-	}
-	else
-	{		
-		tokenize(com);
-
-		switch(argv(0))
-		{
-			case "give":
-				entity tempe = self;
-				other = find(world, classname, "player");
-				self = other;
-				
-				float wep = stof(argv(1));
-
-				if (wep) {
-					if (!self.secondaryweapon) {
-						WeaponSwitch(self);
-					}
-					
-					float startframe, endframe;
-					string modelname;
-
-					self.weapon = wep;
-					self.currentammo = getWeaponAmmo(wep);
-					self.currentmag = getWeaponMag(wep);
-					if (IsDualWeapon(wep)) {
-						self.currentmag2 = self.currentmag;
-					}
-
-					self.weaponskin = GetWepSkin(self.weapon);
-
-					startframe = GetFrame(self.weapon,TAKE_OUT_START);
-					endframe = GetFrame(self.weapon,TAKE_OUT_END);
-					modelname = GetWeaponModel(wep, 0);
-
-					SwitchWeapon(wep);
-					
-					Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
-					
-					self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
-					
-					#ifndef PC
-					self.Weapon_Name = GetWeaponName(self.weapon);
-					#endif
-				}
-			break;
-			case "god":
-					if (!(self.flags & FL_GODMODE))
-						self.flags = self.flags | FL_GODMODE;
-					else
-						self.flags = self.flags & (~FL_GODMODE);
-					break;
-			case "nextround":
-					rounds++;
-					break;
-			case "prevround":
-					rounds--;
-					break;
-			case "addmoney":
-					entity tempe1 = self;
-					other = find(world, classname, "player");
-					self = other;
-					
-					addmoney(self, stof(argv(1)), 1);
-					
-					self = tempe1;
-					break;
-			default: 
-					#ifndef PC
-					bprint(PRINT_HIGH, "Command not found in QC\n");
-					#endif
-					break;
-		}
-	}
 };
 
 #ifdef PC

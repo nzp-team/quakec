@@ -1,7 +1,7 @@
 /*
 	server/dummies/generic.qc
 
-	dummys for vita and nx
+	dummys for quakespasm
 
 	Copyright (C) 2021 NZ:P Team
 
@@ -29,7 +29,7 @@
 void GiveAchievement(float achievement_id, optional entity who) = {};
 void print(string s) = {};
 
-float tracemove(vector start, vector min, vector max, vector end, float nomonsters, entity forent) = {return 0;};
+float (vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove = #99; //sB adding tracemove to quakespasm
 
 void(vector o, vector d, float color, float count) particle = {};
 

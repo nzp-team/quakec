@@ -3,7 +3,7 @@
 
 	all weapon stats are stored here
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -64,20 +64,8 @@ var struct {
 
 };
 
-// so we know whether to use normal values or pull from our struct!
-float(float wep) isCustomWeapon =
-{
-	if (wep >= 70)
-		return TRUE;
-
-	return FALSE;
-}
-
 string(float wep) GetWeaponName =
 {
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].name;
-	}
 
 	switch (wep)
 	{
@@ -139,6 +127,10 @@ string(float wep) GetWeaponName =
 			return "MP40";
 		case W_AFTERBURNER:
 			return "The Afterburner";
+		case W_MP5K:
+			return "MP5K";
+		case W_KOLLIDER:
+			return "MP115 Kollider";
 		case W_MG:
 			return "MG42";
 		case W_BARRACUDA:
@@ -218,10 +210,6 @@ string(float perk) GetPerkName =
 float(float wep) GetFiretype =
 {
 
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].firetype;
-	}
-
 	switch (wep)
 	{
 		case W_COLT:
@@ -269,6 +257,9 @@ float(float wep) GetFiretype =
 			return 6;
 		case W_MP40:
 		case W_AFTERBURNER:
+			return 0;
+		case W_MP5K:
+		case W_KOLLIDER:
 			return 0;
 		case W_MG:
 		case W_BARRACUDA:
@@ -452,6 +443,24 @@ float(float wep, float type) getWeaponMultiplier =
 				case LIMBS_X: 		return 1;
 			}
 			break;
+		case W_MP5K:
+			switch (type)
+			{
+				case HEAD_X: 		return 4;
+				case UPPER_TORSO_X:	return 1;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
+			break;
+		case W_KOLLIDER:
+			switch (type)
+			{
+				case HEAD_X: 		return 5;
+				case UPPER_TORSO_X:	return 1;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
+			break;
 		case W_MG:
 		case W_BARRACUDA:
 			switch (type)
@@ -537,10 +546,6 @@ float(float wep, float type) getWeaponMultiplier =
 float(float wep) getWeaponMag =
 {
 
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].magSize;
-	}
-
 	switch (wep)
 	{
 		case W_COLT:
@@ -597,6 +602,10 @@ float(float wep) getWeaponMag =
 			return 32;
 		case W_AFTERBURNER:
 			return 64;
+		case W_MP5K:
+			return 30;
+		case W_KOLLIDER:
+			return 40;
 		case W_MG:
 			return 125;
 		case W_BARRACUDA:
@@ -642,10 +651,6 @@ float(float wep) getWeaponMag =
 
 float(float wep) getWeaponAmmo =
 {
-
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].reserveSize;
-	}
 
 	switch (wep)
 	{
@@ -703,6 +708,10 @@ float(float wep) getWeaponAmmo =
 			return 192;
 		case W_AFTERBURNER:
 			return 192;
+		case W_MP5K:
+			return 120;
+		case W_KOLLIDER:
+			return 200;
 		case W_MG:
 			return 500;
 		case W_BARRACUDA:
@@ -750,10 +759,6 @@ float(float wep) getWeaponAmmo =
 
 float(float wep) getWeaponDamage =
 {
-
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].damage;
-	}
 
 	switch (wep)
 	{
@@ -809,6 +814,10 @@ float(float wep) getWeaponDamage =
 			return 100;
 		case W_AFTERBURNER:
 			return 200;
+		case W_MP5K:
+			return 100;
+		case W_KOLLIDER:
+			return 140;
 		case W_MG:
 			return 130;
 		case W_BARRACUDA:
@@ -852,9 +861,6 @@ float(float wep) getWeaponDamage =
 
 float(float wep) GetWeaponShotcount =
 {
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].shotcount;
-	}
 
 	switch(wep)
 	{
@@ -878,13 +884,6 @@ float(float wep, float penetration_times) getWeaponPenetration =
 {
 	if (!penetration_times)
 		return 2;
-
-	if (isCustomWeapon(wep)) {
-		if (penetration_times >= CustomWeapons[wep - 70].bodypen)
-			return 0;
-
-		return CustomWeapons[wep - 70].penetration;
-	}
 
 	switch (wep)
 	{
@@ -952,6 +951,11 @@ float(float wep, float penetration_times) getWeaponPenetration =
 			if (penetration_times >= 2)
 				return 0;
 			return 0.8;
+		case W_MP5K:
+		case W_KOLLIDER:
+			if (penetration_times >= 2)
+				return 0;
+			return 0.8;
 		case W_MG:
 		case W_BARRACUDA:
 			if (penetration_times >= 3)
@@ -997,9 +1001,6 @@ float(float wep, float penetration_times) getWeaponPenetration =
 
 float(float wep) GetWeaponSpread =
 {
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].spread;
-	}
 
 	switch (wep)
 	{
@@ -1083,6 +1084,10 @@ float(float wep) GetWeaponSpread =
 			return 5;
 		case W_AFTERBURNER:
 			return 5;
+		case W_MP5K:
+			return 5;
+		case W_KOLLIDER:
+			return 5;
 		case W_PTRS:
 			return 15;
 		case W_PENETRATOR:
@@ -1090,8 +1095,6 @@ float(float wep) GetWeaponSpread =
 		case W_STG:
 			return 5;
 		case W_SPATZ:
-			return 5;
-		case W_MP5:
 			return 5;
 		case W_TESLA:
 			return 5;
@@ -1104,13 +1107,6 @@ float(float wep) GetWeaponSpread =
 
 float(float wep, float delaytype) getWeaponDelay =
 {
-
-	if (isCustomWeapon(wep)) {
-		if (delaytype == RELOAD)
-			return CustomWeapons[wep - 70].rdelay;
-		else if (delaytype == FIRE)
-			return CustomWeapons[wep - 70].fdelay;
-	}
 
 	switch (wep)
 	{
@@ -1193,8 +1189,12 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.200;
 		case W_M1:
 		case W_M1000:
+			if (delaytype == RELOAD_EMP)
+				return 0.4;
+			if (delaytype == RELOAD_PAR)
+				return 1.4;
 			if (delaytype == RELOAD)
-				return 3.2;
+				return 1.4;
 			else if (delaytype == FIRE)
 				return 0.275;
 		case W_M1A1:
@@ -1223,6 +1223,16 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 2.3;
 			else if (delaytype == FIRE)
 				return 0.110;
+		case W_MP5K:
+			if (delaytype == RELOAD)
+				return 3.2;
+			else if (delaytype == FIRE)
+				return 0.085;
+		case W_KOLLIDER:
+			if (delaytype == RELOAD)
+				return 3.2;
+			else if (delaytype == FIRE)
+				return 0.085;
 		case W_MG:
 			if (delaytype == RELOAD)
 				return 4;
@@ -1273,7 +1283,7 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.283;
 		case W_STG:
 			if (delaytype == RELOAD)
-				return 2.15;
+				return 2.5;
 			else if (delaytype == FIRE)
 				return 0.110;
 		case W_SPATZ:
@@ -1320,10 +1330,6 @@ float GetWeaponWalkSpeed(float perks, float weapontype)
 
 	spd = 0;
 
-	if (isCustomWeapon(weapontype)) {
-		spd = CustomWeapons[weapontype - 70].walkspeed;
-	}
-
 	switch(weapontype) {
 		default: spd = 1;
 		case W_KAR: 
@@ -1361,10 +1367,6 @@ float GetWeaponWalkSpeed(float perks, float weapontype)
 
 vector GetWeaponADSPos(float wep) {
 
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].adsofs;
-	}
-
 	switch (wep) {
 		case W_COLT:
 			return [-2.99, 2.77, 0.92];
@@ -1392,31 +1394,34 @@ vector GetWeaponADSPos(float wep) {
 			return [-6.5, 7.4, 3.27];
 		case W_GEWEHR:
 		case W_COMPRESSOR:
-			return [-0.2, 3.28, 2.57];
+			return [-0.2, 2.55, 2.63];
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
 			return [-2.19, 2.67, 0.42];
 		case W_M1:
 		case W_M1000:
-			return [-2.6, 1.46, 1.12];
+			return [-4.6, 3.90, 1.12];
 		case W_M1A1:
 		case W_WIDDER:
 			return [-0.6, 2.7, 1.94];
 		case W_MP40:
 		case W_AFTERBURNER:
-			return [-3.79, 6.1, 4.04];
+			return [-3.79, 5.74, 3.25];
+		case W_MP5K:
+		case W_KOLLIDER:
+			return [-3.19, 5.20, 2.80];
 		case W_MG:
 		case W_BARRACUDA:
 			return [-3.9, 3.5, 1.84];
 		case W_PPSH:
 		case W_REAPER:
-			return [-9.79, 5.5, 2.94];
+			return [-3.79, 3.75, 1.5];
 		case W_PTRS:
 		case W_PENETRATOR:
 			return [-9.79, 6.6, 2.44];
 		case W_STG:
 		case W_SPATZ:
-			return [-9.79, 7.3, 4.94];
+			return [-9.79, 4.9, 1.54];
 		case W_TRENCH:
 		case W_GUT:
 			return [0, 2.85, 1.4];
@@ -1481,22 +1486,25 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-12700, 2086.9, 0];
 		case W_GEWEHR:
 		case W_COMPRESSOR:
-			return [-6550, 4400, 0];
+			return [-5150, 5300, 0];
 		case W_PPSH:
 		case W_REAPER:
-			return [-11000, 3700, 0];
+			return [-7500, 3000, 0];
 		case W_MP40:
 		case W_AFTERBURNER:
-			return [-12320, 7600, 0];
+			return [-11400, 6700, 0];
+		case W_MP5K:
+		case W_KOLLIDER:
+			return [-10400, 5500, 0];
 		case W_TYPE:
 		case W_SAMURAI:
 			return [-400, -200, 0];
 		case W_STG:
 		case W_SPATZ:
-			return [-14534, 8920, 0];
+			return [-9834, 2920, 0];
 		case W_M1:
 		case W_M1000:
-			return [-2860, 2000, 0];
+			return [-7700, 2200, 0];
 		case W_BROWNING:
 		case W_ACCELERATOR:
 			return [-15200, 11620, 0];
@@ -1856,31 +1864,31 @@ float(float wep, float frametype, optional float z) GetFrame =
 			switch (frametype)
 			{
 				case FIRE_START:
-					return 1;
-				case FIRE_END:
 					return 2;
+				case FIRE_END:
+					return 4;
 				case RELOAD_START:
-					return 3;
+					return 11;
 				case RELOAD_END:
-					return 38;
-				case SPRINT_IN_START:
-					return 49;
-				case SPRINT_IN_END:
-					return 49;
-				case SPRINT_OUT_START:
-					return 51;
-				case SPRINT_OUT_END:
 					return 52;
-				case TAKE_OUT_START:
+				case SPRINT_IN_START:
 					return 55;
-				case TAKE_OUT_END:
+				case SPRINT_IN_END:
+					return 57;
+				case SPRINT_OUT_START:
 					return 59;
+				case SPRINT_OUT_END:
+					return 61;
+				case TAKE_OUT_START:
+					return 75;
+				case TAKE_OUT_END:
+					return 83;
 				case PUT_OUT_START:
-					return 53;
+					return 64;
 				case PUT_OUT_END:
-					return 56;
+					return 71;
 				case RELOAD_CANCEL:
-					return 16;
+					return 36;
 			}
 			break;
 		case W_KAR_SCOPE:
@@ -1918,29 +1926,37 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 3;
+					return 2;
+				case RELOAD_EMPTY_START:
+					return 4;
+				case RELOAD_EMPTY_END:
+					return 10;
+				case RELOAD_PART_START:
+					return 21;
+				case RELOAD_PART_END:
+					return 30;
 				case RELOAD_START:
-					return 8;
+					return 10;
 				case RELOAD_END:
-					return 44;
+					return 20;
 				case SPRINT_IN_START:
-					return 58;
+					return 32;
 				case SPRINT_IN_END:
-					return 59;
+					return 33;
 				case SPRINT_OUT_START:
-					return 60;
+					return 34;
 				case SPRINT_OUT_END:
-					return 61;
+					return 35;
 				case TAKE_OUT_START:
-					return 59;
+					return 40;
 				case TAKE_OUT_END:
-					return 63;
+					return 43;
 				case PUT_OUT_START:
-					return 56;
+					return 36;
 				case PUT_OUT_END:
-					return 59;
+					return 39;
 				case RELOAD_CANCEL:
-					return 16;
+					return 14;
 			}
 			break;
 		case W_M1A1:
@@ -2012,27 +2028,59 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_END:
 					return 2;
 				case RELOAD_START:
-					return 3;
+					return 4;
 				case RELOAD_END:
-					return 21;
+					return 31;
 				case SPRINT_IN_START:
-					return 37;
-				case SPRINT_IN_END:
-					return 38;
-				case SPRINT_OUT_START:
 					return 39;
+				case SPRINT_IN_END:
+					return 41;
+				case SPRINT_OUT_START:
+					return 42;
 				case SPRINT_OUT_END:
-					return 40;
+					return 46;
 				case TAKE_OUT_START:
-					return 32;
-				case TAKE_OUT_END:
 					return 35;
+				case TAKE_OUT_END:
+					return 37;
 				case PUT_OUT_START:
-					return 30;
-				case PUT_OUT_END:
 					return 32;
+				case PUT_OUT_END:
+					return 34;
 				case RELOAD_CANCEL:
-					return 16;
+					return 18;
+			}
+			break;
+		case W_MP5K:
+		case W_KOLLIDER:
+			switch (frametype)
+			{
+				case FIRE_START:
+					return 2;
+				case FIRE_END:
+					return 4;
+				case RELOAD_START:
+					return 7;
+				case RELOAD_END:
+					return 50;
+				case SPRINT_IN_START:
+					return 62;
+				case SPRINT_IN_END:
+					return 64;
+				case SPRINT_OUT_START:
+					return 65;
+				case SPRINT_OUT_END:
+					return 67;
+				case TAKE_OUT_START:
+					return 56;
+				case TAKE_OUT_END:
+					return 59;
+				case PUT_OUT_START:
+					return 52;
+				case PUT_OUT_END:
+					return 55;
+				case RELOAD_CANCEL:
+					return 33;
 			}
 			break;
 		case W_MG:
@@ -2108,29 +2156,29 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 0;
 				case FIRE_END:
-					return 0;
+					return 1;
 				case RELOAD_START:
-					return 4;
+					return 5;
 				case RELOAD_END:
-					return 34;
+					return 38;
 				case SPRINT_IN_START:
-					return 44;
+					return 40;
 				case SPRINT_IN_END:
-					return 45;
+					return 42;
 				case SPRINT_OUT_START:
-					return 47;
-				case SPRINT_OUT_END:
-					return 49;
-				case TAKE_OUT_START:
-					return 46;
-				case TAKE_OUT_END:
-					return 49;
-				case PUT_OUT_START:
 					return 43;
-				case PUT_OUT_END:
+				case SPRINT_OUT_END:
+					return 45;
+				case TAKE_OUT_START:
+					return 49;
+				case TAKE_OUT_END:
+					return 52;
+				case PUT_OUT_START:
 					return 46;
+				case PUT_OUT_END:
+					return 48;
 				case RELOAD_CANCEL:
-					return 16;
+					return 22;
 			}
 			break;
 		case W_PTRS:
@@ -2181,6 +2229,10 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 60;
 				case SPRINT_IN_END:
 					return 64;
+				case SPRINT_START:
+					return 64;
+				case SPRINT_END:
+					return 69;
 				case SPRINT_OUT_START:
 					return 70;
 				case SPRINT_OUT_END:
@@ -2204,29 +2256,29 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 2;
-				case RELOAD_START:
 					return 3;
+				case RELOAD_START:
+					return 6;
 				case RELOAD_END:
-					return 24;
+					return 49;
 				case SPRINT_IN_START:
-					return 40;
+					return 63;
 				case SPRINT_IN_END:
-					return 42;
+					return 67;
 				case SPRINT_OUT_START:
-					return 43;
+					return 68;
 				case SPRINT_OUT_END:
-					return 45;
+					return 73;
 				case TAKE_OUT_START:
-					return 42;
+					return 54;
 				case TAKE_OUT_END:
-					return 46;
+					return 61;
 				case PUT_OUT_START:
-					return 39;
+					return 50;
 				case PUT_OUT_END:
-					return 42;
+					return 53;
 				case RELOAD_CANCEL:
-					return 16;
+					return 30;
 			}
 			break;
 		case W_TRENCH:
@@ -2333,13 +2385,6 @@ float(float wep, float frametype, optional float z) GetFrame =
 string(float wep, float gorvmodel) GetWeaponModel =
 {
 
-	if (isCustomWeapon(wep)) {
-		if (gorvmodel)
-			return CustomWeapons[wep - 70].gmodel;
-		else
-			return CustomWeapons[wep - 70].vmodel;
-	}
-
 	switch (wep)
 	{
 		case W_COLT:
@@ -2430,6 +2475,12 @@ string(float wep, float gorvmodel) GetWeaponModel =
 				return ("models/weapons/mp40/g_mp40.mdl");
 			else
 				return ("models/weapons/mp40/v_mp40.mdl");
+		case W_MP5K:
+    	case W_KOLLIDER:
+			if (gorvmodel)
+				return ("models/weapons/mp5k/g_mp5k.mdl");
+			else
+				return ("models/weapons/mp5k/v_mp5k.mdl");
 		case W_MG:
     	case W_BARRACUDA:
 			if (gorvmodel)
@@ -2489,9 +2540,20 @@ string(float wep, float gorvmodel) GetWeaponModel =
 			else
 				return ("models/weapons/type/v_type.mdl");
 		case W_GRENADE:
-			return ("models/weapons/grenade/g_grenade.mdl");
+			if (gorvmodel)
+				return ("models/weapons/grenade/g_grenade.mdl");
+			else
+				return ("models/weapons/grenade/v_grenade.mdl");
 		case W_BETTY:
-			return ("models/weapons/grenade/g_betty.mdl");
+			if (gorvmodel)
+				return ("models/weapons/grenade/g_betty.mdl");
+			else
+				return ("models/weapons/grenade/v_betty.mdl");
+		case W_BOWIE:
+			if (gorvmodel)
+				return ("models/weapons/knife/g_bowie.mdl");
+			else
+				return ("models/weapons/knife/v_bowie.mdl");
 		case W_DG3:
 		case W_TESLA:
 			if (gorvmodel)
@@ -2511,16 +2573,6 @@ string(float wep, float gorvmodel) GetWeaponModel =
 string(float wep) GetWeapon2Model =
 {
 
-	// naievil -- fixme, add support for custom weapon2models
-	/*
-	if (isCustomWeapon(wep)) {
-		if (gorvmodel)
-			return CustomWeapons[wep - 70].gmodel;
-		else
-			return CustomWeapons[wep - 70].vmodel;
-	}
-	*/
-
 	switch (wep)
 	{
 		case W_BIATCH:
@@ -2539,10 +2591,6 @@ string(float wep) GetWeapon2Model =
 
 string(float wep) GetWeaponSound =
 {
-
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].firesound;
-	}
 
 	switch (wep)
 	{
@@ -2587,6 +2635,9 @@ string(float wep) GetWeaponSound =
 		case W_MP40:
     	case W_AFTERBURNER:
 			return "sounds/weapons/mp40/shoot.wav";
+		case W_MP5K:
+    	case W_KOLLIDER:
+			return "sounds/weapons/mp5k/shoot.wav";
 		case W_MG:
     	case W_BARRACUDA:
 			return "sounds/weapons/mg42/shoot.wav";
@@ -2624,10 +2675,6 @@ string(float wep) GetWeaponSound =
 
 float(float wep) IsDualWeapon = {
 
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].isDual;
-	}
-
 	switch(wep) {
 		case W_BIATCH:
 			return 1;
@@ -2640,10 +2687,6 @@ float(float wep) IsDualWeapon = {
 
 string(float wep) GetLeftWeaponModel = {
 
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].vmodel2;
-	}
-
 	switch(wep) {
 		case W_BIATCH:
 			return "models/weapons/m1911/v_biatch_left.mdl";
@@ -2655,10 +2698,6 @@ string(float wep) GetLeftWeaponModel = {
 }
 
 float(float wep) IsPapWeapon = {
-
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].ispap;
-	}
 
 	switch(wep) {
 		case W_BIATCH:
@@ -2674,6 +2713,7 @@ float(float wep) IsPapWeapon = {
 		case W_M1000:
 		case W_WIDDER:
 		case W_AFTERBURNER:
+		case W_KOLLIDER:
 		case W_BARRACUDA:
 		case W_LONGINUS:
 		case W_REAPER:
@@ -2692,10 +2732,6 @@ float(float wep) IsPapWeapon = {
 
 float(float wep) GetWepSkin = {
 
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].skin;
-	}
-
 	switch(wep) {
 		case W_BIATCH:
 			return 0;
@@ -2711,12 +2747,8 @@ float(float wep) GetWepSkin = {
 }
 
 
-float(float wep)  EqualNonPapWeapon = 
+float(float wep)  EqualNonPapWeapon =
 {
-
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].nonpap;
-	}
 
 	switch (wep) {
 		case W_BIATCH:
@@ -2745,6 +2777,8 @@ float(float wep)  EqualNonPapWeapon =
 			return W_M1A1;
 		case W_AFTERBURNER:
 			return W_MP40;
+		case W_KOLLIDER:
+			return W_MP5K;
 		case W_BARRACUDA:
 			return W_MG;
 		case W_LONGINUS:
@@ -2763,8 +2797,6 @@ float(float wep)  EqualNonPapWeapon =
 			return W_TRENCH;
 		case W_SAMURAI:
 			return W_TYPE;
-		case W_MP5:
-			return W_MP5;
 		case W_M14:
 			return W_M14;
 		case W_CUSTOM2:
@@ -2776,15 +2808,11 @@ float(float wep)  EqualNonPapWeapon =
 		case W_FIW:
 			return W_M2;
 		default:
-			return 0;
+			return wep;
 	}
 }
 float(float wep)  EqualPapWeapon = 
 {
-
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].pap;
-	}
 
 	switch (wep) {
 		case W_COLT:
@@ -2813,6 +2841,8 @@ float(float wep)  EqualPapWeapon =
 			return W_WIDDER;
 		case W_MP40:
 			return W_AFTERBURNER;
+		case W_MP5K:
+			return W_KOLLIDER;
 		case W_MG:
 			return W_BARRACUDA;
 		case W_PANZER:
@@ -2831,8 +2861,6 @@ float(float wep)  EqualPapWeapon =
 			return W_GUT;
 		case W_TYPE:
 			return W_SAMURAI;
-		case W_MP5:
-			return W_MP5;
 		case W_TESLA:
 			return W_DG3;
 		case W_M14:
@@ -2999,13 +3027,13 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_GEWEHR:
 		case W_COMPRESSOR:
-			if (curweaponframe == 10) {
+			if (curweaponframe == 21) {
 				sound (self ,5, "sounds/weapons/gewehr/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 24) {
+			} else if (curweaponframe == 32) {
 				sound (self ,5, "sounds/weapons/gewehr/magin.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 27) {
+			} else if (curweaponframe == 36) {
 				sound (self ,5, "sounds/weapons/gewehr/maghit.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 33) {
+			} else if (curweaponframe == 45) {
 				sound (self ,5, "sounds/weapons/gewehr/boltrelease.wav", 1, ATTN_NORM);
 			}
 			break;
@@ -3025,14 +3053,14 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_M1:
 		case W_M1000:
-			if (curweaponframe == 6) {
+			if (curweaponframe == 5 || curweaponframe == 25) {
 				sound (self ,5, "sounds/weapons/garand/clipout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 20) {
+			} else if (curweaponframe == 13) {
 				sound (self ,5, "sounds/weapons/garand/clipin.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 26) {
-				sound (self ,5, "sounds/weapons/garand/clippush.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 37) {
+			} else if (curweaponframe == 15) {
 				sound (self ,5, "sounds/weapons/garand/boltrelease.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 24) {
+				sound (self ,5, "sounds/weapons/garand/clippush.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_M1A1:
@@ -3049,10 +3077,22 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_MP40:
 		case W_AFTERBURNER:
-			if (curweaponframe == 10) {
+			if (curweaponframe == 7) {
 				sound (self ,5, "sounds/weapons/mp40/magout.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 17) {
 				sound (self ,5, "sounds/weapons/mp40/magin.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 25) {
+				sound (self ,5, "sounds/weapons/mp40/boltback.wav", 1, ATTN_NORM);
+			}
+			break;
+		case W_MP5K:
+		case W_KOLLIDER:
+			if (curweaponframe == 16) {
+				sound (self ,5, "sounds/weapons/mp5k/magout.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 31) {
+				sound (self ,5, "sounds/weapons/mp5k/magin.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 39) {
+				sound (self ,5, "sounds/weapons/mp5k/slap.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_PANZER:
@@ -3075,15 +3115,15 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_PPSH:
     	case W_REAPER:
-				if (curweaponframe == 7) {
+				if (curweaponframe == 8) {
 				sound (self ,5, "sounds/weapons/ppsh/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 15) {
+			} else if (curweaponframe == 20) {
 				sound (self ,5, "sounds/weapons/ppsh/magin.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 19) {
+			} else if (curweaponframe == 22) {
 				sound (self ,5, "sounds/weapons/ppsh/maghit.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 26) {
+			} else if (curweaponframe == 30) {
 				sound (self ,5, "sounds/weapons/ppsh/boltback.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 28) {
+			} else if (curweaponframe == 33) {
 				sound (self ,5, "sounds/weapons/ppsh/boltrelease.wav", 1, ATTN_NORM);
 			}
 			break;
@@ -3113,10 +3153,14 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_STG:
 		case W_SPATZ:
-			if (curweaponframe == 11) {
+			if (curweaponframe == 15) {
 				sound (self ,5, "sounds/weapons/stg/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 21) {
+			} else if (curweaponframe == 28) {
 				sound (self ,5, "sounds/weapons/stg/magin.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 37) {
+				sound (self ,5, "sounds/weapons/stg/boltback.wav", 1, ATTN_NORM);
+			} else if (curweaponframe == 41) {
+				sound (self ,5, "sounds/weapons/stg/boltrelease.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_TRENCH:
@@ -3164,10 +3208,6 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 
 void(float weptype) precache_extra =
 {
-
-	if (isCustomWeapon(weptype)) {
-		precache_model(CustomWeapons[weptype - 70].vmodel);
-	}
 
 	switch (weptype) {
 		case W_COLT:
@@ -3284,6 +3324,14 @@ void(float weptype) precache_extra =
 			precache_sound ("sounds/weapons/mp40/shoot.wav");
 			precache_sound ("sounds/weapons/mp40/magout.wav");
 			precache_sound ("sounds/weapons/mp40/magin.wav");
+			precache_sound ("sounds/weapons/mp40/boltback.wav");
+			break;
+		case W_MP5K:
+		case W_KOLLIDER:
+			precache_sound ("sounds/weapons/mp5k/shoot.wav");
+			precache_sound ("sounds/weapons/mp5k/magout.wav");
+			precache_sound ("sounds/weapons/mp5k/magin.wav");
+			precache_sound ("sounds/weapons/mp5k/slap.wav");
 			break;
 		case W_MG:
 		case W_BARRACUDA:
@@ -3330,6 +3378,8 @@ void(float weptype) precache_extra =
 			precache_sound ("sounds/weapons/stg/magout.wav");
 			precache_sound ("sounds/weapons/stg/magin.wav");
 			precache_sound ("sounds/weapons/stg/shoot.wav");
+			precache_sound ("sounds/weapons/stg/boltback.wav");
+			precache_sound ("sounds/weapons/stg/boltrelease.wav");
 			break;
 		case W_TRENCH:
 		case W_GUT:
@@ -3360,10 +3410,6 @@ void(float weptype) precache_extra =
 
 float(float wep) getWeaponRecoilReturn =
 {
-
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].recoil;
-	}
 
 	switch (wep)
 	{
@@ -3445,6 +3491,12 @@ float(float wep) getWeaponRecoilReturn =
 		case W_AFTERBURNER:
 			return 2538;
 			break;
+		case W_MP5K:
+			return 1255;
+			break;
+		case W_KOLLIDER:
+			return 1255;
+			break;
 		case W_MG:
 			return 1778;
 			break;
@@ -3499,9 +3551,6 @@ float(float wep) getWeaponRecoilReturn =
 		case W_SAMURAI:
 			return 1813;
 			break;
-		case W_MP5:
-			return 1255;
-			break;
 		case W_TESLA:
 		case W_DG3:
 			return 1813;
@@ -3516,10 +3565,6 @@ float(float weapon, float stance) CrossHairWeapon =
 	float sprd;
 	
 	sprd = 0;
-
-	if (isCustomWeapon(weapon)) {
-		sprd = CustomWeapons[weapon - 70].crossmin;
-	}
 
 	switch(weapon)
 	{
@@ -3575,6 +3620,10 @@ float(float weapon, float stance) CrossHairWeapon =
 		case W_AFTERBURNER:
 			sprd = 10;
 			break;
+		case W_MP5K:
+		case W_KOLLIDER:
+			sprd = 10;
+			break;
 		case W_MG:
 		case W_BARRACUDA:
 			sprd = 20;
@@ -3611,9 +3660,6 @@ float(float weapon, float stance) CrossHairWeapon =
 		case W_SAMURAI:
 			sprd = 10;
 			break;
-		case W_MP5:
-			sprd = 10;
-			break;
 		case W_TESLA:
 			sprd = 0;
 			break;
@@ -3642,10 +3688,6 @@ float(float weapon, float stance) CrossHairMaxSpread =
 	float sprd;
 	
 	sprd = 0;
-
-	if (isCustomWeapon(weapon)) {
-		return CustomWeapons[weapon - 70].crossmax;
-	}
 
 	switch(weapon)
 	{
@@ -3701,6 +3743,10 @@ float(float weapon, float stance) CrossHairMaxSpread =
 		case W_AFTERBURNER:
 			sprd = 25;
 			break;
+		case W_MP5K:
+		case W_KOLLIDER:
+			sprd = 25;
+			break;
 		case W_MG:
 		case W_BARRACUDA:
 			sprd = 50;
@@ -3737,9 +3783,6 @@ float(float weapon, float stance) CrossHairMaxSpread =
 		case W_SAMURAI:
 			sprd = 25;
 			break;
-		case W_MP5:
-			sprd = 25;
-			break;
 		case W_TESLA:
 			sprd = 0;
 			break;
@@ -3764,62 +3807,31 @@ float(float weapon, float stance) CrossHairMaxSpread =
 	}
 }
 
-float(float weapon, float type) GetLowAmmo = // determine what ammo value you should have that turns shells red
+//
+// W_IsLowAmmo(weapon, value, mag_not_reserve)
+// Determine if the weapon is low on ammo on the Magazine
+// or in its Reserve.
+//
+float(float weapon, float value, float mag_not_reserve) W_IsLowAmmo =
 {
-
-	if (isCustomWeapon(weapon)) {
-		if (type) return CustomWeapons[weapon - 70].lowmag; else return CustomWeapons[weapon - 70].lowreserve;
+	// Check the Reserve
+	if (mag_not_reserve == false) {
+		// If there's 20% or less of maximum capacity
+		if (value / getWeaponAmmo(weapon) <= 0.2)
+			return true;
+		return false;
 	}
+	// Check the Magazine
+	else {
+		// Initial check: always return true if there's only one
+		// round left and that's not the maximum clip size.
+		if (value == 1 && value != getWeaponMag(weapon))
+			return true;
 
-	switch (weapon)
-	{
-		case W_COLT: if (type) return 2; else return 16; 
-		case W_KAR: if (type) return 1; else return 10;
-		case W_KAR_SCOPE: if (type) return 1; else return 10;
-		case W_M1A1: if (type) return 4; else return 24;
-		case W_SAWNOFF: if (type) return 1; else return 12;
-		case W_DB: if (type) return 1; else return 12;
-		case W_THOMPSON: if (type) return 6; else return 40;
-		case W_BAR: if (type) return 6; else return 28;
-		case W_BIATCH: if (type) return 2; else return 16;
-		case W_FG: if (type) return 8; else return 32;
-		case W_357: if (type) return 2; else return 12; 
-		case W_BROWNING: if (type) return 25; else return 125;
-		case W_GEWEHR: if (type) return 3; else return 20;
-		case W_M1: if (type) return 2; else return 24;
-		case W_MP40: if (type) return 8; else return 64; 
-		case W_MG: if (type) return 25; else return 125;
-		case W_PANZER: if (type) return 0; else return 4;
-		case W_PPSH: if (type) return 25; else return 71;
-		case W_PTRS: if (type) return 2; else return 12; 
-		case W_RAY: if (type) return 5; else return 40;
-		case W_STG: if (type) return 12; else return 60;
-		case W_TRENCH: if (type) return 2; else return 12;
-		case W_TYPE: if (type) return 12; else return 60;
-		case W_COMPRESSOR: if (type) return 3; else return 36;
-		case W_M1000: if (type) return 3; else return 36;
-		case W_GIBS: if (type) return 8; else return 80;
-		case W_SAMURAI: if (type) return 12; else return 60;
-		case W_AFTERBURNER: if (type) return 12; else return 64;
-		case W_SPATZ: if (type) return 12; else return 120;
-		case W_SNUFF: if (type) return 1; else return 14;
-		case W_BORE: if (type) return 1; else return 14;
-		case W_IMPELLER: if (type) return 12; else return 128;
-		case W_BARRACUDA: if (type) return 25; else return 125;
-		case W_ACCELERATOR: if (type) return 25; else return 125;
-		case W_GUT: if (type) return 3; else return 15;
-		case W_REAPER: if (type) return 23; else return 115;
-		case W_HEADCRACKER: if (type) return 2; else return 16;
-		case W_LONGINUS: if (type) return 1; else return 12;
-		case W_PENETRATOR: if (type) return 2; else return 16;
-		case W_WIDOW: if (type) return 6; else return 60;
-		case W_PORTER: if (type) return 8; else return 40;
-		case W_ARMAGEDDON: if (type) return 2; else return 15;
-		case W_WIDDER: if (type) return 4; else return 30;
-		case W_KILLU: if (type) return 2; else return 20;
-		case W_TESLA: if (type) return 1; else return 6;
-		case 0: if (type) return -1; else return -1;
-		default: return 0;
+		// If there's less than 33%
+		if (value / getWeaponMag(weapon) < 0.33)
+			return true;
+		return false;
 	}
 }
 
@@ -3858,6 +3870,12 @@ vector(float wep) GetWeaponRecoil =
 			kick_change = '44 44 44';
 			break;
 		case W_AFTERBURNER:
+			kick_change = '44 44 44';
+			break;
+		case W_MP5K:
+			kick_change = '44 44 44';
+			break;
+		case W_KOLLIDER:
 			kick_change = '44 44 44';
 			break;
 		case W_TYPE:
@@ -3985,7 +4003,7 @@ vector(float wep) GetWeaponRecoil =
 	temp1 = change_1 + change_2;
 	temp2 = change_1 + change_2 + change_3;
 	
-	#ifndef PSP
+	#ifndef HANDHELD
 	if (r < change_1)
 		final_kick_y = kick_change_x*0.25;
 	else if (r < temp1)
@@ -4017,7 +4035,7 @@ vector(float wep) GetWeaponRecoil =
 vector (float wep) GetWeaponFlash_Offset = 
 {
 		switch(wep) {
-			#ifndef NX
+			#ifndef QUAKESPASM
 				case W_COLT:
 					return [5488, -2742, 35300];
 				case W_BIATCH:
@@ -4061,13 +4079,16 @@ vector (float wep) GetWeaponFlash_Offset =
 					return [11100, -9000, 86300];
 				case W_MP40:
 				case W_AFTERBURNER:
-					return [11300, -11300, 80000];
+					return [11300, -11300, 85000];
+				case W_MP5K:
+				case W_KOLLIDER:
+					return [19300, -15300, 85000];
 				case W_STG:
 				case W_SPATZ:
-					return [14300, -16230, 100000];
+					return [10300, -10230, 100000];
 				case W_M1:
 				case W_M1000:
-					return [2896, -4142, 28300];
+					return [3506, -1500, 33000];
 				case W_BROWNING:
 				case W_ACCELERATOR:
 					return [15726, -23375, 170713];
@@ -4081,7 +4102,7 @@ vector (float wep) GetWeaponFlash_Offset =
 					return [5488, -2742, 35300];
 			#endif
 
-			#ifdef NX
+			#ifdef QUAKESPASM
 				case W_COLT:
 				case W_BIATCH:
 					return [1950, -6250, 35300];
@@ -4125,6 +4146,9 @@ vector (float wep) GetWeaponFlash_Offset =
 				case W_MP40:
 				case W_AFTERBURNER:
 					return [1570, -21300, 80000];
+				case W_MP5K:
+				case W_KOLLIDER:
+					return [1570, -21300, 80000];
 				case W_STG:
 				case W_SPATZ:
 					return [2500, -30230, 100000];
@@ -4149,10 +4173,6 @@ vector (float wep) GetWeaponFlash_Offset =
 }
 
 float (float wep) GetWeaponFlash_Size = {
-
-	if (isCustomWeapon(wep)) {
-		return CustomWeapons[wep - 70].flashsize;
-	}
 
 	switch(wep) {
 		case W_COLT:
@@ -4197,6 +4217,9 @@ float (float wep) GetWeaponFlash_Size = {
 			return 14;
 		case W_MP40:
 		case W_AFTERBURNER:
+			return 14;
+		case W_MP5K:
+		case W_KOLLIDER:
 			return 14;
 		case W_STG:
 		case W_SPATZ:

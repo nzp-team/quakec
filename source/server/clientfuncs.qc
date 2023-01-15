@@ -1,9 +1,9 @@
 /*
 	server/clientfuncs.qc
 
-	used to communicate between server and client
+	Used to communicate between server and client
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -27,8 +27,8 @@
 
 void SetUpdate(entity client, float type, float val1, float val2, float val3)
 {
-	#ifndef PSP
-	#ifndef NX
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
 
 	if (type != 2)
 	{
@@ -55,8 +55,8 @@ void SetUpdate(entity client, float type, float val1, float val2, float val3)
 	#endif
 }
 
-#ifndef PSP
-#ifndef NX
+#ifndef HANDHELD
+#ifndef QUAKESPASM
 void(entity to, float type, float cost, float weapon) useprint = {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_USEPRINT);
@@ -87,52 +87,52 @@ void(vector org) CallExplosion = {
 }
 
 void NotifyNewRound(float to) {
-	#ifndef PSP
-	#ifndef NX
-	
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_NEWROUND);
 	WriteByte(MSG_MULTICAST, to);
 	multicast('0 0 0', MULTICAST_ALL);
-	
+
 	#endif
 	#endif
 }
 
 void SetRound(entity client, float to) {
-	#ifndef PSP
-	#ifndef NX
-	
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_SETROUND);
 	WriteByte(MSG_MULTICAST, to);
 	msg_entity = client;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	#endif
 	#endif
 }
 
-void SetPerk(entity client, float to) 
+void SetPerk(entity client, float to)
 {
-	#ifndef PSP
-	#ifndef NX
-	
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PERK);
 	WriteLong(MSG_MULTICAST, to);
 	msg_entity = client;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	#endif
 	#endif
 }
 
 void(float to) SwitchWeapon =
 {
-	#ifndef PSP
-	#ifndef NX
-	
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_WEAPONCHANGE);
 	WriteByte(MSG_MULTICAST, to);
@@ -141,59 +141,115 @@ void(float to) SwitchWeapon =
 
 	// hotfix for weapon2models not reseting
 	self.weapon2model = GetWeapon2Model(to);
-	
+
 	#endif
 	#endif
 }
 
 void(string to, float skin) UpdateVmodel =
 {
-	#ifndef PSP
-	#ifndef NX
-	
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEVMODEL);
 	WriteString(MSG_MULTICAST, to);
 	WriteByte(MSG_MULTICAST, skin);
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	#endif
 	#endif
 }
 
 void(string to, float skin) UpdateV2model =
 {
-	#ifndef PSP
-	#ifndef NX
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEV2MODEL);
 	WriteString(MSG_MULTICAST, to);
 	WriteByte(MSG_MULTICAST, skin);
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
-	#endif	
+	#endif
 	#endif
 }
 
-void(float broadcast_time, float type) BroadcastMessage =
+void(float index, float state) ChangeReviveIconState =
 {
-	#ifndef PSP
-	#ifndef NX
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_REVIVECHANGE);
+	WriteByte(MSG_MULTICAST, index);
+	WriteByte(MSG_MULTICAST, state);
+	multicast('0 0 0', MULTICAST_ALL);
+	#endif
+	#endif
+}
+
+void(float index, vector org) EnableReviveIcon =
+{
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_REVIVEON);
+	WriteByte(MSG_MULTICAST, index);
+	WriteCoord(MSG_MULTICAST, org_x);
+	WriteCoord(MSG_MULTICAST, org_y);
+	WriteCoord(MSG_MULTICAST, org_z);
+	multicast('0 0 0', MULTICAST_ALL);
+	#endif
+	#endif
+}
+
+void(float index) DisableReviveIcon =
+{
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_REVIVEOFF);
+	WriteByte(MSG_MULTICAST, index);
+	multicast('0 0 0', MULTICAST_ALL);
+	#endif
+	#endif
+}
+
+void(entity who, float broadcast_time, float type, string str) BroadcastMessageToClient =
+{
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
 	WriteByte(MSG_MULTICAST, broadcast_time);
 	WriteByte(MSG_MULTICAST, type);
+	WriteString(MSG_MULTICAST, str);
+	msg_entity = who;
+	multicast('0 0 0', MULTICAST_ONE);
+	#endif
+	#endif
+}
+
+void(float broadcast_time, float type, string str) BroadcastMessage =
+{
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
+	WriteByte(MSG_MULTICAST, broadcast_time);
+	WriteByte(MSG_MULTICAST, type);
+	WriteString(MSG_MULTICAST, str);
 	multicast('0 0 0', MULTICAST_ALL);
-	
 	#endif
 	#endif
 }
 
 void(float playernum, float points, float am, float kills, string name, entity person) UpdatePlayerPoints =
 {
-	#ifndef PSP
-	#ifndef NX
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_POINTUPDATE);
@@ -215,14 +271,14 @@ void(float playernum, float points, float am, float kills, string name, entity p
 		WriteString(MSG_MULTICAST, name);
 		multicast('0 0 0', MULTICAST_ALL);
 	}
-	
+
 	#endif
 	#endif
 }
 
 void(float count) UpdatePlayerCount = {
-	#ifndef PSP
-	#ifndef NX
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
 	if (count == 0)
 		return;
 	else {
@@ -236,28 +292,28 @@ void(float count) UpdatePlayerCount = {
 	#endif
 }
 
-void(float newtime, float newtype, entity change) PromptLevelChange = 
+void(float newtime, float newtype, entity change) PromptLevelChange =
 {
-	#ifndef PSP
-	#ifndef NX
-	
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BLACKOUT);
 	WriteByte(MSG_MULTICAST, newtime);
 	WriteByte(MSG_MULTICAST, newtype);
 	msg_entity = change;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	#endif
 	#endif
 }
 
-void(entity who) UpdatePunchangle =	
-{		
+void(entity who) UpdatePunchangle =
+{
 
 	// naievil -- shit logic lol...but result looks clean as fuck...
-	#ifndef PSP
-	#ifndef NX
+	#ifndef HANDHELD
+	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PUNCHANGLE);
 	WriteCoord(MSG_MULTICAST, who.punchangle_x);
@@ -265,9 +321,9 @@ void(entity who) UpdatePunchangle =
 	WriteCoord(MSG_MULTICAST, who.punchangle_z);
 	msg_entity = who;
 	multicast('0 0 0', MULTICAST_ONE);
-	
+
 	vector tempv = who.punchangle;
-		
+
 	if (fabs(who.punchangle_x) > 0.01) {
 		if (who.punchangle_x >= 0.05*tempv_x)
 			who.punchangle_x -= 0.05*tempv_x;
@@ -275,35 +331,35 @@ void(entity who) UpdatePunchangle =
 			who.punchangle_x -= 0.05*tempv_x;
 		else
 			who.punchangle_x = 0;
-	} else 
+	} else
 		who.punchangle_x = 0;
-		
+
 	if (fabs(who.punchangle_y) > 0.01) {
 		if (who.punchangle_y >= 0.05*tempv_y)
 			who.punchangle_y -= 0.05*tempv_y;
 		else if (who.punchangle_y <= -0.05*tempv_y)
 			who.punchangle_y -= 0.05*tempv_y;
-		else 
+		else
 			who.punchangle_y = 0;
-	} else 
+	} else
 		who.punchangle_y = 0;
-		
+
 	if (fabs(who.punchangle_z) > 0.01) {
 		if (who.punchangle_z >= 0.05*tempv_z)
 			who.punchangle_z -= 0.05*tempv_z;
 		else if (who.punchangle_z <= -0.05*tempv_z)
 			who.punchangle_z -= 0.05*tempv_z;
-		else 
+		else
 			who.punchangle_z = 0;
-	} else 
+	} else
 		who.punchangle_z = 0;
-		
+
 	#endif
 	#endif
 }
 
-#ifndef PSP
-#ifndef NX
+#ifndef HANDHELD
+#ifndef QUAKESPASM
 void(string h, float h2, entity who) pushHUD = {
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -395,19 +451,19 @@ void(string chaptertitle, string location, string date, string person, entity wh
 #endif
 #endif
 
-#ifndef NX
+#ifndef QUAKESPASM
 void (float achievement_id, optional entity who) GiveAchievement =
 {
-#ifdef PSP
+#ifndef PC
 	// temp
 	if (achievement_id > 4)
 		return;
-#endif // PSP
+#endif // PC
 
 	// this is an achievement specific to an individual
 	if ((who && who != world) || player_count == 0) {
 		if (player_count == 0) who = find(world, classname, "player");
-#ifdef PSP
+#ifndef PC
 		achievement(who, achievement_id);
 #else
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -415,9 +471,9 @@ void (float achievement_id, optional entity who) GiveAchievement =
 		WriteByte(MSG_MULTICAST, achievement_id);
 		msg_entity = who;
 		multicast('0 0 0', MULTICAST_ONE);
-#endif // PSP
+#endif // PC
 	} else {
-#ifdef PSP
+#ifndef PC
 		entity players;
 		players = find(world, classname, "player");
 		while(players != world) {
@@ -429,21 +485,21 @@ void (float achievement_id, optional entity who) GiveAchievement =
 		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENT);
 		WriteByte(MSG_MULTICAST, achievement_id);
 		multicast('0 0 0', MULTICAST_ALL);
-#endif // PSP
+#endif // PC
 	}
 }
 
 void (float achievement_id, float progress_value, optional entity who) UpdateAchievementProgress =
 {
-#ifdef PSP
+#ifndef PC
 	// temp
 	if (achievement_id > 4)
 		return;
-#endif // PSP
+#endif // PC
 	// this is a progress update specific to an individual
 	if ((who && who != world) || player_count == 0) {
 		if (player_count == 0) who = find(world, classname, "player");
-#ifdef PSP
+#ifndef PC
 		//achievement_progress(who, achievement_id, progress_value);
 #else
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -452,9 +508,9 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 		WriteFloat(MSG_MULTICAST, progress_value);
 		msg_entity = who;
 		multicast('0 0 0', MULTICAST_ONE);
-#endif // PSP
+#endif // PC
 	} else {
-#ifdef PSP
+#ifndef PC
 		entity players;
 		players = find(world, classname, "player");
 		while(players != world) {
@@ -467,16 +523,16 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 		WriteByte(MSG_MULTICAST, achievement_id);
 		WriteFloat(MSG_MULTICAST, progress_value);
 		multicast('0 0 0', MULTICAST_ALL);
-#endif // PSP
+#endif // PC
 	}
 }
-#endif // NX
+#endif // QUAKESPASM
 
 // *****************************************
 // Unrelated to engine, but custom functions
 // *****************************************
 
-void(string modelname) Precache_Set = // Precache model, and set myself to it
+inline void(string modelname) Precache_Set = // Precache model, and set myself to it
 {
     precache_model(modelname);
     setmodel(self, modelname);
@@ -490,7 +546,7 @@ float(entity who, entity target) isFacing =
 
 	float difference_angle = target_angle - who_angle;
 
-	#ifdef PSP
+	#ifdef HANDHELD
 	if (difference_angle < -45) {
 		difference_angle += 360;
 	}
@@ -543,7 +599,107 @@ void(entity person, float expamt, float doublepoint) addmoney =
 		person.score += expamt;
 	}
 
+	// Combine the positive score with the powerup score tally
+	if (expamt > 0)
+		total_powerup_points += expamt;
+
 	person.points += expamt;
-		
+
 	UpdatePlayerPoints(person.playernum, person.points, expamt, person.kills, person.netname, person);
 };
+
+//
+// Util_GetPlayerAmmoInSlot(person, slot)
+// Returns the reserve ammo the player has in a weapon slot.
+//
+float(entity person, float slot) Util_GetPlayerAmmoInSlot =
+{
+	switch(slot) {
+		case 1: return person.currentammo; break;
+		case 2: return person.secondaryammo; break;
+		case 3: return person.thirdammo; break;
+		default: return 0; break;
+	}
+}
+
+//
+// Util_SetPlayerAmmoInSlot(person, slot, ammo)
+// Sets the player's reserve ammo in a slot to param3.
+//
+void(entity person, float slot, float ammo) Util_SetPlayerAmmoInSlot =
+{
+	switch(slot) {
+		case 1: person.currentammo = ammo; break;
+		case 2: person.secondaryammo = ammo; break;
+		case 3: person.thirdammo = ammo; break;
+		default: return; break;
+	}
+};
+
+//
+// Util_PlayerHasWeapon(peron, comparison, include_pap)
+// Checks to see if the Player is holding a weapon in any
+// of their three slots. `include_pap` dictates whether to
+// consider Pack-A-Punch'd varients. Returns 1, 2, 3 depending
+// on the slot the weapon is contained in.
+//
+float(entity person, float comparison, float include_pap) Util_PlayerHasWeapon =
+{
+	// Storage.
+	float first, second, third;
+
+	// If we're including pap'd weapons, just convert the weapon set to the base
+	// ones to save on comparison checks.
+	if (include_pap == true) {
+		first = EqualNonPapWeapon(person.weapon);
+		second = EqualNonPapWeapon(person.secondaryweapon);
+		third = EqualNonPapWeapon(person.thirdweapon);
+	} else {
+		first = person.weapon;
+		second = person.secondaryweapon;
+		third = person.thirdweapon;
+	}
+
+	// Now do the comparisons
+	if (first == comparison)
+		return 1;
+	if (second == comparison)
+		return 2;
+	if (third == comparison)
+		return 3;
+
+	return 0;
+};
+
+//
+// Util_WeaponIsSemiAutomatic(float weapon)
+// Checks weapon firetypes and returns true if intended
+// to be semi-automatic.
+//
+float(float weapon) Util_WeaponIsSemiAutomatic =
+{
+	float firetype = GetFiretype(weapon);
+
+	// Valid firetypes
+	if (firetype == FIRETYPE_SEMIAUTO || firetype == FIRETYPE_GRENADE ||
+	firetype == FIRETYPE_TESLA)
+		return true;
+
+	return false;
+}
+
+//
+// Util_WeaponFiresTraceshot(weapon)
+// Simply returns true if given weapon's firetype requires a
+// firetrace to be used properly.
+//
+float(float weapon) Util_WeaponFiresTraceshot =
+{
+	float firetype = GetFiretype(weapon);
+
+	// Valid firetypes
+	if (firetype == FIRETYPE_FULLAUTO || firetype == FIRETYPE_SEMIAUTO)
+		return true;
+
+	return false;
+}

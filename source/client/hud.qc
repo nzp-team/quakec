@@ -3,7 +3,7 @@
 
 	HUD Drawing Code
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -79,12 +79,12 @@ void(float width, float height) HUD_Ammo =
 	benis2 = strlen(ftos(curmag));
 	benis = benis + benis2;
 	
-	if (GetLowAmmo(getstatf(STAT_ACTIVEWEAPON), 1) >= getstatf(STAT_CURRENTMAG))
+	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_CURRENTMAG), true))
 		color = [215/255, 0, 0];
 	else
 		color = [1, 1, 1];
 	
-	if (GetLowAmmo(getstatf(STAT_ACTIVEWEAPON), 0) >= getstatf(STAT_AMMO))
+	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_AMMO), false))
 		vector color_2 = [215/255, 0, 0];
 	else
 		color_2 = [1, 1, 1];
@@ -103,44 +103,73 @@ void(float width, float height) HUD_Ammo =
 	}
 }
 
+//
+// HUD_AmmoString()
+// Draws the "LOW AMMO", "Reload", etc. text
+//
 float ammoopac, ammoloop;
 void() HUD_AmmoString =
 {
-	vector textcolor = [1, 1, 1];
-	string message = "";
-	
-	if (GetLowAmmo(getstatf(STAT_ACTIVEWEAPON), 1) >= getstatf(STAT_CURRENTMAG) && getstatf(STAT_WEAPONZOOM) != 2)
-	{
-		if (0 < getstatf(STAT_AMMO) && getstatf(STAT_CURRENTMAG) >= 0) {
+	vector 	textcolor = [1, 1, 1];
+	string 	message = "";
+	float	reserve_is_low;
+	float	mag_is_low;
+
+	// Is the Reserve low?
+	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_AMMO), false)) {
+		reserve_is_low = true;
+	} else {
+		reserve_is_low = false;
+	}
+
+	// Is the Magazine low?
+	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_CURRENTMAG), true)) {
+		mag_is_low = true;
+	} else {
+		mag_is_low = false;
+	}
+
+	// Nothing to do.
+	if (mag_is_low == false && reserve_is_low == false) {
+		ammoopac = 1;
+		ammoloop = 0;
+		return;
+	} else {
+		// Display Reload text if the mag is low but reserve is not.
+		if (mag_is_low == true && reserve_is_low == false) {
 			message = "Reload";
 			textcolor = [1, 1, 1];
-		} else if (0 < getstatf(STAT_CURRENTMAG)) {
-			message = "LOW AMMO";
-			textcolor = [219/255, 203/255, 19/255];		
-		} else {
+		}
+		// Report NO AMMO if both are empty
+		else if (getstatf(STAT_CURRENTMAG) <= 0 && getstatf(STAT_AMMO) <= 0)
+		{
 			message = "NO AMMO";
 			textcolor = [215/255, 0, 0];
 		}
+		// Display LOW AMMO if both are low.
+		else if (reserve_is_low == true && mag_is_low == true)
+		{
+			message = "LOW AMMO";
+			textcolor = [219/255, 203/255, 19/255];	
+		}
+	}
 
-		if (ammoloop == 0) {
+	// Blink the text and draw it.
+	if (ammoloop == 0) {
 			ammoopac -= frametime;
 			if (ammoopac < 0.5) {
 				ammoopac = 0.5;
 				ammoloop = 1;
 			}
-		} else {
-			ammoopac += frametime;
-			if (ammoopac >= 1) {
-				ammoopac = 1;
-				ammoloop = 0;
-			}
-		}
-
-		drawstring([g_width/2, g_height/2 + (30/272)*g_height, 0], message, [0.02*g_width, 0.02*g_width, 0], textcolor, ammoopac, 0);
 	} else {
-		ammoopac = 1;
-		ammoloop = 0;
+		ammoopac += frametime;
+		if (ammoopac >= 1) {
+			ammoopac = 1;
+			ammoloop = 0;
+		}
 	}
+
+	drawstring([g_width/2, g_height/2 + (30/272)*g_height, 0], message, [0.02*g_width, 0.02*g_width, 0], textcolor, ammoopac, 0);
 }
 
 /*******************
@@ -149,6 +178,8 @@ void() HUD_AmmoString =
 
 #define MAX_POINT_ELEMENTS 		64 		// the maximum amount of point differential elements that can be spawned before
 								   		// we iterate back from 0
+
+float active_point_elements;
 
 var struct
 {
@@ -159,6 +190,7 @@ var struct
 	float 	y_velocity; 				// how fast the element moves on the y axis
 	float 	opacity; 					// the opacity of the text_string as it progresses
 	float 	string_width; 				// the width of text_string
+	float 	occupied;					// is this array being used/occupied?
 	string 	text_string; 				// either '+(difference)' or '-(difference)'
 } point_elements[MAX_POINT_ELEMENTS];
 
@@ -208,15 +240,28 @@ void(float amount) RegisterPointChange =
 	// start with an opacity of 1
 	point_elements[index].opacity = 1;
 
+	// the element is being used
+	point_elements[index].occupied = true;
+
 	// iterate
 	last_point_element_index++;
+	active_point_elements++;
 }
 
 void(float pwidth, float width, float height) PointUpdate = 
 {
+	if (active_point_elements == 0)
+		return;
+
 	vector POINT_DIFF_COLOR;
 
 	for (float i = 0; i < MAX_POINT_ELEMENTS; i++) {
+		if (point_elements[i].opacity <= 0 && point_elements[i].occupied == true) {
+			point_elements[i].occupied = false;
+			active_point_elements--;
+			continue;
+		}
+
 		// should the text be red or orange?
 		if (point_elements[i].difference > 0) {
 			POINT_DIFF_COLOR = TEXT_ORANGE;
@@ -1058,7 +1103,7 @@ void() Draw_Crosshair =
 		setmodel(vmodel, "");
 		setmodel(v2model, "");
 		drawfill('0 0 0',  [g_width/2 - g_height/2, g_height, 0], '0 0 0', 1, 0);
-		drawpic([(g_width/2 - g_height/2),0,0], "gfx/hud/scope.tga", [g_height, g_height, 1], [1,1,1], 1);
+		drawpic([(g_width/2 - g_height/2),0,0], "gfx/hud/scope_nb.tga", [g_height, g_height, 1], [1,1,1], 1);
 		drawfill([(g_width/2 + g_height/2),0,0],  [g_width, g_height, 0], '0 0 0', 1, 0);
 	}
     
@@ -1141,13 +1186,16 @@ void() HUD_Broadcast = {
 	string broadcast_msg = "";
 	float health = getstatf(STAT_HEALTH);
 	
-		switch(broadcast_type) {
-			case 2: broadcast_msg = "A Player needs to be revived"; break;
-			default: broadcast_msg = "benis"; break;
-		}
+	switch(broadcast_type) {
+		case 2: broadcast_msg = strcat(broadcast_string, " needs to be revived"); break;
+		case 3: broadcast_msg = strcat(broadcast_string, " is reviving you"); break;
+		default: break;
+	}
+
 	float print_width = stringwidth (broadcast_msg, 0, [0.015*g_width, 0.015*g_width, 0]);
 	float x = (g_width - print_width)/2;
-	if (broadcast_type == 2 && health > 19)
+
+	if (broadcast_msg != "")
 		drawstring([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
 }
 
@@ -1324,6 +1372,57 @@ void(float width, float height) HUD_Waypoint =
 	drawstring([0.015*width, 0.305*height, 0], strcat("Press ", "-", " to save current waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
 }
 
+void(float width, float height) HUD_PlayerNames =
+{
+	for (float i = 3; i >= 0; i = i - 1) {
+		if ((i+1) == getstatf(STAT_PLAYERNUM))
+			continue;
+		
+		float player_number = getplayerkeyfloat(i, "viewentity");
+
+		string text = getplayerkeyvalue(i, "name");
+		vector player_origin = getentity(player_number, GE_ORIGIN) + '0 0 48';
+		vector screen_position = project(player_origin);
+		vector text_color = '1 1 1';
+
+		screen_position_x -= stringwidth(text, 0, [0.014*width, 0.014*width, 0])/2;
+
+		switch(i) {
+			case 1: text_color = TEXT_LIGHTBLUE; break;
+			case 2: text_color = TEXT_ORANGE; break;
+			case 3: text_color = TEXT_GREEN; break;
+			default: break;
+		}
+
+		if (screen_position_z > 0)
+			drawstring(screen_position, text, [0.014*g_width, 0.014*g_width, 0], text_color, 1, 0);
+	}
+}
+
+void(float width, float height) HUD_ReviveIcons =
+{
+	for (float i = 0; i < active_revive_icons; i++) {
+		if (revive_icons[i].draw == true) {
+			revive_icons[i].timer += frametime;
+			vector revive_origin;
+			revive_origin_x = revive_icons[i].org[0];
+			revive_origin_y = revive_icons[i].org[1];
+			revive_origin_z = revive_icons[i].org[2];
+			vector screen_position = project(revive_origin);
+			screen_position_x -= (0.075*height)/2;
+
+			if (screen_position_z > 0) {
+				// being revived
+				if (revive_icons[i].state == 2)
+					drawpic(screen_position, "gfx/hud/revive_icon.tga", [0.075*height, 0.075*height, 1], [1,1,1], 1);
+				else {
+					drawpic(screen_position, "gfx/hud/revive_icon.tga", [0.075*height, 0.075*height, 1], [1,1 - (revive_icons[i].timer/30),0], 1);
+				}
+			}
+		}
+	}
+}
+
 /*******************
 *     HUD Draw     *
 *******************/
@@ -1334,6 +1433,7 @@ void(float width, float height) HUD_Draw =
 		return;
 
 	HUD_Achievements(width, height);
+
 	
 	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 10) && !score_show)
 	{
@@ -1374,6 +1474,9 @@ void(float width, float height) HUD_Draw =
 				scrollopacity = 1;
 				scrollheight = 0.80;
 			}
+
+			HUD_PlayerNames(width, height);
+			HUD_ReviveIcons(width, height);
 		} else {
 			HUD_Waypoint(width, height);
 		}

@@ -173,7 +173,7 @@ void() Dog_Death =
 	if (rounds == dogRound)
 	{
 		if (!Remaining_Zombies)
-			Spawn_Powerup(self.origin + '0 0 12', 1);
+			Spawn_Powerup(self.origin + '0 0 12', PU_MAXAMMO);
 	}
 	
 	float r = random();

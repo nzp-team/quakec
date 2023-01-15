@@ -11,12 +11,15 @@
 ../source/server/rounds.qc
 ../source/server/nzdparser.qc
 ../source/server/main.qc
+../source/server/utilities/command_parser.qc
 ../source/server/player.qc
 ../source/server/damage.qc
 
 ../source/server/entities/sub_functions.qc
 ../source/server/entities/sounds.qc
 ../source/server/entities/triggers.qc
+../source/server/entities/explosive_barrel.qc
+../source/server/entities/teleporter.qc
 ../source/server/entities/map_entities.qc
 ../source/server/entities/traps.qc
 ../source/server/entities/lights.qc

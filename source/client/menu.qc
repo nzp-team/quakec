@@ -3,7 +3,7 @@
 
 	menu stuff (very ugly)
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -222,6 +222,28 @@ void() settings_fps = {
 		fps = 0;
 
 	cvar_set("show_fps", ftos(fps));
+}
+
+void() settings_rescale = {
+	float renderscale = cvar("r_renderscale");
+
+	renderscale += 0.05;
+
+	if (renderscale > 1)
+		renderscale = 1;
+
+	cvar_set("r_renderscale", ftos(renderscale));
+}
+
+void() settings_rescale2 = {
+	float renderscale = cvar("r_renderscale");
+
+	renderscale -= 0.05;
+
+	if (renderscale < 0.10)
+		renderscale = 0.10;
+
+	cvar_set("r_renderscale", ftos(renderscale));
 }
 
 void() settings_brite = {
@@ -883,112 +905,123 @@ void() null = {
 //struct for all buttons, note scale is going to be multiplied w/ width/height in draw step, keep between 0 and 1
 var struct
 {
-	vector pos;
-	string text;
-	float active; //used for mouseover hilight (positive values) and alpha (negative values)
-	void() action; //function that is called when the button is pressed with lmb
-	void() action2; //rmb function
-	float group; //a bit field, button will be usable/visible when these bits are active
-	float gray_out; // if not to be accessed
+	vector	pos;
+	string 	text;
+	float 	active; 				// used for mouseover hilight (positive values) and alpha (negative values)
+	void() 	action; 				// function that is called when the button is pressed with lmb
+	void() 	action2; 				// rmb function
+	float 	group; 					// a bit field, button will be usable/visible when these bits are active
+	float 	gray_out; 				// if not to be accessed
+	int		platform_dependency; 	// what platforms is this option visible on
 } buttons[] =
 {
 	//Main
-	{[0.025, 0.175, 0], "Solo", -1, menu_single, null, MENU_MAIN, 0},
+	{[0.025, 0.175, 0], "Solo", -1, menu_single, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE},
 	//{[0.025, 0.225, 0], "Cooperative", -1, menu_multi, null, MENU_MAIN},
-	{[0.025, 0.300, 0], "Settings", -1, menu_settings, null, MENU_MAIN, 0},
-	{[0.025, 0.350, 0], "Achievements", -1, menu_achievements, null, MENU_MAIN, 0},
-	{[0.025, 0.425, 0], "Credits", -1, menu_about, null, MENU_MAIN, 0},
-	{[0.025, 0.500, 0], "Exit", -1, menu_quit, null, MENU_MAIN, 0},
+	{[0.025, 0.300, 0], "Settings", -1, menu_settings, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.350, 0], "Achievements", -1, menu_achievements, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.425, 0], "Credits", -1, menu_about, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.500, 0], "Exit", -1, menu_quit, null, MENU_MAIN, 0, OPTION_EXE_ONLY},
 
 	//Solo
-	{[0.025, 0.175, 0], "Nacht der Untoten", -1, menu_loadndu, null, MENU_SINGLE, 0},
-	{[0.025, 0.275, 0], "Warehouse", -1, menu_loadwh, null, MENU_SINGLE, 0},
-	{[0.025, 0.450, 0], "Custom Maps", -1, menu_customs, null, MENU_SINGLE, 0},
+	{[0.025, 0.175, 0], "Nacht der Untoten", -1, menu_loadndu, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.275, 0], "Warehouse", -1, menu_loadwh, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.450, 0], "Custom Maps", -1, menu_customs, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE},
 
 	//Pause
-	{[0.025, 0.500, 0], "Resume", -1, menu_resume, null, MENU_PAUSE, 0},
-	{[0.025, 0.550, 0], "Restart", -1, menu_restart, null, MENU_PAUSE, 0},
-	{[0.025, 0.600, 0], "Settings", -1, menu_settings, null, MENU_PAUSE, 0},
-	{[0.025, 0.650, 0], "Main Menu", -1, menu_main, null, MENU_PAUSE, 0},
-	{[0.025, 0.850, 0], "Waypoint Menu", -1, menu_waypoint, null, MENU_PAUSE, 0},
+	{[0.025, 0.500, 0], "Resume", -1, menu_resume, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.550, 0], "Restart", -1, menu_restart, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.600, 0], "Settings", -1, menu_settings, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.650, 0], "Main Menu", -1, menu_main, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.850, 0], "Waypoint Menu", -1, menu_waypoint, null, MENU_PAUSE, 0, OPTION_EXE_ONLY},
 
 	//Restart
-	{[0.025, 0.500, 0], "Yes", -1, menu_resy, null, MENU_RES, 0},
-	{[0.025, 0.550, 0], "No", -1, menu_resn, null, MENU_RES, 0},
+	{[0.025, 0.500, 0], "Yes", -1, menu_resy, null, MENU_RES, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.550, 0], "No", -1, menu_resn, null, MENU_RES, 0, OPTION_WEB_AND_EXE},
 
 	//Settings
-	{[0.025, 0.175, 0], "Graphics Settings", -1, menu_graphics, null, MENU_SETTINGS + MENU_IGS, 0},
-	{[0.025, 0.350, 0], "Controls", -1, menu_controls, null, MENU_SETTINGS + MENU_IGS, 0},
+	{[0.025, 0.175, 0], "Graphics Settings", -1, menu_graphics, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.350, 0], "Controls", -1, menu_controls, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE},
 
 	//Graphics
-	{[0.025, 0.175, 0], "Resolution", -1, settings_re, settings_re, MENU_GSETTINGS, 0},
-	{[0.025, 0.225, 0], "Aspect Ratio", -1, settings_ar, settings_ar2, MENU_GSETTINGS, 0},
-	{[0.025, 0.275, 0], "Fullscreen", -1, settings_fs, settings_fs, MENU_GSETTINGS, 0},
-	{[0.025, 0.325, 0], "Show FPS", -1, settings_fps, settings_fps, MENU_GSETTINGS, 0},
-	{[0.025, 0.375, 0], "Max FPS", -1, settings_mfps, settings_mfps2, MENU_GSETTINGS, 0},
-	{[0.025, 0.425, 0], "VSync", -1, settings_vs, settings_vs, MENU_GSETTINGS, 0},
-	{[0.025, 0.475, 0], "Field of View", -1, settings_fov, settings_fov2, MENU_GSETTINGS, 0},
-	{[0.025, 0.525, 0], "Brightness", -1, settings_brite, settings_brite2, MENU_GSETTINGS, 0},	
-	{[0.025, 0.575, 0], "Decals", -1, settings_dc, settings_dc, MENU_GSETTINGS, 0},
-	{[0.025, 0.625, 0], "Particles", -1, settings_pt, settings_pt, MENU_GSETTINGS, 0},
-	{[0.025, 0.675, 0], "Fullbright", -1, settings_fb, settings_fb, MENU_GSETTINGS, 0},
-	{[0.025, 0.725, 0], "Retro", -1, settings_ro, settings_ro, MENU_GSETTINGS, 0},
+	{[0.025, 0.175, 0], "Resolution", -1, settings_re, settings_re, MENU_GSETTINGS, 0, OPTION_EXE_ONLY},
+	{[0.025, 0.225, 0], "Aspect Ratio", -1, settings_ar, settings_ar2, MENU_GSETTINGS, 0, OPTION_EXE_ONLY},
+	{[0.025, 0.275, 0], "Fullscreen", -1, settings_fs, settings_fs, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.325, 0], "Show FPS", -1, settings_fps, settings_fps, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.375, 0], "Max FPS", -1, settings_mfps, settings_mfps2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.425, 0], "VSync", -1, settings_vs, settings_vs, MENU_GSETTINGS, 0, OPTION_EXE_ONLY},
+	{[0.025, 0.475, 0], "Field of View", -1, settings_fov, settings_fov2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.525, 0], "Brightness", -1, settings_brite, settings_brite2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},	
+	{[0.025, 0.575, 0], "Decals", -1, settings_dc, settings_dc, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.625, 0], "Particles", -1, settings_pt, settings_pt, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.675, 0], "Fullbright", -1, settings_fb, settings_fb, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.725, 0], "Retro", -1, settings_ro, settings_ro, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
 	{[0.025, 0.800, 0], "Save & Apply", -1, settings_apply, settings_apply, MENU_GSETTINGS + MENU_CONSETTINGS +
-																			MENU_AUDSETTINGS, 0},
+																			MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE},
 
 	//Controls
-	{[0.025, 0.175, 0], "Walk Forward", -1, bind_walkf, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.225, 0], "Walk Backward", -1, bind_walkb, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.275, 0], "Walk Left", -1, bind_walkl, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.325, 0], "Walk Right", -1, bind_walkr, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.375, 0], "Jump", -1, bind_jump, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.425, 0], "Sprint", -1, bind_sprint, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.475, 0], "Change Stance", -1, bind_stance, null, MENU_CSETTINGS, 0},
+	{[0.025, 0.175, 0], "Walk Forward", -1, bind_walkf, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.225, 0], "Walk Backward", -1, bind_walkb, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.275, 0], "Walk Left", -1, bind_walkl, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.325, 0], "Walk Right", -1, bind_walkr, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.375, 0], "Jump", -1, bind_jump, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.425, 0], "Sprint", -1, bind_sprint, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.475, 0], "Change Stance", -1, bind_stance, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
 
-	{[0.025, 0.525, 0], "Weapon Next", -1, bind_wpnn, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.575, 0], "Weapon Previous", -1, bind_wpnp, null, MENU_CSETTINGS, 0},
+	{[0.025, 0.525, 0], "Weapon Next", -1, bind_wpnn, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.575, 0], "Weapon Previous", -1, bind_wpnp, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
 
-	{[0.025, 0.625, 0], "Interact", -1, bind_interact, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.675, 0], "Reload", -1, bind_reload, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.725, 0], "Melee", -1, bind_knife, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.775, 0], "Grenade", -1, bind_nade, null, MENU_CSETTINGS, 0},
-	{[0.025, 0.825, 0], "Secondary Grenade", -1, bind_switchnade, null, MENU_CSETTINGS, 0},
+	{[0.025, 0.625, 0], "Interact", -1, bind_interact, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.675, 0], "Reload", -1, bind_reload, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.725, 0], "Melee", -1, bind_knife, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.775, 0], "Grenade", -1, bind_nade, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.825, 0], "Secondary Grenade", -1, bind_switchnade, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
 
 	// Custom Maps
-	{[0.025, 0.825, 0], "Next Page", -1, menu_custom_next, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0},
-	{[0.025, 0.875, 0], "Previous Page", -1, menu_custom_back, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0},
+	{[0.025, 0.825, 0], "Next Page", -1, menu_custom_next, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.875, 0], "Previous Page", -1, menu_custom_back, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0, OPTION_WEB_AND_EXE},
 
 	//Everything, pretty much
 	{[0.025, 0.925, 0], "Back", -1, menu_back, null, MENU_SINGLE + MENU_MULTI + MENU_SETTINGS + MENU_ABOUT + 
 													 MENU_IGS + MENU_GSETTINGS + MENU_CSETTINGS + MENU_CUSTOMS +
-                                                     MENU_ACHIEVEMENTS + MENU_CONSETTINGS + MENU_AUDSETTINGS, 0},
+                                                     MENU_ACHIEVEMENTS + MENU_CONSETTINGS + MENU_AUDSETTINGS, 0, 
+													 OPTION_WEB_AND_EXE},
 
-	{[0.025, 0.275, 0], "Control Settings", -1, menu_consettings, null, MENU_SETTINGS + MENU_IGS, 0}, // 47
-	{[0.025, 0.175, 0], "ADS Mode", -1, settings_adsmode, null, MENU_CONSETTINGS, 0}, // 48
-	{[0.025, 0.225, 0], "Look Sensitivity", -1, settings_sens, settings_sens2, MENU_CONSETTINGS, 0}, // 49
+	{[0.025, 0.275, 0], "Control Settings", -1, menu_consettings, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE}, // 47
+	{[0.025, 0.175, 0], "ADS Mode", -1, settings_adsmode, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 48
+	{[0.025, 0.225, 0], "Look Sensitivity", -1, settings_sens, settings_sens2, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 49
 
-	{[0.025, 0.325, 0], "Wahnsinn", -1, menu_loadwn, null, MENU_SINGLE, 1}, // 50
-	{[0.025, 0.375, 0], "Christmas Special", -1, menu_loadch, null, MENU_SINGLE, 0}, // 51
-	{[0.025, 0.225, 0], "Kino der Toten", -1, menu_loadch, null, MENU_SINGLE, 1}, // 52
+	{[0.025, 0.325, 0], "Wahnsinn", -1, menu_loadwn, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 50
+	{[0.025, 0.375, 0], "Christmas Special", -1, menu_loadch, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 51
+	{[0.025, 0.225, 0], "Kino der Toten", -1, menu_loadch, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 52
 
-	{[0.025, 0.225, 0], "Audio Settings", -1, menu_audsettings, null, MENU_SETTINGS + MENU_IGS, 0}, // 53
-	{[0.025, 0.175, 0], "Master Volume", -1, setting_mastervol, setting_mastervol2, MENU_AUDSETTINGS, 0}, // 54
-	{[0.025, 0.225, 0], "Music Volume", -1, setting_chann1vol, setting_chann1vol2, MENU_AUDSETTINGS, 0}, // 55
-	{[0.025, 0.275, 0], "SFX Volume", -1, setting_chann2vol, setting_chann2vol2, MENU_AUDSETTINGS, 0}, // 56
-	{[0.025, 0.325, 0], "Channel 3 Volume", -1, setting_chann3vol, setting_chann3vol2, MENU_AUDSETTINGS, 0}, // 57
-	{[0.025, 0.375, 0], "Channel 4 Volume", -1, setting_chann4vol, setting_chann4vol2, MENU_AUDSETTINGS, 0}, // 58
-	{[0.025, 0.425, 0], "Channel 5 Volume", -1, setting_chann5vol, setting_chann5vol2, MENU_AUDSETTINGS, 0}, // 59
-	{[0.025, 0.475, 0], "Channel 6 Volume", -1, setting_chann6vol, setting_chann6vol2, MENU_AUDSETTINGS, 0}, // 60
+	{[0.025, 0.225, 0], "Audio Settings", -1, menu_audsettings, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE}, // 53
+	{[0.025, 0.175, 0], "Master Volume", -1, setting_mastervol, setting_mastervol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 54
+	{[0.025, 0.225, 0], "Music Volume", -1, setting_chann1vol, setting_chann1vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 55
+	{[0.025, 0.275, 0], "SFX Volume", -1, setting_chann2vol, setting_chann2vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 56
+	{[0.025, 0.325, 0], "Channel 3 Volume", -1, setting_chann3vol, setting_chann3vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 57
+	{[0.025, 0.375, 0], "Channel 4 Volume", -1, setting_chann4vol, setting_chann4vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 58
+	{[0.025, 0.425, 0], "Channel 5 Volume", -1, setting_chann5vol, setting_chann5vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 59
+	{[0.025, 0.475, 0], "Channel 6 Volume", -1, setting_chann6vol, setting_chann6vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 60
+
+	// Web specific options
+	{[0.025, 0.175, 0], "Render Scale", -1, settings_rescale, settings_rescale2, MENU_GSETTINGS, 0, OPTION_WEB_ONLY}, // 61
 };
 
 //REMEMBER TO UPDATE THIS CONST IF YOU ADD BUTTONS
-const float BUTTONS_COUNT = 61;
+const float BUTTONS_COUNT = 62;
 float lastActive;
 
 
 //this function handles drawing the buttons and checking if they should be active/hilighted
 void(float index) Update_Button = 
 {
+	// Don't bother continuing if this button isn't available on our platform.
+	if (platform_is_web && buttons[index].platform_dependency == OPTION_EXE_ONLY)
+		return;
+	else if (!platform_is_web && buttons[index].platform_dependency == OPTION_WEB_ONLY)
+		return;
+
 	float btnscale = 0.030*g_height;
 
 	if(in_menu != in_menu & buttons[index].group) 
@@ -1111,7 +1144,9 @@ void() Draw_Extra_Main =
 	// Division lines
 	drawfill ([0.025*g_width, 0.275*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
 	drawfill ([0.025*g_width, 0.400*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
-	drawfill ([0.025*g_width, 0.475*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
+	
+	if (platform_is_web == false)
+		drawfill ([0.025*g_width, 0.475*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
 
 	// Get description for menu option
 	switch(lastActive) {
@@ -1327,33 +1362,39 @@ void() Draw_Extra_GSettings =
 	local string resval;
 	local string gset_desc = "";
 
-	// Resolution
-	resval = strcat(ftos(active_swidth), "x", ftos(active_sheight));
-	drawstring([0.475*g_width, 0.175*g_height, 0], resval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
-
-	// Aspect Ratio
-	switch(aspectratio) {
-		case 0:
-			arval = "4:3";
-			break;
-		case 1:
-			arval = "5:4";
-			break;
-		case 2:
-			arval = "16:9";
-			break;
-		case 3:
-			arval = "16:10";
-			break;
-		case 4:
-			arval = "21:9";
-			break;
-		default:
-			arval = "ERR";
-			break;
+	if (platform_is_web == false) {
+		// Resolution
+		resval = strcat(ftos(active_swidth), "x", ftos(active_sheight));
+	
+		// Aspect Ratio
+		switch(aspectratio) {
+			case 0:
+				arval = "4:3";
+				break;
+			case 1:
+				arval = "5:4";
+				break;
+			case 2:
+				arval = "16:9";
+				break;
+			case 3:
+				arval = "16:10";
+				break;
+			case 4:
+				arval = "21:9";
+				break;
+			default:
+				arval = "ERR";
+				break;
+		}
+		drawstring([0.475*g_width, 0.225*g_height, 0], arval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	} else {
+		// Render Scale
+		resval = strcat(itos(ftoi(cvar("r_renderscale")*100)), "%");
 	}
-	drawstring([0.475*g_width, 0.225*g_height, 0], arval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 
+	drawstring([0.475*g_width, 0.175*g_height, 0], resval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	
 	// Fullscreen
 	if (fullscreenval == 0)
 		sval = S_DISABLED;
@@ -1378,13 +1419,15 @@ void() Draw_Extra_GSettings =
 		drawstring([0.475*g_width, 0.375*g_height, 0], ftos(cvar("cl_maxfps")), [g_height * 0.030, g_height * 0.030, 1], [0.4,0.4,0.4], 1, 0);
 
 	// VSync
-	if (cvar("vid_vsync") == 0)
-		vsyncval = S_DISABLED;
-	else
-		vsyncval = S_ENABLED;
+	if (platform_is_web == false) {
+		if (cvar("vid_vsync") == 0)
+			vsyncval = S_DISABLED;
+		else
+			vsyncval = S_ENABLED;
 
-	drawstring([0.475*g_width, 0.425*g_height, 0], vsyncval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
-	
+		drawstring([0.475*g_width, 0.425*g_height, 0], vsyncval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	}
+
 	// Field of View
 	drawstring([0.475*g_width, 0.475*g_height, 0], ftos(cvar("fov")), [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 
@@ -1433,7 +1476,10 @@ void() Draw_Extra_GSettings =
 			gset_desc = "Change Window Aspect Ratio.";
 			break;
 		case 19:
-			gset_desc = "Toggle Fullscreen (May fail depending on GPU).";
+			if (platform_is_web == false)
+				gset_desc = "Toggle Fullscreen (May fail depending on GPU).";
+			else
+				gset_desc = "Put Browser in Fullscreen when loaded in World.";
 			break;
 		case 20:
 			gset_desc = "Toggle Framerate Overlay.";
@@ -1461,6 +1507,9 @@ void() Draw_Extra_GSettings =
 			break;
 		case 28:
 			gset_desc = "Toggle texture filtering.";
+			break;
+		case 61:
+			gset_desc = "Adjust scale factor for 3D rendering.";
 			break;
 		default:
 			gset_desc = "";

@@ -25,6 +25,9 @@
 
 */
 
+#define true    1
+#define false   0
+
 const float EVENT_WEAPONCHANGE 			= 9;
 const float EVENT_PISTOLFIRE 			= 10;
 const float EVENT_USEPRINT 				= 11;
@@ -47,10 +50,13 @@ const float EVENT_HUDUPDATE 			= 33;
 const float EVENT_EXPLOSION 			= 34;
 const float EVENT_BLOOD 				= 35;
 const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
+const float EVENT_REVIVEON 				= 37;
+const float EVENT_REVIVEOFF 			= 38;
+const float EVENT_REVIVECHANGE 			= 39;
 
-// Define our PC version if we don't have NX or PSP 
-#ifndef NX
-#ifndef PSP
+// Define our PC version
+#ifndef QUAKESPASM
+#ifndef HANDHELD
 #define PC
 #endif
 #endif
@@ -62,6 +68,13 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #endif
 // NAVMESH END
 
+// Weapon Firetype definitions
+#define FIRETYPE_FULLAUTO	0
+#define FIRETYPE_SEMIAUTO	1
+#define FIRETYPE_GRENADE	3
+#define FIRETYPE_RAYBEAM	4
+#define FIRETYPE_TESLA		5
+#define FIRETYPE_FLAME		6
 
 //nzp weapon defines
 //id list
@@ -97,7 +110,7 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #define W_KILLU        29 //357
 #define W_COMPRESSOR   30 // Gewehr
 #define W_M1000        31 //garand
-//#define W_KOLLIDER   32
+#define W_KOLLIDER     32
 #define W_PORTER       33 // Ray
 #define W_WIDDER       34 // M1A1
 #define W_FIW          35 //upgraded flamethrower
@@ -119,7 +132,7 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #define W_PENETRATOR   51 //ptrs
 #define W_WIDOW        52 //bar
 //#define W_KRAUS      53 //ballistic
-#define W_MP5          54
+#define W_MP5K         54
 #define W_M14          55
 
 #define W_TESLA  	   56
@@ -133,29 +146,33 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #define W_CUSTOM4 	   73
 
 
-#define BASE_FRAME			1
-#define FIRE_START 			2
-#define FIRE_END 			3
-#define RELOAD_START 		4
-#define RELOAD_END 			5
-#define SPRINT_IN_START		12
-#define SPRINT_IN_END 		13
-#define SPRINT_START		10
-#define SPRINT_END 			11
-#define SPRINT_OUT_START 	14
-#define SPRINT_OUT_END 		15
-#define TAKE_OUT_START		16
-#define TAKE_OUT_END 		17
-#define PUT_OUT_START 		18
-#define PUT_OUT_END 		19
-#define RELOAD_CANCEL 		20
-#define AIM_IN_START        30
-#define AIM_IN_END          31
-#define AIM_LOOP            33
-#define AIM_OUT_START       34
-#define AIM_OUT_END         35
-#define AIM_FIRE_START      36
-#define AIM_FIRE_END        37
+#define BASE_FRAME			1	// The frame the Weapon idles at
+#define FIRE_START 			2	// Start of firing animation
+#define FIRE_END 			3	// End of firing animation
+#define RELOAD_START 		4	// Start of normal (one-way) reloads
+#define RELOAD_END 			5	// End of normal (one-way) reloads
+#define RELOAD_EMPTY_START	6	// Start of empty reloading
+#define RELOAD_EMPTY_END	7	// End of empty reloading
+#define RELOAD_PART_START	8	// Start of partial full reloading
+#define RELOAD_PART_END 	9	// End of partial full reloading
+#define SPRINT_IN_START		12	// Start of preparation to sprint
+#define SPRINT_IN_END 		13	// End of preparation to sprint
+#define SPRINT_START		10	// Start of sprint loop
+#define SPRINT_END 			11	// End of sprint loop
+#define SPRINT_OUT_START 	14	// Start of sprint stop
+#define SPRINT_OUT_END 		15	// End of sprint stop
+#define TAKE_OUT_START		16	// Start of taking out weapon
+#define TAKE_OUT_END 		17	// End of taking out weapon
+#define PUT_OUT_START 		18	// Start of putting away weapon
+#define PUT_OUT_END 		19	// End of putting away weapon
+#define RELOAD_CANCEL 		20	// Frame where mag variable is filled
+#define AIM_IN_START        30	// Start of animation-based ADS
+#define AIM_IN_END          31	// End of animation-based ADS
+#define AIM_LOOP            33	// ADS stuck loop frame
+#define AIM_OUT_START       34	// Start of ADS end
+#define AIM_OUT_END         35	// End of ADS end
+#define AIM_FIRE_START      36	// Start of firing while ADS
+#define AIM_FIRE_END        37	// End of firing while ADS
 
 //Animation types
 #define RELOAD		1
@@ -168,6 +185,8 @@ const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
 #define PERK		8
 #define KNIFE2		9
 #define REVIVE		10
+#define RELOAD_EMP 	11
+#define RELOAD_PAR 	12
 
 #define S_HEADSHOT	1
 #define S_KNIFE		2
@@ -219,7 +238,7 @@ float invertfloat(float input) {
 }
 
 //elements
-#ifndef NX
+#ifndef QUAKESPASM
 string G_HUD;
 float G_HUDHOR;
 #endif

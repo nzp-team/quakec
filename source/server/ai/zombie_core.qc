@@ -29,6 +29,7 @@ void() Zombie_Walk_Setup;
 void() crawler_rip_board1;
 void() crawler_da1;
 void() crawler_die1;
+void() LinkZombiesHitbox;
 
 
 float EMPTY_BBOX = 0;
@@ -649,7 +650,9 @@ void() zombie_attack2 =
 	{
 		Window_Damage_Setup();
 	}
-	else if (self.enemy.classname == "player")
+	// motolegacy -- Prohibit damage to the Player if the Nuke Power-Up logic is currently
+	// running.
+	else if (self.enemy.classname == "player" && nuke_powerup_active == false)
 	{
 		if(vlen(self.enemy.origin - self.origin) < 60)
 		{
@@ -856,22 +859,22 @@ void() zombie_attack2;
 
 $frame attack1 attack2 attack3 attack4 attack5
 
-void() zombie_attackA1		=[	$attack1,		zombie_attackA2	]	{self.frame = 102;SetZombieHitBox(BASE_BBOX);Zombie_Think();self.solid = SOLID_BBOX;};
+void() zombie_attackA1		=[	$attack1,		zombie_attackA2	]	{self.frame = 102;SetZombieHitBox(BASE_BBOX);Zombie_Think();};
 void() zombie_attackA2		=[	$attack2,		zombie_attackA3	]	{self.frame = 103;Zombie_Think();};
 void() zombie_attackA3		=[	$attack3,		zombie_attackA4	]	{self.frame = 104;Zombie_Think();};
 void() zombie_attackA4		=[	$attack4,		zombie_attackA5	]	{zombie_attack2();self.frame = 105;Zombie_Think();};
-void() zombie_attackA5		=[	$attack5,		zombie_decide	]	{self.frame = 106;Zombie_Think();self.solid = SOLID_CORPSE;};
+void() zombie_attackA5		=[	$attack5,		zombie_decide	]	{self.frame = 106;Zombie_Think();};
 
 ///////////////////////////////////////////////////////////////////////// ZOMBIE ATTACK 2// Swipe with left arm
 //91-96
 $frame attackb1 attackb2 attackb3 attackb4 attackb5 attackb6
 
-void() zombie_attackB1		=[	$attackb1,		zombie_attackB2	]	{self.frame = 107;SetZombieHitBox(BASE_BBOX);Zombie_Think();self.solid = SOLID_BBOX;};
+void() zombie_attackB1		=[	$attackb1,		zombie_attackB2	]	{self.frame = 107;SetZombieHitBox(BASE_BBOX);Zombie_Think();};
 void() zombie_attackB2		=[	$attackb2,		zombie_attackB3	]	{self.frame = 108;Zombie_Think();};
 void() zombie_attackB3		=[	$attackb3,		zombie_attackB4	]	{self.frame = 109;Zombie_Think();};
 void() zombie_attackB4		=[	$attackb4,		zombie_attackB5	]	{zombie_attack2(); self.frame = 110;Zombie_Think();};
 void() zombie_attackB5		=[	$attackb5,		zombie_attackB6	]	{self.frame = 111;Zombie_Think();};
-void() zombie_attackB6		=[	$attackb6,		zombie_decide	]	{self.frame = 112;Zombie_Think();self.solid = SOLID_CORPSE;};
+void() zombie_attackB6		=[	$attackb6,		zombie_decide	]	{self.frame = 112;Zombie_Think();};
 
 
 void() zombie_attack =
@@ -1130,13 +1133,14 @@ void() Zombie_Death =
 	{
 		if (totalpowerups < 4)
 		{
-			if (total_powerup_points >= powerup_activate)
+			if (total_powerup_points >= powerup_score_threshold)
 			{
-				Spawn_Powerup(self.origin, 0);
-				total_powerup_points = total_powerup_points - powerup_activate;
+				Spawn_Powerup(self.origin + '0 0 13', -1);
+				powerup_activate *= 1.14;
+				powerup_score_threshold = total_powerup_points + powerup_activate;
 			}
 			else if (random () <= 0.02)
-				Spawn_Powerup(self.origin, 0);
+				Spawn_Powerup(self.origin + '0 0 13', -1);
 		}
 	}
 	
@@ -1376,6 +1380,8 @@ void() zombieRise =
 	self.frame ++;
 	self.think = zombieRise;
 	self.nextthink = time + 0.1;
+	//LinkZombiesHitbox();
+	//bprint (PRINT_HIGH, "Linked hitboxes");
 };
 void() spawn_zombie =
 {
@@ -1625,9 +1631,9 @@ void(entity where) spawn_a_zombieB =
 	szombie.larm.deadflag = 1;
 	szombie.rarm.deadflag = 1;
 
-	setmodel(szombie.head, "models/ai/zhead.mdl");
-	setmodel(szombie.rarm, "models/ai/zrarm.mdl");
-	setmodel(szombie.larm, "models/ai/zlarm.mdl");
+	setmodel(szombie.head, "models/ai/zh^.mdl");
+	setmodel(szombie.rarm, "models/ai/zar(.mdl");
+	setmodel(szombie.larm, "models/ai/zal(.mdl");
 	#ifndef PC
 	updateLimb (szombie, 0, szombie.head);
 	updateLimb (szombie, 1, szombie.larm);
@@ -1637,7 +1643,7 @@ void(entity where) spawn_a_zombieB =
 	
 	szombie.solid = szombie.head.solid = SOLID_CORPSE;
 	szombie.movetype = MOVETYPE_WALK;
-	setmodel(szombie, "models/ai/zbod.mdl");
+	setmodel(szombie, "models/ai/zb#.mdl");
 	szombie.hop_step = 0;
 	szombie.gravity = 1.0;
 	
@@ -1715,7 +1721,7 @@ void(entity where) spawn_a_zombieB =
 	SetZombieWalk(szombie);
 	//==================================================================================================
 	
-	SetUpHitBoxes(szombie);
+	SetUpHitBoxes(szombie); 
 	//szombie.walktype = 5;
 	////////////////////////////////////////////////////
 	szombie.reload_delay = 30 + time;//save  floats, equals respawn time.
@@ -1729,6 +1735,27 @@ void(entity where) spawn_a_zombieB =
 	else
 		self.th_walk();
 	self = old_self;
+	
+	//LinkZombiesHitbox();
+	
+#ifndef PC
+	//
+	// Zombie skin setting
+	//
+	float tex;
+	tex = random();
+
+	if (tex > 0.75)
+		szombie.skin = 0;
+	else if (tex > 0.50)
+		szombie.skin = 1;
+	else if (tex > 0.25)
+		szombie.skin = 2;
+	else
+		szombie.skin = 3;
+#endif // PC
+
+	szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
 
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;

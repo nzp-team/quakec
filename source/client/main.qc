@@ -70,6 +70,12 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	registercommand("showscores");
 
 	cvar_set("sv_cheats", ftos(1));
+
+	// Runtime check if we're running this in WebASM/WebGL.
+	if (cvar_string("sys_platform") == "Web")
+		platform_is_web = true;
+	else
+		platform_is_web = false;
 		
 	cl_register_navmesh_commands();
 	
@@ -1010,6 +1016,31 @@ noref void() CSQC_Parse_Event =
 		case EVENT_BROADCAST:
 			broadcast_time = readbyte();
 			broadcast_type = readbyte();
+			broadcast_string = readstring();
+			break;
+		case EVENT_REVIVECHANGE:
+			float revivechange_id = readbyte();
+			float state = readbyte();
+			revive_icons[revivechange_id].state = state;
+			break;
+		case EVENT_REVIVEON:
+			float reviveon_id = readbyte();
+			revive_icons[reviveon_id].org[0] = readcoord();
+			revive_icons[reviveon_id].org[1] = readcoord();
+			revive_icons[reviveon_id].org[2] = readcoord();
+			revive_icons[reviveon_id].state = 1;
+			revive_icons[reviveon_id].draw = true;
+			active_revive_icons++;
+			break;
+		case EVENT_REVIVEOFF:
+			float reviveoff_id = readbyte();
+			revive_icons[reviveoff_id].org[0] = 0;
+			revive_icons[reviveoff_id].org[1] = 0;
+			revive_icons[reviveoff_id].org[2] = 0;
+			revive_icons[reviveoff_id].state = 0;
+			revive_icons[reviveoff_id].timer = 0;
+			revive_icons[reviveoff_id].draw = false;
+			active_revive_icons--;
 			break;
 		case EVENT_POINTUPDATE:
 			float playernum = readbyte();

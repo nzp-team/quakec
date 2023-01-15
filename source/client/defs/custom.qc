@@ -104,6 +104,16 @@ float crosshair_spread_time;
 float zoom_2_time;
 float broadcast_time;
 float broadcast_type;
+string broadcast_string;
+
+var struct revive_s {
+	float draw;
+	float timer;
+	float state;
+	float org[3];
+} revive_icons[4];
+
+float active_revive_icons;
 
 float weaponframetime;
 float weapon2frametime;
@@ -210,6 +220,12 @@ float screen_width_169[MAX_169];
 float screen_height_169[MAX_169];
 float screen_width_219[MAX_219];
 float screen_height_219[MAX_219];
+
+int 	platform_is_web;
+
+#define 	OPTION_EXE_ONLY 	0
+#define 	OPTION_WEB_ONLY 	1
+#define 	OPTION_WEB_AND_EXE	2
 
 //controller buttons
 

@@ -247,6 +247,8 @@ void() ai_physics_movement =
 	//=======================================================================================================================================
 };
 
+void(float what) play_sound_z;
+void() LinkZombiesHitbox;
 
 void() path_corner_touch =
 {
@@ -287,43 +289,71 @@ void() Respawn =
 
 entity(entity blarg) find_new_enemy =
 {
-	local entity player;
-	local entity closest;
-	local float bestdist;
-	local float dist;
-	bestdist = 10000;
+	entity  targets;
+	entity  best_target;
+	float 	best_distance;
+	float 	distance;
+	
+	best_distance = 10000;
+	best_target = world;
 
-    // FIXME - change to hellhound for old/unreleased Demo map support?
-	if(self.classname == "ai_zombie" || self.classname == "ai_dog") {
-		player = find(world,classname,"monkey");
-		if(player) {
-			return player;
+	if (blarg.classname == "ai_zombie" || blarg.classname == "ai_dog") {
+		// Monkey Bomb (TODO -- if multiple, target first one thrown)
+		targets = find(world, classname, "monkey_bomb");
+		if (targets != world && blarg.classname != "ai_dog") {
+			best_target = targets;
+			return best_target;
 		}
-		
-		player = find(world,classname,"player");
-		///////////////////////////////
-		if(!player) {
-			return world;
-		}
-		//////////////////////////////
-		while(player) {
-      		if (player.downed == true) {
-        		return world;
-			  }
-        
-			dist = vlen(self.origin - player.origin);
-			if (dist < bestdist) {
-				closest = player;
-				bestdist = dist;
+
+		// Now, try and find a viable player
+		targets = find(world, classname, "player");
+
+		while(targets != world) {
+			// Don't target downed players.
+			if (targets.downed == true || targets.isspec == true) {
+				targets = find(targets, classname, "player");
+				continue;
 			}
-			player = find(player,classname,"player");
+
+			// Found one, let's see if it's closer than our last ideal target.
+			distance = vlen(blarg.origin - targets.origin);
+
+			if (distance < best_distance) {
+				best_target = targets;
+				best_distance = distance;
+			}
+
+			// Continue iterating
+			targets = find(targets, classname, "player");
 		}
-		return closest;
-		
+
+		// Return a good player if we found one.
+		if (best_target != world)
+			return best_target;
+
+		// We couldn't find a good player. How about a horde point?
+		targets = find(world, classname, "zombie_horde_point");
+
+		while(targets != world) {
+			// Found one, let's see if it's closer than our last ideal target.
+			distance = vlen(blarg.origin - targets.origin);
+
+			if (distance < best_distance) {
+				best_target = targets;
+				best_distance = distance;
+			}
+
+			// Continue iterating
+			targets = find(targets, classname, "zombie_horde_point");
+		}
+
+		// Return a horde point if we found one.
+		if (best_target != world)
+			return best_target;
 	}
-	if (self.classname != "wunder")
-		bprint(PRINT_HIGH, "Error: Find_New_Enemy returns world! \n");
-	return world;
+
+	// We didn't have much luck, just return the world.
+	return best_target;
 };
 
 float() avoid_zombies =
@@ -437,7 +467,7 @@ void(vector org, float scale) interpolateToVector =
 
 float(vector where) nearby = 
 {
-	if(self.classname == "ai_zombie")
+	if(self.classname == "ai_zombie" || self.classname == "ai_dog")
 	{
 		float xdist;
 		float ydist;
@@ -455,20 +485,6 @@ float(vector where) nearby =
 		}
 		return 0;
 	}
-	/*else if(self.classname == "ai_hellhound")
-	{
-		if(vlen(self.origin - what.origin) < 35)
-		{
-			if(vlen(self.origin - what.origin) < 6)
-			{
-				return 1;
-			}
-			else
-			{
-				interpolateToVector(what.origin,0.25);
-			}
-		}
-	}*/
 	return 0;
 };
 
@@ -715,6 +731,8 @@ void(float dist) Window_Hop =
 		self.enemy = find_new_enemy(self);
 		//self.th_die();
 		self.th_walk();
+		//LinkZombiesHitbox();
+		//bprint (PRINT_HIGH, "Linked hitboxes");
 	}
 }
 
@@ -737,8 +755,7 @@ void() PathfindToEnemy =
 	//Navmesh usage
 	float result = sv_navmesh_pathfind(self,self.enemy);
 
-	if(result == 1)
-{
+	if(result == 1) {
 		self.chase_time = time + 7;
 		setorigin(self.goaldummy,sv_zombie_pathfind_result[self.index].result_path[0]);
 	self.goalentity = self.goaldummy;
@@ -773,8 +790,7 @@ void() PathfindToEnemy =
 			setorigin(self.goaldummy,sv_zombie_pathfind_result[self.index].result_path[1]);
 		}
 	}
-	else
-{
+	else {
 		bprint(PRINT_HIGH, "Pathfind failure.\n");
 	}
 	
@@ -860,7 +876,7 @@ float(vector start, vector min, vector max, vector end, float nomonsters, entity
 #endif
 
 void(float dist) Inside_Walk = {
-	if(self.enemy_timeout < time || self.enemy == world) {
+	if(self.enemy_timeout < time || self.enemy == world || self.enemy.downed == true) {
 		self.enemy_timeout = time + 5;
 		local entity oldEnemy;
 		oldEnemy = self.enemy;
@@ -868,13 +884,15 @@ void(float dist) Inside_Walk = {
 	}
 	//================Check for proximity to player ===========
 	if(vlen(self.enemy.origin - self.origin) < 60) {
-		if(self.enemy.classname == "monkey") {
+		if(self.enemy.classname == "monkey_bomb" && self.classname != "ai_dog") {
 			self.th_idle();
 		}
 		
 		if(self.attack_delay < time) {
 			self.attack_delay = time + 1 + (1 * random());
 			self.th_melee();  
+			if (self.enemy.downed == true)
+				self.enemy = find_new_enemy(self);
 			self.goalentity = self.enemy;
 			self.chase_time = time + 5;
 		}
@@ -939,7 +957,8 @@ void(float dist) Zombie_Walk =  {
 		} else if (self.droptime < time) {
 			self.droptime = 0;
 			//bprint(PRINT_HIGH, "not on ground\n");
-			self.th_fall();
+			if (self.classname != "ai_dog")
+				self.th_fall();
 			return;
 		}
 	}
@@ -988,6 +1007,11 @@ void() Zombie_AI = {
 	}
 }
 
+void() Hellhound_AI =
+{
+	Inside_Walk(0);
+}
+
 //This function ensures that only one zombie's ai is done at a time, brings down lag significantly
 void() Do_Zombie_AI = {
 	local entity z;
@@ -1002,8 +1026,10 @@ void() Do_Zombie_AI = {
 	local entity oself;	
 	oself = self;
 	self = z;
-	//if(z.classname == "ai_zombie")//removed because only zombies atm
-	Zombie_AI();
+	if(z.classname == "ai_zombie")
+		Zombie_AI();
+	else if (z.classname == "ai_dog")
+		Hellhound_AI();
 	self = oself;
 	lastzombie = z;
 }

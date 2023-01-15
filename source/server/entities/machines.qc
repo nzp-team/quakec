@@ -414,11 +414,21 @@ void() touch_perk =
 
 	// Don't prompt if our hands or busy or we already have the perk
 	if (!(other.perks & self.style) && other.fire_delay < time && self.revivesoda < 3) {
-		// sequence = perk ID in client
-		useprint(other, 9, self.cost, self.sequence);
+		float price;
 
-		if (other.points >= self.cost && other.button7) {
-			addmoney(other, -self.cost, 0);
+		// Check if this is Quick Revive and we are playing in Co-Op,
+		// adjust price if so.
+		if (self.classname == "perk_revive" && player_count > 1)
+			price = self.cost2;
+		// Nope, use normal cost.
+		else
+			price = self.cost;
+
+		// sequence = perk ID in client
+		useprint(other, 9, price, self.sequence);
+
+		if (other.points >= price && other.button7) {
+			addmoney(other, -price, 0);
 
 			// Pass along the Perk information to the Player to avoid complications later on, then Drink!
 			other.style = self.style;
@@ -1143,7 +1153,7 @@ void() power_switch =
 
     // Model
     if (!self.model)
-        self.model = "models/machines/power_switch.mdl";
+        self.model = "models/machines/quake_scale/power_switch.mdl";
 
 	// Sound
 	if (!self.oldmodel)
@@ -1383,7 +1393,6 @@ void() findboxspot =
 	newspot.angles_y += 90;
 
 	// Spawn the Box Glow if permitted
-	#ifndef PC
 	if (!(self.owner.spawnflags & 2))
 	{
 		local entity g;
@@ -1393,7 +1402,6 @@ void() findboxspot =
 		setorigin(g,newspot.origin);
 		g.angles = newspot.angles;
 	}
-	#endif
 	
 	// Remove teddy
 	remove(self);
@@ -1528,7 +1536,7 @@ void() mystery_box_tp_spot =
 	setmodel (self, "models/props/teddy.mdl");
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	
-	if (self.model == "progs/Misc/teddy.mdl") {
+	if (self.model == "models/props/teddy.mdl") {
 		self.frame = 2;
 		self.angles_y -= 90;
 	}
@@ -1732,7 +1740,6 @@ void() mystery_box =
 	setmodel (self, "models/machines/mystery.mdl");
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	
-	#ifndef PC
 	if (!(self.spawnflags & 2))
 	{
 		local entity g;
@@ -1742,7 +1749,6 @@ void() mystery_box =
 		setorigin(g,self.origin);
 		g.angles = self.angles;
 	}
-	#endif
 
 	self.touch = mystery_touch;
 	boxOrigin = self.origin;
@@ -1849,8 +1855,8 @@ void PapUpgrade(entity pap, entity buyer) {
 
 	////////////////////////////////////////
 
-	self.fire_delay = self.reload_delay = 4.0 + time;
-	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NONE);
+	self.fire_delay = self.reload_delay = 4.5 + time;
+	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NORM);
 
 	pap.weapon = self.weapon;
 
@@ -1884,6 +1890,10 @@ void touch_pap() {
 	if (other.classname != "player" || other.downed || !isFacing(other, self)) {
 		return;
 	}
+
+	if (other.reload_delay > time || other.reload_delay2 > time || 
+	other.fire_delay > time || other.fire_delay2 > time)
+		return;
     
 	if (self.requirespower == true && !isPowerOn) {
 		useprint (other, 8, 0, 0);

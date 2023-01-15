@@ -133,7 +133,7 @@ void() InitTrigger =
 	self.model = "";
 };
 
-#ifndef PSP
+#ifndef HANDHELD
 entity last_act_trigger;
 void() trigger_activator_touch =
 {
@@ -254,7 +254,23 @@ void() use_wall_weapon =
 	newent.solid=SOLID_NOT;
 	newent.classname = "wall_weapon";
 	setorigin(newent, self.origin);
-	setmodel (newent, GetWeaponModel(self.sequence + 1, 1));
+
+	// MP5K and Waffe were added in late in the mix-up.. needs special case. Also grenade bag.
+	switch(self.sequence + 1) {
+		case 26: // Grenade bag
+			setmodel(newent, "models/props/grenade_bag.mdl");
+			break;
+		case 29: // MP5K
+			setmodel(newent, GetWeaponModel(W_MP5K, 1));
+			break;
+		case 28: // Waffe
+			setmodel(newent, GetWeaponModel(W_TESLA, 1));
+			break;
+		default:
+			setmodel (newent, GetWeaponModel(self.sequence + 1, 1));
+			break;
+	}
+
 	setsize (newent, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	newent.angles = self.angles;
 	
@@ -272,6 +288,7 @@ void() weapon_wall =
 	self.frame = self.sequence;
 	self.use = use_wall_weapon;
 	self.classname = "weapon_wall";
+	self.effects = EF_FULLBRIGHT;
 	//self.effects = EF_WEPLIGHT;
 }
 

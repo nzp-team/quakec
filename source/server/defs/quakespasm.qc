@@ -33,8 +33,7 @@
 ==============================================================================
 */
 
-#define NX
-#define VITA
+#define QUAKESPASM
 
 //
 // system globals
@@ -580,7 +579,6 @@ string(string s) strunzone 												    = #119;
 string(string s) strtrim 												    = #120;
 float(string s) tokenize 												    = #130;	// Was #441
 string(float num) argv 													    = #131;	// Was #442
-void(float intensity_small, float intensity_large, float duration) rumble = #132;
 
 float(entity targ, entity inflictor) CanDamage;
 

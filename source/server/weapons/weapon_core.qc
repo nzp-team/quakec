@@ -3,7 +3,7 @@
 
 	weapon logic
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -22,6 +22,7 @@
 		Free Software Foundation, Inc.
 		59 Temple Place - Suite 330
 		Boston, MA  02111-1307, USA
+
 
 */
 
@@ -66,7 +67,7 @@ void() W_AimIn =
 	if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 		SetUpdate(self, UT_ZOOM2, 0, 0, 0);
-		#ifdef NX
+		#ifdef QUAKESPASM
 		self.zoom = 1;
 		#else
 		self.zoom = 2;
@@ -144,7 +145,7 @@ void W_SprintStart () {
 	else
 		self.sprint_duration -= self.sprint_rest_time;
 
-#ifdef NX
+#ifdef QUAKESPASM
 	if (!self.sprintflag) {
 		return;
 	}
@@ -264,9 +265,6 @@ void() W_Switch =
 			UpdateVmodel(modelname, GetWepSkin(self.weapon));
 	
 		
-		//UpdateWeapons(1);
-		//if (self.weaponslot1.dualwield)
-		//	Set_W2_Frame (self.weaponslot1.TakeWeaponStart, self.weaponslot1.TakeWeaponEnd, 0, 0, 0, SUB_Null, self.weaponslot1.v_model2, false);//FIXME
 		Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);//FIXME
 		
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0; 
@@ -427,6 +425,23 @@ void() ContinueReload = //Special reloads
 	}
 }
 
+void(float side) W_AdvanceAnim =
+{
+	float startframe, endframe, delay, reloadcancelframe;
+	string modelname;
+
+	startframe = GetFrame(self.weapon, RELOAD_START);
+	endframe = GetFrame(self.weapon, RELOAD_END);
+	delay = getWeaponDelay(self.weapon, RELOAD);
+	reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
+
+	modelname = GetWeaponModel(self.weapon, 0);
+
+	self.reload_delay = self.reload_delay2 = delay + time;
+
+	Set_W_Frame (startframe, endframe, delay, reloadcancelframe, RELOAD, W_Give_Ammo, modelname, false, side);
+}
+
 void(float side) W_Reload =
 {
 	if (self.weapon == W_M2 || self.weapon == W_FIW)
@@ -484,6 +499,7 @@ void(float side) W_Reload =
 		delay = getWeaponDelay(self.weapon,RELOAD);
 		void(optional float t) endanimfunc = SUB_Null;
 
+		// TODO: Make browning use new reload status frames
 		if (self.weapon == W_BROWNING || self.weapon ==  W_ACCELERATOR) {
 			if (!self.currentmag) {
 				startframe = 26;
@@ -504,21 +520,22 @@ void(float side) W_Reload =
 			reloadcancelframe = 0;
 			delay = 0.8;
 			endanimfunc = ContinueReload;
-		} else if (self.weapon == W_M1 || self.weapon == W_M1000) {
+		}
+		// Check for special reload type
+		else if (GetFrame(self.weapon, RELOAD_EMPTY_START) != 0) {
+			//reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
 			if (self.currentmag > 0) {
-				startframe = 4;
-				endframe = 44;
-				reloadcancelframe = 25;
-				delay = 3.9;
-				endanimfunc = W_Give_Ammo;
+				startframe = GetFrame(self.weapon, RELOAD_PART_START);
+				endframe = GetFrame(self.weapon, RELOAD_PART_END);
+				delay = getWeaponDelay(self.weapon, RELOAD_PAR);
 			} else {
-				startframe = 8;
-				endframe = 44;
-				reloadcancelframe = 25;
-				delay = 3.6;
-				endanimfunc = W_Give_Ammo;
+				startframe = GetFrame(self.weapon, RELOAD_EMPTY_START);
+				endframe = GetFrame(self.weapon, RELOAD_EMPTY_END);
+				delay = getWeaponDelay(self.weapon, RELOAD_EMP);
 			}
-		} else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
+			endanimfunc = W_AdvanceAnim;
+		}
+		else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
 			if (self.currentmag == 0) {
 				self.NeedLoad = true;
 			}
@@ -585,12 +602,15 @@ void () W_LoadAmmo =
 		startframe = 4;
 		endframe = 13;
 		reloadcancelframe = 9;
-		delay = 0.9;
+		delay = 1.2;
 		endanimfunc = W_LoadAmmoDone;
 	}	
 
 	if (delay) {
-		
+
+		if (self.perks & P_DOUBLE)
+			delay *= 0.66;
+			
 		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, FIRE, W_LoadAmmoDone, modelname, false, S_RIGHT);
 		self.fire_delay = delay + time;
 	}
@@ -706,6 +726,9 @@ void Parse_Damage () = // DO NOT TOUCH
 					
 						body_ent.usedent = self;
 						body_ent.bleedingtime = time + 2;
+						#ifdef HANDHELD
+						updateLimb (body_ent.head.owner, 0, world);
+						#endif
 					}
 				}
 				
@@ -727,7 +750,9 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.larm.solid = SOLID_NOT;
 					setmodel(body_ent.larm,"");
 					body_ent.larm.frame = 0;
-					//updateLimb (body_ent.larm.owner, 1, world);
+					#ifdef HANDHELD
+					updateLimb (body_ent.larm.owner, 1, world);
+					#endif
 				}
 
 				body_ent.larm.washit = 0;
@@ -747,7 +772,9 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.rarm.solid = SOLID_NOT;
 					setmodel(body_ent.rarm,"");
 					body_ent.rarm.frame = 0;
-					//updateLimb (body_ent.rarm.owner, 2, world);
+					#ifdef HANDHELD
+					updateLimb (body_ent.rarm.owner, 2, world);
+					#endif
 				}
 
 				body_ent.rarm.washit = 0;
@@ -876,7 +903,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 			self = hit_ent;
 			self.health = self.health - damage;
 			
-			barrel_hit ();
+			Barrel_Hit();
 			
 			self = oldself;
 			return;
@@ -1036,7 +1063,7 @@ void(float side) W_FireGrenade =
 	nade.velocity = v_forward*1000;		
 	nade.avelocity = '50 -50 50';
 
-	centerprint(self, vtos(nade.angles));
+	//centerprint(self, vtos(nade.angles));
 
 	nade.touch = GrenadeExplode;
 	setsize(nade, '0 0 0', '0 0 0');
@@ -1059,7 +1086,7 @@ void() RayBulletExplode =
 	te_smallflash(self.origin);
 	#else
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
-	#ifdef PSP
+	#ifdef HANDHELD
 	if (self.effects & EF_RAYGREEN)
 		WriteByte (MSG_BROADCAST, TE_RAYSPLASHGREEN);
 	else
@@ -1119,13 +1146,13 @@ void() W_FireRay =
 
 	
 	if (self.weapon == W_PORTER) {
-		#ifdef PSP
+		#ifdef HANDHELD
 		porter.effects = EF_RAYRED;
 		#else
 		porter.effects = EF_RED;
 		#endif
 	} else {
-		#ifdef PSP
+		#ifdef HANDHELD
 		porter.effects = EF_RAYGREEN;
 		#else
 		porter.effects = EF_GREEN;
@@ -1243,7 +1270,7 @@ void() W_FireTesla =
 	#ifdef PC
 	te_lightning2(self, source, trace_endpos);
 	#endif
-	#ifdef PSP
+	#ifdef HANDHELD
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
 	WriteEntity (MSG_BROADCAST, self);
@@ -1395,6 +1422,9 @@ void(float side) W_Fire =
 	if (self.weapon == W_M2 || self.weapon == W_FIW && self.cooldown)
 		return;
 
+	if (self.semiswitch == true)
+		return;
+
 	//First check that we can actualy fire
 	if (side == S_RIGHT &&
 		(time < self.fire_delay ||
@@ -1504,43 +1534,45 @@ void(float side) W_Fire =
 	if (self.downed)
 		playdownfire();
 
-	// MOTO - should probably reorganize this whole firetype chunk in the future..
-
-	//Fire weapons
-	if (firetype == 1 || firetype == 3)
-	{
+	// Check if weapon is semi-automatic and if it is, if it's ready to be fired.
+	if (Util_WeaponIsSemiAutomatic(self.weapon)) {
 		if (side == S_RIGHT) {
-			if (self.semi) {
-				return;
-			}
-			self.semi = TRUE;
+			if (self.semi) return;
+			self.semi = true;
 		} else if (side == S_LEFT) {
-			if (self.semi2) {
-				return;
-			}
-			self.semi2 = TRUE;
+			if (self.semi2) return;
+			self.semi2 == true;
 		}
-
-		if (firetype == 3) {
-			W_FireGrenade(side);
-		}
-	} else if (firetype == 4) {
-		W_FireRay();
-	} else if (firetype == 5) {
-		W_FireTesla();
-	} else if (firetype == 6) {
-		W_FireM2();
 	}
 
-    // FIXME - clean this up lol
-	if (firetype == 1 || firetype == 0 || firetype == 3) {
+	// Weapon Projectile/Trace Logic.
+	if (Util_WeaponFiresTraceshot(self.weapon)) {
 		FireTrace(shotcount, spread, damage, side);
+	}
+
+	switch(firetype) {
+		case FIRETYPE_GRENADE:
+			W_FireGrenade(side);
+			break;
+		case FIRETYPE_RAYBEAM:
+			W_FireRay();
+			break;
+		case FIRETYPE_TESLA:
+			W_FireTesla();
+			break;
+		case FIRETYPE_FLAME:
+			W_FireM2();
+			break;
+		default: break;
 	}
 
 	//Play weapon animation and sound
 	startframe = GetFrame(self.weapon,FIRE_START);
 	endframe = GetFrame(self.weapon,FIRE_END);
-	
+
+	// Increment the amount of shots fired while downed
+	if (self.downed == true)
+		self.teslacount++;
 
 	if (self.perks & P_DOUBLE) {
 		delay *= 0.66;
@@ -1595,7 +1627,6 @@ void(float side) W_Fire =
 * W_Knife                     *
 ******************************/
 
-// FIXME - knife & nade vmodels change skin on PSP!
 void () W_Knife =
 {
 	if (time < self.knife_delay || self.new_anim_stop ||
@@ -1742,7 +1773,7 @@ void () W_Knife =
 
 void() switch_nade = 
 { 
-	if (self.downed || self.isBuying || !(self.grenades & 2) || self.semiswitch)
+	if (self.downed || self.isBuying || !(self.grenades & 2) || self.seminade)
       return;
 
 	if (self.pri_grenade_state == 0)
@@ -1871,11 +1902,7 @@ void() W_ThrowGrenade =
 
 		makevectors (self.v_angle);
 
-		#ifndef PSP
-		nade.velocity = v_forward*500;
-		#else
-		nade.velocity = v_forward*800;	// on PSP, we need more OOMFPH
-		#endif
+		nade.velocity = v_forward*800;
 		
 		nade.avelocity = '400 -400 400';
 
@@ -1911,7 +1938,6 @@ void() W_ThrowGrenade =
 	endframe = GetFrame(self.weapon,TAKE_OUT_END);
 	modelname = GetWeaponModel(self.weapon, 0);
 	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
-	self.semiswitch = false;
 
 	SetUpdate(self, UT_HUD, 6, 0, 0);
 }
@@ -1966,11 +1992,16 @@ void() W_Betty = {
 	if (self.throw_delay > time || self.zoom || self.downed || self.secondary_grenades < 1 || self.isBuying)
 		return;
 
+	// Prevent the Player from Sprinting and also avoid issues with
+	// the equipment being completely cancelled..
+	if (self.sprinting)
+		W_SprintStop();
+
 	Set_W_Frame (0, 18, 0, 0, GRENADE, checkHoldB, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
 	self.secondary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.semiswitch = true;
+	self.seminade = true;
 }
 
 void() W_Grenade =
@@ -1978,12 +2009,17 @@ void() W_Grenade =
 	if (self.throw_delay > time || self.zoom || self.downed || self.primary_grenades < 1 || self.isBuying)
 		return;
 
+	// Prevent the Player from Sprinting and also avoid issues with
+	// the equipment being completely cancelled..
+	if (self.sprinting)
+		W_SprintStop();
+
 	Set_W_Frame (0, 2, 0, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
 	self.primary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
 	self.grenade_delay = time + 5;
-    self.semiswitch = true;
+    self.seminade = true;
 } 
 
 void(float wepnum) CheckButton = {
@@ -2024,7 +2060,7 @@ void() Change_Stance = {
 
 void() dolphin_dive =		//naievil
 {    
-	if (self.stance != 2)
+	if (self.stance != 2 || self.view_ofs_z != 32)
 		return;
  	if (self.flags & FL_WATERJUMP)
 		return;
@@ -2105,7 +2141,7 @@ void () Impulse_Functions =
 			W_SprintStop();
 			break;
 		case 25:
-			#ifdef PSP
+			#ifdef HANDHELD
 			switch_nade();
 			#else
 			W_Betty();
@@ -2118,7 +2154,7 @@ void () Impulse_Functions =
 			else
 				Change_Stance();
 			break;
-		#ifdef NX
+		#ifdef QUAKESPASM
 		case 31:
 			self.sprintflag = 0;
 			break;
@@ -2126,15 +2162,10 @@ void () Impulse_Functions =
 			self.sprintflag = 1;
 			break;
 		#endif
-		/*case 110:
-			CheckButton(1);
-			break;
-		case 111:
-			CheckButton(0);
-			break;	*/
 		case 110:
 		case 111:
 			W_PutOut();
+			self.semiswitch = true;
 			break;	
 		case 100:
 			cvar_set("waypoint_mode", "1");
@@ -2239,7 +2270,7 @@ void() CheckPlayer =
 	CheckPowerups(self);
 	CheckRevive(self);
 
-#ifdef NX
+#ifdef QUAKESPASM
 	if (!self.sprintflag && self.sprinting) {
 		W_SprintStop();
 	}
@@ -2262,6 +2293,7 @@ void() CheckPlayer =
 	}
 	
 	/* Check player push start */
+#ifdef PC
 	entity ent;
 	ent = findradius(self.origin, 70);
 		
@@ -2272,12 +2304,16 @@ void() CheckPlayer =
 			useprint (self, 13, 0, 0);
 			
 			if (self.button7 && !ent.invoke_revive) {
-				centerprint(ent, "Another player is reviving you...");
+
+				// Broadcast that they're being revived
+				BroadcastMessageToClient(ent, time + 0.1, 3, self.netname);
+
 				ent.beingrevived = true;
 				
 				if (!self.progress_bar_percent) {
+					ChangeReviveIconState(ent.electro_targeted, 2);
 					self.movetype = MOVETYPE_NONE;
-					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/v_morphine.mdl", false, S_BOTH);
+					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_BOTH);
 					
 					if !(self.perks & P_REVIVE)
 						self.progress_bar_time = 4;
@@ -2299,9 +2335,11 @@ void() CheckPlayer =
 					self.progress_bar_time = 0;
 					self.progress_bar_percent = 0;
 					self.revived = 0;
+					addmoney(self, ent.requirespower, false);
 				}
 			}
 			else if (!self.button7 && self.reviving) {
+				ChangeReviveIconState(ent.electro_targeted, 1);
 				self.movetype = MOVETYPE_WALK;
 				ent.beingrevived = false;
 				W_TakeOut();
@@ -2323,6 +2361,7 @@ void() CheckPlayer =
 		}
 		ent = ent.chain;
 	}
+#endif
 	/* Check for player push end */
 	
 	if (!self.button2 && self.flags & FL_ONGROUND) {
@@ -2356,7 +2395,7 @@ void () Weapon_Logic =
 	Impulse_Functions();
 
 	#ifndef PC
-	// For PSP only to tell our engine to display the scope 
+	// For HANDHELD only to tell our engine to display the scope 
 	if ((self.scopetime < time) && self.scopetime) {
 		self.scopetime = 0;
 		self.zoom = 2;
@@ -2366,70 +2405,64 @@ void () Weapon_Logic =
 	#else 
 	UpdatePunchangle(self);
 	#endif
-			
-	//FIXME - cleanup!
-	if (IsDualWeapon(self.weapon)) { 
-		if (self.button0) {
-			#ifdef PC
-			W_Fire(S_LEFT);
-			#else
-			W_Fire(S_RIGHT);
-			#endif
-		} else {
-			#ifdef PC
-			self.semi2 = FALSE;
-			#else
-			self.semi = FALSE;
-			#endif
-		}
-		
-		if (self.button8) {
-			#ifdef PC
-			W_Fire(S_RIGHT);
-			#else
-			W_Fire(S_LEFT);
-			#endif
-		} else {
-			#ifdef PC
-			self.semi = FALSE;
-			#else
-			self.semi2 = FALSE;
-			#endif
-		}
+
+	//
+	// Fire Button Logic
+	// NOTE: Since the right weapon is the "normal" side there's some
+	// flip flop logic on PC so that LMB will fire the left side instead.
+	//
+
+	// Right Trigger/LMB/etc.
+	if (self.button0) {
+#ifdef PC
+		if (IsDualWeapon(self.weapon)) { W_Fire(S_LEFT); } else { W_Fire(S_RIGHT); }
+#else
+		W_Fire(S_RIGHT);
+#endif // PC
 	} else {
-		if (self.button0) {
+		// Check for release for semi automatic weapons.
+#ifdef PC
+		if (IsDualWeapon(self.weapon)) { self.semi2 = false; } else { self.semi = false; }
+#else
+		self.semi = false;
+#endif // PC
+	}
+
+	// Left Trigger/RMB/etc.
+	if (self.button8) {
+		if (IsDualWeapon(self.weapon)) {
+#ifdef PC
 			W_Fire(S_RIGHT);
+#else
+			W_Fire(S_LEFT);
+#endif // PC
 		} else {
-			self.semi = FALSE;
-		}
-		if (cvar("cl_adsmode")) {
-			if (self.button8) {
+			// Toggle ADS back and forth
+			if (cvar("cl_adsmode")) {
 				self.ads_toggle = !self.ads_toggle;
 
 				if (self.ads_toggle == false) {
 					W_AimOut();
 					self.zoom = 0;
 
-					#ifdef PC
+#ifdef PC
 					self.viewzoom = 1;
 					UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 					UpdateV2model(self.weapon2model, 0);
-					#endif
+#endif // PC
 				} else {
 					W_AimIn();
 					self.zoom = 1;
 
-					#ifdef PC
+#ifdef PC
 					self.viewzoom = 0.9;
-					#endif
+#endif // PC
 				}
-			}
-		} else {
-			if (self.button8) {
+			} else {
 				if (!self.zoom) {
 					W_AimIn();
 				} 
-				#ifdef PC
+#ifdef PC
 				else {
 				
 					if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
@@ -2445,39 +2478,47 @@ void () Weapon_Logic =
 							self.viewzoom = 0.89999;
 					}
 				}
-				#endif
-			} else if (!self.button8 && self.zoom) {
-			
-				#ifdef PC
-				if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-					if (self.viewzoom == 0.5) {
-						self.viewzoom += 0.05;
-						ReturnWeaponModel();
-					} else {
-						UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-						UpdateV2model(self.weapon2model, 0);
-						self.viewzoom += 0.05;
-					}
-				} else {
-					if (self.viewzoom == 0.9) {
-						W_AimOut();
-					} else {
-						self.viewzoom += 0.015;
-					}
-				}
-				
-				if (self.viewzoom >= 1) {
-					self.viewzoom = 1;
-					self.zoom = 0;
-				}
-				#else
-				W_AimOut();
-				#endif	
+#endif // PC
 			}
 		}
+	} else if (!self.button8 && self.zoom) {
+#ifdef PC
+		if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
+			self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
+			if (self.viewzoom == 0.5) {
+				self.viewzoom += 0.05;
+				ReturnWeaponModel();
+			} else {
+				UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
+				UpdateV2model(self.weapon2model, 0);
+				self.viewzoom += 0.05;
+			}
+		} else {
+			if (self.viewzoom == 0.9) {
+				W_AimOut();
+			} else {
+				self.viewzoom += 0.015;
+			}
+		}
+		
+		if (self.viewzoom >= 1) {
+			self.viewzoom = 1;
+			self.zoom = 0;
+		}
+#else
+		W_AimOut();
+#endif // PC
+	} else {
+		// Check for release for semi automatic weapons.
+		if (IsDualWeapon(self.weapon)) {
+#ifdef PC
+			self.semi = false;
+#else
+			self.semi2 = false;
+#endif // PC
+		}
 	}
-
+	
 	if (!self.button7) {
 		self.semiuse = false;
 	}
@@ -2486,20 +2527,20 @@ void () Weapon_Logic =
 	{
 		W_PutOut();
 		self.semiswitch = true;
-	} else if (!self.button4) {
+	} else if (!self.button4 && self.semiswitch && self.impulse != 110 && self.impulse != 111) {
 		self.semiswitch = false;
 	}
 	
-	if (self.button3 && self.isBuying != true && self.semiswitch != true)
+	if (self.button3 && self.isBuying != true && self.seminade != true)
 	{
         if (self.pri_grenade_state == 0)
 		    W_Grenade();
         else
             W_Betty();
-		self.semiswitch = true;
+		self.seminade = true;
+	} else if (!self.button3 && self.seminade) {
+		self.seminade = false;
 	}
-	else if (!self.button3)
-		self.semiswitch = false;
 
 	if (self.button5 && !self.semireload)
 	{
@@ -2512,7 +2553,7 @@ void () Weapon_Logic =
 	
 	if (self.button6 && !self.semiknife)
 	{ 
-		#ifdef PSP
+		#ifdef HANDHELD
 		if (self.sprinting) {
 			dolphin_dive();
 			return;

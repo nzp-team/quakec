@@ -92,6 +92,11 @@ void() zapper_do_damage
 	// - Has a chance to gib.
 	// - No normal death sound, play elec sound on contact, then
 	// again on death.
+	if (other.classname == "ai_zombie_head" || other.classname == "ai_zombie_rarm"
+	|| other.classname == "ai_zombie_larm") {
+		// If we're a limb, grab our body.
+		other = other.owner;
+	}
 	if (other.classname == "ai_zombie" && !other.electro_targeted) {
 		tempe = self;
 		self = other;
@@ -122,7 +127,7 @@ void zapper_play () {
 		#ifdef PC
 		te_lightning2(self, self.origin, zents.origin);
 		#endif
-		#ifdef PSP
+		#ifdef HANDHELD
 		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 		WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
 		WriteEntity (MSG_BROADCAST, self);
@@ -170,6 +175,9 @@ void zapper_stop() {
 			self = tempe;
 		} else if (zents.classname == "zapper_node" && zents.target) {
 			zents.think = SUB_Null;
+			entity zent_target = find(world, targetname, self.target);
+			if (zent_target != world)
+				zent_target.touch = SUB_Null;
 			zents.nextthink = 0;
 		}
 		zents.touch = SUB_Null;
@@ -203,7 +211,7 @@ void zapper_start(string zapper) {
 
 	tempe = spawn();
 	tempe.think = zapper_stop;
-	tempe.nextthink = time + self.calc_time;
+	tempe.nextthink = time + 2;
 	tempe.zappername = zapper;
 }
 
@@ -242,7 +250,7 @@ void() zapper_switch =
 
     // Model
     if (!self.model)
-        self.model = "models/machines/zapper/z_switch.mdl";
+        self.model = "models/machines/quake_scale/zapper/z_switch.mdl";
 
     // Cost
     if (!self.cost)
@@ -276,13 +284,14 @@ void() zapper_node =
 
     // Model
     if (!self.model)
-        self.model = "models/machines/zapper/z_zap.mdl";
+        self.model = "models/machines/quake_scale/zapper/z_zap.mdl";
 
     self.solid = SOLID_TRIGGER;
 	precache_model(self.model);
     setorigin(self, self.origin);
     setmodel(self, self.model);
-    setsize (self, '-4 -4 -4', '4 4 4');
+	makevectors(self.angles);
+    setsize (self, '-20 -20 -4', '20 20 0' + (v_up * 100));
 	self.movetype = MOVETYPE_NONE;
 	self.classname = "zapper_node";
 };
@@ -295,7 +304,7 @@ void() zapper_light =
 
     // Model
     if (!self.model)
-        self.model = "models/machines/zapper/z_light.mdl";
+        self.model = "models/machines/quake_scale/zapper/z_light.mdl";
 
     self.solid = SOLID_TRIGGER;
 	precache_model(self.model);

@@ -77,7 +77,7 @@ void() change_frame =
 	self.nextthink = time + 1;
 }
 
-#ifdef PSP
+#ifdef HANDHELD
 void LoadWaypointData() = {};
 #endif
 

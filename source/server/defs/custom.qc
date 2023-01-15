@@ -25,11 +25,11 @@
 
 */
 
-#ifndef PSP
-#ifndef NX
+#ifndef QUAKESPASM
+#ifndef HANDHELD
 #pragma target FTE
-#endif
-#endif 
+#endif // HANDHELD
+#endif // QUAKESPASM
 
 #define true 				1
 #define false 				0
@@ -145,7 +145,8 @@ void Weapon_Logic();
 .float semi;
 .float semi2;
 .float semiuse;
-.float semiswitch;
+.float semiswitch;		// Weapon Swap Toggle
+.float seminade;		// Grenade Toggle
 .float semireload;
 .float secondarymag;
 .float secondarymag2;
@@ -215,10 +216,12 @@ void() SUB_Null2 = {};
 
 #define     VEC_VIEW_OFS  '0 0 32'
 
-#ifdef PSP
-#define 	MAX_ZOMBIES 	  12
-#else
-#define 	MAX_ZOMBIES 	  100
+#define 	MAX_ZOMB 		100
+
+#ifndef PC
+#ifndef QUAKESPASM
+#define 	MAX_ZOMB		12
+#endif
 #endif
 
 vector	trace_plane_normal;
@@ -370,11 +373,11 @@ entity boxLocations[32];
 float boxCount;
 vector boxOrigin;
 
-#ifndef PSP
+#ifndef HANDHELD
 //powerups
 .float x2_icon;
 .float insta_icon;
-#endif
+#endif // HANDHELD
 .string powerup_vo;
 float instakill_finished;
 float insta_blink;
@@ -382,6 +385,7 @@ float x2_finished;
 float x2_blink;
 float total_windows_down;
 float total_powerup_points;
+float powerup_score_threshold;
 float powerup_activate;
 float nuke_powerup_active;
 float nuke_powerups_activated;
@@ -512,6 +516,7 @@ float sndActivCnt;
 .float tpTimer;
 .float isTimed;
 .entity host;
+.entity entities[4];
 
 // GIBBING
 #ifdef PC
@@ -531,3 +536,5 @@ float sndActivCnt;
 .float renderamt;
 .vector rendercolor;
 #endif
+
+float revive_index;
