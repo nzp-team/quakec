@@ -258,6 +258,11 @@ float crawler_num;
 #define		WIDLEBOX 	16
 //========================
 
+// Definitions for the `.dimension_hit` and `.dimension_solid` fields
+// Used to let limbs be non-solid to player bbox but still be hit by player tracelines
+#define HITBOX_DIM_LIMBS 1
+#define HITBOX_DIM_ZOMBIES 2
+
 //we're using usedent for who is currently hopping the window
 //Used for windows to keep track of what zombies are at windows
 .entity box1owner, box2owner, box3owner;

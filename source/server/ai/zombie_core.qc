@@ -1537,6 +1537,12 @@ void(entity szombie)  SetUpHitBoxes =
 	szombie.rarm.classname = "ai_zombie_rarm";
 	szombie.rarm.takedamage = DAMAGE_YES;
 	
+#ifdef PC
+	szombie.head.dimension_solid = HITBOX_DIM_LIMBS;
+	szombie.larm.dimension_solid = HITBOX_DIM_LIMBS;
+	szombie.rarm.dimension_solid = HITBOX_DIM_LIMBS;
+#endif	// PC
+
 	local entity oldself = self;
 	self = szombie;
 	SetZombieHitBox(BASE_BBOX);
@@ -1645,7 +1651,10 @@ void(entity where) spawn_a_zombieB =
 	#endif
 	
 	
-	szombie.solid = szombie.head.solid = SOLID_CORPSE;
+	szombie.solid = SOLID_CORPSE;
+#ifdef PC
+	szombie.dimension_solid = HITBOX_DIM_ZOMBIES;
+#endif // PC
 	szombie.movetype = MOVETYPE_WALK;
 	setmodel(szombie, "models/ai/zb#.mdl");
 	szombie.hop_step = 0;

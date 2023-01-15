@@ -517,6 +517,10 @@ void() PlayerSpawn =
 	self.isspec = FALSE;
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
+	// We can only collide with zombies (and not their limbs)
+#ifdef PC
+	self.dimension_hit = HITBOX_DIM_ZOMBIES;
+#endif // PC
 	setmodel(self, "models/player.mdl");
 	self.movetype = MOVETYPE_WALK;
 	self.max_health = self.health = 100;

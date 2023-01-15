@@ -1547,7 +1547,13 @@ void(float side) W_Fire =
 
 	// Weapon Projectile/Trace Logic.
 	if (Util_WeaponFiresTraceshot(self.weapon)) {
+#ifdef PC
+		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
+#endif // PC
 		FireTrace(shotcount, spread, damage, side);
+#ifdef PC
+		self.dimension_hit = HITBOX_DIM_ZOMBIES;
+#endif // PC
 	}
 
 	switch(firetype) {
