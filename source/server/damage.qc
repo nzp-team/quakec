@@ -560,8 +560,11 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			{
 				final_damage = radius - vlen(inflictor.origin - ent.origin);
 
-				if(final_damage < 0)
+				if(final_damage < 0) 
+				{
+					ent = ent.chain;
 					continue;
+				}
 			
 				if (final_damage > radius * 0.6)
 					final_damage = 100;
@@ -587,8 +590,11 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			final_damage = radius - vlen(inflictor.origin - ent.origin);
 			final_damage *= 4;
 
-			if (final_damage < 0)
+			if (final_damage < 0) 
+			{
+				ent = ent.chain;
 				continue;
+			}
 
 			ent.health -= final_damage;
 
@@ -607,7 +613,8 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			if (mapname == "ndu" && ent.classname == "ai_zombie" && inflictor.classname == "explosive_barrel") {
 				ach_tracker_barr++;
 
-				if (ach_tracker_barr >= 15) {
+				if (ach_tracker_barr >= 15) 
+				{
 					GiveAchievement(13);
 				}
 			}
@@ -620,10 +627,14 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				r --;
 			}
 			
-			if (mindamage == 75)
+			if (mindamage == 75) 
+			{
 				final_damage = (200 * multi) + 185;
-				else
+			}
+			else 
+			{
 				final_damage = (mindamage + damage2)/2;
+			}
 			
 			if (final_damage > 0)
 			{
