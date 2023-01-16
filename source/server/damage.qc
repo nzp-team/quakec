@@ -582,7 +582,6 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					final_damage /= radius;
 					final_damage *= 60;
 				}
-				centerprint(ent, strcat("doing damage: ", ftos(final_damage)));
 				DamageHandler (ent, ent, final_damage, S_EXPLOSIVE);
 			}
 		}
