@@ -27,6 +27,7 @@
 ../source/server/entities/machines.qc
 
 ../source/server/weapons/frames_core.qc
+../source/server/weapons/ray_gun.qc
 ../source/server/weapons/weapon_core.qc
 
 ../source/server/entities/powerups.qc
