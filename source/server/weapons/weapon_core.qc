@@ -1168,7 +1168,14 @@ void() W_FireTesla =
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
 
+#ifdef PC
+		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
+#endif // PC
 	FireTrace(1, 0, 0, 0);
+#ifdef PC
+		self.dimension_hit = HITBOX_DIM_ZOMBIES;
+#endif // PC
+
 
 	#ifdef PC
 	te_lightning2(self, source, trace_endpos);
@@ -1452,7 +1459,7 @@ void(float side) W_Fire =
 	if (Util_WeaponFiresTraceshot(self.weapon)) {
 #ifdef PC
 		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
-#endif // PC
+#endif
 		FireTrace(shotcount, spread, damage, side);
 #ifdef PC
 		self.dimension_hit = HITBOX_DIM_ZOMBIES;

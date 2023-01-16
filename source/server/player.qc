@@ -435,7 +435,15 @@ void() PlayerPostThink =
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
 
+
+#ifdef PC
+		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
+#endif // PC
 	traceline (source, source + v_forward*800*1.2, 0, self);
+#ifdef PC
+		self.dimension_hit = HITBOX_DIM_ZOMBIES;
+#endif // PC
+
 
 	// use .head here to avoid expanding ent struct
 	self.head = trace_ent;

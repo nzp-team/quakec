@@ -250,21 +250,21 @@ void(entity who) makeCrawler =
 		setmodel(who.head,"models/ai/zhc^.mdl");
 		#ifndef PC
 		updateLimb (who, 0, world);
-		#endif
+#endif // PC
 	}
 	if(who.larm.deadflag)
 	{
 		setmodel(who.larm,"models/ai/zalc(.mdl");
 		#ifndef PC
 		updateLimb (who, 1, world);
-		#endif
+#endif // PC
 	}
 	if(who.rarm.deadflag)
 	{
 		setmodel(who.rarm,"models/ai/zarc(.mdl");
 		#ifndef PC
 		updateLimb (who, 2, world);
-		#endif
+#endif // PC
 	}
 	who.crawling = 1;
 	
