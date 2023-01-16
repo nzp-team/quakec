@@ -1403,7 +1403,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-4.6, 3.90, 1.12];
 		case W_M1A1:
 		case W_WIDDER:
-			return [-1.0, 2.7, 1.];
+			return [-1.0, 2.7, 1.6];
 		case W_MP40:
 		case W_AFTERBURNER:
 			return [-3.79, 5.74, 3.25];
