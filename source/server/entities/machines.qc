@@ -156,27 +156,6 @@ void(entity e) Light_None =
 }
 
 //
-// Light_Custom(e, r, g, b)
-// For custom Perk Light Effects, generally not recommended
-// unless you're testing a cool selection of colors and do not
-// want to constantly recompile the client, or the client is
-// inaccessible. Only functional on PC/FTE atm (TODO?)
-//
-void(entity e, float r, float g, float b) Light_Custom =
-{
-	e.effects = e.effects | EF_FULLBRIGHT;
-	#ifdef PC
-	{
-		e.pflags = PFLAGS_FULLDYNAMIC;
-		e.light_lev = 100;
-		e.color_x = r/255;
-		e.color_y = g/255;
-		e.color_z = b/255;
-	}
-	#endif
-}
-
-//
 // --------------------
 // Core Perk System
 // --------------------

@@ -96,3 +96,25 @@ void()  light_torch_large_yellow =      // Light with larger flame & fire sound
 {   Precache_Set("progs/flame2.mdl");   self.frame = 1; makestatic(self);   }
 void()  light_flame_small_white =       // Light with small flame & fire sound
 {   Precache_Set("progs/flame2.mdl");    makestatic(self);                  }
+
+//
+// --------------------
+// Spawnable Dynamic Lights
+// --------------------
+//
+#ifdef PC
+void(entity what, float fullbright, float light_level,
+     float red, float green, float blue) Light_Custom =
+{
+    if (fullbright)
+        what.effects = what.effects | EF_FULLBRIGHT;
+
+    {
+        what.pflags = PFLAGS_FULLDYNAMIC;
+        what.light_lev = light_level;
+        what.color_x = red;
+        what.color_y = green;
+        what.color_z = blue;
+    }
+}
+#endif
