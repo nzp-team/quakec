@@ -558,7 +558,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				final_damage = 0;
 			else
 			{
-				final_damage = radius - vlen(inflictor.origin - ent.origin);
+				final_damage = (radius - vlen(inflictor.origin - ent.origin))*1.5;
 
 				if(final_damage < 0) 
 				{
@@ -566,7 +566,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					continue;
 				}
 			
-				if (final_damage > radius * 0.6)
+				if (final_damage > radius * 0.75)
 					final_damage = 100;
 			
 				if (final_damage < other.health)
@@ -582,6 +582,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					final_damage /= radius;
 					final_damage *= 60;
 				}
+				centerprint(ent, strcat("doing damage: ", ftos(final_damage)));
 				DamageHandler (ent, ent, final_damage, S_EXPLOSIVE);
 			}
 		}
