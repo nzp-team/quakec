@@ -95,6 +95,7 @@ void() StartFrame =
 				zent = find (zent, classname, "window");
 			}
 		}
+	}
 	if (cl_navmesh_edit_mode) {
 		return;
 	}
