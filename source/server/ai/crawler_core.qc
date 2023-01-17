@@ -244,7 +244,7 @@ void(entity who) makeCrawler =
 	//who.th_grabledge = zombie_grabledge1;
 	//who.th_diewunder = die_wunder1;
 	
-	setmodel(who,"models/ai/zbc#.mdl");
+	setmodel(who,"models/ai/zbc%.mdl");
 	if(who.head.deadflag)
 	{
 		setmodel(who.head,"models/ai/zhc^.mdl");
