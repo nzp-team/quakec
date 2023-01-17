@@ -1451,7 +1451,7 @@ void(float side) W_Fire =
 			self.semi = true;
 		} else if (side == S_LEFT) {
 			if (self.semi2) return;
-			self.semi2 == true;
+			self.semi2 = true;
 		}
 	}
 

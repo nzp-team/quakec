@@ -3405,6 +3405,9 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/tesla/switchon.wav");
 			precache_sound("sounds/weapons/tesla/shoot.wav");
 			break;
+		case W_GRENADE:
+			precache_model("models/props/grenade_bag.mdl");
+			break;
 	}
 }
 

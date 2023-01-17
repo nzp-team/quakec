@@ -215,13 +215,11 @@ void() SUB_Null2 = {};
 
 #define     VEC_VIEW_OFS  '0 0 32'
 
+#ifndef HANDHELD
 #define 	MAX_ZOMB 		24
-
-#ifndef PC
-#ifndef QUAKESPASM
-#define 	MAX_ZOMB		12
-#endif
-#endif
+#else
+#define 	MAX_ZOMB 		12
+#endif // HANDHELD
 
 vector	trace_plane_normal;
 

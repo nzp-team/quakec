@@ -519,7 +519,7 @@ void() PollPlayerPoints =
 
 void() PlayerSpawn =
 {	
-	entity spawnpoint;
+	entity spawnpoint = world;
 	local_client = self;
 
 	self.isspec = FALSE;
@@ -573,7 +573,7 @@ void() PlayerSpawn =
 	}
 
 	// Mapper doesn't have our co-op spawn set up..
-	if (!spawnpoint)
+	if (spawnpoint == world)
 		spawnpoint = find(world, classname, "info_player_start");
 
 	

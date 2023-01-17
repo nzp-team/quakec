@@ -106,6 +106,7 @@ void() PU_PopulateArray =
 		amount -= 1;
 
 		powerup_struct temp;
+		temp.id = -1;
 
 		PU_CopyStruct(temp, powerup_array[i]);
 		PU_CopyStruct(powerup_array[i], powerup_array[amount]);
