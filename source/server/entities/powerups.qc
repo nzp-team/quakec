@@ -220,11 +220,9 @@ void() PU_NukeFinalize =
 	entity players;
 
 	// give 'The F Bomb'
-	#ifndef QUAKESPASM
 	if (self.kills == 1) {
 		GiveAchievement(4);
 	}
-	#endif
 	
 	// award points
 	players = find(world,classname,"player");

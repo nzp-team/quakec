@@ -60,18 +60,24 @@ void() W_AimIn =
 		return;
 	}
 		
-	#ifndef PC
+#ifndef PC
 	self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
-	#endif
+#endif // PC
 	
 	if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 		SetUpdate(self, UT_ZOOM2, 0, 0, 0);
-		#ifdef QUAKESPASM
+
+#ifdef QUAKESPASM
+
 		self.zoom = 1;
-		#else
+
+#else
+
 		self.zoom = 2;
-		#endif
+
+#endif // QUAKESPASM
+
 		self.scopetime = time + 0.3;
 	} else {
 		self.zoom = 1;
@@ -79,7 +85,6 @@ void() W_AimIn =
 	
 	if (!self.downed)	
 		playaim();
-		
 }
 
 void() W_AimOut =
@@ -146,9 +151,11 @@ void W_SprintStart () {
 		self.sprint_duration -= self.sprint_rest_time;
 
 #ifdef QUAKESPASM
+
 	if (!self.sprintflag) {
 		return;
 	}
+
 #endif
 	
 	if (self.fire_delay > time ||
@@ -726,9 +733,13 @@ void Parse_Damage () = // DO NOT TOUCH
 					
 						body_ent.usedent = self;
 						body_ent.bleedingtime = time + 2;
-						#ifdef HANDHELD
+
+#ifndef PC
+
 						updateLimb (body_ent.head.owner, 0, world);
-						#endif
+
+#endif // PC
+
 					}
 				}
 				
@@ -750,9 +761,13 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.larm.solid = SOLID_NOT;
 					setmodel(body_ent.larm,"");
 					body_ent.larm.frame = 0;
-					#ifdef HANDHELD
+
+#ifndef PC
+
 					updateLimb (body_ent.larm.owner, 1, world);
-					#endif
+
+#endif // PC
+
 				}
 
 				body_ent.larm.washit = 0;
@@ -772,9 +787,13 @@ void Parse_Damage () = // DO NOT TOUCH
 					body_ent.rarm.solid = SOLID_NOT;
 					setmodel(body_ent.rarm,"");
 					body_ent.rarm.frame = 0;
-					#ifdef HANDHELD
+
+#ifndef PC
+
 					updateLimb (body_ent.rarm.owner, 2, world);
-					#endif
+
+#endif // PC
+
 				}
 
 				body_ent.rarm.washit = 0;
@@ -1169,18 +1188,26 @@ void() W_FireTesla =
 	source = self.origin + self.view_ofs;
 
 #ifdef PC
-		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
+
+	self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
+
 #endif // PC
+
 	FireTrace(1, 0, 0, 0);
+
 #ifdef PC
-		self.dimension_hit = HITBOX_DIM_ZOMBIES;
+
+	self.dimension_hit = HITBOX_DIM_ZOMBIES;
+
 #endif // PC
 
 
-	#ifdef PC
+#ifdef PC
+
 	te_lightning2(self, source, trace_endpos);
-	#endif
-	#ifdef HANDHELD
+
+#else
+
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
 	WriteEntity (MSG_BROADCAST, self);
@@ -1190,7 +1217,8 @@ void() W_FireTesla =
 	WriteCoord (MSG_BROADCAST, trace_endpos_x);
 	WriteCoord (MSG_BROADCAST, trace_endpos_y);
 	WriteCoord (MSG_BROADCAST, trace_endpos_z);
-	#endif
+
+#endif // PC
 
 	LightningDamage (self.origin, trace_endpos + v_forward*4, self, 30);
 }
@@ -2057,11 +2085,17 @@ void () Impulse_Functions =
 			W_SprintStop();
 			break;
 		case 25:
-			#ifdef HANDHELD
+
+#ifdef HANDHELD
+
 			switch_nade();
-			#else
+
+#else
+
 			W_Betty();
-			#endif
+
+#endif // HANDHELD
+
 			break;
 		case 26:
 		case 30:
@@ -2070,14 +2104,16 @@ void () Impulse_Functions =
 			else
 				Change_Stance();
 			break;
-		#ifdef QUAKESPASM
+#ifdef QUAKESPASM
+
 		case 31:
 			self.sprintflag = 0;
 			break;
 		case 32:
 			self.sprintflag = 1;
 			break;
-		#endif
+
+#endif // QUAKESPASM
 		case 110:
 		case 111:
 			W_PutOut();
@@ -2187,9 +2223,11 @@ void() CheckPlayer =
 	CheckRevive(self);
 
 #ifdef QUAKESPASM
+
 	if (!self.sprintflag && self.sprinting) {
 		W_SprintStop();
 	}
+
 #endif 
 
 	// FIXME - can't do frame independent stance changing.. ofs starts spazzing..
@@ -2310,17 +2348,21 @@ void () Weapon_Logic =
 	W_Frame_Update ();
 	Impulse_Functions();
 
-	#ifndef PC
-	// For HANDHELD only to tell our engine to display the scope 
+#ifndef PC
+
+	// For HANDHELD/QUAKESPASM only to tell our engine to display the scope
 	if ((self.scopetime < time) && self.scopetime) {
 		self.scopetime = 0;
 		self.zoom = 2;
 		self.weapon2model = "";
 		self.weaponmodel = "";
 	}
-	#else 
+
+#else
+
 	UpdatePunchangle(self);
-	#endif
+
+#endif // PC
 
 	//
 	// Fire Button Logic
@@ -2469,12 +2511,14 @@ void () Weapon_Logic =
 	
 	if (self.button6 && !self.semiknife)
 	{ 
-		#ifdef HANDHELD
+#ifdef HANDHELD
+
 		if (self.sprinting) {
 			dolphin_dive();
 			return;
 		}
-		#endif
+
+#endif // HANDHELD
 		W_Knife();
 		self.semiknife = true;
 	}

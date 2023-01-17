@@ -232,26 +232,28 @@ void() NewRound =
 		roundtype = 1;
 
 		if (world.fog) {
-			#ifdef HANDHELD
+
+#ifndef PC
+
 			localcmd(strcat("fog ", world.fog));
-			#else
-			#ifdef PC
+
+#else
+
 			localcmd(strcat("fog ", world_fog));
-			#endif
-			#endif
+
+#endif // PC
+
 		}
 	}
 
 	Remaining_Zombies = Total_Zombies = getZombieTotal();
 
-#ifndef QUAKESPASM
 	switch(rounds) {
 		case 5: 	GiveAchievement(0); break;
 		case 10: 	GiveAchievement(1); break;
 		case 15: 	GiveAchievement(2); break;
 		default: 	break;
 	}
-#endif // QUAKESPASM
 
 	// Set up delay for zombie spawning
 	local float spawndelay;

@@ -29,8 +29,7 @@
 #define CHAN_MUSIC      1
 #define CHAN_SFX        2
 
-#ifndef HANDHELD
-#ifndef QUAKESPASM
+#ifdef PC
 void(string soundname, optional float channel, optional float volume) localsound_enhanced =
 {
     if (!volume)
@@ -48,5 +47,4 @@ void(string soundname, optional float channel, optional float volume) localsound
 
     localsound(soundname, channel, volume);
 }
-#endif
-#endif
+#endif // PC

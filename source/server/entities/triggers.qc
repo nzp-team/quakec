@@ -133,7 +133,6 @@ void() InitTrigger =
 	self.model = "";
 };
 
-#ifndef HANDHELD
 entity last_act_trigger;
 void() trigger_activator_touch =
 {
@@ -240,7 +239,6 @@ void() trigger_activator =
 	InitTrigger ();
 	self.touch = trigger_activator_touch;
 }
-#endif
 
 void() use_wall_weapon =
 {

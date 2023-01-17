@@ -8,7 +8,7 @@
 ../source/server/defs/custom.qc
 ../source/server/clientfuncs.qc
 
-../source/server/psp_specifics.qc
+../source/server/non_fte_specifics.qc
 
 ../source/server/dummies/generic.qc
 ../source/server/rounds.qc

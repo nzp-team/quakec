@@ -429,19 +429,25 @@ void() PlayerPostThink =
 
 	// Perform a traceline to keep track of entities directly
 	// in front of the player.
-	#ifndef QUAKESPASM
+#ifndef QUAKESPASM
+
 	vector source;
 
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
 
+#ifdef PC
+
+	self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
+
+#endif // PC
+
+	traceline (source, source + v_forward*800*1.2, 0, self);
 
 #ifdef PC
-		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
-#endif // PC
-	traceline (source, source + v_forward*800*1.2, 0, self);
-#ifdef PC
-		self.dimension_hit = HITBOX_DIM_ZOMBIES;
+
+	self.dimension_hit = HITBOX_DIM_ZOMBIES;
+
 #endif // PC
 
 
@@ -456,7 +462,8 @@ void() PlayerPostThink =
 		self.facingenemy = true;
 	else
 		self.facingenemy = false;
-	#endif
+
+#endif // QUAKESPASM
 };
 
 void() ClientKill = {};

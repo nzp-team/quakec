@@ -124,10 +124,13 @@ void zapper_play () {
 	local vector targetorg = zents.origin;
 
 	if (zents) {
-		#ifdef PC
+
+#ifdef PC
+
 		te_lightning2(self, self.origin, zents.origin);
-		#endif
-		#ifdef HANDHELD
+
+#else
+
 		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 		WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
 		WriteEntity (MSG_BROADCAST, self);
@@ -137,7 +140,9 @@ void zapper_play () {
 		WriteCoord (MSG_BROADCAST, targetorg_x);
 		WriteCoord (MSG_BROADCAST, targetorg_y);
 		WriteCoord (MSG_BROADCAST, targetorg_z);
-		#endif
+
+#endif // PC
+
 	}
 
 	zents.touch = zapper_do_damage;

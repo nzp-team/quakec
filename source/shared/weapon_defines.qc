@@ -4006,21 +4006,21 @@ vector(float wep) GetWeaponRecoil =
 	temp1 = change_1 + change_2;
 	temp2 = change_1 + change_2 + change_3;
 	
-	#ifndef HANDHELD
+#ifdef PC
 	if (r < change_1)
 		final_kick_y = kick_change_x*0.25;
 	else if (r < temp1)
 		final_kick_x = kick_change_y*-1*.25;
 	else if (r < temp2)
 		final_kick_y = kick_change_z*-1*0.25;
-	#else
+#else
 	if (r < change_1)
 		final_kick_y = kick_change_x;
 	else if (r < temp1)
 		final_kick_x = kick_change_y*-1;
 	else if (r < temp2)
 		final_kick_y = kick_change_z*-1;
-	#endif
+#endif // PC
 
 	final_kick_y = final_kick_y + guaranteed_x;
 	final_kick_x = final_kick_x - guaranteed_y;

@@ -225,10 +225,12 @@ void() place_fire =
 
 void() place_model =
 {  
-	#ifdef HANDHELD
+#ifdef HANDHELD
+
 	if (self.spawnflags & 2)
 		remove(self);
-	#endif
+
+#endif // HANDHELD
 
 	self.model = convert_old_asset_path(self.model);
 

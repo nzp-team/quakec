@@ -27,8 +27,7 @@
 
 void SetUpdate(entity client, float type, float val1, float val2, float val3)
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 
 	if (type != 2)
 	{
@@ -51,12 +50,11 @@ void SetUpdate(entity client, float type, float val1, float val2, float val3)
 		WriteByte(MSG_MULTICAST, val3); // misc flags/vars for later if needed
 		multicast('0 0 0', MULTICAST_ALL);
 	}
-	#endif
-	#endif
+
+#endif // PC
 }
 
-#ifndef HANDHELD
-#ifndef QUAKESPASM
+#ifdef PC
 void(entity to, float type, float cost, float weapon) useprint = {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_USEPRINT);
@@ -66,42 +64,42 @@ void(entity to, float type, float cost, float weapon) useprint = {
 	msg_entity = to;
 	multicast('0 0 0', MULTICAST_ONE);
 }
-#endif
-#endif
+#endif // PC
 
 void(vector org) CallExplosion = {
-    #ifndef PC
+#ifndef PC
+
     WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_EXPLOSION);
 	WriteCoord (MSG_BROADCAST, org_x);
 	WriteCoord (MSG_BROADCAST, org_y);
 	WriteCoord (MSG_BROADCAST, org_z);
-    #else
+
+#else
+
     WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_EXPLOSION);
 	WriteCoord(MSG_MULTICAST, org_x);
 	WriteCoord(MSG_MULTICAST, org_y);
 	WriteCoord(MSG_MULTICAST, org_z);
 	multicast('0 0 0', MULTICAST_ALL);
-    #endif
+
+#endif // PC
 }
 
 void NotifyNewRound(float to) {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_NEWROUND);
 	WriteByte(MSG_MULTICAST, to);
 	multicast('0 0 0', MULTICAST_ALL);
 
-	#endif
-	#endif
+#endif // PC
 }
 
 void SetRound(entity client, float to) {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_SETROUND);
@@ -109,14 +107,12 @@ void SetRound(entity client, float to) {
 	msg_entity = client;
 	multicast('0 0 0', MULTICAST_ONE);
 
-	#endif
-	#endif
+#endif // PC
 }
 
 void SetPerk(entity client, float to)
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PERK);
@@ -124,14 +120,12 @@ void SetPerk(entity client, float to)
 	msg_entity = client;
 	multicast('0 0 0', MULTICAST_ONE);
 
-	#endif
-	#endif
+#endif // PC
 }
 
 void(float to) SwitchWeapon =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_WEAPONCHANGE);
@@ -142,14 +136,12 @@ void(float to) SwitchWeapon =
 	// hotfix for weapon2models not reseting
 	self.weapon2model = GetWeapon2Model(to);
 
-	#endif
-	#endif
+#endif // PC
 }
 
 void(string to, float skin) UpdateVmodel =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEVMODEL);
@@ -158,14 +150,12 @@ void(string to, float skin) UpdateVmodel =
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
 
-	#endif
-	#endif
+#endif // PC
 }
 
 void(string to, float skin) UpdateV2model =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEV2MODEL);
@@ -173,27 +163,27 @@ void(string to, float skin) UpdateV2model =
 	WriteByte(MSG_MULTICAST, skin);
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
-	#endif
-	#endif
+
+#endif // PC
 }
 
 void(float index, float state) ChangeReviveIconState =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVECHANGE);
 	WriteByte(MSG_MULTICAST, index);
 	WriteByte(MSG_MULTICAST, state);
 	multicast('0 0 0', MULTICAST_ALL);
-	#endif
-	#endif
+
+#endif // PC
 }
 
 void(float index, vector org) EnableReviveIcon =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVEON);
 	WriteByte(MSG_MULTICAST, index);
@@ -201,26 +191,26 @@ void(float index, vector org) EnableReviveIcon =
 	WriteCoord(MSG_MULTICAST, org_y);
 	WriteCoord(MSG_MULTICAST, org_z);
 	multicast('0 0 0', MULTICAST_ALL);
-	#endif
-	#endif
+
+#endif // PC
 }
 
 void(float index) DisableReviveIcon =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVEOFF);
 	WriteByte(MSG_MULTICAST, index);
 	multicast('0 0 0', MULTICAST_ALL);
-	#endif
-	#endif
+
+#endif // PC
 }
 
 void(entity who, float broadcast_time, float type, string str) BroadcastMessageToClient =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
 	WriteByte(MSG_MULTICAST, broadcast_time);
@@ -228,28 +218,28 @@ void(entity who, float broadcast_time, float type, string str) BroadcastMessageT
 	WriteString(MSG_MULTICAST, str);
 	msg_entity = who;
 	multicast('0 0 0', MULTICAST_ONE);
-	#endif
-	#endif
+
+#endif // PC
 }
 
 void(float broadcast_time, float type, string str) BroadcastMessage =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
+
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
 	WriteByte(MSG_MULTICAST, broadcast_time);
 	WriteByte(MSG_MULTICAST, type);
 	WriteString(MSG_MULTICAST, str);
 	multicast('0 0 0', MULTICAST_ALL);
-	#endif
-	#endif
+
+#endif // PC
 }
 
 void(float playernum, float points, float am, float kills, string name, entity person) UpdatePlayerPoints =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
+
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_POINTUPDATE);
@@ -272,13 +262,11 @@ void(float playernum, float points, float am, float kills, string name, entity p
 		multicast('0 0 0', MULTICAST_ALL);
 	}
 
-	#endif
-	#endif
+#endif // PC
 }
 
 void(float count) UpdatePlayerCount = {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 	if (count == 0)
 		return;
 	else {
@@ -288,14 +276,12 @@ void(float count) UpdatePlayerCount = {
 		multicast('0 0 0', MULTICAST_ALL);
 	}
 
-	#endif
-	#endif
+#endif // PC
 }
 
 void(float newtime, float newtype, entity change) PromptLevelChange =
 {
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
+#ifdef PC
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BLACKOUT);
@@ -304,16 +290,14 @@ void(float newtime, float newtype, entity change) PromptLevelChange =
 	msg_entity = change;
 	multicast('0 0 0', MULTICAST_ONE);
 
-	#endif
-	#endif
+#endif // PC
 }
 
 void(entity who) UpdatePunchangle =
 {
+#ifdef PC
 
 	// naievil -- shit logic lol...but result looks clean as fuck...
-	#ifndef HANDHELD
-	#ifndef QUAKESPASM
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PUNCHANGLE);
 	WriteCoord(MSG_MULTICAST, who.punchangle_x);
@@ -354,12 +338,10 @@ void(entity who) UpdatePunchangle =
 	} else
 		who.punchangle_z = 0;
 
-	#endif
-	#endif
+#endif // PC
 }
 
-#ifndef HANDHELD
-#ifndef QUAKESPASM
+#ifdef PC
 void(string h, float h2, entity who) pushHUD = {
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -448,85 +430,116 @@ void(string chaptertitle, string location, string date, string person, entity wh
 		multicast('0 0 0', MULTICAST_ALL);
 	}
 }
-#endif
-#endif
+#endif // PC
 
-#ifndef QUAKESPASM
 void (float achievement_id, optional entity who) GiveAchievement =
 {
+#ifndef QUAKESPASM
+
 #ifndef PC
+
 	// temp
 	if (achievement_id > 4)
 		return;
+
 #endif // PC
 
 	// this is an achievement specific to an individual
 	if ((who && who != world) || player_count == 0) {
 		if (player_count == 0) who = find(world, classname, "player");
+
 #ifndef PC
+
 		achievement(who, achievement_id);
+
 #else
+
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENT);
 		WriteByte(MSG_MULTICAST, achievement_id);
 		msg_entity = who;
 		multicast('0 0 0', MULTICAST_ONE);
+
 #endif // PC
+
 	} else {
+
 #ifndef PC
+
 		entity players;
 		players = find(world, classname, "player");
 		while(players != world) {
 			achievement(players, achievement_id);
 			players = find(players, classname, "player");
 		}
+
 #else
+
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENT);
 		WriteByte(MSG_MULTICAST, achievement_id);
 		multicast('0 0 0', MULTICAST_ALL);
+
 #endif // PC
 	}
+
+#endif // QUAKESPASM
 }
 
 void (float achievement_id, float progress_value, optional entity who) UpdateAchievementProgress =
 {
+#ifndef QUAKESPASM
+
 #ifndef PC
+
 	// temp
 	if (achievement_id > 4)
 		return;
+
 #endif // PC
+
 	// this is a progress update specific to an individual
 	if ((who && who != world) || player_count == 0) {
 		if (player_count == 0) who = find(world, classname, "player");
+
 #ifndef PC
+
 		//achievement_progress(who, achievement_id, progress_value);
+
 #else
+
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENTPROGRESS);
 		WriteByte(MSG_MULTICAST, achievement_id);
 		WriteFloat(MSG_MULTICAST, progress_value);
 		msg_entity = who;
 		multicast('0 0 0', MULTICAST_ONE);
+
 #endif // PC
+
 	} else {
+
 #ifndef PC
+
 		entity players;
 		players = find(world, classname, "player");
 		while(players != world) {
 			//achievement_progress(players, achievement_id, progress_value);
 			players = find(players, classname, "player");
 		}
+
 #else
+
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENTPROGRESS);
 		WriteByte(MSG_MULTICAST, achievement_id);
 		WriteFloat(MSG_MULTICAST, progress_value);
 		multicast('0 0 0', MULTICAST_ALL);
+
 #endif // PC
 	}
-}
 #endif // QUAKESPASM
+}
 
 // *****************************************
 // Unrelated to engine, but custom functions

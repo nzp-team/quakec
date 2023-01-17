@@ -1107,11 +1107,13 @@ noref void() CSQC_Parse_Event =
 			W_CDUAL[wepnum] = isd;*/
 			break;
 		case EVENT_HUDUPDATE:
+			/*string temps;
+			float tempf;
 			G_HUD = readstring();
 			G_HUDHOR = readbyte();
 
 			if (G_HUD != "")
-				huddir = strcat("gfx/hud/", G_HUD, "/");
+				huddir = strcat("gfx/hud/", G_HUD, "/");*/
 			break;
 	}
 }

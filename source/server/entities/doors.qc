@@ -44,9 +44,7 @@ float DOOR_SILVER_KEY = 16;
 float DOOR_TOGGLE = 32;
 float DOOR_POWER = 64;
 
-entity activator;
 .float delay;
-.string killtarget;
 .void() think1;
 .vector finaldest;
 .float dmg;
@@ -55,7 +53,6 @@ entity activator;
 .float speed;
 .vector pos1;
 .vector pos2;
-string string_null;
 .float cost;
 .float attack_delay;
 .float lip;
@@ -605,7 +602,7 @@ void() func_door =
 
 void() func_door_nzp =
 {
-	#ifdef HANDHELD
+	#ifndef PC
 	if (!self.renderamt)
 		self.renderamt = 255;
 	

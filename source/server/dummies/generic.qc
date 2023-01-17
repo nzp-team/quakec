@@ -77,7 +77,7 @@ void() change_frame =
 	self.nextthink = time + 1;
 }
 
-#ifdef HANDHELD
+#ifndef PC
 void LoadWaypointData() = {};
 #endif
 

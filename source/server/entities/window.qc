@@ -50,13 +50,18 @@ void() screen_shake =
   else
     zoom_factor = 1;
 	
-	#ifdef HANDHELD
+#ifndef PC
+
     self.enemy.punchangle_y = r * 8 * zoom_factor;
     self.enemy.punchangle_x = (4 + (s * 4)) * zoom_factor;
-	#else
+
+#else
+
 	self.enemy.punchangle_y = r * 4 * zoom_factor;
     self.enemy.punchangle_x = (4 + (s * 2)) * zoom_factor;
-	#endif
+
+#endif // PC
+
 };
 
 void() Window_repaired =

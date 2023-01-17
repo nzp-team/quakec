@@ -230,12 +230,6 @@ float invertfloat(float input) {
 	return (1 - input);	
 }
 
-//elements
-#ifndef QUAKESPASM
-string G_HUD;
-float G_HUDHOR;
-#endif
-
 // custom weapon defs
 // now 90% slimmed down
 float currentWeaponTracker;

@@ -26,10 +26,7 @@
 */
 
 // Dummys that should be here
-void GiveAchievement(float achievement_id, optional entity who) = {};
 void print(string s) = {};
-
-float (vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove = #99; //sB adding tracemove to quakespasm
 
 void(vector o, vector d, float color, float count) particle = {};
 

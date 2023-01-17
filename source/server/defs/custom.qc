@@ -38,6 +38,22 @@
 
 #define STR_NOTENOUGHPOINTS	"Not Enough Points\n"	// To help aid consistency with these..
 
+// Quake assumes these are defined.
+string 	string_null;
+.string killtarget;
+entity 	activator;
+float 	framecount;
+float 	deathmatch;
+float 	coop;
+
+#ifndef PC
+void(string com) SV_ParseClientCommand;
+.float	gravity;
+.float	recoil_delay;
+.float 	mapversion;
+.float	ammo;
+#endif
+
 // achievement tracking
 .float 	ach_tracker_npnp;
 .float 	ach_tracker_abst;
@@ -47,9 +63,6 @@ float 	ach_tracker_barr;
 float 	ach_tracker_spin;
 float 	ach_tracker_luck;
 
-float framecount;
-float deathmatch;
-float coop;
 .vector oldvelocity;
 .float lastsound_time;
 .float isspec;
@@ -88,7 +101,6 @@ void(entity person, float expamt , float doublepoint) addmoney;
 #define STATE_DOWN		3
 .float /*worldtype,*/ delay, wait, lip, /*light_lev,*/ speed, style/*, skill*/;
 
-entity activator;
 .float requirespower;
 
 //player funcs
@@ -345,7 +357,6 @@ float crandom();
 
 
 // Door
-.string killtarget;
 .void() think1;
 .vector finaldest;
 .vector pos1, pos2/*, mangle*/;
@@ -373,11 +384,11 @@ entity boxLocations[32];
 float boxCount;
 vector boxOrigin;
 
-#ifndef HANDHELD
+#ifdef PC
 //powerups
 .float x2_icon;
 .float insta_icon;
-#endif // HANDHELD
+#endif // PC
 .string powerup_vo;
 float instakill_finished;
 float insta_blink;
@@ -506,22 +517,22 @@ float sndActivCnt;
 .entity entities[4];
 
 // GIBBING
-#ifdef PC
 .entity larm;
 .entity rarm;
 .entity head;
 .vector	bbmins, bbmaxs;	
 .float currentHitBoxSetup;
+
+#ifdef QUAKESPASM
+.float sprintflag;
 #endif
 
 // PC Fog force
 .float PC_fog;
 
 // hl stuff
-#ifdef PC
 .float rendermode;
 .float renderamt;
 .vector rendercolor;
-#endif
 
 float revive_index;

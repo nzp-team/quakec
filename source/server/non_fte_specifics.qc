@@ -1,9 +1,9 @@
 /*
-	server/psp_specifics.qc
+	server/non_fte_specifics.qc
 
-	stuff only for psp, remove later
+	Some of the misc. non-FTE QC functions.
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2022 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -36,7 +36,7 @@ void () CL_SendWeaponFire =
 {
 	float return_time;
 	vector Wep_Recoil;
-	
+
 	Wep_Recoil = GetWeaponRecoil(self.weapon);
 
 	msg_entity = self;
@@ -50,10 +50,7 @@ void () CL_SendWeaponFire =
 	self.recoil_delay = 60/return_time + time;
 }
 
-void() trigger_activator = {};
-
 void() ParseClientCommand = {SV_ParseClientCommand(CMD_STRING);}
-
 void() PutClientInServer;
 void() InitRounds;
 

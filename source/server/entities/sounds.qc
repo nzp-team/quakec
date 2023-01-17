@@ -69,7 +69,7 @@ void () ambient_generic =
 {
 	local string link;
 
-    // moto - FIXME: typically this is set to upper-case but QUAKESPASM and HANDHELD lack strtoupper(); assume lower-case!
+    // moto - FIXME: typically this is set to upper-case but only FTE has strtoupper(); assume lower-case!
     link = self.message;
 
 	if (link == "nolink") {
