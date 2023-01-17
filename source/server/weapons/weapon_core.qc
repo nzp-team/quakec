@@ -2401,7 +2401,7 @@ void () Weapon_Logic =
 #ifdef PC
 		if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
 			self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-			if (self.viewzoom == 0.5) {
+			if (self.viewzoom == 0.2) {
 				self.viewzoom += 0.05;
 				ReturnWeaponModel();
 			} else {
