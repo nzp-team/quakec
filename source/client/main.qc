@@ -251,15 +251,10 @@ void() Update_Vmodel =
 
 	//Walk bob
 	if (getstatf(STAT_WEAPONZOOM)) { //ADS bob
-		weapon_bob_factor_x = 0;
-		weapon_bob_factor_y = 0.4;
-		weapon_bob_factor_z = 0.2;
-		weapon_bob_factor_z_coef = 0.1;
-		
-		dampening_factor_x = 0.1*sin(time*weapon_bob_factor_x);
-		dampening_factor_y = 0.1*cos(time*weapon_bob_factor_y);
-		dampening_factor_z = 0.1*sin(time*weapon_bob_factor_z);
-	} else if (K_FORWARDDOWN || K_BACKDOWN || K_LEFTDOWN || K_RIGHTDOWN && !getstatf(STAT_WEAPONZOOM)) {	
+		weapon_bob_factor = '0 0 0';
+		dampening_factor = weapon_bob_factor;
+		weapon_bob_factor_z_coef = 0;
+	} else if (K_FORWARDDOWN || K_BACKDOWN || K_LEFTDOWN || K_RIGHTDOWN && !getstatf(STAT_WEAPONZOOM)) {
 		weapon_bob_factor_x = 8;
 		weapon_bob_factor_y = 8;
 		weapon_bob_factor_z = 13.4;
@@ -268,7 +263,7 @@ void() Update_Vmodel =
 		dampening_factor_x = 0.2*sin(time*weapon_bob_factor_x);
 		dampening_factor_y = 0.2*cos(time*weapon_bob_factor_y);
 		dampening_factor_z = 0.2*sin(time*weapon_bob_factor_z);
-	} else { //Still bob
+	} else if (!getstatf(STAT_WEAPONZOOM)){ //Still bob
 
 		// Naievil -- stupid ass calcs...
 		// Basically we have a dampening factor per offset and we have to decrease it back down to zero
@@ -373,10 +368,10 @@ void() Update_Vmodel =
 
     ads = getstatf(STAT_WEAPONZOOM); //get the zoomtoggle value 
     if(ads == 1)
-    {  
+    {
         vmodel_currentpos += (adsoffset * 0.15 * 128) * frametime;
 		vmodel_currentpos += offset*0.025;
-        vmodel.origin = vmodel_currentpos + adsoffset;    
+        vmodel.origin = vmodel_currentpos + adsoffset;
     }
 	else if (ads == 2)
 	{
