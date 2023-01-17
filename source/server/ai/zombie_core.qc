@@ -1656,7 +1656,7 @@ void(entity where) spawn_a_zombieB =
 	szombie.dimension_solid = HITBOX_DIM_ZOMBIES;
 #endif // PC
 	szombie.movetype = MOVETYPE_WALK;
-	setmodel(szombie, "models/ai/zb#.mdl");
+	setmodel(szombie, "models/ai/zb%.mdl");
 	szombie.hop_step = 0;
 	szombie.gravity = 1.0;
 	
