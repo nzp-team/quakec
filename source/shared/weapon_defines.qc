@@ -1372,7 +1372,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-2.99, 2.77, 0.92];
 		case W_KAR:
 		case W_ARMAGEDDON:
-			return [-2.19, 2.77, 1.42];
+			return [-2.19, 2.77, 1.22];
 		case W_THOMPSON:
 		case W_GIBS:
 			return [-1.9, 3.16, 1.74];
@@ -1381,7 +1381,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-2.6, 4.16, 0.5];
 		case W_BAR:
 		case W_WIDOW:
-			return [-0.6, 2, 1.47];
+			return [-0.6, 2, 1.23];
 		case W_BROWNING:
 		case W_ACCELERATOR:
 			return [-1.6, 7.7, 6.5];
@@ -1452,7 +1452,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-5479.2, 1650, 0];
 		case W_KAR:
 		case W_ARMAGEDDON:
-			return [-5495.9, 3186.9, 0];
+			return [-5495.9, 2606.9, 0];
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
 			return [-5286, 706.1, 0];
@@ -1477,7 +1477,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-5387.8, 3200.9, 0];
 		case W_BAR:
 		case W_WIDOW:
-			return [-3883.3, 2674.5, 0];
+			return [-3903.3, 2564.5, 0];
 		case W_FG:
 		case W_IMPELLER:
 			return [-14800, 6000, 0];
