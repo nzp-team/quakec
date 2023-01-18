@@ -140,7 +140,7 @@ void            end_sys_globals;						// flag for structure dumping
 .string         targetname;
 .float          dmg_take;
 .float          dmg_save;
-.float          bleed_out;
+//.float        bleed_out;
 .float			progress_bar;
 .entity         dmg_inflictor;
 .entity         owner;									// who launched a missile
