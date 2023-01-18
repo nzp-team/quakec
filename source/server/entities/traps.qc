@@ -296,7 +296,13 @@ void() zapper_node =
     setorigin(self, self.origin);
     setmodel(self, self.model);
 	makevectors(self.angles);
-    setsize (self, '-20 -20 -4', '20 20 0' + (v_up * 100));
+
+	if (self.angles_z == 180) {
+		setsize (self, '-20 -20 -80', '20 20 4');
+	} else {
+		setsize (self, '-20 -20 -4', '20 20 80');
+	}
+    
 	self.movetype = MOVETYPE_NONE;
 	self.classname = "zapper_node";
 };
