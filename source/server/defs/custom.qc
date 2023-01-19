@@ -50,7 +50,9 @@ float 	coop;
 void(string com) SV_ParseClientCommand;
 .float	gravity;
 .float	recoil_delay;
+#ifndef HANDHELD
 .float 	mapversion;
+#endif
 .float	ammo;
 #endif
 
