@@ -1364,7 +1364,7 @@ float GetWeaponWalkSpeed(float perks, float weapontype)
 
 	return spd;
 }
-
+// forward/back,right/left,down/up
 vector GetWeaponADSPos(float wep) {
 
 	switch (wep) {
@@ -1372,23 +1372,23 @@ vector GetWeaponADSPos(float wep) {
 			return [-2.99, 2.77, 0.92];
 		case W_KAR:
 		case W_ARMAGEDDON:
-			return [-2.19, 2.77, 1.22];
+			return [-2.19, 2.67, 1.5];
 		case W_THOMPSON:
 		case W_GIBS:
-			return [-1.9, 3.16, 1.74];
+			return [0.5, 3.03, 1.63];
 		case W_357:
 		case W_KILLU:
-			return [-2.6, 4.16, 0.5];
+			return [-2.6, 4.12, 0.5];
 		case W_BAR:
 		case W_WIDOW:
-			return [-0.6, 2, 1.23];
+			return [2.7, 1.88, 1.27];
 		case W_BROWNING:
 		case W_ACCELERATOR:
 			return [-1.6, 7.7, 6.5];
 		case W_DB:
 		case W_BORE:
 		case W_SAWNOFF:
-			return [-0.6, 2.9, 1.47];
+			return [2.0, 2.9, 1.0];
 		case W_FG:
 		case W_IMPELLER:
 			return [-6.5, 7.4, 3.27];
@@ -1400,28 +1400,28 @@ vector GetWeaponADSPos(float wep) {
 			return [-2.19, 2.67, 0.42];
 		case W_M1:
 		case W_M1000:
-			return [-4.6, 3.90, 1.12];
+			return [-1.6, 3.80, 1.12];
 		case W_M1A1:
 		case W_WIDDER:
-			return [-1.0, 2.7, 1.6];
+			return [-3.0, 2.6, 1.6];
 		case W_MP40:
 		case W_AFTERBURNER:
-			return [-3.79, 5.74, 3.25];
+			return [0.01, 5.65, 3.25];
 		case W_MP5K:
 		case W_KOLLIDER:
-			return [-3.19, 5.20, 2.80];
+			return [-5.19, 5.15, 2.80];
 		case W_MG:
 		case W_BARRACUDA:
-			return [-3.9, 3.5, 1.84];
+			return [-2.0, 3.4, 1.84];
 		case W_PPSH:
 		case W_REAPER:
-			return [-3.79, 3.75, 1.5];
+			return [-2.0, 3.68, 1.5];
 		case W_PTRS:
 		case W_PENETRATOR:
 			return [-9.79, 6.6, 2.44];
 		case W_STG:
 		case W_SPATZ:
-			return [-9.79, 4.9, 1.54];
+			return [-9.79, 4.86, 1.54];
 		case W_TRENCH:
 		case W_GUT:
 			return [0, 2.85, 1.4];
