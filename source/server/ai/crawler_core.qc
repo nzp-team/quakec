@@ -40,12 +40,12 @@ void() crawler_footstep
 	if(self.laststep == 1)
 	{
 		self.laststep = 0;
-		sound(self,CHAN_VOICE,"sounds/zombie/sc0.wav",1,ATTN_NORM);
+		sound(self, 5, "sounds/zombie/sc0.wav", 1, ATTN_NORM);
 	}
 	else
 	{
 		self.laststep = 1;
-		sound(self,CHAN_VOICE,"sounds/zombie/sc1.wav",1,ATTN_NORM);
+		sound(self, 5, "sounds/zombie/sc1.wav", 1, ATTN_NORM);
 	}
 }
 

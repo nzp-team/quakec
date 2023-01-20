@@ -311,7 +311,7 @@ void () buy_weapon_touch =
 			// Set the weapon's ammo to the max capacity.
 			Util_SetPlayerAmmoInSlot(other, slot, wall_ammo);
 
-			sound(other, 0,"sounds/misc/ching.wav", 1, 1);
+			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 			other.reload_delay = 0;
 
 			// Subtract the cost from player points.
@@ -350,7 +350,7 @@ void () buy_weapon_touch =
 
 			other.currentammo = getWeaponAmmo(other.weapon);
 
-			sound(other, 0,"sounds/misc/ching.wav", 1, 1);
+			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 			other.reload_delay = 0;
 
 			// Subtract the cost from player points.
@@ -375,14 +375,14 @@ void () buy_weapon_touch =
 		if (other.points < self.cost2)
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0,"sounds/misc/denybuy.wav", 1, 1);
+			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 			return;
 		}
 		else
 		{
 			other.ach_tracker_coll++;
 			other.reload_delay = 0;
-			sound(other, 0,"sounds/misc/ching.wav", 1, 1);
+			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 			//other.boughtweapon = true;
 			addmoney(other, 0 - self.cost2, FALSE);
 			other.grenades = other.grenades | 2;
@@ -409,7 +409,7 @@ void () buy_weapon_touch =
 		if (other.points < self.cost)
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0,"sounds/misc/denybuy.wav", 1, 1);
+			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 
 			return;
 		}
@@ -417,7 +417,7 @@ void () buy_weapon_touch =
 		{
 			other.ach_tracker_coll++;
 			other.reload_delay = 0;
-			sound(other, 0,"sounds/misc/ching.wav", 1, 1);
+			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 			//other.boughtweapon = true;
 			addmoney(other, 0 - self.cost, FALSE);
 			other.primary_grenades = 4;
@@ -514,7 +514,7 @@ void () buy_weapon_touch =
 			other.weapon = 0;
 		}
 
-		sound(other, 0,"sounds/misc/ching.wav", 1, 1);
+		sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 		other.reload_delay = 0;
 		addmoney(other, -1*self.cost, 0);
 		if (self.enemy) {

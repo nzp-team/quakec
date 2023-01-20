@@ -154,7 +154,7 @@ void() Dog_Death =
 	self.movetype = MOVETYPE_NONE;
 	self.takedamage = DAMAGE_NO;
 	
-	sound(self,CHAN_VOICE,"sounds/null.wav",1,ATTN_NORM);
+	sound(self, 5, "sounds/null.wav", 1, ATTN_NORM);
 	
 	self.usedent = world;
 	
