@@ -2422,43 +2422,38 @@ void () Weapon_Logic =
 				} 
 #ifdef PC
 				else {
-				
-					if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
-						self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-						if (self.viewzoom > 0.5)
-							self.viewzoom -= 0.05;
-						else 
-							self.viewzoom = 0.5;
-					} else {
-						if (self.viewzoom > 0.9)
-							self.viewzoom -= 0.01;
-						else
-							self.viewzoom = 0.89999;
-					}
+					float zoom_factor = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
+					if (self.viewzoom > zoom_factor)
+						self.viewzoom -= 0.03;
+					else
+						self.viewzoom = zoom_factor;
 				}
 #endif // PC
 			}
 		}
-	} else if (!self.button8 && self.zoom) {
+	}
+	// AIM button is released
+	else if (!self.button8 && self.zoom) {
 #ifdef PC
 		if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
 			self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 			if (self.viewzoom == 0.2) {
-				self.viewzoom += 0.05;
+				self.viewzoom += 0.03;
 				ReturnWeaponModel();
 			} else {
 				UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 				UpdateV2model(self.weapon2model, 0);
-				self.viewzoom += 0.05;
+				self.viewzoom += 0.03;
 			}
 		} else {
 			if (self.viewzoom == 0.9) {
 				W_AimOut();
 			} else {
-				self.viewzoom += 0.015;
+				self.viewzoom += 0.03;
 			}
 		}
 		
+		// Don't stop aiming until the camera is restored
 		if (self.viewzoom >= 1) {
 			self.viewzoom = 1;
 			self.zoom = 0;

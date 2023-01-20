@@ -70,6 +70,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	registercommand("showscores");
 
 	cvar_set("sv_cheats", ftos(1));
+	autocvar(r_viewmodel_default_fov, 70);
 
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
@@ -453,7 +454,6 @@ noref void(float isnew) CSQC_Ent_Update =
 		addentity(self);
 }
 
-
 // CALLED EVERY CLIENT RENDER FRAME
 noref void(float width, float height, float menushown) CSQC_UpdateView =
 {
@@ -469,9 +469,12 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setviewprop(VF_DRAWENGINESBAR, 0);	
 	setviewprop(VF_DRAWCROSSHAIR, 0);
 
-	setsensitivityscaler(getstatf(STAT_VIEWZOOM));
+	setsensitivityscaler(getstatf(STAT_VIEWZOOM)*getstatf(STAT_VIEWZOOM));
 	setviewprop(VF_AFOV, autocvar(fov,90)*getstatf(STAT_VIEWZOOM));
-	
+
+	cvar_set("r_viewmodel_fov", ftos(cvar("r_viewmodel_default_fov")*getstatf(STAT_VIEWZOOM)));
+
+
 	//autoadd entities received from servers for drawing	
 	addentities(MASK_ENGINE);
 

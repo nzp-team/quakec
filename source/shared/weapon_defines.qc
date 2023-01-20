@@ -4217,6 +4217,7 @@ float (float wep) GetWeaponFlash_Size = {
 		case W_COMPRESSOR:
 			return 12;
 		case W_PPSH:
+		case W_REAPER:
 			return 14;
 		case W_MP40:
 		case W_AFTERBURNER:
@@ -4242,4 +4243,77 @@ float (float wep) GetWeaponFlash_Size = {
 		default:
 			return 5;
 	}
+}
+
+// Returns the amount needed to zoom in a weapon. In near-fov "units".
+float(float wep) GetWeaponZoomAmount =
+{
+	switch(wep) {
+		case W_COLT:
+            return 10;
+		case W_KAR:
+		case W_ARMAGEDDON:
+			return 25;
+		case W_KAR_SCOPE:
+		case W_HEADCRACKER:
+			return 50;
+		case W_THOMPSON:
+		case W_GIBS:
+			return 10;
+		case W_TRENCH:
+		case W_GUT:
+			return 10;
+		case W_357:
+		case W_KILLU:
+			return 5;
+		case W_MG:
+		case W_BARRACUDA:
+			return 15;
+		case W_DB:
+		case W_BORE:
+		case W_SAWNOFF:
+			return 10;
+		case W_M1A1:
+		case W_WIDDER:
+			return 20;
+		case W_BAR:
+		case W_WIDOW:
+			return 30;
+		case W_FG:
+		case W_IMPELLER:
+			return 30;
+		case W_GEWEHR:
+		case W_COMPRESSOR:
+			return 25;
+		case W_PPSH:
+		case W_REAPER:
+			return 10;
+		case W_MP40:
+		case W_AFTERBURNER:
+			return 10;
+		case W_MP5K:
+		case W_KOLLIDER:
+			return 10;
+		case W_STG:
+		case W_SPATZ:
+			return 20;
+		case W_M1:
+		case W_M1000:
+			return 25;
+		case W_BROWNING:
+		case W_ACCELERATOR:
+			return 15;
+		case W_PTRS:
+		case W_PENETRATOR:
+			return 50;
+		case W_TYPE:
+		case W_SAMURAI:
+			return 10;
+		case W_RAY:
+		case W_PORTER:
+			return 5;
+		default: return 0;
+	}
+
+	return 0;
 }
