@@ -429,7 +429,7 @@ void() PlayerPostThink =
 
 	// Perform a traceline to keep track of entities directly
 	// in front of the player.
-#ifndef QUAKESPASM
+//#ifndef QUAKESPASM
 
 	vector source;
 
@@ -463,7 +463,7 @@ void() PlayerPostThink =
 	else
 		self.facingenemy = false;
 
-#endif // QUAKESPASM
+//#endif // QUAKESPASM
 };
 
 void() ClientKill = {};

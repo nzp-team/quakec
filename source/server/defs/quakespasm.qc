@@ -157,6 +157,7 @@ void            end_sys_globals;						// flag for structure dumping
 .float 			Flash_Size;
 .float          currentmag2;
 .float          maxspeed;
+.float     		facingenemy;
 .float          renderGrayscale;
 //.float        scale;
 void            end_sys_fields; 						// flag for structure dumping
