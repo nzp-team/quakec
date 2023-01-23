@@ -225,7 +225,7 @@ void    (float step)                                                            
 string  (string s)                                                                              precache_file       = #68;  // no effect except for -copy
 void    (entity e)                                                                              makestatic          = #69;
 void    (string s)                                                                              changelevel         = #70;
-//void    (float step, vector origin)                                                           movetoorigin        = #71;
+void    (float step, vector origin)                                                          	MoveToOrigin        = #71;
 void    (string var, string val)                                                                cvar_set            = #72;  // sets cvar.value
 void    (entity client, string s)                                                               centerprint         = #73;  // sprint, but in middle
 //void    (entity client, string s, string s)                                                   centerprint2        = #73;
