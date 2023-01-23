@@ -208,7 +208,7 @@ vector  (entity e, float speed)                                                 
 float   (string s)                                                                              cvar                = #45;  // return cvar.value
 void    (string s)                                                                              localcmd            = #46;  // put string into local que
 entity  (entity e)                                                                              nextent             = #47;  // for looping through all ents
-//void  (vector o, vector d, float color, float count)                                          particle            = #48;  // start a particle effect
+void  (vector o, vector d, float color, float count)                                         	particle            = #48;  // start a particle effect
 void    ()                                                                                      ChangeYaw           = #49;  // turn towards self.ideal_yaw
 float   (string name)                                                                         	GetSoundLen         = #50;
 vector  (vector v)                                                                              vectoangles         = #51;
@@ -491,4 +491,3 @@ string(float num)                                                               
 #define		FILE_WRITE 					2
 
 string 		CMD_STRING;
-void  (vector o, vector d, float color, float count) particle = {};
