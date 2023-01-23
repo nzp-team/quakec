@@ -249,8 +249,8 @@ void    (string s)                                                              
 vector  (entity zombie,vector start,vector min, vector max)                                     Get_Next_Waypoint   = #86;
 void    (entity client, float type, float cost, float weapon)                                   useprint            = #87;
 vector  (entity zombie,vector start,vector min, vector max)                                     Get_First_Waypoint  = #88;
-//void    (string s)                                                                            Close_Waypoint      = #89;
-//void    (vector start, vector min, vector max, vector end, float nomonsters, entity forent)   tracebox            = #90;
+void    (string s)                                                                            	Close_Waypoint      = #89;
+void    (vector start, vector min, vector max, vector end, float nomonsters, entity forent)   	tracebox            = #90;
 entity  (entity start, .float field, float match)                                               findfloat           = #98;
 float   (vector start, vector min, vector max, vector end, float nomonsters, entity forent)     tracemove           = #99;
 // 2001-09-20 QuakeC file access by FrikaC  start
