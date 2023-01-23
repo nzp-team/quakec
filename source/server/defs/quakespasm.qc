@@ -220,7 +220,7 @@ void    (float to, float f)                                                     
 void    (float to, float f)                                                                     WriteAngle          = #57;
 void    (float to, string s)                                                                    WriteString         = #58;
 void    (float to, entity s)                                                                    WriteEntity         = #59;
-//string  (entity s)                                                                            etos                = #65;
+string  (entity s)                                                                            	etos                = #65;
 void    (float step)                                                                            movetogoal          = #67;
 string  (string s)                                                                              precache_file       = #68;  // no effect except for -copy
 void    (entity e)                                                                              makestatic          = #69;
