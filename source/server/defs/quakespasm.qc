@@ -72,7 +72,7 @@ void            end_sys_globals;						// flag for structure dumping
 .string         model;
 .float          frame;
 .float          skin;
-//.float        iframetime;
+.float          iframetime;
 .float          effects;
 .vector         mins, maxs;								// bounding box extents reletive to origin
 .vector         size;									// maxs - mins
@@ -140,7 +140,7 @@ void            end_sys_globals;						// flag for structure dumping
 .string         targetname;
 .float          dmg_take;
 .float          dmg_save;
-//.float        bleed_out;
+.float       	bleed_out;
 .float			progress_bar;
 .entity         dmg_inflictor;
 .entity         owner;									// who launched a missile
@@ -150,7 +150,7 @@ void            end_sys_globals;						// flag for structure dumping
 .string         noise, noise1, noise2, noise3;			// contains names of wavs to play
 .float			x2_icon;								// double points icon
 .float			insta_icon;
-//.string		Weapon_Name;
+.string			Weapon_Name;
 .string			Weapon_Name_Touch;
 .vector			ADS_Offset;
 .vector         Flash_Offset;
@@ -490,6 +490,5 @@ string(float num)                                                               
 #define		FILE_APPEND 				1
 #define		FILE_WRITE 					2
 
-.string 	Weapon_Name;
 string 		CMD_STRING;
 void  (vector o, vector d, float color, float count) particle = {};
