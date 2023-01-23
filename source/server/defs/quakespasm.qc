@@ -239,7 +239,7 @@ string  (string s)                                                              
 string  (string s)                                                                              precache_sound2     = #76;  // registered version only
 string  (string s)                                                                              precache_file2      = #77;  // registered version only
 void    (entity e)                                                                              setspawnparms       = #78;  // set parm1... to the
-//void    (entity plr, float achievement)                                                       achievement         = #79;
+void    (entity plr, float achievement)                                                         achievement         = #79;
 void	(entity killer, entity killee)															logfrag				= #79;	// add to stats
 float   (string s)                                                                              stof                = #81;  // 2001-09-20 QuakeC string manipulation by FrikaC
 void	(vector where, float set)																multicast			= #82;
