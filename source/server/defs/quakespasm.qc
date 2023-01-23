@@ -210,7 +210,7 @@ void    (string s)                                                              
 entity  (entity e)                                                                              nextent             = #47;  // for looping through all ents
 //void  (vector o, vector d, float color, float count)                                          particle            = #48;  // start a particle effect
 void    ()                                                                                      ChangeYaw           = #49;  // turn towards self.ideal_yaw
-//float   (string name)                                                                         getSoundLen         = #50;
+float   (string name)                                                                         	GetSoundLen         = #50;
 vector  (vector v)                                                                              vectoangles         = #51;
 void    (float to, float f)                                                                     WriteByte           = #52;
 void    (float to, float f)                                                                     WriteChar           = #53;
