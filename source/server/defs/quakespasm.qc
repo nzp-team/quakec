@@ -220,12 +220,12 @@ void    (float to, float f)                                                     
 void    (float to, float f)                                                                     WriteAngle          = #57;
 void    (float to, string s)                                                                    WriteString         = #58;
 void    (float to, entity s)                                                                    WriteEntity         = #59;
-//string  (entity s)                                                                            etos                = #65;
+string  (entity s)                                                                            	etos                = #65;
 void    (float step)                                                                            movetogoal          = #67;
 string  (string s)                                                                              precache_file       = #68;  // no effect except for -copy
 void    (entity e)                                                                              makestatic          = #69;
 void    (string s)                                                                              changelevel         = #70;
-//void    (float step, vector origin)                                                           movetoorigin        = #71;
+void    (float step, vector origin)                                                          	MoveToOrigin        = #71;
 void    (string var, string val)                                                                cvar_set            = #72;  // sets cvar.value
 void    (entity client, string s)                                                               centerprint         = #73;  // sprint, but in middle
 //void    (entity client, string s, string s)                                                   centerprint2        = #73;
@@ -240,7 +240,7 @@ string  (string s)                                                              
 string  (string s)                                                                              precache_file2      = #77;  // registered version only
 void    (entity e)                                                                              setspawnparms       = #78;  // set parm1... to the
 void    (entity plr, float achievement)                                                         achievement         = #79;
-void	(entity killer, entity killee)															logfrag				= #79;	// add to stats
+//void	(entity killer, entity killee)															logfrag				= #79;	// add to stats
 float   (string s)                                                                              stof                = #81;  // 2001-09-20 QuakeC string manipulation by FrikaC
 void	(vector where, float set)																multicast			= #82;
 vector  (entity what)                                                                           Get_Waypoint_Near   = #83;
