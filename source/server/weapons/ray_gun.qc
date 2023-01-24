@@ -158,43 +158,28 @@ void() W_FireRay =
 
     // Prepare trail effects.
 	if (IsPapWeapon(porter.weapon)) {
-#ifdef HANDHELD
-
-		porter.effects = EF_RAYRED;
-
-#endif // HANDHELD
-
-#ifdef QUAKESPASM
-
-		porter.effects = EF_RED;
-
-#endif // QUAKESPASM
 
 #ifdef PC
 
 		Light_Custom(porter, false, 75, 2, 0.25, 0.25);
 
+#else
+	
+		porter.effects = EF_RAYRED;
+
 #endif // PC
 
 	} else {
-
-#ifdef HANDHELD
-
-		porter.effects = EF_RAYGREEN;
-
-#endif // HANDHELD
-
-#ifdef QUAKESPASM
-
-		porter.effects = EF_GREEN;
-
-#endif // QUAKESPASM
 
 #ifdef PC
 
 		Light_Custom(porter, false, 75, 0.25, 2, 0.25);
 
-#endif // PC
+#else
+
+		porter.effects = EF_RAYGREEN;
+		
+#endif	// PC
 	}
 
     // final setup!

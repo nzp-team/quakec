@@ -68,15 +68,15 @@ void() W_AimIn =
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 		SetUpdate(self, UT_ZOOM2, 0, 0, 0);
 
-#ifdef QUAKESPASM
+//#ifdef QUAKESPASM
 
-		self.zoom = 1;
+		//self.zoom = 1;
 
-#else
+//#else
 
 		self.zoom = 2;
 
-#endif // QUAKESPASM
+//#endif // QUAKESPASM
 
 		self.scopetime = time + 0.3;
 	} else {

@@ -417,11 +417,7 @@ void() PU_MaxAmmo =
 		// MAX AMMO! text
 		#ifdef PC
 		ScrollText("MAX AMMO!", tempe);
-		#endif
-		#ifdef HANDHELD
-		nzp_maxammo();
-		#endif
-		#ifdef QUAKESPASM
+		#else
 		nzp_maxammo();
 		#endif
 		tempe = find(tempe, classname, "player");
