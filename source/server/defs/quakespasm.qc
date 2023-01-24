@@ -392,11 +392,8 @@ string(float num)                                                               
 #define     SVC_FINALE                  31
 #define     SVC_CDTRACK                 32
 #define     SVC_SELLSCREEN              33
-#define 	SVC_SMALLKICK 				34
-#define		SVC_BIGKICK					35
-//#define   SVC_CUTSCENE                34              // 1998-08-08 Complete SVC list by Zhenga
-//#define   SVC_WEAPONFIRE              35
-#define		SVC_WEAPONFIRE				35
+#define     SVC_CUTSCENE               	34              // 1998-08-08 Complete SVC list by Zhenga
+#define     SVC_WEAPONFIRE              35
 #define		SVC_HITMARK					36
 #define 	SVC_LIMBUPDATE  			51 				// naievil -- keep me
 #define 	SVC_BSPDECAL    			50				// naievil -- keep me
