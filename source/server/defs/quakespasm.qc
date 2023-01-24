@@ -267,8 +267,8 @@ string  (string s)                                                              
 string  (string s)                                                                              strtrim             = #120;
 // 2001-09-20 QuakeC file access by FrikaC  end
 // 2001-11-15 DarkPlaces general builtin functions by Lord Havoc  start
-float(string s)                                                                                 tokenize            = #130;
-string(float num)                                                                               argv                = #131;
+float(string s)                                                                                 tokenize            = #441;
+string(float num)                                                                               argv                = #442;
 // 2001-11-15 DarkPlaces general builtin functions by Lord Havoc  end
 //void    (string trackname)                                                                    songegg             = #500;
 //void    ()                                                                                    nzp_maxammo         = #501;
