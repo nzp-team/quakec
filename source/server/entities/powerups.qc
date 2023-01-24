@@ -421,6 +421,9 @@ void() PU_MaxAmmo =
 		#ifdef HANDHELD
 		nzp_maxammo();
 		#endif
+		#ifdef QUAKESPASM
+		nzp_maxammo();
+		#endif
 		tempe = find(tempe, classname, "player");
 	}
 };

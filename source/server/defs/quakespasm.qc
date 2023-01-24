@@ -270,8 +270,8 @@ string  (string s)                                                              
 float(string s)                                                                                 tokenize            = #441;
 string(float num)                                                                               argv                = #442;
 // 2001-11-15 DarkPlaces general builtin functions by Lord Havoc  end
-//void    (string trackname)                                                                    songegg             = #500;
-//void    ()                                                                                    nzp_maxammo         = #501;
+void    (string trackname)                                                                    	songegg             = #500;
+void    ()                                                                                   	nzp_maxammo         = #501;
 
 //
 // constants
@@ -395,12 +395,13 @@ string(float num)                                                               
 #define     SVC_CUTSCENE               	34              // 1998-08-08 Complete SVC list by Zhenga
 #define     SVC_WEAPONFIRE              35
 #define		SVC_HITMARK					36
+#define     SVC_USEPRINT                38
+#define		SVC_MUZZLEFLASH				39
+#define 	SVC_SONGEGG					45 // 45
+#define		SVC_MAXAMMO					46 // 46
 #define 	SVC_LIMBUPDATE  			51 				// naievil -- keep me
 #define 	SVC_BSPDECAL    			50				// naievil -- keep me
 #define 	SVC_ACHIEVEMENT 			52
-#define     SVC_HITMARK                 36
-#define     SVC_USEPRINT                38
-#define		SVC_MUZZLEFLASH				39
 
 #define     TE_SPIKE                    0
 #define     TE_SUPERSPIKE               1
