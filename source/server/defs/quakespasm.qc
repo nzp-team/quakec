@@ -52,9 +52,9 @@ void()          PutClientInServer;						// call after setting the parm1... parms
 void()          ClientDisconnect;
 void()          SetNewParms;							// called when a client first connects to
 void()          SetChangeParms;							// call to set parms for self so they can
-//void()          ParseClientCommand;					// special command calls
-//string          CMD_STRING;
-//void()          Soft_Restart;
+void()          ParseClientCommand;						// special command calls
+string          CMD_STRING;
+void()          Soft_Restart;
 void            end_sys_globals;						// flag for structure dumping
 
 .float          modelindex;								// *** model index in the precached list
@@ -489,5 +489,3 @@ string(float num)                                                               
 #define		FILE_READ 	 				0
 #define		FILE_APPEND 				1
 #define		FILE_WRITE 					2
-
-string 		CMD_STRING;
