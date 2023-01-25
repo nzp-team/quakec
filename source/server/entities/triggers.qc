@@ -304,7 +304,10 @@ void() teddy_react =
 			remove(t); 
 	}
 
-	remove(self); //this was present in the patch, i like it.
+	if (self.noise)
+    	sound (self, CHAN_ITEM, self.noise, 1, ATTN_NORM);
+
+	remove(self);
 }
 
 /*
