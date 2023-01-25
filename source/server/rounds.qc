@@ -227,7 +227,7 @@ void() NewRound =
 
 	if (rounds == dogRound && gotdog) {
 		roundtype = 2;
-#ifndef PC
+#ifdef PC
 
 			localcmd("fog 0.25\n");
 
