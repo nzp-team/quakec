@@ -377,6 +377,7 @@ void(entity ent) CheckRevive =
 		DisableReviveIcon(self.electro_targeted);
 		revive_index--;
 		self.invoke_revive = 0;
+		self.firer = world;
 	}
 }
 

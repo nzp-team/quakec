@@ -2254,14 +2254,18 @@ void() CheckPlayer =
 	{
 		if(ent.classname == "player" && ent != self && ent.downed && !self.downed)
 		{
-			useprint (self, 13, 0, 0);
+			if (ent.beingrevived == false)
+				useprint (self, 13, 0, 0);
 			
 			if (self.button7 && !ent.invoke_revive) {
+				if (ent.beingrevived == true && ent.firer != self)
+					return;
 
 				// Broadcast that they're being revived
 				BroadcastMessageToClient(ent, time + 0.1, 3, self.netname);
 
 				ent.beingrevived = true;
+				ent.firer = self;
 				
 				if (!self.progress_bar_percent) {
 					ChangeReviveIconState(ent.electro_targeted, 2);
@@ -2295,6 +2299,7 @@ void() CheckPlayer =
 				ChangeReviveIconState(ent.electro_targeted, 1);
 				self.movetype = MOVETYPE_WALK;
 				ent.beingrevived = false;
+				ent.firer = world;
 				W_TakeOut();
 				self.progress_bar = 0;
 				self.progress_bar_time = 0;
