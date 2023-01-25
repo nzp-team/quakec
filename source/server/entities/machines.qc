@@ -397,7 +397,7 @@ void() touch_perk =
 
 		// Check if this is Quick Revive and we are playing in Co-Op,
 		// adjust price if so.
-		if (self.classname == "perk_revive" && player_count > 1)
+		if (self.classname == "perk_revive" && player_count >= 1)
 			price = self.cost2;
 		// Nope, use normal cost.
 		else
