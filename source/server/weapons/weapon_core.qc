@@ -530,7 +530,6 @@ void(float side) W_Reload =
 		}
 		// Check for special reload type
 		else if (GetFrame(self.weapon, RELOAD_EMPTY_START) != 0) {
-			//reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
 			if (self.currentmag > 0) {
 				startframe = GetFrame(self.weapon, RELOAD_PART_START);
 				endframe = GetFrame(self.weapon, RELOAD_PART_END);
@@ -1367,7 +1366,7 @@ void(float side) W_Fire =
 	if (side == S_RIGHT &&
 		(time < self.fire_delay ||
 		self.new_anim_stop ||
-		self.reload_delay > time || (!self.currentammo && !self.currentmag))) {
+		self.reload_delay > time || !self.currentmag)) {
 		return;
 	}
 
