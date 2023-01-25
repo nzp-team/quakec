@@ -227,7 +227,15 @@ void() NewRound =
 
 	if (rounds == dogRound && gotdog) {
 		roundtype = 2;
-		localcmd("fog 0.25\n");
+#ifndef PC
+
+			localcmd("fog 0.25\n");
+
+#else
+
+			localcmd("fog 200 225 177 193 204\n");
+
+#endif // PC
 	} else {
 		roundtype = 1;
 
