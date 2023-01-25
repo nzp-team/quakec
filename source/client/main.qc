@@ -1032,7 +1032,7 @@ noref void() CSQC_Parse_Event =
 		case EVENT_POINTUPDATE:
 			float playernum = readbyte();
 			float temppoints = readlong();
-			RegisterPointChange(readlong());
+			RegisterPointChange(readlong(), playernum);
 			float tempkills = readlong();
 			string tempname = readstring();
 			

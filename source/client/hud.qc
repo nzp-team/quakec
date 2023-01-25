@@ -191,12 +191,13 @@ var struct
 	float 	opacity; 					// the opacity of the text_string as it progresses
 	float 	string_width; 				// the width of text_string
 	float 	occupied;					// is this array being used/occupied?
+	float 	playerid; 					// who does this element belong to?
 	string 	text_string; 				// either '+(difference)' or '-(difference)'
 } point_elements[MAX_POINT_ELEMENTS];
 
 float last_point_element_index;
 
-void(float amount) RegisterPointChange =
+void(float amount, float playernum) RegisterPointChange =
 {
 	if (last_point_element_index >= MAX_POINT_ELEMENTS)
 		last_point_element_index = 0;
@@ -205,6 +206,9 @@ void(float amount) RegisterPointChange =
 
 	// set the difference amount
 	point_elements[index].difference = amount;
+
+	// assign it to the player
+	point_elements[index].playerid = playernum;
 
 	// fill our text string
 	if (point_elements[index].difference > 0) {
@@ -235,7 +239,7 @@ void(float amount) RegisterPointChange =
 
 	// set our x and y positions
 	point_elements[index].x_position = 0;
-	point_elements[index].y_position = 0.720 * g_height;
+	point_elements[index].y_position = 0.780*g_height - 0.06*g_height*playernum;
 
 	// start with an opacity of 1
 	point_elements[index].opacity = 1;
@@ -248,7 +252,7 @@ void(float amount) RegisterPointChange =
 	active_point_elements++;
 }
 
-void(float pwidth, float width, float height) PointUpdate = 
+void(float pwidth, float width, float height, float playernum) PointUpdate = 
 {
 	if (active_point_elements == 0)
 		return;
@@ -256,6 +260,9 @@ void(float pwidth, float width, float height) PointUpdate =
 	vector POINT_DIFF_COLOR;
 
 	for (float i = 0; i < MAX_POINT_ELEMENTS; i++) {
+		if (point_elements[i].playerid != playernum)
+			continue;
+
 		if (point_elements[i].opacity <= 0 && point_elements[i].occupied == true) {
 			point_elements[i].occupied = false;
 			active_point_elements--;
@@ -306,7 +313,7 @@ void(float width, float height) HUD_Points =
 			x = ((width + backwidth) - pointwidth)/2;
 			drawpic([backwidth ,0.70*height - (.061*height*i),0], getImage("moneyback.tga"), [0.2*width, 0.07*height, 0], [1,1,1], 1); 
 			drawstring([x, 0.715*height - 0.06*height*i, 0], ftos(playerpoints[i]), [0.022*width, 0.022*width, 0], TEXTCOLOR, 1, 0); 
-			PointUpdate(backwidth * 1.025, width, height); 
+			PointUpdate(backwidth * 1.025, width, height, i+1); 
 		}
 		else {
 			backwidth = 0.85*width;
@@ -314,6 +321,7 @@ void(float width, float height) HUD_Points =
 			x = ((width + backwidth) - pointwidth)/2;
 			drawpic([backwidth, 0.70*height - (.071*height*i*0.8),0], getImage("moneyback.tga"), [0.2*width*0.8, 0.07*height*0.8, 0], [1,1,1], 0); 
 			drawstring([x, 0.715*height - 0.07*height*i*0.8, 0], ftos(playerpoints[i]), [0.022*width*0.8, 0.022*width*0.8, 0], TEXTCOLOR, 1, 0); 
+			PointUpdate(backwidth * 1.025, width, height, i+1); 
 		}
 	}
 }
