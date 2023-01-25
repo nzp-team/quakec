@@ -909,17 +909,17 @@ void() zombie_attack =
 				local entity who;
 				local float found;
 				found = 0;
-				who = findradius(self.origin,70);
-				while(who && found == 0 )
+				who = findradius(self.origin, 70);
+				while (who != world && found == false)
 				{
 					if(who.classname == "player")
 					{
-						found = 1;
+						found = true;
 					}
 					else
 						who = who.chain;
 				}
-				if(found == 1)
+				if (found == true)
 				{
 					zombie_attack_through_w1();
 					return;

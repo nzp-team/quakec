@@ -522,20 +522,6 @@ float() TryWalkToEnemy =
 	}		
 };
 
-#ifndef PC
-float() SetUpGoalDummy =
-{
-	self.goaldummy.origin = Get_Waypoint_Near(self);
-	setorigin(self.goaldummy,self.goaldummy.origin);
-	self.goalentity = self.goaldummy;
-
-	if (!self.goalentity)
-		bprint(PRINT_HIGH, "Could not find waypoint for zombie\n");
-
-	return 1; //because we can't actually know if it was good or not... yet
-};
-#endif
-
 void() PathfindToEnemy =
 {
 	float path_result;
