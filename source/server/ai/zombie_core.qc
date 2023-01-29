@@ -1269,29 +1269,25 @@ void() Zombie_Tesla_Light =
 
 void() Zombie_Find_Tesla_Target =
 {
-	local entity zombs = findradius(self.origin, 200);
-	local entity tempe;
-	local vector org;
-	local vector targetorg;
-	local float found_target;
+	entity 	zombs = findradius(self.origin, 200);
+	entity 	tempe;
+	vector 	org;
+	vector 	targetorg;
+	float	break_loop;
 
-	if (self.teslacount >= 10)
+	if (self.teslacount > 10)
 		return;
 
-	found_target = false;
-	while(zombs != world || found_target) {
+	break_loop = false;
+	while(break_loop == false) {
+
 		if (zombs == world) {
-			found_target = true;
-			return;
-		}
-		// limb stuff
-		if (zombs.classname == "ai_zombie_head" || zombs.classname == "ai_zombie_larm"
-		|| zombs.classname == "ai_zombie_rarm") {
-			zombs = zombs.owner;
+			break_loop = true;
+			continue;
 		}
 
 		if (zombs.classname == "ai_zombie" || zombs.classname == "ai_dog") {
-			found_target = true;
+			break_loop = true;
 
 			zombs.owner = self.owner;
 
