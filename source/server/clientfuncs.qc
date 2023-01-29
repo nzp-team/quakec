@@ -434,7 +434,7 @@ void(string chaptertitle, string location, string date, string person, entity wh
 
 void (float achievement_id, optional entity who) GiveAchievement =
 {
-#ifndef QUAKESPASM
+//#ifndef QUAKESPASM
 
 #ifndef PC
 
@@ -483,12 +483,12 @@ void (float achievement_id, optional entity who) GiveAchievement =
 #endif // PC
 	}
 
-#endif // QUAKESPASM
+//#endif // QUAKESPASM
 }
 
 void (float achievement_id, float progress_value, optional entity who) UpdateAchievementProgress =
 {
-#ifndef QUAKESPASM
+//#ifndef QUAKESPASM
 
 #ifndef PC
 
@@ -538,7 +538,7 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 
 #endif // PC
 	}
-#endif // QUAKESPASM
+//#endif // QUAKESPASM
 }
 
 // *****************************************
