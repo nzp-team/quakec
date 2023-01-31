@@ -557,10 +557,26 @@ void() PlayerSpawn =
 			pl1 = self;
 	}
 
-	// Solo Play, pick any Spot.
-	if (player_count == 0) {
+	float viable_spawnpoint = false;
+
+	// if the mapper doesn't have the co-op ents set up, just plop everyone at the
+	// normal start.
+	if (find(world, classname, "info_player_tank") == world && 
+	find(world, classname, "info_player_nikolai") == world &&
+	find(world, classname, "info_player_takeo") == world && 
+	find(world, classname, "info_player_doctor") == world) {
+		spawnpoint = find(world, classname, "info_player_start");
+		viable_spawnpoint = true;
+	}
+
+	//
+	// pick a random spawn point regardless of solo or co-op
+	//
+
+	while(!viable_spawnpoint) {
 		float number = random();
 
+		// assign one of the spawnpoints
 		if (number < 0.25)
 			spawnpoint = find(world, classname, "info_player_tank");
 		else if (number < 0.50)
@@ -569,17 +585,25 @@ void() PlayerSpawn =
 			spawnpoint = find(world, classname, "info_player_takeo");
 		else
 			spawnpoint = find(world, classname, "info_player_doctor");
-	} else {
-		switch(self.playernum) {
-			case 1: spawnpoint = find(world, classname, "info_player_tank"); break;
-			case 2: spawnpoint = find(world, classname, "info_player_nikolai"); break;
-			case 3: spawnpoint = find(world, classname, "info_player_takeo"); break;
-			case 4: spawnpoint = find(world, classname, "info_player_doctor");  break;
-	    	default: break;
+
+		float found_player_here = false;
+
+		entity ents_in_spawn_range = findradius(spawnpoint.origin, 32);
+
+		// check if there's a player in the way
+		while(ents_in_spawn_range != world) {
+			if (ents_in_spawn_range.classname == "player")
+				found_player_here = true;
+
+			ents_in_spawn_range = ents_in_spawn_range.chain;
 		}
+
+		// no player in the way, this spawn is good.
+		if (found_player_here == false)
+			viable_spawnpoint = true;
 	}
 
-	// Mapper doesn't have our co-op spawn set up..
+	// Mapper doesn't have our specific co-op spawn set up..
 	if (spawnpoint == world)
 		spawnpoint = find(world, classname, "info_player_start");
 
