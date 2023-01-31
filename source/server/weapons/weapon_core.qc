@@ -2298,8 +2298,11 @@ void() CheckPlayer =
 					addmoney(self, ent.requirespower, false);
 				}
 			}
-			else if ((!self.button7 && self.reviving) || (self.reviving && self.active_door != ent)) {
-				ChangeReviveIconState(ent.electro_targeted, 1);
+			else if ((!self.button7 && self.reviving) || (self.reviving && self.active_door != ent) || ent.classname == "disconnected") {
+				if (ent.classname != "disconnected")
+					ChangeReviveIconState(ent.electro_targeted, 1);
+				else
+					DisableReviveIcon(ent.electro_targeted);
 				self.movetype = MOVETYPE_WALK;
 				ent.beingrevived = false;
 				ent.firer = world;
