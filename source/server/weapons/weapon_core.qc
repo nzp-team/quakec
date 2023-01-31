@@ -718,7 +718,7 @@ void Parse_Damage () = // DO NOT TOUCH
 						spawn_gibs(where);
 
 						// Should the Zombie try and walk on?
-						if (random() <= 0.01) {
+						if (random() <= 0.05) {
 							body_ent.bleedingtime = time + 2;
 						} else {
 							// Nah, he dead.
@@ -813,13 +813,8 @@ void Parse_Damage () = // DO NOT TOUCH
 			else
 				DamageHandler(body_ent,self, total_dmg, S_NORMAL);
 			
-			#ifndef PC
 			body_ent.washit = 0;
 			body_ent.hitamount = 0;
-			#else
-			ent.washit = 0;
-			ent.hitamount = 0;
-			#endif
 
 		}
 		ent = findfloat (ent, washit, 1);
@@ -2254,15 +2249,23 @@ void() CheckPlayer =
 	{
 		if(ent.classname == "player" && ent != self && ent.downed && !self.downed)
 		{
-			if (ent.beingrevived == false)
+
+			// perform a trace to make sure they're always facing the revivee
+			vector source;
+			makevectors(self.angles);
+			source = self.origin - '0 0 12';
+			traceline(source, source + v_forward*50, 0, self);
+			self.active_door = trace_ent;
+
+			if (ent.beingrevived == false && self.active_door == ent)
 				useprint (self, 13, 0, 0);
 			
-			if (self.button7 && !ent.invoke_revive) {
+			if (self.button7 && !ent.invoke_revive && self.active_door == ent) {
 				if (ent.beingrevived == true && ent.firer != self)
 					return;
 
 				// Broadcast that they're being revived
-				BroadcastMessageToClient(ent, time + 0.1, 3, self.netname);
+				BroadcastMessageToClient(ent, time + 2, 3, self.netname);
 
 				ent.beingrevived = true;
 				ent.firer = self;
@@ -2295,7 +2298,7 @@ void() CheckPlayer =
 					addmoney(self, ent.requirespower, false);
 				}
 			}
-			else if (!self.button7 && self.reviving) {
+			else if ((!self.button7 && self.reviving) || (self.reviving && self.active_door != ent)) {
 				ChangeReviveIconState(ent.electro_targeted, 1);
 				self.movetype = MOVETYPE_WALK;
 				ent.beingrevived = false;
