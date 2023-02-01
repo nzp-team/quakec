@@ -15,6 +15,7 @@
 ../source/server/nzdparser.qc
 ../source/server/main.qc
 ../source/server/utilities/command_parser.qc
+../source/server/utilities/math.qc
 ../source/server/player.qc
 ../source/server/damage.qc
 
