@@ -304,8 +304,14 @@ void() teddy_react =
 			remove(t); 
 	}
 
+    entity dummy = spawn();
+    setorigin(dummy, self.origin);
+    dummy.think = SUB_Remove;
+    dummy.nextthink = time + 10;
+
+
 	if (self.noise)
-    	sound (self, CHAN_ITEM, self.noise, 1, ATTN_NORM);
+    	sound (dummy, CHAN_ITEM, self.noise, 1, ATTN_NORM);
 
 	remove(self);
 }
