@@ -223,32 +223,6 @@ void() place_fire =
 	self.nextthink = time + random()+0.1;
 };
 
-void() place_model =
-{  
-#ifdef HANDHELD
-
-	if (self.spawnflags & 2)
-		remove(self);
-
-#endif // HANDHELD
-
-	self.model = convert_old_asset_path(self.model);
-
-	precache_model (self.model);
-	setmodel (self, self.model);
-  
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.angles = self.angles;
-	self.solid = SOLID_NOT;
-	self.frame = self.sequence;
-	
-	if (self.spawnflags & 1)
-		self.effects = self.effects | EF_FULLBRIGHT;
-};
-
-
-
-
 void () buy_weapon_touch =
 {
 	entity oldent;
@@ -745,89 +719,125 @@ void() func_ending =
     self.touch = touch_ending;
 };
 
-/*
-askasdklasdjalskdjaklsdjaklsdjaklsjdklasjdklasjdklasjdklasjdklasjdklasjdklasjdklasjdklasjdklasjdlaks
-klsdjflsdjflskdjfslkdfjskldfjsdklfjskldfjskldjfklsdjfklsdjfklsdjfklsdjfklsdjfklsdjfklsdjfklsdjfklsfj
-////////////////////////////////////////////////////////////////////////////////////////////////////
-----------------------------------------MISC_MODEL--------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////////////////////////
-klsjakljsdklasjdklasjdaklsdjaklsdjaklsdjaklsdjaklsdjaklsjdaskljaskljdaklsjdlaskjdklasjklasjdklasjdkl
-aklsjdklasjdklasjdaklsjdklasjdaklsjdklasjdaskldjlaskdjaklsdjaskldjaskldjaskldjaskldjaklsdjaklsdjalsd
-*/
+//
+// ============================================================
+// misc_model()
+// Entity for prop/other model placement, derived from
+// progs_dump. Deprecates place_model.
+// ============================================================
+// Modifications from stock:
+// - Added new spawnflag 64 for fullbright.
+// - 'model' is now the preffered model field instead of 'mdl'.
+//
 
-/*QUAKED misc_model (0 0.5 0.8) (-8 -8 -8) (8 8 8) X X X X X X X X NOT_ON_EASY NOT_ON_NORMAL NOT_ON_HARD_OR_NIGHTMARE NOT_IN_DEATHMATCH NOT_IN_COOP NOT_IN_SINGLEPLAYER X NOT_ON_HARD_ONLY NOT_ON_NIGHTMARE_ONLY
-{
-	model ({"path" : mdl, "skin" : skin, "frame": frame});
-}
-An entity for displaying models. A frame range can be given to animate the
-model.
+// Spawnflags
+#define MISC_MODEL_GRAVITY 			1
+#define MISC_MODEL_SOLID 			2
+#define MISC_MODEL_BACK_AND_FORTH	4
+#define MISC_MODEL_ONLY_ONCE		8
+#define MISC_MODEL_PLAY_COUNT		16
+#define MISC_MODEL_STARTOFF			32
+#define MISC_MODEL_FULLBRIGHT 		64
 
-mdl: The model to display. Can be of type mdl, bsp, or spr.
+// States
+#define STATE_ACTIVE 				0
+#define STATE_INACTIVE				1
+#define STATE_INVISIBLE				8
 
-frame: The frame to display. Can be used to offset the animation.
-
-first_frame: The starting frame of the animation.
-
-last_frame: The last frame of the animation.
-*/
-
-// The starting frame of the animation
-.float first_frame;
-
-// The ending frame of the animation
-.float last_frame;
-
-// Forward declarations
-void() misc_model_think;
-
-float MISC_MODEL_GRAVITY = 1;
-float MISC_MODEL_SOLID = 2;
-float MISC_MODEL_BACK_AND_FORTH = 4;
-float MISC_MODEL_ONLY_ONCE = 8;
-float MISC_MODEL_PLAY_COUNT = 16;
-float MISC_MODEL_STARTOFF = 32;
-
-//misc_model decs
-.string		mdl;
-.vector 	mdlsz;
-.vector		centeroffset;
-.float		count;			// for counting triggers
-.float		cnt; 			// misc flag
-float STATE_ACTIVE      = 0;
-float STATE_INACTIVE    = 1;
-float STATE_INVISIBLE	= 8;
-
+// Entity fields
+.float 	first_frame; 				// The starting frame of the animation
+.float	last_frame; 				// The ending frame of the animation
+.string	mdl;
+.vector	mdlsz;
+.vector	centeroffset;
+.float	count;						// for counting triggers
+.float	cnt; 						// misc flag
 
 void() misc_model_use = 
 {
+	// Make invisible
 	if (self.state == STATE_ACTIVE) {
 		if (self.spawnflags & MISC_MODEL_SOLID) self.solid = SOLID_NOT;
+		self.oldmodel = self.model;
 		self.model = "";
 
 		self.state = STATE_INVISIBLE;
 		setorigin(self, self.origin);
 	}
+	// Have it appear again
 	else {
 		if (self.spawnflags & MISC_MODEL_SOLID) self.solid = SOLID_BBOX;
-		self.model = self.mdl;
+		self.model = self.oldmodel;
 
 		self.state = STATE_ACTIVE;
 		setorigin(self, self.origin);
 	}
 };
 
+void() misc_model_think = 
+{
+    self.nextthink = time + fabs(self.speed);
+
+    if (self.state != STATE_ACTIVE) 
+		return;
+    
+    self.frame = self.frame + sign(self.speed);
+
+    if (self.spawnflags & MISC_MODEL_BACK_AND_FORTH && self.frame < self.first_frame) {
+  		self.speed = -1 * self.speed;
+  		self.frame += 2;
+  	} else if (self.spawnflags & MISC_MODEL_BACK_AND_FORTH && self.frame > self.last_frame) {
+  		self.speed = -1 * self.speed;
+  		self.frame-=2;
+  	}
+  	else
+  		self.frame = wrap(self.frame, self.first_frame, self.last_frame);
+
+  	if (self.spawnflags & MISC_MODEL_ONLY_ONCE && self.frame == self.last_frame && self.last_frame != self.first_frame)
+		self.nextthink = -1;
+
+    if (self.spawnflags & MISC_MODEL_PLAY_COUNT && self.frame == self.last_frame && self.last_frame != self.first_frame)
+    {
+		if (!self.count)
+        	objerror ("Error: set count to the number of animation cycles!");
+
+      	self.cnt = self.cnt +1;
+
+      	dprint (ftos(self.cnt));
+      	dprint ("\n");
+
+      	if (self.cnt != self.count)
+        	return FALSE;
+      	else
+    		self.nextthink = -1;
+    }
+};
+
 void() misc_model = 
 {
-    if (!self.mdl || self.mdl == "")
-	{
-        objerror("Model not defined");
+    if (!self.mdl || self.mdl == "") {
+		// NZP: Check for .model instead
+		if (!self.model || self.model == "")
+        	objerror("Model not defined");
+	} else {
+		// Convert to .model instead of .mdl
+		self.model = self.mdl;
 	}
 
-	if(!self.centeroffset) self.centeroffset = '0 0 0';
-	if(!self.mdlsz) self.mdlsz = '32 32 32';
+	//
+	// Set default stats.
+	//
 
+	// Center offset.
+	if(!self.centeroffset)
+		self.centeroffset = '0 0 0';
+
+	// Custom Bounding Box.
+	if(!self.mdlsz)
+		self.mdlsz = '32 32 32';
+
+	// Generate Proper Bounding Box size.
 	vector vmin, vmax;
-
 	vmin_x = self.centeroffset_x - (self.mdlsz_x / 2);
 	vmin_y = self.centeroffset_y - (self.mdlsz_y / 2);
 	vmin_z = self.centeroffset_z - (self.mdlsz_z / 2);
@@ -835,41 +845,41 @@ void() misc_model =
 	vmax_x = self.centeroffset_x + (self.mdlsz_x / 2);
 	vmax_y = self.centeroffset_y + (self.mdlsz_y / 2);
 	vmax_z = self.centeroffset_z + (self.mdlsz_z / 2);
-
-    precache_model(self.mdl);
-    setmodel(self, self.mdl);
-	
 	setsize (self, vmin, vmax);
-	
-	if(self.spawnflags & MISC_MODEL_SOLID) self.solid = SOLID_BBOX;
-	else self.solid = SOLID_NOT;
 
-	if(self.spawnflags & 1) self.movetype = MOVETYPE_TOSS;
-	else self.movetype = MOVETYPE_NONE;
+	// Set our model
+    precache_model(self.model);
+    setmodel(self, self.model);
+	
+	// Model has collision box
+	if (self.spawnflags & MISC_MODEL_SOLID)
+		self.solid = SOLID_BBOX;
+	else
+		self.solid = SOLID_NOT;
+
+	// Model has gravity
+	if (self.spawnflags & MISC_MODEL_GRAVITY)
+		self.movetype = MOVETYPE_TOSS;
+	else
+		self.movetype = MOVETYPE_NONE;
+
+	// Model is fullbright
+	if (self.spawnflags & MISC_MODEL_FULLBRIGHT)
+		self.effects = self.effects | EF_FULLBRIGHT;
 
     self.use = misc_model_use;
 
-    if (!self.frame) {
+
+    if (!self.frame)
         self.frame = self.first_frame;
-    }
 
     // Make static (not animate) if not given a frame range, and not affected by gravity
     // also remains active if it has a targetname (so it can be killtargeted/toggled)
-    if (!self.last_frame
-    	&& !(self.spawnflags & 1)
-    	&& !(self.spawnflags & MISC_MODEL_SOLID)
-    	&& !self.targetname)
-	{
+    if (!self.last_frame && !(self.spawnflags & 1) && !(self.spawnflags & MISC_MODEL_SOLID) && !self.targetname)
 		makestatic(self);
-	}
-    // Make static (not animate) if not given a frame range, and not affected by gravity
-	//changed by bmFbr
-    // if (!self.last_frame && !(self.spawnflags & MISC_MODEL_GRAVITY)) {
-    //     makestatic(self);
-    //     return;
-    // }
 
-    if (self.last_frame) { // if it as a custom animation range
+	// if it as a custom animation range
+    if (self.last_frame) {
     	// Default animation speed to 10 fps
 	    if (!self.speed) {
 	        self.speed = 0.1;
@@ -878,55 +888,36 @@ void() misc_model =
         self.think = misc_model_think;
     }
     
-	if (self.spawnflags & 32)    
+	// Start hidden
+	if (self.spawnflags & MISC_MODEL_STARTOFF)    
 		self.state = STATE_ACTIVE;
 	else    
 		self.state = STATE_INVISIBLE;
 
-	misc_model_use();    
-        
+	misc_model_use();
 };
 
-/*
- * misc_model_think
- *
- * Handles animation for misc_model entity.
- */
-void() misc_model_think = 
-{
-    self.nextthink = time + fabs(self.speed);
-    if (self.state != STATE_ACTIVE) return;
-    
-    self.frame = self.frame + sign(self.speed);
+//
+// place_model()
+// Converts old place_model entities to use misc_model instead.
+//
+void() place_model =
+{  
+	// Grab an updated model path.
+	self.model = convert_old_asset_path(self.model);
+  
+	// Convert the VEC_HULL bounds to match mdlsz.
+	self.mdlsz = '64 64 88';
 
-    if (self.spawnflags & MISC_MODEL_BACK_AND_FORTH && self.frame < self.first_frame)
-  	{
-  		self.speed = -1 * self.speed;
-  		self.frame+=2;
-  	}
-  	else if (self.spawnflags & MISC_MODEL_BACK_AND_FORTH && self.frame > self.last_frame)
-  	{
-  		self.speed = -1 * self.speed;
-  		self.frame-=2;
-  	}
-  	else
-  		self.frame = wrap(self.frame, self.first_frame, self.last_frame);
+	// misc_model just uses frame plainly.
+	self.frame = self.sequence;
+	
+	// Move fullbright spawnflag to the new param.
+	if (self.spawnflags & 1)
+		self.spawnflags = 64;
+	else
+		self.spawnflags = 0;
 
-  	if(self.spawnflags & MISC_MODEL_ONLY_ONCE && self.frame==self.last_frame && self.last_frame!=self.first_frame)
-      self.nextthink = -1;
-
-    if(self.spawnflags & MISC_MODEL_PLAY_COUNT && self.frame==self.last_frame && self.last_frame!=self.first_frame)
-    {
-      if !(self.count)
-         objerror ("Error: set count to the number of animation cycles!");
-      self.cnt = self.cnt +1;
-      dprint (ftos(self.cnt));
-      dprint ("\n");
-      if (self.cnt != self.count)
-        return FALSE;
-      else
-    		self.nextthink = -1;
-    }
+	// Now just execute the misc_model spawn function.
+	misc_model();
 };
-
-
