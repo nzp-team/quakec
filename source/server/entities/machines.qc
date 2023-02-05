@@ -44,9 +44,13 @@ void() mystery_touch;
 void(entity e) Light_Red =
 {
     e.effects = e.effects | EF_FULLBRIGHT;
-    #ifndef PC
+
+#ifndef FTE
+
     e.effects = e.effects | EF_RED;
-    #else
+
+#else
+
     {
         e.pflags = PFLAGS_FULLDYNAMIC;
        	e.light_lev = 100;
@@ -54,7 +58,9 @@ void(entity e) Light_Red =
 	    e.color_y = 0.25;	
 	    e.color_z = 0.25;
     }
-    #endif
+
+#endif // FTE
+
 }
 
 //
@@ -64,9 +70,13 @@ void(entity e) Light_Red =
 void(entity e) Light_Green =
 {
     e.effects = e.effects | EF_FULLBRIGHT;
-    #ifndef PC
+
+#ifndef FTE
+
     e.effects = e.effects | EF_GREEN;
-    #else
+
+#else
+
     {
         e.pflags = PFLAGS_FULLDYNAMIC;
        	e.light_lev = 100;
@@ -74,7 +84,9 @@ void(entity e) Light_Green =
 	    e.color_y = 2;	
 	    e.color_z = 0.25;
     }
-    #endif
+
+#endif // FTE
+
 }
 
 //
@@ -84,9 +96,13 @@ void(entity e) Light_Green =
 void(entity e) Light_Blue =
 {
     e.effects = e.effects | EF_FULLBRIGHT;
-    #ifndef PC
+
+#ifndef FTE
+
     e.effects = e.effects | EF_BLUE;
-    #else
+
+#else
+
     {
         e.pflags = PFLAGS_FULLDYNAMIC;
        	e.light_lev = 100;
@@ -94,7 +110,9 @@ void(entity e) Light_Blue =
 	    e.color_y = 0.25;	
 	    e.color_z = 2;
     }
-    #endif
+
+#endif // FTE
+
 }
 
 //
@@ -104,9 +122,13 @@ void(entity e) Light_Blue =
 void(entity e) Light_Orange =
 {
     e.effects = e.effects | EF_FULLBRIGHT;
-    #ifndef PC
+
+#ifndef FTE
+
     e.effects = e.effects | EF_ORANGELIGHT;
-    #else
+
+#else
+
     {
         e.pflags = PFLAGS_FULLDYNAMIC;
        	e.light_lev = 100;
@@ -114,7 +136,9 @@ void(entity e) Light_Orange =
 	    e.color_y = 1;	
 	    e.color_z = 0;
     }
-    #endif
+
+#endif // FTE
+
 }
 
 //
@@ -124,9 +148,13 @@ void(entity e) Light_Orange =
 void(entity e) Light_Purple =
 {
     e.effects = e.effects | EF_FULLBRIGHT;
-    #ifndef PC
+
+#ifndef FTE
+
     e.effects = e.effects | EF_PURPLELIGHT;
-    #else
+
+#else
+
     {
         e.pflags = PFLAGS_FULLDYNAMIC;
        	e.light_lev = 100;
@@ -134,7 +162,9 @@ void(entity e) Light_Purple =
 	    e.color_y = 0.25;	
 	    e.color_z = 2;
     }
-    #endif
+
+#endif // FTE
+
 }
 
 //
@@ -144,7 +174,9 @@ void(entity e) Light_Purple =
 void(entity e) Light_None =
 {
 	e.effects = 0;
-	#ifdef PC
+
+#ifdef FTE
+
 	{
 		e.pflags = 0;
 		e.light_lev = 0;
@@ -152,7 +184,9 @@ void(entity e) Light_None =
 		e.color_y = 0;
 		e.color_z = 0;
 	}
-	#endif
+
+#endif // FTE
+
 }
 
 //
@@ -951,11 +985,6 @@ void() perk_deadshot =
 	self.think = setup_perk;
 	self.nextthink = time + 0.1;
 
-	// Different price on PC, for lack of Aim Assist
-	#ifdef PC
-	self.cost = self.cost2;
-	#endif
-
 	// Drink Information
 	self.sequence = 7;
 	self.style = P_DEAD;
@@ -1596,11 +1625,14 @@ void() mystery_touch =
 						other.weapon2model = "";
 					}
 					
-					#ifndef PC
+#ifndef FTE
+
 					other.Flash_Offset = GetWeaponFlash_Offset(self.boxweapon.weapon);
 					other.Flash_Size = GetWeaponFlash_Size(self.boxweapon.weapon);
 					other.Weapon_Name = GetWeaponName(self.boxweapon.weapon);
-					#endif
+
+#endif // FTE
+
 				}
 				else if (other.weapon == self.boxweapon.weapon)
 				{
@@ -1624,11 +1656,15 @@ void() mystery_touch =
 					other.currentammo = getWeaponAmmo(self.boxweapon.weapon);
 					other.currentmag = getWeaponMag(self.boxweapon.weapon);
 					other.weaponskin = GetWepSkin(self.boxweapon.weapon);
-					#ifndef PC
+
+#ifndef FTE
+
 					other.Flash_Offset = GetWeaponFlash_Offset(self.boxweapon.weapon);
 					other.Flash_Size = GetWeaponFlash_Size(self.boxweapon.weapon);
 					other.Weapon_Name = GetWeaponName(self.boxweapon.weapon);
-					#endif
+
+#endif // FTE
+
 				}
 				else if (!other.thirdweapon && (other.perks & P_MULE))
 				{
@@ -1854,9 +1890,11 @@ void PapUpgrade(entity pap, entity buyer) {
 	self.weapon2model = "";
 	UpdateV2model(self.weapon2model, 0);
 
-	#ifndef PC
+#ifndef FTE
+
 	self.Weapon_Name = "";
-	#endif
+
+#endif // FTE
 
 	self = tempe;
 
@@ -1927,12 +1965,14 @@ void touch_pap() {
 			UpdateV2model(other.weapon2model, 0);
 			Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, true, S_BOTH);//FIXME
 
-			#ifndef PC
+#ifndef FTE
+
 			self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 			self.Flash_Size = GetWeaponFlash_Size(self.weapon);
 			self.Weapon_Name = GetWeaponName(self.weapon);
 			self.weaponskin = GetWepSkin(self.weapon);
-			#endif
+
+#endif // FTE
 
 			self = tempe;
 

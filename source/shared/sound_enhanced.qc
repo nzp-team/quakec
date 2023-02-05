@@ -29,7 +29,8 @@
 #define CHAN_MUSIC      1
 #define CHAN_SFX        2
 
-#ifdef PC
+#ifdef FTE
+
 void(string soundname, optional float channel, optional float volume) localsound_enhanced =
 {
     if (!volume)
@@ -47,4 +48,5 @@ void(string soundname, optional float channel, optional float volume) localsound
 
     localsound(soundname, channel, volume);
 }
-#endif // PC
+
+#endif // FTE

@@ -1,9 +1,9 @@
 /*
 	server/ai/fte/waypoints_core.qc
 
-	pc waypointing
+	FTE waypointing
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2023 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -260,11 +260,7 @@ void () Link_Waypoints =
 	float i;
 	entity tempe;
 	for	(i = 0; i < MAX_WAY_TARGETS; i++) {
-		#ifdef PC
 		tempe = findfloat (world, waynum, active_way.targets[i]);
-		#else 
-		tempe = find (world, waynum, active_way.targets[i]);
-		#endif
 
 		if (tempe == world) {
 			if (Link(active_way, current_way)) {
@@ -394,11 +390,7 @@ void() Save_Waypoints
 		fputs(file, " [\n");
 		for (i = 0; i < MAX_WAY_TARGETS; i++) {
 			if (dway.targets[i] != "") {
-				#ifdef PC
 				tempe = findfloat (world, waynum, dway.targets[i]);
-				#else 
-				tempe = find (world, waynum, dway.targets[i]);
-				#endif
 
 				if (tempe != world) {
 					fputs(file, strcat("  ", strcat(dway.targets[i], "\n")));
@@ -655,9 +647,6 @@ void() Load_Waypoints_Legacy
 		h = (fgets(file));
 		trg8 = substring(h, 10, 20);
 		
-		#ifndef PC
-		Create_Waypoint(where, which, special, trg, trg2, trg3, trg4, trg5, trg6, trg7, trg8);
-		#else
 		waypoint_ai waypoint;
 		waypoint = waypoints[which];
 
@@ -673,7 +662,6 @@ void() Load_Waypoints_Legacy
 		waypoints[which].target_id[5] = stof(trg6);
 		waypoints[which].target_id[6] = stof(trg7);
 		waypoints[which].target_id[7] = stof(trg8);
-		#endif
 
 		h = (fgets(file));
 		h = (fgets(file));

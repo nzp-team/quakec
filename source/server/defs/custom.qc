@@ -25,11 +25,9 @@
 
 */
 
-#ifndef QUAKESPASM
-#ifndef HANDHELD
+#ifndef STANDARD
 #pragma target FTE
-#endif // HANDHELD
-#endif // QUAKESPASM
+#endif // STANDARD
 
 #define true 				1
 #define false 				0
@@ -46,15 +44,15 @@ float 	framecount;
 float 	deathmatch;
 float 	coop;
 
-#ifndef PC
+#ifndef FTE
+
 void(string com) SV_ParseClientCommand;
 .float	gravity;
 .float	recoil_delay;
-#ifndef HANDHELD
 .float 	mapversion;
-#endif
 .float	ammo;
-#endif
+
+#endif // FTE
 
 // achievement tracking
 .float 	ach_tracker_npnp;
@@ -91,9 +89,12 @@ void(entity person, float expamt , float doublepoint) addmoney;
 .float score;
 .float kills;
 .float headshots;
-#ifdef PC
+
+#ifdef FTE
+
 .float facingenemy;
-#endif
+
+#endif // FTE
 
 //doors
 .float state;
@@ -106,9 +107,12 @@ void(entity person, float expamt , float doublepoint) addmoney;
 .float requirespower;
 
 //player funcs
-#ifdef PC
+
+#ifdef FTE
+
 .float zoom;
-#endif
+
+#endif // FTE
 
 .float damage_timer;								// Used for time-based damage infliction such as Traps.
 .float speed_penalty;								// A multiplier for limiting player speed. Also 
@@ -229,11 +233,16 @@ void() SUB_Null2 = {};
 
 #define     VEC_VIEW_OFS  '0 0 32'
 
-#ifndef HANDHELD
-#define 	MAX_ZOMB 		24
+// FIXME: Limits Quakespasm to 12 zombies lol
+#ifdef FTE
+
+#define MAX_ZOMB 			24
+
 #else
-#define 	MAX_ZOMB 		12
-#endif // HANDHELD
+
+#define MAX_ZOMB 			12
+
+#endif // FTE 
 
 vector	trace_plane_normal;
 
@@ -386,11 +395,14 @@ entity boxLocations[32];
 float boxCount;
 vector boxOrigin;
 
-#ifdef PC
+#ifdef FTE
+
 //powerups
 .float x2_icon;
 .float insta_icon;
-#endif // PC
+
+#endif // FTE
+
 .string powerup_vo;
 float instakill_finished;
 float insta_blink;
@@ -456,7 +468,8 @@ typedef struct
 #define SET_OPEN	1
 #define SET_CLOSED	2
 
-#ifdef PC
+#ifdef FTE
+
 waypoint_ai waypoints[MAX_WAYPOINTS];
 
 // fog
@@ -464,7 +477,8 @@ string world_fog;
 
 // lights 
 #define EF_PURPLELIGHT		256		// fte already has some effect styles defined...
-#endif
+
+#endif // FTE
 
 #define UT_HUD 				1
 #define UT_ROUNDS_CHANGE 	2
@@ -525,9 +539,8 @@ float sndActivCnt;
 .vector	bbmins, bbmaxs;	
 .float currentHitBoxSetup;
 
-#ifdef QUAKESPASM
 .float sprintflag;
-#endif
+
 
 // PC Fog force
 .float PC_fog;

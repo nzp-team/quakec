@@ -164,20 +164,6 @@ void(string weaponFile) nzd_defineweapon = {
 						CustomWeapons[wepnum].flashsize = stof(v);
 				}
 
-				#ifdef PC
-				/*sendCustomWeapon(wepnum, CustomWeapons[wepnum].name, CustomWeapons[wepnum].magSize, 
-				CustomWeapons[wepnum].reserveSize, CustomWeapons[wepnum].vmodel, CustomWeapons[wepnum].vmodel2, 
-				CustomWeapons[wepnum].gmodel, CustomWeapons[wepnum].isDual, CustomWeapons[wepnum].firetype, 
-				CustomWeapons[wepnum].nonpap, CustomWeapons[wepnum].pap, CustomWeapons[wepnum].ispap, 
-				CustomWeapons[wepnum].damage, CustomWeapons[wepnum].shotcount, CustomWeapons[wepnum].bodypen, 
-				CustomWeapons[wepnum].penetration, CustomWeapons[wepnum].spread, CustomWeapons[wepnum].fdelay, 
-				CustomWeapons[wepnum].rdelay, CustomWeapons[wepnum].walkspeed, CustomWeapons[wepnum].firesound, 
-				CustomWeapons[wepnum].skin, CustomWeapons[wepnum].recoil, CustomWeapons[wepnum].crossmin, 
-				CustomWeapons[wepnum].crossmax, CustomWeapons[wepnum].lowmag, CustomWeapons[wepnum].lowreserve, 
-				CustomWeapons[wepnum].flash, CustomWeapons[wepnum].flashsize, CustomWeapons[wepnum].papWpn, 
-				CustomWeapons[wepnum].adsofs);*/
-				#endif
-
 				break;
 			case 3:
                 if (line == "[") {

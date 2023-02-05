@@ -186,9 +186,12 @@ void() PlayerJump =
 
 void(float override) JumpCheck =
 {
-	#ifndef PC
+
+#ifndef FTE
+
 	override = 0;
-	#endif 
+
+#endif // FTE
 
 	if(self.button2 || override) {
 		if (self.downed)
@@ -225,7 +228,9 @@ void() PlayerPreThink =
 	} else {
 		self.maxspeed = 175;
 		if (self.sprinting) {
-		#ifdef PC
+
+#ifdef FTE
+
 			if (self.viewzoom > 0.9)
 				self.viewzoom -= 0.015;
 			else if (self.viewzoom < 0.9)
@@ -233,19 +238,25 @@ void() PlayerPreThink =
 				
 			// viewbob when running 
 			self.punchangle_x = 1*sin(time*15);
-		#endif	
+
+#endif // FTE
+
 			playrun1();
 			self.maxspeed *= 1.66;
 		} else if (!self.sprinting && !self.zoom) {
-		#ifdef PC
+
+#ifdef FTE
+
 			if (self.viewzoom < 1)
 				self.viewzoom += 0.015;
 			else 
 				self.viewzoom = 1;
 				
 			if (checkMovement(-1))
-				self.punchangle_x = 0.25*sin(time*15);		
-		#endif
+				self.punchangle_x = 0.25*sin(time*15);	
+
+#endif // FTE
+
 		} else if (self.zoom != 3) {
 			self.maxspeed *= 0.5;
 		} 
@@ -267,13 +278,15 @@ void() PlayerPreThink =
 				break;		
 		}
 
-		#ifdef PC
+#ifdef FTE
+
 		if (checkMovement(backward)) {
 			self.maxspeed *= 0.7;
 		} else if (checkMovement(left) || checkMovement(right)) {
 			self.maxspeed *= 0.8;
 		}
-		#endif
+
+#endif // FTE
 
 		self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	}
@@ -344,7 +357,8 @@ void() PlayerPostThink =
 		self.lastsound_time = time - 0.15;
 	}
 	
-	#ifdef PC
+#ifdef FTE
+
 	//footsteps
 	if((vlen(self.velocity) > 100) &&(( time - self.lastsound_time > 0.4) || (time - self.lastsound_time > 0.3 && self.sprinting)) && (self.flags & FL_ONGROUND))
 	{
@@ -368,7 +382,8 @@ void() PlayerPostThink =
 			self.lastsound_time = time;
 		}
 	}
-	#endif
+
+#endif // FTE
 	
 	if (self.health_delay < time && self.health != self.max_health && !self.downed)
 	{
@@ -399,15 +414,19 @@ void() PlayerPostThink =
 	if (self.sprinting) {
 		self.sprint_timer = self.sprint_duration + (time - self.sprint_start_time);
 		
-		#ifndef PC
+#ifndef FTE
+
 		if (!self.velocity || self.stance != 2) {
 			W_SprintStop();
 		}
-		#else
+
+#else
+
 		if (!self.velocity || !checkMovement(0) || self.stance != 2) { //moto (FIXME) -- move me!
 			W_SprintStop();
 		}
-		#endif
+
+#endif // FTE
 		
 		if (self.perks & P_STAMIN) {
 			if (self.sprint_timer > sprint_max_time * 2) {
@@ -429,26 +448,25 @@ void() PlayerPostThink =
 
 	// Perform a traceline to keep track of entities directly
 	// in front of the player.
-//#ifndef QUAKESPASM
 
 	vector source;
 
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
 
-#ifdef PC
+#ifdef FTE
 
 	self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
 
-#endif // PC
+#endif // FTE
 
 	traceline (source, source + v_forward*800*1.2, 0, self);
 
-#ifdef PC
+#ifdef FTE
 
 	self.dimension_hit = HITBOX_DIM_ZOMBIES;
 
-#endif // PC
+#endif // FTE
 
 
 	// use .head here to avoid expanding ent struct
@@ -463,7 +481,6 @@ void() PlayerPostThink =
 	else
 		self.facingenemy = false;
 
-//#endif // QUAKESPASM
 };
 
 void() ClientKill = {};
@@ -471,11 +488,13 @@ void() ClientKill = {};
 //called when a client connects to the server
 void() ClientConnect =
 {
-	#ifdef PC
+
+#ifdef FTE
+
 	// Maintain old FGD values and just convert them to new ones
 	// 
 	if (world.fog) {
-		// Force fog on PC
+		// Force fog on FTE
 		if (!world.PC_fog) {
 			// Don't execute more than once
 			if (!world_fog) {
@@ -498,7 +517,8 @@ void() ClientConnect =
 			localcmd(strcat("fog ", world_fog));
 		} 
 	}
-	#endif
+
+#endif // FTE
 	
 	if(cvar("developer") || player_count > 1) {
 		bprint(PRINT_HIGH, self.netname); //print player name
@@ -532,10 +552,15 @@ void() PlayerSpawn =
 	self.isspec = FALSE;
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
+
 	// We can only collide with zombies (and not their limbs)
-#ifdef PC
+
+#ifdef FTE
+
 	self.dimension_hit = HITBOX_DIM_ZOMBIES;
-#endif // PC
+
+#endif // FTE
+
 	setmodel(self, "models/player.mdl");
 	self.movetype = MOVETYPE_WALK;
 	self.max_health = self.health = 100;
@@ -653,7 +678,8 @@ void() PlayerSpawn =
 	PromptLevelChange(self.nextthink + 3, 1, self);	
 	UpdatePlayerCount(player_count);
 	
-	#ifdef PC
+#ifdef FTE
+
 	PollPlayerPoints();
 	UpdateV2model("", 0);
 	stuffcmd(self, "cl_gunx 8;cl_guny 16;cl_gunz 25\n");
@@ -663,11 +689,14 @@ void() PlayerSpawn =
 
 	if (G_WORLDTEXT)
 		WorldText(world.chaptertitle, world.location, world.date, world.person, self);
-	#else 
+
+#else 
+
 	self.Weapon_Name = GetWeaponName(self.weapon);
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 	self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-	#endif
+
+#endif // FTE
 
 	if (G_STARTROUND != 1) {
 		rounds = G_STARTROUND - 1;
@@ -703,11 +732,14 @@ void() PutClientInServer =
 	
 	if (spawn_time > time || !rounds)
 		PlayerSpawn();
-	// TEMPORARY
-#ifdef PC
+
+#ifdef FTE
+
 	else 
 		SpectatorSpawn();
-#endif
+
+#endif // FTE
+
 };
 
 //called when client disconnects from the server
@@ -734,9 +766,11 @@ void() SetChangeParms =
 {
 };
 
-#ifdef PC
+#ifdef FTE
+
 void() SV_RunClientCommand =
 {
 	runstandardplayerphysics(self);
 }
-#endif
+
+#endif // FTE

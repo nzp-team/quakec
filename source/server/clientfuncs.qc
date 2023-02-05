@@ -27,7 +27,7 @@
 
 void SetUpdate(entity client, float type, float val1, float val2, float val3)
 {
-#ifdef PC
+#ifdef FTE
 
 	if (type != 2)
 	{
@@ -51,10 +51,10 @@ void SetUpdate(entity client, float type, float val1, float val2, float val3)
 		multicast('0 0 0', MULTICAST_ALL);
 	}
 
-#endif // PC
+#endif // FTE
 }
 
-#ifdef PC
+#ifdef FTE
 void(entity to, float type, float cost, float weapon) useprint = {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_USEPRINT);
@@ -64,10 +64,10 @@ void(entity to, float type, float cost, float weapon) useprint = {
 	msg_entity = to;
 	multicast('0 0 0', MULTICAST_ONE);
 }
-#endif // PC
+#endif // FTE
 
 void(vector org) CallExplosion = {
-#ifndef PC
+#ifndef FTE
 
     WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_EXPLOSION);
@@ -84,22 +84,22 @@ void(vector org) CallExplosion = {
 	WriteCoord(MSG_MULTICAST, org_z);
 	multicast('0 0 0', MULTICAST_ALL);
 
-#endif // PC
+#endif // FTE
 }
 
 void NotifyNewRound(float to) {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_NEWROUND);
 	WriteByte(MSG_MULTICAST, to);
 	multicast('0 0 0', MULTICAST_ALL);
 
-#endif // PC
+#endif // FTE
 }
 
 void SetRound(entity client, float to) {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_SETROUND);
@@ -107,12 +107,12 @@ void SetRound(entity client, float to) {
 	msg_entity = client;
 	multicast('0 0 0', MULTICAST_ONE);
 
-#endif // PC
+#endif // FTE
 }
 
 void SetPerk(entity client, float to)
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PERK);
@@ -120,12 +120,12 @@ void SetPerk(entity client, float to)
 	msg_entity = client;
 	multicast('0 0 0', MULTICAST_ONE);
 
-#endif // PC
+#endif // FTE
 }
 
 void(float to) SwitchWeapon =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_WEAPONCHANGE);
@@ -136,12 +136,12 @@ void(float to) SwitchWeapon =
 	// hotfix for weapon2models not reseting
 	self.weapon2model = GetWeapon2Model(to);
 
-#endif // PC
+#endif // FTE
 }
 
 void(string to, float skin) UpdateVmodel =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEVMODEL);
@@ -150,12 +150,12 @@ void(string to, float skin) UpdateVmodel =
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
 
-#endif // PC
+#endif // FTE
 }
 
 void(string to, float skin) UpdateV2model =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_UPDATEV2MODEL);
@@ -164,12 +164,12 @@ void(string to, float skin) UpdateV2model =
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
 
-#endif // PC
+#endif // FTE
 }
 
 void(float index, float state) ChangeReviveIconState =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVECHANGE);
@@ -177,12 +177,12 @@ void(float index, float state) ChangeReviveIconState =
 	WriteByte(MSG_MULTICAST, state);
 	multicast('0 0 0', MULTICAST_ALL);
 
-#endif // PC
+#endif // FTE
 }
 
 void(float index, vector org) EnableReviveIcon =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVEON);
@@ -192,24 +192,24 @@ void(float index, vector org) EnableReviveIcon =
 	WriteCoord(MSG_MULTICAST, org_z);
 	multicast('0 0 0', MULTICAST_ALL);
 
-#endif // PC
+#endif // FTE
 }
 
 void(float index) DisableReviveIcon =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVEOFF);
 	WriteByte(MSG_MULTICAST, index);
 	multicast('0 0 0', MULTICAST_ALL);
 
-#endif // PC
+#endif // FTE
 }
 
 void(entity who, float broadcast_time, float type, string str) BroadcastMessageToClient =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
@@ -219,12 +219,12 @@ void(entity who, float broadcast_time, float type, string str) BroadcastMessageT
 	msg_entity = who;
 	multicast('0 0 0', MULTICAST_ONE);
 
-#endif // PC
+#endif // FTE
 }
 
 void(float broadcast_time, float type, string str) BroadcastMessage =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
@@ -233,12 +233,12 @@ void(float broadcast_time, float type, string str) BroadcastMessage =
 	WriteString(MSG_MULTICAST, str);
 	multicast('0 0 0', MULTICAST_ALL);
 
-#endif // PC
+#endif // FTE
 }
 
 void(float playernum, float points, float am, float kills, string name, entity person) UpdatePlayerPoints =
 {
-#ifdef PC
+#ifdef FTE
 
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -262,11 +262,11 @@ void(float playernum, float points, float am, float kills, string name, entity p
 		multicast('0 0 0', MULTICAST_ALL);
 	}
 
-#endif // PC
+#endif // FTE
 }
 
 void(float count) UpdatePlayerCount = {
-#ifdef PC
+#ifdef FTE
 	if (count == 0)
 		return;
 	else {
@@ -276,12 +276,12 @@ void(float count) UpdatePlayerCount = {
 		multicast('0 0 0', MULTICAST_ALL);
 	}
 
-#endif // PC
+#endif // FTE
 }
 
 void(float newtime, float newtype, entity change) PromptLevelChange =
 {
-#ifdef PC
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BLACKOUT);
@@ -290,12 +290,12 @@ void(float newtime, float newtype, entity change) PromptLevelChange =
 	msg_entity = change;
 	multicast('0 0 0', MULTICAST_ONE);
 
-#endif // PC
+#endif // FTE
 }
 
 void(entity who) UpdatePunchangle =
 {
-#ifdef PC
+#ifdef FTE
 
 	// naievil -- shit logic lol...but result looks clean as fuck...
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -338,10 +338,10 @@ void(entity who) UpdatePunchangle =
 	} else
 		who.punchangle_z = 0;
 
-#endif // PC
+#endif // FTE
 }
 
-#ifdef PC
+#ifdef FTE
 void(string h, float h2, entity who) pushHUD = {
 	if (player_count == 0) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -430,25 +430,23 @@ void(string chaptertitle, string location, string date, string person, entity wh
 		multicast('0 0 0', MULTICAST_ALL);
 	}
 }
-#endif // PC
+#endif // FTE
 
 void (float achievement_id, optional entity who) GiveAchievement =
 {
-//#ifndef QUAKESPASM
-
-#ifndef PC
+#ifndef FTE
 
 	// temp
 	if (achievement_id > 4)
 		return;
 
-#endif // PC
+#endif // FTE
 
 	// this is an achievement specific to an individual
 	if ((who && who != world) || player_count == 0) {
 		if (player_count == 0) who = find(world, classname, "player");
 
-#ifndef PC
+#ifndef FTE
 
 		achievement(who, achievement_id);
 
@@ -460,11 +458,11 @@ void (float achievement_id, optional entity who) GiveAchievement =
 		msg_entity = who;
 		multicast('0 0 0', MULTICAST_ONE);
 
-#endif // PC
+#endif // FTE
 
 	} else {
 
-#ifndef PC
+#ifndef FTE
 
 		entity players;
 		players = find(world, classname, "player");
@@ -480,29 +478,26 @@ void (float achievement_id, optional entity who) GiveAchievement =
 		WriteByte(MSG_MULTICAST, achievement_id);
 		multicast('0 0 0', MULTICAST_ALL);
 
-#endif // PC
+#endif // FTE
 	}
-
-//#endif // QUAKESPASM
 }
 
 void (float achievement_id, float progress_value, optional entity who) UpdateAchievementProgress =
 {
-//#ifndef QUAKESPASM
 
-#ifndef PC
+#ifndef FTE
 
 	// temp
 	if (achievement_id > 4)
 		return;
 
-#endif // PC
+#endif // FTE
 
 	// this is a progress update specific to an individual
 	if ((who && who != world) || player_count == 0) {
 		if (player_count == 0) who = find(world, classname, "player");
 
-#ifndef PC
+#ifndef FTE
 
 		//achievement_progress(who, achievement_id, progress_value);
 
@@ -515,11 +510,11 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 		msg_entity = who;
 		multicast('0 0 0', MULTICAST_ONE);
 
-#endif // PC
+#endif // FTE
 
 	} else {
 
-#ifndef PC
+#ifndef FTE
 
 		entity players;
 		players = find(world, classname, "player");
@@ -536,9 +531,9 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 		WriteFloat(MSG_MULTICAST, progress_value);
 		multicast('0 0 0', MULTICAST_ALL);
 
-#endif // PC
+#endif // FTE
 	}
-//#endif // QUAKESPASM
+
 }
 
 // *****************************************
@@ -559,11 +554,11 @@ float(entity who, entity target) isFacing =
 
 	float difference_angle = target_angle - who_angle;
 
-	#ifdef HANDHELD
+#ifndef FTE
 	if (difference_angle < -45) {
 		difference_angle += 360;
 	}
-	#endif
+#endif
 
 	// 180 = directly facing each other, 30 degree buffer.
 	if (difference_angle <= 210 && difference_angle >= 150)

@@ -54,12 +54,14 @@ void () W2_Frame_Update =
 	if (self.anim_weapon2_time > time)
 		return; //don't call every frame, if it is the animations will play too fast
 
-	#ifndef PC
+#ifndef FTE
+
 	if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER) {
 		self.weapon2frame = self.weaponframe;
 		return;
 	}
-	#endif
+
+#endif // FTE
 	
 	self.anim_weapon2_time = time + self.weapon2_animduration;
 

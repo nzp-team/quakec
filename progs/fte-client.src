@@ -1,4 +1,4 @@
-../../build/pc/csprogs.dat
+../../build/fte/csprogs.dat
 
 ../source/client/defs/fte.qc
 ../source/shared/defs/custom.qc

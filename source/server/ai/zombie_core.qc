@@ -397,11 +397,16 @@ void(float which) SetZombieHitBox =
 void() Zombie_Think = //called every frame for zombies
 {
 	if (self.onfire) {
-		#ifdef PC
+
+#ifdef FTE
+
 		te_flamejet(self.origin, v_up*8, 10);
-		#else
+
+#else
+
 		particle (self.origin, v_up*8, 0, 0);
-		#endif
+
+#endif // FTE
 
 		if (self.ltime < time && self.onfire){
 			DamageHandler(self, self.firer, 300, S_NORMAL);
@@ -982,17 +987,21 @@ void() removeZombie =
 	setmodel(self.rarm,"");
 	setmodel(self.head,"");
 
-	#ifdef PC
+#ifdef FTE
+
 	remove(self.larm);
 	remove(self.rarm);
 	remove(self.head);
-	#endif
+
+#endif // FTE
 	
-	#ifndef PC
+#ifndef FTE
+
 	updateLimb (self, 0, world);
 	updateLimb (self, 1, world);
 	updateLimb (self, 2, world);
-	#endif
+
+#endif // FTE
 	
 	setorigin(self,'0 0 0');
 	setorigin (self.goaldummy, '0 0 0');
@@ -1315,10 +1324,13 @@ void() Zombie_Find_Tesla_Target =
 			targetorg = zombs.origin + '0 0 13';
 
 			// shoot lightning
-			#ifdef PC
+
+#ifdef FTE
+
 			te_lightning2(self, org, targetorg);
-			#endif
-			#ifdef PSP
+
+#else
+
 			WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 			WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
 			WriteEntity (MSG_BROADCAST, self);
@@ -1328,7 +1340,8 @@ void() Zombie_Find_Tesla_Target =
 			WriteCoord (MSG_BROADCAST, targetorg_x);
 			WriteCoord (MSG_BROADCAST, targetorg_y);
 			WriteCoord (MSG_BROADCAST, targetorg_z);
-			#endif
+
+#endif // FTE
 
 			// anim play
 			tempe = self;
@@ -1497,9 +1510,12 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.head.solid = SOLID_NOT;
 	zSpawn.head.movetype = MOVETYPE_STEP;
 	zSpawn.head.takedamage = DAMAGE_NO;
-	#ifndef PC
+
+#ifndef FTE
+
 	updateLimb (zSpawn, 0, zSpawn.head);
-	#endif
+
+#endif // FTE
 	
 	zSpawn.larm = spawn();
 	zSpawn.larm.classname = "in_ai_zombie_larm";
@@ -1507,9 +1523,12 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.larm.solid = SOLID_NOT;
 	zSpawn.larm.movetype = MOVETYPE_STEP;
 	zSpawn.larm.takedamage = DAMAGE_NO;
-	#ifndef PC
+
+#ifndef FTE
+
 	updateLimb (zSpawn, 1, zSpawn.larm);
-	#endif
+
+#endif // FTE
 	
 	zSpawn.rarm = spawn();
 	zSpawn.rarm.classname = "in_ai_zombie_rarm";
@@ -1517,9 +1536,13 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.rarm.solid = SOLID_NOT;
 	zSpawn.rarm.movetype = MOVETYPE_STEP;
 	zSpawn.rarm.takedamage = DAMAGE_NO;
-	#ifndef PC
+
+#ifndef FTE
+
 	updateLimb (zSpawn, 2, zSpawn.rarm);
-	#endif
+
+#endif
+
 };
 void(entity szombie)  SetUpHitBoxes =
 {
@@ -1538,11 +1561,13 @@ void(entity szombie)  SetUpHitBoxes =
 	szombie.rarm.classname = "ai_zombie_rarm";
 	szombie.rarm.takedamage = DAMAGE_YES;
 	
-#ifdef PC
+#ifdef FTE
+
 	szombie.head.dimension_solid = HITBOX_DIM_LIMBS;
 	szombie.larm.dimension_solid = HITBOX_DIM_LIMBS;
 	szombie.rarm.dimension_solid = HITBOX_DIM_LIMBS;
-#endif	// PC
+
+#endif	// FTE
 
 	local entity oldself = self;
 	self = szombie;
@@ -1622,13 +1647,14 @@ void(entity where) spawn_a_zombieB =
 		return;
 	}
 
-	#ifdef PC
+#ifdef FTE
 	szombie.head = spawn();
 	szombie.rarm = spawn();
 	szombie.larm = spawn();
 
 	szombie.head.owner = szombie.rarm.owner = szombie.larm.owner = szombie;
-	#endif
+
+#endif // FTE
 
 	szombie.origin = where.origin;
 	
@@ -1645,17 +1671,24 @@ void(entity where) spawn_a_zombieB =
 	setmodel(szombie.head, "models/ai/zh^.mdl");
 	setmodel(szombie.rarm, "models/ai/zar(.mdl");
 	setmodel(szombie.larm, "models/ai/zal(.mdl");
-	#ifndef PC
+
+#ifndef FTE
+
 	updateLimb (szombie, 0, szombie.head);
 	updateLimb (szombie, 1, szombie.larm);
 	updateLimb (szombie, 2, szombie.rarm);
-	#endif
+
+#endif // FTE
 	
 	
 	szombie.solid = SOLID_CORPSE;
-#ifdef PC
+
+#ifdef FTE
+
 	szombie.dimension_solid = HITBOX_DIM_ZOMBIES;
-#endif // PC
+
+#endif // FTE
+
 	szombie.movetype = MOVETYPE_WALK;
 	setmodel(szombie, "models/ai/zb%.mdl");
 	szombie.hop_step = 0;
@@ -1742,7 +1775,8 @@ void(entity where) spawn_a_zombieB =
 	
 	//LinkZombiesHitbox();
 	
-#ifndef PC
+#ifndef FTE
+
 	//
 	// Zombie skin setting
 	//
@@ -1757,7 +1791,8 @@ void(entity where) spawn_a_zombieB =
 		szombie.skin = 2;
 	else
 		szombie.skin = 3;
-#endif // PC
+
+#endif // FTE
 
 	szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
 

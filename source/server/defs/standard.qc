@@ -13,7 +13,7 @@
 +=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-+
 */
 
-#define QUAKESPASM
+#define STANDARD
 
 // These lines CANNOT be altered/moved
 entity          self;
@@ -123,8 +123,6 @@ void            end_sys_globals;						// flag for structure dumping
 .float          team;
 .float          max_health;								// players maximum health is stored here
 .float          teleport_time;							// don't back up
-.float          armortype;
-.float          armorvalue;
 .float          waterlevel;								// 0 = not in, 1 = feet, 2 = wast, 3 = eyes
 .float          watertype;								// a contents value
 .float          ideal_yaw;
@@ -138,8 +136,6 @@ void            end_sys_globals;						// flag for structure dumping
 .float          spawnflags;
 .string         target;
 .string         targetname;
-//.float          dmg_take;
-//.float          dmg_save;
 .float       	bleed_out;
 .float			progress_bar;
 .entity         dmg_inflictor;
@@ -150,15 +146,14 @@ void            end_sys_globals;						// flag for structure dumping
 .string         noise, noise1, noise2, noise3;			// contains names of wavs to play
 .float			x2_icon;								// double points icon
 .float			insta_icon;
-.string			Weapon_Name;
-.string			Weapon_Name_Touch;
 .vector			ADS_Offset;
 .vector         Flash_Offset;
 .float 			Flash_Size;
+.string			Weapon_Name;
+.string			Weapon_Name_Touch;
 .float          currentmag2;
 .float          maxspeed;
 .float     		facingenemy;
-.float          renderGrayscale;
 //.float        scale;
 void            end_sys_fields; 						// flag for structure dumping
 // End. Lines below this MAY be altered, to some extent
@@ -240,9 +235,8 @@ string  (string s)                                                              
 string  (string s)                                                                              precache_file2      = #77;  // registered version only
 void    (entity e)                                                                              setspawnparms       = #78;  // set parm1... to the
 void    (entity plr, float achievement)                                                         achievement         = #79;
-//void	(entity killer, entity killee)															logfrag				= #79;	// add to stats
 float   (string s)                                                                              stof                = #81;  // 2001-09-20 QuakeC string manipulation by FrikaC
-void	(vector where, float set)																multicast			= #82;
+//void	(vector where, float set)																multicast			= #82;
 vector  (entity what)                                                                           Get_Waypoint_Near   = #83;
 float   (entity zombie, entity target)                                                          Do_Pathfind_psp     = #84;
 void    (string s)                                                                              Open_Waypoint       = #85;
@@ -385,8 +379,6 @@ void    ()                                                                      
 #define     SVC_SETPAUSE                24
 #define     SVC_SIGNONNUM               25
 #define     SVC_CENTERPRINT             26
-#define 	SVC_KILLEDMONSTER			27
-#define		SVC_FOUNDSECRET				28
 #define     SVC_SPAWNSTATICSOUND        29              // 1998-08-08 Complete SVC list by Zhenga
 #define     SVC_INTERMISSION            30
 #define     SVC_FINALE                  31
@@ -396,9 +388,6 @@ void    ()                                                                      
 #define     SVC_WEAPONFIRE              35
 #define		SVC_HITMARK					36
 #define     SVC_USEPRINT                38
-#define		SVC_MUZZLEFLASH				39
-#define 	SVC_SONGEGG					45 // 45
-#define		SVC_MAXAMMO					46 // 46
 #define 	SVC_LIMBUPDATE  			51 				// naievil -- keep me
 #define 	SVC_BSPDECAL    			50				// naievil -- keep me
 #define 	SVC_ACHIEVEMENT 			52

@@ -77,9 +77,11 @@ void() change_frame =
 	self.nextthink = time + 1;
 }
 
-#ifndef PC
+#ifndef FTE
+
 void LoadWaypointData() = {};
-#endif
+
+#endif // FTE
 
 // Old Demo defs
 .float fogdogs;

@@ -47,11 +47,14 @@ float(float value, float minValue, float maxValue) clamp = {
  *
  * Returns: The remainder of a divided by n
  */
-#ifndef PC
+
+#ifndef FTE
+
 float(float a, float n) mod = {
     return a - (n * floor(a / n));
 };
-#endif
+
+#endif // FTE
 
 /*
  * sign

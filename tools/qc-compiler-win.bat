@@ -1,10 +1,8 @@
 @ECHO OFF
 CD ../
 REM ****** create build directories ******
-MKDIR build\pc\ 2>nul
-MKDIR build\handheld\ 2>nul
-MKDIR build\quakespasm\ 2>nul
-MKDIR build\vita\ 2>nul
+MKDIR build\fte\ 2>nul
+MKDIR build\standard\ 2>nul
 CD bin/
 echo.
 echo ========================
@@ -20,14 +18,8 @@ echo.
 fteqcc-cli-win.exe -srcfile ../progs/fte-server.src
 echo.
 echo ========================
-echo  compiling PSP & 3DS QC
+echo   compiling STANDARD QC
 echo ========================
 echo.
-fteqcc-cli-win.exe -srcfile ../progs/handheld.src
-echo.
-echo ========================
-echo  compiling QUAKESPASM QC
-echo ========================
-echo.
-fteqcc-cli-win.exe -srcfile ../progs/quakespasm.src
+fteqcc-cli-win.exe -srcfile ../progs/standard.src
 pause

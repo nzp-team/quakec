@@ -530,23 +530,31 @@ void() PathfindToEnemy =
 	//just to stop any warns.
 	path_failure = 0;
 
-	#ifndef PC
+#ifndef FTE
+
 	path_result = Do_Pathfind_psp(self, self.enemy);
-	#else
+
+#else
+
 	path_result = Do_Pathfind(self, self.enemy);
-	#endif
+
+#endif // FTE
 
 	if (path_result >= 1) {
 
-		#ifndef PC
+#ifndef FTE
+
 		self.goaldummy.origin = Get_First_Waypoint(self, self.origin, VEC_HULL_MIN, VEC_HULL_MAX);
 		setorigin(self.goaldummy, self.goaldummy.origin);
 		path_failure = path_result;
-		#else
+
+#else
+
 		self.goalway = path_result;
 		setorigin(self.goaldummy,waypoints[self.goalway].org);
 		path_failure = self.goalway;
-		#endif
+
+#endif // FTE
 
 		self.goalentity = self.goaldummy;
 		self.chase_time = time + 7;
@@ -555,15 +563,21 @@ void() PathfindToEnemy =
 		self.goalentity = self.enemy;
 		self.chase_time = time + 6;
 	} else {
-		#ifdef PC
+
+#ifdef FTE
+
 		bprint(PRINT_HIGH, "FirstPathfind Failure\n");
-		#endif
+
+#endif // FTE
+
 	}
 }
 
 void() NextPathfindToEnemy {
 	// same as PathfindToEnemy on non-FTE platforms
-	#ifndef PC
+
+#ifndef FTE
+
 	float path_success;
 	path_success = Do_Pathfind_psp(self,self.enemy);
 	if(path_success ==1) {
@@ -577,7 +591,9 @@ void() NextPathfindToEnemy {
 	} else {
 		bprint(PRINT_HIGH, "NextPathfind Failure\n");		// this lags like hell
 	}
-	#else
+
+#else
+
 	self.way_cur++;
 
 	if (self.way_cur < 40 && self.way_path[self.way_cur] != -1) {
@@ -586,10 +602,13 @@ void() NextPathfindToEnemy {
 	} else {
 		self.way_cur = 0;
 	}
-	#endif
+
+#endif // FTE
+
 }
 
-#ifdef PC
+#ifdef FTE
+
 float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove
 {
 	//was tracebox
@@ -601,7 +620,8 @@ float(vector start, vector min, vector max, vector end, float nomonsters, entity
 		return 0;	
 	}		
 }
-#endif
+
+#endif // FTE
 
 void(float dist) Inside_Walk = {
 	if(self.enemy_timeout < time || self.enemy == world || self.enemy.downed == true) {
@@ -649,11 +669,17 @@ void(float dist) Inside_Walk = {
 	//============ GoalDummy is Target ============
 	if(self.goalentity == self.goaldummy) {
 		if(nearby(self.goaldummy.origin)) {
-			#ifndef PC
+
+#ifndef FTE
+
 			NextPathfindToEnemy();
-			#else
+
+#else
+
 			PathfindToEnemy();
-			#endif
+
+#endif // FTE
+
 		}
 
 		if(self.chase_time < time) {
