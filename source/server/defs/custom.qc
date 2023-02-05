@@ -538,3 +538,6 @@ float sndActivCnt;
 .vector rendercolor;
 
 float revive_index;
+
+
+void() test_new_ent;

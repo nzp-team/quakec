@@ -49,7 +49,6 @@ void() EndGame_FadePrompt =
 //Actual endgame function, all zombies die, music plays
 void() EndGame =
 {
-	local entity oldself;
 	local entity who;
 
 	self.health = 0;
@@ -57,17 +56,13 @@ void() EndGame =
 	setorigin (self, self.origin);
 	self.velocity = '0 0 0';
 	sound (self, CHAN_AUTO, "sounds/music/end.wav", 1, ATTN_NORM);
-
-	oldself = self;
 	
 	who = find(world,classname,"ai_zombie");
 	while(who != world)
 	{
 		if(who.health)
 		{
-			self = who;
-			self.th_die();
-			self = oldself;
+			who.th_die();
 		}
 		
 		who = find(who,classname,"ai_zombie");

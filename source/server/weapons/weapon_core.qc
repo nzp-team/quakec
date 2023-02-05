@@ -2132,6 +2132,9 @@ void () Impulse_Functions =
 			
 			waypoint_mode = 1;
 			break;
+		case 115:
+			test_new_ent();
+			break;
 		default:
 			#ifdef PC
 			bprint(PRINT_HIGH, "Unknown impulse: ", ftos(self.impulse));
