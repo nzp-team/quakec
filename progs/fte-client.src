@@ -4,8 +4,10 @@
 ../source/shared/defs/custom.qc
 ../source/shared/sound_enhanced.qc
 ../source/shared/weapon_defines.qc
+../source/shared/navmesh_defines.qc
 ../source/client/defs/custom.qc
 ../source/client/menu.qc
 ../source/client/achievements.qc
 ../source/client/hud.qc
 ../source/client/main.qc
+../source/client/navmesh_editor.qc

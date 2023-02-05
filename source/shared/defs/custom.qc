@@ -61,6 +61,13 @@ const float EVENT_REVIVECHANGE 			= 39;
 #endif
 #endif
 
+
+// NAVMESH BEGIN - Increases stringtable size, adds support for memalloc.
+#ifdef PC
+#pragma target FTE
+#endif
+// NAVMESH END
+
 // Weapon Firetype definitions
 #define FIRETYPE_FULLAUTO	0
 #define FIRETYPE_SEMIAUTO	1

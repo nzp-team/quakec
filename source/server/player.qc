@@ -309,7 +309,13 @@ void() PlayerPreThink =
 	
 	if (cvar("waypoint_mode")) {
 		Waypoint_Logic();
-	} else {
+	} 
+#ifdef PC
+	else if (cvar("navmesh_edit_mode")) {
+		Navmesh_Editor_Logic();
+	}
+#endif // PC
+	 else {
 		Weapon_Logic();
 	}
 

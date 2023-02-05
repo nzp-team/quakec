@@ -346,6 +346,18 @@ void() door_trigger_touch =
 		return;
 	}
 	
+#ifdef PC
+	if(cvar("navmesh_edit_mode")) {
+		if(strcmp(cvar_string("nav_editor_active_door"), self.owner.wayTarget) != 0) {
+			bprint(PRINT_HIGH, "Current Door for navmesh editor set to \"");
+			bprint(PRINT_HIGH, self.owner.wayTarget);      // naiveil (FIXME)
+			bprint(PRINT_HIGH, "\"\n");
+			cvar_set("nav_editor_active_door", self.owner.wayTarget);
+		}
+		return;
+	}
+#endif // PC
+	
 	if (other.health <= 20)
 		return;
 

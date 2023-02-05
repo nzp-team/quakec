@@ -429,6 +429,7 @@ float rounds_change;
 void () Waypoint_Logic;
 entity current_way;
 float waypoint_mode;
+float cl_navmesh_edit_mode;
 entity active_way;
 
 #define MAX_WAY_TARGETS		10
@@ -471,6 +472,18 @@ string world_fog;
 #define UT_HM				3
 #define UT_ZOOM2			4
 #define UT_CROSSHAIR		5
+
+//======================= Navmesh defs ============================
+#ifdef PC
+void() Navmesh_Editor_Logic;
+void() sv_load_navmesh_data;
+#endif // PC
+
+// //One struct for temp pathfinding calculations per zombie 
+// //pathfind_result sv_zombie_pathfind_result[MAX_ZOMBIES];
+// pathfind_result *sv_zombie_pathfind_result;
+
+//=================================================================
 
 //Misc patch definitions
 .string teddyremovetarget;

@@ -3,6 +3,7 @@
 ../source/server/defs/fte.qc
 ../source/shared/defs/custom.qc
 ../source/shared/weapon_defines.qc
+../source/shared/navmesh_defines.qc
 ../source/server/defs/custom.qc
 ../source/server/clientfuncs.qc
 
@@ -33,7 +34,9 @@
 
 ../source/server/entities/powerups.qc
 
+../source/server/ai/navmesh_core.qc
 ../source/server/ai/pathfind_code.qc
+../source/server/ai/chase_ai.qc
 ../source/server/ai/ai_core.qc
 ../source/server/ai/fte/waypoints_core.qc
 ../source/server/ai/zombie_core.qc

@@ -216,17 +216,17 @@ void create_framegroups() {
 
 // Performs 1D linear interpolation between x1 and x2 on t=0 to t=1
 // NOTE - the value of t is clamped to always be 0<=t<=1
-float(float x1, float x2, float t) lerp = {
-    // t = min(max(t,0.0), 1.0);
-    // Thanks, QC
-    if(t < 0.0) {
-        t = 0.0;
-    }
-    else if(t > 1.0) {
-        t = 1.0;
-    }
-    return t * (x2 - x1) + x1;
-};
+// float(float x1, float x2, float t) lerp = {
+//     // t = min(max(t,0.0), 1.0);
+//     // Thanks, QC
+//     if(t < 0.0) {
+//         t = 0.0;
+//     }
+//     else if(t > 1.0) {
+//         t = 1.0;
+//     }
+//     return t * (x2 - x1) + x1;
+// };
 
 
 class AI_Zombie : AI_Chase {
