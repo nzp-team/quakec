@@ -11,6 +11,13 @@ navmesh_vertex *cl_navmesh_verts;
 float cl_navmesh_vert_count;
 navmesh_poly *cl_navmesh_polies;
 float cl_navmesh_poly_count;
+navmesh_traversal *cl_navmesh_traversals;
+float cl_navmesh_traversal_count;
+float cl_navmesh_selected_traversal;
+
+
+float cl_navmesh_traversal_edit_mode;
+float cl_navmesh_traversal_editor_cur_point;
 
 
 
@@ -159,6 +166,40 @@ void cl_navmesh_draw_quad(vector a, vector b, vector c, vector d, vector color, 
 	}
 }
 
+// Draws a 3D line using a box
+void cl_navmesh_draw_line_3d(vector start, vector end, float edge_width, vector color, float alpha) {
+	// drawline(edge_width, start, end, color, alpha, drawflag???);
+	// return;
+	vector v_f = normalize(end - start);
+	vector v_r = normalize(crossproduct(v_f, '0 0 1'));
+	vector v_u = normalize(crossproduct(v_r, v_f));
+
+	// Special degenerate case: v_f is straight up
+	if(end.x == start.x && end.y == start.y) {
+		v_f = '0 0 1';
+		v_r = '1 0 0';
+		v_u = '0 1 0';
+	}
+
+	// 4 corners around start
+	vector start_bl = start + edge_width * (-v_r - v_u);
+	vector start_br = start + edge_width * ( v_r - v_u);
+	vector start_tr = start + edge_width * ( v_r + v_u);
+	vector start_tl = start + edge_width * (-v_r + v_u);
+	// 4 corners around end
+	vector end_bl = end + edge_width * (-v_r - v_u);
+	vector end_br = end + edge_width * ( v_r - v_u);
+	vector end_tr = end + edge_width * ( v_r + v_u);
+	vector end_tl = end + edge_width * (-v_r + v_u);
+
+	cl_navmesh_draw_quad(start_bl, start_br, start_tr, start_tl, 	color, alpha, false); // Start quad
+	cl_navmesh_draw_quad(start_tr, end_tr, end_tl, start_tl, 		color, alpha, false); // Top quad
+	cl_navmesh_draw_quad(start_br, end_br, end_bl, start_bl, 		color, alpha, false); // Bottom quad
+	cl_navmesh_draw_quad(start_br, end_br, end_tr, start_tr, 		color, alpha, false); // Right quad
+	cl_navmesh_draw_quad(start_bl, end_bl, end_tl, start_tl, 		color, alpha, false); // Left quad
+	cl_navmesh_draw_quad(end_bl, end_tl, end_tr, end_br, 			color, alpha, false); // End quad
+}
+
 void cl_navmesh_draw_tri(vector a, vector b, vector c, vector color, float alpha, int draw_edges) {
 //Assigning the shader as something else so that fte doesn't batch the calls (leading to colors not changing between draw calls)
 	R_BeginPolygon("debug/wireframe",0);
@@ -222,6 +263,138 @@ void cl_navmesh_draw_poly(float poly_index) {
 	}
 }
 
+
+void cl_navmesh_draw_traversal(float traversal_index) {
+	vector start_pos = cl_navmesh_traversals[traversal_index].start_pos;
+	vector midpoint_pos = cl_navmesh_traversals[traversal_index].midpoint_pos;
+	vector end_pos = cl_navmesh_traversals[traversal_index].end_pos;
+	float angle = cl_navmesh_traversals[traversal_index].angle;
+
+	// Midpoint / endpoint pos are relative to start_pos:
+	makevectors([0, angle, 0]);
+	midpoint_pos = start_pos + (v_right * midpoint_pos.x) + (v_forward * midpoint_pos.y) + (v_up * midpoint_pos.z);
+	end_pos = start_pos + (v_right * end_pos.x) + (v_forward * end_pos.y) + (v_up * end_pos.z);
+
+	vector active_color = '0 1 1';
+	vector inactive_color = '0.5 0 0';
+	vector edge_color = '0.8 0.8 0.8';
+	float active_alpha = 0.4;
+	float inactive_alpha = 0.2;
+	float edge_alpha = 0.3;
+	float edge_width = 0.1;
+
+	if(cl_navmesh_selected_traversal != traversal_index) {
+		active_alpha = 0.2;
+		inactive_alpha = 0.0;
+		edge_alpha = 0.1;
+		edge_color = '0 0.2 0.5';
+		active_color = '0 0.2 0.5';
+	}
+
+	cl_navmesh_draw_box(start_pos, [4,4,4], active_color, 0.8);
+	cl_navmesh_draw_box(end_pos, [4,4,4], active_color, 0.8);
+
+	if(cl_navmesh_traversals[traversal_index].use_midpoint) {
+		cl_navmesh_draw_box(midpoint_pos, [4,4,4], active_color, active_alpha);
+		cl_navmesh_draw_line_3d(start_pos, midpoint_pos, edge_width, edge_color, active_alpha);
+		cl_navmesh_draw_line_3d(midpoint_pos, end_pos, edge_width, edge_color, edge_alpha);
+	}
+	else {
+		cl_navmesh_draw_box(midpoint_pos, [4,4,4], inactive_color, inactive_alpha);
+		cl_navmesh_draw_line_3d(start_pos, end_pos, edge_width, edge_color, edge_alpha);
+	}
+
+	// Draw arrows along edge:
+	vector arrow_pos;
+	float arrowhead_length = 2;
+	vector v_f;
+	vector v_r;
+	vector v_u;
+	float inc = 0.09;
+	float start = inc * (time % 1.0);
+
+	for(float t = start; t <= 1.0; t += inc) {
+		if(cl_navmesh_traversals[traversal_index].use_midpoint) {
+			if(t < 0.5) {
+				arrow_pos = start_pos + 2.0 * t * (midpoint_pos - start_pos);
+				v_f = normalize(midpoint_pos - start_pos);
+				v_r = normalize(crossproduct(v_f, '0 0 1'));
+				v_u = normalize(crossproduct(v_r, v_f));
+			}
+			else {
+				arrow_pos = midpoint_pos + 2.0 * (t - 0.5) * (end_pos - midpoint_pos);
+				v_f = normalize(end_pos - midpoint_pos);
+				v_r = normalize(crossproduct(v_f, '0 0 1'));
+				v_u = normalize(crossproduct(v_r, v_f));
+			}
+		}
+		else {
+			arrow_pos = start_pos + t * (end_pos - start_pos);
+			v_f = normalize(end_pos - start_pos);
+			v_r = normalize(crossproduct(v_f, '0 0 1'));
+			v_u = normalize(crossproduct(v_r, v_f));
+		}
+
+		cl_navmesh_draw_line_3d(arrow_pos, arrow_pos + arrowhead_length * (-v_f - v_r), edge_width, edge_color, edge_alpha);
+		cl_navmesh_draw_line_3d(arrow_pos, arrow_pos + arrowhead_length * (-v_f + v_r), edge_width, edge_color, edge_alpha);
+	}
+
+	// Traversal edit mode modifications:
+	if(cl_navmesh_selected_traversal == traversal_index) {
+		if(cl_navmesh_traversal_edit_mode) {
+			vector pos;
+			if(cl_navmesh_traversal_editor_cur_point == 0) {
+				pos = start_pos;
+			}
+			else if(cl_navmesh_traversal_editor_cur_point == 1) {
+				pos = midpoint_pos;
+			}
+			else if(cl_navmesh_traversal_editor_cur_point == 2) {
+				pos = end_pos;
+			}
+
+			float g = 2; // gap from center
+			float l = 1.5; // line length
+			vector select_color = '1 1 0';
+			float select_width = 0.1; // line width
+			float select_alpha = 0.8;
+
+			// FTL
+			cl_navmesh_draw_line_3d(pos + [-g, -g, g], pos + [-g, -g, g] + [l,0,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [-g, -g, g], pos + [-g, -g, g] + [0,l,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [-g, -g, g], pos + [-g, -g, g] + [0,0,-l] , select_width, select_color, select_alpha);
+			// FTR
+			cl_navmesh_draw_line_3d(pos + [g, -g, g], pos + [g, -g, g] + [-l,0,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [g, -g, g], pos + [g, -g, g] + [0,l,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [g, -g, g], pos + [g, -g, g] + [0,0,-l] , select_width, select_color, select_alpha);
+			// BTL
+			cl_navmesh_draw_line_3d(pos + [-g, g, g], pos + [-g, g, g] + [l,0,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [-g, g, g], pos + [-g, g, g] + [0,-l,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [-g, g, g], pos + [-g, g, g] + [0,0,-l] , select_width, select_color, select_alpha);
+			// BTR
+			cl_navmesh_draw_line_3d(pos + [g, g, g], pos + [g, g, g] + [-l,0,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [g, g, g], pos + [g, g, g] + [0,-l,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [g, g, g], pos + [g, g, g] + [0,0,-l] , select_width, select_color, select_alpha);
+			// FBL
+			cl_navmesh_draw_line_3d(pos + [-g, -g, -g], pos + [-g, -g, -g] + [l,0,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [-g, -g, -g], pos + [-g, -g, -g] + [0,l,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [-g, -g, -g], pos + [-g, -g, -g] + [0,0,l] , select_width, select_color, select_alpha);
+			// FBR 
+			cl_navmesh_draw_line_3d(pos + [g, -g, -g], pos + [g, -g, -g] + [-l,0,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [g, -g, -g], pos + [g, -g, -g] + [0,l,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [g, -g, -g], pos + [g, -g, -g] + [0,0,l] , select_width, select_color, select_alpha);
+			// BBL
+			cl_navmesh_draw_line_3d(pos + [-g, g, -g], pos + [-g, g, -g] + [l,0,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [-g, g, -g], pos + [-g, g, -g] + [0,-l,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [-g, g, -g], pos + [-g, g, -g] + [0,0,l] , select_width, select_color, select_alpha);
+			// BBR
+			cl_navmesh_draw_line_3d(pos + [g, g, -g], pos + [g, g, -g] + [-l,0,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [g, g, -g], pos + [g, g, -g] + [0,-l,0] , select_width, select_color, select_alpha);
+			cl_navmesh_draw_line_3d(pos + [g, g, -g], pos + [g, g, -g] + [0,0,l] , select_width, select_color, select_alpha);
+		}
+	}
+}
+
 float cl_navmesh_is_vert_selected(float vert_index)
 {
 	for(float i = 0; i < selected_vert_count; i++)
@@ -238,20 +411,23 @@ void() cl_navmesh_pathfind_draw_result_portals;
 void() cl_navmesh_pathfind_draw_result_path;
 
 
-void cl_navmesh_editor_draw()
-{	
-	for(float i = 0; i < cl_navmesh_vert_count; i++)
-	{
+void cl_navmesh_editor_draw() {	
+	for(float i = 0; i < cl_navmesh_vert_count; i++) {
 		vector color = [0,0,1];
-		if(cl_navmesh_is_vert_selected(i))
+		if(cl_navmesh_is_vert_selected(i)) {
 			color = [1,1,0];
+		}
 			
 		cl_navmesh_draw_vert(cl_navmesh_verts[i].pos,color,0.4 );
 	}
 	
-	for(float i = 0; i < cl_navmesh_poly_count; i++)
-	{
+	for(float i = 0; i < cl_navmesh_poly_count; i++) {
 		cl_navmesh_draw_poly(i);
+	}
+
+
+	for(float i = 0; i < cl_navmesh_traversal_count; i++) {
+		cl_navmesh_draw_traversal(i);
 	}
 	
 	cl_navmesh_draw_test_ent(startent_pos, [1,1,1], [0,1,0], 0.4);
@@ -2763,6 +2939,9 @@ void cl_toggle_navmesh_editor()
 		if(cl_navmesh_polies == 0) {
 			cl_navmesh_polies = memalloc(sizeof(navmesh_poly) * NAV_MAX_POLIES);
 		}
+		if(cl_navmesh_traversals == 0) {
+			cl_navmesh_traversals = memalloc(sizeof(navmesh_traversal) * NAV_MAX_TRAVERSALS);
+		}
 		// Allocate memory for pathfind result
 		if(cl_test_pathfind_result == 0) {
 			cl_test_pathfind_result = memalloc(sizeof(pathfind_result));
@@ -2771,6 +2950,9 @@ void cl_toggle_navmesh_editor()
 		
 
 		cl_navmesh_deselect_all();
+		cl_navmesh_selected_traversal = -1;
+		cl_navmesh_traversal_edit_mode = false;
+		cl_navmesh_traversal_editor_cur_point = 0;
 	}
 }
 
@@ -2801,6 +2983,23 @@ void cl_register_navmesh_commands() =
 	registercommand("nav_toggle_poly_door");
 	registercommand("nav_toggle_poly_entrance_edge");
 	registercommand("nav_print_poly_door");
+
+	// --- Traversal Commands ---
+	registercommand("nav_place_traversal");
+	registercommand("nav_select_traversal");
+	registercommand("nav_clone_traversal");
+	registercommand("nav_delete_traversal");
+	registercommand("nav_edit_traversal");
+	registercommand("nav_next_traversal_type");
+	registercommand("nav_prev_traversal_type");
+
+	// --- Traversal Edit Mode Commands ---
+	registercommand("nav_trav_next_point");
+	registercommand("nav_trav_toggle_point");
+	registercommand("nav_trav_get_point_pos");
+	registercommand("nav_trav_set_point_pos");
+	registercommand("nav_trav_get_angle");
+	registercommand("nav_trav_set_angle");
 
 }
 
@@ -2864,6 +3063,304 @@ void cl_navmesh_editor_toggle_entrance_edge() {
 	print(itos(cl_navmesh_polies[selected_polygon].entrance_edge));
 	print("\n");
 }
+
+
+
+
+void cl_navmesh_editor_place_traversal() {
+	cl_navmesh_traversal_edit_mode = false;
+	cl_navmesh_traversal_editor_cur_point = 0;
+
+	if(cl_navmesh_traversal_count >= NAV_MAX_TRAVERSALS) {
+		print("Can't add traversal, max traversal count has been reached.\n");
+		return;
+	}
+
+	// Place the traversal at the player origin
+	vector player_pos = getentity(player_localentnum, GE_ORIGIN);
+	vector player_angles = getentity(player_localentnum, GE_ANGLES);
+	cl_navmesh_traversals[cl_navmesh_traversal_count].start_pos.x = player_pos.x;
+	cl_navmesh_traversals[cl_navmesh_traversal_count].start_pos.y = player_pos.y;
+	cl_navmesh_traversals[cl_navmesh_traversal_count].start_pos.z = player_pos.z;
+
+	// Make traversal face same direction as player
+	cl_navmesh_traversals[cl_navmesh_traversal_count].angle = player_angles.y;
+
+	// -------------------------------
+	// Set up default traversal (teleport)
+	// TODO - Move this to a separate function
+	// -------------------------------
+	// X - Right, Y - Forward, Z - up
+	cl_navmesh_traversals[cl_navmesh_traversal_count].midpoint_pos = '0 24 24';
+	cl_navmesh_traversals[cl_navmesh_traversal_count].use_midpoint = false;
+	cl_navmesh_traversals[cl_navmesh_traversal_count].use_midpoint = true;
+	cl_navmesh_traversals[cl_navmesh_traversal_count].end_pos = '0 48 0';
+	// TODO - somehow set traversal type ID?
+	// -------------------------------
+
+	print("Traveral ");
+	print(ftos(cl_navmesh_traversal_count));
+	print(" created at ", vtos(player_pos),"\n");
+	print("Angles:");
+	print(vtos(player_angles));
+	
+	// Immediately select it
+	cl_navmesh_selected_traversal = cl_navmesh_traversal_count;
+	cl_navmesh_traversal_count++;
+};
+
+
+
+float cl_navmesh_get_nearest_traversal() {
+	if(cl_navmesh_traversal_count <= 0) {
+		return -1;
+	}
+	
+	vector player_pos = getentity(player_localentnum, GE_ORIGIN);
+	float closest_dist = vlen(player_pos - cl_navmesh_traversals[0].start_pos);
+	float closest_index = 0;
+	
+	float temp_dist;
+	
+	for(float i = 1; i < cl_navmesh_traversal_count; i++)
+	{
+		temp_dist = vlen(player_pos - cl_navmesh_traversals[i].start_pos);
+		
+		if(temp_dist < closest_dist)
+		{
+			closest_dist = temp_dist;
+			closest_index = i;
+		}
+	}
+	return closest_index;
+}
+
+// Copies a traversal from index src to index dest
+void cl_navmesh_editor_copy_traversal(float src, float dest, float copy_pos, float copy_angle) {
+	if(copy_pos) {
+		cl_navmesh_traversals[dest].start_pos = 	cl_navmesh_traversals[src].start_pos;
+	}
+	if(copy_angle) {
+		cl_navmesh_traversals[dest].angle = 		cl_navmesh_traversals[src].angle;
+	}
+	cl_navmesh_traversals[dest].end_pos = 		cl_navmesh_traversals[src].end_pos;
+	cl_navmesh_traversals[dest].midpoint_pos = 	cl_navmesh_traversals[src].midpoint_pos;
+	cl_navmesh_traversals[dest].use_midpoint = 	cl_navmesh_traversals[src].use_midpoint;
+}
+
+
+// Selects the nearest traversal (if nearest traversal is selcted, deselects it)
+void cl_navmesh_editor_select_traversal() {
+	cl_navmesh_traversal_edit_mode = false;
+	cl_navmesh_traversal_editor_cur_point = 0;
+
+	int trav_idx = cl_navmesh_get_nearest_traversal();
+	if(trav_idx == -1) {
+		print("No traversals to select");
+		return;
+	}
+	if(trav_idx == cl_navmesh_selected_traversal) {
+		print("Travseral deselected.\n");
+		cl_navmesh_selected_traversal = -1;
+		return;
+	}
+	
+	print("Traversal ");
+	print(ftos(trav_idx));
+	print(" selected.\n");
+
+	cl_navmesh_selected_traversal = trav_idx;
+};
+
+
+void cl_navmesh_editor_clone_traversal() {
+	cl_navmesh_traversal_edit_mode = false;
+	cl_navmesh_traversal_editor_cur_point = 0;
+
+	if(cl_navmesh_traversal_count >= NAV_MAX_TRAVERSALS) {
+		print("Can't clone traversal, max traversal count has been reached.\n");
+		return;
+	}
+	float prev_trav = cl_navmesh_selected_traversal;
+	cl_navmesh_editor_place_traversal();
+	// place_traversal implicitly updates `cl_navmesh_selected_traversal` to the new one
+	cl_navmesh_editor_copy_traversal(prev_trav, cl_navmesh_selected_traversal, false, false);
+};
+
+
+void cl_navmesh_editor_delete_traversal() {
+	cl_navmesh_traversal_edit_mode = false;
+	cl_navmesh_traversal_editor_cur_point = 0;
+
+	if(cl_navmesh_selected_traversal == -1) {
+		print("No traversal selected.\n");
+		return;
+	}
+
+	print("Deleting traversal: ");
+	print(ftos(cl_navmesh_selected_traversal));
+	print(".\n");
+	
+	//Bringing all traversals down to not leave any holes in the array
+	//Moving down every index to the right of what is selected to not leave any holes
+	for(float i = cl_navmesh_selected_traversal; i < cl_navmesh_traversal_count - 1; i++) {
+		// Copy traversal (i+1) to traversal (i)
+		cl_navmesh_editor_copy_traversal(i+1, i, true, true);
+	}
+	// TOOD - Clear the last one?
+	cl_navmesh_traversal_count--;
+	// TODO - Fix any references from polygons -> traversals?
+	cl_navmesh_selected_traversal = -1;
+};
+
+void cl_navmesh_editor_edit_traversal() {
+	if(cl_navmesh_selected_traversal == -1) {
+		print("No traversal selected.\n");
+		return;
+	}
+	
+	if(cl_navmesh_traversal_edit_mode) {
+		cl_navmesh_traversal_edit_mode = false;
+	}
+	else {
+		cl_navmesh_traversal_edit_mode = true;
+	}
+	cl_navmesh_traversal_editor_cur_point = 0;
+};
+
+void cl_navmesh_editor_next_traversal_type() {
+	// TODO - Scroll through list once traversals are defined
+};
+
+void cl_navmesh_editor_prev_traversal_type() {
+	// TODO - Scroll through list once traversals are defined
+};
+
+void cl_navmesh_traversal_editor_next_point() {
+	if(cl_navmesh_selected_traversal == -1) {
+		print("No traversal selected.\n");
+		return;
+	}
+	if(cl_navmesh_traversal_edit_mode == false) {
+		print("Not in traversal edit mode.\n");
+		return;
+	}
+	cl_navmesh_traversal_editor_cur_point = (cl_navmesh_traversal_editor_cur_point + 1) % 3;
+};
+
+void cl_navmesh_traversal_editor_toggle_point() {
+	if(cl_navmesh_selected_traversal == -1) {
+		print("No traversal selected.\n");
+		return;
+	}
+	if(cl_navmesh_traversal_edit_mode == false) {
+		print("Not in traversal edit mode.\n");
+		return;
+	}
+	if(cl_navmesh_traversal_editor_cur_point != 1){
+		print("Can only toggle midpoint.\n");
+		return;
+	}
+	if(cl_navmesh_traversals[cl_navmesh_selected_traversal].use_midpoint) {
+		cl_navmesh_traversals[cl_navmesh_selected_traversal].use_midpoint = false;
+	}
+	else {
+		cl_navmesh_traversals[cl_navmesh_selected_traversal].use_midpoint = true;
+	}
+};
+
+void cl_navmesh_traversal_editor_get_point_pos() {
+	if(cl_navmesh_selected_traversal == -1) {
+		print("No traversal selected.\n");
+		return;
+	}
+	if(cl_navmesh_traversal_edit_mode == false) {
+		print("Not in traversal edit mode.\n");
+		return;
+	}
+	if(cl_navmesh_traversal_editor_cur_point == 0) {
+		print("Traversal start point: ");
+		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos));
+		print(".\n");
+	}
+	else if(cl_navmesh_traversal_editor_cur_point == 1) {
+		print("Traversal midpoint: ");
+		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].midpoint_pos));
+		print(". (relative to start pos)\n");
+	}
+	else if(cl_navmesh_traversal_editor_cur_point == 2) {
+		print("Traversal endpoint: ");
+		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos));
+		print(". (relative to start pos)\n");
+	}
+};
+
+void cl_navmesh_traversal_editor_set_point_pos(vector pos) {
+	if(cl_navmesh_selected_traversal == -1) {
+		print("No traversal selected.\n");
+		return;
+	}
+	if(cl_navmesh_traversal_edit_mode == false) {
+		print("Not in traversal edit mode.\n");
+		return;
+	}
+
+	if(cl_navmesh_traversal_editor_cur_point == 0) {
+		cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos = pos;
+
+		print("Traversal start point set to: ");
+		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos));
+		print(".\n");
+	}
+	else if(cl_navmesh_traversal_editor_cur_point == 1) {
+		cl_navmesh_traversals[cl_navmesh_selected_traversal].midpoint_pos = pos;
+
+		print("Traversal midpoint set to: ");
+		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].midpoint_pos));
+		print(". (relative to start pos)\n");
+	}
+	else if(cl_navmesh_traversal_editor_cur_point == 2) {
+		cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos = pos;
+
+		print("Traversal endpoint set to: ");
+		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos));
+		print(". (relative to start pos)\n");
+	}
+
+
+};
+
+void cl_navmesh_traversal_editor_get_angle() {
+	if(cl_navmesh_selected_traversal == -1) {
+		print("No traversal selected.\n");
+		return;
+	}
+	if(cl_navmesh_traversal_edit_mode == false) {
+		print("Not in traversal edit mode.\n");
+		return;
+	}
+
+	print("Traversal angle: ");
+	print(ftos(cl_navmesh_traversals[cl_navmesh_selected_traversal].angle));
+	print(".\n");
+};
+
+void cl_navmesh_traversal_editor_set_angle(float angle) {
+	if(cl_navmesh_selected_traversal == -1) {
+		print("No traversal selected.\n");
+		return;
+	}
+	if(cl_navmesh_traversal_edit_mode == false) {
+		print("Not in traversal edit mode.\n");
+		return;
+	}
+
+	cl_navmesh_traversals[cl_navmesh_selected_traversal].angle = angle;
+
+	print("Traversal angle set to: ");
+	print(ftos(cl_navmesh_traversals[cl_navmesh_selected_traversal].angle));
+	print(".\n");
+};
 
 
 
@@ -2991,6 +3488,45 @@ float(string cmd) cl_navmesh_console_commands =
 			// TODO		- if one-way from 03 to 12, make normal polygon
 			// TODO	- If tri, should I support one-way? (probably not, tbh)
 			// TODO		
+			return TRUE;
+		case "nav_place_traversal":
+			cl_navmesh_editor_place_traversal();
+			return TRUE;
+		case "nav_select_traversal":
+			cl_navmesh_editor_select_traversal();
+			return TRUE;
+		case "nav_clone_traversal":
+			cl_navmesh_editor_clone_traversal();
+			return TRUE;
+		case "nav_delete_traversal":
+			cl_navmesh_editor_delete_traversal();
+			return TRUE;
+		case "nav_edit_traversal":
+			cl_navmesh_editor_edit_traversal();
+			return TRUE;
+		case "nav_next_traversal_type":
+			cl_navmesh_editor_next_traversal_type();
+			return TRUE;
+		case "nav_prev_traversal_type":
+			cl_navmesh_editor_prev_traversal_type();
+			return TRUE;
+		case "nav_trav_next_point":
+			cl_navmesh_traversal_editor_next_point();
+			return TRUE;
+		case "nav_trav_toggle_point":
+			cl_navmesh_traversal_editor_toggle_point();
+			return TRUE;
+		case "nav_trav_get_point_pos":
+			cl_navmesh_traversal_editor_get_point_pos();
+			return TRUE;
+		case "nav_trav_set_point_pos":
+			cl_navmesh_traversal_editor_set_point_pos(stov(argv(1)));
+			return TRUE;
+		case "nav_trav_get_angle":
+			cl_navmesh_traversal_editor_get_angle();
+			return TRUE;
+		case "nav_trav_set_angle":
+			cl_navmesh_traversal_editor_set_angle(stof(argv(1)));
 			return TRUE;
 		default:
 			break;

@@ -5,6 +5,25 @@ struct navmesh_vertex
 };
 
 
+struct navmesh_traversal 
+{
+	vector start_pos; // Start position of traversal animation in world space
+	vector end_pos; // End position of traversal animation, relative to start_pos
+	float angle;
+
+	vector midpoint_pos; // Optional midpoint of traversal animation, relative to start_pos
+	float use_midpoint; // 0? Ignore the midpoint. 1? Use the midpoint
+	// Some way to associate the traversal to the zombie logic callback that should be called.
+
+	// --- Derived Vars ---
+	// (can be computed from above)
+	// TODO - These references will need updating if polygons change
+	// TODO - Should these be computed just-in-time?
+	float start_poly; // Traversal starting polygon
+	float end_poly; // Traversal ending polygon
+
+};
+
 
 //Either a tri or a quad
 struct navmesh_poly
@@ -30,6 +49,8 @@ struct navmesh_poly
 
 #define NAV_MAX_VERTS 1024
 #define NAV_MAX_POLIES 512
+#define NAV_MAX_TRAVERSALS 128
+
 
 // ============================================================================
 // Shared Navmesh functions used by both client and server
