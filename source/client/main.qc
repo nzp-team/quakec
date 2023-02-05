@@ -505,6 +505,7 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 		if (curweaponframe != weaponframe) {
 			interpolating = TRUE;
 			vmodel.lerpfrac = 0;
+			oldweaponframe = curweaponframe;
 			curweaponframe = weaponframe;
 		}
 		
@@ -530,6 +531,7 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 			if (curweapon2frame != weapon2frame) {
 				interpolating2 = TRUE;
 				v2model.lerpfrac = 0;
+				oldweapon2frame = curweapon2frame;
 				curweapon2frame = weapon2frame;
 			}
 			
