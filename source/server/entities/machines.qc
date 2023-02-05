@@ -2012,6 +2012,7 @@ void() perk_random =
 		// Quick Revive
 		if (i < (1/8) && (self.spawnflags & 1)) {
 			if !(find(world, classname, "perk_revive")) {
+				self.spawnflags = 8;
 				perk_revive();
 				foundperk = true;
 			}
@@ -2019,6 +2020,7 @@ void() perk_random =
 		// Jugger-Nog 
 		else if (i < (2/8) && (self.spawnflags & 2)) {
 			if !(find(world, classname, "perk_juggernog")) {
+				self.spawnflags = 2;
 				perk_juggernog();
 				foundperk = true;
 			}
@@ -2026,6 +2028,7 @@ void() perk_random =
 		// Speed Cola
 		else if (i < (3/8) && (self.spawnflags & 4)) {
 			if !(find(world, classname, "perk_speed")) {
+				self.spawnflags = 4;
 				perk_speed();
 				foundperk = true;
 			}
@@ -2033,6 +2036,7 @@ void() perk_random =
 		// Double Tap
 		else if (i < (4/8) && (self.spawnflags & 8)) {
 			if !(find(world, classname, "perk_double")) {
+				self.spawnflags = 16;
 				perk_double();
 				foundperk = true;
 			}
@@ -2040,6 +2044,7 @@ void() perk_random =
 		// PhD Flopper
 		else if (i < (5/8) && (self.spawnflags & 16)) {
 			if !(find(world, classname, "perk_flopper")) {
+				self.spawnflags = 16;
 				perk_flopper();
 				foundperk = true;
 			}
@@ -2047,6 +2052,7 @@ void() perk_random =
 		// Stamin-Up
 		else if (i < (6/8) && (self.spawnflags & 32)) {
 			if !(find(world, classname, "perk_staminup")) {
+				self.spawnflags = 16;
 				perk_staminup();
 				foundperk = true;
 			}
@@ -2054,6 +2060,7 @@ void() perk_random =
 		// Deadshot Daiquiri
 		else if (i < (7/8) && (self.spawnflags & 64)) {
 			if (!find(world, classname, "perk_deadshot")) {
+				self.spawnflags = 16;
 				perk_deadshot();
 				foundperk = true;
 			}
@@ -2061,6 +2068,7 @@ void() perk_random =
 		// Mule Kick
 		else if (i < 1 && (self.spawnflags & 128)) {
 			if (!find(world, classname, "perk_mule")) {
+				self.spawnflags = 4;
 				perk_mule();
 				foundperk = true;
 			}
