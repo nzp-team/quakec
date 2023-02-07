@@ -345,11 +345,24 @@ void () GetUp =
 	self.classname = "player";
 
 	// Take away the ammo that was fired while in last stand.
-	if (self.weapon == self.weaponbk) {
-		self.currentammobk -= self.teslacount;
-	} else if (self.weapon == self.secondaryweapon) {
-		self.secondaryammo -= self.teslacount;
+	if (self.weapon != W_COLT) {
+		if (self.weapon == self.weaponbk) {
+			self.currentammobk -= self.teslacount;
+
+			// Take from the mag if the reserve is empty now
+			if (self.currentammobk < 0)
+				self.currentmagbk += self.currentammobk;
+			self.currentammobk = 0;
+		} else if (self.weapon == self.secondaryweapon) {
+			self.secondaryammo -= self.teslacount;
+
+			// Take from the mag if the reserve is empty now
+			if (self.secondaryammo < 0)
+				self.secondarymag += self.secondaryammo;
+			self.secondaryammo = 0;
+		}
 	}
+	
 	self.teslacount = 0;
 
 	if (!coop) {
