@@ -137,13 +137,10 @@ void() Dog_Walk_Setup =
 // decide our walktype based on player distance
 void() Dog_Think =
 {
-	// FIXME - crash
-	self.walktype = 2;
-	/*
 	if(vlen(self.enemy.origin - self.origin) < 300)
 		self.walktype = 2;
 	else
-		self.walktype = 1;*/
+		self.walktype = 1;
 }
 
 float dogCount;
