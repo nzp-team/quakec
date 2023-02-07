@@ -1904,7 +1904,7 @@ void PapUpgrade(entity pap, entity buyer) {
 
 void touch_pap() {
   
-	if (other.classname != "player" || other.downed ||) {
+	if (other.classname != "player" || other.downed) {
 		return;
 	}
 
