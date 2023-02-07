@@ -1774,8 +1774,6 @@ void(entity where) spawn_a_zombieB =
 	self = old_self;
 	
 	//LinkZombiesHitbox();
-	
-#ifndef FTE
 
 	//
 	// Zombie skin setting
@@ -1791,8 +1789,6 @@ void(entity where) spawn_a_zombieB =
 		szombie.skin = 2;
 	else
 		szombie.skin = 3;
-
-#endif // FTE
 
 	szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
 
