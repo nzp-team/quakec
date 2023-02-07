@@ -487,39 +487,7 @@ void() ClientKill = {};
 
 //called when a client connects to the server
 void() ClientConnect =
-{
-
-#ifdef FTE
-
-	// Maintain old FGD values and just convert them to new ones
-	// 
-	if (world.fog) {
-		// Force fog on FTE
-		if (!world.PC_fog) {
-			// Don't execute more than once
-			if (!world_fog) {
-				string fog_start_end, fog_R, fog_B, fog_G;
-			
-				// Tokenize our fog
-				tokenize(world.fog);
-			
-				// Get values and transmute it a bit if necessary
-				//	Originally: start | end | R | G | B
-				fog_start_end = ftos(((stof(argv(0))) / stof(argv(1))) / 3.5);
-			
-				fog_R = ftos(stof(argv(2))/255);
-				fog_G = ftos(stof(argv(3))/255);
-				fog_B = ftos(stof(argv(4))/255);
-
-				// Restore into our world.fog
-				world_fog = strcat(fog_start_end, " ", fog_R, " ", fog_G, " ", fog_B);
-			}
-			localcmd(strcat("fog ", world_fog));
-		} 
-	}
-
-#endif // FTE
-	
+{	
 	if(cvar("developer") || player_count > 1) {
 		bprint(PRINT_HIGH, self.netname); //print player name
 		bprint(PRINT_HIGH, " connected.\n");

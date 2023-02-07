@@ -541,10 +541,6 @@ float sndActivCnt;
 
 .float sprintflag;
 
-
-// PC Fog force
-.float PC_fog;
-
 // hl stuff
 .float rendermode;
 .float renderamt;
