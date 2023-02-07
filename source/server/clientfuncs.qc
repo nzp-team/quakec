@@ -546,27 +546,6 @@ void(string modelname) Precache_Set = // Precache model, and set myself to it
     setmodel(self, modelname);
 };
 
-
-float(entity who, entity target) isFacing =
-{
-	float who_angle = who.angles_y;
-	float target_angle = target.angles_y;
-
-	float difference_angle = target_angle - who_angle;
-
-#ifndef FTE
-	if (difference_angle < -45) {
-		difference_angle += 360;
-	}
-#endif
-
-	// 180 = directly facing each other, 30 degree buffer.
-	if (difference_angle <= 210 && difference_angle >= 150)
-		return true;
-
-	return false;
-}
-
 float() crandom =
 {
 	return 2*(random() - 0.5);
