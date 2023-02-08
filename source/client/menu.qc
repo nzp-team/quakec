@@ -334,15 +334,12 @@ void() settings_fs = {
 		fullscreenval = 0;
 }
 
-void() settings_dc = {
-	local float dc = cvar("nzp_decals");
-
-	if (dc == 0)
-		dc = 1;
-	else
-		dc = 0;
-
-	cvar_set("nzp_decals", ftos(dc));
+void() settings_xb = {
+	if (cvar("vid_ultrawide_limiter")) {
+		cvar_set("vid_ultrawide_limiter", "0");
+	} else {
+		cvar_set("vid_ultrawide_limiter", "1");
+	}
 }
 
 void() settings_pt = {
@@ -952,7 +949,7 @@ var struct
 	{[0.025, 0.425, 0], "VSync", -1, settings_vs, settings_vs, MENU_GSETTINGS, 0, OPTION_EXE_ONLY},
 	{[0.025, 0.475, 0], "Field of View", -1, settings_fov, settings_fov2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
 	{[0.025, 0.525, 0], "Brightness", -1, settings_brite, settings_brite2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},	
-	{[0.025, 0.575, 0], "Decals", -1, settings_dc, settings_dc, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.575, 0], "Ultrawide Mode", -1, settings_xb, settings_xb, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
 	{[0.025, 0.625, 0], "Particles", -1, settings_pt, settings_pt, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
 	{[0.025, 0.675, 0], "Fullbright", -1, settings_fb, settings_fb, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
 	{[0.025, 0.725, 0], "Retro", -1, settings_ro, settings_ro, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
@@ -1005,7 +1002,7 @@ var struct
 	{[0.025, 0.475, 0], "Channel 6 Volume", -1, setting_chann6vol, setting_chann6vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 60
 
 	// Web specific options
-	{[0.025, 0.175, 0], "Render Scale", -1, settings_rescale, settings_rescale2, MENU_GSETTINGS, 0, OPTION_WEB_ONLY}, // 61
+	{[0.025, 0.175, 0], "Render Scale", -1, settings_rescale, settings_rescale2, MENU_GSETTINGS, 0, OPTION_WEB_ONLY} // 61
 };
 
 //REMEMBER TO UPDATE THIS CONST IF YOU ADD BUTTONS
@@ -1357,6 +1354,7 @@ void() Draw_Extra_GSettings =
 	local string partval;
 	local string fullval;
 	local string retroval;
+	string ultraval;
 	local string sval;
 	local string arval = "";
 	local string resval;
@@ -1435,13 +1433,13 @@ void() Draw_Extra_GSettings =
 	// have to use a drawfill because of how gamma values are subtracted.. for some reason
 	drawfill ([0.475*g_width, 0.5255*g_height, 0], [g_height * (cvar("gamma")/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
 
-	// Decals
-	if (cvar("nzp_decals") == 0)
-		decalval = S_DISABLED;
+	// Limit X Bounds
+	if (cvar("vid_ultrawide_limiter"))
+		ultraval = S_ENABLED;
 	else
-		decalval = S_ENABLED;
+		ultraval = S_DISABLED;
 
-	drawstring([0.475*g_width, 0.575*g_height, 0], decalval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([0.475*g_width, 0.5725*g_height, 0], ultraval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 
 	// Particles
 	if (cvar("nzp_particles") == 0)
@@ -1497,7 +1495,7 @@ void() Draw_Extra_GSettings =
 			gset_desc = "Increase or Decrease Game Brightness.";
 			break;
 		case 25:
-			gset_desc = "Toggle Bullet and Explosive Decals.";
+			gset_desc = "Makes HUD more visible when Ultrawide.";
 			break;
 		case 26:
 			gset_desc = "Toggle Appearence of (most) Particles.";
