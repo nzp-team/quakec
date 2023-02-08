@@ -1476,6 +1476,9 @@ void(float width, float height) HUD_PlayerNames =
 		vector screen_position = project(player_origin);
 		vector text_color = '1 1 1';
 
+		if (player_origin == '0 0 48')
+			continue;
+
 		screen_position_x -= stringwidth(text, 0, [8, 8])/2;
 
 		switch(i) {
