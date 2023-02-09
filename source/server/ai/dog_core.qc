@@ -191,7 +191,7 @@ void(entity where) spawn_a_dogB =
 {
 	local entity sdog;//USED FOR WHAT TO SPAWN
 	
-	sdog = getFreeZombieEnt(self);
+	sdog = getFreeZombieEnt();
 	if(sdog == world)
 	{
 		return;
@@ -308,7 +308,7 @@ float() spawn_a_dogA =
 	
 	FAIL = false;
 	pcount = 0;
-	szombie = getFreeZombieEnt(self);
+	szombie = getFreeZombieEnt();
 	if(szombie == world || dogCount >= (2 * (player_count + 1)))
 	{
 		return 0;

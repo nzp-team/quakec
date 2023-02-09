@@ -1439,13 +1439,14 @@ void() set_z_health =
 	}
 };
 
-entity(entity me) getFreeZombieEnt =
+inline entity() getFreeZombieEnt =
 {
-	local entity who;
+	entity who;
 	who = find(world,classname,"freeZombieEntity");
 	
 	return who;
 };
+
 float() spawn_a_zombieA =
 {
 	//dprint("Spawn_a_zombieA \n");
@@ -1457,7 +1458,7 @@ float() spawn_a_zombieA =
 	pcount = 0;
 	
 	FAIL = false;
-	szombie = getFreeZombieEnt(self);
+	szombie = getFreeZombieEnt();
 	if(szombie == world || zombie_spawn_timer > time)
 	{
 		//bprint(PRINT_HIGH, "STOPPED AT A\n");
@@ -1639,7 +1640,7 @@ void(entity where) spawn_a_zombieB =
 	local entity szombie;//USED FOR WHAT TO SPAWN
 	//szombie = spawn();
 	
-	szombie = getFreeZombieEnt(self);
+	szombie = getFreeZombieEnt();
 	if(szombie == world || zombie_spawn_timer > time)
 	{
 		//bprint(PRINT_HIGH, "STOPPED AT B\n");
