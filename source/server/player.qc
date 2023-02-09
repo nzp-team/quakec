@@ -336,6 +336,7 @@ void() PlayerPreThink =
 	}
 };
 
+float player_trace_time;
 void() PlayerPostThink =
 {
 	if(self.isspec)
@@ -440,39 +441,44 @@ void() PlayerPostThink =
 
 	// Perform a traceline to keep track of entities directly
 	// in front of the player.
+	// Also don't do it every frame because that's really tough
+	// on perf.
+	if (player_trace_time < time) {
+		vector source;
 
-	vector source;
-
-	makevectors (self.v_angle);
-	source = self.origin + self.view_ofs;
-
-#ifdef FTE
-
-	self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
-
-#endif // FTE
-
-	traceline (source, source + v_forward*800*1.2, 0, self);
+		makevectors (self.v_angle);
+		source = self.origin + self.view_ofs;
 
 #ifdef FTE
 
-	self.dimension_hit = HITBOX_DIM_ZOMBIES;
+		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
+
+#endif // FTE
+
+		traceline (source, source + v_forward*800*1.2, 0, self);
+
+#ifdef FTE
+
+		self.dimension_hit = HITBOX_DIM_ZOMBIES;
 
 #endif // FTE
 
 
-	// use .head here to avoid expanding ent struct
-	self.head = trace_ent;
+		// use .head here to avoid expanding ent struct
+		self.head = trace_ent;
 
-	// check whether we're looking at an entity separately to communicate
-	// with the client more reasonably
-	if (trace_ent.classname == "ai_zombie" || trace_ent.classname == "ai_zombie_head" 
-	|| trace_ent.classname == "ai_zombie_rarm" ||trace_ent.classname == "ai_zombie_larm" 
-	|| trace_ent.classname == "ai_dog")
-		self.facingenemy = true;
-	else
-		self.facingenemy = false;
+		// check whether we're looking at an entity separately to communicate
+		// with the client more reasonably
+		if (trace_ent.classname == "ai_zombie" || trace_ent.classname == "ai_zombie_head" 
+		|| trace_ent.classname == "ai_zombie_rarm" ||trace_ent.classname == "ai_zombie_larm" 
+		|| trace_ent.classname == "ai_dog")
+			self.facingenemy = true;
+		else
+			self.facingenemy = false;
 
+		// 1/4 of a second is enough of a delay to not kill the effect.
+		player_trace_time = time + 0.25;
+	}
 };
 
 void() ClientKill = {};
