@@ -129,34 +129,26 @@ void() playgetup10		=[	11,		playgetup10		] {self.frame = 48;}
 #define all_move    -1
 
 float(float dir) checkMovement =
-{
-	makevectors(self.movement);
-	string a = vtos(self.movement);
-	float x, y;
-
-	tokenize(a);
-	x = stof(argv(0));
-	y = stof(argv(1));
-	
+{	
 	switch(dir) {
 		case forward:
-			if (x > 0)
+			if (self.movement_x > 0)
 				return 1;
 		break;
 		case backward:
-			if (x < 0)
+			if (self.movement_x < 0)
 				return 1;
 		break;
 		case right:
-			if (y > 0)
+			if (self.movement_y > 0)
 				return 1;
 		break;
 		case left:
-			if (y < 0)
+			if (self.movement_y < 0)
 				return 1;
 		break;
 		case all_move:
-			if (x || y)
+			if (self.movement_x || self.movement_y)
 				return 1;
 		break;
 		default:
