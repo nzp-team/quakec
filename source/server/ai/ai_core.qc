@@ -609,7 +609,7 @@ void() NextPathfindToEnemy {
 
 #ifdef FTE
 
-float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove
+inline float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove
 {
 	//was tracebox
 	traceline(start,end,nomonsters,forent);
