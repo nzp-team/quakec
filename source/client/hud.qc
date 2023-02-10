@@ -25,6 +25,18 @@
 
 */			
 
+// vid_ultrawide_limiter
+#define ULTRAWIDE_OFFSET 		250
+
+
+float() GetUltraWideOffset =
+{
+	if (cvar("vid_ultrawide_limiter"))
+		return ULTRAWIDE_OFFSET;
+	
+	return 0;
+}
+
 //return hud images, makes drawpic slightly cleaner..
 string(string img) getImage = {
 	return strcat(huddir, img);
@@ -57,7 +69,7 @@ void(float width, float height) HUD_Health =
 			return;
 		float color = 255.0 + modifier;
     
-		drawpic([0,0,0], getImage("blood.tga"), [width, height, 0], [10,0,0], alpha/2000); // naievil -- alpha factor division here makes it easy to use legacy code
+		drawpic([0,0,0], "gfx/hud/blood.tga", [width, height, 0], [10,0,0], alpha/2000); // naievil -- alpha factor division here makes it easy to use legacy code
 	}
 	
 }
@@ -94,12 +106,16 @@ void(float width, float height) HUD_Ammo =
 		float curmag2 = getstatf(STAT_CURRENTMAG2);
 		
 		ammostring = strcat(ftos(curmag2), " ", ftos(curmag), "/", ftos(ammo));
-		drawstring([width - (42/480)*width - (benis*20*width/1024), 0.96*height, 0], ammostring, [0.02*width, 0.02*width, 0], [1,1,1], 1, 0);
+		float x2 = (g_width - GetUltraWideOffset()) - 62 - stringwidth(ammostring, 0, [12, 12]);
+		drawstring([x2, g_height - 29], ammostring, [12, 12], [1,1,1], 1, 0);
 	} else {
 		ammostring_1 = ftos(curmag);
-		ammostring_2 = strcat("/",ftos(ammo));
-		drawstring([width - (42/480)*width - (benis*20*width/1024), 0.96*height, 0], ammostring_1, [0.02*width, 0.02*width, 0], color, 1, 0);
-		drawstring([width - (42/480)*width - ((benis-strlen(ftos(curmag)))*20*width/1024), 0.96*height, 0], ammostring_2, [0.02*width, 0.02*width, 0], color_2, 1, 0);
+		ammostring_2 = strcat("/", ftos(ammo));
+		string weapon_ammo_string = strcat(ftos(curmag), "/", ftos(ammo));
+		float x = (g_width - GetUltraWideOffset())  - 62 - stringwidth(weapon_ammo_string, 0, [12, 12]);
+
+		drawstring([x, g_height - 29], ammostring_1, [12, 12], color, 1, 0);
+		drawstring([x + stringwidth(ammostring_1, 0, [12, 12]), g_height - 29], ammostring_2, [12, 12], color_2, 1, 0);
 	}
 }
 
@@ -169,7 +185,8 @@ void() HUD_AmmoString =
 		}
 	}
 
-	drawstring([g_width/2, g_height/2 + (30/272)*g_height, 0], message, [0.02*g_width, 0.02*g_width, 0], textcolor, ammoopac, 0);
+	float x = (g_width/2) - (stringwidth(message, 0, [12, 12])/2);
+	drawstring([x, g_height/2 + 40, 0], message, [12, 12, 0], textcolor, ammoopac, 0);
 }
 
 /*******************
@@ -218,7 +235,7 @@ void(float amount, float playernum) RegisterPointChange =
 	}
 
 	// determine the width of the text string
-	point_elements[index].string_width = stringwidth(point_elements[index].text_string, 0, [0.022*g_width, 0.022*g_width, 0]);
+	point_elements[index].string_width = stringwidth(point_elements[index].text_string, 0, [12, 12]);
 
 	// generate a velocity
 	point_elements[index].y_velocity = random()/4;
@@ -239,7 +256,7 @@ void(float amount, float playernum) RegisterPointChange =
 
 	// set our x and y positions
 	point_elements[index].x_position = 0;
-	point_elements[index].y_position = 0.780*g_height - 0.06*g_height*playernum;
+	point_elements[index].y_position = (g_height - 90) - (25*(playernum - 1));
 
 	// start with an opacity of 1
 	point_elements[index].opacity = 1;
@@ -276,15 +293,13 @@ void(float pwidth, float width, float height, float playernum) PointUpdate =
 			POINT_DIFF_COLOR = TEXT_RED;
 		}
 
-		if (point_elements[i].difference != 0 && point_elements[i].opacity > 0 /* &&
-		(point_elements[i].x_position - point_elements[i].string_width) < g_width * 0.05*/) {
-
+		if (point_elements[i].difference != 0 && point_elements[i].opacity > 0) {
 			drawstring([pwidth - point_elements[i].string_width - point_elements[i].x_position, 
-			point_elements[i].y_position, 0], point_elements[i].text_string, [0.022*width, 0.022*width, 0], 
+			point_elements[i].y_position], point_elements[i].text_string, [12, 12], 
 			POINT_DIFF_COLOR, point_elements[i].opacity, 0);
 		}
 
-		point_elements[i].x_position += point_elements[i].x_velocity * (frametime*375);
+		point_elements[i].x_position -= point_elements[i].x_velocity * (frametime*375);
 		point_elements[i].y_position += point_elements[i].y_velocity * (frametime*375);
 		point_elements[i].opacity -= (frametime*4);
 	}
@@ -309,19 +324,17 @@ void(float width, float height) HUD_Points =
 		}
 		
 		if ((i+1) == getstatf(STAT_PLAYERNUM)) {
-			pointwidth = stringwidth(ftos(playerpoints[i]), 0, [0.022*width, 0.022*width, 0]);
-			x = ((width + backwidth) - pointwidth)/2;
-			drawpic([backwidth ,0.70*height - (.061*height*i),0], getImage("moneyback.tga"), [0.2*width, 0.07*height, 0], [1,1,1], 1); 
-			drawstring([x, 0.715*height - 0.06*height*i, 0], ftos(playerpoints[i]), [0.022*width, 0.022*width, 0], TEXTCOLOR, 1, 0); 
-			PointUpdate(backwidth * 1.025, width, height, i+1); 
-		}
-		else {
-			backwidth = 0.85*width;
-			pointwidth = stringwidth(ftos(playerpoints[i]), 0, [0.022*width*0.8, 0.022*width*0.8, 0]);
-			x = ((width + backwidth) - pointwidth)/2;
-			drawpic([backwidth, 0.70*height - (.071*height*i*0.8),0], getImage("moneyback.tga"), [0.2*width*0.8, 0.07*height*0.8, 0], [1,1,1], 0); 
-			drawstring([x, 0.715*height - 0.07*height*i*0.8, 0], ftos(playerpoints[i]), [0.022*width*0.8, 0.022*width*0.8, 0], TEXTCOLOR, 1, 0); 
-			PointUpdate(backwidth * 1.025, width, height, i+1); 
+			pointwidth = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+			x = (99 - pointwidth)/2 + GetUltraWideOffset();
+			drawpic([3 + GetUltraWideOffset(), g_height - 95], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+			drawstring([x, g_height - 90], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
+			PointUpdate(x + 70, width, height, i + 1);
+		} else {
+			pointwidth = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+			x = (85 - pointwidth)/2 + GetUltraWideOffset();
+			drawpic([-7 + GetUltraWideOffset(), (g_height - 95) - (25*i)], "gfx/hud/moneyback_condensed.tga", [96, 24], [1,1,1], 1);
+			drawstring([x, (g_height - 90) - (25*i)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
+			PointUpdate(x + 70, width, height, i + 1);
 		}
 	}
 }
@@ -332,17 +345,31 @@ void(float width, float height) HUD_Points =
 
 void(float width, float height) HUD_Grenades =
 {
-	local float grenades;
-	local float betties;
+	float grenades;
+	float betties;
+
+	vector grenade_text_color;
+	vector betties_text_color;
 
 	grenades = getstatf(STAT_GRENADES);
 	betties = getstatf(STAT_SECGRENADES);
-	drawpic([0.9*width,0.825*height,0], getImage("frag.tga"), [0.11*height, 0.11*height, 0], [1,1,1], 1);
-	drawstring([0.935*width, 0.900*height, 0], ftos(grenades), [0.025*width, 0.025*width, 0], [1, 1, 1], 1, 0);
-	
+
+	if (grenades == 0)
+		grenade_text_color = [1, 0, 0];
+	else
+		grenade_text_color = [1, 1, 1];
+
+	if (betties == 0)
+		betties_text_color = [1, 0, 0];
+	else
+		betties_text_color = [1, 1, 1];
+
+	drawpic([g_width - 3 - 56 - GetUltraWideOffset(), g_height - 50], "gfx/hud/frag.tga", [32, 32], [1, 1, 1], 1);
+	drawstring([g_width - 3 - 38 - GetUltraWideOffset(), g_height - 29], ftos(grenades), [12, 12], grenade_text_color, 1, 0);
+
 	if (betties != -1) {
-		drawpic([0.825*width,0.825*height,0], getImage("betty.tga"), [0.11*height, 0.11*height, 0], [1,1,1], 1);
-		drawstring([0.935*width, 0.900*height, 0], ftos(betties), [0.025*width, 0.025*width, 0], [1, 1, 1], 1, 0);
+		drawpic([g_width - 3 - 28 - GetUltraWideOffset(), g_height - 50], "gfx/hud/betty.tga", [32, 32], [1, 1, 1], 1);
+		drawstring([g_width - 3 - 10 - GetUltraWideOffset(), g_height - 29], ftos(betties), [12, 12], betties_text_color, 1, 0);
 	}
 }
 
@@ -367,16 +394,14 @@ float rcolor, rinit, ralpha, localpha;
 
 void(float width, float height) HUD_Rounds =
 {	
-	float roundheight = 48/272*height;
-	float roundwidth = 0.02291666*width;
+	float roundheight = 65;
+	float roundwidth = 15;
 	
-	float roundwidth_4 = (60/480)*width;
-	float roundheight_4 = (48/272)*height;
+	float roundwidth_4 = 81;
+	float roundheight_4 = 65;
 	
-	float roundheight_num = 48/272*height;
-	float roundwidth_num = 48/480*height; // naievil -- was 32, but more square makes it look better
-
-//	drawstring([0.01*width, 0.70*height, 0], ftos(rounds_change), [0.03*width, 0.03*width, 0], [1, 1, 1], 1, 1); // draw roundchange
+	float roundheight_num = 65;
+	float roundwidth_num = 43; // naievil -- was 32, but more square makes it look better
 
 	int i, x_offset, icon_num, savex;
 	int num[3];
@@ -397,8 +422,8 @@ void(float width, float height) HUD_Rounds =
 			ralpha = 1;
 		}
 
-		pwidth = (width - stringwidth("Round", 0, [0.030*width, 0.030*width, 0]))/2;
-		drawstring([pwidth, 0.35*height, 0], "Round", [0.030*width, 0.030*width, 0], [1, rcolor, rcolor], ralpha, 0);
+		pwidth = stringwidth("Round", 0, [24, 24])/2;
+		drawstring([(g_width/2) - pwidth, g_height/2 - 70], "Round", [24, 24], [1, rcolor, rcolor], ralpha, 0);
 
 		rcolor -= frametime/2.5;
 		if (rcolor < 0) {
@@ -417,10 +442,10 @@ void(float width, float height) HUD_Rounds =
 			}
 		}
 
-		drawstring([0.01*width, 0.66*height, 0], chaptertitle, [0.015*width, 0.015*width, 0], [1, 1, 1], localpha, 0);
-		drawstring([0.01*width, 0.69*height, 0], location, [0.015*width, 0.015*width, 0], [1, 1, 1], localpha, 0);
-		drawstring([0.01*width, 0.72*height, 0], date, [0.015*width, 0.015*width, 0], [1, 1, 1], localpha, 0);
-		drawstring([0.01*width, 0.75*height, 0], person, [0.015*width, 0.015*width, 0], [1, 1, 1], localpha, 0);
+		drawstring([3 + GetUltraWideOffset(), g_height/2 + 24], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
+		drawstring([3 + GetUltraWideOffset(), g_height/2 + 36], location, [12, 12], [1, 1, 1], localpha, 0);
+		drawstring([3 + GetUltraWideOffset(), g_height/2 + 48], date, [12, 12], [1, 1, 1], localpha, 0);
+		drawstring([3 + GetUltraWideOffset(), g_height/2 + 60], person, [12, 12], [1, 1, 1], localpha, 0);
 	}
 
 	if (rounds_change == 1)//this is the rounds icon at the middle of the screen
@@ -432,10 +457,10 @@ void(float width, float height) HUD_Rounds =
 		else if (alphabling > 255)
 			alphabling = 255;
 			
-		round_center_x = (g_width - (11*g_width/480)) /2;
-		round_center_y = (g_height - (48*g_height/272)) /2;
+		round_center_x = g_width/2 - 6;
+		round_center_y = g_height/2 - 36;
 		
-		drawpic([round_center_x,round_center_y,0], sb_round[0], [roundwidth, roundheight, 1], [107/255,1/255,0], alphabling/255);
+		drawpic([round_center_x,round_center_y,0], sb_round[0], [roundwidth, roundheight], [107/255,1/255], alphabling/255);
 	}
 	else if (rounds_change == 2)//this is the rounds icon moving from middle
 	{
@@ -444,13 +469,13 @@ void(float width, float height) HUD_Rounds =
 				
 		drawpic([round_center_x + round_center_x_offset,round_center_y + round_center_y_offset,0], sb_round[0], [roundwidth,roundheight, 1], [107/255,(1/255),0], 1);
 		
-		round_center_x = round_center_x - (((229/108)*2 - 0.2)*(width/480)/8) * (frametime*250);
+		round_center_x = round_center_x - (((229/108)*2 - 0.2)*((width - GetUltraWideOffset())/480)/8) * (frametime*250);
 		round_center_y = round_center_y + ((2*(height/272))/8) * (frametime*250);
-		if (round_center_x <= (5/480)*height)
-			round_center_x = (5/480)*height;
-		if (round_center_y >= (220/272)*height)
-			round_center_y = (220/272)*height;
-					
+
+		if (round_center_x <= 3 + GetUltraWideOffset())
+			round_center_x = 3 + GetUltraWideOffset();
+		if (round_center_y >= g_height - 1 - roundheight)
+			round_center_y = g_height - 1 - roundheight;
 	}
 	else if (rounds_change == 3)//shift to white
 	{
@@ -481,7 +506,7 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5,height - roundheight, 0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+					drawpic([5 + GetUltraWideOffset(),height - roundheight, 0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 					
 					savex = x_offset + (10*width/480);
 					x_offset = x_offset + (10*width/480);
@@ -489,7 +514,7 @@ void(float width, float height) HUD_Rounds =
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 					continue;
 				}
 				if (i > 4)
@@ -497,7 +522,7 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 				x_offset = x_offset +  roundwidth + (3*width/480);
 			}
@@ -507,7 +532,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num, roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num, roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 								
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -516,7 +541,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -524,7 +549,7 @@ void(float width, float height) HUD_Rounds =
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+			drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 			x_offset = x_offset +  roundwidth_num - (8*width/480);
 		}
@@ -552,7 +577,7 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 
 					savex = x_offset + (10*width/480);
 					x_offset = x_offset + (10*width/480);
@@ -560,7 +585,7 @@ void(float width, float height) HUD_Rounds =
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 
 					continue;
 				}
@@ -569,7 +594,7 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-					drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
+					drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
 
 				x_offset = x_offset +  roundwidth + (3*width/480);
 			}
@@ -579,7 +604,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 					
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -588,7 +613,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 				
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -596,7 +621,7 @@ void(float width, float height) HUD_Rounds =
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+			drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 			
 			x_offset = x_offset +  roundwidth_num - (8*width/480);
 		}
@@ -616,7 +641,7 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 
 					savex = x_offset + (10*width/480);
 					x_offset = x_offset + (10*width/480);
@@ -624,7 +649,7 @@ void(float width, float height) HUD_Rounds =
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 					continue;
 				}
 				if (i > 4)
@@ -632,7 +657,7 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
+				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
 
 				x_offset = x_offset +  roundwidth + (3*width/480);
 			}
@@ -642,7 +667,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -651,7 +676,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -659,7 +684,7 @@ void(float width, float height) HUD_Rounds =
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+			drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
 			x_offset = x_offset +  roundwidth_num - (8*width/480);
 		}
@@ -679,7 +704,7 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 								
 					savex = x_offset + (10*width/480);
 					x_offset = x_offset + (10*width/480);
@@ -687,7 +712,7 @@ void(float width, float height) HUD_Rounds =
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 
 					continue;
 				}
@@ -696,7 +721,7 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
+				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
 
 				x_offset = x_offset +  roundwidth + (3*width/480);
 			}
@@ -706,7 +731,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 				
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -715,7 +740,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -723,7 +748,7 @@ void(float width, float height) HUD_Rounds =
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+			drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
 			x_offset = x_offset +  roundwidth_num - (8*width/480);
 		}
@@ -756,7 +781,7 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 					savex = x_offset + (10*width/480);
 					x_offset = x_offset + (10*width/480);
@@ -764,7 +789,7 @@ void(float width, float height) HUD_Rounds =
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 					continue;
 				}
@@ -773,7 +798,7 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 				x_offset = x_offset +  roundwidth + (3*width/480);
 			}
@@ -783,7 +808,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2+x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([2+x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -792,7 +817,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2+x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([2+x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -800,7 +825,7 @@ void(float width, float height) HUD_Rounds =
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([2+x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+			drawpic([2+x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 			x_offset = x_offset +  roundwidth_num - (8*width/480);
 		}
@@ -818,7 +843,7 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [107/255,1/255,0], 1);
+					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [107/255,1/255,0], 1);
 
 					savex = x_offset + (10*width/480);
 					x_offset = x_offset + (10*width/480);
@@ -826,7 +851,7 @@ void(float width, float height) HUD_Rounds =
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex, height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [107/255,1/255,0], 1);
+					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [107/255,1/255,0], 1);
 
 					continue;
 				}
@@ -835,7 +860,7 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset, height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [107/255,1/255,0], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [107/255,1/255,0], 1);
 
 				x_offset = x_offset +  roundwidth + (3*width/480);
 			}
@@ -845,7 +870,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
+				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
 
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -854,7 +879,7 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
+				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
 
 				x_offset = x_offset +  roundwidth_num - (8*width/480);
 			}
@@ -866,7 +891,7 @@ void(float width, float height) HUD_Rounds =
 			if(rounds == 0)
 				return;
 			
-			drawpic([2 + x_offset, height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
+			drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
 
 			x_offset = x_offset +  roundwidth_num - (8*width/480);
 		}
@@ -880,10 +905,12 @@ void(float width, float height) HUD_Rounds =
 void(float width, float height) HUD_Useprint =
 {
 	string usestring, usebutton, usespace;
+	string usecost;
 	float print_width, x, button_width;
 	
 	usestring = "";
 	usespace = "";
+	usecost = "";
 		
 	tokenize(findkeysforcommand("+button7"));
 	usebutton = strtoupper(keynumtostring(stof(argv(0))));
@@ -897,22 +924,27 @@ void(float width, float height) HUD_Useprint =
 			usestring = "";
 			break;
 		case 1://door
-			usestring = strcat("Hold ",usespace, " to open Door [Cost:", ftos(useprint_cost),"]");
+			usestring = strcat("Hold ",usespace, " to open Door");
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 2://debris
-			usestring = strcat("Hold ",usespace, " to remove Debris [Cost:", ftos(useprint_cost),"]");
+			usestring = strcat("Hold ",usespace, " to remove Debris");
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 3://ammo
-			usestring = strcat("Hold ",usespace, " to buy Ammo for ", GetWeaponName(useprint_weapon), " [Cost:", ftos(useprint_cost),"]");
+			usestring = strcat("Hold ",usespace, " to buy Ammo for ", GetWeaponName(useprint_weapon));
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 4://weapon
-			usestring = strcat("Hold ",usespace, " to buy ", GetWeaponName(useprint_weapon), " [Cost:", ftos(useprint_cost),"]");
+			usestring = strcat("Hold ",usespace, " to buy ", GetWeaponName(useprint_weapon));
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 5://window
 			usestring = strcat("Hold ",usespace, " to Rebuild Barrier");
 			break;
 		case 6://box
-			usestring = strcat("Hold ",usespace, " to buy a Random Weapon [Cost:", ftos(useprint_cost),"]");
+			usestring = strcat("Hold ",usespace, " to buy a Random Weapon");
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 7://box take
 			usestring = strcat("Hold ",usespace, " to take Weapon");
@@ -921,16 +953,19 @@ void(float width, float height) HUD_Useprint =
 			usestring = "The Power must be Activated first";
 			break;
 		case 9://perk
-			usestring = strcat("Hold ",usespace, " to buy ", GetPerkName(useprint_weapon), " [Cost:", ftos(useprint_cost),"]");
+			usestring = strcat("Hold ",usespace, " to buy ", GetPerkName(useprint_weapon));
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 10://turn on power
 			usestring = strcat("Hold ",usespace, " to Turn On the Power");
 			break;
 		case 11://turn on trap
-			usestring = strcat("Hold ",usespace, " to Activate the Trap [Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold ",usespace, " to Activate the Trap");
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 12://packapunch
-			usestring = strcat("Hold ",usespace, " to Pack-a-Punch [Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold ",usespace, " to Pack-a-Punch");
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 13://revive
 			usestring = strcat("Hold ",usespace, " to Revive Player");
@@ -939,7 +974,8 @@ void(float width, float height) HUD_Useprint =
 			usestring = strcat("Hold ", usespace, " to use Teleporter");
 			break;
 		case 15://use teleporter (cost)
-			usestring = strcat("Hold ", usespace, " to use Teleporter [Cost: ", ftos(useprint_cost), "]");
+			usestring = strcat("Hold ", usespace, " to use Teleporter");
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 16://tp cooldown
 			usestring = "Teleporter is cooling down";
@@ -954,21 +990,29 @@ void(float width, float height) HUD_Useprint =
 			usestring = strcat("Hold ", usespace, " to link pad with core");
 			break;
 		case 20://buyable ending
-			usestring = strcat("Hold ", usespace, " to End the Game [Cost: ", ftos(useprint_cost), "]");
+			usestring = strcat("Hold ", usespace, " to End the Game");
+			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		default:
 			usestring = "This should not happen you dum fuck"; //yikes
 			break;
 	}
 
-	print_width = stringwidth (usestring, 0, [0.015*width, 0.015*width, 0]);
+	print_width = stringwidth (usestring, 0, [12, 12]);
 	x = (width - print_width)/2;
-	drawstring([x, 0.67*height, 0], usestring, [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	drawstring([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
+
+	// Draw "Cost" text.
+	if (usecost != "") {
+		float cost_width = stringwidth(usecost, 0, [12, 12]);
+		float x3 = (width - cost_width)/2;
+		drawstring([x3, g_height/2 + 78, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
+	}
 
 	// Draw highlighted usebutton (or button icon in the future)
 	if (substring(usestring, 0, 4) == "Hold") {
-		button_width = x + stringwidth ("Hold ", 0, [0.015*width, 0.015*width, 0]);
-		drawstring([button_width, 0.67*height, 0], usebutton, [0.015*width, 0.015*width, 0], [1, 1, 0], 1, 0);
+		button_width = x + stringwidth ("Hold ", 0, [12, 12, 0]);
+		drawstring([button_width, g_height/2 + 65, 0], usebutton, [12, 12, 0], [1, 1, 0], 1, 0);
 	}
 }
 
@@ -981,26 +1025,52 @@ int current_perk_order;
 	
 void(float width, float height) HUD_Perks =
 {
-	int 	i;
-	float 	y = 0.725;
-	float 	x = 0.005;
+	float scale;
+	float x, y;
+	
+	scale = 32;
 
-	for (i = 0; i < 9; i = i + 1) {
+	x = 20;
+	y = 6;
+
+	if (cvar("vid_ultrawide_limiter"))
+		x += ULTRAWIDE_OFFSET;
+
+	// Draw second column first -- these need to be
+	// overlayed below the first column.
+	for (float i = 4; i < 8; i++) {
 		if (perk_order[i]) {
-			switch(perk_order[i]) {
-				case P_JUG: drawpic([x*width,y*height,0], getImage("jug.tga"), [0.075*height, 0.075*height, 1], [1,1,1], 1); break;
-				case P_DOUBLE: drawpic([x*width,y*height,0], getImage("double.tga"), [0.075*height, 0.075*height, 1], [1,1,1], 1); break;
-				case P_SPEED: drawpic([x*width,y*height,0], getImage("speed.tga"), [0.075*height, 0.075*height, 1], [1,1,1], 1); break;
-				case P_REVIVE: drawpic([x*width,y*height,0], getImage("revive.tga"), [0.075*height, 0.075*height, 1], [1,1,1], 1); break;
-				case P_FLOP: drawpic([x*width,y*height,0], getImage("flopper.tga"), [0.075*height, 0.075*height, 1], [1,1,1], 1); break;
-				case P_STAMIN: drawpic([x*width,y*height,0], getImage("stamin.tga"), [0.075*height, 0.075*height, 1], [1,1,1], 1); break;
-				case P_DEAD: drawpic([x*width,y*height,0], getImage("dead.tga"), [0.075*height, 0.075*height, 1], [1,1,1], 1); break;
-				case P_MULE: drawpic([x*width,y*height,0], getImage("mule.tga"), [0.075*height, 0.075*height, 1], [1,1,1], 1); break;
-				default: break;
-			}
-
-			y -= 0.08;
+			if (perk_order[i] == P_JUG) {drawpic([x, y], "gfx/hud/jug.tga", [scale, scale], [1,1,1], 1);}
+			if (perk_order[i] == P_DOUBLE) {drawpic([x, y], "gfx/hud/double.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_SPEED) {drawpic([x, y], "gfx/hud/speed.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_REVIVE) {drawpic([x, y], "gfx/hud/revive.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_FLOP) {drawpic([x, y], "gfx/hud/flopper.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_STAMIN) {drawpic([x, y], "gfx/hud/stamin.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_DEAD) {drawpic([x, y], "gfx/hud/dead.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_MULE) {drawpic([x, y], "gfx/hud/mule.tga", [scale, scale, 1], [1,1,1], 1);}
 		}
+		y += scale;
+	}
+
+	x = 3;
+	y = 6;
+
+	if (cvar("vid_ultrawide_limiter"))
+		x += ULTRAWIDE_OFFSET;
+
+	// Now the first column.
+	for (float i = 0; i < 4; i++) {
+		if (perk_order[i]) {
+			if (perk_order[i] == P_JUG) {drawpic([x, y], "gfx/hud/jug.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_DOUBLE) {drawpic([x, y], "gfx/hud/double.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_SPEED) {drawpic([x, y], "gfx/hud/speed.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_REVIVE) {drawpic([x, y], "gfx/hud/revive.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_FLOP) {drawpic([x, y], "gfx/hud/flopper.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_STAMIN) {drawpic([x, y], "gfx/hud/stamin.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_DEAD) {drawpic([x, y], "gfx/hud/dead.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_MULE) {drawpic([x, y], "gfx/hud/mule.tga", [scale, scale, 1], [1,1,1], 1);}
+		}
+		y += scale;
 	}
 }
 
@@ -1011,12 +1081,9 @@ void(float width, float height) HUD_Perks =
 void(float width, float height) HUD_Weaponstring =
 {
 	string weaponstring; 
-	float ws_offset;
-	
 	weaponstring = GetWeaponName(getstatf(STAT_ACTIVEWEAPON));
-	ws_offset = (strlen(weaponstring));
-		
-	drawstring([0.925*width + (40*width/1024) - ws_offset*20*width/1024, 0.75*height + 10, 0], weaponstring, [0.02*width, 0.02*width, 0], [1, 1, 1], 1, 0);
+	float x = g_width - 62 - stringwidth(weaponstring, 0, [12, 12]);
+	drawstring([x - GetUltraWideOffset(), g_height - 49], weaponstring, [12, 12], [1, 1, 1], 1, 0);
 }
 
 /*******************
@@ -1026,9 +1093,9 @@ void(float width, float height) HUD_Weaponstring =
 void(float width, float height) HUD_Progressbar =
 {
 	float percent = getstatf(STAT_PROGRESSBAR);
-	if (!percent) {
+
+	if (!percent)
 		return;
-	}
 
 	string progress; 
 	local float ws_offset;
@@ -1036,15 +1103,16 @@ void(float width, float height) HUD_Progressbar =
 	progress = ftos(percent);
 	ws_offset = (strlen(progress) - 1);
 
-	float bar_width = 0.0175*width * 20;
-	float bar_height = 0.0175*width;
+	float bar_width = 200;
+	float bar_height = 12;
 	float bar_x = (width - bar_width)/2;
 	float bar_y = height*0.75;
 
 	drawfill ([bar_x - 1, bar_y - 1, 0], [bar_width+2, bar_height, 0], [0, 0, 0], 0.4, 0);
 	drawfill ([bar_x, bar_y, 0], [bar_width * percent, bar_height-2, 0], [1, 1, 1], 0.4, 0);
 	
-	drawstring([(width - (88))/2, height*0.77 + 10, 0], "Reviving...", [0.0175*width, 0.0175*width, 0], [1, 1, 1], 1, 0); 
+	float x = (g_width/2) - (stringwidth("Reviving...", 0, [12, 12])/2);
+	drawstring([x, g_height - 105], "Reviving...", [12, 12], [1, 1, 1], 1, 0); 
 }
 
 /*******************
@@ -1053,7 +1121,7 @@ void(float width, float height) HUD_Progressbar =
 
 void() HUD_Hitmark =
 {
-	drawpic([g_width/2 - (8/480)*g_width, g_height/2 - (8/480)*g_width,0], "gfx/hud/hit_marker.tga", [(16/480)*g_width, (16/480)*g_width, 1], [1,1,1], 1);
+	drawpic([g_width/2 - 12, g_height/2 - 12], "gfx/hud/hit_marker.tga", [24, 24], [1,1,1], 1);
 }
 
 /*******************
@@ -1068,6 +1136,15 @@ vector crosshair_color;
 
 void() Draw_Crosshair =
 {
+	//void(float width, vector pos1, vector pos2, vector rgb, float alpha, optional float drawflag) drawline
+	if (cvar("cl_crosshair_debug")) {
+		drawline(2, [g_width/2, g_height/2, 0], [0, g_height, 0], [1, 0, 0], 0.5);
+		drawline(2, [g_width/2, g_height/2, 0], [g_width, 0, 0], [0, 1, 1], 0.5);
+		drawline(2, [g_width, g_height, 0], [g_width/2, g_height/2, 0], [0, 1, 0], 0.5);
+		drawline(2, [0, 0, 0], [g_width/2, g_height/2, 0], [0, 0, 1], 0.5);
+		//return;
+	}
+
 	if (!crosshair_opacity)
 		crosshair_opacity = 1;
 
@@ -1100,7 +1177,6 @@ void() Draw_Crosshair =
 	}
 
 	// Update values to be red if we're facing an enemy
-	// FIXME - this should be handled COMPLETELY client side, NOT as a stat.
 	if (getstatf(STAT_FACINGENEMY))
 		crosshair_color = TEXT_RED;
 	else
@@ -1114,10 +1190,10 @@ void() Draw_Crosshair =
 		drawpic([(g_width/2 - g_height/2),0,0], "gfx/hud/scope_nb.tga", [g_height, g_height, 1], [1,1,1], 1);
 		drawfill([(g_width/2 + g_height/2),0,0],  [g_width, g_height, 0], '0 0 0', 1, 0);
 	}
-    
+
 	if (getstatf(STAT_HEALTH) < 11)
 		return;
-		
+
 	if (crosshair_spread_time > time && crosshair_spread_time)
     {
         cur_spread = cur_spread + 10;
@@ -1139,7 +1215,8 @@ void() Draw_Crosshair =
 
 	if (getstatf(STAT_ACTIVEWEAPON) == W_M2 || getstatf(STAT_ACTIVEWEAPON) == W_TESLA || getstatf(STAT_ACTIVEWEAPON) == W_DG3)
 	{
-		drawstring([(g_width/2 - g_width*0.0175/2), (g_height/2 - g_height*0.0175/2), 0], "O", [0.0175*g_width, 0.0175*g_width, 0], crosshair_color, 1, 0);
+		float circle_offset = stringwidth("O", 0, [12, 12])/2;
+		drawstring([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [12, 12], crosshair_color, 1, 0);
 	}
 	else if (getstatf(STAT_WEAPONZOOM) != 1 && getstatf(STAT_WEAPONZOOM) != 2 && getstatf(STAT_ACTIVEWEAPON) != W_PANZER && getstatf(STAT_ACTIVEWEAPON) != W_LONGINUS) // naievil (FIXME) crosshair cvar
     {
@@ -1156,37 +1233,43 @@ void() Draw_Crosshair =
 
 		crosshair_offset_step += (crosshair_offset - crosshair_offset_step) * 0.5;
 
-		// Left
-		x_value = g_width/2 - crosshair_offset_step*2;
-		y_value = g_height/2;
-		drawstring([x_value, y_value, 0], "-", [0.0175*g_width, 0.0175*g_width, 0], crosshair_color, crosshair_opacity, 0); 
+		// Creds to heartologic for some actually good crosshair position stuff.
+		vector crossSize = [1, 8];
+		vector screenSize = [g_width, g_height];
 
-		// Right
-		x_value = g_width/2 + crosshair_offset_step*2;
-		y_value = g_height/2;
-		drawstring([x_value, y_value, 0], "-", [0.0175*g_width, 0.0175*g_width, 0], crosshair_color, crosshair_opacity, 0); 
-
-		// Down
-		x_value = g_width/2;
-		y_value = g_height/2 - crosshair_offset_step*2;
-		drawstring([x_value, y_value, 0], "|", [0.0175*g_width, 0.0175*g_width, 0], crosshair_color, crosshair_opacity, 0); 
-
-		// Up
-		x_value = g_width/2;
-		y_value = g_height/2 + crosshair_offset_step*2;
-		drawstring([x_value, y_value, 0], "|", [0.0175*g_width, 0.0175*g_width, 0], crosshair_color, crosshair_opacity, 0); 
-
+		drawfill(screenSize / 2 - [crossSize.x * 0.5, +crossSize.y * 2 + crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // top
+		drawfill(screenSize / 2 - [crossSize.x * 0.5, -crossSize.y * 1 - crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // bottom
+		drawfill(screenSize / 2 - [+crossSize.y * 2 + crosshair_offset_step, crossSize.x * 0.5], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // right
+		drawfill(screenSize / 2 - [-crossSize.y * 1 - crosshair_offset_step, crossSize.x * 0.5], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // left
     }
-    else if (/*crosshair.value && */getstatf(STAT_WEAPONZOOM) != 1 && getstatf(STAT_WEAPONZOOM) != 2) // naievil (FIXME) crosshair cvar
-		drawstring([((480 - 8)/2/480)*g_width, ((272 - 8)/2)*(g_height/272), 0], ".", [0.0175*g_width, 0.0175*g_width, 0], [1, 1, 1], 1, 0); 
+    else if (getstatf(STAT_WEAPONZOOM) != 1 && getstatf(STAT_WEAPONZOOM) != 2) {
+		vector screenSize2 = [g_width, g_height];
+		drawfill(screenSize2 / 2 - [2, 2], [4, 4], crosshair_color, crosshair_opacity, 0); // dot
+	}
 }
 
-void() HUD_Powerups = {
+void() HUD_Powerups =
+{
+	float count = 0;
 
-	if(getstatf(STAT_X2))
-		drawpic([(g_width/2 - (28/272)*g_height),0,0], "gfx/hud/2x.tga", [(28/272)*g_height, (28/272)*g_height, 1], [1,1,1], 1);
-	if(getstatf(STAT_INSTA))
-		drawpic([(g_width/2 + (5/480)*g_width),0,0], "gfx/hud/in_kill.tga", [(28/272)*g_height, (28/272)*g_height, 1], [1,1,1], 1);
+	// horrible way to offset check :)))))))))))))))))) :DDDDDDDD XOXO
+
+	if (getstatf(STAT_X2))
+		count++;
+
+	if (getstatf(STAT_INSTA))
+		count++;
+
+	// both are avail draw fixed order
+	if (count == 2) {
+		drawpic([g_width/2 - (2 + 32), g_height - 38], "gfx/hud/2x.tga", [32, 32], [1, 1, 1], 1);
+		drawpic([g_width/2 + 2, g_height - 38], "gfx/hud/in_kill.tga", [32, 32], [1, 1, 1], 1);
+	} else {
+		if (getstatf(STAT_X2))
+			drawpic([g_width/2 - 16, g_height - 38], "gfx/hud/2x.tga", [32, 32], [1, 1, 1], 1);
+		else if (getstatf(STAT_INSTA))
+			drawpic([g_width/2 - 16, g_height - 38], "gfx/hud/in_kill.tga", [32, 32], [1, 1, 1], 1);
+	}
 }
 
 void() HUD_Broadcast = {
@@ -1292,10 +1375,10 @@ void() HUD_Fade =
 }
 
 void(float width, float height) HUD_ScrollText = {
-	local float print_width = stringwidth (scrolltext, 0, [0.015*width, 0.015*width, 0]);
-	local float x = (width - print_width)/2;
+	float print_width = stringwidth (scrolltext, 0, [12, 12, 0]);
+	float x = (width - print_width)/2;
 
-	drawstring([x, scrollheight*height, 0], scrolltext, [0.015*width, 0.015*width, 0], [1, 1, 1], scrollopacity, 0); //low
+	drawstring([x, scrollheight*height, 0], scrolltext, [12, 12, 0], [1, 1, 1], scrollopacity, 0); //low
 	if (scrollheight > 0.70) {
 		scrollheight -= frametime/10;
 		if (scrollopacity > 0)
@@ -1393,7 +1476,10 @@ void(float width, float height) HUD_PlayerNames =
 		vector screen_position = project(player_origin);
 		vector text_color = '1 1 1';
 
-		screen_position_x -= stringwidth(text, 0, [0.014*width, 0.014*width, 0])/2;
+		if (player_origin == '0 0 48')
+			continue;
+
+		screen_position_x -= stringwidth(text, 0, [8, 8])/2;
 
 		switch(i) {
 			case 1: text_color = TEXT_LIGHTBLUE; break;
@@ -1403,7 +1489,7 @@ void(float width, float height) HUD_PlayerNames =
 		}
 
 		if (screen_position_z > 0)
-			drawstring(screen_position, text, [0.014*g_width, 0.014*g_width, 0], text_color, 1, 0);
+			drawstring(screen_position, text, [8, 8], text_color, 1, 0);
 	}
 }
 
@@ -1417,14 +1503,14 @@ void(float width, float height) HUD_ReviveIcons =
 			revive_origin_y = revive_icons[i].org[1];
 			revive_origin_z = revive_icons[i].org[2];
 			vector screen_position = project(revive_origin);
-			screen_position_x -= (0.075*height)/2;
+			screen_position_x -= (32)/2;
 
 			if (screen_position_z > 0) {
 				// being revived
 				if (revive_icons[i].state == 2)
-					drawpic(screen_position, "gfx/hud/revive_icon.tga", [0.075*height, 0.075*height, 1], [1,1,1], 1);
+					drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1,1], 1);
 				else {
-					drawpic(screen_position, "gfx/hud/revive_icon.tga", [0.075*height, 0.075*height, 1], [1,1 - (revive_icons[i].timer/30),0], 1);
+					drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1 - (revive_icons[i].timer/30),0], 1);
 				}
 			}
 		}

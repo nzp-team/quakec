@@ -167,6 +167,9 @@ void() Soft_Restart = {
 
 	self = oldself;
 	self.downed = 0;
+	self.progress_bar = 0;
+	self.progress_bar_time = 0;
+	self.progress_bar_percent = 0;
 	game_over = false;
 	rounds = 0;
 	self.score = 0;

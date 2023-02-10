@@ -104,7 +104,7 @@ void() StartFrame =
 
 		if (ai_delay_time < time) {
 			Do_Zombie_AI ();
-			ai_delay_time = time + 0.05;
+			ai_delay_time = time + 0.07;
 		}
 	} else {
 		entity SpawnedIn;
@@ -127,13 +127,6 @@ string(string s) precache_model         = #20;
 void() precaches =
 {
 	precache_model ("models/player.mdl");
-
-#ifdef PC
-
-	if (world.song != "")
-		precache_sound (world.song);
-
-#endif // PC
 
 	//
 	// Models
@@ -187,13 +180,17 @@ void() precaches =
 	//
 
 	// player-made
-#ifdef PC
+
+#ifdef FTE
+
 	precache_sound("sounds/player/footstep1.wav");
 	precache_sound("sounds/player/footstep2.wav");
 	precache_sound("sounds/player/footstep3.wav");
 	precache_sound("sounds/player/footstep4.wav");
 	precache_sound("sounds/player/footstep5.wav");
-	#endif // PC
+
+#endif // FTE
+
 	precache_sound("sounds/player/jump.wav");
 	precache_sound("sounds/player/land.wav");
 	precache_sound("sounds/player/pain4.wav");
@@ -292,11 +289,6 @@ void() precaches =
 
 	// null
 	precache_sound("sounds/null.wav");
-
-	#ifdef PC
-	// Moto -- FIXME: compile FTE to remove this engine sound request
-	precache_sound ("demon/dland2.wav");
-	#endif
 }
 
 //called when map loaded
@@ -310,7 +302,8 @@ void() worldspawn =
 	// Init Power-Ups
 	PU_Init();
 
-	#ifdef PC
+#ifdef FTE
+
 	clientstat(STAT_CURRENTMAG, EV_FLOAT, currentmag);
 	clientstat(STAT_CURRENTMAG2, EV_FLOAT, currentmag2);
 	clientstat(STAT_POINTS, EV_FLOAT, points);
@@ -329,7 +322,8 @@ void() worldspawn =
 	clientstat(STAT_PLAYERSTANCE, EV_FLOAT, stance);
 	clientstat(STAT_FACINGENEMY, EV_FLOAT, facingenemy);
 	clientstat(STAT_VIEWZOOM, EV_FLOAT, viewzoom);
-	#endif
+
+#endif // FTE
 
 	mappath = strcat("maps/", mapname);
 	mappath = strzone(mappath);

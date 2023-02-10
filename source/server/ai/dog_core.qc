@@ -137,13 +137,10 @@ void() Dog_Walk_Setup =
 // decide our walktype based on player distance
 void() Dog_Think =
 {
-	// FIXME - crash
-	self.walktype = 2;
-	/*
 	if(vlen(self.enemy.origin - self.origin) < 300)
 		self.walktype = 2;
 	else
-		self.walktype = 1;*/
+		self.walktype = 1;
 }
 
 float dogCount;
@@ -194,7 +191,7 @@ void(entity where) spawn_a_dogB =
 {
 	local entity sdog;//USED FOR WHAT TO SPAWN
 	
-	sdog = getFreeZombieEnt(self);
+	sdog = getFreeZombieEnt();
 	if(sdog == world)
 	{
 		return;
@@ -311,7 +308,7 @@ float() spawn_a_dogA =
 	
 	FAIL = false;
 	pcount = 0;
-	szombie = getFreeZombieEnt(self);
+	szombie = getFreeZombieEnt();
 	if(szombie == world || dogCount >= (2 * (player_count + 1)))
 	{
 		return 0;
