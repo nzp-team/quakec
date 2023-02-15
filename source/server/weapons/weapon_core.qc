@@ -1663,34 +1663,6 @@ void () W_Knife =
 	else if (trace_fraction < 1.0)
 	{	// hit wall
 		sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);			
-		
-#ifdef FTE
-
-		if (self.weapon != W_RAY && self.weapon != W_PORTER) {
-			WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-			WriteByte(MSG_MULTICAST, EVENT_PISTOLFIRE);
-			WriteEntity(MSG_MULTICAST, self);
-            WriteFloat(MSG_MULTICAST, 0);
-			WriteCoord(MSG_MULTICAST, org_x);
-			WriteCoord(MSG_MULTICAST, org_y);
-			WriteCoord(MSG_MULTICAST, org_z);
-			WriteCoord(MSG_MULTICAST, trace_plane_normal_x);
-			WriteCoord(MSG_MULTICAST, trace_plane_normal_y);
-			WriteCoord(MSG_MULTICAST, trace_plane_normal_z);
-			WriteEntity(MSG_MULTICAST, hit_ent);
-			multicast(trace_endpos, MULTICAST_PHS);
-		}	
-
-#else
-
-		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
-		WriteByte (MSG_BROADCAST, TE_GUNSHOT);
-		WriteCoord (MSG_BROADCAST, org_x);
-		WriteCoord (MSG_BROADCAST, org_y);
-		WriteCoord (MSG_BROADCAST, org_z);
-
-#endif // FTE
-
 	}
 
 	if (r > 40 && hit)//lunge
