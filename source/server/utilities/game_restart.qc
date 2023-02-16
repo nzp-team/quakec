@@ -67,6 +67,25 @@ void() GameRestart_CleanPowerUps =
     x2_finished = time;
 }
 
+//
+// GameRestart_CleanWallSummons()
+// Removes World models summoned from
+// weapon_wall.
+//
+void() GameRestart_CleanWallSummons =
+{
+    entity tempe;
+
+    tempe = find(world, classname, "weapon_wall");
+    while(tempe != world) {
+        // We store the world model with .enemy for.. some reason..
+        if (tempe.enemy)
+            remove(tempe.enemy);
+            
+        tempe = find(tempe, classname, "weapon_wall");
+    }
+}
+
 //moto -- put this here because it keeps soft_restart somewhat clean..
 void(entity door) reclose_door = {
 	entity  oldself;
@@ -114,6 +133,7 @@ void() Soft_Restart = {
 	}
 
     GameRestart_CleanPowerUps();
+    GameRestart_CleanWallSummons();
 
 	//repair all windows
     barricades = find(world, classname, "item_barricade");
