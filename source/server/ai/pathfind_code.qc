@@ -376,7 +376,7 @@ void LoadWaypointData() {
 					point = 1;
 					targetcount = 0;
 				} else if (h == "Waypoint") {
-					bprint(PRINT_HIGH, "Identified .way as legacy..\n");
+					//bprint(PRINT_HIGH, "Identified .way as legacy..\n");
 					point = 99;
 					Load_Waypoints_Legacy();
 				} else {

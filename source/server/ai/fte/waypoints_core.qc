@@ -361,6 +361,58 @@ void() Remove_Links =
 	}
 }
 
+string tempstest;
+void() Save_Waypoints_Legacy =
+{
+	local float file;
+	string h;
+
+	h = strcat(mappath, ".way");
+	file = fopen (h, FILE_WRITE);
+	
+	local entity dway;
+	//fputs(file, "begin\n");
+	dway = find(world, classname, "waypoint");
+	while (dway)
+	{
+		dprint ("Saving waypoints\n");
+		fputs(file,"Waypoint\n");
+		fputs(file,"{\norigin = ");
+		tempstest = vtos(dway.origin);
+		tempstest = strzone(tempstest);
+		fputs(file,tempstest);
+		strunzone (tempstest);
+		fputs(file,"\nid = ");
+		fputs(file,dway.waynum);
+		fputs(file,"\nspecial = ");
+		fputs(file,dway.targetname);
+		fputs(file,"\ntarget = ");
+		fputs(file,dway.target);
+		fputs(file,"\ntarget2 = ");
+		fputs(file,dway.target2);
+		fputs(file,"\ntarget3 = ");
+		fputs(file,dway.target3);
+		fputs(file,"\ntarget4 = ");
+		fputs(file,dway.target4);
+		fputs(file,"\ntarget5 = ");
+		fputs(file,dway.target5);
+		fputs(file,"\ntarget6 = ");
+		fputs(file,dway.target6);
+		fputs(file,"\ntarget7 = ");
+		fputs(file,dway.target7);
+		fputs(file,"\ntarget8 = ");
+		fputs(file,dway.target8);
+		fputs(file,"\n");
+		fputs(file,"}\n");
+		
+		
+		dway = find(dway, classname, "waypoint");
+		if (dway)
+			fputs(file,"\n");
+	}
+	fclose(file);
+}
+
 void() Save_Waypoints
 {
 	float file;
@@ -509,7 +561,7 @@ void() Load_Waypoints
 					point = 1;
 					targetcount = 0;
 				} else if (h == "Waypoint") {
-					bprint(PRINT_HIGH, "Identified .way as legacy..\n");
+					//bprint(PRINT_HIGH, "Identified .way as legacy..\n");
 					point = 99;
 					Load_Waypoints_Legacy();
 					loop = 0;
@@ -602,12 +654,10 @@ void() Load_Waypoints_Legacy
 
 	while (1)
 	{
-		dprint("Loading waypoint\n");
 		// the first line is just a comment, ignore it
 		h = fgets(file);	
 		if (h != "Waypoint")
 		{
-			bprint(PRINT_HIGH, "Last waypoint\n");
 			fclose(file);
 			return;
 		}
@@ -685,60 +735,29 @@ void VisualizePathfind() {
 .float waypoint_delay;
 
 //Waypoint logic functions
+float way_save_state;
 void () Waypoint_Functions =
 {
-	// naievil -- archaic
-	/*
-	switch (self.impulse) {
-		case 100:	
-			Create_New_Waypoint();
-			break;
-		case 101:	
-			Make_Special_Waypoint();
-			break;
-		case 102:	
-			Select_Waypoint();
-			break;
-		case 103:
-			Move_Waypoint();
-			break;
-		case 104:
-			Link_Waypoints ();
-			break;
-		case 105:
-			Dual_Link_Waypoints();
-			break;
-		case 106:
-			Save_Waypoints();
-			break;
-		case 107:
-			Load_Waypoints();
-			break;
-		case 108:
-			Load_Waypoints_Legacy();
-			break;
-		case 109:
-			Remove_Waypoint();
-			//VisualizePathfind();
-			break;
-		case 110:
-			Auto_Link_Waypoints();
-			break;
-		case 111:
-			Remove_Links();
-			break;
-	}
-	
-	self.impulse = 0;
-	*/
 
 	switch (self.impulse) {
-		case 23:
-			Save_Waypoints();
+		case 24:
+			if (way_save_state == 0) {
+				bprint(PRINT_HIGH, "Are you sure you want to save? This will overwrite the old waypoints file, press Load to cancel!\n");
+				way_save_state++;
+			} else {
+				bprint(PRINT_HIGH, "Saving Waypoints..\n");
+				Save_Waypoints_Legacy();
+				way_save_state = 0;
+			}
 			break;
 		case 22:
-			if (!waypoints_loaded)
-				Load_Waypoints();
+			if (way_save_state == 1) {
+				bprint(PRINT_HIGH, "Waypoint Save cancelled.\n");
+				way_save_state = 0;
+			} else {
+				if (!waypoints_loaded)
+					Load_Waypoints();
+			}
 			break;
 		case 110:
 			Move_Waypoint();
