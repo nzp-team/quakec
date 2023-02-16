@@ -142,7 +142,7 @@ void() W_SprintStop =
 
 
 void W_SprintStart () {	
-	if (self.speed_penalty_time > time)
+	if (self.speed_penalty_time > time || self.zoom != 0)
 		return;
 	
 	self.sprint_start_time = time;
