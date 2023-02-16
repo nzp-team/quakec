@@ -44,6 +44,8 @@ var struct powerup_struct
 	float() requirement_function;
 } powerup_array[MAX_POWERUPS] = {};
 
+powerup_struct temp_struct;
+
 float 	powerup_count;
 float	powerup_index;
 
@@ -80,17 +82,15 @@ PU_AddToStruct =
 // PU_CopyStruct(to, from)
 // Copies a powerup_struct from to.
 //
-powerup_struct(powerup_struct to, powerup_struct from) PU_CopyStruct =
+void(__inout powerup_struct to) PU_CopyStruct =
 {
-	to.id = from.id;
-	to.occupied = from.occupied;
-	to.flash_screen = from.flash_screen;
-	to.model_path = from.model_path;
-	to.voiceover_path = from.voiceover_path;
-	to.function = from.function;
-	to.requirement_function = from.requirement_function;
-
-	return to;
+	to.id = temp_struct.id;
+	to.occupied = temp_struct.occupied;
+	to.flash_screen = temp_struct.flash_screen;
+	to.model_path = temp_struct.model_path;
+	to.voiceover_path = temp_struct.voiceover_path;
+	to.function = temp_struct.function;
+	to.requirement_function = temp_struct.requirement_function;
 }
 
 //
@@ -108,9 +108,12 @@ void() PU_PopulateArray =
 		powerup_struct temp;
 		temp.id = -1;
 
-		PU_CopyStruct(temp, powerup_array[i]);
-		PU_CopyStruct(powerup_array[i], powerup_array[amount]);
-		PU_CopyStruct(powerup_array[amount], temp);
+		temp_struct = powerup_array[i];
+		PU_CopyStruct(temp);
+		temp_struct = powerup_array[amount];
+		PU_CopyStruct(powerup_array[i]);
+		temp_struct = temp;
+		PU_CopyStruct(powerup_array[amount]);
 	}
 };
 
