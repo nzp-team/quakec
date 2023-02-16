@@ -13,7 +13,8 @@
 ../source/server/dummies.qc  
 ../source/server/rounds.qc
 ../source/server/nzdparser.qc
-../source/server/main.qc   
+../source/server/main.qc 
+../source/server/utilities/game_restart.qc  
 ../source/server/utilities/command_parser.qc 
 ../source/server/utilities/math.qc
 ../source/server/player.qc

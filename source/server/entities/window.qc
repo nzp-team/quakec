@@ -365,14 +365,6 @@ void() item_barricade =
 	setsize(self, '-20 -20 -64', '20 20 16');
 	setorigin(self, self.origin);
 	spawn_boxes();
-
-#ifndef FTE
-
-	windows[wincnt] = self;
-	wincnt++;
-	
-#endif // FTE
-
 };
 
 void() item_cover = {item_barricade();};

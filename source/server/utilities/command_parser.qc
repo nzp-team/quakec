@@ -5,7 +5,7 @@
     commands, and a table storing command information. Modeled after
     pr_cmds.
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2023 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -26,9 +26,6 @@
 		Boston, MA  02111-1307, USA
 
 */
-
-// Needed to iterate through all of the command table.
-#define NUMBER_OF_COMMANDS  2
 
 // Success/Failure return codes
 #define COMMAND_SUCCESS     0
@@ -106,6 +103,18 @@ float(string params) Command_addmoney =
 }
 
 //
+// Command_softrestart()
+// Executes the Soft_Restart QuakeC function.
+// Useful for debugging its functionality.
+//
+float(string params) Command_softrestart =
+{
+	Soft_Restart();
+
+	return COMMAND_SUCCESS;
+}
+
+//
 // Server command table
 // command_name         : Command string entered into developer console.
 // command_function     : QuakeC function called when command is executed.
@@ -121,7 +130,8 @@ var struct {
     string                  command_description;
 } server_commands[] = {
     {"addmoney", Command_addmoney, true, "Usage: addmoney <point_value>\n  Gives `point_value` amount of points to the client who requested it.\n"},
-    {"give", Command_give, true, "Usage: give <weapon number>\n  Gives `weapon` of index.\n"}
+    {"give", Command_give, true, "Usage: give <weapon number>\n  Gives `weapon` of index.\n"},
+	{"qc_soft_restart", Command_softrestart, false, "Executes the Soft_Restart QuakeC function. Useful for debugging its functionality.\n"}
 };
 
 //
@@ -151,7 +161,7 @@ void(string command_string) SV_ParseClientCommand =
 	}
 
     // Now iterate over our commands
-    for (float i = 0; i < NUMBER_OF_COMMANDS; i++) {
+    for (float i = 0; i < server_commands.length; i++) {
         // Command names match
         if (command == server_commands[i].command_name) {
             // Override Client Commands
