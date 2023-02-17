@@ -1152,8 +1152,12 @@ float(float wep, float delaytype) getWeaponDelay =
 			else if (delaytype == FIRE)
 				return 0.12;
 		case W_BROWNING:
+			if (delaytype == RELOAD_EMP)
+				return 2.5;
+			if (delaytype == RELOAD_PAR)
+				return 3.5;
 			if (delaytype == RELOAD)
-				return 7;
+				return 3.5;
 			else if (delaytype == FIRE)
 				return 0.104;
 		case W_ACCELERATOR:
@@ -1735,10 +1739,18 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 1;
 				case FIRE_END:
 					return 3;
-				case RELOAD_START:
+				case RELOAD_EMPTY_START:
+					return 26;
+				case RELOAD_EMPTY_END:
+					return 44;
+				case RELOAD_PART_START:
 					return 4;
+				case RELOAD_PART_END:
+					return 44;
+				case RELOAD_START:
+					return 45;
 				case RELOAD_END:
-					return 37;
+					return 77;
 				case SPRINT_IN_START:
 					return 92;
 				case SPRINT_IN_END:

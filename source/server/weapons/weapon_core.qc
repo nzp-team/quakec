@@ -399,12 +399,7 @@ void() ContinueReload = //Special reloads
 		}
 		self.reloadinterupted = FALSE;
 	} else if (self.currentmag < getWeaponMag(self.weapon)) {
-		if (self.weapon == W_BROWNING || self.weapon == W_ACCELERATOR) {
-			delay = 4; 
-			startframe = 45;
-			endframe = 77;
-			endanimfunc = W_Give_Ammo;
-		} else if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER) {
+		if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER) {
 			self.currentmag++;
         	self.currentammo = self.currentammo - 1;
 			delay = 0.8; 
@@ -512,22 +507,7 @@ void(float side) W_Reload =
 		delay = getWeaponDelay(self.weapon,RELOAD);
 		void(optional float t) endanimfunc = SUB_Null;
 
-		// TODO: Make browning use new reload status frames
-		if (self.weapon == W_BROWNING || self.weapon ==  W_ACCELERATOR) {
-			if (!self.currentmag) {
-				startframe = 26;
-				endframe = 77;
-				reloadcancelframe = 45;
-				delay = 6;
-				endanimfunc = W_Give_Ammo;
-			} else if (self.currentmag > 0) {
-				startframe = 4;
-				endframe = 25;
-				reloadcancelframe = 0;
-				delay = 3.5;
-				endanimfunc = ContinueReload;
-			}
-		} else if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER ){
+		if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER ){
 			startframe = 14;
 			endframe = 18;
 			reloadcancelframe = 0;
