@@ -455,6 +455,7 @@ noref void(float isnew) CSQC_Ent_Update =
 }
 
 // CALLED EVERY CLIENT RENDER FRAME
+float pap_flash_alternate;
 noref void(float width, float height, float menushown) CSQC_UpdateView =
 {
 	//clear and update our global screen resolution vars
@@ -568,8 +569,14 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 			muzzlepos += v_up * (offset_z + 6);
 
 			if (cvar("r_drawviewmodel")) {
-				if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON)))
-					dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0.7 0 0.7' * mzlflash.alpha);
+				if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON))) {
+					if (pap_flash_alternate)
+						dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0.7 0 0' * mzlflash.alpha);
+					else
+						dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0 0 0.7' * mzlflash.alpha);
+
+					pap_flash_alternate = !pap_flash_alternate;
+				}	
 				else
 					dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '1.2 0.7 0.2' * mzlflash.alpha);
 
@@ -871,10 +878,11 @@ noref void() CSQC_Parse_Event =
 				mzlflash.alpha = 1;
 
 				if (cvar("nzp_particles") && cvar("r_drawviewmodel")) {
+					float index = rint(random() * 2);
 					if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON)))				
-						pointparticles(particleeffectnum("muzzle.muzzle_pap_part0"), muzzlepos, norm*24, 1);
+						pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", ftos(index))), muzzlepos, norm*24, 1);
 					else
-						pointparticles(particleeffectnum("muzzle.muzzle_part0"), muzzlepos, norm*24, 1);
+						pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", ftos(index))), muzzlepos, norm*24, 1);
 				}
 			}
 			
