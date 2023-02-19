@@ -439,6 +439,8 @@ void(float side) W_AdvanceAnim =
 	endframe = GetFrame(self.weapon, RELOAD_END);
 	delay = getWeaponDelay(self.weapon, RELOAD);
 	reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
+	
+	if (self.perks & P_SPEED) delay *= 0.5;
 
 	modelname = GetWeaponModel(self.weapon, 0);
 
