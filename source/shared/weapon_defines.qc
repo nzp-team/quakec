@@ -1153,16 +1153,20 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.12;
 		case W_BROWNING:
 			if (delaytype == RELOAD_EMP)
-				return 2.5;
+				return 2;
 			if (delaytype == RELOAD_PAR)
-				return 3.5;
+				return 3;
 			if (delaytype == RELOAD)
-				return 3.5;
+				return 4.0;
 			else if (delaytype == FIRE)
 				return 0.104;
 		case W_ACCELERATOR:
+			if (delaytype == RELOAD_EMP)
+				return 2;
+			if (delaytype == RELOAD_PAR)
+				return 3;
 			if (delaytype == RELOAD)
-				return 7;
+				return 4;
 			else if (delaytype == FIRE)
 				return 0.088;
 		case W_DB:
@@ -1388,7 +1392,7 @@ vector GetWeaponADSPos(float wep) {
 			return [2.7, 1.90, 1.27];
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			return [-1.6, 7.7, 6.5];
+			return [-4.6, 3.95, 1.68];
 		case W_DB:
 		case W_BORE:
 		case W_SAWNOFF:
@@ -1511,7 +1515,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-7700, 2200, 0];
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			return [-15200, 11620, 0];
+			return [-8000, 3020, -7000];
 		case W_PTRS:
 		case W_PENETRATOR:
 			return [-14000, 5386.9, 0];
@@ -1738,37 +1742,37 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 3;
-				case RELOAD_EMPTY_START:
-					return 26;
-				case RELOAD_EMPTY_END:
-					return 44;
+					return 2;
 				case RELOAD_PART_START:
 					return 4;
 				case RELOAD_PART_END:
-					return 44;
+					return 24;
+				case RELOAD_EMPTY_START:
+					return 57;
+				case RELOAD_EMPTY_END:
+					return 72;
 				case RELOAD_START:
-					return 45;
+					return 25;
 				case RELOAD_END:
-					return 77;
+					return 54;
 				case SPRINT_IN_START:
-					return 92;
+					return 75;
 				case SPRINT_IN_END:
-					return 93;
+					return 76;
 				case SPRINT_OUT_START:
-					return 95;
+					return 76;
 				case SPRINT_OUT_END:
-					return 96;
+					return 77;
 				case TAKE_OUT_START:
-					return 100;
+					return 79;
 				case TAKE_OUT_END:
-					return 103;
+					return 81;
 				case PUT_OUT_START:
-					return 97;
+					return 77;
 				case PUT_OUT_END:
-					return 100;
+					return 79;
 				case RELOAD_CANCEL:
-					return 16;
+					return 37;
 			}
 			break;
 		case W_SAWNOFF:
@@ -2975,25 +2979,21 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			if (curweaponframe == 9) {
+			if (curweaponframe == 6 || curweaponframe == 60) {
 				sound (self ,5, "sounds/weapons/browning/boltback.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 16) {
+			} else if (curweaponframe == 16 || curweaponframe == 69)  {
 				sound (self ,5, "sounds/weapons/browning/topopen.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 22) {
+			} else if (curweaponframe == 21) {
 				sound (self ,5, "sounds/weapons/browning/chainoff.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 32) {
-				sound (self ,5, "sounds/weapons/browning/boltback.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 39) {
-				sound (self ,5, "sounds/weapons/browning/topopen.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 49) {
+			} else if (curweaponframe == 27) {
 				sound (self ,5, "sounds/weapons/browning/chainon.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 53) {
+			} else if (curweaponframe == 30) {
 				sound (self ,5, "sounds/weapons/browning/chainplace.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 58) {
+			} else if (curweaponframe == 36) {
 				sound (self ,5, "sounds/weapons/browning/topclose.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 61) {
+			} else if (curweaponframe == 41) {
 				sound (self ,5, "sounds/weapons/browning/tophit.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 70) {
+			} else if (curweaponframe == 48) {
 				sound (self ,5, "sounds/weapons/browning/boltforward.wav", 1, ATTN_NORM);
 			}
 			break;
