@@ -102,9 +102,7 @@ void()  light_flame_small_white =       // Light with small flame & fire sound
 // Spawnable Dynamic Lights
 // --------------------
 //
-
-#ifdef FTE
-
+#ifdef PC
 void(entity what, float fullbright, float light_level,
      float red, float green, float blue) Light_Custom =
 {
@@ -119,5 +117,4 @@ void(entity what, float fullbright, float light_level,
         what.color_z = blue;
     }
 }
-
-#endif // FTE
+#endif

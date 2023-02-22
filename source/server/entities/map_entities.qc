@@ -35,12 +35,9 @@ void() func_wall =
 	self.solid = SOLID_BSP;
 	setmodel (self, self.model);
 
-#ifdef FTE
-
+	#ifdef PC
 	HalfLife_DoRender();
-	
-#endif // FTE
-
+	#endif
 };
 
 void() func_illusionary =
@@ -50,12 +47,10 @@ void() func_illusionary =
 	self.solid = SOLID_NOT;
 	setmodel (self, self.model);
 
-#ifdef FTE
-
+	#ifdef PC
 	HalfLife_DoRender();
-	
-#endif // FTE
-
+	#endif
+	// makestatic (self); // dr_mabuse1981: dont use makestatic, it doesnt show the HL rendermodes then.
 };
 
 // button and multiple button
@@ -203,42 +198,27 @@ void() func_button =
 	self.pos1 = self.origin;
 	self.pos2 = self.pos1 + self.movedir*(fabs(self.movedir*self.size) - self.lip);
 
-#ifdef FTE
-
+	#ifdef PC
 	HalfLife_DoRender();
-	
-#endif // FTE
-
+	#endif
 };
 
 void() flame_update = {	
-
-#ifndef FTE	
-
+	#ifndef PC	
 	particle (self.origin, v_up, 111, 0);
-
-#else
-
+	#else
 	te_flamejet(self.origin, v_up, 10);
-
-#endif // FTE
-
+	#endif
 	self.think = flame_update;
 	self.nextthink = time + random()+0.1;
 }
 void() place_fire =
 {
-
-#ifndef FTE
-
+	#ifndef PC
 	particle (self.origin, v_up*8, self.frame, 0);
-
-#else
-
+	#else
 	te_flamejet(self.origin, v_up*8, 10);
-
-#endif // FTE
-
+	#endif
 	self.think = flame_update;
 	self.nextthink = time + random()+0.1;
 };
@@ -257,12 +237,9 @@ void () buy_weapon_touch =
 	}
 
 	if (self.weapon != 99) {
-
-#ifndef FTE
-
+		#ifndef PC
 		other.Weapon_Name_Touch = GetWeaponName(self.weapon);
-
-#endif // FTE
+		#endif
 
 		float slot;
 
@@ -324,12 +301,9 @@ void () buy_weapon_touch =
 	} else 
 	// Universal Ammo buy
 	{
-
-#ifndef FTE
-
+		#ifndef PC
 		other.Weapon_Name_Touch = GetWeaponName(other.weapon);
-
-#endif // FTE
+		#endif
 
 		if (other.currentammo < getWeaponAmmo(other.weapon)) {
 
@@ -540,13 +514,11 @@ void () buy_weapon_touch =
 		SwitchWeapon(self.weapon);
 		Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);//FIXME
 
-#ifndef FTE
-
+		#ifndef PC
 		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 		self.Flash_Size = GetWeaponFlash_Size(self.weapon);
 		self.Weapon_Name = GetWeaponName(self.weapon);
-
-#endif // FTE
+		#endif
 
 		self = tempe;
 	}
@@ -689,7 +661,22 @@ void() touch_songtrigger = {
 }
 
 void() trigger_song = {
+	#ifndef PC
 	remove(self);
+	#endif
+
+	precache_model(self.model);
+	precache_sound(self.tune);
+
+	self.movetype = MOVETYPE_NONE;
+	self.solid = SOLID_TRIGGER;
+	self.classname = "trigger_song";
+	setmodel(self, self.model);
+	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
+
+	self.touch = touch_songtrigger;
+
+	sndTriggerCnt++;
 }
 
 /* ================

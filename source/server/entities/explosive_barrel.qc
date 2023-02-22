@@ -34,11 +34,9 @@ void() Barrel_Explode =
 	sound (self, CHAN_WEAPON, self.oldmodel, 1, ATTN_NORM);	
 	DamgageExplode (self, self.enemy, 1, 250, 250);
 	
-#ifdef FTE
-
+	#ifdef PC
     te_customflash(self.origin, 128, 300, '1 1 1');
-
-#endif // FTE
+	#endif
 
     CallExplosion(self.origin);
 
@@ -53,17 +51,11 @@ void() Barrel_Think =
 {
     // Spawn the flame particles
     if (self.ltime > 10) {
-
-#ifndef FTE
-
+        #ifndef PC	
         particle (self.origin, v_up, 111, 0);
-
-#else
-
+        #else
         te_flamejet(self.origin + '0 0 45', v_up, 10);
-
-#endif // FTE
-
+        #endif
         self.ltime = 0;
     }
     self.ltime++;

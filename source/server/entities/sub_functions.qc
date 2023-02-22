@@ -315,8 +315,7 @@ void()  SUB_CalcMoveDone =
 };
 
 
-#ifdef FTE
-
+#ifdef PC
 //
 // HalfLife_DoRender()
 // Adds some support for HL rendermodes to FTE, made by 
@@ -365,5 +364,4 @@ void () HalfLife_DoRender =
             }
         }
 };
-
-#endif // FTE
+#endif

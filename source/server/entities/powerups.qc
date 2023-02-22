@@ -418,17 +418,11 @@ void() PU_MaxAmmo =
 		if (tempe.grenades & 2) tempe.secondary_grenades = 2;
 
 		// MAX AMMO! text
-
-#ifdef FTE
-
+		#ifdef PC
 		ScrollText("MAX AMMO!", tempe);
-
-#else
-
+		#else
 		nzp_maxammo();
-
-#endif // FTE
-
+		#endif
 		tempe = find(tempe, classname, "player");
 	}
 };

@@ -59,9 +59,7 @@ void(float direct_impact) Ray_BeamExplode =
                    raybeam_damage_min, raybeam_damage_radius);
 
 	// Spawn Effects
-
-#ifdef FTE
-
+#ifdef PC
 	// Determine color of the beam
 	vector raybeam_color;
 
@@ -71,19 +69,19 @@ void(float direct_impact) Ray_BeamExplode =
 	te_customflash(self.origin, raybeam_damage_radius, 300,
                    raybeam_color);
 #else
-
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
-
+#ifdef HANDHELD
 	if (self.effects & EF_RAYGREEN)
 		WriteByte (MSG_BROADCAST, TE_RAYSPLASHGREEN);
 	else
 		WriteByte (MSG_BROADCAST, TE_RAYSPLASHRED);
-
+#else
+	WriteByte (MSG_BROADCAST, TE_EXPLOSION);
+#endif // HANDHELD
 	WriteCoord (MSG_BROADCAST, self.origin_x);
 	WriteCoord (MSG_BROADCAST, self.origin_y);
 	WriteCoord (MSG_BROADCAST, self.origin_z);
-
-#endif // FTE
+#endif // PC
 
 	// Cleanup
 	SUB_Remove ();
@@ -161,7 +159,7 @@ void() W_FireRay =
     // Prepare trail effects.
 	if (IsPapWeapon(porter.weapon)) {
 
-#ifdef FTE
+#ifdef PC
 
 		Light_Custom(porter, false, 75, 2, 0.25, 0.25);
 
@@ -169,11 +167,11 @@ void() W_FireRay =
 	
 		porter.effects = EF_RAYRED;
 
-#endif // FTE
+#endif // PC
 
 	} else {
 
-#ifdef FTE
+#ifdef PC
 
 		Light_Custom(porter, false, 75, 0.25, 2, 0.25);
 
@@ -181,8 +179,7 @@ void() W_FireRay =
 
 		porter.effects = EF_RAYGREEN;
 		
-#endif	// FTE
-
+#endif	// PC
 	}
 
     // final setup!

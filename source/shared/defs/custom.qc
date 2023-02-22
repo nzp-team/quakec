@@ -54,10 +54,12 @@ const float EVENT_REVIVEON 				= 37;
 const float EVENT_REVIVEOFF 			= 38;
 const float EVENT_REVIVECHANGE 			= 39;
 
-// Define our FTE platform
-#ifndef STANDARD
-#define FTE
-#endif // STANDARD
+// Define our PC version
+#ifndef QUAKESPASM
+#ifndef HANDHELD
+#define PC
+#endif
+#endif
 
 // Weapon Firetype definitions
 #define FIRETYPE_FULLAUTO	0

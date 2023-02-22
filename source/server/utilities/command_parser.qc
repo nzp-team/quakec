@@ -66,11 +66,9 @@ float(string params) Command_give =
 
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
 
-#ifndef FTE
-
+		#ifndef PC
 		self.Weapon_Name = GetWeaponName(self.weapon);
-
-#endif // FTE
+	    #endif
 
         return COMMAND_SUCCESS;
     }
@@ -180,10 +178,8 @@ void(string command_string) SV_ParseClientCommand =
 
 	// Client override was disabled, so let the engine
 	// deal with whatever was sent.
-#ifdef FTE
-
+#ifdef PC
 	if (client_parse_override == false)
 		clientcommand(self, command_string);
-
-#endif // FTE
+#endif // PC
 };

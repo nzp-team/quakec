@@ -38,17 +38,11 @@ void() EndGame_Restart =
 void() EndGame_FadePrompt =
 {
 	PromptLevelChange(time + 6, 2, self);
-
-#ifdef FTE
-
+	#ifdef PC
 	self.think = EndGame_Restart;
-
-#else
-
+	#else
 	self.think = Soft_Restart;
-
-#endif // FTE
-
+	#endif
 	self.nextthink = time + 5;
 }
 

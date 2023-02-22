@@ -2,7 +2,7 @@
 
 cd ../
 # create build directories
-mkdir -p build/{fte,standard}
+mkdir -p build/{pc,handheld,quakespasm,vita}
 cd bin/
 echo ""
 echo "========================"
@@ -18,7 +18,13 @@ echo ""
 ./fteqcc-cli-lin -srcfile ../progs/fte-server.src
 echo ""
 echo "========================"
-echo "  compiling STANDARD QC "
+echo " compiling PSP & 3DS QC "
 echo "========================"
 echo ""
-./fteqcc-cli-lin -srcfile ../progs/standard.src
+./fteqcc-cli-lin -srcfile ../progs/handheld.src
+echo ""
+echo "========================"
+echo "compiling QUAKESPASM QC "
+echo "========================"
+echo ""
+./fteqcc-cli-lin -srcfile ../progs/quakespasm.src

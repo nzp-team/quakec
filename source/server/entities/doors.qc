@@ -161,12 +161,9 @@ void() door_go_up =
 	else
 		SUB_CalcMove (self.pos2, self.speed, door_hit_top);
 	
-#ifndef FTE
-
+	#ifndef PC
 	Open_Waypoint(self.wayTarget);
-
-#endif // FTE
-
+	#endif
 	SUB_UseTargets();
 };
 
@@ -598,19 +595,14 @@ void() func_door =
 	self.think = LinkDoors;
 	self.nextthink = self.ltime + 0.1;
 
-#ifdef FTE
-
+	#ifdef PC
 	HalfLife_DoRender();
-	
-#endif // FTE
-
+	#endif
 };
 
 void() func_door_nzp =
 {
-
-#ifndef FTE
-
+	#ifndef PC
 	if (!self.renderamt)
 		self.renderamt = 255;
 	
@@ -625,8 +617,7 @@ void() func_door_nzp =
 	
 	if (!self.ammo)
 		self.ammo = 0; //thease are just here because they can be sp there is no error message. serve no real purpose
-
-#endif // FTE
+	#endif
 	 
 	// naievil (FIXME) ^^^^ hl rendermodes, mapversion
 	makevectors(self.angles);
@@ -704,10 +695,7 @@ void() func_door_nzp =
 	self.think = LinkDoors;
 	self.nextthink = self.ltime + 0.1;
 
-#ifdef FTE
-
+	#ifdef PC
 	HalfLife_DoRender();
-	
-#endif // FTE
-
+	#endif
 };

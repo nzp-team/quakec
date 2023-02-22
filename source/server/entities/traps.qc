@@ -125,7 +125,7 @@ void zapper_play () {
 
 	if (zents) {
 
-#ifdef FTE
+#ifdef PC
 
 		te_lightning2(self, self.origin, zents.origin);
 
@@ -141,7 +141,7 @@ void zapper_play () {
 		WriteCoord (MSG_BROADCAST, targetorg_y);
 		WriteCoord (MSG_BROADCAST, targetorg_z);
 
-#endif // FTE
+#endif // PC
 
 	}
 

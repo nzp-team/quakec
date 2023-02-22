@@ -49,9 +49,18 @@ void() screen_shake =
     zoom_factor = 0.5;
   else
     zoom_factor = 1;
+	
+#ifndef PC
+
+    self.enemy.punchangle_y = r * 8 * zoom_factor;
+    self.enemy.punchangle_x = (4 + (s * 4)) * zoom_factor;
+
+#else
 
 	self.enemy.punchangle_y = r * 4 * zoom_factor;
     self.enemy.punchangle_x = (4 + (s * 2)) * zoom_factor;
+
+#endif // PC
 
 };
 
@@ -365,6 +374,11 @@ void() item_barricade =
 	setsize(self, '-20 -20 -64', '20 20 16');
 	setorigin(self, self.origin);
 	spawn_boxes();
+
+	#ifndef PC
+	windows[wincnt] = self;
+	wincnt++;
+	#endif
 };
 
 void() item_cover = {item_barricade();};

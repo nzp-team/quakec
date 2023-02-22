@@ -60,21 +60,23 @@ void() W_AimIn =
 		return;
 	}
 		
-#ifndef FTE
-
+#ifndef PC
 	self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
-
-#endif // FTE
+#endif // PC
 	
 	if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 		SetUpdate(self, UT_ZOOM2, 0, 0, 0);
 
-#ifndef FTE
+#ifndef PC
 
 		self.zoom = 1;
 
-#endif // FTE
+#else
+
+		self.zoom = 2;
+
+#endif // PC
 
 		self.scopetime = time + 0.3;
 	} else {
@@ -98,11 +100,9 @@ void() W_AimOut =
 		ReturnWeaponModel();
 	}
 		
-#ifndef FTE
-
+	#ifndef PC
 	self.zoom = 0;
-
-#endif // FTE
+	#endif
 	
 	if (!self.downed)
 		playout();
@@ -123,12 +123,10 @@ void() W_SprintStop =
 	if (self.isBuying || !self.sprinting)
 		return;
 	
-
-#ifndef FTE
-
+	//TEMPORARY
+	#ifndef PC
 	self.zoom = 0;
-
-#endif // FTE
+	#endif
 
 	Set_W_Frame (startframe, endframe, 0, 0, SPRINT, SUB_Null, modelname, false, S_BOTH);  // BUG IS HERE
 	
@@ -142,7 +140,7 @@ void() W_SprintStop =
 
 
 void W_SprintStart () {	
-	if (self.speed_penalty_time > time || self.zoom != 0)
+	if (self.speed_penalty_time > time)
 		return;
 	
 	self.sprint_start_time = time;
@@ -152,9 +150,13 @@ void W_SprintStart () {
 	else
 		self.sprint_duration -= self.sprint_rest_time;
 
+#ifdef QUAKESPASM
+
 	if (!self.sprintflag) {
 		return;
 	}
+
+#endif
 	
 	if (self.fire_delay > time ||
 		self.fire_delay2 > time ||
@@ -171,11 +173,9 @@ void W_SprintStart () {
 	float endframe = GetFrame(self.weapon,SPRINT_IN_END);
 	string modelname = GetWeaponModel(self.weapon, 0);
 
-#ifndef FTE
-
+	#ifndef PC
 	self.zoom = 3;
-
-#endif // FTE
+	#endif
 	
 	if (startframe || endframe) {
 		Set_W_Frame (startframe, endframe, 0, 0, SPRINT, ContinueRun, modelname, false, S_BOTH);
@@ -277,14 +277,11 @@ void() W_Switch =
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0; 
 		
 		
-#ifndef FTE
-
+		#ifndef PC
 		self.Weapon_Name = GetWeaponName(self.weapon);
 		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 		self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-
-#endif // FTE
-
+		#endif
 	}
 }
 
@@ -399,7 +396,12 @@ void() ContinueReload = //Special reloads
 		}
 		self.reloadinterupted = FALSE;
 	} else if (self.currentmag < getWeaponMag(self.weapon)) {
-		if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER) {
+		if (self.weapon == W_BROWNING || self.weapon == W_ACCELERATOR) {
+			delay = 4; 
+			startframe = 45;
+			endframe = 77;
+			endanimfunc = W_Give_Ammo;
+		} else if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER) {
 			self.currentmag++;
         	self.currentammo = self.currentammo - 1;
 			delay = 0.8; 
@@ -439,8 +441,6 @@ void(float side) W_AdvanceAnim =
 	endframe = GetFrame(self.weapon, RELOAD_END);
 	delay = getWeaponDelay(self.weapon, RELOAD);
 	reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
-	
-	if (self.perks & P_SPEED) delay *= 0.5;
 
 	modelname = GetWeaponModel(self.weapon, 0);
 
@@ -477,12 +477,9 @@ void(float side) W_Reload =
 	}
 
 	//TEMPORARY
-#ifdef FTE
-
+	#ifdef PC
 	self.viewzoom = 1;
-
-#endif // FTE
-
+	#endif
 	self.zoom = false;
 
 	W_AimOut();
@@ -509,7 +506,22 @@ void(float side) W_Reload =
 		delay = getWeaponDelay(self.weapon,RELOAD);
 		void(optional float t) endanimfunc = SUB_Null;
 
-		if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER ){
+		// TODO: Make browning use new reload status frames
+		if (self.weapon == W_BROWNING || self.weapon ==  W_ACCELERATOR) {
+			if (!self.currentmag) {
+				startframe = 26;
+				endframe = 77;
+				reloadcancelframe = 45;
+				delay = 6;
+				endanimfunc = W_Give_Ammo;
+			} else if (self.currentmag > 0) {
+				startframe = 4;
+				endframe = 25;
+				reloadcancelframe = 0;
+				delay = 3.5;
+				endanimfunc = ContinueReload;
+			}
+		} else if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER ){
 			startframe = 14;
 			endframe = 18;
 			reloadcancelframe = 0;
@@ -629,8 +641,7 @@ void(vector org, vector vel, float damage) SpawnBlood =
 {
 	local entity f;
   
-#ifdef FTE
-
+  	#ifdef PC
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BLOOD);
 	WriteCoord(MSG_MULTICAST, org_x);
@@ -638,25 +649,18 @@ void(vector org, vector vel, float damage) SpawnBlood =
 	WriteCoord(MSG_MULTICAST, org_z);
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
-
-#else
-
+	#else
 	particle (org, vel*0.1, 73, damage*2);
-
-#endif // FTE
+	#endif
 
 	f = find (world, classname, "player");
 	f.hitcount = f.hitcount + 1;
 };
 
 void(vector where) spawn_gibs = {
-
-#ifndef FTE
-
+	#ifndef PC
 	particle(where, where*0.1, 225, 1);
-
-#else
-
+	#else
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_BLOOD);
 	WriteCoord(MSG_MULTICAST, where_x);
@@ -664,9 +668,7 @@ void(vector where) spawn_gibs = {
 	WriteCoord(MSG_MULTICAST, where_z);
 	msg_entity = self;
 	multicast('0 0 0', MULTICAST_ONE);
-
-#endif // FTE
-
+	#endif
 }
 
 
@@ -731,11 +733,11 @@ void Parse_Damage () = // DO NOT TOUCH
 						body_ent.usedent = self;
 						body_ent.bleedingtime = time + 2;
 
-#ifndef FTE
+#ifndef PC
 
 						updateLimb (body_ent.head.owner, 0, world);
 
-#endif // FTE
+#endif // PC
 
 					}
 				}
@@ -759,11 +761,11 @@ void Parse_Damage () = // DO NOT TOUCH
 					setmodel(body_ent.larm,"");
 					body_ent.larm.frame = 0;
 
-#ifndef FTE
+#ifndef PC
 
 					updateLimb (body_ent.larm.owner, 1, world);
 
-#endif // FTE
+#endif // PC
 
 				}
 
@@ -785,11 +787,11 @@ void Parse_Damage () = // DO NOT TOUCH
 					setmodel(body_ent.rarm,"");
 					body_ent.rarm.frame = 0;
 
-#ifndef FTE
+#ifndef PC
 
 					updateLimb (body_ent.rarm.owner, 2, world);
 
-#endif // FTE
+#endif // PC
 
 				}
 
@@ -956,29 +958,22 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 		
 		SetUpdate(self, UT_HM, 0, 0, 0);
 		
-#ifndef FTE
-
+		#ifndef PC
 		msg_entity = self;
 		WriteByte(MSG_ONE, SVC_HITMARK);
-		
-#endif // FTE
-
+		#endif
 	} else {
 
-#ifndef FTE
-
+	#ifndef PC
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_GUNSHOT);
 	WriteCoord (MSG_BROADCAST, org_x);
 	WriteCoord (MSG_BROADCAST, org_y);
 	WriteCoord (MSG_BROADCAST, org_z);
-
-#endif // FTE
-
+	#endif
 	}
 	
-#ifdef FTE
-
+	#ifdef PC
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_PISTOLFIRE);
 	WriteEntity(MSG_MULTICAST, self);
@@ -991,8 +986,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 	WriteCoord(MSG_MULTICAST, plane_z);
 	WriteEntity(MSG_MULTICAST, hit_ent);
 	multicast(trace_endpos, MULTICAST_PHS);
-
-#endif // FTE
+	#endif
 	
 };
 
@@ -1008,11 +1002,9 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 	
 	src = self.origin + self.view_ofs;
 	
-#ifndef FTE
-
+	#ifndef PC
 	CL_SendWeaponFire();
-
-#endif // FTE
+	#endif
 
 	while (count < shotcount)
 	{
@@ -1189,22 +1181,22 @@ void() W_FireTesla =
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
 
-#ifdef FTE
+#ifdef PC
 
 	self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
 
-#endif // FTE
+#endif // PC
 
 	FireTrace(1, 0, 0, 0);
 
-#ifdef FTE
+#ifdef PC
 
 	self.dimension_hit = HITBOX_DIM_ZOMBIES;
 
-#endif // FTE
+#endif // PC
 
 
-#ifdef FTE
+#ifdef PC
 
 	te_lightning2(self, source, trace_endpos);
 
@@ -1220,23 +1212,18 @@ void() W_FireTesla =
 	WriteCoord (MSG_BROADCAST, trace_endpos_y);
 	WriteCoord (MSG_BROADCAST, trace_endpos_z);
 
-#endif // FTE
+#endif // PC
 
 	LightningDamage (self.origin, trace_endpos + v_forward*4, self, 30);
 }
 
 void() Flame_LingerThink =
 {
-
-#ifdef FTE
-
+	#ifdef PC
 	te_flamejet(self.origin, v_up*8, 5);
-
-#else
-
+	#else
 	particle (self.origin, v_up*8, 0, 0);
-
-#endif // FTE
+	#endif
 
 	if (self.ltime < time)
 		remove(self);
@@ -1492,21 +1479,13 @@ void(float side) W_Fire =
 
 	// Weapon Projectile/Trace Logic.
 	if (Util_WeaponFiresTraceshot(self.weapon)) {
-
-#ifdef FTE
-
+#ifdef PC
 		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
-
-#endif // FTE
-
+#endif
 		FireTrace(shotcount, spread, damage, side);
-
-#ifdef FTE
-
+#ifdef PC
 		self.dimension_hit = HITBOX_DIM_ZOMBIES;
-
-#endif // FTE
-
+#endif // PC
 	}
 
 	switch(firetype) {
@@ -1565,13 +1544,10 @@ void(float side) W_Fire =
 	
 
 	// REFORMAT THIS 
-#ifndef FTE
-
+	#ifndef PC
 	self.effects = self.effects | EF_MUZZLEFLASH;
-
-#else 
-
-	// standard ports take care of this in engine
+	#else 
+	// psp takes care of this in engine
 	if (self.perks & P_DEAD)
 		return;
 
@@ -1581,9 +1557,7 @@ void(float side) W_Fire =
 	self.punchangle_x = Wep_Recoil_x;
 	self.punchangle_y = Wep_Recoil_y;
 	self.punchangle_z = Wep_Recoil_z;
-
-#endif // FTE
-
+	#endif
 }
 
 
@@ -1645,6 +1619,31 @@ void () W_Knife =
 	else if (trace_fraction < 1.0)
 	{	// hit wall
 		sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);			
+		
+		/* naievil (FIXME) add weapon decal here */
+
+		#ifdef PC
+		if (self.weapon != W_RAY && self.weapon != W_PORTER) {
+			WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+			WriteByte(MSG_MULTICAST, EVENT_PISTOLFIRE);
+			WriteEntity(MSG_MULTICAST, self);
+            WriteFloat(MSG_MULTICAST, 0);
+			WriteCoord(MSG_MULTICAST, org_x);
+			WriteCoord(MSG_MULTICAST, org_y);
+			WriteCoord(MSG_MULTICAST, org_z);
+			WriteCoord(MSG_MULTICAST, trace_plane_normal_x);
+			WriteCoord(MSG_MULTICAST, trace_plane_normal_y);
+			WriteCoord(MSG_MULTICAST, trace_plane_normal_z);
+			WriteEntity(MSG_MULTICAST, hit_ent);
+			multicast(trace_endpos, MULTICAST_PHS);
+		}	
+		#else
+		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+		WriteByte (MSG_BROADCAST, TE_GUNSHOT);
+		WriteCoord (MSG_BROADCAST, org_x);
+		WriteCoord (MSG_BROADCAST, org_y);
+		WriteCoord (MSG_BROADCAST, org_z);
+		#endif
 	}
 
 	if (r > 40 && hit)//lunge
@@ -1739,11 +1738,9 @@ void() GrenadeExplode =
 	else
 		DamgageExplode (self, self.owner, 1200, 1000, 128); //explosive weapons are more powerful :)
 	
-#ifdef FTE
-
+	#ifdef PC
     te_customflash(self.origin, 178, 300, '1 1 1');
-
-#endif // FTE
+	#endif
 
     CallExplosion(self.origin);
 	
@@ -1808,16 +1805,11 @@ void() W_ThrowBetty =
 		oldself = self;
 		self = betty;
 		
-#ifdef FTE
-
+		#ifdef PC
 		droptofloor();
-
-#else
-
+		#else
 		droptofloor(0, 0);
-
-#endif // FTE
-
+		#endif
 		self = oldself;
 	}
 	betty.origin += v_forward * 0;
@@ -2054,27 +2046,20 @@ void () Impulse_Functions =
 	switch (self.impulse)
 	{		
 		case 10:
-
-#ifdef FTE
-
-			// FTE handles jumping, which we don't want.. so we use impulses to override.
+			#ifdef PC
+			// FTE handles jumping on PC, which we don't want.. so we use impulses to override.
 			JumpCheck(1);
-
-#endif // FTE
+			#endif
 			break;
 		case 22:
 			addmoney(self, 10000, 0);
 			rounds += 4;
 			break;
 		case 23:
-
-#ifdef FTE
-
+			#ifdef PC
 			if (!checkMovement(forward))
 				return;
-
-#endif // FTE
-
+			#endif
 			if (self.dive || self.downed)
 				return;
 			switch(self.stance) {
@@ -2088,18 +2073,23 @@ void () Impulse_Functions =
 					break;
 				default: break;
 			}
-			self.sprintflag = true;
 			W_SprintStart();
 			break;
 		case 24:
-			self.sprintflag = false;
 			W_SprintStop();
 			break;
 		case 25:
+
+#ifdef HANDHELD
+
 			switch_nade();
-			break;
-		case 33:
+
+#else
+
 			W_Betty();
+
+#endif // HANDHELD
+
 			break;
 		case 26:
 		case 30:
@@ -2108,12 +2098,16 @@ void () Impulse_Functions =
 			else
 				Change_Stance();
 			break;
+#ifdef QUAKESPASM
+
 		case 31:
 			self.sprintflag = 0;
 			break;
 		case 32:
 			self.sprintflag = 1;
 			break;
+
+#endif // QUAKESPASM
 		case 110:
 		case 111:
 			W_PutOut();
@@ -2139,13 +2133,9 @@ void () Impulse_Functions =
 			waypoint_mode = 1;
 			break;
 		default:
-
-#ifdef FTE
-
+			#ifdef PC
 			bprint(PRINT_HIGH, "Unknown impulse: ", ftos(self.impulse));
-
-#endif // FTE
-
+			#endif
 			break;
 	}
 	
@@ -2226,9 +2216,13 @@ void() CheckPlayer =
 	CheckPowerups(self);
 	CheckRevive(self);
 
+#ifdef QUAKESPASM
+
 	if (!self.sprintflag && self.sprinting) {
 		W_SprintStop();
 	}
+
+#endif 
 
 	// FIXME - can't do frame independent stance changing.. ofs starts spazzing..
 	if (self.view_ofs_z > self.new_ofs_z) {
@@ -2247,8 +2241,7 @@ void() CheckPlayer =
 	}
 	
 	/* Check player push start */
-#ifdef FTE
-
+#ifdef PC
 	entity ent;
 	ent = findradius(self.origin, 70);
 		
@@ -2332,9 +2325,7 @@ void() CheckPlayer =
 		}
 		ent = ent.chain;
 	}
-
-#endif // FTE
-
+#endif
 	/* Check for player push end */
 	
 	if (!self.button2 && self.flags & FL_ONGROUND) {
@@ -2342,12 +2333,9 @@ void() CheckPlayer =
 			if (self.perks & P_FLOP && fabs(self.oldz - self.origin_z) > 90) {
 				sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);	
 				DamgageExplode (self, self, 225, 75, 128);
-
-#ifdef FTE
-
+				#ifdef PC
 				te_customflash(self.origin, 128, 300, '1 1 1');
-
-#endif // FTE
+				#endif
 
 				CallExplosion(self.origin);
 			}
@@ -2370,9 +2358,9 @@ void () Weapon_Logic =
 	W_Frame_Update ();
 	Impulse_Functions();
 
-#ifndef FTE
+#ifndef PC
 
-	// For non-FTE only to tell our engine to display the scope
+	// For HANDHELD/QUAKESPASM only to tell our engine to display the scope
 	if ((self.scopetime < time) && self.scopetime) {
 		self.scopetime = 0;
 		self.zoom = 2;
@@ -2384,56 +2372,38 @@ void () Weapon_Logic =
 
 	UpdatePunchangle(self);
 
-#endif // FTE
+#endif // PC
 
 	//
 	// Fire Button Logic
 	// NOTE: Since the right weapon is the "normal" side there's some
-	// flip flop logic on FTE so that LMB will fire the left side instead.
+	// flip flop logic on PC so that LMB will fire the left side instead.
 	//
 
 	// Right Trigger/LMB/etc.
 	if (self.button0) {
-
-#ifdef FTE
-
+#ifdef PC
 		if (IsDualWeapon(self.weapon)) { W_Fire(S_LEFT); } else { W_Fire(S_RIGHT); }
-
 #else
-
 		W_Fire(S_RIGHT);
-
-#endif // FTE
-
+#endif // PC
 	} else {
 		// Check for release for semi automatic weapons.
-
-#ifdef FTE
-
+#ifdef PC
 		if (IsDualWeapon(self.weapon)) { self.semi2 = false; } else { self.semi = false; }
-
 #else
-
 		self.semi = false;
-
-#endif // FTE
-
+#endif // PC
 	}
 
 	// Left Trigger/RMB/etc.
 	if (self.button8) {
 		if (IsDualWeapon(self.weapon)) {
-
-#ifdef FTE
-
+#ifdef PC
 			W_Fire(S_RIGHT);
-
 #else
-
 			W_Fire(S_LEFT);
-
-#endif // FTE
-
+#endif // PC
 		} else {
 			// Toggle ADS back and forth
 			if (cvar("cl_adsmode")) {
@@ -2443,32 +2413,24 @@ void () Weapon_Logic =
 					W_AimOut();
 					self.zoom = 0;
 
-#ifdef FTE
-
+#ifdef PC
 					self.viewzoom = 1;
 					UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 					UpdateV2model(self.weapon2model, 0);
-
-#endif // FTE
-
+#endif // PC
 				} else {
 					W_AimIn();
 					self.zoom = 1;
 
-#ifdef FTE
-
+#ifdef PC
 					self.viewzoom = 0.9;
-
-#endif // FTE
-
+#endif // PC
 				}
 			} else {
 				if (!self.zoom) {
 					W_AimIn();
 				} 
-
-#ifdef FTE
-
+#ifdef PC
 				else {
 					float zoom_factor = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
 					if (self.viewzoom > zoom_factor)
@@ -2476,17 +2438,13 @@ void () Weapon_Logic =
 					else
 						self.viewzoom = zoom_factor;
 				}
-
-#endif // FTE
-
+#endif // PC
 			}
 		}
 	}
 	// AIM button is released
 	else if (!self.button8 && self.zoom) {
-
-#ifdef FTE
-
+#ifdef PC
 		if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
 			self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 			if (self.viewzoom == 0.2) {
@@ -2510,27 +2468,17 @@ void () Weapon_Logic =
 			self.viewzoom = 1;
 			self.zoom = 0;
 		}
-
 #else
-
 		W_AimOut();
-
-#endif // FTE
-
+#endif // PC
 	} else {
 		// Check for release for semi automatic weapons.
 		if (IsDualWeapon(self.weapon)) {
-
-#ifdef FTE
-
+#ifdef PC
 			self.semi = false;
-
 #else
-
 			self.semi2 = false;
-
-#endif // FTE
-
+#endif // PC
 		}
 	}
 	
@@ -2568,11 +2516,14 @@ void () Weapon_Logic =
 	
 	if (self.button6 && !self.semiknife)
 	{ 
+#ifdef HANDHELD
+
 		if (self.sprinting) {
 			dolphin_dive();
 			return;
 		}
 
+#endif // HANDHELD
 		W_Knife();
 		self.semiknife = true;
 	}
