@@ -1427,12 +1427,11 @@ void() Float_Change =
 	if (self.wait <= time)
 	{
 		tpspot = find(world, classname, "mystery_box_tp_spot");
-		if (tpspot != world && self.owner.spins > 3) {
+		if (tpspot && self.owner.spins > 3) {
 				teddygen = random();
-				//bprint(PRINT_HIGH, "found tp spot\n");
 		} else {
 			teddygen = 0;
-			//bprint(PRINT_HIGH, "no tp spot or spins < 3\n");
+			//bprint(PRINT_HIGH, "no spots\n");
 		}
 				
 		self.velocity = '0 0 0';
@@ -1442,7 +1441,6 @@ void() Float_Change =
 			self.weapon = r;
 			self.nextthink = time + 5;
 			self.think = Float_Decrease;
-			//bprint(PRINT_HIGH, "spot not found, or teddygun is > 0.7\n");
 			return;
 		}
 		else {
