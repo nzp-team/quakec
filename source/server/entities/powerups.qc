@@ -105,7 +105,6 @@ void() PU_PopulateArray =
 		PU_CopyStruct(t, powerup_array[amount])
 		PU_CopyStruct(powerup_array[amount], powerup_array[i])
 		PU_CopyStruct(powerup_array[i], t)
-		bprint(PRINT_HIGH, strcat(ftos(i),"\n"));
 	}
 };
 
