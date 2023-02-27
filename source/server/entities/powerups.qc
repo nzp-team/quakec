@@ -44,8 +44,6 @@ var struct powerup_struct
 	float() requirement_function;
 } powerup_array[MAX_POWERUPS] = {};
 
-powerup_struct temp_struct;
-
 float 	powerup_count;
 float	powerup_index;
 
@@ -82,16 +80,13 @@ PU_AddToStruct =
 // PU_CopyStruct(to, from)
 // Copies a powerup_struct from to.
 //
-void(__inout powerup_struct to) PU_CopyStruct =
-{
-	to.id = temp_struct.id;
-	to.occupied = temp_struct.occupied;
-	to.flash_screen = temp_struct.flash_screen;
-	to.model_path = temp_struct.model_path;
-	to.voiceover_path = temp_struct.voiceover_path;
-	to.function = temp_struct.function;
-	to.requirement_function = temp_struct.requirement_function;
-}
+#define PU_CopyStruct(to, from)								\
+	to.id = from.id; 										\
+	to.occupied = from.occupied;							\
+	to.model_path = from.model_path;						\
+	to.voiceover_path = from.voiceover_path;				\
+	to.function = from.function;							\
+	to.requirement_function = from.requirement_function;	\
 
 //
 // PU_PopulateArray()
@@ -99,21 +94,18 @@ void(__inout powerup_struct to) PU_CopyStruct =
 //
 void() PU_PopulateArray =
 {
-	float amount = powerup_count;
+	float 			amount = powerup_count;
+	float 			i;
+	powerup_struct 	t;
 
-	while(amount > 0) {
-		float i = floor(random() * amount);
-		amount -= 1;
+	while(amount) {
+		i = floor(random() * amount--);
 
-		powerup_struct temp;
-		temp.id = -1;
-
-		temp_struct = powerup_array[i];
-		PU_CopyStruct(temp);
-		temp_struct = powerup_array[amount];
-		PU_CopyStruct(powerup_array[i]);
-		temp_struct = temp;
-		PU_CopyStruct(powerup_array[amount]);
+		// macro'd these to avoid hell with __inout :)
+		PU_CopyStruct(t, powerup_array[amount])
+		PU_CopyStruct(powerup_array[amount], powerup_array[i])
+		PU_CopyStruct(powerup_array[i], t)
+		bprint(PRINT_HIGH, strcat(ftos(i),"\n"));
 	}
 };
 
