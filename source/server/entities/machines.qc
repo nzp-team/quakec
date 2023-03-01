@@ -1714,6 +1714,7 @@ void() Load_Mbox_Data =
 		for (float i = 0; i < 25; i++) {
 			BoxWeapons[i] = 1;
 		}
+    fclose(file);
 	} else {
 		// Parse each Line and write the Data into our Array.
 		for (float i = 0; i < 25; i++) {
@@ -1739,6 +1740,8 @@ void() Load_Mbox_Data =
 			precache_extra(Getweaponid(i));
 		}
 	}
+
+	fclose(file);
 }
 
 void() mystery_box =
