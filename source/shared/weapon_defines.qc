@@ -1075,12 +1075,12 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.5;
 		case W_FG:
 			if (delaytype == RELOAD)
-			  	return 2.6;
+			  	return 3.0;
 			else if (delaytype == FIRE)
 				return 0.075;
 		case W_IMPELLER:
 			if (delaytype == RELOAD)
-			  	return 2.6;
+			  	return 3.0;
 			else if (delaytype == FIRE)
 				return 0.068;
 		case W_GEWEHR:
@@ -1293,7 +1293,7 @@ vector GetWeaponADSPos(float wep) {
 			return [2.0, 2.9, 1.0];
 		case W_FG:
 		case W_IMPELLER:
-			return [-6.5, 7.4, 3.27];
+			return [-6.5, 5.85, .88];
 		case W_GEWEHR:
 		case W_COMPRESSOR:
 			return [-0.2, 2.55, 2.63];
@@ -1382,7 +1382,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-3903.3, 2564.5, 0];
 		case W_FG:
 		case W_IMPELLER:
-			return [-14800, 6000, 0];
+			return [-11798, 1800, -5000];
 		case W_RAY:
 		case W_PORTER:
 			return [-12700, 2086.9, 0];
@@ -1738,31 +1738,31 @@ float(float wep, float frametype, optional float z) GetFrame =
 			switch (frametype)
 			{
 				case FIRE_START:
-					return 1;
+					return 0;
 				case FIRE_END:
-					return 3;
+					return 2;
 				case RELOAD_START:
-					return 41;
+					return 3;
 				case RELOAD_END:
-					return 88;
-				case SPRINT_IN_START:
 					return 29;
+				case SPRINT_IN_START:
+					return 35;
 				case SPRINT_IN_END:
-					return 33;
+					return 36;
 				case SPRINT_OUT_START:
-					return 34;
+					return 36;
 				case SPRINT_OUT_END:
 					return 37;
 				case TAKE_OUT_START:
-					return 8;
+					return 32;
 				case TAKE_OUT_END:
-					return 15;
+					return 34;
 				case PUT_OUT_START:
-					return 3;
+					return 30;
 				case PUT_OUT_END:
-					return 7;
+					return 32;
 				case RELOAD_CANCEL:
-					return 64;
+					return 15;
 			}
 			break;
 		case W_GEWEHR:
@@ -2917,13 +2917,13 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_FG:
 		case W_IMPELLER:
-			if (curweaponframe == 43) {
+			if (curweaponframe == 6) {
 				sound (self ,5, "sounds/weapons/fg42/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 60) {
+			} else if (curweaponframe == 14) {
 				sound (self ,5, "sounds/weapons/fg42/magin.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 72) {
+			} else if (curweaponframe == 23) {
 				sound (self ,5, "sounds/weapons/fg42/boltback.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 77) {
+			} else if (curweaponframe == 26) {
 				sound (self ,5, "sounds/weapons/fg42/boltforward.wav", 1, ATTN_NORM);
 			}
 			break;
@@ -3921,7 +3921,7 @@ vector (float wep) GetWeaponFlash_Offset =
 				return [3899, -5021, 78199];
 			case W_FG:
 			case W_IMPELLER:
-				return [14000, -12000, 110000];
+				return [14000, -10000, 70000];
 			case W_GEWEHR:
 			case W_COMPRESSOR:
 				return [6500, -8500, 65000];
