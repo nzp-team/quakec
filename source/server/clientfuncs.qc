@@ -222,6 +222,25 @@ void(entity who, float broadcast_time, float type, string str) BroadcastMessageT
 #endif // FTE
 }
 
+// FIXME: basically a copy of CL_SendWeaponFire but for FTE
+void(entity who, float weapon) SendWeaponRecoil =
+{
+#ifdef FTE
+
+	vector Wep_Recoil;
+	Wep_Recoil = GetWeaponRecoil(weapon);
+
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_WEAPONRECOIL);
+	WriteCoord (MSG_MULTICAST, Wep_Recoil_x);
+	WriteCoord (MSG_MULTICAST, Wep_Recoil_y);
+	WriteCoord (MSG_MULTICAST, Wep_Recoil_z);
+	msg_entity = who;
+	multicast('0 0 0', MULTICAST_ONE);
+
+#endif // FTE
+}
+
 void(float broadcast_time, float type, string str) BroadcastMessage =
 {
 #ifdef FTE

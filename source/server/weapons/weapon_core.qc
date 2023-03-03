@@ -1398,7 +1398,7 @@ void(float side) W_Fire =
 	string modelname = "";
 	string soundname;
 	float spread;
-	float sprdstance = 0;
+	float is_moving;
 	float delay;
 
 	//Update the basic vectors
@@ -1440,41 +1440,22 @@ void(float side) W_Fire =
 	if (self.perks & P_DOUBLE)
 		shotcount *= 2;
 
-	switch(self.stance) {
-		case 2:
-			sprdstance = 0;
-			break;
-		case 1:
-			sprdstance = 2;
-			break;
-		case 0:
-			sprdstance = 4;
-			break;
-		default:
-			sprdstance = 0;
-			break;
-	}
+	if (self.velocity)
+		is_moving = true;
+	else
+		is_moving = false;
 
-	spread = (1.5*GetWeaponSpread(self.weapon))-sprdstance;
+	spread = GetWeaponSpread(self.weapon, is_moving, self.stance);
 
 	if (self.perks & P_DEAD) {
 		spread *= 0.65;
 	}
 
-	if (self.zoom == 1) {
-		if (self.weapon == W_TRENCH ||
-			self.weapon == W_DB ||
-			self.weapon == W_SAWNOFF ||
-			self.weapon == W_GUT ||
-			self.weapon == W_BORE) {
-				spread = spread * 0.75;
-			} else {
-				spread = spread * 0.1;
-			}
+	if (self.zoom == 1 && W_SpreadAffectedByADS(self.weapon)) {
+		spread *= 0.02;
 	} else if (self.zoom == 2) {
 		spread = spread * 0.05;
-	} else if (self.velocity || !(self.flags & FL_ONGROUND))
-		spread *= 2;
+	}
 
 	if (self.downed)
 		playdownfire();
@@ -1575,12 +1556,7 @@ void(float side) W_Fire =
 	if (self.perks & P_DEAD)
 		return;
 
-	vector Wep_Recoil;
-	Wep_Recoil = GetWeaponRecoil(self.weapon)*0.5;
-
-	self.punchangle_x = Wep_Recoil_x;
-	self.punchangle_y = Wep_Recoil_y;
-	self.punchangle_z = Wep_Recoil_z;
+	SendWeaponRecoil(self, self.weapon);
 
 #endif // FTE
 

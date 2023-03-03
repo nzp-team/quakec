@@ -454,6 +454,39 @@ noref void(float isnew) CSQC_Ent_Update =
 		addentity(self);
 }
 
+float(__inout vector v) VectorNormalize =
+{
+	float length = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+
+	if (length)
+	{
+		float ilength = 1 / length;
+		v[0] *= ilength;
+		v[1] *= ilength;
+		v[2] *= ilength;
+	}
+		
+	return length;
+}
+
+void() DropRecoilKick =
+{
+	float	len;
+
+	if (crosshair_spread_time > time)
+		return;
+
+	len = VectorNormalize(gun_kick);
+
+	len = len - frametime*5;
+	if (len < 0)
+		len = 0;
+
+	gun_kick[0] *= len;
+	gun_kick[1] *= len;
+	gun_kick[2] *= len;
+}
+
 // CALLED EVERY CLIENT RENDER FRAME
 float pap_flash_alternate;
 noref void(float width, float height, float menushown) CSQC_UpdateView =
@@ -591,6 +624,14 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	deltalisten("models/weapons/pistol/pistol.iqm", add_outline, 0);*/
 	//deltalisten("models/humanoid_simplerig.iqm", add_outline, 0);
 	
+	DropRecoilKick();
+
+	camang[0] += gun_kick[0];
+	camang[1] += gun_kick[1];
+	camang[2] += gun_kick[2];
+
+	setviewprop(VF_ANGLES, camang);
+
 	//does what you think it does
 	renderscene();
 
@@ -773,6 +814,8 @@ noref void() CSQC_Input_Frame =
 	{
 		input_movevalues *= 0.5;
 	}
+
+	input_angles = getproperty(VF_ANGLES);
 }
 
 float() tracerthink =
@@ -907,6 +950,14 @@ noref void() CSQC_Parse_Event =
 				splat.targetpos = norm * 1.5;
 				splat.predraw = alphafade;
 			}
+			break;
+		case EVENT_WEAPONRECOIL:
+			local vector rec;
+            rec_x = readcoord()/5;
+            rec_y = readcoord()/5;
+            rec_z = readcoord()/5;
+
+			gun_kick += rec;
 			break;
 		case EVENT_EXPLOSION:
             local vector org;

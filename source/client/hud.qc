@@ -1159,14 +1159,14 @@ void() Draw_Crosshair =
 		if (cur_spread >= CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE))) {
 			cur_spread = CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE));
 		} else {
-			cur_spread += (frametime*80);
+			cur_spread += (frametime*160);
 
 		}
 	} else {
 		croshhairmoving = 0;
 		
 		if (cur_spread > 0)
-			cur_spread -= (frametime*80);
+			cur_spread -= (frametime*160);
 		else 
 			cur_spread = 0;
 
@@ -1234,13 +1234,13 @@ void() Draw_Crosshair =
 		crosshair_offset_step += (crosshair_offset - crosshair_offset_step) * 0.5;
 
 		// Creds to heartologic for some actually good crosshair position stuff.
-		vector crossSize = [1, 8];
+		vector crossSize = [1, 5];
 		vector screenSize = [g_width, g_height];
 
-		drawfill(screenSize / 2 - [crossSize.x * 0.5, +crossSize.y * 2 + crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // top
-		drawfill(screenSize / 2 - [crossSize.x * 0.5, -crossSize.y * 1 - crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // bottom
-		drawfill(screenSize / 2 - [+crossSize.y * 2 + crosshair_offset_step, crossSize.x * 0.5], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // right
-		drawfill(screenSize / 2 - [-crossSize.y * 1 - crosshair_offset_step, crossSize.x * 0.5], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // left
+		drawfill(screenSize / 2 - [crossSize.x, +crossSize.y * 2 + crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // top
+		drawfill(screenSize / 2 - [crossSize.x, -crossSize.y * 1 - crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // bottom
+		drawfill(screenSize / 2 - [+crossSize.y * 2 + crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // right
+		drawfill(screenSize / 2 - [-crossSize.y * 1 - crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // left
     }
     else if (getstatf(STAT_WEAPONZOOM) != 1 && getstatf(STAT_WEAPONZOOM) != 2) {
 		vector screenSize2 = [g_width, g_height];

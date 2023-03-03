@@ -999,112 +999,6 @@ float(float wep, float penetration_times) getWeaponPenetration =
     }
 }
 
-float(float wep) GetWeaponSpread =
-{
-
-	switch (wep)
-	{
-		case W_COLT:
-			return 7.5;
-		case W_BIATCH:
-			return 7.5;
-		case W_KAR:
-			return 25;
-		case W_ARMAGEDDON:
-			return 25;
-		case W_THOMPSON:
-			return 5;
-		case W_GIBS:
-			return 5;
-		case W_RAY:
-			return 5;
-		case W_PORTER:
-			return 5;
-		case W_KAR_SCOPE:
-			return 25;
-		case W_HEADCRACKER:
-			return 25;
-		case W_BAR:
-			return 5;
-		case W_WIDOW:
-			return 5;
-		case W_M1A1:
-			return 5;
-		case W_WIDDER:
-			return 5;
-		case W_M2:
-			return 0;
-		case W_FIW:
-			return 0;
-		case W_TYPE:
-			return 5;
-		case W_SAMURAI:
-			return 5;
-		case W_SAWNOFF:
-			return 15;
-		case W_SNUFF:
-			return 15;
-		case W_PPSH:
-			return 5;
-		case W_REAPER:
-			return 5;
-		case W_DB:
-			return 12.5;
-		case W_BORE:
-			return 12.5;
-		case W_FG:
-			return 5;
-		case W_IMPELLER:
-			return 5;
-		case W_TRENCH:
-			return 12.5;
-		case W_GUT:
-			return 12.5;
-		case W_MG:
-			return 10;
-		case W_BARRACUDA:
-			return 10;
-		case W_GEWEHR:
-			return 5;
-		case W_COMPRESSOR:
-			return 5;
-		case W_BROWNING:
-			return 10;
-		case W_ACCELERATOR:
-			return 10;
-		case W_357:
-			return 5;
-		case W_KILLU:
-			return 5;
-		case W_M1:
-			return 5;
-		case W_M1000:
-			return 5;
-		case W_MP40:
-			return 5;
-		case W_AFTERBURNER:
-			return 5;
-		case W_MP5K:
-			return 5;
-		case W_KOLLIDER:
-			return 5;
-		case W_PTRS:
-			return 15;
-		case W_PENETRATOR:
-			return 15;
-		case W_STG:
-			return 5;
-		case W_SPATZ:
-			return 5;
-		case W_TESLA:
-			return 5;
-		case W_M14:
-			return 5;
-	}
-
-	return 0;
-}
-
 float(float wep, float delaytype) getWeaponDelay =
 {
 
@@ -3572,249 +3466,205 @@ float(float wep) getWeaponRecoilReturn =
 
 float(float weapon, float stance) CrossHairWeapon =
 {
-
-	float sprd;
-	
-	sprd = 0;
+	float crosshair_spread = 0;
 
 	switch(weapon)
 	{
 		case W_COLT:
 		case W_BIATCH:
-			sprd = 15;
-			break;
-		case W_KAR:
-		case W_ARMAGEDDON:
-			sprd = 50;
-			break;
-		case W_THOMPSON:
-		case W_GIBS:
-			sprd = 10;
-			break;
 		case W_357:
 		case W_KILLU:
-			sprd = 10;
-			break;
-		case W_BAR:
-		case W_WIDOW:
-			sprd = 10;
-			break;
-		case W_BROWNING:
-		case W_ACCELERATOR:
-			sprd = 20;
-			break;
-		case W_DB:
-		case W_BORE:
-			sprd = 25;
-			break;
-		case W_FG:
-		case W_IMPELLER:
-			sprd = 10;
-			break;
-		case W_GEWEHR:
-		case W_COMPRESSOR:
-			sprd = 10;
-			break;
-		case W_KAR_SCOPE:
-		case W_HEADCRACKER:
-			sprd = 50;
-			break;
-		case W_M1:
-		case W_M1000:
-			sprd = 10;
-			break;
-		case W_M1A1:
-		case W_WIDDER:
-			sprd = 10;
-			break;
-		case W_MP40:
-		case W_AFTERBURNER:
-			sprd = 10;
-			break;
-		case W_MP5K:
-		case W_KOLLIDER:
-			sprd = 10;
-			break;
-		case W_MG:
-		case W_BARRACUDA:
-			sprd = 20;
-			break;
-		case W_PANZER:
-		case W_LONGINUS:
-			sprd = 0;
-			break;
-		case W_PPSH:
-		case W_REAPER:
-			sprd = 10;
+			crosshair_spread = 22;
 			break;
 		case W_PTRS:
 		case W_PENETRATOR:
-			sprd = 50;
+		case W_KAR_SCOPE:
+		case W_HEADCRACKER:
+		case W_KAR:
+		case W_ARMAGEDDON:
+			crosshair_spread = 65;
 			break;
+		case W_MP40:
+		case W_AFTERBURNER:
+		case W_STG:
+		case W_SPATZ:
+		case W_THOMPSON:
+		case W_GIBS:
+		case W_BAR:
+		case W_WIDOW:
+		case W_PPSH:
+		case W_REAPER:
 		case W_RAY:
 		case W_PORTER:
-			sprd = 10;
+		case W_TYPE:
+		case W_SAMURAI:
+		case W_FG:
+		case W_IMPELLER:
+		case W_MP5K:
+		case W_KOLLIDER:
+			crosshair_spread = 10;
+			break;
+		case W_BROWNING:
+		case W_ACCELERATOR:
+		case W_MG:
+		case W_BARRACUDA:
+			crosshair_spread = 30;
 			break;
 		case W_SAWNOFF:
 		case W_SNUFF:
-			sprd = 30;
-			break;
-		case W_STG:
-		case W_SPATZ:
-			sprd = 10;
+			crosshair_spread = 50;
 			break;
 		case W_TRENCH:
 		case W_GUT:
-			sprd = 25;
+		case W_DB:
+		case W_BORE:
+			crosshair_spread = 35;
 			break;
-		case W_TYPE:
-		case W_SAMURAI:
-			sprd = 10;
+		case W_GEWEHR:
+		case W_COMPRESSOR:
+		case W_M1:
+		case W_M1000:
+		case W_M1A1:
+		case W_WIDDER:
+			crosshair_spread = 5;
 			break;
+		case W_PANZER:
+		case W_LONGINUS:
 		case W_TESLA:
-			sprd = 0;
+			crosshair_spread = 0;
 			break;
 		default:
-			sprd = 0;
+			crosshair_spread = 0;
 			break;
 	}
-	
-	if (sprd == 0)
-		return 0;
-	else {
-		switch(stance) {
+
+	// early out
+	if (crosshair_spread == 0)
+		return crosshair_spread;
+
+	// pretty sure CoD doesn't compute this, but we're cooler than CoD
+	switch(stance) {
 			case 2:
-				return sprd;
+				return crosshair_spread;
 			case 1:
-				return sprd - 2;
+				return crosshair_spread * 0.90;
 			case 0:
-				return sprd - 4;
+				return crosshair_spread * 0.85;
 			default: return 0;
-		}
 	}
+
+	return crosshair_spread;
 }
 
 float(float weapon, float stance) CrossHairMaxSpread =
 {
-	float sprd;
-	
-	sprd = 0;
+	float crosshair_spread = 0;
 
 	switch(weapon)
 	{
 		case W_COLT:
 		case W_BIATCH:
-			sprd = 30;
-			break;
-		case W_KAR:
-		case W_ARMAGEDDON:
-			sprd = 75;
-			break;
-		case W_THOMPSON:
-		case W_GIBS:
-			sprd = 25;
-			break;
-		case W_357:
-		case W_KILLU:
-			sprd = 20;
-			break;
-		case W_BAR:
-		case W_WIDOW:
-			sprd = 35;
-			break;
-		case W_BROWNING:
-		case W_ACCELERATOR:
-			sprd = 50;
-			break;
-		case W_DB:
-		case W_BORE:
-			sprd = 25;
-			break;
-		case W_FG:
-		case W_IMPELLER:
-			sprd = 40;
-			break;
-		case W_GEWEHR:
-		case W_COMPRESSOR:
-			sprd = 35;
-			break;
-		case W_KAR_SCOPE:
-		case W_HEADCRACKER:
-			sprd = 75;
-			break;
-		case W_M1:
-		case W_M1000:
-			sprd = 35;
-			break;
-		case W_M1A1:
-		case W_WIDDER:
-			sprd = 35;
-			break;
+		case W_STG:
+		case W_SPATZ:
 		case W_MP40:
 		case W_AFTERBURNER:
-			sprd = 25;
-			break;
+		case W_THOMPSON:
+		case W_GIBS:
+		case W_BAR:
+		case W_WIDOW:
+		case W_357:
+		case W_KILLU:
+		case W_BROWNING:
+		case W_ACCELERATOR:
+		case W_FG:
+		case W_IMPELLER:
 		case W_MP5K:
 		case W_KOLLIDER:
-			sprd = 25;
-			break;
 		case W_MG:
 		case W_BARRACUDA:
-			sprd = 50;
-			break;
-		case W_PANZER:
-		case W_LONGINUS:
-			sprd = 0;
-			break;
 		case W_PPSH:
 		case W_REAPER:
-			sprd = 25;
+		case W_RAY:
+		case W_PORTER:
+		case W_TYPE:
+		case W_SAMURAI:
+			crosshair_spread = 48;
 			break;
 		case W_PTRS:
 		case W_PENETRATOR:
-			sprd = 75;
-			break;
-		case W_RAY:
-		case W_PORTER:
-			sprd = 20;
+		case W_KAR_SCOPE:
+		case W_HEADCRACKER:
+		case W_KAR:
+		case W_ARMAGEDDON:
+			crosshair_spread = 75;
 			break;
 		case W_SAWNOFF:
 		case W_SNUFF:
-			sprd = 30;
+			crosshair_spread = 50;
 			break;
-		case W_STG:
-		case W_SPATZ:
-			sprd = 35;
-			break;
+		case W_DB:
+		case W_BORE:
 		case W_TRENCH:
 		case W_GUT:
-			sprd = 25;
+		case W_GEWEHR:
+		case W_COMPRESSOR:
+		case W_M1:
+		case W_M1000:
+		case W_M1A1:
+		case W_WIDDER:
+			crosshair_spread = 35;
 			break;
-		case W_TYPE:
-		case W_SAMURAI:
-			sprd = 25;
-			break;
+		case W_PANZER:
+		case W_LONGINUS:
 		case W_TESLA:
-			sprd = 0;
+			crosshair_spread = 0;
 			break;
 		default:
-			sprd = 0;
+			crosshair_spread = 0;
 			break;
 	}
 
-	if (sprd == 0)
-		return 0;
-	else {
-		switch(stance) {
+	// early out
+	if (crosshair_spread == 0)
+		return crosshair_spread;
+
+	// pretty sure CoD doesn't compute this, but we're cooler than CoD
+	switch(stance) {
 			case 2:
-				return sprd;
+				return crosshair_spread;
 			case 1:
-				return sprd - 2;
+				return crosshair_spread * 0.90;
 			case 0:
-				return sprd - 4;
-			default:
-				return 0;
-		}
+				return crosshair_spread * 0.85;
+			default: return 0;
+	}
+
+	return crosshair_spread;
+}
+
+float(float wep) W_SpreadAffectedByADS =
+{
+	switch (wep) {
+		case W_SAWNOFF:
+		case W_SNUFF:
+		case W_DB:
+		case W_BORE:
+		case W_TRENCH:
+		case W_GUT:
+			return false;
+		default:
+			return true;
+	}
+}
+
+float(float wep, float is_moving, float stance) GetWeaponSpread =
+{
+	float magic_number = 1.15;
+
+	if (!is_moving) {
+		return (CrossHairWeapon(wep, stance));
+	} else {
+		return (CrossHairMaxSpread(wep, stance)/2) * magic_number;
 	}
 }
 
@@ -4013,26 +3863,13 @@ vector(float wep) GetWeaponRecoil =
 	r = random();
 	temp1 = change_1 + change_2;
 	temp2 = change_1 + change_2 + change_3;
-	
-#ifdef FTE
 
 	if (r < change_1)
-		final_kick_y = kick_change_x*0.25;
+		final_kick_y = kick_change_x*0.4;
 	else if (r < temp1)
-		final_kick_x = kick_change_y*-1*.25;
+		final_kick_x = kick_change_y*-0.4;
 	else if (r < temp2)
-		final_kick_y = kick_change_z*-1*0.25;
-
-#else
-
-	if (r < change_1)
-		final_kick_y = kick_change_x;
-	else if (r < temp1)
-		final_kick_x = kick_change_y*-1;
-	else if (r < temp2)
-		final_kick_y = kick_change_z*-1;
-
-#endif // FTE
+		final_kick_y = kick_change_z*-0.4;
 
 	final_kick_y = final_kick_y + guaranteed_x;
 	final_kick_x = final_kick_x - guaranteed_y;
