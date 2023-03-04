@@ -198,8 +198,8 @@ void(float dist, vector vec) do_walk_to_vec =
 	self.ideal_yaw = vectoyaw(vec - self.origin);
 	if(self.outside == false)
 	{
-		push_away_zombies();
-		//self.ideal_yaw += avoid_zombies(); //no longer relevant since our direction doesn't care about our yaw any more
+		// this is a performance net negative for like 0 gain in horde space.
+		//push_away_zombies();
 	}
 	ChangeYaw();
 	vector new_velocity;
