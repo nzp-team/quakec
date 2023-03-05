@@ -26,6 +26,7 @@
 ../source/server/entities/explosive_barrel.qc
 ../source/server/entities/teleporter.qc
 ../source/server/entities/map_entities.qc
+../source/server/entities/func.qc
 ../source/server/entities/traps.qc
 ../source/server/entities/lights.qc
 ../source/server/entities/doors.qc
