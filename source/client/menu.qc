@@ -44,7 +44,10 @@ void() menu_restart =
 
 void() menu_resy =
 {
-	localcmd("restart\n");
+	if (platform_is_web == false)
+		localcmd("restart\n");
+	else
+		localcmd("qc_soft_restart\n");
 };
 
 void() menu_resn =
