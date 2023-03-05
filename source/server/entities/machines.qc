@@ -33,167 +33,21 @@ void() mystery_touch;
 
 //
 // --------------------
-// Lights
-// --------------------
-//
-
-//
-// Light_Red(e)
-// RGB: 255, 56, 56
-//
-void(entity e) Light_Red =
-{
-    e.effects = e.effects | EF_FULLBRIGHT;
-
-#ifndef FTE
-
-    e.effects = e.effects | EF_RED;
-
-#else
-
-    {
-        e.pflags = PFLAGS_FULLDYNAMIC;
-       	e.light_lev = 100;
-	    e.color_x = 2;	
-	    e.color_y = 0.25;	
-	    e.color_z = 0.25;
-    }
-
-#endif // FTE
-
-}
-
-//
-// Light_Green(e)
-// RGB: 56, 255, 56
-//
-void(entity e) Light_Green =
-{
-    e.effects = e.effects | EF_FULLBRIGHT;
-
-#ifndef FTE
-
-    e.effects = e.effects | EF_GREEN;
-
-#else
-
-    {
-        e.pflags = PFLAGS_FULLDYNAMIC;
-       	e.light_lev = 100;
-	    e.color_x = 0.25;	
-	    e.color_y = 2;	
-	    e.color_z = 0.25;
-    }
-
-#endif // FTE
-
-}
-
-//
-// Light_Blue(e)
-// RGB: 56, 56, 255
-//
-void(entity e) Light_Blue =
-{
-    e.effects = e.effects | EF_FULLBRIGHT;
-
-#ifndef FTE
-
-    e.effects = e.effects | EF_BLUE;
-
-#else
-
-    {
-        e.pflags = PFLAGS_FULLDYNAMIC;
-       	e.light_lev = 100;
-	    e.color_x = 0.25;	
-	    e.color_y = 0.25;	
-	    e.color_z = 2;
-    }
-
-#endif // FTE
-
-}
-
-//
-// Light_Orange(e)
-// RGB: 255, 128, 0
-//
-void(entity e) Light_Orange =
-{
-    e.effects = e.effects | EF_FULLBRIGHT;
-
-#ifndef FTE
-
-    e.effects = e.effects | EF_ORANGELIGHT;
-
-#else
-
-    {
-        e.pflags = PFLAGS_FULLDYNAMIC;
-       	e.light_lev = 100;
-	    e.color_x = 2;	
-	    e.color_y = 1;	
-	    e.color_z = 0;
-    }
-
-#endif // FTE
-
-}
-
-//
-// Light_Purple(e)
-// RGB: 255, 28, 255
-//
-void(entity e) Light_Purple =
-{
-    e.effects = e.effects | EF_FULLBRIGHT;
-
-#ifndef FTE
-
-    e.effects = e.effects | EF_PURPLELIGHT;
-
-#else
-
-    {
-        e.pflags = PFLAGS_FULLDYNAMIC;
-       	e.light_lev = 100;
-	    e.color_x = 2;	
-	    e.color_y = 0.25;	
-	    e.color_z = 2;
-    }
-
-#endif // FTE
-
-}
-
-//
-// Light_None(e)
-// Resets all Perk Light Effects.
-//
-void(entity e) Light_None =
-{
-	e.effects = 0;
-
-#ifdef FTE
-
-	{
-		e.pflags = 0;
-		e.light_lev = 0;
-		e.color_x = 0;
-		e.color_y = 0;
-		e.color_z = 0;
-	}
-
-#endif // FTE
-
-}
-
-//
-// --------------------
 // Core Perk System
 // --------------------
 //
+
+// Light Color Spawnflags
+#define PERK_SPAWNFLAG_NOLIGHT 		1
+#define PERK_SPAWNFLAG_REDLIGHT		2
+#define PERK_SPAWNFLAG_GREENLIGHT	4
+#define PERK_SPAWNFLAG_BLUELIGHT	8
+#define PERK_SPAWNFLAG_ORANGELIGHT	16
+#define PERK_SPAWNFLAG_PURPLELIGHT	32
+#define PERK_SPAWNFLAG_CYANLIGHT	64
+#define PERK_SPAWNFLAG_PINKLIGHT	128
+#define PERK_SPAWNFLAG_LIMELIGHT	256
+#define PERK_SPAWNFLAG_YELLOWLIGHT	512
 
 //
 // GivePerk(p)
@@ -469,23 +323,35 @@ void() touch_perk =
 //
 void(entity who) Turn_PerkLight_On =
 {
-	if (who.spawnflags & 1) {
+	if (who.spawnflags & PERK_SPAWNFLAG_NOLIGHT) {
 		Light_None(who);
 	}
-	if (who.spawnflags & 2) {
+	if (who.spawnflags & PERK_SPAWNFLAG_REDLIGHT) {
 		Light_Red(who);
 	}
-	if (who.spawnflags & 4) {
+	if (who.spawnflags & PERK_SPAWNFLAG_GREENLIGHT) {
 		Light_Green(who);
 	}
-	if (who.spawnflags & 8) {
+	if (who.spawnflags & PERK_SPAWNFLAG_BLUELIGHT) {
 		Light_Blue(who);
 	}
-	if (who.spawnflags & 16) {
+	if (who.spawnflags & PERK_SPAWNFLAG_ORANGELIGHT) {
 		Light_Orange(who);
 	}
-	if (who.spawnflags & 32) {
+	if (who.spawnflags & PERK_SPAWNFLAG_PURPLELIGHT) {
 		Light_Purple(who);
+	}
+	if (who.spawnflags & PERK_SPAWNFLAG_CYANLIGHT) {
+		Light_Cyan(who);
+	}
+	if (who.spawnflags & PERK_SPAWNFLAG_PINKLIGHT) {
+		Light_Pink(who);
+	}
+	if (who.spawnflags & PERK_SPAWNFLAG_LIMELIGHT) {
+		Light_Lime(who);
+	}
+	if (who.spawnflags & PERK_SPAWNFLAG_YELLOWLIGHT) {
+		Light_Yellow(who);
 	}
 }
 
@@ -592,7 +458,7 @@ void() perk_revive =
 
 	// Light Effect
 	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | 8;
+		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_CYANLIGHT;
 	}
 
 	// Set up the Perk Entity
@@ -656,7 +522,7 @@ void() perk_flopper =
 
 	// Light Effect
 	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | 16;
+		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
 	}
 
 	// Set up the Perk Entity
@@ -718,7 +584,7 @@ void() perk_juggernog =
 
 	// Light Effect
 	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | 2;
+		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_PINKLIGHT;
 	}
 
 	// Set up the Perk Entity
@@ -780,7 +646,7 @@ void() perk_staminup =
 
 	// Light Effect
 	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | 16;
+		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
 	}
 
 	// Set up the Perk Entity
@@ -842,7 +708,7 @@ void() perk_speed =
 
 	// Light Effect
 	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | 4;
+		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_LIMELIGHT;
 	}
 
 	// Set up the Perk Entity
@@ -904,7 +770,7 @@ void() perk_double =
 
 	// Light Effect
 	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | 16;
+		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
 	}
 
 	// Set up the Perk Entity
@@ -967,7 +833,7 @@ void() perk_deadshot =
 
 	// Light Effect
 	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | 16;
+		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
 	}
 
 	// Set up the Perk Entity
@@ -1031,7 +897,7 @@ void() perk_mule =
 
 	// Light Effect
 	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | 4;
+		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_LIMELIGHT;
 	}
 
 	// Set up the Perk Entity
@@ -1197,7 +1063,7 @@ void() updateBoxGlow
 };
 
 
-void()	box_open1		=[	1,	box_open2	] { self.frame = 1;updateBoxGlow(); Light_Orange(self);};
+void()	box_open1		=[	1,	box_open2	] { self.frame = 1;updateBoxGlow(); Light_Yellow(self);};
 void()	box_open2		=[	2,	box_open3	] { self.frame = 2;updateBoxGlow();};
 void()	box_open3		=[	3,	box_open4	] { self.frame = 3;updateBoxGlow();};
 void()	box_open4		=[	4,	box_open5	] { self.frame = 4;updateBoxGlow();};

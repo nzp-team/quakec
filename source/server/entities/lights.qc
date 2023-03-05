@@ -103,6 +103,262 @@ void()  light_flame_small_white =       // Light with small flame & fire sound
 // --------------------
 //
 
+//
+// Light_Red(e)
+// RGB: 255, 56, 56
+//
+void(entity e) Light_Red =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_REDLIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 2;	
+	    e.color_y = 0.25;	
+	    e.color_z = 0.25;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_Green(e)
+// RGB: 56, 255, 56
+//
+void(entity e) Light_Green =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_GREENLIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 0.25;	
+	    e.color_y = 2;	
+	    e.color_z = 0.25;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_Blue(e)
+// RGB: 56, 56, 255
+//
+void(entity e) Light_Blue =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_BLUELIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 0.25;	
+	    e.color_y = 0.25;	
+	    e.color_z = 2;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_Orange(e)
+// RGB: 255, 128, 0
+//
+void(entity e) Light_Orange =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_ORANGELIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 2;	
+	    e.color_y = 1;	
+	    e.color_z = 0;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_Purple(e)
+// RGB: 255, 28, 255
+//
+void(entity e) Light_Purple =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_PURPLELIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 2;	
+	    e.color_y = 0.25;	
+	    e.color_z = 2;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_Cyan(e)
+// RGB: 97, 178, 248
+//
+void(entity e) Light_Cyan =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_CYANLIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 0.765;	
+	    e.color_y = 1.4;	
+	    e.color_z = 1.95;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_Pink(e)
+// RGB: 255, 180, 180
+//
+void(entity e) Light_Pink =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_PINKLIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 2.37;	
+	    e.color_y = 1.35;	
+	    e.color_z = 1.35;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_Lime(e)
+// RGB: 128, 255, 128
+//
+void(entity e) Light_Lime =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_LIMELIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 1;	
+	    e.color_y = 2;	
+	    e.color_z = 1;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_Yellow(e)
+// RGB: 255, 255, 128
+//
+void(entity e) Light_Yellow =
+{
+    e.effects = e.effects | EF_FULLBRIGHT;
+
+#ifndef FTE
+
+    e.effects = e.effects | EF_YELLOWLIGHT;
+
+#else
+
+    {
+        e.pflags = PFLAGS_FULLDYNAMIC;
+       	e.light_lev = 100;
+	    e.color_x = 2;	
+	    e.color_y = 2;	
+	    e.color_z = 1;
+    }
+
+#endif // FTE
+
+}
+
+//
+// Light_None(e)
+// Resets all Perk Light Effects.
+//
+void(entity e) Light_None =
+{
+	e.effects = 0;
+
+#ifdef FTE
+
+	{
+		e.pflags = 0;
+		e.light_lev = 0;
+		e.color_x = 0;
+		e.color_y = 0;
+		e.color_z = 0;
+	}
+
+#endif // FTE
+
+}
+
 #ifdef FTE
 
 void(entity what, float fullbright, float light_level,
