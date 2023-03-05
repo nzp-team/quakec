@@ -691,7 +691,10 @@ void() menu_custom_back =
 void() settings_sens = {
 	float sens = cvar("sensitivity");
 
-	sens += 0.5;
+	sens += 1;
+
+	if (sens > 15)
+		sens = 15;
 
 	cvar_set("sensitivity", ftos(sens));
 }
@@ -699,7 +702,10 @@ void() settings_sens = {
 void() settings_sens2 = {
 	float sens = cvar("sensitivity");
 
-	sens -= 0.5;
+	sens -= 1;
+
+	if (sens < 0)
+		sens = 0;
 
 	cvar_set("sensitivity", ftos(sens));
 }
@@ -1323,7 +1329,7 @@ void() Draw_Extra_CSettings =
 		drawstring([0.475*g_width, 0.175*g_height, 0], "TOGGLE", [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 
 	// Look Sensitivity
-	drawfill ([0.475*g_width, 0.2255*g_height, 0], [g_height * (cvar("sensitivity")/6), g_height * 0.030, 1], [0.8, 0.8, 0.8], 0, 0);
+	drawstring([0.475*g_width, 0.225*g_height, 0], ftos(cvar("sensitivity")), [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 
 
 	// Descriptions
