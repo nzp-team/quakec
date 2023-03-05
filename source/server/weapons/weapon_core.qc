@@ -69,13 +69,7 @@ void() W_AimIn =
 	if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 		SetUpdate(self, UT_ZOOM2, 0, 0, 0);
-
-#ifndef FTE
-
-		self.zoom = 1;
-
-#endif // FTE
-
+		self.zoom = 2;
 		self.scopetime = time + 0.3;
 	} else {
 		self.zoom = 1;
