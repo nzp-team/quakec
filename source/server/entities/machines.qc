@@ -1943,8 +1943,12 @@ void touch_pap() {
 		useprint (other, 7, 0, 0);
 
 		if (other.button7) {
-			if (!other.secondaryweapon) {
-				WeaponSwitch(other);
+			// Back-up current weapon into second slot, it's getting replaced.
+			if (!other.secondaryweapon && other.weapon != EqualPapWeapon(self.weapon)) {
+				other.secondaryweapon = other.weapon;
+				other.secondarymag = other.currentmag;
+				other.secondarymag2 = other.currentmag2;
+				other.secondaryammo = other.currentammo;
 			}
 
 			other.weapon = EqualPapWeapon(self.weapon);
