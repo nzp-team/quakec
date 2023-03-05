@@ -1298,7 +1298,7 @@ void() Zombie_Find_Tesla_Target =
 		if (zombs.classname == "ai_zombie" || zombs.classname == "ai_dog") {
 			break_loop = true;
 
-			zombs.owner = self.owner;
+			zombs.firer = self.firer;
 
 			// remove libs
 			if (zombs.head)
@@ -1309,16 +1309,22 @@ void() Zombie_Find_Tesla_Target =
 				setmodel(zombs.rarm, "");
 
 			// add 50pts
-			addmoney(self.owner, 50, true);
+			addmoney(self.firer, 50, true);
 
 			// kill
-			self.owner.kills += 1;
+			self.firer.kills += 1;
 
 			// add to tesla count
 			zombs.teslacount = self.teslacount + 1;
 
 			// classname change
 			zombs.classname = "wunder";
+			zombs.head.classname = zombs.larm.classname = 
+			zombs.rarm.classname = "wunder_limb";
+
+			// just to be extra careful
+			zombs.takedamage = zombs.head.takedamage = 
+			zombs.larm.takedamage = zombs.rarm.takedamage = DAMAGE_NO;
 
 			org = self.origin + '0 0 13';
 			targetorg = zombs.origin + '0 0 13';

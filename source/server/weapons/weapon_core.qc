@@ -696,6 +696,9 @@ void Parse_Damage () = // DO NOT TOUCH
 	while (ent) {
 		if (ent.classname != "radio" && ent.classname != "explosive_barrel") {
 
+			if (ent.classname == "wunder" || ent.classname == "wunder_limb")
+				return;
+
 			if (ent.classname == "ai_zombie_head")
 				head_hit = 1;
 			
@@ -907,7 +910,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 	vel = vel * 200;
 
 	if (hit_ent.takedamage) {
-		if (trace_fraction >= 1) {
+		if (trace_fraction >= 1 || hit_ent.classname == "wunder") {
 			return;
 		}
 		if(hit_ent.classname == "item_radio" || hit_ent.classname == "teddy_spawn")
@@ -1129,7 +1132,7 @@ void(entity hit_ent) LightningHit =
 	hit_ent.classname = "wunder";
 
 	// own it!
-	hit_ent.owner = self;
+	hit_ent.firer = self;
 
 	// we're the start of a chain
 	hit_ent.teslacount = 1;
@@ -1194,7 +1197,7 @@ void(vector p1, vector p2, entity from, float damage) LightningDamage =
 // Fire lightning out of the gun
 void() W_FireTesla =
 {
-	local vector source;
+	vector source;
 
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
