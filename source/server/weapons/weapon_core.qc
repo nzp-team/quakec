@@ -27,6 +27,7 @@
 */
 
 void() W_PutOut;
+void(float side) W_Reload;
 void() GrenadeExplode;
 
 void() ReturnWeaponModel =
@@ -42,6 +43,21 @@ void() ReturnWeaponModel =
 		
 	UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 	UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
+
+	// Always try to reload after any action.
+	if (self.currentmag == 0 && self.currentammo != 0)
+		W_Reload(S_BOTH);
+}
+
+void() W_PlayTakeOut =
+{
+	float startframe, endframe;
+	string modelname;
+
+	startframe = GetFrame(self.weapon,TAKE_OUT_START);
+	endframe = GetFrame(self.weapon,TAKE_OUT_END);
+	modelname = GetWeaponModel(self.weapon, 0);
+	Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH);
 }
 
 .float scopetime;
@@ -266,7 +282,7 @@ void() W_Switch =
 			UpdateVmodel(modelname, GetWepSkin(self.weapon));
 	
 		
-		Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);//FIXME
+		Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH);//FIXME
 		
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0; 
 		
@@ -1627,7 +1643,7 @@ void () W_Knife =
 		}
 		else if (self.bowie)
 		{
-			Set_W_Frame (4, 10, 0.7, 0, KNIFE, ReturnWeaponModel, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
+			Set_W_Frame (4, 10, 0.7, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
 			self.knife_delay = time + 1.3;
 		}
@@ -1635,7 +1651,7 @@ void () W_Knife =
 		{
 			self.punchangle_x = -5;
 			self.punchangle_y = -10;
-			Set_W_Frame (4, 12, 0.7, 0, KNIFE, ReturnWeaponModel, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
+			Set_W_Frame (4, 12, 0.7, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
 			self.knife_delay = time + 1;
 		}
@@ -1652,7 +1668,7 @@ void () W_Knife =
 		}
 		else if (self.bowie)
 		{
-			Set_W_Frame (0, 3, 0.3, 0, KNIFE, ReturnWeaponModel, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
+			Set_W_Frame (0, 3, 0.3, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
 			self.knife_delay = time + 0.9;
 		}
@@ -1661,7 +1677,7 @@ void () W_Knife =
 			self.punchangle_x = -5;
 			self.punchangle_y = -10;
 			//self.punchangle_z = 5;
-			Set_W_Frame (0, 3, 0.3, 0, KNIFE, ReturnWeaponModel, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
+			Set_W_Frame (0, 3, 0.3, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
 			self.knife_delay = time + 0.7;
 		}
@@ -1853,7 +1869,7 @@ void() W_ThrowGrenade =
 	startframe = GetFrame(self.weapon,TAKE_OUT_START);
 	endframe = GetFrame(self.weapon,TAKE_OUT_END);
 	modelname = GetWeaponModel(self.weapon, 0);
-	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
+	Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH);
 
 	SetUpdate(self, UT_HUD, 6, 0, 0);
 }
