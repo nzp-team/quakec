@@ -261,9 +261,9 @@ void() Update_Vmodel =
 		weapon_bob_factor_z = 13.4;
 		weapon_bob_factor_z_coef = 0.2;
 		
-		dampening_factor_x = 0.2*sin(time*weapon_bob_factor_x);
-		dampening_factor_y = 0.2*cos(time*weapon_bob_factor_y);
-		dampening_factor_z = 0.2*sin(time*weapon_bob_factor_z);
+		dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
+		dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
+		dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
 	} else if (!getstatf(STAT_WEAPONZOOM)){ //Still bob
 
 		// Naievil -- stupid ass calcs...
@@ -338,14 +338,14 @@ void() Update_Vmodel =
 			weapon_bob_factor_z_coef -= 0.0000001*sin(time*weapon_bob_factor_z);
 	}
 			
-	offset_x = 0.2 * (sin(time * weapon_bob_factor_x) + dampening_factor_x);
-	offset_y = 0.2 * (cos(time * weapon_bob_factor_y) + dampening_factor_y);
-	offset_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*time + 0.5) + dampening_factor_z);
+	offset_x = 0.2 * (sin(cltime * weapon_bob_factor_x) + dampening_factor_x);
+	offset_y = 0.2 * (cos(cltime * weapon_bob_factor_y) + dampening_factor_y);
+	offset_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*cltime + 0.5) + dampening_factor_z);
 	
 	vector tempv; 
-	tempv_x = 0.2 * (sin(time * weapon_bob_factor_x));
-	tempv_y = 0.2 * (cos(time * weapon_bob_factor_y));
-	tempv_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*time + 0.5));
+	tempv_x = 0.2 * (sin(cltime * weapon_bob_factor_x));
+	tempv_y = 0.2 * (cos(cltime * weapon_bob_factor_y));
+	tempv_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*cltime + 0.5));
 		
 	dir = vmodel_targetpos - vmodel_currentpos;
 	if(vlen(dir) < (0.15 * 128 * frametime))
