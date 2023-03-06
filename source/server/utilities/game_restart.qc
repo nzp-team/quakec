@@ -35,7 +35,7 @@ void() func_door_nzp;
 // Cleans Power-Ups thrown about on the map,
 // as well as a sanity check for their state.
 //
-void() GameRestart_CleanPowerUps =
+inline void() GameRestart_CleanPowerUps =
 {
     entity tempe;
 
@@ -72,7 +72,7 @@ void() GameRestart_CleanPowerUps =
 // Removes World models summoned from
 // weapon_wall.
 //
-void() GameRestart_CleanWallSummons =
+inline void() GameRestart_CleanWallSummons =
 {
     entity tempe;
 
@@ -90,7 +90,7 @@ void() GameRestart_CleanWallSummons =
 // GameRestart_RepairBarricades()
 // Resets the barricade health state.
 //
-void() GameRestart_RepairBarricades =
+inline void() GameRestart_RepairBarricades =
 {
  	entity tempe;
 	
@@ -151,9 +151,9 @@ void() Soft_Restart = {
 		who = find(who,classname,"ai_zombie");
 	}
 
-    GameRestart_CleanPowerUps();
-    GameRestart_CleanWallSummons();
-	GameRestart_RepairBarricades();
+    GameRestart_CleanPowerUps();		// Get rid of any Power-Ups that were spawned and left.
+    GameRestart_CleanWallSummons();		// Delete residual wall weapon spawns from our last game.
+	GameRestart_RepairBarricades();		// Make sure all barricades are fully repaired.
 
 	//close doors
 	doors = findfloat(world, isopen, 1);
