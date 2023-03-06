@@ -368,18 +368,11 @@ void() Update_Vmodel =
 	adsoffset = GetWeaponADSPos(weapon);
 
     ads = getstatf(STAT_WEAPONZOOM); //get the zoomtoggle value 
-    if(ads == 1)
+    if(ads == 1 || ads == 2)
     {
         vmodel_currentpos += (adsoffset * 0.15 * 128) * frametime;
-		vmodel_currentpos += offset*0.025;
         vmodel.origin = vmodel_currentpos + adsoffset;
     }
-	else if (ads == 2)
-	{
-		vmodel_currentpos += (adsoffset * 0.15 * 128) * frametime;
-		vmodel_currentpos += offset*0.025;
-        vmodel.origin = vmodel_currentpos + adsoffset;    
-	}
     else
     {
         switch(getstatf(STAT_PLAYERSTANCE)) {
