@@ -229,7 +229,7 @@ void() PlayerPreThink =
 				self.viewzoom = 0.97;
 				
 			// viewbob when running 
-			self.punchangle_y = 0.25*sin(time*10);
+			self.punchangle_y = 0.6*sin(time*10);
 
 #endif // FTE
 
