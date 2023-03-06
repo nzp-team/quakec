@@ -254,8 +254,14 @@ void() Update_Vmodel =
 // View Bobbing Factors.
 //
 
+	// PAUSED, NO BOB
+	if (serverkey(SERVERKEY_PAUSESTATE) == "1") {
+		weapon_bob_factor = '0 0 0';
+		dampening_factor = weapon_bob_factor;
+		weapon_bob_factor_z_coef = 0;
+	}
 	// ADS
-	if (getstatf(STAT_WEAPONZOOM) && getstatf(STAT_WEAPONZOOM) != 3) {
+	else if (getstatf(STAT_WEAPONZOOM) && getstatf(STAT_WEAPONZOOM) != 3) {
 		weapon_bob_factor = '0 0 0';
 		dampening_factor = weapon_bob_factor;
 		weapon_bob_factor_z_coef = 0;
@@ -399,7 +405,7 @@ void() Update_Vmodel =
 	adsoffset = GetWeaponADSPos(weapon);
 
     ads = getstatf(STAT_WEAPONZOOM); //get the zoomtoggle value 
-    if(ads == 1 || ads == 2)
+    if(ads == 1 || ads == 2 && serverkey(SERVERKEY_PAUSESTATE) == "0")
     {
         vmodel_currentpos += (adsoffset * 0.15 * 128) * frametime;
         vmodel.origin = vmodel_currentpos + adsoffset;
