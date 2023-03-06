@@ -487,6 +487,8 @@ void() DropRecoilKick =
 	gun_kick[2] *= len;
 }
 
+#define SCALE_CONSTANT 		8
+
 // CALLED EVERY CLIENT RENDER FRAME
 float pap_flash_alternate;
 noref void(float width, float height, float menushown) CSQC_UpdateView =
@@ -503,7 +505,7 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setviewprop(VF_DRAWENGINESBAR, 0);	
 	setviewprop(VF_DRAWCROSSHAIR, 0);
 
-	setsensitivityscaler(getstatf(STAT_VIEWZOOM)*getstatf(STAT_VIEWZOOM));
+	setsensitivityscaler((1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT));
 	setviewprop(VF_AFOV, autocvar(fov,90)*getstatf(STAT_VIEWZOOM));
 
 	cvar_set("r_viewmodel_fov", ftos(cvar("r_viewmodel_default_fov")*getstatf(STAT_VIEWZOOM)));
