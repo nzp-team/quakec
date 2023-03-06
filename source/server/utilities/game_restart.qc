@@ -77,12 +77,31 @@ void() GameRestart_CleanWallSummons =
     entity tempe;
 
     tempe = find(world, classname, "weapon_wall");
-    while(tempe != world) {
+    while (tempe != world) {
         // We store the world model with .enemy for.. some reason..
         if (tempe.enemy)
             remove(tempe.enemy);
             
         tempe = find(tempe, classname, "weapon_wall");
+    }
+}
+
+//
+// GameRestart_RepairBarricades()
+// Resets the barricade health state.
+//
+void() GameRestart_RepairBarricades =
+{
+ 	entity tempe;
+	
+	tempe = find(world, classname, "window");
+    while (tempe != world) {
+        if (tempe.health != -10) {
+            tempe.health = 6;
+            tempe.frame = 0;
+        }
+
+        tempe = find(tempe, classname, "window");
     }
 }
 
@@ -104,7 +123,7 @@ void(entity door) reclose_door = {
 }
 
 void() Soft_Restart = {
-	entity who, oldself, doors, box, revive, endgame, barricades;
+	entity who, oldself, doors, box, revive, endgame;
 	self = find(world,classname,"player");
 	oldself = self;
 	
@@ -134,17 +153,7 @@ void() Soft_Restart = {
 
     GameRestart_CleanPowerUps();
     GameRestart_CleanWallSummons();
-
-	//repair all windows
-    barricades = find(world, classname, "item_barricade");
-    while(barricades != world) {
-        if (barricades.health != -10) {
-            barricades.health = 6;
-            barricades.frame = 0;
-        }
-
-        barricades = find(barricades, classname, "item_barricade");
-    }
+	GameRestart_RepairBarricades();
 
 	//close doors
 	doors = findfloat(world, isopen, 1);
