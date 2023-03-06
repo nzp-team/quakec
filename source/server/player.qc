@@ -223,10 +223,10 @@ void() PlayerPreThink =
 
 #ifdef FTE
 
-			if (self.viewzoom > 0.98)
+			if (self.viewzoom > 0.97)
 				self.viewzoom -= 0.015;
-			else if (self.viewzoom < 0.98)
-				self.viewzoom = 0.98;
+			else if (self.viewzoom < 0.97)
+				self.viewzoom = 0.97;
 				
 			// viewbob when running 
 			self.punchangle_y = 0.25*sin(time*10);

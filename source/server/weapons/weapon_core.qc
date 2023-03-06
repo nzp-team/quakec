@@ -133,12 +133,7 @@ void() W_SprintStop =
 	if (self.isBuying || !self.sprinting)
 		return;
 	
-
-#ifndef FTE
-
 	self.zoom = 0;
-
-#endif // FTE
 
 	Set_W_Frame (startframe, endframe, 0, 0, SPRINT, SUB_Null, modelname, false, S_BOTH);  // BUG IS HERE
 	
@@ -181,11 +176,7 @@ void W_SprintStart () {
 	float endframe = GetFrame(self.weapon,SPRINT_IN_END);
 	string modelname = GetWeaponModel(self.weapon, 0);
 
-#ifndef FTE
-
 	self.zoom = 3;
-
-#endif // FTE
 	
 	if (startframe || endframe) {
 		Set_W_Frame (startframe, endframe, 0, 0, SPRINT, ContinueRun, modelname, false, S_BOTH);
@@ -485,13 +476,6 @@ void(float side) W_Reload =
 		self.currentmag2 >= getWeaponMag(self.weapon))) {
 		return;
 	}
-
-	//TEMPORARY
-#ifdef FTE
-
-	self.viewzoom = 1;
-
-#endif // FTE
 
 	self.zoom = false;
 
@@ -2497,7 +2481,9 @@ void () Weapon_Logic =
 		// Don't stop aiming until the camera is restored
 		if (self.viewzoom >= 1) {
 			self.viewzoom = 1;
-			self.zoom = 0;
+
+			if (self.zoom != 3)
+				self.zoom = 0;
 		}
 
 #else

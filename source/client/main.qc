@@ -250,12 +250,29 @@ void() Update_Vmodel =
 		return;
 	}
 
-	//Walk bob
-	if (getstatf(STAT_WEAPONZOOM)) { //ADS bob
+//
+// View Bobbing Factors.
+//
+
+	// ADS
+	if (getstatf(STAT_WEAPONZOOM) && getstatf(STAT_WEAPONZOOM) != 3) {
 		weapon_bob_factor = '0 0 0';
 		dampening_factor = weapon_bob_factor;
 		weapon_bob_factor_z_coef = 0;
-	} else if (K_FORWARDDOWN || K_BACKDOWN || K_LEFTDOWN || K_RIGHTDOWN && !getstatf(STAT_WEAPONZOOM)) {
+	} 
+	// SPRINT
+	else if (getstatf(STAT_WEAPONZOOM) == 3) {
+		weapon_bob_factor_x = 2;
+		weapon_bob_factor_y = 8;
+		weapon_bob_factor_z = 12;
+		weapon_bob_factor_z_coef = 1;
+		
+		dampening_factor_x = sin(cltime*weapon_bob_factor_x);
+		dampening_factor_y = 9*cos(cltime*weapon_bob_factor_y);
+		dampening_factor_z = 0.1*sin(cltime*weapon_bob_factor_z);
+	}
+	// WALK
+	else if (K_FORWARDDOWN || K_BACKDOWN || K_LEFTDOWN || K_RIGHTDOWN && !getstatf(STAT_WEAPONZOOM)) {
 		weapon_bob_factor_x = 8;
 		weapon_bob_factor_y = 8;
 		weapon_bob_factor_z = 13.4;
@@ -264,7 +281,21 @@ void() Update_Vmodel =
 		dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
 		dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
 		dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
-	} else if (!getstatf(STAT_WEAPONZOOM)){ //Still bob
+	}
+	// STILL
+	else if (!getstatf(STAT_WEAPONZOOM)) {
+
+		// HACK HACK
+		if (weapon_bob_factor_z == 12) {
+			weapon_bob_factor_x = 8;
+			weapon_bob_factor_y = 8;
+			weapon_bob_factor_z = 13.4;
+			weapon_bob_factor_z_coef = 0.2;
+			
+			dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
+			dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
+			dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
+		}
 
 		// Naievil -- stupid ass calcs...
 		// Basically we have a dampening factor per offset and we have to decrease it back down to zero
@@ -411,10 +442,18 @@ void() Update_Vmodel =
 
 		//black ops -0.01 till -0.6 (looks better)
 		if (K_BACKDOWN || K_FORWARDDOWN) {
-			vzaccel -= 0.01;
+			if (ads == 3) {
+				vzaccel -= 0.1;
 
-			if (vzaccel < -0.6)
-				vzaccel = -0.6;
+				if (vzaccel < -1.2)
+					vzaccel = -1.2;
+			} else {
+				vzaccel -= 0.01;
+
+				if (vzaccel < -0.6)
+					vzaccel = -0.6;
+			}
+			
 		} else if (vzaccel != 0) {
 			if (vzaccel > 0)
 				vzaccel -= 0.02;
