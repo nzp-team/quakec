@@ -35,7 +35,7 @@ void() func_door_nzp;
 // Cleans Power-Ups thrown about on the map,
 // as well as a sanity check for their state.
 //
-inline void() GameRestart_CleanPowerUps =
+void() GameRestart_CleanPowerUps =
 {
     entity tempe;
 
@@ -72,7 +72,7 @@ inline void() GameRestart_CleanPowerUps =
 // Removes World models summoned from
 // weapon_wall.
 //
-inline void() GameRestart_CleanWallSummons =
+void() GameRestart_CleanWallSummons =
 {
     entity tempe;
 
@@ -90,7 +90,7 @@ inline void() GameRestart_CleanWallSummons =
 // GameRestart_RepairBarricades()
 // Resets the barricade health state.
 //
-inline void() GameRestart_RepairBarricades =
+void() GameRestart_RepairBarricades =
 {
  	entity tempe;
 	

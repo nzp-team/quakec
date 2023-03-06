@@ -25,13 +25,14 @@
 
 */
 
-#define MAX_POWERUPS	8
+#define MAX_POWERUPS		8
+#define POWERUPS_PER_ROUND	4
 
-#define PU_NUKE			0
-#define PU_INSTAKILL	1
-#define PU_DOUBLEPTS	2
-#define PU_CARPENTER	3
-#define PU_MAXAMMO		4
+#define PU_NUKE				0
+#define PU_INSTAKILL		1
+#define PU_DOUBLEPTS		2
+#define PU_CARPENTER		3
+#define PU_MAXAMMO			4
 
 var struct powerup_struct
 {
@@ -48,6 +49,33 @@ float 	powerup_count;
 float	powerup_index;
 
 .float 	zombie_drop_id;
+
+//
+// PU_FreeEnt(ent)
+// Marks a Power-Up entity as able to be used.
+//
+inline void(entity ent) PU_FreeEnt =
+{
+	setmodel(ent, "");
+	ent.classname = "freePowerUpEntity";
+	ent.touch = SUB_Null;
+	ent.think = SUB_Null;
+};
+
+//
+// PU_GetFreeEnt()
+// Returns a Power-Up entity to use.
+//
+entity() PU_GetFreeEnt =
+{
+	entity ent;
+	ent = find(world, classname, "freePowerUpEntity");
+
+	if (ent == world)
+		error("PU_GetFreeEnt: No free Power-Up Entity. (Hacks?)\n");
+	
+	return ent;
+};
 
 //
 // PU_AddToStruct(id, model_path, voiceover_path)
@@ -238,7 +266,7 @@ void() PU_NukeExplosionThink =
 	self.frame++;
 
 	if (self.frame >= 5)
-		remove(self);
+		PU_FreeEnt(self);
 
 	self.nextthink = time + 0.10;
 }
@@ -249,7 +277,8 @@ void() PU_NukeExplosionThink =
 //
 void(vector org) PU_NukeExplode =
 {
-	entity explosion = spawn();
+	entity explosion = PU_GetFreeEnt();
+	explosion.classname = "pu_nuke_explosion";
 	setmodel(explosion, "models/sprites/explosion.spr");
 	setorigin(explosion, org);
 	explosion.think = PU_NukeExplosionThink;
@@ -269,7 +298,7 @@ void() PU_NukeKill =
 	// switch to goaldummy, is goaldummy world?
 	if (self.goaldummy == world) {
 		PU_NukeFinalize();
-		remove(self);
+		PU_FreeEnt(self);
 		return;
 	} else {
 		self = self.goaldummy;
@@ -313,7 +342,8 @@ void() PU_Nuke =
 
 	// create our watcher entity
 	entity nuke_watcher;
-	nuke_watcher = spawn();
+	nuke_watcher = PU_GetFreeEnt();
+	nuke_watcher.classname = "pu_nukewatcher";
 	nuke_watcher.goaldummy = findfloat(world, iszomb, 1);
 
 	nuke_watcher.think = PU_NukeKill;
@@ -444,7 +474,7 @@ void() PU_Init =
 	powerup_count = 0;
 
 	// Set the Power-Up array IDs to empty
-	for(float i = 0; i < MAX_POWERUPS; i++) {
+	for (float i = 0; i < MAX_POWERUPS; i++) {
 		powerup_array[i].id = -1;
 	}
 
@@ -462,6 +492,13 @@ void() PU_Init =
 
 	// Fill the array
 	PU_PopulateArray();
+
+	// Spawn all of our Power-Up spawn entities
+	// We multiply by 4 to account for Power-Up operations like the Nuke.
+	for (float i = 0; i < (POWERUPS_PER_ROUND * 4); i++) {
+		entity tempe = spawn();
+		tempe.classname = "freePowerUpEntity";
+	}
 };
 
 //
@@ -489,21 +526,20 @@ void() PU_Flash =
 
 	self.hitcount++;
 
-	// Too late, delete the Power-Up
+	// Too late, free the Power-Up
 	if (self.hitcount >= 40) {
-		remove(self.owner);
-		remove(self);
+		PU_FreeEnt(self);
 	}
 };
 
 //
 // PU_PlayVO()
-// Play the assigned Voiceover clip before destroying ourself.
+// Play the assigned Voiceover clip before freeing ourself.
 //
 void() PU_PlayVO =
 {
 	sound(self, CHAN_VOICE, self.powerup_vo, 1, ATTN_NONE);
-	remove(self);
+	PU_FreeEnt(self);
 };
 
 //
@@ -521,11 +557,11 @@ void() PU_Touch =
 		self.think = PU_PlayVO;
 		self.nextthink = time + 1;
 
-		// Hide the Power-Up
+		// Free the Power-Up sparkle, slight cleanup
+		PU_FreeEnt(self.owner);
 		setmodel(self, "");
 		Light_None(self);
 		self.touch = SUB_Null;
-		remove(self.owner);
 
 		// Flash the Screen if permitted
 		if (PU_ShouldFlashScreen(self.walktype) == true)
@@ -560,7 +596,7 @@ void() PU_SparkleThink =
 	
 	if(self.calc_time <= time)
 	{
-		sound(self,CHAN_VOICE,"sounds/pu/powerup.wav",0.6,ATTN_NORM);
+		sound(self, CHAN_VOICE, "sounds/pu/powerup.wav", 0.6, ATTN_NORM);
 		self.calc_time = time + 2.998;
 	}
 };
@@ -575,7 +611,7 @@ void(vector where, float type) Spawn_Powerup =
 	entity	sparkle;
 
 	// Set Up Power-Up
-	powerup = spawn();
+	powerup = PU_GetFreeEnt();
 
 	powerup.origin = where;
 	setorigin(powerup, powerup.origin);
@@ -589,7 +625,9 @@ void(vector where, float type) Spawn_Powerup =
     Light_Green(powerup);
 
 	// Set Up Sparkle Effect
-	sparkle = spawn();
+	sparkle = PU_GetFreeEnt();
+	sparkle.classname = "item_powerup_sparkle";
+
 	powerup.owner = sparkle;
 
 	sparkle.origin = where;
