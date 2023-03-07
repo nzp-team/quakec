@@ -1164,7 +1164,7 @@ float(float wep, float delaytype) getWeaponDelay =
 		case W_PTRS:
 		case W_PENETRATOR:
 			if (delaytype == RELOAD)
-				return 3;
+				return 4.5;
 			else if (delaytype == FIRE)
 				return 0.8;
 		case W_RAY:
@@ -1320,7 +1320,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-2.0, 3.68, 1.5];
 		case W_PTRS:
 		case W_PENETRATOR:
-			return [-9.79, 6.6, 2.44];
+			return [-2.79, 3.6, 0.40];
 		case W_STG:
 		case W_SPATZ:
 			return [-9.79, 4.86, 1.54];
@@ -1412,7 +1412,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-8000, 3020, -7000];
 		case W_PTRS:
 		case W_PENETRATOR:
-			return [-14000, 5386.9, 0];
+			return [-7200, 906.9, 0];
 		case W_PANZER:
 		case W_LONGINUS:
 			return [-3479.2, -650, 0];
@@ -2094,29 +2094,29 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 4;
+					return 3;
 				case RELOAD_START:
-					return 5;
+					return 4;
 				case RELOAD_END:
-					return 32;
+					return 35;
 				case SPRINT_IN_START:
-					return 48;
+					return 36;
 				case SPRINT_IN_END:
-					return 50;
+					return 37;
 				case SPRINT_OUT_START:
-					return 51;
+					return 37;
 				case SPRINT_OUT_END:
-					return 54;
+					return 38;
 				case TAKE_OUT_START:
-					return 44;
+					return 40;
 				case TAKE_OUT_END:
-					return 47;
+					return 42;
 				case PUT_OUT_START:
-					return 41;
+					return 38;
 				case PUT_OUT_END:
-					return 44;
+					return 40;
 				case RELOAD_CANCEL:
-					return 16;
+					return 21;
 			}
 			break;
     	case W_RAY:
@@ -3031,13 +3031,13 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_PTRS:
 		case W_PENETRATOR:
-			if (curweaponframe == 6) {
+			if (curweaponframe == 7) {
 				sound (self ,5, "sounds/weapons/ptrs/open.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 18) {
+			} else if (curweaponframe == 13 || curweaponframe == 31) {
 				sound (self ,5, "sounds/weapons/ptrs/magin.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 21) {
 				sound (self ,5, "sounds/weapons/ptrs/maghit.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 27) {
+			} else if (curweaponframe == 23) {
 				sound (self ,5, "sounds/weapons/ptrs/close.wav", 1, ATTN_NORM);
 			}
 			break;
