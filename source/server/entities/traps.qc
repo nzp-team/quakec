@@ -198,6 +198,8 @@ void zapper_start(string zapper) {
 	entity zents;
 	entity tempe;
 
+	float lasting_time = 0;
+
 	zents = find(world, zappername, zapper);
 	while (zents)
 	{
@@ -207,6 +209,7 @@ void zapper_start(string zapper) {
 			tempe = self;
 			self = zents;
 			self.state = 1;
+			lasting_time = self.calc_time;
 			A_ElecSwitchOn1();
 			self = tempe;
 		} else if (zents.classname == "zapper_node" && zents.target) {
@@ -218,7 +221,7 @@ void zapper_start(string zapper) {
 
 	tempe = spawn();
 	tempe.think = zapper_stop;
-	tempe.nextthink = time + 2;
+	tempe.nextthink = time + lasting_time;
 	tempe.zappername = zapper;
 }
 
