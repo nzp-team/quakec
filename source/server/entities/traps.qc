@@ -25,6 +25,8 @@
 
 */
 
+#define TRAP_SPAWNFLAG_REQUIRESPOWER	1
+
 //
 // --------------------
 // Electric Trap
@@ -268,6 +270,10 @@ void() zapper_switch =
     // Lasting Time
     if (!self.calc_time)
         self.calc_time = 60;
+
+	// Requires Power
+	if (self.spawnflags & TRAP_SPAWNFLAG_REQUIRESPOWER)
+		self.requirespower = true;
 
     self.solid = SOLID_TRIGGER;
 	precache_model(self.model);
