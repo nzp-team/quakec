@@ -27,6 +27,9 @@
 
 */
 
+// Whether the command prohibits client-sending.
+float client_parse_override;
+
 // Success/Failure return codes
 #define COMMAND_SUCCESS     0
 #define COMMAND_FAILURE     1
@@ -37,6 +40,12 @@
 //
 float(string params) Command_give =
 {
+	// Anti-Cheat in Co-Op.
+	if (coop) {
+		bprint(PRINT_HIGH, "Someone tried to issue Give in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
 	float wep = stof(argv(1));
 
 	if (wep) {
@@ -86,6 +95,12 @@ float(string params) Command_give =
 //
 float(string params) Command_addmoney =
 {
+	// Anti-Cheat in Co-Op.
+	if (coop) {
+		bprint(PRINT_HIGH, "Someone tried to issue Add Money in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
     // Grab parameters.
     tokenize(params);
     float point_value = stof(argv(0));
@@ -115,6 +130,39 @@ float(string params) Command_softrestart =
 }
 
 //
+// Command_godmode()
+// Toggles God Mode.
+//
+float(string params) Command_godmode =
+{
+	// Anti-Cheat in Co-Op.
+	if (coop) {
+		bprint(PRINT_HIGH, "Someone tried to issue God Mode in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
+	client_parse_override = false;
+	return COMMAND_SUCCESS;
+} 
+
+//
+// Command_noclip()
+// Toggles No Clip.
+//
+float(string params) Command_noclip =
+{
+	// Anti-Cheat in Co-Op.
+	if (coop) {
+		bprint(PRINT_HIGH, "Someone tried to issue No-Clip in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
+	client_parse_override = false;
+	return COMMAND_SUCCESS;
+} 
+
+
+//
 // Server command table
 // command_name         : Command string entered into developer console.
 // command_function     : QuakeC function called when command is executed.
@@ -131,7 +179,9 @@ var struct {
 } server_commands[] = {
     {"addmoney", Command_addmoney, true, "Usage: addmoney <point_value>\n  Gives `point_value` amount of points to the client who requested it.\n"},
     {"give", Command_give, true, "Usage: give <weapon number>\n  Gives `weapon` of index.\n"},
-	{"qc_soft_restart", Command_softrestart, false, "Executes the Soft_Restart QuakeC function. Useful for debugging its functionality.\n"}
+	{"qc_soft_restart", Command_softrestart, false, "Executes the Soft_Restart QuakeC function. Useful for debugging its functionality.\n"},
+	{"god", Command_godmode, false, "Toggles God Mode.\n"},
+	{"noclip", Command_noclip, false, "Toggles No Clip.\n"}
 };
 
 //
@@ -139,11 +189,12 @@ var struct {
 // Server-Side client command parser to add special
 // gameplay commands that interact with QuakeC.
 //
+
 void(string command_string) SV_ParseClientCommand =
 {
 	// If true, we will avoid sending the command info
 	// to the client.
-	float client_parse_override = false;
+	client_parse_override = false;
 
 	// Get the string ready for arg parsing
 	tokenize(command_string);
