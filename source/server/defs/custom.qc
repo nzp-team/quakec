@@ -36,6 +36,8 @@
 
 #define STR_NOTENOUGHPOINTS	"Not Enough Points\n"	// To help aid consistency with these..
 
+float cheats_have_been_activated;
+
 // Quake assumes these are defined.
 string 	string_null;
 .string killtarget;

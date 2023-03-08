@@ -33,7 +33,7 @@ void() SUB_Remove = {remove(self);}
 //called when starting server/loading the map
 void() main =
 {
-	localcmd("echo Server starting...\n");
+	cheats_have_been_activated = false;
 }
 
 float ai_delay_time;
@@ -462,6 +462,10 @@ void() LinkZombiesHitbox =
 void() EndFrame =
 {
 	RelinkZombies();
+
+	if (cheats_have_been_activated == false && cvar("sv_cheats") == 1) {
+		cheats_have_been_activated = true;
+	}
 };
 
 //

@@ -41,7 +41,7 @@ float client_parse_override;
 float(string params) Command_give =
 {
 	// Anti-Cheat in Co-Op.
-	if (coop) {
+	if (coop && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue Give in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -96,7 +96,7 @@ float(string params) Command_give =
 float(string params) Command_addmoney =
 {
 	// Anti-Cheat in Co-Op.
-	if (coop) {
+	if (coop && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue Add Money in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -136,7 +136,7 @@ float(string params) Command_softrestart =
 float(string params) Command_godmode =
 {
 	// Anti-Cheat in Co-Op.
-	if (coop) {
+	if (coop && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue God Mode in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -152,7 +152,7 @@ float(string params) Command_godmode =
 float(string params) Command_noclip =
 {
 	// Anti-Cheat in Co-Op.
-	if (coop) {
+	if (coop && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue No-Clip in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}

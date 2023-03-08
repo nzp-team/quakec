@@ -61,7 +61,7 @@ void(float id, string graphic, string name, string description) Achievement_Crea
 
 void() Achievement_Save =
 {
-    local float file, i;
+    float file, i;
 
     // re-write the achievement file
     file = fopen("ach.dat", FILE_WRITE);
