@@ -987,21 +987,24 @@ void() removeZombie =
 	setmodel(self.rarm,"");
 	setmodel(self.head,"");
 
+	// Hounds don't gib.
+	if (self.head) {
+
 #ifdef FTE
 
-	remove(self.larm);
-	remove(self.rarm);
-	remove(self.head);
+		remove(self.larm);
+		remove(self.rarm);
+		remove(self.head);
+
+#else
+
+		updateLimb (self, 0, world);
+		updateLimb (self, 1, world);
+		updateLimb (self, 2, world);
 
 #endif // FTE
-	
-#ifndef FTE
 
-	updateLimb (self, 0, world);
-	updateLimb (self, 1, world);
-	updateLimb (self, 2, world);
-
-#endif // FTE
+	}
 	
 	setorigin(self,'0 0 0');
 	setorigin (self.goaldummy, '0 0 0');
