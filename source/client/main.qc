@@ -189,6 +189,9 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 		build_datetime = fgets(file);
 		fclose(file);
 	}
+
+	// force a vid_reload as a hack for gl_blendsprites fte bug
+	localcmd("vid_reload\n");
 };
 
 noref void() CSQC_WorldLoaded =
