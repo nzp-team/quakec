@@ -1233,8 +1233,7 @@ float(float wep, float delaytype) getWeaponDelay =
 
 float GetWeaponWalkSpeed(float perks, float weapon)
 {
-	// leave this at 0 so people who add new weapons know they did something WRONG >:D
-	float speed_multiplier = 0;
+	float speed_multiplier = 1;
 
 	switch (weapon) {
 		case W_COLT:
