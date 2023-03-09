@@ -529,6 +529,7 @@ void() PU_Flash =
 	// Too late, free the Power-Up
 	if (self.hitcount >= 40) {
 		PU_FreeEnt(self);
+		PU_FreeEnt(self.owner);
 	}
 };
 
