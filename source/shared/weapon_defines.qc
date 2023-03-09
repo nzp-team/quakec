@@ -3702,6 +3702,21 @@ float(float weapon, float stance) CrossHairMaxSpread =
 	return crosshair_spread;
 }
 
+float(float wep) W_HighPrecisionWhenADS =
+{
+	switch (wep) {
+		case W_KAR:
+		case W_ARMAGEDDON:
+		case W_KAR_SCOPE:
+		case W_HEADCRACKER:
+		case W_PTRS:
+		case W_PENETRATOR:
+			return true;
+		default:
+			return false;
+	}
+}
+
 float(float wep) W_SpreadAffectedByADS =
 {
 	switch (wep) {

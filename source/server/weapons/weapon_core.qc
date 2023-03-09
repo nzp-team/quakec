@@ -1451,7 +1451,10 @@ void(float side) W_Fire =
 	if (self.zoom == 1 && W_SpreadAffectedByADS(self.weapon)) {
 		spread *= 0.02;
 	} else if (self.zoom == 2) {
-		spread = spread * 0.05;
+		if (W_HighPrecisionWhenADS(self.weapon))
+			spread = 0;
+		else
+			spread *= 0.15;
 	}
 
 	if (self.downed)
