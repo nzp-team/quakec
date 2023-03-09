@@ -218,7 +218,7 @@ void() PlayerPreThink =
 	if (self.downed) {
 		self.maxspeed = 30;
 	} else {
-		self.maxspeed = 175;
+		self.maxspeed = 190;
 		if (self.sprinting) {
 
 #ifdef FTE
@@ -234,7 +234,7 @@ void() PlayerPreThink =
 #endif // FTE
 
 			playrun1();
-			self.maxspeed *= 1.66;
+			self.maxspeed *= 1.5; // down from 1.66x, to match WaW
 		} else if (!self.sprinting && !self.zoom) {
 
 #ifdef FTE

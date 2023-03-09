@@ -1226,45 +1226,83 @@ float(float wep, float delaytype) getWeaponDelay =
     return 0;
 }
 
-float GetWeaponWalkSpeed(float perks, float weapontype)
+#define SPEED_MULTIPLIER_STANDARD 		1
+#define SPEED_MULTIPLIER_RIFLE 			0.88
+#define SPEED_MULTIPLIER_HEAVY 			0.75
+#define SPEED_MULTIPLIER_ULTRAHEAVY		0.66
+
+float GetWeaponWalkSpeed(float perks, float weapon)
 {
-	float spd;
+	// leave this at 0 so people who add new weapons know they did something WRONG >:D
+	float speed_multiplier = 0;
 
-	spd = 0;
-
-	switch(weapontype) {
-		default: spd = 1;
-		case W_KAR: 
+	switch (weapon) {
+		case W_COLT:
+		case W_BIATCH:
+		case W_MP40:
+		case W_AFTERBURNER:
+		case W_PPSH:
+		case W_REAPER:
+		case W_STG:
+		case W_SPATZ:
+		case W_THOMPSON:
+		case W_GIBS:
+		case W_TYPE:
+		case W_SAMURAI:
+		case W_DB:
+		case W_BORE:
+		case W_SAWNOFF:
+		case W_SNUFF:
+		case W_TRENCH:
+		case W_GUT:
+		case W_BAR:
+		case W_WIDOW:
+		case W_FG:
+		case W_IMPELLER:
+		case W_RAY:
+		case W_PORTER:
+		case W_TESLA:
+		case W_DG3:
+		case W_MP5K:
+		case W_KOLLIDER:
+			speed_multiplier = SPEED_MULTIPLIER_STANDARD;
+			break;
 		case W_357:
-		case W_GEWEHR:
-		case W_M1:
-		case W_M1A1:
-		case W_KAR_SCOPE:
 		case W_KILLU:
-		case W_COMPRESSOR:
-		case W_M1000:
-		case W_WIDDER:
+		case W_KAR:
 		case W_ARMAGEDDON:
+		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
-			spd = 0.9;
-		case W_M2:
-			spd = 0.67;
-		case W_MG:
-		case W_BROWNING:
-		case W_PANZER:
+		case W_GEWEHR:
+		case W_COMPRESSOR:
+		case W_M1A1:
+		case W_WIDDER:
+		case W_M1:
+		case W_M1000:
+			speed_multiplier = SPEED_MULTIPLIER_RIFLE;
+			break;
 		case W_PTRS:
-		case W_BARRACUDA:
-		case W_ACCELERATOR:
 		case W_PENETRATOR:
-			spd = 0.75;
+		case W_BROWNING:
+		case W_ACCELERATOR:
+		case W_MG:
+		case W_BARRACUDA:
+		case W_PANZER:
+		case W_LONGINUS:
+			speed_multiplier = SPEED_MULTIPLIER_HEAVY;
+			break;
+		case W_M2:
 		case W_FIW:
-			spd = 0.85;
+			speed_multiplier = SPEED_MULTIPLIER_ULTRAHEAVY;
+			break;
+		default:
+			break;
 	}
 
 	if (perks & P_STAMIN)
-		spd *= 1.07;
+		speed_multiplier *= 1.07;
 
-	return spd;
+	return speed_multiplier;
 }
 // forward/back,right/left,down/up
 vector GetWeaponADSPos(float wep) {
