@@ -76,6 +76,18 @@ float(float x) sign = {
     return 0;
 };
 
+float exp(float x) {
+    float result = 1;
+    float term = 1;
+    
+    for (float i = 1; i < 50; i++) {
+        term *= x / i;
+        result += term;
+    }
+    
+    return result;
+}
+
 /*
  * wrap
  *
