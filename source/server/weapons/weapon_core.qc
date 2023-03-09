@@ -2410,7 +2410,12 @@ void () Weapon_Logic =
 		} else {
 			// Toggle ADS back and forth
 			if (cvar("cl_adsmode")) {
+
+				if (self.ads_release == false)
+					return;
+
 				self.ads_toggle = !self.ads_toggle;
+				self.ads_release = false;
 
 				if (self.ads_toggle == false) {
 					W_AimOut();
@@ -2457,6 +2462,9 @@ void () Weapon_Logic =
 	}
 	// AIM button is released
 	else if (!self.button8 && self.zoom) {
+
+		// So ADS toggle knows not to spam updates.
+		self.ads_release = true;
 
 #ifdef FTE
 

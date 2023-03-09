@@ -65,6 +65,8 @@ float 	ach_tracker_barr;
 float 	ach_tracker_spin;
 float 	ach_tracker_luck;
 
+.float ads_release;
+
 .vector oldvelocity;
 .float lastsound_time;
 .float isspec;
