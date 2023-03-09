@@ -1552,10 +1552,6 @@ void(float side) W_Fire =
 
 #else 
 
-	// standard ports take care of this in engine
-	if (self.perks & P_DEAD)
-		return;
-
 	SendWeaponRecoil(self, self.weapon);
 
 #endif // FTE
