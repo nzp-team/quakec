@@ -307,7 +307,6 @@ float(float wep, float type) getWeaponMultiplier =
 	switch (wep)
 	{
 		case W_COLT:
-		case W_BIATCH:
 			switch (type)
 			{
 				case HEAD_X: 		return 3;
@@ -317,7 +316,6 @@ float(float wep, float type) getWeaponMultiplier =
 			}
 			break;
 		case W_KAR:
-		case W_ARMAGEDDON:
 			switch (type)
 			{
 				case HEAD_X: 		return 3.5;
@@ -326,8 +324,16 @@ float(float wep, float type) getWeaponMultiplier =
 				case LIMBS_X: 		return 0.7;
 			}
 			break;
+		case W_ARMAGEDDON:
+			switch (type)
+			{
+				case HEAD_X: 		return 10;
+				case UPPER_TORSO_X:	return 6;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
+			break;
 		case W_THOMPSON:
-		case W_GIBS:
 			switch (type)
 			{
 				case HEAD_X: 		return 4;
@@ -336,12 +342,29 @@ float(float wep, float type) getWeaponMultiplier =
 				case LIMBS_X: 		return 1;
 			}
 			break;
+		case W_GIBS:
+			switch (type)
+			{
+				case HEAD_X: 		return 5;
+				case UPPER_TORSO_X:	return 1;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
+			break;
 		case W_357:
+			switch (type)
+			{
+				case HEAD_X: 		return 1.5;
+				case UPPER_TORSO_X:	return 1.1;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
+			break;
 		case W_KILLU:
 			switch (type)
 			{
-				case HEAD_X: 		return 1.4;
-				case UPPER_TORSO_X:	return 1;
+				case HEAD_X: 		return 3;
+				case UPPER_TORSO_X:	return 1.5;
 				case LOWER_TORSO_X:	return 1;
 				case LIMBS_X: 		return 1;
 			}
@@ -356,9 +379,6 @@ float(float wep, float type) getWeaponMultiplier =
 				case LIMBS_X: 		return 1.5;
 			}
 			break;
-		case W_BK:
-			return 1;
-			break;
 		case W_BROWNING:
 		case W_ACCELERATOR:
 			switch (type)
@@ -369,34 +389,32 @@ float(float wep, float type) getWeaponMultiplier =
 				case LIMBS_X: 		return 1;
 			}
 			break;
-		case W_DB:
-		case W_BORE:
-			switch (type)
-			{
-				case HEAD_X: 		return 1;
-				case UPPER_TORSO_X:	return 1;
-				case LOWER_TORSO_X:	return 1;
-				case LIMBS_X: 		return 1;
-			}
-			break;
 		case W_FG:
 		case W_IMPELLER:
 			switch (type)
 			{
 				case HEAD_X: 		return 2.7;
-				case UPPER_TORSO_X:	return 1;
-				case LOWER_TORSO_X:	return 1;
+				case UPPER_TORSO_X:	return 2;
+				case LOWER_TORSO_X:	return 1.5;
 				case LIMBS_X: 		return 1.5;
 			}
 			break;
 		case W_GEWEHR:
-		case W_COMPRESSOR:
 			switch (type)
 			{
 				case HEAD_X: 		return 2.7;
 				case UPPER_TORSO_X:	return 1.25;
 				case LOWER_TORSO_X:	return 1;
-				case LIMBS_X: 		return 0.8;
+				case LIMBS_X: 		return 1;
+			}
+			break;
+		case W_COMPRESSOR:
+			switch (type)
+			{
+				case HEAD_X: 		return 6;
+				case UPPER_TORSO_X:	return 2;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
 			}
 			break;
 		case W_KAR_SCOPE:
@@ -410,17 +428,24 @@ float(float wep, float type) getWeaponMultiplier =
 			}
 			break;
 		case W_M1:
+			switch (type)
+			{
+				case HEAD_X: 		return 2.7;
+				case UPPER_TORSO_X:	return 1.25;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 0.7;
+			}
+			break;
 		case W_M1000:
 			switch (type)
 			{
-				case HEAD_X: 		return 2.7;
-				case UPPER_TORSO_X:	return 1.25;
+				case HEAD_X: 		return 6;
+				case UPPER_TORSO_X:	return 2;
 				case LOWER_TORSO_X:	return 1;
-				case LIMBS_X: 		return 0.7;
+				case LIMBS_X: 		return 1;
 			}
 			break;
 		case W_M1A1:
-		case W_WIDDER:
 			switch (type)
 			{
 				case HEAD_X: 		return 2.7;
@@ -429,15 +454,28 @@ float(float wep, float type) getWeaponMultiplier =
 				case LIMBS_X: 		return 0.7;
 			}
 			break;
-		case W_M2:
-		case W_FIW:
-			return 3;
+		case W_WIDDER:
+			switch (type)
+			{
+				case HEAD_X: 		return 6;
+				case UPPER_TORSO_X:	return 2;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
 			break;
 		case W_MP40:
-		case W_AFTERBURNER:
 			switch (type)
 			{
 				case HEAD_X: 		return 4;
+				case UPPER_TORSO_X:	return 1;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
+			break;
+		case W_AFTERBURNER:
+			switch (type)
+			{
+				case HEAD_X: 		return 5;
 				case UPPER_TORSO_X:	return 1;
 				case LOWER_TORSO_X:	return 1;
 				case LIMBS_X: 		return 1;
@@ -471,76 +509,72 @@ float(float wep, float type) getWeaponMultiplier =
 				case LIMBS_X: 		return 1;
 			}
 			break;
-		case W_PANZER:
-		case W_LONGINUS:
-			return 3;
-			break;
 		case W_PPSH:
 		case W_REAPER:
 			switch (type)
 			{
-				case HEAD_X: 		return 3;
+				case HEAD_X: 		return 4;
 				case UPPER_TORSO_X:	return 1;
 				case LOWER_TORSO_X:	return 1;
 				case LIMBS_X: 		return 1;
 			}
 			break;
 		case W_PTRS:
-		case W_PENETRATOR:
 			switch (type)
 			{
-				case HEAD_X: 		return 4;
-				case UPPER_TORSO_X:	return 1;
+				case HEAD_X: 		return 3;
+				case UPPER_TORSO_X:	return 2.25;
 				case LOWER_TORSO_X:	return 1;
 				case LIMBS_X: 		return 1;
 			}
 			break;
-		case W_RAY:
-		case W_PORTER:
-			return 3;
-			break;
-		case W_SAWNOFF:
-		case W_SNUFF:
+		case W_PENETRATOR:
 			switch (type)
 			{
-				case HEAD_X: 		return 1;
-				case UPPER_TORSO_X:	return 1;
+				case HEAD_X: 		return 3;
+				case UPPER_TORSO_X:	return 3;
 				case LOWER_TORSO_X:	return 1;
 				case LIMBS_X: 		return 1;
 			}
 			break;
 		case W_STG:
+			switch (type)
+			{
+				case HEAD_X: 		return 4;
+				case UPPER_TORSO_X:	return 1;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 0.8;
+			}
+			break;
 		case W_SPATZ:
 			switch (type)
 			{
-				case HEAD_X: 		return 2.7;
+				case HEAD_X: 		return 5;
 				case UPPER_TORSO_X:	return 1;
 				case LOWER_TORSO_X:	return 1;
-				case LIMBS_X: 		return 0.5;
+				case LIMBS_X: 		return 0.8;
 			}
 			break;
-		case W_TRENCH:
-		case W_GUT:
+		case W_TYPE:
 			switch (type)
 			{
-				case HEAD_X: 		return 1;
+				case HEAD_X: 		return 4;
 				case UPPER_TORSO_X:	return 1;
 				case LOWER_TORSO_X:	return 1;
 				case LIMBS_X: 		return 1;
 			}
 			break;
-		case W_TYPE:
 		case W_SAMURAI:
 			switch (type)
 			{
-				case HEAD_X: 		return 4;
+				case HEAD_X: 		return 5.5;
 				case UPPER_TORSO_X:	return 1;
 				case LOWER_TORSO_X:	return 1;
 				case LIMBS_X: 		return 1;
 			}
 			break;
 	}
-	return 0;
+	return 1;
 }
 
 float(float wep) getWeaponMag =
@@ -573,6 +607,8 @@ float(float wep) getWeaponMag =
 			return 125;
 		case W_DB:
 		case W_BORE:
+		case W_SAWNOFF:
+		case W_SNUFF:
 			return 2;
 		case W_FG:
 			return 32;
@@ -626,9 +662,6 @@ float(float wep) getWeaponMag =
 			return 20;
 		case W_PORTER:
 			return 40;
-		case W_SAWNOFF:
-		case W_SNUFF:
-			return 2;
 		case W_STG:
 			return 30;
 		case W_SPATZ:
@@ -678,7 +711,7 @@ float(float wep) getWeaponAmmo =
 		case W_ACCELERATOR:
 			return 750;
 		case W_DB:
-			return 60;
+		case W_SAWNOFF:
 		case W_BORE:
 			return 60;
 		case W_FG:
@@ -732,8 +765,6 @@ float(float wep) getWeaponAmmo =
 			return 160;
 		case W_PORTER:
 			return 200;
-		case W_SAWNOFF:
-			return 60;
 		case W_SNUFF:
 			return 60;
 		case W_STG:
@@ -775,21 +806,20 @@ float(float wep) getWeaponDamage =
 		case W_GIBS:
 			return 200;
 		case W_357:
+		case W_KILLU:
 			return 1000;
-    	case W_KILLU:
-			return 1400;
 		case W_BAR:
 			return 100;
 		case W_WIDOW:
 			return 200;
 		case W_BROWNING:
-			return 130;
 		case W_ACCELERATOR:
 			return 130;
 		case W_DB:
-			return 160;
+		case W_SAWNOFF:
+			return 200;
 		case W_BORE:
-			return 320;
+			return 380;
 		case W_FG:
 			return 100;
 		case W_IMPELLER:
@@ -819,7 +849,6 @@ float(float wep) getWeaponDamage =
 		case W_KOLLIDER:
 			return 140;
 		case W_MG:
-			return 130;
 		case W_BARRACUDA:
 			return 130;
 		case W_PANZER:
@@ -831,15 +860,12 @@ float(float wep) getWeaponDamage =
 		case W_REAPER:
 			return 150;
 		case W_PTRS:
-			return 1000;
 		case W_PENETRATOR:
 			return 1000;
 		case W_RAY:
 			return 1000;
 		case W_PORTER:
 			return 1000;
-		case W_SAWNOFF:
-			return 240;
 		case W_SNUFF:
 			return 240;
 		case W_STG:
@@ -847,7 +873,7 @@ float(float wep) getWeaponDamage =
 		case W_SPATZ:
 			return 150;
 		case W_TRENCH:
-			return 120;
+			return 160;
 		case W_GUT:
 			return 240;
 		case W_TYPE:
@@ -918,6 +944,8 @@ float(float wep, float penetration_times) getWeaponPenetration =
 			return 1;
 		case W_DB:
 		case W_BORE:
+		case W_SAWNOFF:
+		case W_SNUFF:
 			if (penetration_times >= 1)
 				return 0;
 			return 0.5;
@@ -974,11 +1002,6 @@ float(float wep, float penetration_times) getWeaponPenetration =
 			if (penetration_times >= 5)
 				return 0;
 			return 1;
-		case W_SAWNOFF:
-		case W_SNUFF:
-			if (penetration_times >= 1)
-				return 0;
-			return 0.4;
 		case W_STG:
 		case W_SPATZ:
 			if (penetration_times >= 2)
@@ -1011,13 +1034,13 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.100;
 		case W_BIATCH:
 			if (delaytype == RELOAD)
-				return 1.9;
+				return 1.8;
 			else if (delaytype == FIRE)
 				return 0.225;
     	case W_ARMAGEDDON:
 		case W_KAR:
 			if (delaytype == RELOAD)
-				return 1.8;
+				return 2.5;
 			else if (delaytype == FIRE)
 				return 0.3;
 		case W_THOMPSON:
@@ -1042,9 +1065,9 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.17;
 		case W_WIDOW:
 			if (delaytype == RELOAD)
-				return 3.5;
+				return 2.75;
 			else if (delaytype == FIRE)
-				return 0.12;
+				return 0.11;
 		case W_BROWNING:
 			if (delaytype == RELOAD_EMP)
 				return 2;
@@ -1075,12 +1098,12 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.5;
 		case W_FG:
 			if (delaytype == RELOAD)
-			  	return 3.0;
+			  	return 2.75;
 			else if (delaytype == FIRE)
 				return 0.075;
 		case W_IMPELLER:
 			if (delaytype == RELOAD)
-			  	return 3.0;
+			  	return 2.75;
 			else if (delaytype == FIRE)
 				return 0.068;
 		case W_GEWEHR:
@@ -1137,14 +1160,14 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.085;
 		case W_MG:
 			if (delaytype == RELOAD)
-				return 4;
+				return 4.5;
 			else if (delaytype == FIRE)
 				return 0.065;
 		case W_BARRACUDA:
 			if (delaytype == RELOAD)
-				return 4;
+				return 4.5;
 			else if (delaytype == FIRE)
-				return 0.05;
+				return 0.045;
 		case W_PANZER:
 		case W_LONGINUS:
 			if (delaytype == RELOAD)
@@ -1185,7 +1208,7 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.283;
 		case W_STG:
 			if (delaytype == RELOAD)
-				return 2.5;
+				return 2.15;
 			else if (delaytype == FIRE)
 				return 0.110;
 		case W_SPATZ:
@@ -1196,7 +1219,7 @@ float(float wep, float delaytype) getWeaponDelay =
 		case W_TRENCH:
 		case W_GUT:
 			if (delaytype == RELOAD)
-				return 2.2;
+				return 0.6;
 			else if (delaytype == FIRE)
 				return 0.283;
 		case W_TYPE:
