@@ -248,7 +248,7 @@ void() Update_Vmodel =
 	local vector dir;
     local float ads;
 
-	if (cvar("r_drawviewmodel") == FALSE) {
+	if (cvar("r_drawviewmodel") == FALSE || hide_viewmodel == true) {
 		vmodel.origin = '-10000 -10000 -10000';
 		return;
 	}
@@ -1095,7 +1095,7 @@ noref void() CSQC_Parse_Event =
 						Hitmark_time = time + 0.2;
 					break;
 				case 4:
-					zoom_2_time = time + 0.20;
+					zoom_2_time = time + 0.05;
 					break;
 				case 5:
 					crosshair_spread_time = time + 70/getWeaponRecoilReturn(getstatf(STAT_ACTIVEWEAPON));

@@ -2448,11 +2448,24 @@ void () Weapon_Logic =
 #ifdef FTE
 
 				else {
-					float zoom_factor = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-					if (self.viewzoom > zoom_factor)
-						self.viewzoom -= 0.03;
-					else
-						self.viewzoom = zoom_factor;
+					if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
+					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
+						if (self.scopetime >= time)
+							self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
+					} else {
+						float zoom_factor = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
+						float sigmoid_input = (self.viewzoom - zoom_factor) * 10; // multiply by 10 to adjust the steepness of the sigmoid
+						float sigmoid_output = 1 / (1 + exp(-sigmoid_input)); // apply the sigmoid function
+						float zoom_speed = 0.06 * (sigmoid_output + 0.5) * (frametime*40); // adjust the zoom speed based on the sigmoid output
+
+						if (self.viewzoom > zoom_factor) {
+							self.viewzoom -= zoom_speed;
+							if (self.viewzoom < zoom_factor)
+								self.viewzoom = zoom_factor;
+						} else {
+							self.viewzoom = zoom_factor;
+						}
+					}
 				}
 
 #endif // FTE
@@ -2470,19 +2483,26 @@ void () Weapon_Logic =
 
 		if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
 			self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-			if (self.viewzoom == 0.2) {
-				self.viewzoom += 0.03;
-				ReturnWeaponModel();
-			} else {
-				UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-				UpdateV2model(self.weapon2model, 0);
-				self.viewzoom += 0.03;
-			}
+			ReturnWeaponModel();
+			UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
+			UpdateV2model(self.weapon2model, 0);
+			self.viewzoom = 1;
 		} else {
-			if (self.viewzoom == 0.9) {
+			if (self.viewzoom == 0.75) {
 				W_AimOut();
 			} else {
-				self.viewzoom += 0.03;
+				float zoom_factor2 = 1 + (0.018 * GetWeaponZoomAmount(self.weapon)); // increase zoom factor
+				float sigmoid_input2 = (zoom_factor2 - self.viewzoom) * 10; // adjust sigmoid input
+				float sigmoid_output2 = 1 / (1 + exp(-sigmoid_input2)); // apply the sigmoid function
+				float zoom_speed2 = 0.06 * (sigmoid_output2 + 0.5) * (frametime * 40); // adjust the zoom speed based on the sigmoid output
+
+				if (self.viewzoom < zoom_factor2) {
+					self.viewzoom += zoom_speed2;
+					if (self.viewzoom > zoom_factor2)
+						self.viewzoom = zoom_factor2;
+				} else {
+					self.viewzoom = zoom_factor2;
+				}
 			}
 		}
 		

@@ -1182,15 +1182,15 @@ void() Draw_Crosshair =
 	else
 		crosshair_color = [1, 1, 1];
 
+	hide_viewmodel = false;
 	if (getstatf(STAT_WEAPONZOOM) == 2 && zoom_2_time < time)
     {
-		setmodel(vmodel, "");
-		setmodel(v2model, "");
+		hide_viewmodel = true;
 		drawfill('0 0 0',  [g_width/2 - g_height/2, g_height, 0], '0 0 0', 1, 0);
 		drawpic([(g_width/2 - g_height/2),0,0], "gfx/hud/scope_nb.tga", [g_height, g_height, 1], [1,1,1], 1);
 		drawfill([(g_width/2 + g_height/2),0,0],  [g_width, g_height, 0], '0 0 0', 1, 0);
 	}
-
+	
 	if (getstatf(STAT_HEALTH) < 11)
 		return;
 
