@@ -424,11 +424,16 @@ void() touch_ending =
 
 		addmoney(other, -self.cost, 0);
 
-		local entity tempe;
-		tempe = self;
-		self = other;
-		EndGameSetup();
-		self = tempe;
+		entity tempe;
+		entity players = find(world, classname, "player");
+		while(players != world) {
+			tempe = self;
+			self = players;
+			self.downed = true;
+			EndGameSetup();
+			self = tempe;
+			players = find(players, classname, "player");
+		}
 
 		self.activated = true;
 	}
