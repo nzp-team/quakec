@@ -135,8 +135,11 @@ void DrinkPerk(float perk) {
 	entity tempe = self;
 	self = other;
 	
-	if (self.sprinting)
+	if (self.sprinting) {
 		self.sprinting = 0;
+		self.zoom = 0;
+	}
+		
 
 	self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	
