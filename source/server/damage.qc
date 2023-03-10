@@ -505,7 +505,8 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 		else
 			sound (self, CHAN_AUTO, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
 
-		if (victim.health <= 20)
+		// Was 20 for.. some reason.
+		if (victim.health <= 1)
 		{
 			old_self = self;
 			self = victim;
