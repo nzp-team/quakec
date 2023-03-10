@@ -241,6 +241,9 @@ void() GetDown =
 	self.currentmagbk = self.currentmag;
 	self.currentmagbk2 = self.currentmag2;
 
+	// Reset Juggernog health
+	self.max_health = self.health = PLAYER_START_HEALTH;
+
 	if(Util_PlayerHasWeapon(self, W_BIATCH, false) || 
 	Util_PlayerHasWeapon(self, W_RAY, true) ||
 	Util_PlayerHasWeapon(self, W_357, true)) {
@@ -476,9 +479,6 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 
 		// Abstinence Program
 		victim.ach_tracker_abst = 1;
-		
-		if (victim.perks & P_JUG)
-			damage = ceil(damage*0.5);
 		
 		victim.health = victim.health - damage;
 		victim.health_delay = time + 2;

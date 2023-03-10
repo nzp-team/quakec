@@ -49,12 +49,14 @@ void() mystery_touch;
 #define PERK_SPAWNFLAG_LIMELIGHT	256
 #define PERK_SPAWNFLAG_YELLOWLIGHT	512
 
+#define PERK_JUGGERNOG_HEALTH 		160
+
 //
 // GivePerk(p)
 // Restores View Model and tells the Client to draw the Perk.
 //
 void GivePerk(optional float p) {
-	local float perk;
+	float perk;
 
 	// First of, check if our Client is holding anything, this holds
 	// priority to prevent interruption.
@@ -83,6 +85,9 @@ void GivePerk(optional float p) {
 			break;
 		case P_JUG:
 			self.perks = self.perks | 1;
+
+			// Instant re-gen, set health to Jugg health.
+			self.health = self.max_health = PERK_JUGGERNOG_HEALTH;
 			break;
 		case P_STAMIN:
 			self.perks = self.perks | 32;

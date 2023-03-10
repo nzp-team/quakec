@@ -29,6 +29,8 @@
 
 void(entity e) Light_None;
 
+#define PLAYER_START_HEALTH		100
+
 //
 // Player 3rd Person Animations
 //
@@ -529,7 +531,7 @@ void() PlayerSpawn =
 
 	setmodel(self, "models/player.mdl");
 	self.movetype = MOVETYPE_WALK;
-	self.max_health = self.health = 100;
+	self.max_health = self.health = PLAYER_START_HEALTH;
 
 	entity who = find(world,classname,"player");
 	while(who != self && !self.playernum)
