@@ -25,6 +25,8 @@
 
 */
 
+#define ZOMBIE_DAMAGE_THROUGH_WINDOW 		60
+
 void() Zombie_Walk_Setup;
 void() crawler_rip_board1;
 void() crawler_da1;
@@ -766,12 +768,12 @@ void() zombie_attack_through_window =
 {
 	play_sound_z(1);
 	local entity who;
-	who = findradius(self.origin,70);
+	who = findradius(self.origin, 70);
 	while(who)
 	{
 		if(who.classname == "player")
 		{
-			DamageHandler (who, self, 50, S_ZOMBIE);
+			DamageHandler (who, self, ZOMBIE_DAMAGE_THROUGH_WINDOW, S_ZOMBIE);
 		}
 		who = who.chain;
 	}
