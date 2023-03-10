@@ -380,11 +380,21 @@ void() PlayerPostThink =
 
 #endif // FTE
 	
+	// Health Regeneration
 	if (self.health_delay < time && self.health != self.max_health && !self.downed)
 	{
-		self.health = self.health + 5;
-		if (self.max_health < self.health)
+		// If we weren't super low on health, regen is instant.
+		if (self.health_was_very_low == true) {
+			self.health += 120 * frametime;
+		} else {
 			self.health = self.max_health;
+		}
+
+		// Make sure we mark that we weren't just super hurt anymore.
+		if (self.max_health <= self.health) {
+			self.health = self.max_health;
+			self.health_was_very_low = false;
+		}
 	}
 	
 	if (self.progress_bar) {

@@ -1191,7 +1191,7 @@ void() Draw_Crosshair =
 		drawfill([(g_width/2 + g_height/2),0,0],  [g_width, g_height, 0], '0 0 0', 1, 0);
 	}
 	
-	if (getstatf(STAT_HEALTH) < 11)
+	if (getstatf(STAT_HEALTH) < 1)
 		return;
 
 	if (crosshair_spread_time > time && crosshair_spread_time)
@@ -1529,7 +1529,7 @@ void(float width, float height) HUD_Draw =
 	HUD_Achievements(width, height);
 
 	
-	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 10) && !score_show)
+	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 1) && !score_show)
 	{
         
         if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "" || getstatf(STAT_WEAPONZOOM) == 2)

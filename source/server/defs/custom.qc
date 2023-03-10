@@ -152,6 +152,7 @@ void Weapon_Logic();
 .float reload_delay2;
 .float switch_delay;
 .float health_delay;
+.float health_was_very_low;
 .float progress_bar;
 .float progress_bar_time;
 .float progress_bar_percent;

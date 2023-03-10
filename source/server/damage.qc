@@ -4,7 +4,7 @@
 	used for any sort of down, hit, etc that the player or entity 
 	experiences
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2023 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -480,11 +480,23 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 		// Abstinence Program
 		victim.ach_tracker_abst = 1;
 		
-		victim.health = victim.health - damage;
-		victim.health_delay = time + 2;
+		victim.health -= damage;
+
+		// Determine how long to wait before regenerating based on our Health ratio
+		float ratio = victim.health / victim.max_health;
+
+		// Badly hurt = longer delay.
+		if (ratio <= 0.2) {
+			victim.health_delay = time + 5;
+
+			// We're really low, so let's regen REALLY slow.
+			victim.health_was_very_low = true;
+		} else {
+			victim.health_delay = time + 2.4;
+		}
 
 		// shake the camera on impact
-		local vector distance;
+		vector distance;
 		distance = attacker.angles - victim.angles;
 
 		// just to prevent radical punchangles
