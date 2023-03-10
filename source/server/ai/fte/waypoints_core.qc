@@ -704,6 +704,29 @@ void() Load_Waypoints_Legacy
 		waypoints[which].org = where;
 		waypoints[which].targetdoor = special;
 
+		if (waypoint_mode) {
+			entity new_way = spawn();
+			new_way.solid = SOLID_TRIGGER;
+			new_way.touch = creator_way_touch;
+			new_way.classname = "waypoint";
+			new_way.waynum = ftos(which);
+			new_way.targets[0] = trg;
+			new_way.targets[1] = trg2;
+			new_way.targets[2] = trg3;
+			new_way.targets[3] = trg4;
+			new_way.targets[4] = trg5;
+			new_way.targets[5] = trg6;
+			new_way.targets[6] = trg7;
+			new_way.targets[7] = trg8;
+			setorigin(new_way, where);
+
+			if (!special) {
+				setmodel(new_way, "models/way/normal_way.spr");
+			} else {
+				setmodel(new_way, "models/way/normal_way_door.spr");
+			}
+		}
+		
 		waypoints[which].target_id[0] = stof(trg);
 		waypoints[which].target_id[1] = stof(trg2);
 		waypoints[which].target_id[2] = stof(trg3);
