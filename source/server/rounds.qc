@@ -211,6 +211,10 @@ void() NewRound =
 			if (tempe.secondary_grenades > 2)
 				tempe.secondary_grenades = 2;
 		}
+
+		// Set everyone to full health.
+		tempe.health = tempe.max_health;
+
 		tempe = find(tempe, classname, "player");
 	}
 

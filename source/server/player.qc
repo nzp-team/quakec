@@ -387,7 +387,9 @@ void() PlayerPostThink =
 		if (self.health_was_very_low == true) {
 			self.health += 120 * frametime;
 		} else {
-			self.health = self.max_health;
+			// Was 100% instant, but this delays it by only a few
+			// frames so the graphic doesn't just vanish when healed.
+			self.health += 300 * frametime;
 		}
 
 		// Make sure we mark that we weren't just super hurt anymore.
