@@ -1171,7 +1171,7 @@ float(float wep, float delaytype) getWeaponDelay =
 		case W_PANZER:
 		case W_LONGINUS:
 			if (delaytype == RELOAD)
-				return 1.55;
+				return 2.85;
 			else if (delaytype == FIRE)
 				return 0.331;
 		case W_PPSH:
@@ -1393,7 +1393,10 @@ vector GetWeaponADSPos(float wep) {
 		case W_RAY:
 		case W_PORTER:
 			return [-1.50, 6.25, 0.87];
-		default:
+		case W_PANZER:
+		case W_LONGINUS:
+			return [-11.9, 3.85, 1.52];
+		default: 
 			return [0, 0, 0];
 	}
 }
@@ -1475,8 +1478,8 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-7200, 906.9, 0];
 		case W_PANZER:
 		case W_LONGINUS:
-			return [-3479.2, -650, 0];
-		default:
+			return [-7679.2, 2900, -20000];
+		default: 
 			//Large values > 20ish cause weapon to flicker, scale model down if we encounter!
 			//Scale better be 4.3, or else viewbobbing is going to be inaccurate.
 			return [-5.4792, 1.6500, 0];
@@ -2088,31 +2091,31 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_START:
 					return 1;
 				case FIRE_END:
-					return 6;
+					return 5;
 				case RELOAD_START:
-					return 7;
+					return 6;
 				case RELOAD_END:
-					return 28;
+					return 29;
 				case SPRINT_IN_START:
-					return 37;
+					return 0;
 				case SPRINT_IN_END:
-					return 38;
+					return 0;
 				case SPRINT_OUT_START:
-					return 45;
+					return 0;
 				case SPRINT_OUT_END:
-					return 45;
+					return 0;
 				case TAKE_OUT_START:
-					return 44;
-				case TAKE_OUT_END:
-					return 45;
-				case PUT_OUT_START:
-					return 39;
-				case PUT_OUT_END:
-					return 42;
-				case RELOAD_CANCEL:
-					return 16;
-				case AIM_IN_END:
 					return 33;
+				case TAKE_OUT_END:
+					return 35;
+				case PUT_OUT_START:
+					return 31;
+				case PUT_OUT_END:
+					return 33;
+				case RELOAD_CANCEL:
+					return 18;
+				case AIM_IN_END:
+					return 3;
 			}
 			break;
 		case W_PPSH:
