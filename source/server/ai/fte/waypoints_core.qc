@@ -364,23 +364,29 @@ void() Remove_Links =
 string tempstest;
 void() Save_Waypoints_Legacy =
 {
-	local float file;
+	float file;
 	string h;
 
 	h = strcat(mappath, ".way");
 	file = fopen (h, FILE_WRITE);
 	
-	local entity dway;
-	//fputs(file, "begin\n");
+	entity dway;
+
 	dway = find(world, classname, "waypoint");
 	while (dway)
 	{
 		dprint ("Saving waypoints\n");
 		fputs(file,"Waypoint\n");
 		fputs(file,"{\norigin = ");
-		tempstest = vtos(dway.origin);
+
+		// FTE users are just gonna have to deal with no float precision
+		// for now. :s
+		int x = ftoi(dway.origin_x);
+		int y = ftoi(dway.origin_y);
+		int z = ftoi(dway.origin_z);
+		tempstest = strcat("'", itos(x), " ", itos(y), " ", itos(z), "'");
 		tempstest = strzone(tempstest);
-		fputs(file,tempstest);
+		fputs(file, tempstest);
 		strunzone (tempstest);
 		fputs(file,"\nid = ");
 		fputs(file,dway.waynum);
@@ -663,7 +669,7 @@ void() Load_Waypoints_Legacy
 		}
 		h = fgets(file);
 		h = fgets(file);
-		h = substring(h, 9, 20);
+		h = substring(h, 9, 50); // fix for high-precision vectors.
 		where = stov(h);
 		
 		h = (fgets(file));
