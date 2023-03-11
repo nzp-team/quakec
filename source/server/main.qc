@@ -104,7 +104,7 @@ void() StartFrame =
 
 		if (ai_delay_time < time) {
 			Do_Zombie_AI ();
-			ai_delay_time = time + 0.07;
+			ai_delay_time = time + 0.04;
 		}
 	} else {
 		entity SpawnedIn;
