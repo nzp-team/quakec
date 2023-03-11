@@ -63,6 +63,7 @@ const float EVENT_WEAPONRECOIL 			= 40;
 // Weapon Firetype definitions
 #define FIRETYPE_FULLAUTO	0
 #define FIRETYPE_SEMIAUTO	1
+#define FIRETYPE_ROCKET		2
 #define FIRETYPE_GRENADE	3
 #define FIRETYPE_RAYBEAM	4
 #define FIRETYPE_TESLA		5

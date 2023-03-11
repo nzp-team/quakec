@@ -1497,6 +1497,9 @@ void(float side) W_Fire =
 	}
 
 	switch(firetype) {
+		case FIRETYPE_ROCKET:
+			W_FireRocket();
+			break;
 		case FIRETYPE_GRENADE:
 			W_FireGrenade(side);
 			break;

@@ -213,84 +213,84 @@ float(float wep) GetFiretype =
 	switch (wep)
 	{
 		case W_COLT:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_BIATCH:
-			return 3;
+			return FIRETYPE_GRENADE;
 		case W_KAR:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
     	case W_ARMAGEDDON:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_THOMPSON:
 		case W_GIBS:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_357:
 		case W_KILLU:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_BAR:
 		case W_WIDOW:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_DB:
 		case W_BORE:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_FG:
 		case W_IMPELLER:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_GEWEHR:
 		case W_COMPRESSOR:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_KAR_SCOPE:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_HEADCRACKER:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_M1:
 		case W_M1000:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_M1A1:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_WIDDER:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_M2:
 		case W_FIW:
-			return 6;
+			return FIRETYPE_FLAME;
 		case W_MP40:
 		case W_AFTERBURNER:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_MP5K:
 		case W_KOLLIDER:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_MG:
 		case W_BARRACUDA:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_PANZER:
 		case W_LONGINUS:
-			return 3;
+			return FIRETYPE_ROCKET;
 		case W_PPSH:
 		case W_REAPER:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_PTRS:
 		case W_PENETRATOR:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_RAY:
 		case W_PORTER:
-			return 4;
+			return FIRETYPE_RAYBEAM;
 		case W_SAWNOFF:
 		case W_SNUFF:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_STG:
 		case W_SPATZ:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_TRENCH:
 		case W_GUT:
-			return 1;
+			return FIRETYPE_SEMIAUTO;
 		case W_TYPE:
 		case W_SAMURAI:
-			return 0;
+			return FIRETYPE_FULLAUTO;
 		case W_TESLA:
 		case W_DG3:
-			return 5;
+			return FIRETYPE_TESLA;
     }
 
     return 0;
@@ -3310,7 +3310,7 @@ void(float weptype) precache_extra =
 			precache_sound ("sounds/weapons/panzer/move.wav");
 			precache_sound ("sounds/weapons/panzer/insert.wav");
 			precache_sound ("sounds/weapons/panzer/shoot.wav");
-			//precache_model ("progs/shark.mdl");
+			precache_model ("models/misc/shark.mdl");
 			break;
 		case W_PPSH:
 		case W_REAPER:
