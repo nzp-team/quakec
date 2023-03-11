@@ -1589,13 +1589,13 @@ void(entity szombie)  SetUpHitBoxes =
 
 void(entity szombie) SetZombieWalk =
 {	
-	local float walk1Percent,walk2Percent,walk3Percent,jogPercent;
+	float walk1Percent, walk2Percent, walk3Percent, jogPercent;
 	
 	walk1Percent = walk2Percent = walk3Percent = ((rounds < 3) ? 1 : 0);//1/x denotes walk types
 	walk1Percent += ((rounds >= 3 && rounds <= 7) ? (((-0.5 * rounds)/3) + 1.2) : 0);
 	walk2Percent = walk3Percent = walk1Percent;
 	
-	jogPercent = walk1Percent +	((rounds >= 3 && rounds < 6) ? (((0.5*rounds)/3) - 0.2) : 0);
+	jogPercent = walk1Percent +	((rounds >= 2 && rounds < 6) ? (((0.5*rounds)/3) - 0.2) : 0);
 	jogPercent += ((rounds >= 6 && rounds <= 10) ? (0.6 + ((rounds - 7) / (-5))) : 0);
 	
 	//Dividing up the walks
