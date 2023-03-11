@@ -66,13 +66,19 @@ void() W_AimIn =
 {
 	if (self.weapon == W_TESLA || self.weapon == W_DG3)
 		return;
-		
+
 	if (IsDualWeapon(self.weapon) ||
-		self.zoom ||
 		self.reload_delay > time ||
 		self.sprinting ||
 		self.new_anim_stop ||
 		self.weapon == W_BK) {		
+		return;
+	}
+
+	float ads_frame = GetFrame(self.weapon, AIM_IN);
+	if (ads_frame != 0 && self.fire_delay < time) {
+		self.weaponframe_end = self.weaponframe = ads_frame;
+	} else if (self.zoom) {
 		return;
 	}
 		
@@ -1506,9 +1512,14 @@ void(float side) W_Fire =
 		default: break;
 	}
 
-	//Play weapon animation and sound
-	startframe = GetFrame(self.weapon,FIRE_START);
-	endframe = GetFrame(self.weapon,FIRE_END);
+	// Play weapon animation and sound
+	if (self.zoom && GetFrame(self.weapon, AIM_FIRE_START) != 0) {
+		startframe = GetFrame(self.weapon, AIM_FIRE_START);
+		endframe = GetFrame(self.weapon, AIM_FIRE_END);
+	} else {
+		startframe = GetFrame(self.weapon, FIRE_START);
+		endframe = GetFrame(self.weapon, FIRE_END);
+	}
 
 	// Increment the amount of shots fired while downed
 	if (self.downed == true)
@@ -2440,13 +2451,11 @@ void () Weapon_Logic =
 
 				}
 			} else {
-				if (!self.zoom) {
-					W_AimIn();
-				} 
+				W_AimIn();
 
 #ifdef FTE
 
-				else {
+				if (self.zoom) {
 					if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
 					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 						if (self.scopetime >= time)
@@ -2493,7 +2502,7 @@ void () Weapon_Logic =
 				float zoom_factor2 = 1 + (0.018 * GetWeaponZoomAmount(self.weapon)); // increase zoom factor
 				float sigmoid_input2 = (zoom_factor2 - self.viewzoom) * 10; // adjust sigmoid input
 				float sigmoid_output2 = 1 / (1 + exp(-sigmoid_input2)); // apply the sigmoid function
-				float zoom_speed2 = 0.06 * (sigmoid_output2 + 0.5) * (frametime * 40); // adjust the zoom speed based on the sigmoid output
+				float zoom_speed2 = 0.06 * (sigmoid_output2 + 0.5) * (frametime * 80); // adjust the zoom speed based on the sigmoid output
 
 				if (self.viewzoom < zoom_factor2) {
 					self.viewzoom += zoom_speed2;

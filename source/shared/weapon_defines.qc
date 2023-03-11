@@ -2114,8 +2114,12 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 33;
 				case RELOAD_CANCEL:
 					return 18;
-				case AIM_IN_END:
+				case AIM_IN:
+					return 2;
+				case AIM_FIRE_START:
 					return 3;
+				case AIM_FIRE_END:
+					return 5;
 			}
 			break;
 		case W_PPSH:
@@ -2308,10 +2312,6 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 38;
 				case RELOAD_CANCEL:
 					return 16;
-				case AIM_IN_END:
-					return 28;
-				case AIM_IN_START:
-					return 27;
 			}
 			break;
 		case W_TESLA:
