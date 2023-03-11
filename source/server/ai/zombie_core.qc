@@ -817,7 +817,7 @@ void(float which)	zombie_attack_choose =
 	
 	if(which != 1)
 	{
-		if(random() > 0.2)
+		if(random() > 0.4)
 		{
 			return;
 		}
