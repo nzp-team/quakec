@@ -1589,40 +1589,28 @@ void(entity szombie)  SetUpHitBoxes =
 
 void(entity szombie) SetZombieWalk =
 {	
-	float walk1Percent, walk2Percent, walk3Percent, jogPercent;
-	
-	walk1Percent = walk2Percent = walk3Percent = ((rounds < 3) ? 1 : 0);//1/x denotes walk types
-	walk1Percent += ((rounds >= 3 && rounds <= 7) ? (((-0.5 * rounds)/3) + 1.2) : 0);
-	walk2Percent = walk3Percent = walk1Percent;
-	
-	jogPercent = walk1Percent +	((rounds >= 2 && rounds < 6) ? (((0.5*rounds)/3) - 0.2) : 0);
-	jogPercent += ((rounds >= 6 && rounds <= 10) ? (0.6 + ((rounds - 7) / (-5))) : 0);
-	
-	//Dividing up the walks
-	walk1Percent *= 0.33;
-	walk2Percent *= 0.67;
-	//walk3Percent *= 1; just disabled becuase it doesn't do anything, but I wrote it to show how we're handling it
+	float zombie_move_speed_threshold = (rounds - 1) * 8;
+	float walktype_chance = rint((random() * 35)) + zombie_move_speed_threshold;
 
-	local float whichwalk;
-	whichwalk = random();
+	// Walking Zombie
+	if (walktype_chance <= 35) {
+		float which_walk_anim = random();
 
-	if(whichwalk <= walk1Percent)
-	{
-		szombie.walktype = 1;
+		if (which_walk_anim < 0.33)
+			szombie.walktype = 1;
+		else if (which_walk_anim < 0.66)
+			szombie.walktype = 2;
+		else
+			szombie.walktype = 3;
 	}
-	else if(whichwalk <= walk2Percent)
-	{
-		szombie.walktype = 2;
-	}
-	else if(whichwalk <= walk3Percent)
-	{
-		szombie.walktype =3;
-	}
-	else if(whichwalk <= jogPercent)
-	{
+	// Jogging Zombie
+	else if (walktype_chance <= 70) {
 		szombie.walktype = 4;
+	} 
+	// Sprinting Zombie
+	else {
+		szombie.walktype = 5;
 	}
-	else szombie.walktype = 5;
 };
 
 float() getMaxZombies =
