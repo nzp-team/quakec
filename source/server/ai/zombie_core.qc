@@ -657,7 +657,7 @@ void() zombie_attack2 =
 	// running.
 	else if (self.enemy.classname == "player" && nuke_powerup_active == false)
 	{
-		if(vlen(self.enemy.origin - self.origin) < 60)
+		if(vlen(self.enemy.origin - self.origin) < 64)
 		{
 			if (self.classname == "ai_dog")
 				DamageHandler (self.enemy, self, 40, S_ZOMBIE);
