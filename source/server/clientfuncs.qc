@@ -24,6 +24,7 @@
 		Boston, MA  02111-1307, USA
 
 */
+string(string asset) convert_old_asset_path;
 
 void SetUpdate(entity client, float type, float val1, float val2, float val3)
 {
@@ -561,6 +562,7 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 
 void(string modelname) Precache_Set = // Precache model, and set myself to it
 {
+	modelname = convert_old_asset_path(modelname);
     precache_model(modelname);
     setmodel(self, modelname);
 };

@@ -589,6 +589,8 @@ string(string asset) convert_old_asset_path =
 			return "models/sprites/lightning.spr";
 		case "models/Derped/Wall_lamp.mdl":
 			return "models/props/lamp_wall.mdl";
+		case "models/machines/power_switch.mdl":
+			return "models/machines/quake_scale/power_switch.mdl";
 		default: return asset;
 	}
 
