@@ -191,7 +191,9 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	}
 
 	// force a vid_reload as a hack for gl_blendsprites fte bug
-	localcmd("vid_reload\n");
+	// don't do this on WebGL since it corrupts modelindex for.. some reason..
+	if (!platform_is_web)
+		localcmd("vid_reload\n");
 };
 
 noref void() CSQC_WorldLoaded =
