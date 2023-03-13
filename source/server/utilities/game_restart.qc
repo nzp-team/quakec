@@ -78,9 +78,13 @@ void() GameRestart_CleanWallSummons =
 
     tempe = find(world, classname, "weapon_wall");
     while (tempe != world) {
-        // We store the world model with .enemy for.. some reason..
-        if (tempe.enemy)
-            remove(tempe.enemy);
+        // Check if it's model has been set, if it is undo the damage.
+        if (tempe.enemy.model != "") {
+			setmodel(tempe.enemy, "");
+			tempe.enemy.boxstatus = 0;
+			makevectors(tempe.angles);
+			setorigin(tempe.enemy, tempe.origin + v_right*-4);
+		}
             
         tempe = find(tempe, classname, "weapon_wall");
     }

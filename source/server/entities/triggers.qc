@@ -240,57 +240,78 @@ void() trigger_activator =
 	self.touch = trigger_activator_touch;
 }
 
+void() prop_reset_velocity =
+{
+	self.velocity = 0;
+}
+
 void() use_wall_weapon =
 {
-	if (self.enemy)
+	// Already animated the Prop
+	if (self.enemy.boxstatus != 0)
 		return;
-	entity newent;
-	
-	newent = spawn();
 
-	newent.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything
-	newent.solid=SOLID_NOT;
-	newent.classname = "wall_weapon";
-	setorigin(newent, self.origin);
+	// Play a sound for it "spawning"
+	sound(self, 1, "sounds/misc/buy.wav", 1, 1);
 
 	// MP5K and Waffe were added in late in the mix-up.. needs special case. Also grenade bag.
 	switch(self.sequence + 1) {
 		case 26: // Grenade bag
-			setmodel(newent, "models/props/grenade_bag.mdl");
+			setmodel(self.enemy, "models/props/grenade_bag.mdl");
 			break;
 		case 29: // MP5K
-			setmodel(newent, GetWeaponModel(W_MP5K, 1));
+			setmodel(self.enemy, GetWeaponModel(W_MP5K, 1));
 			break;
 		case 28: // Waffe
-			setmodel(newent, GetWeaponModel(W_TESLA, 1));
+			setmodel(self.enemy, GetWeaponModel(W_TESLA, 1));
 			break;
 		case 30: // Springfield
-			setmodel(newent, GetWeaponModel(W_SPRING, 1));
+			setmodel(self.enemy, GetWeaponModel(W_SPRING, 1));
 			break;
 		default:
-			setmodel (newent, GetWeaponModel(self.sequence + 1, 1));
+			setmodel(self.enemy, GetWeaponModel(self.sequence + 1, 1));
 			break;
 	}
 
-	setsize (newent, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	newent.angles = self.angles;
-	
-	self.enemy = newent;
+	// Send it forward a bit
+	makevectors(self.angles);
+	self.enemy.velocity = v_right * 6;
+	self.enemy.think = prop_reset_velocity;
+	self.enemy.nextthink = time + 0.8;
+
+	// Make sure we don't repeat this!
+	self.enemy.boxstatus = 1;
 }
 
 void() weapon_wall =
-{	
-	precache_model ("models/misc/chalk.mdl");
+{
+	// Needed for the Prop
+	precache_sound("sounds/misc/buy.wav");
 
-	setmodel (self, "models/misc/chalk.mdl");
-	self.skin = 0;
+	// We are, indeed, Wall Chalk.
+	Precache_Set("models/misc/chalk.mdl");	
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 
+	// Set-Up Weapon Prop.
+	entity weapon_prop = spawn();
+	self.enemy = weapon_prop;
+	self.enemy.angles = self.angles;
+	self.enemy.movetype = MOVETYPE_NOCLIP;
+	self.enemy.solid = SOLID_NOT;
+	self.enemy.owner = self;
+	self.enemy.classname = "weapon_wall_prop";
+	setsize(self.enemy, VEC_HULL2_MIN, VEC_HULL2_MAX);
+
+	// We want the Prop to be slightly behind the Chalk.
+	makevectors(self.angles);
+	setorigin(self.enemy, self.origin + v_right*-4);
+
+	// Prep it for usage.
+	self.skin = 0;
 	self.frame = self.sequence;
 	self.use = use_wall_weapon;
 	self.classname = "weapon_wall";
 	self.effects = EF_FULLBRIGHT;
-	//self.effects = EF_WEPLIGHT;
 }
 
 /* ===================
