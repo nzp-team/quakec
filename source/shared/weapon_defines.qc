@@ -177,6 +177,10 @@ string(float wep) GetWeaponName =
       		return "Wunderwaffe DG-2";
 		case W_DG3:
 			return "Wunderwaffe DG-3 JZ";
+		case W_SPRING:
+			return "Springfield";
+		case W_PULVERIZER:
+			return "Pulverizer";
 		default:
 			return " ";
 	}
@@ -219,6 +223,10 @@ float(float wep) GetFiretype =
 		case W_KAR:
 			return FIRETYPE_SEMIAUTO;
     	case W_ARMAGEDDON:
+			return FIRETYPE_SEMIAUTO;
+		case W_SPRING:
+			return FIRETYPE_SEMIAUTO;
+    	case W_PULVERIZER:
 			return FIRETYPE_SEMIAUTO;
 		case W_THOMPSON:
 		case W_GIBS:
@@ -329,6 +337,24 @@ float(float wep, float type) getWeaponMultiplier =
 			{
 				case HEAD_X: 		return 10;
 				case UPPER_TORSO_X:	return 6;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
+			break;
+		case W_SPRING:
+			switch (type)
+			{
+				case HEAD_X: 		return 2;
+				case UPPER_TORSO_X:	return 1.2;
+				case LOWER_TORSO_X:	return 0.9;
+				case LIMBS_X: 		return 0.8;
+			}
+			break;
+		case W_PULVERIZER:
+			switch (type)
+			{
+				case HEAD_X: 		return 8;
+				case UPPER_TORSO_X:	return 5;
 				case LOWER_TORSO_X:	return 1;
 				case LIMBS_X: 		return 1;
 			}
@@ -590,6 +616,10 @@ float(float wep) getWeaponMag =
 			return 5;
     	case W_ARMAGEDDON:
 			return 8;
+		case W_SPRING:
+			return 5;
+    	case W_PULVERIZER:
+			return 8;
 		case W_THOMPSON:
 			return 20;
 		case W_GIBS:
@@ -694,6 +724,10 @@ float(float wep) getWeaponAmmo =
 		case W_KAR:
 			return 50;
     	case W_ARMAGEDDON:
+			return 60;
+		case W_SPRING:
+			return 50;
+    	case W_PULVERIZER:
 			return 60;
 		case W_THOMPSON:
 			return 200;
@@ -801,6 +835,10 @@ float(float wep) getWeaponDamage =
 			return 100;
 		case W_ARMAGEDDON:
 			return 200;
+		case W_SPRING:
+			return 105;
+		case W_PULVERIZER:
+			return 210;
 		case W_THOMPSON:
 			return 120;
 		case W_GIBS:
@@ -920,6 +958,11 @@ float(float wep, float penetration_times) getWeaponPenetration =
 			return 0.75;
 		case W_KAR:
 		case W_ARMAGEDDON:
+			if (penetration_times >= 3)
+				return 0;
+			return 1;
+		case W_SPRING:
+		case W_PULVERIZER:
 			if (penetration_times >= 3)
 				return 0;
 			return 1;
@@ -1043,6 +1086,12 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 2.5;
 			else if (delaytype == FIRE)
 				return 0.3;
+    	case W_PULVERIZER:
+		case W_SPRING:
+			if (delaytype == RELOAD)
+				return 2.25;
+			else if (delaytype == FIRE)
+				return 0.33;
 		case W_THOMPSON:
 		case W_GIBS:
 			if (delaytype == RELOAD)
@@ -1293,6 +1342,8 @@ float GetWeaponWalkSpeed(float perks, float weapon)
 		case W_KILLU:
 		case W_KAR:
 		case W_ARMAGEDDON:
+		case W_SPRING:
+		case W_PULVERIZER:
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
 		case W_GEWEHR:
@@ -1335,6 +1386,9 @@ vector GetWeaponADSPos(float wep) {
 		case W_KAR:
 		case W_ARMAGEDDON:
 			return [-2.19, 2.67, 1.5];
+		case W_SPRING:
+		case W_PULVERIZER:
+			return [-2.19, 2.67, 1.6];
 		case W_THOMPSON:
 		case W_GIBS:
 			return [0.5, 3.03, 1.63];
@@ -1418,6 +1472,9 @@ vector GetWeaponADSOfs_PSP(float wep) =
 		case W_KAR:
 		case W_ARMAGEDDON:
 			return [-5495.9, 2606.9, 0];
+		case W_SPRING:
+		case W_PULVERIZER:
+			return [-5495.9, 2706.9, 0];
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
 			return [-5286, 706.1, 0];
@@ -1562,6 +1619,38 @@ float(float wep, float frametype, optional float z) GetFrame =
 			break;
 		case W_KAR:
 		case W_ARMAGEDDON:
+			switch (frametype)
+			{
+				case FIRE_START:
+					return 1;
+				case FIRE_END:
+					return 3;
+				case RELOAD_START:
+					return 14;
+				case RELOAD_END:
+					return 28;
+				case SPRINT_IN_START:
+					return 29;
+				case SPRINT_IN_END:
+					return 30;
+				case SPRINT_OUT_START:
+					return 30;
+				case SPRINT_OUT_END:
+					return 29;
+				case TAKE_OUT_START:
+					return 33;
+				case TAKE_OUT_END:
+					return 35;
+				case PUT_OUT_START:
+					return 32;
+				case PUT_OUT_END:
+					return 33;
+				case RELOAD_CANCEL:
+					return 21;
+			}	
+			break;
+		case W_SPRING:
+		case W_PULVERIZER:
 			switch (frametype)
 			{
 				case FIRE_START:
@@ -2378,6 +2467,12 @@ string(float wep, float gorvmodel) GetWeaponModel =
 				return ("models/weapons/kar/g_kar.mdl");
 			else
 				return ("models/weapons/kar/v_kar.mdl");
+		case W_SPRING:
+		case W_PULVERIZER:
+			if (gorvmodel)
+				return ("models/weapons/spring/g_spring.mdl");
+			else
+				return ("models/weapons/spring/v_spring.mdl");
 		case W_THOMPSON:
 		case W_GIBS:
 			if (gorvmodel)
@@ -2574,7 +2669,9 @@ string(float wep) GetWeaponSound =
 			return "sounds/weapons/colt/shoot.wav";
 		case W_KAR:
 		case W_ARMAGEDDON:
-			return "sounds/weapons/kar/shoot.wav";
+		case W_SPRING:
+		case W_PULVERIZER:
+			return "sounds/weapons/boltaction/shoot.wav";
 		case W_THOMPSON:
 		case W_GIBS:
 			return "sounds/weapons/thomp/shoot.wav";
@@ -2598,7 +2695,7 @@ string(float wep) GetWeaponSound =
 			return "sounds/weapons/gewehr/shoot.wav";
 		case W_KAR_SCOPE:
     	case W_HEADCRACKER:
-			return "sounds/weapons/kar/shoot.wav";
+			return "sounds/weapons/boltaction/shoot.wav";
 		case W_M1:
     	case W_M1000:
 			return "sounds/weapons/garand/shoot.wav";
@@ -2699,6 +2796,7 @@ float(float wep) IsPapWeapon = {
 		case W_GUT:
 		case W_SAMURAI:
 		case W_DG3:
+		case W_PULVERIZER:
 			return 1;
 		default:
 			return 0;
@@ -2730,6 +2828,8 @@ float(float wep)  EqualNonPapWeapon =
 			return W_COLT;
 		case W_ARMAGEDDON:
 			return W_KAR;
+		case W_PULVERIZER:
+			return W_SPRING;
 		case W_GIBS:
 			return W_THOMPSON;
 		case W_KILLU:
@@ -2794,6 +2894,8 @@ float(float wep)  EqualPapWeapon =
 			return W_BIATCH;
 		case W_KAR:
       		return W_ARMAGEDDON;
+		case W_SPRING:
+			return W_PULVERIZER;
 		case W_THOMPSON:
 			return W_GIBS;
 		case W_357:
@@ -2861,16 +2963,16 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 
 	if (anim_style == FIRE)
 	{
-		if (wep == W_KAR || wep == W_ARMAGEDDON || wep == W_KAR_SCOPE || wep == W_HEADCRACKER)
+		if (wep == W_KAR || wep == W_ARMAGEDDON || wep == W_KAR_SCOPE || wep == W_HEADCRACKER || wep == W_SPRING || wep == W_PULVERIZER)
 		{
 			if (curweaponframe == 6)
-				sound (self ,5, "sounds/weapons/kar/boltup.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltup.wav", 1, ATTN_NORM);
 			else if (curweaponframe == 7)
-				sound (self ,5, "sounds/weapons/kar/boltback.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltback.wav", 1, ATTN_NORM);
 			else if (curweaponframe == 9)
-				sound (self ,5, "sounds/weapons/kar/boltforward.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltforward.wav", 1, ATTN_NORM);
 			else if (curweaponframe == 10)
-				sound (self ,5, "sounds/weapons/kar/boltdown.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltdown.wav", 1, ATTN_NORM);
 		}
 		else if (wep == W_TRENCH || wep == W_GUT)
 		{
@@ -2894,18 +2996,20 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_KAR:
 		case W_ARMAGEDDON:
+		case W_SPRING:
+		case W_PULVERIZER:
 			if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/kar/boltup.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltup.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 16) {
-				sound (self ,5, "sounds/weapons/kar/boltback.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltback.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/kar/clipin.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/clipin.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 25) {
-				sound (self ,5, "sounds/weapons/kar/boltforward.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltforward.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 26) {
-				sound (self ,5, "sounds/weapons/kar/clipoff.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/clipoff.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 27) {
-				sound (self ,5, "sounds/weapons/kar/boltdown.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltdown.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_THOMPSON:
@@ -3010,16 +3114,18 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
+		case W_SPRING:
+		case W_PULVERIZER:
 			if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/kar/boltup.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltup.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 16) {
-				sound (self ,5, "sounds/weapons/kar/boltback.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltback.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/kar/insert.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/insert.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 25) {
-				sound (self ,5, "sounds/weapons/kar/boltforward.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltforward.wav", 1, ATTN_NORM);
 			} else if (curweaponframe == 27) {
-				sound (self ,5, "sounds/weapons/kar/boltdown.wav", 1, ATTN_NORM);
+				sound (self ,5, "sounds/weapons/boltaction/boltdown.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_M1:
@@ -3193,14 +3299,16 @@ void(float weptype) precache_extra =
 		case W_KAR_SCOPE:
 		case W_KAR:
 		case W_ARMAGEDDON:
-			precache_sound ("sounds/weapons/kar/boltup.wav");
-			precache_sound ("sounds/weapons/kar/boltback.wav");
-			precache_sound ("sounds/weapons/kar/boltforward.wav");
-			precache_sound ("sounds/weapons/kar/boltdown.wav");
-			precache_sound ("sounds/weapons/kar/clipin.wav");
-			precache_sound ("sounds/weapons/kar/clipoff.wav");
-			precache_sound ("sounds/weapons/kar/shoot.wav");
-			precache_sound ("sounds/weapons/kar/insert.wav");
+		case W_SPRING:
+		case W_PULVERIZER:
+			precache_sound ("sounds/weapons/boltaction/boltup.wav");
+			precache_sound ("sounds/weapons/boltaction/boltback.wav");
+			precache_sound ("sounds/weapons/boltaction/boltforward.wav");
+			precache_sound ("sounds/weapons/boltaction/boltdown.wav");
+			precache_sound ("sounds/weapons/boltaction/clipin.wav");
+			precache_sound ("sounds/weapons/boltaction/clipoff.wav");
+			precache_sound ("sounds/weapons/boltaction/shoot.wav");
+			precache_sound ("sounds/weapons/boltaction/insert.wav");
 			precache_model ("models/weapons/kar/v_karscope.mdl");
 			break;
 		case W_THOMPSON:
@@ -3394,9 +3502,11 @@ float(float wep) getWeaponRecoilReturn =
 			return 750;
 			break;
 		case W_KAR:
+		case W_SPRING:
 			return 750;
 			break;
 		case W_ARMAGEDDON:
+		case W_PULVERIZER:
 			return 750;
 			break;
 		case W_THOMPSON:
@@ -3551,6 +3661,8 @@ float(float weapon, float stance) CrossHairWeapon =
 		case W_HEADCRACKER:
 		case W_KAR:
 		case W_ARMAGEDDON:
+		case W_SPRING:
+		case W_PULVERIZER:
 			crosshair_spread = 65;
 			break;
 		case W_MP40:
@@ -3665,6 +3777,8 @@ float(float weapon, float stance) CrossHairMaxSpread =
 		case W_HEADCRACKER:
 		case W_KAR:
 		case W_ARMAGEDDON:
+		case W_SPRING:
+		case W_PULVERIZER:
 			crosshair_spread = 75;
 			break;
 		case W_SAWNOFF:
@@ -3720,6 +3834,8 @@ float(float wep) W_HighPrecisionWhenADS =
 		case W_HEADCRACKER:
 		case W_PTRS:
 		case W_PENETRATOR:
+		case W_SPRING:
+		case W_PULVERIZER:
 			return true;
 		default:
 			return false;
@@ -3869,6 +3985,14 @@ vector(float wep) GetWeaponRecoil =
 			guaranteed = '0 50 0';
 			kick_change = '25 30 25';
 			break;
+		case W_SPRING:
+			guaranteed = '0 50 0';
+			kick_change = '25 30 25';
+			break;
+		case W_PULVERIZER:
+			guaranteed = '0 50 0';
+			kick_change = '25 30 25';
+			break;
 		case W_KAR_SCOPE:
 			guaranteed = '0 50 0';
 			kick_change = '25 30 25';
@@ -3979,6 +4103,8 @@ vector (float wep) GetWeaponFlash_Offset =
 			case W_KAR_SCOPE:
 			case W_HEADCRACKER:
 			case W_ARMAGEDDON:
+			case W_SPRING:
+			case W_PULVERIZER:
 				return [5560, -4582, 75833];
 			case W_THOMPSON:
 			case W_GIBS:
@@ -4050,6 +4176,8 @@ float (float wep) GetWeaponFlash_Size = {
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
 		case W_ARMAGEDDON:
+		case W_SPRING:
+		case W_PULVERIZER:
 			return 15;
 		case W_THOMPSON:
 		case W_GIBS:
@@ -4117,6 +4245,8 @@ float(float wep) GetWeaponZoomAmount =
             return 10;
 		case W_KAR:
 		case W_ARMAGEDDON:
+		case W_SPRING:
+		case W_PULVERIZER:
 			return 25;
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:

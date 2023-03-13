@@ -130,6 +130,8 @@ const float EVENT_WEAPONRECOIL 			= 40;
 
 #define W_TESLA  	   56
 #define W_DG3    	   57
+#define W_SPRING       58
+#define W_PULVERIZER   59
 
 //Custom Weapons
 //FIXME - use array?
