@@ -28,6 +28,7 @@
 ../source/server/entities/doors.qc
 ../source/server/entities/window.qc
 ../source/server/entities/machines.qc
+../source/server/entities/wall_weapon.qc
 
 ../source/server/weapons/frames_core.qc
 ../source/server/weapons/rocket_launcher.qc
