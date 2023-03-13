@@ -264,6 +264,9 @@ void() use_wall_weapon =
 		case 28: // Waffe
 			setmodel(newent, GetWeaponModel(W_TESLA, 1));
 			break;
+		case 30: // Springfield
+			setmodel(newent, GetWeaponModel(W_SPRING, 1));
+			break;
 		default:
 			setmodel (newent, GetWeaponModel(self.sequence + 1, 1));
 			break;
