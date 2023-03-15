@@ -60,6 +60,7 @@ inline void(entity ent) PU_FreeEnt =
 	ent.classname = "freePowerUpEntity";
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
+	ent.frame = 0;
 };
 
 //
