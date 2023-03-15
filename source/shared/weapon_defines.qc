@@ -1474,7 +1474,7 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-5495.9, 2606.9, 0];
 		case W_SPRING:
 		case W_PULVERIZER:
-			return [-5495.9, 2706.9, 0];
+			return [-5295.9, 3206.9, -5000];
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
 			return [-5286, 706.1, 0];
