@@ -1175,6 +1175,12 @@ float(float r) Getweaponid =
 		case 24:
 			return W_TYPE;
 			break;
+		case 25:
+			return W_MP5K;
+			break;
+		case 26:
+			return W_SPRING;
+			break;
 	}
 
 	return r;
@@ -1186,8 +1192,8 @@ float(float r) Getweaponid =
 //
 float() randomweapon =
 {
-	local float r;
-	r = rint((random() * 24));
+	float r;
+	r = rint((random() * 26));
 
 	// If this weapon is in our Box Array, we can return it.
 	if (BoxWeapons[r] == 1) {
@@ -1573,9 +1579,9 @@ void() mystery_touch =
 //
 void() Load_Mbox_Data =
 {
-	local float file;
-	local string h;
-	local int weapons_all_disabled = 1;
+	float file;
+	string h;
+	int weapons_all_disabled = 1;
 
 	// Attempt to Open the File
 	h = strcat(mapname, ".mbox");
@@ -1585,13 +1591,13 @@ void() Load_Mbox_Data =
 	// There was no MBOX Data, enable all Weapons!
 	// R.I.P. PSP Memory 90% of the time in this case..
 	if (file == -1) {
-		for (float i = 0; i < 25; i++) {
+		for (float i = 0; i < 27; i++) {
 			BoxWeapons[i] = 1;
 		}
     fclose(file);
 	} else {
 		// Parse each Line and write the Data into our Array.
-		for (float i = 0; i < 25; i++) {
+		for (float i = 0; i < 27; i++) {
 			h = strtrim((fgets(file)));
 			BoxWeapons[i] = stof(h);
 			
@@ -1601,12 +1607,12 @@ void() Load_Mbox_Data =
 	}
 	
 	if (weapons_all_disabled) {
-		for (float i = 0; i < 25; i++) {
+		for (float i = 0; i < 27; i++) {
 			BoxWeapons[i] = 1;
 		}
 	}
 
-	for(float i = 0; i < 25; i++) {
+	for(float i = 0; i < 27; i++) {
 		// Precache Weapon Data if enabled
 		if (BoxWeapons[i]) {
 			precache_model(GetWeaponModel(Getweaponid(i), 0));
