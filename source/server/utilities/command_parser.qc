@@ -161,6 +161,30 @@ float(string params) Command_noclip =
 	return COMMAND_SUCCESS;
 } 
 
+//
+// Command_tracedmgmultiplier()
+// Multiplies damage output with weapons that fire Traces.
+//
+float(string params) Command_tracedmgmultiplier =
+{
+	// Anti-Cheat in Co-Op.
+	if (coop && cheats_have_been_activated == false) {
+		bprint(PRINT_HIGH, "Someone tried to issue sv_tracedmgmultiplier in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
+	// Grab parameters.
+    tokenize(params);
+	float value = stof(argv(0));
+
+	if (value <= 0) {
+		bprint(PRINT_HIGH, "Command_tracedmgmultiplier: 0 or less than 0 multiplier not allowed. Failing.\n");
+		return COMMAND_FAILURE;
+	}
+
+	global_trace_damage_multiplier = value;
+	return COMMAND_SUCCESS;
+}
 
 //
 // Server command table
@@ -181,7 +205,8 @@ var struct {
     {"give", Command_give, true, "Usage: give <weapon number>\n  Gives `weapon` of index.\n"},
 	{"qc_soft_restart", Command_softrestart, false, "Executes the Soft_Restart QuakeC function. Useful for debugging its functionality.\n"},
 	{"god", Command_godmode, false, "Toggles God Mode.\n"},
-	{"noclip", Command_noclip, false, "Toggles No Clip.\n"}
+	{"noclip", Command_noclip, false, "Toggles No Clip.\n"},
+	{"sv_tracedmgmultiplier", Command_tracedmgmultiplier, true, "Multiplies damage output with weapons that fire Traces.\n"}
 };
 
 //

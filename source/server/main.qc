@@ -34,6 +34,7 @@ void() SUB_Remove = {remove(self);}
 void() main =
 {
 	cheats_have_been_activated = false;
+	global_trace_damage_multiplier = 1;
 }
 
 float ai_delay_time;

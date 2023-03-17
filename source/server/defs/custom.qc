@@ -65,6 +65,8 @@ float 	ach_tracker_barr;
 float 	ach_tracker_spin;
 float 	ach_tracker_luck;
 
+float global_trace_damage_multiplier;
+
 .float ads_release;
 
 .vector oldvelocity;

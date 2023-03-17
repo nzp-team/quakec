@@ -1426,7 +1426,11 @@ void(float side) W_Fire =
 	}
 	
 	//get some basic info
-	damage = getWeaponDamage(self.weapon);   
+	damage = getWeaponDamage(self.weapon);
+
+	if (global_trace_damage_multiplier != 0)
+		damage *= global_trace_damage_multiplier;
+
 	firetype = GetFiretype (self.weapon);
 	if (side == S_RIGHT) {
 		modelname = GetWeaponModel(self.weapon, 0);
