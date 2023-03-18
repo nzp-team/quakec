@@ -307,8 +307,8 @@ void(float pwidth, float width, float height, float playernum) PointUpdate =
 
 void(float width, float height) HUD_Points =
 {
-	local float pointlength = 0, increm = 10, i = 0, pointwidth = 0, x = 0;
-	local float backwidth = 0.8*width;
+	float pointlength = 0, increm = 10, i = 0, pointwidth = 0, x = 0;
+	float backwidth = 0.8*width;
 	vector TEXTCOLOR = '0 0 0';
 	
 	for (i = 3; i >= 0; i = i - 1)
@@ -322,20 +322,19 @@ void(float width, float height) HUD_Points =
 			case 3: TEXTCOLOR = TEXT_GREEN; break;
 			default: TEXTCOLOR = [1, 1, 1]; break;
 		}
-		
-		if ((i+1) == getstatf(STAT_PLAYERNUM)) {
-			pointwidth = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
-			x = (99 - pointwidth)/2 + GetUltraWideOffset();
-			drawpic([3 + GetUltraWideOffset(), g_height - 95], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
-			drawstring([x, g_height - 90], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
-			PointUpdate(x + 70, width, height, i + 1);
+
+		pointwidth = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+		x = (99 - pointwidth)/2 + GetUltraWideOffset();
+
+		if ((i + 1) == getstatf(STAT_PLAYERNUM)) {
+			drawpic([3 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+			drawstring([x, g_height - 92 - (i * 25)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
 		} else {
-			pointwidth = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
-			x = (85 - pointwidth)/2 + GetUltraWideOffset();
-			drawpic([-7 + GetUltraWideOffset(), (g_height - 95) - (25*i)], "gfx/hud/moneyback_condensed.tga", [96, 24], [1,1,1], 1);
-			drawstring([x, (g_height - 90) - (25*i)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
-			PointUpdate(x + 70, width, height, i + 1);
+			drawpic([-7 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback_condensed.tga", [96, 24], [1,1,1], 1);
+			drawstring([x - 9, g_height - 92 - (i * 25)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
 		}
+
+		PointUpdate(x + 70, width, height, i + 1);
 	}
 }
 
