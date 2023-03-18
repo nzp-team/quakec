@@ -1307,7 +1307,7 @@ void() findboxspot =
 	// Spawn the Box Glow if permitted
 	if (!(self.owner.spawnflags & 2))
 	{
-		local entity g;
+		entity g;
 		g = spawn();
 		newspot.goaldummy = g;
 		setmodel(g,"models/machines/mglow$.mdl");
@@ -1332,7 +1332,9 @@ void() findboxspot =
 
 void() remove_box =
 {
-	//setmodel(self.owner.goaldummy, "");
+	if (!(self.owner.spawnflags & 2)) 
+		setmodel(self.owner.goaldummy, "");
+
 	self.owner.frame = 0;	// set box frame
 	makevectors(self.angles);
 	self.velocity = v_up*100;
