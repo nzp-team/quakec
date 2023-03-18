@@ -428,16 +428,23 @@ void() PU_MaxAmmo =
 	tempe = find(world, classname, "player");
 
 	while(tempe) {
-		// Fill Primary Weapon
-		if (tempe.weapon) tempe.currentammo = getWeaponAmmo(tempe.weapon);
-		// Fill Secondary Weapon
-		if (tempe.secondaryweapon) tempe.secondaryammo = getWeaponAmmo(tempe.secondaryweapon);
-		// Fill Third Weapon
-		if (tempe.thirdweapon) tempe.thirdammo = getWeaponAmmo(tempe.thirdweapon);
-		// Give Grenades
-		tempe.primary_grenades = 4;
-		// Give Betties
-		if (tempe.grenades & 2) tempe.secondary_grenades = 2;
+
+		if (!tempe.downed) {
+			// Fill Primary Weapon
+			if (tempe.weapon) tempe.currentammo = getWeaponAmmo(tempe.weapon);
+			// Fill Secondary Weapon
+			if (tempe.secondaryweapon) tempe.secondaryammo = getWeaponAmmo(tempe.secondaryweapon);
+			// Fill Third Weapon
+			if (tempe.thirdweapon) tempe.thirdammo = getWeaponAmmo(tempe.thirdweapon);
+			// Give Grenades
+			tempe.primary_grenades = 4;
+			// Give Betties
+			if (tempe.grenades & 2) tempe.secondary_grenades = 2;
+		} else {
+			// Reset shots fired, fill 2 mags into reserve.
+			tempe.teslacount = 0;
+			tempe.currentammo = getWeaponMag(tempe.weapon) * 2;
+		}	
 
 		// MAX AMMO! text
 
