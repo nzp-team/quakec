@@ -69,9 +69,11 @@ void() W_AimIn =
 
 	if (IsDualWeapon(self.weapon) ||
 		self.reload_delay > time ||
+		self.knife_delay > time ||
 		self.sprinting ||
 		self.new_anim_stop ||
-		self.weapon == W_BK) {		
+		self.weapon == W_BK || 
+		self.semiknife == true) {		
 		return;
 	}
 
