@@ -479,6 +479,9 @@ void() perk_revive =
 	precache_sound("sounds/weapons/papfire.wav");
 	precache_extra(W_BIATCH);
 	setorigin(self, self.origin);
+	self.oldorigin = self.origin;
+	self.finalangle = self.angles;
+	self.door_model_name = self.model;
 	setmodel(self, self.model);
 	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "perk_revive";
@@ -541,6 +544,9 @@ void() perk_flopper =
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
+	self.oldorigin = self.origin;
+	self.finalangle = self.angles;
+	self.door_model_name = self.model;
 	setmodel(self, self.model);
 	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "perk_flopper";
@@ -603,6 +609,9 @@ void() perk_juggernog =
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
+	self.oldorigin = self.origin;
+	self.finalangle = self.angles;
+	self.door_model_name = self.model;
 	setmodel(self, self.model);
 	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "perk_juggernog";
@@ -665,6 +674,9 @@ void() perk_staminup =
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
+	self.oldorigin = self.origin;
+	self.finalangle = self.angles;
+	self.door_model_name = self.model;
 	setmodel(self, self.model);
 	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "perk_staminup";
@@ -727,6 +739,9 @@ void() perk_speed =
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
+	self.oldorigin = self.origin;
+	self.finalangle = self.angles;
+	self.door_model_name = self.model;
 	setmodel(self, self.model);
 	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "perk_speed";
@@ -789,6 +804,9 @@ void() perk_double =
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
+	self.oldorigin = self.origin;
+	self.finalangle = self.angles;
+	self.door_model_name = self.model;
 	setmodel(self, self.model);
 	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "perk_double";
@@ -850,6 +868,9 @@ void() perk_deadshot =
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
 	setorigin(self, self.origin);
+	self.oldorigin = self.origin;
+	self.finalangle = self.angles;
+	self.door_model_name = self.model;
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setmodel(self, self.model);
@@ -916,6 +937,9 @@ void() perk_mule =
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
+	self.oldorigin = self.origin;
+	self.finalangle = self.angles;
+	self.door_model_name = self.model;
 	setmodel(self, self.model);
 	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "perk_mule";

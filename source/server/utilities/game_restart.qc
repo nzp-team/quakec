@@ -29,6 +29,9 @@
 void() PutClientInServer;
 void() InitRounds;
 void() func_door_nzp;
+void(entity e) Light_None;
+void() setup_perk;
+void() touch_perk;
 
 //
 // GameRestart_CleanPowerUps()
@@ -109,6 +112,52 @@ void() GameRestart_RepairBarricades =
     }
 }
 
+//
+// GameRestart_TurnPerkOff()
+// Wrapper for turning off Perk lights.
+//
+void(string perk_classname) GameRestart_TurnPerkOff =
+{
+	entity tempe;
+
+	tempe = find(world, classname, perk_classname);
+	while(tempe != world) {
+		setmodel(tempe, tempe.door_model_name);
+		setorigin(tempe, tempe.oldorigin);
+
+		Light_None(tempe);
+
+		tempe.velocity = '0 0 0';
+		tempe.angles = tempe.finalangle;
+		tempe.touch = touch_perk;
+		tempe.revivesoda = 0;
+
+		// Run our initial setup function
+		tempe.think = setup_perk;
+		tempe.nextthink = time + 0.1;
+
+		tempe = find(tempe, classname, perk_classname);
+	}
+}
+
+//
+// GameRestart_ResetPerkaColas()
+// Make sure Perk-a-Colas are in their
+// right states.
+//
+void() GameRestart_ResetPerkaColas =
+{
+	// Go on a reset spree!
+	GameRestart_TurnPerkOff("perk_revive");		// Quick Revive
+	GameRestart_TurnPerkOff("perk_juggernog");	// Jugger-Nog
+	GameRestart_TurnPerkOff("perk_speed");		// Speed Cola
+	GameRestart_TurnPerkOff("perk_double");		// Double Tap Root Beer
+	GameRestart_TurnPerkOff("perk_flopper");	// PhD Flopper
+	GameRestart_TurnPerkOff("perk_staminup");	// Stamin-Up
+	GameRestart_TurnPerkOff("perk_deadshot");	// Deadshot Daiquiri
+	GameRestart_TurnPerkOff("perk_mule");		// Mule Kick
+}
+
 //moto -- put this here because it keeps soft_restart somewhat clean..
 void(entity door) reclose_door = {
 	entity  oldself;
@@ -127,7 +176,7 @@ void(entity door) reclose_door = {
 }
 
 void() Soft_Restart = {
-	entity who, oldself, doors, box, revive, endgame;
+	entity who, oldself, doors, box, endgame;
 	self = find(world,classname,"player");
 	oldself = self;
 	
@@ -158,6 +207,7 @@ void() Soft_Restart = {
     GameRestart_CleanPowerUps();		// Get rid of any Power-Ups that were spawned and left.
     GameRestart_CleanWallSummons();		// Delete residual wall weapon spawns from our last game.
 	GameRestart_RepairBarricades();		// Make sure all barricades are fully repaired.
+	GameRestart_ResetPerkaColas(); 		// Turn all of the Perk-a-Cola lights off, reset states.
 
 	//close doors
 	doors = findfloat(world, isopen, 1);
@@ -182,13 +232,6 @@ void() Soft_Restart = {
 
 		//mystery_box();
 		//self = oldself;
-	}
-
-	//reset quick revive
-	revive = find(world, classname, "perk_revive");
-	if (revive) {
-		setmodel(revive, revive.model);
-		oldself.revivesoda = 0;
 	}
 
 	//reset buyable ending
