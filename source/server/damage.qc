@@ -353,16 +353,18 @@ void () GetUp =
 			self.currentammobk -= self.teslacount;
 
 			// Take from the mag if the reserve is empty now
-			if (self.currentammobk < 0)
+			if (self.currentammobk < 0) {
 				self.currentmagbk += self.currentammobk;
-			self.currentammobk = 0;
+				self.currentammobk = 0;
+			}	
 		} else if (self.weapon == self.secondaryweapon) {
 			self.secondaryammo -= self.teslacount;
 
 			// Take from the mag if the reserve is empty now
-			if (self.secondaryammo < 0)
+			if (self.secondaryammo < 0) {
 				self.secondarymag += self.secondaryammo;
-			self.secondaryammo = 0;
+				self.secondaryammo = 0;
+			}
 		}
 	}
 	
