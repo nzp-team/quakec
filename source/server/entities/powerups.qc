@@ -311,6 +311,9 @@ void() PU_NukeKill =
 	// kill a target
 	self.th_die();
 
+	// override their death sound
+	sound(self, CHAN_BODY, "sounds/pu/nuke.wav", 1, ATTN_NORM);
+
 	// restore self
 	self = oldself;
 
@@ -487,7 +490,7 @@ void() PU_Init =
 	}
 
 	// Just add all of them for now
-	PU_AddToStruct(PU_NUKE, 		true,	"models/pu/nuke!.mdl",		"sounds/pu/nuke.wav",			PU_Nuke,			
+	PU_AddToStruct(PU_NUKE, 		true,	"models/pu/nuke!.mdl",		"sounds/pu/kaboom.wav",			PU_Nuke,			
 					PU_NullRequirement		);
 	PU_AddToStruct(PU_INSTAKILL, 	false,	"models/pu/instakill!.mdl",	"sounds/pu/insta_kill.wav", 	PU_InstaKill,	
 					PU_NullRequirement		);
@@ -497,6 +500,9 @@ void() PU_Init =
 					PU_CarpenterRequirement	);
 	PU_AddToStruct(PU_MAXAMMO,		false,	"models/pu/maxammo!.mdl",	"sounds/pu/maxammo.wav", 		PU_MaxAmmo,		
 					PU_NullRequirement		);
+
+	// Nuke requires an extra Precache
+	precache_sound("sounds/pu/nuke.wav");
 
 	// Fill the array
 	PU_PopulateArray();
