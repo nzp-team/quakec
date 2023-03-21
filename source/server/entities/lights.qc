@@ -87,15 +87,15 @@ void()  light_environment   =           // Sun cast from Sky
 void()  light_fluorospark   =           // Light with buzz ambient
 {   L_Setup();                                                              }
 void()  light_globe         =           // Light with visible globe
-{   Precache_Set("progs/s_light.spr");  makestatic(self);                   }
+{   L_Setup();  makestatic(self);                   }
 void()  light_torch_small_walltorch =   // Light with visible wall torch
-{   Precache_Set("progs/flame.mdl");    makestatic(self);                   }
+{   L_Setup(); makestatic(self);                   }
 void()  light_torch_small_yellow =      // Light with small flame & fire sound
-{   Precache_Set("progs/flame2.mdl");    makestatic(self);                  }
+{   L_Setup();    makestatic(self);                  }
 void()  light_torch_large_yellow =      // Light with larger flame & fire sound
-{   Precache_Set("progs/flame2.mdl");   self.frame = 1; makestatic(self);   }
+{   L_Setup();   self.frame = 1; makestatic(self);   }
 void()  light_flame_small_white =       // Light with small flame & fire sound
-{   Precache_Set("progs/flame2.mdl");    makestatic(self);                  }
+{   L_Setup();   makestatic(self);                  }
 
 //
 // --------------------
