@@ -143,29 +143,30 @@ const float EVENT_WEAPONRECOIL 			= 40;
 
 #define BASE_FRAME			1	// The frame the Weapon idles at
 #define FIRE_START 			2	// Start of firing animation
-#define FIRE_END 			3	// End of firing animation
-#define RELOAD_START 		4	// Start of normal (one-way) reloads
-#define RELOAD_END 			5	// End of normal (one-way) reloads
-#define RELOAD_EMPTY_START	6	// Start of empty reloading
-#define RELOAD_EMPTY_END	7	// End of empty reloading
-#define RELOAD_PART_START	8	// Start of partial full reloading
-#define RELOAD_PART_END 	9	// End of partial full reloading
-#define SPRINT_IN_START		12	// Start of preparation to sprint
-#define SPRINT_IN_END 		13	// End of preparation to sprint
-#define SPRINT_START		10	// Start of sprint loop
-#define SPRINT_END 			11	// End of sprint loop
-#define SPRINT_OUT_START 	14	// Start of sprint stop
-#define SPRINT_OUT_END 		15	// End of sprint stop
-#define TAKE_OUT_START		16	// Start of taking out weapon
-#define TAKE_OUT_END 		17	// End of taking out weapon
-#define FIRST_TAKE_START	18  // The "first raise" (first time weapon is taken)
-#define FIRST_TAKE_END 		19	// End of "first raise"
-#define PUT_OUT_START 		20	// Start of putting away weapon
-#define PUT_OUT_END 		21	// End of putting away weapon
-#define RELOAD_CANCEL 		22	// Frame where mag variable is filled
-#define AIM_IN        		23	// Frame to snap to when in ADS (optional)
-#define AIM_FIRE_START      24	// Start of firing while ADS (optional)
-#define AIM_FIRE_END        25	// End of firing while ADS (optional)
+#define FIRE_HOLD 			3	// Stay on this frame while holding fire
+#define FIRE_END 			4	// End of firing animation
+#define RELOAD_START 		5	// Start of normal (one-way) reloads
+#define RELOAD_END 			6	// End of normal (one-way) reloads
+#define RELOAD_EMPTY_START	7	// Start of empty reloading
+#define RELOAD_EMPTY_END	8	// End of empty reloading
+#define RELOAD_PART_START	9	// Start of partial full reloading
+#define RELOAD_PART_END 	10	// End of partial full reloading
+#define SPRINT_IN_START		11	// Start of preparation to sprint
+#define SPRINT_IN_END 		12	// End of preparation to sprint
+#define SPRINT_START		13	// Start of sprint loop
+#define SPRINT_END 			14	// End of sprint loop
+#define SPRINT_OUT_START 	15	// Start of sprint stop
+#define SPRINT_OUT_END 		16	// End of sprint stop
+#define TAKE_OUT_START		17	// Start of taking out weapon
+#define TAKE_OUT_END 		18	// End of taking out weapon
+#define FIRST_TAKE_START	19  // The "first raise" (first time weapon is taken)
+#define FIRST_TAKE_END 		20	// End of "first raise"
+#define PUT_OUT_START 		21	// Start of putting away weapon
+#define PUT_OUT_END 		22	// End of putting away weapon
+#define RELOAD_CANCEL 		23	// Frame where mag variable is filled
+#define AIM_IN        		24	// Frame to snap to when in ADS (optional)
+#define AIM_FIRE_START      25	// Start of firing while ADS (optional)
+#define AIM_FIRE_END        26	// End of firing while ADS (optional)
 
 //Animation types
 #define RELOAD		1

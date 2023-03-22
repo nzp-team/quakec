@@ -1204,8 +1204,8 @@ void(float side) W_Fire =
 		return;
 	}
 
-	float startframe;
-	float endframe;
+	float startframe = 0;
+	float endframe = 0;
 	float firetype;
 	float damage;
 	float shotcount;
@@ -1331,12 +1331,16 @@ void(float side) W_Fire =
 	}
 
 	// Play weapon animation and sound
-	if (self.zoom && GetFrame(self.weapon, AIM_FIRE_START) != 0) {
-		startframe = GetFrame(self.weapon, AIM_FIRE_START);
-		endframe = GetFrame(self.weapon, AIM_FIRE_END);
+	if (GetFrame(self.weapon, FIRE_HOLD) == 0) {
+		if (self.zoom && GetFrame(self.weapon, AIM_FIRE_START) != 0) {
+			startframe = GetFrame(self.weapon, AIM_FIRE_START);
+			endframe = GetFrame(self.weapon, AIM_FIRE_END);
+		} else {
+			startframe = GetFrame(self.weapon, FIRE_START);
+			endframe = GetFrame(self.weapon, FIRE_END);
+		}
 	} else {
-		startframe = GetFrame(self.weapon, FIRE_START);
-		endframe = GetFrame(self.weapon, FIRE_END);
+		startframe = endframe = GetFrame(self.weapon, FIRE_HOLD);
 	}
 
 	// Increment the amount of shots fired while downed
@@ -2168,7 +2172,14 @@ void() CheckPlayer =
 
 void () Weapon_Logic =
 {
-	W_Frame_Update ();
+	// HACK HACK: Don't let the frame updater take control of hold fire.
+	if (self.weaponframe == GetFrame(self.weapon, FIRE_HOLD) && GetFrame(self.weapon, FIRE_HOLD) != 0) {
+
+	} else {
+		W_Frame_Update();
+	}
+	
+		
 	Impulse_Functions();
 
 #ifndef FTE
@@ -2212,6 +2223,11 @@ void () Weapon_Logic =
 #ifdef FTE
 
 		if (IsDualWeapon(self.weapon)) { self.semi2 = false; } else { self.semi = false; }
+
+		// Hold fire weapons should get set back to base frame.
+		if (GetFrame(self.weapon, FIRE_HOLD) != 0 && self.weaponframe == GetFrame(self.weapon, FIRE_HOLD)) {
+			self.weaponframe = 0;
+		}
 
 #else
 

@@ -2056,9 +2056,7 @@ float(float wep, float frametype, optional float z) GetFrame =
 		case W_M2:
 			switch (frametype)
 			{
-				case FIRE_START:
-					return 1;
-				case FIRE_END:
+				case FIRE_HOLD:
 					return 3;
 				case SPRINT_IN_START:
 					return 17;
