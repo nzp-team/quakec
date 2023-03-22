@@ -2065,6 +2065,10 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 8;
 				case SPRINT_OUT_END:
 					return 0;
+				case FIRST_TAKE_START:
+					return 6;
+				case FIRST_TAKE_END:
+					return 17;
 				case TAKE_OUT_START:
 					return 2;
 				case TAKE_OUT_END:

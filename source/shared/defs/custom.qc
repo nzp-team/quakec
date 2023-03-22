@@ -158,12 +158,14 @@ const float EVENT_WEAPONRECOIL 			= 40;
 #define SPRINT_OUT_END 		15	// End of sprint stop
 #define TAKE_OUT_START		16	// Start of taking out weapon
 #define TAKE_OUT_END 		17	// End of taking out weapon
-#define PUT_OUT_START 		18	// Start of putting away weapon
-#define PUT_OUT_END 		19	// End of putting away weapon
-#define RELOAD_CANCEL 		20	// Frame where mag variable is filled
-#define AIM_IN        		30	// Frame to snap to when in ADS (optional)
-#define AIM_FIRE_START      31	// Start of firing while ADS (optional)
-#define AIM_FIRE_END        32	// End of firing while ADS (optional)
+#define FIRST_TAKE_START	18  // The "first raise" (first time weapon is taken)
+#define FIRST_TAKE_END 		19	// End of "first raise"
+#define PUT_OUT_START 		20	// Start of putting away weapon
+#define PUT_OUT_END 		21	// End of putting away weapon
+#define RELOAD_CANCEL 		22	// Frame where mag variable is filled
+#define AIM_IN        		23	// Frame to snap to when in ADS (optional)
+#define AIM_FIRE_START      24	// Start of firing while ADS (optional)
+#define AIM_FIRE_END        25	// End of firing while ADS (optional)
 
 //Animation types
 #define RELOAD		1
