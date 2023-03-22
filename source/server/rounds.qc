@@ -231,32 +231,12 @@ void() NewRound =
 
 	if (rounds == dogRound && gotdog) {
 		roundtype = 2;
-
-#ifdef FTE
-
-			localcmd("fog 0.25\n");
-
-#else
-
-			localcmd("fog 200 225 177 193 204\n");
-
-#endif // FTE
-
+		localcmd("fog 200 525 54 55 60\n");
 	} else {
 		roundtype = 1;
 
 		if (world.fog) {
-
-#ifndef FTE
-
 			localcmd(strcat("fog ", world.fog));
-
-#else
-
-			localcmd(strcat("fog ", world_fog));
-
-#endif // FTE
-
 		}
 	}
 

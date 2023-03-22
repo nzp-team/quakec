@@ -479,9 +479,6 @@ typedef struct
 
 waypoint_ai waypoints[MAX_WAYPOINTS];
 
-// fog
-string world_fog;
-
 #endif // FTE
 
 #define UT_HUD 				1
