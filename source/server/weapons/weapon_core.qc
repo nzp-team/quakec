@@ -1473,7 +1473,7 @@ void(float side) W_Fire =
 		playdownfire();
 
 	// Check if weapon is semi-automatic and if it is, if it's ready to be fired.
-	if (Util_WeaponIsSemiAutomatic(self.weapon)) {
+	if (Weapon_IsSemiAutomatic(self.weapon)) {
 		if (side == S_RIGHT) {
 			if (self.semi) return;
 			self.semi = true;
@@ -1484,7 +1484,7 @@ void(float side) W_Fire =
 	}
 
 	// Weapon Projectile/Trace Logic.
-	if (Util_WeaponFiresTraceshot(self.weapon)) {
+	if (Weapon_FiresTraceshot(self.weapon)) {
 
 #ifdef FTE
 

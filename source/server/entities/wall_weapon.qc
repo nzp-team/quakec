@@ -149,12 +149,12 @@ void () WallWeapon_TouchTrigger =
 		float slot;
 
 		// Player has this weapon in any of their slots, PaP'd or not.
-		if ((slot = Util_PlayerHasWeapon(other, self.weapon, true)) != 0) {
+		if ((slot = Weapon_PlayerHasWeapon(other, self.weapon, true)) != 0) {
 			float is_pap = true;
 
 
 			// But the utility function returns the same value if we are NOT PaP'd
-			if (Util_PlayerHasWeapon(other, self.weapon, false) == slot)
+			if (Weapon_PlayerHasWeapon(other, self.weapon, false) == slot)
 				is_pap = false;
 
 			// Set the cost and weapon value (for useprint).
@@ -168,7 +168,7 @@ void () WallWeapon_TouchTrigger =
 			}
 
 			// Store current Ammo value.
-			float ammo = Util_GetPlayerAmmoInSlot(other, slot);
+			float ammo = Weapon_GetPlayerAmmoInSlot(other, slot);
 
 			// Max carrying capacity of the wall weapon
 			float wall_ammo = (is_pap) ? getWeaponAmmo(EqualPapWeapon(self.weapon)) : getWeaponAmmo(self.weapon);
@@ -188,7 +188,7 @@ void () WallWeapon_TouchTrigger =
 			other.ach_tracker_coll++;
 
 			// Set the weapon's ammo to the max capacity.
-			Util_SetPlayerAmmoInSlot(other, slot, wall_ammo);
+			Weapon_SetPlayerAmmoInSlot(other, slot, wall_ammo);
 
 			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 			other.reload_delay = 0;

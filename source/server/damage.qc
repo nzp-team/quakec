@@ -244,16 +244,16 @@ void() GetDown =
 	// Reset Juggernog health
 	self.max_health = self.health = PLAYER_START_HEALTH;
 
-	if(Util_PlayerHasWeapon(self, W_BIATCH, false) || 
-	Util_PlayerHasWeapon(self, W_RAY, true) ||
-	Util_PlayerHasWeapon(self, W_357, true)) {
+	if(Weapon_PlayerHasWeapon(self, W_BIATCH, false) || 
+	Weapon_PlayerHasWeapon(self, W_RAY, true) ||
+	Weapon_PlayerHasWeapon(self, W_357, true)) {
 		float weapon_slot;
 		float total_ammo;
 		total_ammo = 0;
 
-		weapon_slot = Util_PlayerHasWeapon(self, W_RAY, true);
-		if (weapon_slot == 0) weapon_slot = Util_PlayerHasWeapon(self, W_BIATCH, false);
-		if (weapon_slot == 0) weapon_slot = Util_PlayerHasWeapon(self, W_357, true);
+		weapon_slot = Weapon_PlayerHasWeapon(self, W_RAY, true);
+		if (weapon_slot == 0) weapon_slot = Weapon_PlayerHasWeapon(self, W_BIATCH, false);
+		if (weapon_slot == 0) weapon_slot = Weapon_PlayerHasWeapon(self, W_357, true);
 
 		switch(weapon_slot) {
 			case 1:
