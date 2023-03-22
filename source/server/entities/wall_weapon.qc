@@ -129,8 +129,6 @@ void () WallWeapon_TouchTrigger =
 {
 	entity oldent;
 	float tempf, tempf1, tempf2, tempf3;
-	float startframe,endframe;
-	string modelname;
 
 	float wcost;
 
@@ -411,16 +409,13 @@ void () WallWeapon_TouchTrigger =
 		other.currentmag = getWeaponMag(self.weapon);
 		tempe = self;
 		self = other;
-		startframe = GetFrame(self.weapon,TAKE_OUT_START);
-		endframe = GetFrame(self.weapon,TAKE_OUT_END);
-		modelname = GetWeaponModel(self.weapon, 0);
-
-		if (self.weapon != W_KAR_SCOPE && self.weapon != W_HEADCRACKER && !IsDualWeapon(self.weapon)) {
-			self.weapon2model = "";
-		}
 
 		SwitchWeapon(self.weapon);
-		Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);//FIXME
+
+		if (GetFrame(self.weapon, FIRST_TAKE_START) != 0)
+			Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
+		else
+			Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
 
 #ifndef FTE
 
