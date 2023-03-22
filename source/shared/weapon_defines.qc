@@ -1443,7 +1443,7 @@ vector GetWeaponADSPos(float wep) {
 			return [0, 2.80, 1.1];
 		case W_M2:
 		case W_FIW:
-			return [0, 0.89, 0.82];
+			return [6.0, 4.3, 1.02];
 		case W_RAY:
 		case W_PORTER:
 			return [-1.50, 6.25, 0.87];
@@ -1484,6 +1484,9 @@ vector GetWeaponADSOfs_PSP(float wep) =
 		case W_TRENCH:
 		case W_GUT:
 			return [-5527.1, 2880.3, 0];
+		case W_M2:
+		case W_FIW:
+			return [-9006.5, 2779.2, 9900];
 		case W_357:
 		case W_KILLU:
 			return [-8306.5, 879.2, 0];
@@ -2054,25 +2057,25 @@ float(float wep, float frametype, optional float z) GetFrame =
 			switch (frametype)
 			{
 				case FIRE_START:
-					return 0;
+					return 1;
 				case FIRE_END:
-					return 0;
+					return 3;
 				case SPRINT_IN_START:
-					return 0;
+					return 17;
 				case SPRINT_IN_END:
-					return 0;
+					return 18;
 				case SPRINT_OUT_START:
-					return 8;
+					return 18;
 				case SPRINT_OUT_END:
-					return 0;
+					return 19;
 				case TAKE_OUT_START:
-					return 2;
+					return 22;
 				case TAKE_OUT_END:
-					return 1;
+					return 24;
 				case PUT_OUT_START:
-					return 1;
+					return 20;
 				case PUT_OUT_END:
-					return 2;
+					return 22;
 				case RELOAD_CANCEL:
 					return 0;
 			}
