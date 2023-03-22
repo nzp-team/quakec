@@ -26,6 +26,18 @@
 
 */
 
+// TODO: Actually implement some of these..
+// Frame types, generalized.
+#define ANIM_FIRE                   0
+#define ANIM_RELOAD                 1
+#define ANIM_SPRINT_START           2
+#define ANIM_SPRINT                 3
+#define ANIM_SPRINT_STOP            4
+#define ANIM_FIRST_TAKE             5
+#define ANIM_TAKE_OUT               6
+#define ANIM_PUT_AWAY               7
+#define ANIM_AIM                    8
+
 //
 // Weapon_GetPlayerAmmoInSlot(person, slot)
 // Returns the reserve ammo the player has in a weapon slot.
@@ -38,7 +50,7 @@ float(entity person, float slot) Weapon_GetPlayerAmmoInSlot =
 		case 3: return person.thirdammo; break;
 		default: return 0; break;
 	}
-}
+};
 
 //
 // Weapon_SetPlayerAmmoInSlot(person, slot, ammo)
@@ -104,7 +116,7 @@ float(float weapon) Weapon_IsSemiAutomatic =
 		return true;
 
 	return false;
-}
+};
 
 //
 // Weapon_FiresTraceshot(weapon)
@@ -120,4 +132,48 @@ float(float weapon) Weapon_FiresTraceshot =
 		return true;
 
 	return false;
-}
+};
+
+//
+// Weapon_PlayViewModelAnimation(animation_type, end_function, playback_duration)
+// Sets up and plays the weapon sequence for you.
+//
+void (float animation_type, void(optional float t) end_function, float playback_duration) Weapon_PlayViewModelAnimation =
+{
+    float start_frame = 0;
+    float end_frame = 0;
+
+    switch(animation_type) {
+        case ANIM_SPRINT_START:
+            start_frame = GetFrame(self.weapon, SPRINT_IN_START);
+            end_frame = GetFrame(self.weapon, SPRINT_IN_END);
+            break;
+        case ANIM_SPRINT:
+            start_frame = GetFrame(self.weapon, SPRINT_START);
+            end_frame = GetFrame(self.weapon, SPRINT_END);
+            break;
+        case ANIM_SPRINT_STOP:
+            start_frame = GetFrame(self.weapon, SPRINT_OUT_START);
+            end_frame = GetFrame(self.weapon, SPRINT_OUT_END);
+            break;
+        case ANIM_TAKE_OUT:
+            start_frame = GetFrame(self.weapon, TAKE_OUT_START);
+            end_frame = GetFrame(self.weapon, TAKE_OUT_END);
+            break;
+        case ANIM_PUT_AWAY:
+            start_frame = GetFrame(self.weapon, PUT_OUT_START);
+            end_frame = GetFrame(self.weapon, PUT_OUT_END);
+            break;
+        case ANIM_FIRST_TAKE:
+            start_frame = GetFrame(self.weapon, FIRST_TAKE_START);
+            end_frame = GetFrame(self.weapon, FIRST_TAKE_END);
+            break;
+        default:
+            break;
+    }
+
+    UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
+    UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
+
+    Set_W_Frame(start_frame, end_frame, playback_duration, 0, 0, end_function, GetWeaponModel(self.weapon, 0), false, S_BOTH);
+};

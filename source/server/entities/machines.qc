@@ -112,15 +112,12 @@ void GivePerk(optional float p) {
 		GiveAchievement(6, self);
 
   	sound_perk_delay = time + 4.5;
+
 	self.isBuying = false;
-	string modelname = GetWeaponModel(self.weapon, 0);
-
-	local float startframe = GetFrame(self.weapon,TAKE_OUT_START);
-	local float endframe = GetFrame(self.weapon,TAKE_OUT_END);
-
 	self.weaponskin = backupWepSkin;
 	self.perk_delay = self.fire_delay;
-	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
+
+	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
 
 	SetPerk(self, self.perks);
 }
@@ -1464,8 +1461,6 @@ void() mystery_box_tp_spot =
 void() mystery_touch =
 {
 	entity tempe;
-	float startframe, endframe;
-	string modelname;
 	
 	if (other.classname != "player" || other.downed)
 		return;
@@ -1581,10 +1576,12 @@ void() mystery_touch =
 				sound(self, 0,"sounds/misc/ching.wav", 1, 1);
 				tempe = self;
 				self = other;
-				startframe = GetFrame(self.weapon,TAKE_OUT_START);
-				endframe = GetFrame(self.weapon,TAKE_OUT_END);
-				modelname = GetWeaponModel(self.weapon, 0);
-				Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);//FIXME
+
+				if (GetFrame(self.weapon, FIRST_TAKE_START) != 0)
+					Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
+				else
+					Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
+
 				SwitchWeapon(self.weapon);
 				self = tempe;
 				remove (self.boxweapon);
@@ -1842,10 +1839,6 @@ void touch_pap() {
 			centerprint (other, STR_NOTENOUGHPOINTS);
 		}
 	} else if (self.papState == 2) {
-		float startframe;
-		float endframe;
-		string modelname;
-
 		useprint (other, 7, 0, 0);
 
 		if (other.button7) {
@@ -1866,19 +1859,14 @@ void touch_pap() {
 			}
 
 			entity tempe = self;
-			startframe = GetFrame(other.weapon,TAKE_OUT_START);
-			endframe = GetFrame(other.weapon,TAKE_OUT_END);
-			modelname = GetWeaponModel(other.weapon, 0);
-			other.weaponmodel = GetWeaponModel(other.weapon, 0);// Give weapon model
-		
-			// Kar Scope
-			if (other.weapon == W_HEADCRACKER)
-				other.weapon2model = "models/weapons/kar/v_karscope.mdl";
-
 			self = other;
+
 			SwitchWeapon(self.weapon);
-			UpdateV2model(other.weapon2model, 0);
-			Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, true, S_BOTH);//FIXME
+
+			if (GetFrame(self.weapon, FIRST_TAKE_START) != 0)
+				Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
+			else
+				Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
 
 #ifndef FTE
 

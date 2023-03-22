@@ -51,13 +51,7 @@ void() ReturnWeaponModel =
 
 void() W_PlayTakeOut =
 {
-	float startframe, endframe;
-	string modelname;
-
-	startframe = GetFrame(self.weapon,TAKE_OUT_START);
-	endframe = GetFrame(self.weapon,TAKE_OUT_END);
-	modelname = GetWeaponModel(self.weapon, 0);
-	Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH);
+	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
 }
 
 .float scopetime;
@@ -133,18 +127,13 @@ void() W_SprintStop =
 		self.sprint_stop_time = time;
 		self.sprint_duration = self.sprint_timer;
 	}
-	
-	float startframe = GetFrame(self.weapon,SPRINT_OUT_START);
-	float endframe = GetFrame(self.weapon,SPRINT_OUT_END);
-	string modelname = GetWeaponModel(self.weapon, 0);
-	
+
 	if (self.isBuying || !self.sprinting)
 		return;
-	
-	self.zoom = 0;
 
-	Set_W_Frame (startframe, endframe, 0, 0, SPRINT, SUB_Null, modelname, false, S_BOTH);  // BUG IS HERE
-	
+	Weapon_PlayViewModelAnimation(ANIM_SPRINT_STOP, SUB_Null, 0);
+
+	self.zoom = 0;
 	self.sprinting = 0;
 	self.into_sprint = 0;
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
@@ -179,17 +168,10 @@ void W_SprintStart () {
 		self.sprint_delay > time) {
 		return;
 	}
-		
-	float startframe = GetFrame(self.weapon,SPRINT_IN_START);
-	float endframe = GetFrame(self.weapon,SPRINT_IN_END);
-	string modelname = GetWeaponModel(self.weapon, 0);
+
+	Weapon_PlayViewModelAnimation(ANIM_SPRINT_START, ContinueRun, 0);
 
 	self.zoom = 3;
-	
-	if (startframe || endframe) {
-		Set_W_Frame (startframe, endframe, 0, 0, SPRINT, ContinueRun, modelname, false, S_BOTH);
-	}
-
 	self.sprint_delay = time + 1;
 	self.sprinting = true;
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
@@ -200,9 +182,6 @@ void() W_Switch =
 	if (self.secondaryweapon && self.secondaryweapon != 0 && !self.new_anim_stop && !other.button7)
 	{      
 		float tempf,tempf1,tempf2,tempf3,tempf4;
-		float startframe;
-		float endframe;
-		string modelname;
 
 		// un-zoom camera
 		self.zoom = false;
@@ -261,27 +240,8 @@ void() W_Switch =
 			self.secondaryweaponskin = tempf4;
 		}
 
-		startframe = GetFrame(self.weapon,TAKE_OUT_START);
-		endframe = GetFrame(self.weapon,TAKE_OUT_END);
-		modelname = GetWeaponModel(self.weapon, 0);
-
 		SwitchWeapon(self.weapon);
-
-		if (IsDualWeapon(self.weapon)) {
-			self.weapon2model = GetLeftWeaponModel(self.weapon);
-		} else if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER)
-			self.weapon2model = "models/weapons/kar/v_karscope.mdl";
-		else 
-			self.weapon2model = "";
-
-		UpdateV2model(self.weapon2model, 0);
-
-		// TEMP
-		if (self.weapon == W_M2 || self.weapon == W_FIW)
-			UpdateVmodel(modelname, GetWepSkin(self.weapon));
-	
-		
-		Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH);//FIXME
+		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
 		
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0; 
 		
@@ -308,32 +268,18 @@ void() W_PutOut =
 	
 	if (self.secondaryweapon && !self.new_anim_stop)
 	{
-		float startframe;
-		float endframe;
-		string modelname;
-		startframe = GetFrame(self.weapon,PUT_OUT_START);
-		endframe = GetFrame(self.weapon,PUT_OUT_END);
-		modelname = GetWeaponModel(self.weapon, 0);
-	
-		Set_W_Frame (startframe, endframe, (endframe - startframe)/10, 0, SWITCHWEP, W_Switch, modelname, false, S_BOTH);//FIXME
+		Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, W_Switch, 0);
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
 	}
 }
 
 void() W_TakeOut =
 {
-	W_AimOut();
-	
-	float startframe;
-	float endframe;
-	string modelname;
-	startframe = GetFrame(self.weapon,TAKE_OUT_START);
-	endframe = GetFrame(self.weapon,TAKE_OUT_END);
-	modelname = GetWeaponModel(self.weapon, 0);
+	self.isBuying = false;
 
-    self.isBuying = false;
-	
-	Set_W_Frame (startframe, endframe, (endframe - startframe)/10, 0, SWITCHWEP, SUB_Null, modelname, false, S_BOTH);//FIXME
+	W_AimOut();
+	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
+
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
 }
 

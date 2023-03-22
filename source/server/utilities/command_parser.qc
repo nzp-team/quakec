@@ -53,9 +53,6 @@ float(string params) Command_give =
 			WeaponSwitch(self);
 		}
 
-	    float startframe, endframe;
-		string modelname;
-
 		self.weapon = wep;
 		self.currentammo = getWeaponAmmo(wep);
 		self.currentmag = getWeaponMag(wep);
@@ -63,15 +60,10 @@ float(string params) Command_give =
 			self.currentmag2 = self.currentmag;
 		}
 
-		self.weaponskin = GetWepSkin(self.weapon);
-
-		startframe = GetFrame(self.weapon,TAKE_OUT_START);
-		endframe = GetFrame(self.weapon,TAKE_OUT_END);
-		modelname = GetWeaponModel(wep, 0);
-
-		SwitchWeapon(wep);
-
-		Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
+		if (GetFrame(self.weapon, FIRST_TAKE_START) != 0)
+			Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
+		else
+			Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
 
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
 
