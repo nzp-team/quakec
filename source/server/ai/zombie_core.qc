@@ -885,6 +885,9 @@ void() zombie_attack =
 {
 	self.velocity = '0 0 0';
 
+    if(self.state == 1) // If the zombie is in this state (rising, or something else) they shouldn't be able to attack!
+        return;
+
 	if (self.classname == "wunder" || self.electro_targeted == true)
 		return;
 
