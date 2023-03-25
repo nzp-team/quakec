@@ -1872,15 +1872,15 @@ void() Draw_Menu =
 {
 	// main menu theme iterating
 	if (menu_initialized == false && in_menu == MENU_MAIN) {
-		localsound_enhanced("tracks/tensioned_by_the_damned.mp3", CHAN_MUSIC, 1);
-		menu_sound_length = 490; // have to hard code because soundlength() doesn't like MP3 media it seems..
+		localsound_enhanced("tracks/tensioned_by_the_damned.ogg", CHAN_MUSIC, 1);
+		menu_sound_length = 490;
 		menu_sound_time = 0;
 		menu_initialized = true;
 	}
 
 	// restart the track if it has ended
 	if (menu_initialized == true && (menu_sound_time >= menu_sound_length - 1)) {
-		localsound_enhanced("tracks/tensioned_by_the_damned.mp3", CHAN_MUSIC, 1);
+		localsound_enhanced("tracks/tensioned_by_the_damned.ogg", CHAN_MUSIC, 1);
 		menu_sound_time = 0;
 	}
 
