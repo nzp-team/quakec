@@ -29,6 +29,7 @@
 void() W_PutOut;
 void(float side) W_Reload;
 void() GrenadeExplode;
+void() W_SprintStart;
 
 void() ReturnWeaponModel =
 {
@@ -40,13 +41,18 @@ void() ReturnWeaponModel =
 		self.weapon2model = "models/weapons/kar/v_karscope.mdl";
 		UpdateV2model(self.weapon2model, 0);
 	}
-		
+
 	UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 	UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
 	// Always try to reload after any action.
 	if (self.currentmag == 0 && self.currentammo != 0)
 		W_Reload(S_BOTH);
+
+    // If the person is swapping, play the sprint anim if they're sprinting after swap. Otherwise it plays idle
+    if (self.sprinting == TRUE)
+        W_SprintStart();
+        
 }
 
 void() W_PlayTakeOut =

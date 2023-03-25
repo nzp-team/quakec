@@ -71,7 +71,7 @@ float() getZombieTotal = {
 		if (plrcnt == 1)
 			count += rint((0.5 * 6) * multiplier);
 		else
-			count += rint((plrcnt * 6) * multiplier);
+			count += rint(((plrcnt - 1) * 6) * multiplier);
 
 		if (rounds < 2)
 			count = floor(count * 0.25);
