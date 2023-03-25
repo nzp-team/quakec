@@ -152,7 +152,7 @@ string(float wep) GetWeaponName =
 		case W_PORTER:
 			return "Porter's X2 Ray Gun";
 		case W_SAWNOFF:
-			return "Sawnoff shotgun";
+			return "Sawed-Off Shotgun";
 		case W_SNUFF:
 			return "The Snuff Box";
 		case W_STG:
