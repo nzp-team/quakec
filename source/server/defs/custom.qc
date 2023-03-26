@@ -46,6 +46,8 @@ float 	framecount;
 float 	deathmatch;
 float 	coop;
 
+float music_override;
+
 #ifndef FTE
 
 void(string com) SV_ParseClientCommand;
@@ -518,9 +520,6 @@ float G_WORLDTEXT;
 float G_PERKS;
 float G_PERKPOWER;
 
-//song easter egg
-float sndTriggerCnt;
-float sndActivCnt;
 .float activated;
 
 //teleporter

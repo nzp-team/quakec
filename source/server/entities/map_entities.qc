@@ -138,25 +138,20 @@ void() teddy_spawn =
 /* ==================
     Custom Song Code
    ================== */
-
-void() touch_songtrigger = {
-	if (other.classname != "player" || self.activated)
-		return;
-
-	if (other.button7) {
-		sound(self, CHAN_VOICE, self.tune, 1, ATTN_NORM);
-		self.activated = true;
-		sndActivCnt++;
-
-		if (sndTriggerCnt == sndActivCnt)
-			playSoundAtPlayers(world.song);
-	}
-	
+   
+void() game_songtriggered =
+{
+	songegg(self.aistatus);
+	music_override = time + self.cost;
 }
 
-void() trigger_song = {
-	remove(self);
-}
+void() game_songplay =
+{
+	self.use = game_songtriggered;
+};
+
+// Old gross ent..
+void() trigger_song = { remove(self); }
 
 //
 // ============================================================
