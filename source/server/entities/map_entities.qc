@@ -360,3 +360,36 @@ void() place_model =
 	// Now just execute the misc_model spawn function.
 	misc_model();
 };
+
+//
+// game_counter()
+// Quick and dirty game_counter implementation, referenced
+// from TWHL docs (https://twhl.info/index.php/wiki/page/game_counter)
+//
+#define SPAWNFLAG_COUNTER_REMOVEONFIRE 		1
+#define SPAWNFLAG_COUNTER_RESETONFIRE 		2
+void() game_counter_increment =
+{
+	self.frags++;
+
+	if (self.frags == self.health) {
+		SUB_UseTargets();
+
+		if (self.spawnflags & SPAWNFLAG_COUNTER_REMOVEONFIRE) {
+			remove(self);
+		} else if (self.spawnflags & SPAWNFLAG_COUNTER_RESETONFIRE) {
+			self.frags = self.cost;
+		}
+	}
+}
+
+void() game_counter =
+{
+	// TODO: master checking..
+
+	// Store the initial value in case RESET ON FIRE is set.
+	self.cost = self.frags;
+
+	// Every time its triggered, increment.
+	self.use = game_counter_increment;
+}

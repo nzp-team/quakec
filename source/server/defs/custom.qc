@@ -53,6 +53,7 @@ void(string com) SV_ParseClientCommand;
 .float	recoil_delay;
 .float 	mapversion;
 .float	ammo;
+.float 	frags;
 
 #endif // FTE
 
