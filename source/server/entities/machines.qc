@@ -1083,6 +1083,9 @@ void() power_switch =
 // --------------------
 //
 
+#define MBOX_SPAWNFLAG_NOTHERE 		1
+#define MBOX_SPAWNFLAG_NOLIGHT 		2
+
 void() updateBoxGlow
 {
 	if(self.goaldummy)
@@ -1302,7 +1305,7 @@ void() findboxspot =
 	newspot.angles_y += 90;
 
 	// Spawn the Box Glow if permitted
-	if (!(self.owner.spawnflags & 2))
+	if (!(self.owner.spawnflags & MBOX_SPAWNFLAG_NOLIGHT))
 	{
 		entity g;
 		g = spawn();
@@ -1329,7 +1332,7 @@ void() findboxspot =
 
 void() remove_box =
 {
-	if (!(self.owner.spawnflags & 2)) 
+	if (!(self.owner.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) 
 		setmodel(self.owner.goaldummy, "");
 
 	self.owner.frame = 0;	// set box frame
@@ -1662,22 +1665,28 @@ void() mystery_box =
 	setorigin(self, self.origin);
 	setmodel (self, "models/machines/mystery.mdl");
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	
-	if (!(self.spawnflags & 2))
-	{
-		local entity g;
-		g = spawn();
-		self.goaldummy = g;
-		setmodel(g,"models/machines/mglow$.mdl");
-		setorigin(g,self.origin);
-		g.angles = self.angles;
-	}
 
 	self.touch = mystery_touch;
 	boxOrigin = self.origin;
 
 	boxLocations[boxCount] = self;
 	boxCount++;
+
+    // Temporary hack for random box spawns until rewrite - Mikey (27/03/2023, DD/MM/YYYY)
+    if(self.spawnflags & MBOX_SPAWNFLAG_NOTHERE) {
+        entity temp = spawn();
+
+        temp.owner = self;
+        temp.think = findboxspot;
+        temp.nextthink = time + 0.1;
+    } else if(!(self.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) {
+        entity g = spawn();
+
+		self.goaldummy = g;
+		setmodel(g,"models/machines/mglow$.mdl");
+		setorigin(g,self.origin);
+		g.angles = self.angles;
+    }
 }
 
 //
