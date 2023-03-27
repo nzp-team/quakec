@@ -38,6 +38,8 @@
 #define ANIM_PUT_AWAY               7
 #define ANIM_AIM                    8
 
+void() W_AimOut;
+
 //
 // Weapon_GetPlayerAmmoInSlot(person, slot)
 // Returns the reserve ammo the player has in a weapon slot.
@@ -175,5 +177,6 @@ void (float animation_type, void(optional float t) end_function, float playback_
     UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
     UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
+    W_AimOut();
     Set_W_Frame(start_frame, end_frame, playback_duration, 0, 0, end_function, GetWeaponModel(self.weapon, 0), false, S_BOTH);
 };
