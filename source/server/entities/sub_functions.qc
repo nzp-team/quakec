@@ -64,6 +64,9 @@ void() SUB_UseTargets =
 	temptotal = 0;
 	tempcount = 0;
 	breakthis = false;
+
+	if (self.target)
+		tempcount = tempcount + 1;
 	if (self.target2)
 		tempcount = tempcount + 1;
 	if (self.target3)

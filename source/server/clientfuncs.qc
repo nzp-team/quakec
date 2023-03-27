@@ -65,6 +65,14 @@ void(entity to, float type, float cost, float weapon) useprint = {
 	msg_entity = to;
 	multicast('0 0 0', MULTICAST_ONE);
 }
+
+void(string track_name) songegg =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_SONGPLAY);
+	WriteString(MSG_MULTICAST, track_name);
+	multicast('0 0 0', MULTICAST_ALL);
+};
 #endif // FTE
 
 void(vector org) CallExplosion = {
