@@ -1460,7 +1460,9 @@ vector GetWeaponADSPos(float wep) {
 Weapon PSP ADS Declarations
 ===========================
 */
-
+// x: left/right
+// y: up/down
+// z: forward/back
 vector GetWeaponADSOfs_PSP(float wep) = 
 {
 		
@@ -1468,10 +1470,10 @@ vector GetWeaponADSOfs_PSP(float wep) =
 	{
 		case W_COLT:
 		case W_BIATCH:
-			return [-5479.2, 1650, 0];
+			return [-5479.2, 1850, -4000];
 		case W_KAR:
 		case W_ARMAGEDDON:
-			return [-5495.9, 2606.9, 0];
+			return [-5495.9, 3006.9, -6000];
 		case W_SPRING:
 		case W_PULVERIZER:
 			return [-5295.9, 3206.9, -5000];
@@ -1480,59 +1482,59 @@ vector GetWeaponADSOfs_PSP(float wep) =
 			return [-5286, 706.1, 0];
 		case W_THOMPSON:
 		case W_GIBS:
-			return [-6200.3, 3407.6, 0]; 
+			return [-6200.3, 3407.6, -800]; 
 		case W_TRENCH:
 		case W_GUT:
-			return [-5527.1, 2880.3, 0];
+			return [-5527.1, 2580.3, -250];
 		case W_M2:
 		case W_FIW:
 			return [-9006.5, 2779.2, 9900];
 		case W_357:
 		case W_KILLU:
-			return [-8306.5, 879.2, 0];
+			return [-8306.5, 1079.2, -6750];
 		case W_MG:
 		case W_BARRACUDA:
-			return [-6643.7, 3509.2, 0];
+			return [-6843.7, 3509.2, -6000];
 		case W_DB:
 		case W_BORE:
 		case W_SAWNOFF:
-			return [-5801.7, 2912.1, 0];
+			return [-5801.7, 2612.1, 1250];
 		case W_M1A1:
 		case W_WIDDER:
-			return [-5387.8, 3200.9, 0];
+			return [-5387.8, 3250.9, -4500];
 		case W_BAR:
 		case W_WIDOW:
 			return [-3903.3, 2564.5, 0];
 		case W_FG:
 		case W_IMPELLER:
-			return [-11798, 1800, -5000];
+			return [-11798, 1800, -12000];
 		case W_RAY:
 		case W_PORTER:
-			return [-12700, 2086.9, 0];
+			return [-12700, 2086.9, -1000];
 		case W_GEWEHR:
 		case W_COMPRESSOR:
-			return [-5150, 5300, 0];
+			return [-5150, 5200, -2990];
 		case W_PPSH:
 		case W_REAPER:
-			return [-7500, 3000, 0];
+			return [-7500, 3000, -500];
 		case W_MP40:
 		case W_AFTERBURNER:
-			return [-11400, 6700, 0];
+			return [-11400, 6500, -1000];
 		case W_MP5K:
 		case W_KOLLIDER:
-			return [-10400, 5500, 0];
+			return [-10400, 5500, -8000];
 		case W_TYPE:
 		case W_SAMURAI:
 			return [-400, -200, 0];
 		case W_STG:
 		case W_SPATZ:
-			return [-9834, 2920, 0];
+			return [-9834, 2920, -17000];
 		case W_M1:
 		case W_M1000:
-			return [-7700, 2200, 0];
+			return [-7700, 2200, -4500];
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			return [-8000, 3020, -7000];
+			return [-8000, 3020, -6500];
 		case W_PTRS:
 		case W_PENETRATOR:
 			return [-7200, 906.9, 0];
