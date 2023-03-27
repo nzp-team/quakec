@@ -97,6 +97,10 @@ float() getZombieTotal = {
 
 void(string s) playSoundAtPlayers =
 {
+	// Don't play any round stuff while there's a song egg happening.
+	if (music_override > time)
+		return;
+
 	local entity p;
 	p = find(world,classname,"player");
 	while(p)

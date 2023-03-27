@@ -1167,6 +1167,10 @@ noref void() CSQC_Parse_Event =
 			if (chaptertitle == "")
 				chaptertitle = "'Nazi Zombies'";
 			break;
+		case EVENT_SONGPLAY:
+			string track_name = readstring();
+			localsound_enhanced(strcat("tracks/", track_name, ".ogg"), CHAN_MUSIC, 1);
+			break;
 		case EVENT_ACHIEVEMENT:
 			float ach = readbyte();
 

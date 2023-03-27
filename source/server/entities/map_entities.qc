@@ -138,25 +138,20 @@ void() teddy_spawn =
 /* ==================
     Custom Song Code
    ================== */
-
-void() touch_songtrigger = {
-	if (other.classname != "player" || self.activated)
-		return;
-
-	if (other.button7) {
-		sound(self, CHAN_VOICE, self.tune, 1, ATTN_NORM);
-		self.activated = true;
-		sndActivCnt++;
-
-		if (sndTriggerCnt == sndActivCnt)
-			playSoundAtPlayers(world.song);
-	}
-	
+   
+void() game_songtriggered =
+{
+	songegg(self.aistatus);
+	music_override = time + self.cost;
 }
 
-void() trigger_song = {
-	remove(self);
-}
+void() game_songplay =
+{
+	self.use = game_songtriggered;
+};
+
+// Old gross ent..
+void() trigger_song = { remove(self); }
 
 //
 // ============================================================
@@ -360,3 +355,36 @@ void() place_model =
 	// Now just execute the misc_model spawn function.
 	misc_model();
 };
+
+//
+// game_counter()
+// Quick and dirty game_counter implementation, referenced
+// from TWHL docs (https://twhl.info/index.php/wiki/page/game_counter)
+//
+#define SPAWNFLAG_COUNTER_REMOVEONFIRE 		1
+#define SPAWNFLAG_COUNTER_RESETONFIRE 		2
+void() game_counter_increment =
+{
+	self.frags++;
+
+	if (self.frags == self.health) {
+		SUB_UseTargets();
+
+		if (self.spawnflags & SPAWNFLAG_COUNTER_REMOVEONFIRE) {
+			remove(self);
+		} else if (self.spawnflags & SPAWNFLAG_COUNTER_RESETONFIRE) {
+			self.frags = self.cost;
+		}
+	}
+}
+
+void() game_counter =
+{
+	// TODO: master checking..
+
+	// Store the initial value in case RESET ON FIRE is set.
+	self.cost = self.frags;
+
+	// Every time its triggered, increment.
+	self.use = game_counter_increment;
+}

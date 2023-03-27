@@ -42,6 +42,7 @@ void() Barrel_Explode =
 
     CallExplosion(self.origin);
 
+    SUB_UseTargets ();
 	SUB_Remove ();
 };
 
