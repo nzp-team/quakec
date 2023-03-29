@@ -134,9 +134,8 @@ void() precaches =
 	//
 
 	// sprites
-	precache_model ("models/sprites/revive.spr");
-	precache_model ("models/sprites/revive_white.spr");
 	precache_model ("models/sprites/sprkle.spr");
+	precache_model ("models/sprites/explosion.spr");
 	precache_model ("models/sprites/lightning.spr");
 	precache_model ("models/sprites/null.spr");
 	precache_model ("models/way/current_way.spr");
@@ -162,19 +161,19 @@ void() precaches =
 	precache_model ("models/ai/zarc(.mdl");
 	precache_model ("models/ai/zhc^.mdl");
 
-	// powerups
-	precache_model ("models/sprites/explosion.spr");
-	precache_model ("models/pu/perkbottle!.mdl");
-
 	// start weapons
 	precache_model ("models/weapons/m1911/v_colt.mdl");
 	precache_model ("models/weapons/m1911/g_colt.mdl");
 	precache_model ("models/weapons/knife/v_knife.mdl");
 	precache_model ("models/weapons/grenade/v_grenade.mdl");
 	precache_model ("models/weapons/grenade/g_grenade.mdl");
-	precache_model ("models/weapons/grenade/g_betty.mdl");
-	precache_model ("models/weapons/grenade/v_betty.mdl");
+
+#ifdef FTE
+
+	// FTE only has co-op, so don't precache morphine elsewhere.
 	precache_model ("models/weapons/morphine/v_morphine.mdl");
+
+#endif // FTE
 
 	//
 	// Sounds
@@ -201,7 +200,6 @@ void() precaches =
 	precache_sound("sounds/weapons/colt/magout.wav");
 	precache_sound("sounds/weapons/colt/shoot.wav");
 	precache_sound("sounds/weapons/colt/slide.wav");
-	precache_sound("sounds/weapons/papfire.wav");
 
 	// grenade
 	precache_sound("sounds/weapons/grenade/prime.wav");
@@ -227,7 +225,6 @@ void() precaches =
 
 	// power-ups
 	precache_sound ("sounds/pu/pickup.wav");
-	precache_sound ("sounds/pu/byebye.wav");
 	precache_sound ("sounds/pu/powerup.wav");
 	precache_sound ("sounds/pu/drop.wav");
 

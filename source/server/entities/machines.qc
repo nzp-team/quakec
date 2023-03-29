@@ -426,6 +426,8 @@ void() setup_perk =
 // Quick Revive
 void() perk_revive =
 {
+	precache_sound ("sounds/pu/byebye.wav");
+
 	//
 	// Set Default Stats for Compatibility
 	//
@@ -1445,6 +1447,7 @@ void() Create_Floating_Weapon =
 void() mystery_box_tp_spot = 
 {
 	precache_model ("models/props/teddy.mdl"); 
+	precache_sound ("sounds/pu/byebye.wav");
 	
 	self.solid=SOLID_TRIGGER;
 	self.classname = "mystery_box_tp_spot";
@@ -1912,7 +1915,7 @@ void() perk_pap =
 	precache_model ("models/machines/quake_scale/pap.mdl");
 	precache_model ("models/machines/v_pap.mdl");
 	precache_sound ("sounds/machines/papsound.wav");
-	precache_sound ("sounds/machines/papsound.wav");
+	precache_sound("sounds/weapons/papfire.wav");
 	setorigin(self, self.origin);
 	setmodel (self, "models/machines/quake_scale/pap.mdl");
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
