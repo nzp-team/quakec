@@ -47,10 +47,10 @@ void() W_AimOut;
 float(entity person, float slot) Weapon_GetPlayerAmmoInSlot =
 {
 	switch(slot) {
-		case 1: return person.currentammo; break;
-		case 2: return person.secondaryammo; break;
-		case 3: return person.thirdammo; break;
-		default: return 0; break;
+		case 1: return person.currentammo;
+		case 2: return person.secondaryammo;
+		case 3: return person.thirdammo;
+		default: return 0;
 	}
 };
 

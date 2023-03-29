@@ -25,45 +25,6 @@
 
 */
 
-/*
-	Structs are MAGICAL!
-*/
-var struct {
-	string name;
-	float magSize;
-	float reserveSize;
-	string vmodel;
-	string vmodel2;
-	string gmodel;
-	float isDual;
-	float firetype;
-	float nonpap;
-	float pap;
-	float ispap;
-	float damage;
-	float shotcount;
-	float bodypen;
-	float penetration;
-	float spread;
-	float fdelay;
-	float rdelay;
-	float walkspeed;
-	string firesound;
-	float skin;
-	float recoil;
-	float crossmin;
-	float crossmax;
-	float lowmag;
-	float lowreserve;
-	vector flash;
-	float flashsize;
-	float papWpn;
-	vector adsofs;
-} CustomWeapons[] =
-{
-
-};
-
 string(float wep) GetWeaponName =
 {
 
@@ -3301,8 +3262,11 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/colt/magout.wav");
 			precache_sound("sounds/weapons/colt/magin.wav");
 			precache_sound("sounds/weapons/colt/slide.wav");
-			precache_model ("models/weapons/m1911/v_biatch_right.mdl");	// sprite explosion
-			precache_model ("models/weapons/m1911/v_biatch_left.mdl");
+
+			if (weptype == W_BIATCH) {
+				precache_model ("models/weapons/m1911/v_biatch_right.mdl");
+				precache_model ("models/weapons/m1911/v_biatch_left.mdl");
+			}
 			break;
 		case W_KAR_SCOPE:
 		case W_KAR:
@@ -3366,9 +3330,10 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/shotgun/shoot.wav");
 
 			//lotta stuff here, so let's make sure we don't add unless ABSOLUTELY necessary..
-			if (weptype == W_SAWNOFF || weptype == W_SNUFF)
+			if (weptype == W_SNUFF) {
 				precache_model("models/weapons/sawnoff/v_snuff_right.mdl");
 				precache_model("models/weapons/sawnoff/v_snuff_left.mdl");
+			}
 			break;
 		case W_FG:
 		case W_IMPELLER:
@@ -3495,6 +3460,9 @@ void(float weptype) precache_extra =
 		case W_GRENADE:
 			precache_model("models/props/grenade_bag.mdl");
 			break;
+		case W_BETTY:
+			precache_model("models/weapons/grenade/g_betty.mdl");
+			break;
 	}
 }
 
@@ -3505,148 +3473,101 @@ float(float wep) getWeaponRecoilReturn =
 	{
 		case W_COLT:
 			return 750;
-			break;
 		case W_BIATCH:
 			return 750;
-			break;
 		case W_KAR:
 		case W_SPRING:
 			return 750;
-			break;
 		case W_ARMAGEDDON:
 		case W_PULVERIZER:
 			return 750;
-			break;
 		case W_THOMPSON:
 			return 950;
-			break;
 		case W_GIBS:
 			return 950;
-			break;
 		case W_357:
 			return 1500;
-			break;
 		case W_KILLU:
 			return 1500;
-			break;
 		case W_BAR:
 			return 460;
-			break;
 		case W_WIDOW:
 			return 460;
-			break;
 		case W_BROWNING:
 			return 950;
-			break;
 		case W_ACCELERATOR:
 			return 950;
-			break;
 		case W_DB:
 			return 1000;
-			break;
 		case W_BORE:
 			return 1000;
-			break;
 		case W_FG:
 			return 1129;
-			break;
 		case W_IMPELLER:
 			return 1129;
-			break;
 		case W_GEWEHR:
 			return 1500;
-			break;
 		case W_COMPRESSOR:
 			return 1500;
-			break;
 		case W_KAR_SCOPE:
 			return 750;
-			break;
 		case W_HEADCRACKER:
 			return 750;
-			break;
 		case W_M1:
 			return 1500;
-			break;
 		case W_M1000:
 			return 1500;
-			break;
 		case W_M1A1:
 			return 1500;
-			break;
 		case W_WIDDER:
 			return 1500;
-			break;
 		case W_MP40:
 			return 2538;
-			break;
 		case W_AFTERBURNER:
 			return 2538;
-			break;
 		case W_MP5K:
 			return 1255;
-			break;
 		case W_KOLLIDER:
 			return 1255;
-			break;
 		case W_MG:
 			return 1778;
-			break;
 		case W_BARRACUDA:
 			return 1778;
-			break;
 		case W_PANZER:
 			return 0;
-			break;
 		case W_LONGINUS:
 			return 0;
-			break;
 		case W_PPSH:
 			return 1255;
-			break;
 		case W_REAPER:
 			return 1255;
-			break;
 		case W_PTRS:
 			return 1500;
-			break;
 		case W_PENETRATOR:
 			return 1500;
-			break;
 		case W_RAY:
 			return 0;
-			break;
 		case W_PORTER:
 			return 0;
-			break;
 		case W_SAWNOFF:
 			return 1000;
-			break;
 		case W_SNUFF:
 			return 1000;
-			break;
 		case W_STG:
 			return 2400;
-			break;
 		case W_SPATZ:
 			return 2400;
-			break;
 		case W_TRENCH:
 			return 500;
-			break;
 		case W_GUT:
 			return 500;
-			break;
 		case W_TYPE:
 			return 1813;
-			break;
 		case W_SAMURAI:
 			return 1813;
-			break;
 		case W_TESLA:
 		case W_DG3:
 			return 1813;
-			break;
 	}
 	return 0;
 }

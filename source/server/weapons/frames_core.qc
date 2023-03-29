@@ -177,7 +177,6 @@ float(string path) model_should_hide_weapon2 =
 		case "models/weapons/knife/v_bowie.mdl":
 		case "models/weapons/knife/v_knife.mdl":
 			return true;
-			break;
 	}
 
 	return false;

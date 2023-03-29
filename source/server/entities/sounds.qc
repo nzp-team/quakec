@@ -67,6 +67,9 @@ void() ambient_use =
 
 void () ambient_generic =
 {
+
+#ifdef FTE
+
 	local string link;
 
     // moto - FIXME: typically this is set to upper-case but only FTE has strtoupper(); assume lower-case!
@@ -114,6 +117,9 @@ void () ambient_generic =
 		ambientsound(self.origin, self.message, self.health, self.stance);
 		
 	self.use = ambient_use;
+
+#endif // FTE
+
 };
 
 

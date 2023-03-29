@@ -1128,85 +1128,58 @@ float(float r) Getweaponid =
 	switch(r) {
 		case 0:
 			return W_COLT;
-			break;
 		case 1:
 			return W_KAR;
-			break;
 		case 2:
 			return W_DB;
-			break;
 		case 3:
 			return W_MG;
-			break;
 		case 4:
 			return W_RAY;
-			break;
 		case 5:
 			return W_THOMPSON;
-			break;
 		case 6:
 			return W_M2;
-			break;
 		case 7:
 			return W_PPSH;
-			break;
 		case 8:
 			return W_SAWNOFF;
-			break;
 		case 9:
 			return W_TESLA;
-			break;
 		case 10:
 			return W_M1A1;
-			break;
 		case 11:
 			return W_GEWEHR;
-			break;
 		case 12:
 			return W_FG;
-			break;
 		case 13:
 			return W_BROWNING;
-			break;
 		case 14:
 			return W_KAR_SCOPE;
-			break;
 		case 15:
 			return W_357;
-			break;
 		case 16:
 			return W_STG;
-			break;
 		case 17:
 			return W_PANZER;
-			break;
 		case 18:
 			return W_BK;
-			break;
 		case 19:
 			return W_PTRS;
-			break;
 		case 20:
 			return W_MP40;
-			break;
 		case 21:
 			return W_TRENCH;
-			break;
 		case 22:
 			return W_BAR;
-			break;
 		case 23:
 			return W_M1;
-			break;
 		case 24:
 			return W_TYPE;
-			break;
 		case 25:
 			return W_MP5K;
-			break;
 		case 26:
 			return W_SPRING;
-			break;
 	}
 
 	return r;
@@ -1911,6 +1884,10 @@ void() perk_pap =
 	} else {
 		self.requirespower = false;
 	}
+
+	// Only cache the dual wield pap weapons if we have pap..
+	precache_extra(W_BIATCH);
+	precache_extra(W_SNUFF);
 
 	precache_model ("models/machines/quake_scale/pap.mdl");
 	precache_model ("models/machines/v_pap.mdl");

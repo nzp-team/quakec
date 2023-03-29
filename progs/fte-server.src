@@ -8,7 +8,6 @@
 
 ../source/server/dummies.qc
 ../source/server/rounds.qc
-../source/server/nzdparser.qc
 ../source/server/main.qc
 ../source/server/utilities/weapon_utilities.qc
 ../source/server/utilities/game_restart.qc
@@ -45,5 +44,3 @@
 ../source/server/ai/zombie_core.qc
 ../source/server/ai/crawler_core.qc
 ../source/server/ai/dog_core.qc
-
-../source/server/items.qc

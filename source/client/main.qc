@@ -703,10 +703,8 @@ noref float(string cmd) CSQC_ConsoleCommand =
 		case "togglemenu":
 			ToggleMenu();
 			return TRUE;
-			break;
 		case "map":
 			return FALSE;
-			break;
 		case "startwalk":
 			walk = TRUE;
 			return FALSE;
@@ -722,7 +720,6 @@ noref float(string cmd) CSQC_ConsoleCommand =
 			else
 				score_show = TRUE;
 			return TRUE;
-			break;
 		default:
 			return FALSE;
 	}

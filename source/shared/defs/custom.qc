@@ -231,7 +231,3 @@ float invertfloat(float input) {
 	
 	return (1 - input);	
 }
-
-// custom weapon defs
-// now 90% slimmed down
-float currentWeaponTracker;

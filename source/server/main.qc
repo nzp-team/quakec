@@ -338,8 +338,6 @@ void() worldspawn =
 	G_WORLDTEXT = 1;
 	G_PERKS = 0;
 	G_PERKPOWER = 0;
-	load_nzd();
-
 }
 
 void() SpectatorConnect =
