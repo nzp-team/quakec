@@ -240,6 +240,32 @@ void() trigger_activator =
 	self.touch = trigger_activator_touch;
 }
 
+#define SPAWNFLAG_TRIGGERCMD_NOPLAYER	1
+#define SPAWNFLAG_TRIGGERCMD_NOSPEC		2
+void() trigger_stuffcmd_touch =
+{
+	// First, lets make sure this is a client
+	if (other.classname != "player" && other.classname != "spectator")
+		return;
+
+	// Don't interact with players
+	if ((self.spawnflags & SPAWNFLAG_TRIGGERCMD_NOPLAYER) && other.classname == "player")
+		return;
+
+	// Don't interact with spectators
+	if ((self.spawnflags & SPAWNFLAG_TRIGGERCMD_NOSPEC) && other.classname == "spectator")
+		return;
+
+	// Run the command.
+	stuffcmd(other, strcat(self.message, "\n"));
+}
+
+void() trigger_stuffcmd =
+{
+	InitTrigger();
+	self.touch = trigger_stuffcmd_touch;
+}
+
 /* ===================
    Custom Teddy Triggers
    ===================*/
