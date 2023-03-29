@@ -724,12 +724,13 @@ void() Load_Waypoints_Legacy
 			new_way.targets[5] = trg6;
 			new_way.targets[6] = trg7;
 			new_way.targets[7] = trg8;
+			new_way.targetname = special;
 			setorigin(new_way, where);
 
-			if (!special) {
-				setmodel(new_way, "models/way/normal_way.spr");
-			} else {
+			if (special != "" && special != " ") {
 				setmodel(new_way, "models/way/normal_way_door.spr");
+			} else {
+				setmodel(new_way, "models/way/normal_way.spr");
 			}
 		}
 		
