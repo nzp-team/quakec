@@ -73,6 +73,8 @@ float(string params) Command_give =
 
 #endif // FTE
 
+		SwitchWeapon(self.weapon);
+
         return COMMAND_SUCCESS;
     }
 
