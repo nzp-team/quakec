@@ -49,10 +49,6 @@ float(string params) Command_give =
 	float wep = stof(argv(1));
 
 	if (wep) {
-		if (!self.secondaryweapon) {
-			WeaponSwitch(self);
-		}
-
 		self.weapon = wep;
 		self.currentammo = getWeaponAmmo(wep);
 		self.currentmag = getWeaponMag(wep);
