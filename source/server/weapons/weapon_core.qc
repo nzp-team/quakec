@@ -137,7 +137,7 @@ void() W_SprintStop =
 	if (self.isBuying || !self.sprinting)
 		return;
 
-	Weapon_PlayViewModelAnimation(ANIM_SPRINT_STOP, SUB_Null, 0);
+	Weapon_PlayViewModelAnimation(ANIM_SPRINT_STOP, ReturnWeaponModel, 0);
 
 	self.zoom = 0;
 	self.sprinting = 0;
