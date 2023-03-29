@@ -124,7 +124,7 @@ void() Flame_Drop =
 
 	drop.owner = self.owner;
 
-	setmodel(drop, "models/sprites/flame.spr");
+	setmodel(drop, "models/sprites/flamer.spr");
 	setsize(drop, '0 0 0', '0 0 0');
 	setorigin(drop, self.origin);
 
@@ -190,7 +190,7 @@ void() W_FireFlame =
 	flamespr.nextthink = time + 0.01;
 	flamespr.touch = Flame_Touch;
 
-	setmodel(flamespr, "models/sprites/flame.spr");
-	setorigin(flamespr, self.origin + self.view_ofs - v_up*10 + v_forward*30);
+	setmodel(flamespr, "models/sprites/flamer.spr");
+	setorigin(flamespr, self.origin + self.view_ofs - v_up*5 + v_forward*10);
 	setsize(flamespr, '0 0 0', '0 0 0');
 }

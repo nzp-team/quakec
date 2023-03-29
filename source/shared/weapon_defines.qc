@@ -3404,7 +3404,7 @@ void(float weptype) precache_extra =
 			break;
 		case W_M2:
 			precache_sound("sounds/weapons/m2flame/flamethrower.wav");
-			precache_model("models/sprites/flame.spr");
+			precache_model("models/sprites/flamer.spr");
 			break;
 		case W_MP40:
 		case W_AFTERBURNER:
