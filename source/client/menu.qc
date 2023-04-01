@@ -1182,10 +1182,15 @@ void() Draw_Extra_Main =
 
 void() Draw_Extra_Solo =
 {
-	local string solo_desc = "";
-	local string solo_desc2 = "";
-	local string solo_desc3 = "";
-	local string solo_img = "";
+	string solo_desc = "";
+	string solo_desc2 = "";
+	string solo_desc3 = "";
+	string solo_desc4 = "";
+	string solo_desc5 = "";
+	string solo_desc6 = "";
+	string solo_desc7 = "";
+	string solo_desc8 = "";
+	string solo_img = "";
 
 	// Division lines
 	drawfill ([0.025*g_width, 0.425*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
@@ -1193,9 +1198,14 @@ void() Draw_Extra_Solo =
 	// Map descriptions
 	switch(lastActive) {
 		case 5:
-			solo_desc = "Lock and Load; Crashed Plane.";
-			solo_desc2 = "Divided. Thousands of Undead.";
-			solo_desc3 = "This is the Night of the Dead.";
+			solo_desc = "Desolate bunker located on a Ge-";
+			solo_desc2 = "rman airfield, stranded after a";
+			solo_desc3 = "brutal plane crash surrounded by";
+			solo_desc4 = "hordes of undead. Exploit myste-";
+			solo_desc5 = "rious forces at play and hold o-";
+			solo_desc6 = "ut against relentless waves. Der";
+			solo_desc7 = "Anstieg ist jetzt. Will you fall";
+			solo_desc8 = "to the overwhelming onslaught?";
 			solo_img = "gfx/menu/nacht_der_untoten.png";
 			break;
 		case 6:
@@ -1241,6 +1251,11 @@ void() Draw_Extra_Solo =
 	drawstring([0.425*g_width, 0.540*g_height, 0], solo_desc, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
 	drawstring([0.425*g_width, 0.580*g_height, 0], solo_desc2, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
 	drawstring([0.425*g_width, 0.620*g_height, 0], solo_desc3, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([0.425*g_width, 0.660*g_height, 0], solo_desc4, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([0.425*g_width, 0.700*g_height, 0], solo_desc5, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([0.425*g_width, 0.740*g_height, 0], solo_desc6, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([0.425*g_width, 0.780*g_height, 0], solo_desc7, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([0.425*g_width, 0.820*g_height, 0], solo_desc8, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
 }
 
 void() Draw_Extra_Settings =
