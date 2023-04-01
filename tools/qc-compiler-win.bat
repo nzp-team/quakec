@@ -9,17 +9,17 @@ echo ========================
 echo    compiling FTE CCQC
 echo ========================
 echo.
-fteqcc-cli-win.exe -O3 -srcfile ../progs/fte-client.src
+fteqcc-cli-win.exe -srcfile ../progs/fte-client.src
 echo.
 echo ========================
 echo    compiling FTE SSQC
 echo ========================
 echo.
-fteqcc-cli-win.exe -O3 -srcfile ../progs/fte-server.src
+fteqcc-cli-win.exe -srcfile ../progs/fte-server.src
 echo.
 echo ========================
 echo   compiling STANDARD QC
 echo ========================
 echo.
-fteqcc-cli-win.exe -O3 -srcfile ../progs/standard.src
+fteqcc-cli-win.exe -O2 -srcfile ../progs/standard.src
 pause
