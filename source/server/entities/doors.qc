@@ -631,14 +631,6 @@ void() func_door_nzp =
 	// naievil (FIXME) ^^^^ hl rendermodes, mapversion
 	makevectors(self.angles);
 	SetMovedir ();
-	
-	self.target2 = self.target;
-	self.target3 = self.target;
-	self.target4 = self.target;
-	self.target5 = self.target;
-	self.target6 = self.target;
-	self.target7 = self.target;
-	self.target8 = self.target;
 
 	self.max_health = self.health;
 	self.solid = SOLID_BSP;
