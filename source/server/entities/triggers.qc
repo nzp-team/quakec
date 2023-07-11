@@ -278,6 +278,8 @@ void() teddy_react =
     
 		if (t)
 			remove(t); 
+	} else if (self.target) {
+		SUB_UseTargets();
 	}
 
     entity dummy = spawn();
