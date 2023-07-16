@@ -984,16 +984,14 @@ void() zombie_land7		=[	$land7,		Zombie_Walk_Setup	]	{self.frame = 159;Zombie_Th
 
 void() removeZombie =
 {
-	self.classname = "freeZombieEntity";
 	self.aistatus = "0";
 	setmodel(self,"");
-	
-	setmodel(self.larm,"");
-	setmodel(self.rarm,"");
-	setmodel(self.head,"");
 
 	// Hounds don't gib.
-	if (self.head) {
+	if (self.classname != "ai_dog") {
+		setmodel(self.larm,"");
+		setmodel(self.rarm,"");
+		setmodel(self.head,"");
 
 #ifdef FTE
 
@@ -1015,7 +1013,7 @@ void() removeZombie =
 	setorigin (self.goaldummy, '0 0 0');
 	
 	self.think = SUB_Null;
-	
+	self.classname = "freeZombieEntity";
 	self.goalentity = world;
 	self.enemy = world;
 	self.solid = 0;
