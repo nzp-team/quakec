@@ -1526,8 +1526,10 @@ void() GrenadeExplode =
 
 	if (self.classname == "grenade")
 		DamgageExplode (self, self.owner, 200, 50, 256);
+	else if (self.classname == "betty")
+		DamgageExplode (self, self.owner, 12000, 11000, 128);
 	else
-		DamgageExplode (self, self.owner, 1200, 1000, 75); //explosive weapons are more powerful :)
+		DamgageExplode (self, self.owner, 1200, 1000, 75);
 	
 #ifdef FTE
 
@@ -1558,39 +1560,50 @@ void() Velocity_reduce =
 	NadeStraighten();
 };
 
+void() betty_do_rise =
+{
+	if (self.ltime < time) {
+		self.velocity = '0 0 0';
+		self.movetype = MOVETYPE_NONE;
+		self.think = SUB_Null;
+		GrenadeExplode();
+	}
+
+	self.nextthink = time + 0.05;
+	makevectors(self.angles);
+	self.velocity = v_up*70;
+}
+
 void() betty_touch = 
 {
-  	//centerprint (other, "wow\n"); <- THIS
-
 	if (other.classname == "grenade")
 		return;
 
   	if (other == self.owner || other.solid == SOLID_TRIGGER)
-    	if (other != world)
-      		return;
-  
-  	GrenadeExplode();
+    	return;
+
+	self.think = betty_do_rise;
+	self.touch = SUB_Null;
+	self.nextthink = time + 0.1;
+	self.ltime = time + 0.35;
 }
 
 void() W_ThrowBetty =
 {
-	local entity betty;
+	entity betty;
 	betty = spawn ();
 	betty.owner = self;
 	betty.grenade_delay = betty.owner.grenade_delay;
 	betty.owner.grenade_delay = 0;
-	betty.movetype = MOVETYPE_NONE;
+	betty.movetype = MOVETYPE_NOCLIP;
 	betty.solid = SOLID_TRIGGER;
 	betty.classname = "betty";
 
-	// set betty speed	
 	betty.velocity = v_forward*0;
-
-	betty.think = GrenadeExplode;
 	betty.touch = betty_touch;
 
 	setmodel (betty, "models/weapons/grenade/g_betty.mdl");
-	setsize (betty, '-16 -16 -4', '16 16 1');
+	setsize (betty, '-64 -64 -4', '64 64 32');
 
 	betty.origin = betty.owner.origin - self.view_ofs + '0 0 1';
 	//if player isn't on ground, drop the betty to the floor.
