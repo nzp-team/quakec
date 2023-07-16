@@ -1526,7 +1526,7 @@ void() GrenadeExplode =
 	if (self.classname == "grenade")
 		DamgageExplode (self, self.owner, 225, 75, 128);//was 256 inch radius, kicked it down to 128 because 21 feet exploding radius is... a bit overkill...	
 	else
-		DamgageExplode (self, self.owner, 1200, 1000, 128); //explosive weapons are more powerful :)
+		DamgageExplode (self, self.owner, 1200, 1000, 75); //explosive weapons are more powerful :)
 	
 #ifdef FTE
 
@@ -1538,6 +1538,7 @@ void() GrenadeExplode =
 	
 	SUB_Remove ();
 };
+
 void() NadeStraighten =
 {
 	self.angles_x = (self.angles_x > 0) ? 90 : -90;	

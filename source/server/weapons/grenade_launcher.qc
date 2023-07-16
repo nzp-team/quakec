@@ -43,7 +43,7 @@ void(float side) W_FireGrenade =
 
 	makevectors (self.v_angle);
 
-	nade.velocity = v_forward*1000;		
+	nade.velocity = v_forward*3000;		
 	nade.avelocity = '50 -50 50';
 
 	nade.touch = GrenadeExplode;
