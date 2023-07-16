@@ -1524,7 +1524,7 @@ void() GrenadeExplode =
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);	
 
 	if (self.classname == "grenade")
-		DamgageExplode (self, self.owner, 225, 75, 128);//was 256 inch radius, kicked it down to 128 because 21 feet exploding radius is... a bit overkill...	
+		DamgageExplode (self, self.owner, 200, 50, 256);
 	else
 		DamgageExplode (self, self.owner, 1200, 1000, 75); //explosive weapons are more powerful :)
 	
