@@ -34,6 +34,7 @@
 ../source/server/weapons/rocket_launcher.qc
 ../source/server/weapons/ray_gun.qc
 ../source/server/weapons/flamethrower.qc
+../source/server/weapons/grenade_launcher.qc
 ../source/server/weapons/weapon_core.qc
 
 ../source/server/entities/powerups.qc

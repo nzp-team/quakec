@@ -1028,28 +1028,6 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 
 }
 
-void(float side) W_FireGrenade = 
-{
-	entity nade = spawn();
-	nade.owner = self;
-	nade.movetype = MOVETYPE_BOUNCE;
-	nade.solid = SOLID_BBOX;
-	nade.classname = "explosiveNade";
-
-	makevectors (self.v_angle);
-
-	nade.velocity = v_forward*1000;		
-	nade.avelocity = '50 -50 50';
-
-	//centerprint(self, vtos(nade.angles));
-
-	nade.touch = GrenadeExplode;
-	setsize(nade, '0 0 0', '0 0 0');
-	nade.origin = self.origin + self.view_ofs;
-
-	setorigin(nade, nade.origin);
-}
-
 // Remove zombie, add money, request clone spawn.
 void(entity hit_ent) LightningHit =
 {
