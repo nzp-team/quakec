@@ -768,9 +768,10 @@ void Parse_Damage () = // DO NOT TOUCH
 			else
 				DamageHandler(body_ent,self, total_dmg, S_NORMAL);
 			
-			body_ent.washit = 0;
-			body_ent.hitamount = 0;
-
+			if (body_ent != world) {
+				body_ent.washit = 0;
+				body_ent.hitamount = 0;
+			}
 		}
 		ent = findfloat (ent, washit, 1);
 	}
