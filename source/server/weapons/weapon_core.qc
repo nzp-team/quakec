@@ -2158,15 +2158,12 @@ void() CheckPlayer =
 			self.dive = 0;
 		}
 
-		if (fabs(vlen(self.oldz - self.origin_z)) > 176 && !(self.perks & P_FLOP)) {
-			float height = fabs(vlen(self.oldz - self.origin_z)) - 176 + 64;
-			float damage;
+		if (fabs(self.oldz - self.origin_z) + 64 > 176 && !(self.perks & P_FLOP)) {
+			float height = fabs(self.oldz - self.origin_z) + 64;
+			float damage = height*(0.68);
 
-			if (height > 326) {
-				damage = 98;
-			} else {
-				damage = height*(0.68);
-			}
+			if (damage > 98) damage = 98;
+			
 			DamageHandler (self, other, damage, S_ZOMBIE);	
 
 			if (self.health <= 10)
