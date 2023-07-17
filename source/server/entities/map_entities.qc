@@ -111,6 +111,7 @@ void() item_radio =
 	self.health = 1;
 	self.radioState = 0;
 	self.th_die = radio_hit;
+	self.th_diewunder = SUB_Null;
 };
 
 /* ================
