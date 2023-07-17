@@ -1088,6 +1088,34 @@ void() power_switch =
 #define MBOX_SPAWNFLAG_NOTHERE 		1
 #define MBOX_SPAWNFLAG_NOLIGHT 		2
 
+
+//
+// MBOX_FreeEnt(ent)
+// Marks an MBOX entity as able to be used.
+//
+inline void(entity ent) MBOX_FreeEnt =
+{
+	setmodel(ent, "");
+	ent.classname = "freeMboxEntity";
+	ent.touch = SUB_Null;
+	ent.think = SUB_Null;
+};
+
+//
+// MBOX_GetFreeEnt()
+// Returns an MBOX entity to use.
+//
+entity() MBOX_GetFreeEnt =
+{
+	entity ent;
+	ent = find(world, classname, "freeMboxEntity");
+
+	if (ent == world)
+		error("MBOX_GetFreeEnt: No free MBOX Entity. (Hacks?)\n");
+	
+	return ent;
+};
+
 void() updateBoxGlow
 {
 	if(self.goaldummy)
@@ -1235,7 +1263,7 @@ void() Reset_MBox =
 	self = tempe;
 	self.owner.owner = world;
 	self.owner.boxstatus = 0;
-	remove (self);
+	MBOX_FreeEnt(self);
 }
 
 //
@@ -1283,7 +1311,8 @@ void() findboxspot =
 	if (!(self.owner.spawnflags & MBOX_SPAWNFLAG_NOLIGHT))
 	{
 		entity g;
-		g = spawn();
+		g = MBOX_GetFreeEnt();
+		g.classname = "mystery_glow";
 		newspot.goaldummy = g;
 		setmodel(g,"models/machines/mglow$.mdl");
 		setorigin(g,newspot.origin);
@@ -1291,7 +1320,7 @@ void() findboxspot =
 	}
 	
 	// Remove teddy
-	remove(self);
+	MBOX_FreeEnt(self);
 	
 	// Set some values and change the found Spot to an MBox
 	newspot.spins = 0;
@@ -1308,7 +1337,8 @@ void() findboxspot =
 void() remove_box =
 {
 	if (!(self.owner.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) 
-		setmodel(self.owner.goaldummy, "");
+		if (self.owner.goaldummy != world)
+			setmodel(self.owner.goaldummy, "");
 
 	self.owner.frame = 0;	// set box frame
 	makevectors(self.angles);
@@ -1379,6 +1409,18 @@ void() Float_Change =
 	self.think = Float_Change;
 }
 
+void() allocate_floating_weapons =
+{
+	self.think = SUB_Null;
+
+	// Spawn all of our floating weapon entities
+	// Multiply by 2 to account for the glow.
+	for (float i = 0; i < boxCount * 3; i++) {
+		entity tempe = spawn();
+		tempe.classname = "freeMboxEntity";
+	}
+}
+
 void() Create_Floating_Weapon =
 {
 	entity gun;
@@ -1394,7 +1436,8 @@ void() Create_Floating_Weapon =
 	}
 	temps = GetWeaponModel(r, 1);
 		
-	gun = spawn();
+	gun = MBOX_GetFreeEnt();
+	gun.classname = "mystery_weapon";
 	
 	setorigin (gun, self.origin);
 	setmodel (gun, temps);
@@ -1563,7 +1606,7 @@ void() mystery_touch =
 
 				SwitchWeapon(self.weapon);
 				self = tempe;
-				remove (self.boxweapon);
+				MBOX_FreeEnt(self.boxweapon);
 				box_close1();
 			}
 		}
@@ -1650,19 +1693,24 @@ void() mystery_box =
 
     // Temporary hack for random box spawns until rewrite - Mikey (27/03/2023, DD/MM/YYYY)
     if(self.spawnflags & MBOX_SPAWNFLAG_NOTHERE) {
-        entity temp = spawn();
+        entity temp = MBOX_GetFreeEnt();
+		temp.classname = "mystery_helper";
 
         temp.owner = self;
         temp.think = findboxspot;
         temp.nextthink = time + 0.1;
     } else if(!(self.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) {
-        entity g = spawn();
+        entity g = MBOX_GetFreeEnt();
+		g.classname = "mystery_glow";
 
 		self.goaldummy = g;
 		setmodel(g,"models/machines/mglow$.mdl");
 		setorigin(g,self.origin);
 		g.angles = self.angles;
     }
+
+	self.think = allocate_floating_weapons;
+	self.nextthink = time + 0.2;
 }
 
 //

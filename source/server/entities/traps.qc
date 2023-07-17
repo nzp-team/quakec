@@ -297,8 +297,8 @@ void() set_zapper_bbox =
 	entity other_zapper = find(world, targetname, self.target);
 	float distance = abs(vlen(other_zapper.origin - self.origin));
 
-	vector bbmin;
-	vector bbmax;
+	vector bbmin = '0 0 0';
+	vector bbmax = '0 0 0';
 
 	// X Axis
 	if (self.angles_x) {
