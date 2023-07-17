@@ -2158,8 +2158,16 @@ void() CheckPlayer =
 			self.dive = 0;
 		}
 
-		if (fabs(self.oldz - self.origin_z) > 90 && !(self.perks & P_FLOP)) {
-			DamageHandler (self, other, 50, S_ZOMBIE);	
+		if (fabs(vlen(self.oldz - self.origin_z)) > 176 && !(self.perks & P_FLOP)) {
+			float height = fabs(vlen(self.oldz - self.origin_z)) - 176 + 64;
+			float damage;
+
+			if (height > 326) {
+				damage = 98;
+			} else {
+				damage = height*(0.68);
+			}
+			DamageHandler (self, other, damage, S_ZOMBIE);	
 
 			if (self.health <= 10)
 				GiveAchievement(7, self);	
