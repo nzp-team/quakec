@@ -28,6 +28,7 @@
 void (float achievement_id, optional entity who) GiveAchievement;
 
 void() Barrel_Hit;
+void() teddy_react;
 
 void() EndGame_Restart = 
 {
@@ -633,6 +634,16 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			self = ent;
 			Barrel_Hit();
 			self = oldself;
+		}
+		else if (ent.classname == "teddy_spawn")
+		{
+			entity oldself2;
+			oldself2 = self;
+			self = ent;
+			teddy_react();
+			self = oldself2;
+			//ent.th_die();
+			//bprint(PRINT_HIGH, "hello????\n");
 		}
 		else if (ent.takedamage && ent.classname != "ai_zombie_head" && ent.classname != "ai_zombie_larm" && ent.classname != "ai_zombie_rarm")
 		{			
