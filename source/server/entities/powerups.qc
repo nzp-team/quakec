@@ -58,6 +58,7 @@ inline void(entity ent) PU_FreeEnt =
 {
 	setmodel(ent, "");
 	ent.classname = "freePowerUpEntity";
+	ent.hitcount = 0;
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
 	ent.frame = 0;

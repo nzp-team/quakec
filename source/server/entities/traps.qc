@@ -338,7 +338,7 @@ void() set_zapper_bbox =
 		}
 	} else if (self.angles_z) {
 		// Z Axis
-		switch(self.angles_z) {
+		switch(abs(self.angles_z)) {
 			// Pointed 'Upward'
 			case 0:
 				bbmin = '-20 -20 -4';

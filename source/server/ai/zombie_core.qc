@@ -1614,21 +1614,12 @@ void(entity szombie) SetZombieWalk =
 	}
 };
 
-float() getMaxZombies =
-{
-	if (dogWave == true) {
-		return 2;
-	} else {
-		return MAX_ZOMB;
-	}
-}
-
 void() spawnAllZombEnts =
 {
 	local float i;
 	i = 0;
 
-	while(i < getMaxZombies())//IMPORTANT VALUE, max zombies allowed in map
+	while(i < MAX_ZOMB)
 	{
 		spawnSingleZombEnt(i);
 		i++;
