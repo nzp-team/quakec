@@ -290,6 +290,98 @@ void() zapper_switch =
 	self.classname = "zapper_switch";
 };
 
+void() set_zapper_bbox =
+{
+	// Retrieve the distance between this zapper and the one
+	// it's linked to.
+	entity other_zapper = find(world, targetname, self.target);
+	float distance = abs(vlen(other_zapper.origin - self.origin));
+
+	vector bbmin;
+	vector bbmax;
+
+	// X Axis
+	if (self.angles_x) {
+		switch(self.angles_x) {
+			// Pointed 'Upward'
+			case 0:
+				bbmin = '-20 -20 -4';
+				bbmax_x = 20;
+				bbmax_y = 20;
+				bbmax_z = distance/2;
+				break;
+			// Pointed 'Leftward'
+			case 90:
+				bbmin_x = -distance/2;
+				bbmin_y = -20;
+				bbmin_z = -20;
+				bbmax = '4 20 20';
+				break;
+			// Pointed 'Downward'
+			case 180:
+				bbmin_x = -20;
+				bbmin_y = -20;
+				bbmin_z = -distance/2;
+				bbmax = '20 20 4';
+				break;
+			// Pointed 'Rightward'
+			case 270:
+				bbmin = '-4 20 20';
+				bbmax_x = distance/2;
+				bbmax_y = 20;
+				bbmax_z = 20;
+				break;
+			default: 
+				bprint(PRINT_HIGH, "WARN: Invalid X axis rotation for zapper_node.\n");
+				bprint(PRINT_HIGH, "      Collision box is going to be incorrect.\n");
+				break;
+		}
+	} else if (self.angles_z) {
+		// Z Axis
+		switch(self.angles_z) {
+			// Pointed 'Upward'
+			case 0:
+				bbmin = '-20 -20 -4';
+				bbmax_x = 20;
+				bbmax_y = 20;
+				bbmax_z = distance/2;
+				break;
+			// Pointed 'Leftward'
+			case 90:
+				bbmin_x = -20;
+				bbmin_y = -distance/2;
+				bbmin_x = -20;
+				bbmax = '20 4 20';
+				break;
+			// Pointed 'Downward'
+			case 180:
+				bbmin_x = -20;
+				bbmin_y = -20;
+				bbmin_z = -distance/2;
+				bbmax = '20 20 4';
+				break;
+			// Pointed 'Rightward'
+			case 270:
+				bbmin = '-20 -4 -20';
+				bbmax_x = 20;
+				bbmax_y = distance/2;
+				bbmax_x = 20;
+				break;
+			default: 
+				bprint(PRINT_HIGH, "WARN: Invalid Z axis rotation for zapper_node.\n");
+				bprint(PRINT_HIGH, "      Collision box is going to be incorrect.\n");
+				break;
+		}
+	}
+
+	if (self.angles_y) {
+		bprint(PRINT_HIGH, "WARN: zapper_node object with Y axis rotation.\n");
+		bprint(PRINT_HIGH, "      Use r_showbboxes to verify zap collision.\n");
+	}
+
+	setsize(self, bbmin, bbmax);
+}
+
 void() zapper_node = 
 {
     //
@@ -305,14 +397,10 @@ void() zapper_node =
     setorigin(self, self.origin);
     setmodel(self, self.model);
 	makevectors(self.angles);
-
-	if (self.angles_z == 180) {
-		setsize (self, '-20 -20 -80', '20 20 4');
-	} else {
-		setsize (self, '-20 -20 -4', '20 20 80');
-	}
     
 	self.movetype = MOVETYPE_NONE;
+	self.think = set_zapper_bbox;
+	self.nextthink = time + 2;
 	self.classname = "zapper_node";
 };
 

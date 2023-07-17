@@ -224,3 +224,11 @@ vector(vector ang) normalizeAngles180 = {
     */
     return ang;
 };
+
+float(float val) abs = {
+    if (val < 0) {
+        val *= -1;
+    }
+
+    return val;
+};

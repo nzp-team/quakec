@@ -642,8 +642,6 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			self = ent;
 			teddy_react();
 			self = oldself2;
-			//ent.th_die();
-			//bprint(PRINT_HIGH, "hello????\n");
 		}
 		else if (ent.takedamage && ent.classname != "ai_zombie_head" && ent.classname != "ai_zombie_larm" && ent.classname != "ai_zombie_rarm")
 		{			
