@@ -280,8 +280,8 @@ float(float wep, float type) getWeaponMultiplier =
 			{
 				case HEAD_X: 		return 3;
 				case UPPER_TORSO_X: return 1;
-				case LOWER_TORSO_X: return 1;
-				case LIMBS_X: 		return 1;
+				case LOWER_TORSO_X: return 0.8;
+				case LIMBS_X: 		return 0.8;
 			}
 			break;
 		case W_KAR:
