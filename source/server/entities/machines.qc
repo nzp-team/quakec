@@ -1409,6 +1409,27 @@ void() Float_Change =
 	self.think = Float_Change;
 }
 
+void() finish_mbox_setup =
+{
+	// Temporary hack for random box spawns until rewrite - Mikey (27/03/2023, DD/MM/YYYY)
+    if(self.spawnflags & MBOX_SPAWNFLAG_NOTHERE) {
+        entity temp = MBOX_GetFreeEnt();
+		temp.classname = "mystery_helper";
+
+        temp.owner = self;
+        temp.think = findboxspot;
+        temp.nextthink = time + 0.1;
+    } else if(!(self.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) {
+        entity g = MBOX_GetFreeEnt();
+		g.classname = "mystery_glow";
+
+		self.goaldummy = g;
+		setmodel(g,"models/machines/mglow$.mdl");
+		setorigin(g,self.origin);
+		g.angles = self.angles;
+    }
+}
+
 void() allocate_floating_weapons =
 {
 	self.think = SUB_Null;
@@ -1419,6 +1440,8 @@ void() allocate_floating_weapons =
 		entity tempe = spawn();
 		tempe.classname = "freeMboxEntity";
 	}
+
+	finish_mbox_setup();
 }
 
 void() Create_Floating_Weapon =
@@ -1690,24 +1713,6 @@ void() mystery_box =
 
 	boxLocations[boxCount] = self;
 	boxCount++;
-
-    // Temporary hack for random box spawns until rewrite - Mikey (27/03/2023, DD/MM/YYYY)
-    if(self.spawnflags & MBOX_SPAWNFLAG_NOTHERE) {
-        entity temp = MBOX_GetFreeEnt();
-		temp.classname = "mystery_helper";
-
-        temp.owner = self;
-        temp.think = findboxspot;
-        temp.nextthink = time + 0.1;
-    } else if(!(self.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) {
-        entity g = MBOX_GetFreeEnt();
-		g.classname = "mystery_glow";
-
-		self.goaldummy = g;
-		setmodel(g,"models/machines/mglow$.mdl");
-		setorigin(g,self.origin);
-		g.angles = self.angles;
-    }
 
 	self.think = allocate_floating_weapons;
 	self.nextthink = time + 0.2;
