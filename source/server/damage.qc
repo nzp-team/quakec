@@ -520,6 +520,15 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 		else
 			sound (self, CHAN_AUTO, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
 
+		if (victim.sprinting) {
+			old_self = self;
+			self = victim;
+			W_SprintStop();
+			self = old_self;
+		}
+
+		victim.sprint_delay = time + 0.75;
+
 		// Was 20 for.. some reason.
 		if (victim.health <= 1)
 		{
