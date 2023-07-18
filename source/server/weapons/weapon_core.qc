@@ -1007,6 +1007,10 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 #ifdef FTE
 
 			AI_SetAllEnemiesCorpse();
+			trace_ent.solid = SOLID_CORPSE;
+			if (trace_ent.head) trace_ent.head.solid = SOLID_CORPSE;
+			if (trace_ent.larm) trace_ent.larm.solid = SOLID_CORPSE;
+			if (trace_ent.rarm) trace_ent.rarm.solid = SOLID_CORPSE;
 
 #endif // FTE
 			
