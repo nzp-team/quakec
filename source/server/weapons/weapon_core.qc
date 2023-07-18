@@ -33,6 +33,7 @@ void() W_SprintStart;
 #ifdef FTE
 void() AI_SetAllEnemiesBBOX;
 void() AI_RevertEnemySolidState
+float() push_away_zombies;
 #endif // FTE
 
 void() ReturnWeaponModel =
@@ -998,7 +999,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 
 #ifdef FTE
 
-			AI_SetAllEnemiesBBOX();
+			//AI_SetAllEnemiesBBOX();
 
 #endif // FTE
 
@@ -1006,7 +1007,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 
 #ifdef FTE
 
-			AI_RevertEnemySolidState();
+			//AI_RevertEnemySolidState();
 
 #endif // FTE
 
