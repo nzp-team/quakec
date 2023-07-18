@@ -1103,8 +1103,14 @@ void(float index, float type) Button_Click =
 {
 	float btnscale = 0.030*g_height;
 
-	//don't click if not active
+	// don't click if not active
 	if(buttons[index].active == -1)
+		return;
+
+	// also don't click if it's not on this platform
+	if (platform_is_web && buttons[index].platform_dependency == OPTION_EXE_ONLY)
+		return;
+	if (!platform_is_web && buttons[index].platform_dependency == OPTION_WEB_ONLY)
 		return;
 		
 	local vector pos = buttons[index].pos;
