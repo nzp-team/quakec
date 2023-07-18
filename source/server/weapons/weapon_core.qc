@@ -30,6 +30,10 @@ void() W_PutOut;
 void(float side) W_Reload;
 void() GrenadeExplode;
 void() W_SprintStart;
+#ifdef FTE
+void() AI_SetAllEnemiesBBOX;
+void() AI_SetAllEnemiesCorpse;
+#endif // FTE
 
 void() ReturnWeaponModel =
 {
@@ -991,21 +995,20 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 		hitent = world;
 		while (!do_break && random() < getWeaponPenetration(self.weapon, penetration_times))
 		{
-			while (1)
-			{
-				traceline (trace_start_org, trace_start_org + dir, MOVE_HITMODEL, trace_ent);
-				
-				if (hitent == world)
-					break;
-				/*if (hitent.larm == trace_ent || hitent.rarm == trace_ent || hitent.head == trace_ent)
-				{
-					hitent = trace_ent;
-					trace_start_org = trace_endpos + normalize(dir)*10;
-					//break;
-				}*/
-				else
-					break;
-			}
+
+#ifdef FTE
+
+			AI_SetAllEnemiesBBOX();
+
+#endif // FTE
+
+			traceline (trace_start_org, trace_start_org + dir, MOVE_HITMODEL, trace_ent);
+
+#ifdef FTE
+
+			AI_SetAllEnemiesCorpse();
+
+#endif // FTE
 			
 			if (trace_fraction != 1.0)
 				TraceAttack (Damage, dir, trace_endpos, trace_plane_normal, trace_ent, side);

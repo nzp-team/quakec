@@ -783,3 +783,57 @@ void() Do_Zombie_AI = {
 	self = oself;
 	lastzombie = z;
 }
+
+#ifdef FTE
+
+void() AI_SetAllEnemiesBBOX =
+{
+	entity list;
+
+	// First target zombies
+	list = find(world, classname, "ai_zombie");
+	while (list != world) {
+		list.solid = SOLID_BBOX;
+
+		if (list.head) list.head.solid = SOLID_BBOX;
+		if (list.larm) list.larm.solid = SOLID_BBOX;
+		if (list.rarm) list.rarm.solid = SOLID_BBOX;
+
+		list = find(list, classname, "ai_zombie");
+	}
+
+	// Now Dogs
+	list = find(world, classname, "ai_dog");
+	while (list != world) {
+		list.solid = SOLID_BBOX;
+
+		list = find(list, classname, "ai_dog");
+	}
+}
+
+void() AI_SetAllEnemiesCorpse =
+{
+	entity list;
+
+	// First target zombies
+	list = find(world, classname, "ai_zombie");
+	while (list != world) {
+		list.solid = SOLID_CORPSE;
+
+		if (list.head) list.head.solid = SOLID_CORPSE;
+		if (list.larm) list.larm.solid = SOLID_CORPSE;
+		if (list.rarm) list.rarm.solid = SOLID_CORPSE;
+
+		list = find(list, classname, "ai_zombie");
+	}
+
+	// Now Dogs
+	list = find(world, classname, "ai_dog");
+	while (list != world) {
+		list.solid = SOLID_CORPSE;
+
+		list = find(list, classname, "ai_dog");
+	}
+}
+
+#endif // FTE
