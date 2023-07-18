@@ -793,11 +793,25 @@ void() AI_SetAllEnemiesBBOX =
 	// First target zombies
 	list = find(world, classname, "ai_zombie");
 	while (list != world) {
+		list.last_solid = list.solid;
 		list.solid = SOLID_BBOX;
+		list.had_solid_modified = true;
 
-		if (list.head) list.head.solid = SOLID_BBOX;
-		if (list.larm) list.larm.solid = SOLID_BBOX;
-		if (list.rarm) list.rarm.solid = SOLID_BBOX;
+		if (list.head) {
+			list.head.last_solid = list.head.solid;
+			list.head.solid = SOLID_BBOX;
+			list.head.had_solid_modified = true;
+		}
+		if (list.larm) {
+			list.larm.last_solid = list.larm.solid;
+			list.larm.solid = SOLID_BBOX;
+			list.larm.had_solid_modified = true;
+		}
+		if (list.rarm) {
+			list.rarm.last_solid = list.rarm.solid;
+			list.rarm.solid = SOLID_BBOX;
+			list.larm.had_solid_modified = true;
+		}
 
 		list = find(list, classname, "ai_zombie");
 	}
@@ -805,34 +819,25 @@ void() AI_SetAllEnemiesBBOX =
 	// Now Dogs
 	list = find(world, classname, "ai_dog");
 	while (list != world) {
+		list.last_solid = list.solid;
 		list.solid = SOLID_BBOX;
+		list.had_solid_modified = true;
 
 		list = find(list, classname, "ai_dog");
 	}
 }
 
-void() AI_SetAllEnemiesCorpse =
+void() AI_RevertEnemySolidState =
 {
 	entity list;
 
-	// First target zombies
-	list = find(world, classname, "ai_zombie");
+	list = findfloat(world, had_solid_modified, true);
+
 	while (list != world) {
-		list.solid = SOLID_CORPSE;
+		list.solid = list.last_solid;
+		list.had_solid_modified = false;
 
-		if (list.head) list.head.solid = SOLID_CORPSE;
-		if (list.larm) list.larm.solid = SOLID_CORPSE;
-		if (list.rarm) list.rarm.solid = SOLID_CORPSE;
-
-		list = find(list, classname, "ai_zombie");
-	}
-
-	// Now Dogs
-	list = find(world, classname, "ai_dog");
-	while (list != world) {
-		list.solid = SOLID_CORPSE;
-
-		list = find(list, classname, "ai_dog");
+		list = findfloat(list, had_solid_modified, true);
 	}
 }
 

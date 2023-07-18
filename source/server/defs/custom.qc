@@ -548,3 +548,8 @@ float G_PERKPOWER;
 .vector rendercolor;
 
 float revive_index;
+
+#ifdef FTE
+.float last_solid;
+.float had_solid_modified;
+#endif // FTE
