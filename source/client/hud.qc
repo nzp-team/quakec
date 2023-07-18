@@ -49,14 +49,17 @@ string(string img) getImage = {
 
 void(float width, float height) HUD_Health = 
 {
-	local float health;	
+	float health;
+	float max_health;	
 	float alpha;
 	
 	health = getstatf(STAT_HEALTH); 
+	max_health = getstatf(STAT_MAXHEALTH);
 
-	if (health < 100)
+	if (health < max_health)
 	{
-		alpha = (100.0 - ((1.25 * health) - 25))/100*255;
+		alpha = 255 - ((health/max_health))*255;
+
 		if (alpha <= 0.0)
 			return;
 		float modifier = (sin(time * 10) * 20) - 20;//always negative

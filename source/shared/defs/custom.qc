@@ -220,6 +220,7 @@ const float EVENT_SONGPLAY 				= 41;
 #define STAT_PLAYERNUM			64
 #define STAT_PLAYERSTANCE 		65
 #define STAT_FACINGENEMY 		66
+#define STAT_MAXHEALTH 			67
 
 //
 // invert float takes in float value between 0 and 1, inverts position
