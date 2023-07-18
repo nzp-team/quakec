@@ -937,7 +937,7 @@ var struct
 
 	//Pause
 	{[0.025, 0.500, 0], "Resume", -1, menu_resume, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.550, 0], "Restart", -1, menu_restart, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
+	{[0.025, 0.550, 0], "Restart", -1, menu_restart, null, MENU_PAUSE, 0, OPTION_EXE_ONLY},
 	{[0.025, 0.600, 0], "Settings", -1, menu_settings, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
 	{[0.025, 0.650, 0], "Main Menu", -1, menu_main, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
 	{[0.025, 0.850, 0], "Waypoint Menu", -1, menu_waypoint, null, MENU_PAUSE, 0, OPTION_EXE_ONLY},
