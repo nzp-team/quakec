@@ -175,6 +175,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
     }
 
     UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
+	self.weapon2model = GetWeapon2Model(self.weapon);
     UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
     W_AimOut();
