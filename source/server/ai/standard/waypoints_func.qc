@@ -182,17 +182,6 @@ void() Remove_Waypoint =
 	bprint (PRINT_HIGH, active_way.waynum);
 	bprint (PRINT_HIGH, "\n");
 
-	strunzone (active_way.classname);
-	strunzone (active_way.targetname);
-	strunzone (active_way.waynum);
-	strunzone (active_way.target);
-	strunzone (active_way.target2);
-	strunzone (active_way.target3);
-	strunzone (active_way.target4);
-	strunzone (active_way.target5);
-	strunzone (active_way.target6);
-	strunzone (active_way.target7);
-	strunzone (active_way.target8);
 	remove (active_way);
 }
 
