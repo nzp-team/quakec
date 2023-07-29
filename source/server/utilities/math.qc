@@ -102,6 +102,12 @@ float(float a, float b, float mix) lerp =
     return (b * mix + a * ( 1 - mix ) );
 }
 
+float(float a, float b, float mix) unclamped_lerp = 
+{
+    return (b * mix + a * ( 1 - mix ) );
+}
+
+
 vector(vector a, vector b, float mix) lerpVector =
 {
     if (mix <= 0) return a;

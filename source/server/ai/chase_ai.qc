@@ -2,105 +2,264 @@ var struct framegroup {
     float start_frame;
     float end_frame;
     float duration;
-    void() start_callback; 	    // Called at the first frame of the range
-    void() frame_callback;  	// Called at every frame of the range (after start / finish callbacks)
-    void() finish_callback; 	// Called at the last frame of the range
-    // void() think_callback       // Called at each think invocation
+    // void(entity) start_callback; 	// Called at the first frame of the range
+    void(entity) frame_callback;  	// Called at every frame of the range (after start / finish callbacks)
+    // void(entity) end_callback; 	    // Called at the last frame of the range
+    // FIXME - Increasing the size of this framegroup by one more function pointer causes chaos...
+    // I assume I run out of space to pass framegroups along as arguments at any point...
+    // It starts to write into weird memory locations, like overriding self / world... things just break down.
+    // TODO - How can I refactor this to work?
+    void(entity) think_callback;    // Called at each think invocation
+    // -- Maybe I can get rid of start / end callbacks? idk
+    // I should think about how I actually plan on using these...
+
+    // TODO - Get rid of start / end callback, add fields to the AI_Chase class that denotes
+    // TODO - These callbacks will be executed at the same time as frame anyways.
 };
 
-// #define MAX_FRAMEGROUP_CATEGORY_SIZE 4
 
-// var struct framegroup_registry_category {
-//     framegroup framegroups[MAX_FRAMEGROUP_CATEGORY_SIZE];
-//     float num_framegroups;
-// };
+// FIXME - This framegroup  nonsense is causing chaos... the struct is too large apparently... what can I cut out?
 
 
-// var struct framegroup_registry {
-//     framegroup_registry_category fg_die;
-//     framegroup_registry_category fg_walk;
-//     framegroup_registry_category fg_idle;
-//     framegroup_registry_category fg_attack;
-// };
+framegroup make_empty_framegroup(__out framegroup fg) {
+    fg.start_frame = -1;
+    fg.end_frame = -1;
+    fg.duration = 1.0;
+    // fg.start_callback = SUB_Null;
+    fg.frame_callback = SUB_Null;
+    // fg.end_callback = SUB_Null;
+    fg.think_callback = SUB_Null;
+}
 
-
-// framegroup_registry zombie_th_reg;
-// framegroup_registry crawler_th_reg;
-// framegroup_registry dog_th_reg;
-
-framegroup 					zombie_attack_0;
-framegroup 					zombie_attack_1;
-framegroup 					zombie_idle_0;
-framegroup 					zombie_die_0;
-framegroup 					zombie_die_1;
-framegroup 					zombie_die_2;
-framegroup 					zombie_walk_0;
-framegroup 					zombie_walk_1;
-framegroup 					zombie_walk_2;
-framegroup 					zombie_jog_0;
-framegroup 					zombie_run_1;
-framegroup 					zombie_run_2;
-framegroup 					zombie_run_3;
-
-
-void create_framegroup(float start_frame, float end_frame, float duration, void() start_callback, 
-                               void() frame_callback, void() finish_callback, __out framegroup fg) {
+void init_framegroup(   float start_frame, float end_frame, float duration,
+                        void(entity) frame_callback, 
+                        void(entity) think_callback, 
+                            __out framegroup fg) {
     fg.start_frame = start_frame;
     fg.end_frame = end_frame;
     fg.duration = duration;
-    fg.start_callback = start_callback;
     fg.frame_callback = frame_callback;
-    fg.finish_callback = finish_callback;
-    // fg.think_callback = think_callback;
-    // TODO - Add think_callback to function args
-};
+    fg.think_callback = think_callback;
+}
 
 
-// float register_framegroup(framegroup_registry_category *reg_cat, framegroup *fgroup) {
-//     if(reg_cat->num_framegroups >= MAX_FRAMEGROUP_CATEGORY_SIZE)
-//         return -1;
-//     reg_cat->framegroups[reg_cat->num_framegroups] = fgroup;
-//     reg_cat->num_framegroups++;
-//     return 0;
-// }
-
-// void register_framegroup(__out framegroup_registry_category reg_cat, framegroup fgroup) {
-//     print(strcat("\tinside before:",ftos(reg_cat.num_framegroups),", "));
-
-//     if(reg_cat.num_framegroups >= MAX_FRAMEGROUP_CATEGORY_SIZE) {
-//         return -1;
-//     }
-//     reg_cat.framegroups[reg_cat.num_framegroups] = fgroup;
-//     reg_cat.num_framegroups += 1;
-//     print(strcat(" added one!"));
-//     print(strcat(" after:",ftos(reg_cat.num_framegroups),"\n"));
-//     return 0;
-// }
 
 
-// void(framegroup_registry_category reg_cat) random_dispatch = {
-//   float chosen_action = rand() * reg_cat.num_actions; // FTEQCC rounds down floats when used as indices
-//   framegroup chosen_framegroup = reg_cat[chosen_action];
-//   do_something(chosen_framegroup);
-// };
 
 
 class AI_Chase : entity {
     // framegroup_registry *th_reg;
+    entity path_target; // If specified, path towards entity
+    vector path_pos; // Otherwise, path towards location specified
+    float think_delta_time; // Delta time (seconds) between each `this.think();`
 
-    nonvirtual float () fg_die = {
-        // random_dispatch(th_reg->th_die);
+    // ------------------------------
+    // Current Framegroup value vars
+    // ------------------------------
+    float cur_fg_start_time;
+    float cur_fg_start_frame;
+    float cur_fg_end_frame;
+    float cur_fg_duration;
+    // void() endanimfunc = SUB_Null;
+    // virtual void(entity) cur_fg_start_callback = SUB_Null;
+    virtual void(entity) cur_fg_frame_callback = SUB_Null;
+    // virtual void(entity) cur_fg_end_callback = SUB_Null;
+    virtual void(entity) cur_fg_think_callback = SUB_Null;
+    // ------------------------------
+    // Framegroup state vars
+    // ------------------------------
+    float cur_fg_idx; // Counter for checking when the framegroup has been changed
+    float cur_fg_frame_callback_next_frame;
+    float cur_fg_frame_callback_is_start_frame; // Is set to true when performing cur_fg_frame_callback for the first framegroup frame 
+    float cur_fg_frame_callback_is_end_frame;   // Is set to true when performing cur_fg_frame_callback for the final framegroup frame
+
+    // ------------------------------
+
+
+    // Constructor. Called when calling `spawn(AI_Chase);`
+    virtual void() AI_Chase = {
+        this.path_target = world;
+        this.path_pos = world.origin;
+        this.think_delta_time = 0.1; // Call `this.think();` 10x per second
+        this.cur_fg_idx = 0;
     };
-    nonvirtual float () fg_walk = {
-        // random_dispatch(th_reg->th_die);
+
+
+    virtual void() think = {
+        if(this.cur_fg_start_time >= 0) {
+            float cur_framegroup_idx = this.cur_fg_idx;
+            float dt = time - this.cur_fg_start_time;
+            float lerp_frac = (dt / this.cur_fg_duration);
+            // Frame ranges are inclusive, do an un-clamped interpolation to include the final frame
+            float cur_frame = unclamped_lerp(this.cur_fg_start_frame, this.cur_fg_end_frame, lerp_frac);
+            // For rendering, keep frame number always within current animation
+            if(this.cur_fg_end_frame > this.cur_fg_start_frame) {
+                this.frame = clamp(cur_frame, this.cur_fg_start_frame, this.cur_fg_end_frame);
+            }
+            else {
+                this.frame = clamp(cur_frame, this.cur_fg_end_frame, this.cur_fg_start_frame);
+            }
+
+            // print("Cur frame: ");
+            // print(ftos(this.frame));
+            // print(", start_frame: ");
+            // print(ftos(this.cur_fg_start_frame));
+            // print(", end_frame: ");
+            // print(ftos(this.cur_fg_end_frame));
+            // print(", cur_frame: ");
+            // print(ftos(cur_frame));
+            // print(", next frame callback: ");
+            // print(ftos(this.cur_fg_frame_callback_next_frame));
+            // print(", duration: ");
+            // print(ftos(this.cur_fg_duration));
+            // print("\n");
+
+            // TODO - round frame to nearest frame?
+
+            // If the animation is playing forward (low frame num to high frame num)
+            if(this.cur_fg_end_frame > this.cur_fg_start_frame) {
+                if(cur_frame >= this.cur_fg_frame_callback_next_frame) {
+                    if(cur_frame >= this.cur_fg_end_frame + 1) {
+                        this.cur_fg_frame_callback_is_end_frame = true;
+                    }
+                    this.cur_fg_frame_callback(this); // FIXME - This can override and invoke new things, need to be careful
+                    // Callback may have assigned new framegroup
+                    if(this.cur_fg_idx == cur_framegroup_idx) {
+                        this.cur_fg_frame_callback_is_start_frame = false;
+                        this.cur_fg_frame_callback_is_end_frame = false;
+                        this.cur_fg_frame_callback_next_frame = floor(cur_frame) + 1;
+                    }
+                    // print("\tSet next frame callback frame to: ");
+                    // print(ftos(this.cur_fg_frame_callback_next_frame));
+                    // print("\n");
+                }
+            }
+            // else the animation is playing in reverse (high frame num to low frame num)
+            else {
+                if(cur_frame <= this.cur_fg_frame_callback_next_frame) {
+                    if(cur_frame <= this.cur_fg_end_frame - 1) {
+                        this.cur_fg_frame_callback_is_end_frame = true;
+                    }
+                    this.cur_fg_frame_callback(this);
+                    // Callback may have assigned new framegroup
+                    if(this.cur_fg_idx == cur_fg_idx) {
+                        this.cur_fg_frame_callback_is_start_frame = false;
+                        this.cur_fg_frame_callback_is_end_frame = false;
+                        this.cur_fg_frame_callback_next_frame = ceil(cur_frame) - 1;
+                    }
+                }
+            }
+            // Callback may have assigned new framegroup
+            // if(this.cur_fg_idx == cur_fg_idx) {
+                this.cur_fg_think_callback(this);
+            // }
+        }
+        this.nextthink = time + this.think_delta_time;
     };
-    nonvirtual float () fg_attack = {
-        // random_dispatch(th_reg->th_die);
+
+    virtual void (float duration) set_framegroup_duration = {
+        // If no current framegroup, stop
+        if(this.cur_fg_start_time < 0) {
+            print("Warning: Attempted to set framegroup duration without an active framegroup.\n");
+            return;
+        }
+
+        this.cur_fg_duration = duration;
+        // --------------------------------------------------------------------
+        // Adjust think_delta_time so no frames are skipped
+        // --------------------------------------------------------------------
+        float n_anim_frames = fabs(this.cur_fg_end_frame - this.cur_fg_start_frame);
+        float time_per_frame = duration / n_anim_frames;
+        // If faster than 10FPS, make thinks be called more often to not miss a frame callback
+        if(time_per_frame < 0.10) {
+            this.think_delta_time = time_per_frame * 0.5;
+        }
+        else {
+            this.think_delta_time = 0.1;
+        }
+        // --------------------------------------------------------------------
     };
-    nonvirtual float () fg_idle = {
-        // random_dispatch(th_reg->th_die);
+
+    virtual void (framegroup fgroup) set_framegroup = {
+        // Increment framegroup counter. Reset every 100, we only use this to check when it has changed
+        this.cur_fg_idx = (this.cur_fg_idx + 1) % 100;
+
+        // FIXME - frame callback isn't guaranteed to be called for every frame because sometimes we skip over frames
+        // FIXME - I should modify the think delta time to run at 80% of the time between frames, or 0.10 seconds, whichever is greater.
+        // FIXME - That way, if are playing an animation really fast, it'll call think more often
+        this.cur_fg_start_frame = fgroup.start_frame;
+        this.cur_fg_end_frame = fgroup.end_frame;
+        this.cur_fg_frame_callback = fgroup.frame_callback;
+        this.cur_fg_think_callback = fgroup.think_callback;
+        this.set_framegroup_duration(fgroup.duration);
+
+        // Start the animation now
+        this.cur_fg_frame_callback_is_start_frame = true;
+        this.cur_fg_frame_callback_is_end_frame = false;
+        this.frame = this.cur_fg_start_frame;
+        this.cur_fg_start_time = time;
+        this.cur_fg_frame_callback_next_frame = this.cur_fg_start_frame;
+        // print("Done setting framegroup! Start frame: ");
+        // print(ftos(fgroup.start_frame));
+        // print(", End frame: ");
+        // print(ftos(fgroup.end_frame));
+        // print("\n");
+    };
+
+
+    virtual void () fg_die = {};
+    virtual void () fg_walk = {};
+    virtual void () fg_attack = {};
+    virtual void () fg_idle = {};
+
+
+    virtual void (float dist) do_walk_to_goal = {
+        if(dist == 0) {
+            return;
+        }
+
+        vector goal_pos = path_pos;
+        if(this.path_target != world) {
+            goal_pos = this.path_target.origin;
+        }
+
+        this.ideal_yaw = vectoyaw(goal_pos - this.origin);
+        ChangeYaw();
+        vector new_velocity;
+        float dist_to_goal = vlen(goal_pos - this.origin);
+        if(dist > dist_to_goal) {
+            dist = dist_to_goal;
+        }
+        new_velocity = normalize(goal_pos - this.origin) * dist;
+        new_velocity_z = this.velocity_z;
+        this.velocity = new_velocity;
     };
 };
+
+
+
+
+
+class AI_Zombie : AI_Chase {
+    entity enemy; // If near, attack
+
+    // Constructor. Called when calling `spawn(AI_Zombie);`
+    // virtual void() AI_Zombie = {};
+    // This should be called explicitly:
+    virtual void(vector org) init;
+
+    virtual void () fg_die;
+    virtual void () fg_walk;
+    virtual void () fg_attack;
+    virtual void () fg_idle;
+};
+
+
+
+
+
+
+
 
 
 
@@ -110,6 +269,8 @@ framegroup 					fg_zombie_walk_1;
 framegroup 					fg_zombie_walk_2;
 framegroup 					fg_zombie_jog_0;
 framegroup 					fg_zombie_run_0;
+// framegroup 					fg_zombie_run_1; // TODO - Either add new anims, or make new run FG with different speed?
+// framegroup 					fg_zombie_run_2; // TODO - Either add new anims, or make new run FG with different speed?
 framegroup 					fg_zombie_idle_0;
 framegroup 					fg_zombie_attack_0;
 framegroup 					fg_zombie_attack_1;
@@ -119,16 +280,120 @@ framegroup 					fg_zombie_die_2;
 
 
 
-void start_callback() {
-    print("start called\n");
+
+
+
+float get_zombie_walk_is_footstep(float frame) {
+    frame = floor(frame);
+    switch(frame) {
+        // ------------ Zombie Walk 1 --------------
+        case 39:        // Right foot
+        case 44:        // Left foot
+        case 47:        // Right foot
+        case 51:     // Left foot
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+float get_zombie_walk_dist_for_frame(float frame) {
+    frame = floor(frame);
+    switch(frame) {
+        // ------------ Zombie Walk 1 --------------
+        case 37:
+            return 8;
+        case 38:
+        case 39:
+        case 40:
+        case 41:
+        case 42:
+            return 3.5;
+        case 43:
+            return 8.8;
+        case 44:
+            return 9;
+        case 45:
+        case 46:
+            return 4;
+        case 47:
+            return 7.8;
+        case 48:
+            return 5.2;
+        case 49:
+            return 2.4;
+        case 50:
+            return 2.8;
+        case 51:
+            return 6.5;
+        case 52:
+            return 7.7;
+        default:
+            return 0.0;
+    }
+}
+
+// Called at the first frame of the current animation
+void zombie_walk_start_callback(entity ent) {
+    // print("start called\n");
 };
-void frame_callback() {
-    print("frame called\n");
+
+// Called once per animation frame:
+void zombie_walk_frame_callback(entity ent) {
+    AI_Zombie zombie_ent = (AI_Zombie) ent;
+    // print("frame called\n");
+    // print("frame called. At frame: ");
+    // print(ftos(ent.frame));
+    // // print(", is first frame? ");
+    // // print(ftos(zombie_ent.cur_fg_frame_callback_is_start_frame));
+    // // print(", is final frame? ");
+    // // print(ftos(zombie_ent.cur_fg_frame_callback_is_end_frame));
+    // print("\n");
+
+    if(get_zombie_walk_is_footstep(ent.frame)) {
+        if(random() < 0.5) {
+            sound(self, 5, "sounds/zombie/s0.wav", 1, ATTN_NORM);
+        }
+        else {
+            sound(self, 5, "sounds/zombie/s1.wav", 1, ATTN_NORM);
+        }
+    }
+
+    if(zombie_ent.cur_fg_frame_callback_is_end_frame) {
+        // print("At final frame, restarting walk\n");
+        zombie_ent.fg_walk();
+    }
+
+    // TODO - If at final frame, call fg_walk again...
+    // AI_Zombie zombie_ent = (AI_Zombie) ent;
+    // zombie_ent.fg_walk();
+    // ent.fg_walk();
 };
-void end_callback() {
-    print("end called\n");
+
+
+// Called once per ent.think invocation
+void zombie_walk_think_callback(entity ent) {
+    // print("Think called\n");
+    // print("Think called for frame: ");
+    // print(ftos(ent.frame));
+    // print("\n");
+    AI_Zombie zombie_ent = (AI_Zombie) ent;
+    // zombie_ent.fg_walk();
+    
+    // "::classname" denotes the global ".string classname" field.
+    entity player_ent = find( world, ::classname, "player"); 
+    if(player_ent != world) {
+        zombie_ent.path_target = player_ent;
+        ent.enemy = player_ent;
+    }
+
+    float n_anim_frames = fabs(zombie_ent.cur_fg_end_frame - zombie_ent.cur_fg_start_frame);
+    // float dist_per_frame = 5.23125; // qu
+    float dist_per_frame = get_zombie_walk_dist_for_frame(zombie_ent.frame);
+    float time_per_frame = zombie_ent.cur_fg_duration / n_anim_frames;
+    float speed = dist_per_frame / time_per_frame;
+    zombie_ent.do_walk_to_goal(speed);
 };
-// TODO - Add `think` callback
 
 
 void create_framegroups() {
@@ -144,282 +409,89 @@ void create_framegroups() {
     // death1  134     138
     // death2  139     148
 
-    create_framegroup(  38,     53,     10.0,   start_callback, frame_callback, end_callback, fg_zombie_walk_0);
-    // create_framegroup(  53,     38,     10.0,   start_callback, frame_callback, end_callback, fg_zombie_walk_0);
-    create_framegroup(  53,     66,     10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_walk_1);
-    create_framegroup(  67,     82,     10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_walk_2);
-    create_framegroup(  116,    129,    10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_jog_0);
-    create_framegroup(  78,     85,     10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_run_0);
-    create_framegroup(  0,      12,     10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_idle_0);
-    create_framegroup(  86,     90,     10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_attack_0);
-    create_framegroup(  91,     96,     10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_attack_1);
-    create_framegroup(  123,    133,    10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_die_0);
-    create_framegroup(  134,    138,    10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_die_1);
-    create_framegroup(  139,    148,    10.0,   SUB_Null, SUB_Null, SUB_Null, fg_zombie_die_2);
+    // In blender, it's frames 38 to 53, inclusive
+    // make_empty_framegroup(fg_zombie_walk_0);
+    init_framegroup( 38, 53, 1.0, zombie_walk_frame_callback, zombie_walk_think_callback, fg_zombie_walk_0);
+    init_framegroup(  53,   66,   10.0, SUB_Null, SUB_Null, fg_zombie_walk_1);
+    init_framegroup(  67,   82,   10.0, SUB_Null, SUB_Null, fg_zombie_walk_2);
+    init_framegroup(  116,  129,  10.0, SUB_Null, SUB_Null, fg_zombie_jog_0);
+    init_framegroup(  78,   85,   10.0, SUB_Null, SUB_Null, fg_zombie_run_0);
+    init_framegroup(  0,    12,   10.0, SUB_Null, SUB_Null, fg_zombie_idle_0);
+    init_framegroup(  86,   90,   10.0, SUB_Null, SUB_Null, fg_zombie_attack_0);
+    init_framegroup(  91,   96,   10.0, SUB_Null, SUB_Null, fg_zombie_attack_1);
+    init_framegroup(  123,  133,  10.0, SUB_Null, SUB_Null, fg_zombie_die_0);
+    init_framegroup(  134,  138,  10.0, SUB_Null, SUB_Null, fg_zombie_die_1);
+    init_framegroup(  139,  148,  10.0, SUB_Null, SUB_Null, fg_zombie_die_2);
 };
 
 
 
 
 
-// class Zombie : Chase_AI {
-
-//     // Constructor after calling `spawn(Zombie, ...);`
-//     void initialize() {
-
-//     }
-  
-//     // void () init_class {
-//     //     // Define the framegroups
-//     //     // // Register `die` framegroups
-//     //     // register_framegroup(&zombie_th_reg, zombie_th_reg.th_die, zombie_die_0);
-//     //     // register_framegroup(&zombie_th_reg, zombie_th_reg.th_die, zombie_die_1);
-//     //     // register_framegroup(&zombie_th_reg, zombie_th_reg.th_die, zombie_die_2);
-//     //     // // Register `walk` framegroups
-//     //     // register_framegroup(&zombie_th_reg, zombie_th_reg.th_walk, zombie_walk_0);
-//     //     // register_framegroup(&zombie_th_reg, zombie_th_reg.th_walk, zombie_walk_1);
-//     //     // register_framegroup(&zombie_th_reg, zombie_th_reg.th_walk, zombie_walk_2);
-//     // };
-        
-//     // // Instance constructor
-//     // void () init {
-//     //         this.th_reg = 
-//     // }
-
-//     float () fg_die = {
-//     // random_dispatch(th_reg->th_die);
-//     }
-//     float () fg_walk = {
-//     // random_dispatch(th_reg->th_die);
-//     }
-//     float () fg_attack = {
-//     // random_dispatch(th_reg->th_die);
-//     }
-//     float () fg_idle = {
-//     // random_dispatch(th_reg->th_die);
-//     }  
-
-
-// // //   float () th_walk = {
-// // //     // random_dispatch(th_reg->th_die);
-// // //     // TODO - Check what round we're on, and manually choose which walk routine to perform....
-// // //     	if(rounds < 3) {
-// // //         	// randomly choose between th_walk1, th_walk2, th_walk3
-// // //       }
-// // //   		else if {
-// // //         	// 
-// // //       }
-// // //   }
-
-// };
-
-
-// Performs 1D linear interpolation between x1 and x2 on t=0 to t=1
-// NOTE - the value of t is clamped to always be 0<=t<=1
-// float(float x1, float x2, float t) lerp = {
-//     // t = min(max(t,0.0), 1.0);
-//     // Thanks, QC
-//     if(t < 0.0) {
-//         t = 0.0;
-//     }
-//     else if(t > 1.0) {
-//         t = 1.0;
-//     }
-//     return t * (x2 - x1) + x1;
-// };
-
-
-class AI_Zombie : AI_Chase {
-    float counter;
-
-    // ------------------------
-    float cur_fg_frame_callback_next_frame;
-    // ------------------------
-    float cur_fg_start_time;
-    float cur_fg_start_frame;
-    float cur_fg_end_frame;
-    float cur_fg_duration;
-    // void() endanimfunc = SUB_Null;
-    virtual void() cur_fg_start_callback = SUB_Null;
-    virtual void() cur_fg_frame_callback = SUB_Null;
-    virtual void() cur_fg_finish_callback = SUB_Null;
-    // virtual void() cur_fg_think_callback = SUB_Null;
-    // ------------------------
-
-
-    // Constructor after calling `spawn(Zombie, ...);`
-    nonvirtual void(vector org) init = {
-        setmodel(this, "models/ai/zfull.mdl");
-        // ---------------------------------
-        // Usual zombie setup stuff
-        // ---------------------------------
-        this.solid = SOLID_SLIDEBOX;
-        this.movetype = MOVETYPE_STEP;
-        setsize (this, '-8 -8 -32', '8 8 30');
-        this.origin = org;
-        setorigin(this, this.origin);
-        this.classname = "ai_zombie";
-        this.takedamage = DAMAGE_YES;
-        this.flags = this.flags | FL_PARTIALGROUND | FL_MONSTER;
-        this.health = 999999;
-        // SetUpHitBoxes(self);
-        // ---------------------------------
-        // this.cur_anim_end_frame = 227; // Zombie last frame
-        this.nextthink = time + 0.1;
-        this.counter = 0;
-        this.cur_fg_start_time = -1;
-    };
-
-
-
-    virtual void() think = {
-        
-        if(this.cur_fg_start_time >= 0) {
-            float dt = time - this.cur_fg_start_time;
-            // float lerp_frac = (dt / this.cur_fg_duration);
-            float lerp_frac = (dt / this.cur_fg_duration) % 1.0; // LOOP
-
-            this.frame = lerp(this.cur_fg_start_frame, this.cur_fg_end_frame, lerp_frac);
-
-            // If the animation is playing forward (low frame num to high frame num)
-            if(this.cur_fg_end_frame > this.cur_fg_start_frame) {
-                if(this.frame >= this.cur_fg_frame_callback_next_frame) {
-                    this.cur_fg_frame_callback_next_frame = floor(this.frame) + 1;
-                    this.cur_fg_frame_callback();
-                    if(this.frame >= this.cur_fg_end_frame) {
-                        this.cur_fg_finish_callback();
-                    }
-                }
-            }
-            // else the animation is playing in reverse (high frame num to low frame num)
-            else {
-                if(this.frame <= this.cur_fg_frame_callback_next_frame) {
-                    this.cur_fg_frame_callback();
-                    this.cur_fg_frame_callback_next_frame = ceil(this.frame) - 1;
-                    if(this.frame <= this.cur_fg_end_frame) {
-                        this.cur_fg_finish_callback();
-                    }
-                }
-            }
-        }
-
-
-        // Need to compute the exact fractional frame that we should be on
-        // Knowns:
-        //  - total duration of the animation
-        //  - start and end frames
-
-
-        // print("test: ");
-        // print(ftos(time));
-        // print(", ");
-        // print(ftos(this.counter));
-        // print("\n");
-        // this.counter += 1;
-
-        // if(this.counter > 10) {
-        //     this.frame = (this.frame + 20) % 227;
-        //     this.counter = 0;
-        // }
-        this.nextthink = time + 0.1;
-    };
-
-
-    nonvirtual void (framegroup fgroup) set_frame_group = {
-        // float temp_anim_dur = 0.5 + (fgroup.duration * random()) * 0.5;
-        float temp_anim_dur = 10;
-        // float temp_anim_dur = 10;
-        this.cur_fg_start_frame = fgroup.start_frame;
-        this.cur_fg_end_frame = fgroup.end_frame;
-        this.cur_fg_duration = temp_anim_dur;
-        this.cur_fg_start_callback = fgroup.start_callback;
-        this.cur_fg_frame_callback = fgroup.frame_callback;
-        this.cur_fg_finish_callback = fgroup.finish_callback;
-        // Start the animation now
-        this.frame = this.cur_fg_start_frame;
-        this.cur_fg_start_time = time;
-        this.cur_fg_start_callback();
-        this.cur_fg_frame_callback_next_frame = this.cur_fg_start_frame;
-    };
-
-    float () fg_walk = {
-        this.set_frame_group(fg_zombie_walk_0);
-    };
-    float () fg_die = {
-        // TODO - Execute -- zombie_die_0
-    };
-    float () fg_attack = {
-        // TODO - Execute an attack framegroup
-    };
-    float () fg_idle = {
-        // TODO - Execute the idle framegroup
-    };
-};
 
 
 
 
-// var struct test_struct {
-//     float x;
-//     float y[4];
-//     void() some_funcs[4];
-// };
-
-// void make_new_struct(__out test_struct s) {
-//     s.x = 10;
-//     s.y[0] = 20;
-//     s.y[1] = 21;
-//     s.y[2] = 22;
-//     s.y[3] = 23;
-//     s.some_funcs[0] = SUB_Null;
-//     s.some_funcs[1] = SUB_Null;
-//     s.some_funcs[2] = SUB_Null;
-//     s.some_funcs[3] = SUB_Null;
-// };
-
-// var struct awesome_struct {
-//     test_struct why[4];
-// };
 
 
 
 
-// #define TESTFUNCSIZE 30
-// var struct struct_000 {
-//     float x[TESTFUNCSIZE];
-// };
-
-// void testfunc(__inout struct_000 s) {
-//     for(float i = 0; i < TESTFUNCSIZE; i++){
-//         s.x[i] *= 2.0;
-//     }
-// };
-
-// void() somefunc = {
-//     // Make the struct and fill it with indices
-//     struct_000 s;
-//     for(float i = 0; i < TESTFUNCSIZE; i++){
-//         s.x[i] = i;
-//     }
-//     // Print the vals before passing 'em in
-//     print("Outside before: ");
-//     for(float i = 0; i < TESTFUNCSIZE; i++){
-//         print(ftos(s.x[i])); 
-//         print(", ");
-//     }
-//     print("\n");
-//     // Pass 'em in
-//     testfunc(s);
-//     // Print the vals after modifying them
-//     print("Outside after: ");
-//     for(float i = 0; i < TESTFUNCSIZE; i++){
-//         print(ftos(s.x[i])); 
-//         print(", ");
-//     }
-//     print("\n");
-// };
 
 
+
+
+void(vector org) AI_Zombie::init = {
+    setmodel(this, "models/ai/zfull.mdl");
+    // ---------------------------------
+    // Usual zombie setup stuff
+    // ---------------------------------
+    this.solid = SOLID_CORPSE;
+#ifdef PC
+	this.dimension_solid = HITBOX_DIM_ZOMBIES;
+#endif // PC
+
+    // this.movetype = MOVETYPE_STEP;
+    this.movetype = MOVETYPE_WALK;
+    setsize (this, '-8 -8 -32', '8 8 30');
+    this.origin = org;
+    setorigin(this, this.origin);
+    this.classname = "ai_zombie";
+    this.gravity = 1.0;
+    this.takedamage = DAMAGE_YES;
+    this.flags = this.flags | FL_PARTIALGROUND | FL_MONSTER;
+    this.health = 999999;
+    // SetUpHitBoxes(self);
+    // ---------------------------------
+    this.yaw_speed = 20;
+    // ---------------------------------
+    this.think_delta_time = 0.1; // 10x per second
+    this.nextthink = time + this.think_delta_time;
+    this.cur_fg_start_time = -1;
+}
+
+
+// void() AI_Zombie::think = {
+//     print("we do be thinkin!\n");
+//     // TODO - how to call superclass think?
+// }
+
+
+void () AI_Zombie::fg_walk = {
+    this.set_framegroup(fg_zombie_walk_0);
+    this.set_framegroup_duration(fg_zombie_walk_0.duration * (1.0 + 3.0 * random()));
+    // print("Set anim duration to: ");
+    // print(ftos(this.cur_fg_duration));
+    // print("\n");
+}
+void () AI_Zombie::fg_die = {
+    // TODO - Execute -- zombie_die_0
+}
+void () AI_Zombie::fg_attack = {
+    // TODO - Execute an attack framegroup
+}
+void () AI_Zombie::fg_idle = {
+    // TODO - Execute the idle framegroup
+}
 
 
 
@@ -427,6 +499,7 @@ void() test_new_ent = {
     create_framegroups();
 
 	makevectors(self.v_angle);
+    // AI_Chase test_ent = spawn(AI_Chase);
 	AI_Zombie zombie = spawn(AI_Zombie);
 	zombie.init(self.origin + v_forward * 100);
     zombie.fg_walk();
@@ -514,7 +587,7 @@ void() test_new_ent = {
     // print(ftos(result));
     // print("\n");
 
-}
+};
 
 
 

@@ -36,6 +36,7 @@
 ../source/server/weapons/weapon_core.qc
 ../source/server/entities/powerups.qc
 
+../source/server/ai/chase_ai.qc
 ../source/server/ai/ai_core.qc
 ../source/server/ai/standard/waypoints_func.qc
 ../source/server/ai/standard/waypoints_core.qc
