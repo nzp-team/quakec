@@ -38,6 +38,7 @@ float cl_navmesh_place_corner_state;
 
 // Declarations
 void(vector pos, vector scale, vector color, float alpha) cl_navmesh_draw_test_ent;
+float(vector pos, float poly_index) cl_navmesh_is_inside_poly;
 void() cl_navmesh_delete_verts;
 void(float poly_index) cl_navmesh_delete_poly_at_index;
 float(vector pos) cl_navmesh_get_containing_poly;
@@ -133,7 +134,6 @@ void cl_navmesh_draw_plane(vector pos, vector nor, float size, vector color, flo
 void cl_navmesh_draw_line(vector start, vector end, float edge_width, vector color, float alpha) {
 	R_BeginPolygon("debug/wireframe",0);
 	R_BeginPolygon("debug/solid_nocull",0);
-	
 	R_PolygonVertex(end + [0,0,-edge_width], [0,0,0], color, alpha);
 	R_PolygonVertex(end + [0,0,edge_width], [0,0,0], color, alpha);
 	R_PolygonVertex(start + [0,0,edge_width], [0,0,0], color, alpha);
@@ -141,8 +141,8 @@ void cl_navmesh_draw_line(vector start, vector end, float edge_width, vector col
 	R_EndPolygon();
 }
 
-void cl_navmesh_draw_edge(vector start, vector end) {
-	cl_navmesh_draw_line(start,end,1,[0.5,0.5,0.5],0.2);
+void cl_navmesh_draw_edge(vector start, vector end, vector color, float alpha) {
+	cl_navmesh_draw_line(start,end,1,color,alpha);
 }
 
 void cl_navmesh_draw_quad(vector a, vector b, vector c, vector d, vector color, float alpha, int draw_edges) {
@@ -157,12 +157,13 @@ void cl_navmesh_draw_quad(vector a, vector b, vector c, vector d, vector color, 
 	R_EndPolygon();
 	
 	//Drawing polygon border
-	if(draw_edges == TRUE)
-	{
-		cl_navmesh_draw_edge(a,b);
-		cl_navmesh_draw_edge(b,c);
-		cl_navmesh_draw_edge(c,d);
-		cl_navmesh_draw_edge(d,a);
+	if(draw_edges == TRUE) {
+		vector border_color = [0.5, 0.5, 0.5];
+		float border_alpha = 0.2;
+		cl_navmesh_draw_edge(a,b, border_color, border_alpha);
+		cl_navmesh_draw_edge(b,c, border_color, border_alpha);
+		cl_navmesh_draw_edge(c,d, border_color, border_alpha);
+		cl_navmesh_draw_edge(d,a, border_color, border_alpha);
 	}
 }
 
@@ -213,9 +214,11 @@ void cl_navmesh_draw_tri(vector a, vector b, vector c, vector color, float alpha
 	//Drawing polygon border
 	if(draw_edges == TRUE)
 	{
-		cl_navmesh_draw_edge(a,b);
-		cl_navmesh_draw_edge(b,c);
-		cl_navmesh_draw_edge(c,a);
+		vector border_color = [0.5, 0.5, 0.5];
+		float border_alpha = 0.2;
+		cl_navmesh_draw_edge(a,b, border_color, border_alpha);
+		cl_navmesh_draw_edge(b,c, border_color, border_alpha);
+		cl_navmesh_draw_edge(c,a, border_color, border_alpha);
 	}
 }
 
@@ -262,6 +265,34 @@ void cl_navmesh_draw_poly(float poly_index) {
 		}
 	}
 }
+
+
+// Calculates world-space coordinate of traversal endpoint
+vector cl_navmesh_get_traversal_midpoint(float traversal_index) {
+	vector start_pos = cl_navmesh_traversals[traversal_index].start_pos;
+	vector midpoint_pos = cl_navmesh_traversals[traversal_index].midpoint_pos;
+	// vector end_pos = cl_navmesh_traversals[traversal_index].end_pos;
+	float angle = cl_navmesh_traversals[traversal_index].angle;
+	// Midpoint / endpoint pos are relative to start_pos:
+	makevectors([0, angle, 0]);
+	midpoint_pos = start_pos + (v_right * midpoint_pos.x) + (v_forward * midpoint_pos.y) + (v_up * midpoint_pos.z);
+	// end_pos = start_pos + (v_right * end_pos.x) + (v_forward * end_pos.y) + (v_up * end_pos.z);
+	return midpoint_pos;
+}
+
+// Calculates world-space coordinate of traversal midpoint
+vector cl_navmesh_get_traversal_end_pos(float traversal_index) {
+	vector start_pos = cl_navmesh_traversals[traversal_index].start_pos;
+	// vector midpoint_pos = cl_navmesh_traversals[traversal_index].midpoint_pos;
+	vector end_pos = cl_navmesh_traversals[traversal_index].end_pos;
+	float angle = cl_navmesh_traversals[traversal_index].angle;
+	// Midpoint / endpoint pos are relative to start_pos:
+	makevectors([0, angle, 0]);
+	// midpoint_pos = start_pos + (v_right * midpoint_pos.x) + (v_forward * midpoint_pos.y) + (v_up * midpoint_pos.z);
+	end_pos = start_pos + (v_right * end_pos.x) + (v_forward * end_pos.y) + (v_up * end_pos.z);
+	return end_pos;
+}
+
 
 
 void cl_navmesh_draw_traversal(float traversal_index) {
@@ -342,7 +373,7 @@ void cl_navmesh_draw_traversal(float traversal_index) {
 	// Traversal edit mode modifications:
 	if(cl_navmesh_selected_traversal == traversal_index) {
 		if(cl_navmesh_traversal_edit_mode) {
-			vector pos;
+			vector pos = '0 0 0';
 			if(cl_navmesh_traversal_editor_cur_point == 0) {
 				pos = start_pos;
 			}
@@ -406,9 +437,10 @@ float cl_navmesh_is_vert_selected(float vert_index)
 }
 
 
-void() cl_navmesh_pathfind_draw_result_node_path;
-void() cl_navmesh_pathfind_draw_result_portals;
 void() cl_navmesh_pathfind_draw_result_path;
+void() cl_navmesh_pathfind_draw_result_portals;
+void() cl_navmesh_pathfind_draw_result_point_path;
+
 
 
 void cl_navmesh_editor_draw() {	
@@ -433,9 +465,9 @@ void cl_navmesh_editor_draw() {
 	cl_navmesh_draw_test_ent(startent_pos, [1,1,1], [0,1,0], 0.4);
 	cl_navmesh_draw_test_ent(goalent_pos, [1,1,1], [1,0,0], 0.4);
 	
-	cl_navmesh_pathfind_draw_result_node_path();
-	cl_navmesh_pathfind_draw_result_portals();
 	cl_navmesh_pathfind_draw_result_path();
+	cl_navmesh_pathfind_draw_result_portals();
+	cl_navmesh_pathfind_draw_result_point_path();
 	
 	
 	//The following code block is for detecting and placing waypoints at bsp map corners
@@ -912,8 +944,10 @@ void cl_navmesh_deselect_all()
 		selected_verts[i] = -1;
 	}
 	selected_vert_count = 0;
-	
-	
+
+	cl_navmesh_selected_traversal = -1;
+	cl_navmesh_traversal_edit_mode = false;
+	cl_navmesh_traversal_editor_cur_point = 0;
 	//print("All vertices deselected.\n");
 }
 
@@ -1269,6 +1303,11 @@ void cl_navmesh_clear_connected_polies()
 			cl_navmesh_polies[i].connected_polies_right_vert[j] = -1;
 			cl_navmesh_polies[i].connected_polies_neighbor_edge_index[j] = -1;
 		}
+
+		cl_navmesh_polies[i].connected_traversals_count = 0;
+		for(float j = 0; j < NAV_MAX_POLY_TRAVERSALS; j++) {
+			cl_navmesh_polies[i].connected_traversals[j] = -1;
+		}
 	}
 }
 
@@ -1452,6 +1491,79 @@ void cl_navmesh_calc_connected_polies() {
 			}	
 		}
 	}
+
+
+	// TODO - For every traversal, assign its start position to a polygon
+	// TODO - For every traversal, somehow associate the exit point with a polygon...
+	// For entrance, it makes sense to go: poly -> traversal
+	// For exit... traversal -> poly? I think that makes sense...
+
+	for(float i = 0; i < cl_navmesh_traversal_count; i++) {
+		print("Checking traversal for connected polies\n");
+		makevectors([0, cl_navmesh_traversals[i].angle, 0]);
+
+		// Get start_pos and end_pos in world-space
+		vector start_pos = cl_navmesh_traversals[i].start_pos;
+		vector end_pos = start_pos + (v_right * cl_navmesh_traversals[i].end_pos.x) + (v_forward * cl_navmesh_traversals[i].end_pos.y) + (v_up * cl_navmesh_traversals[i].end_pos.z);
+
+		float start_pos_poly = -1;
+		float end_pos_poly = -1;
+
+		for(float j = 0; j < cl_navmesh_poly_count; j++) {
+			if(start_pos_poly == -1 && cl_navmesh_is_inside_poly(start_pos, j)) {
+				start_pos_poly = j;
+			}
+			if(end_pos_poly == -1 && cl_navmesh_is_inside_poly(end_pos, j)) {
+				end_pos_poly = j;
+			}
+			if(start_pos_poly != -1 && end_pos_poly != -1) {
+				break;
+			}
+		}
+
+		print("Traversal ");
+		print(ftos(i));
+		print(" starts in poly ");
+		print(ftos(start_pos_poly));
+		print(" and ends in poly ");
+		print(ftos(end_pos_poly));
+		print("\n");
+
+		if(start_pos_poly == -1) {
+			print("Warning: Traversal ");
+			print(ftos(i));
+			print(" does not start inside of a navmesh polygon. This traversal will not be used.\n");
+			continue;
+		}
+		else if(end_pos_poly == -1) {
+			print("Warning: Traversal ");
+			print(ftos(i));
+			print(" does not end inside of a navmesh polygon. This traversal will not be used.\n");
+			continue;
+		}
+		else if(start_pos_poly == end_pos_poly) {
+			print("Warning: Traversal ");
+			print(ftos(i));
+			print(" starts and ends inside of the same navmesh polygon. This traversal will not be used.\n");
+			continue;
+		}
+
+		if(cl_navmesh_polies[start_pos_poly].connected_traversals_count >= NAV_MAX_POLY_TRAVERSALS) {
+			print("Warning: Traversal ");
+			print(ftos(i));
+			print(" starts inside of a polygon that is already connected to the maximum number of traversals allowed (");
+			print(ftos(NAV_MAX_POLY_TRAVERSALS));
+			print("). This traversal will not be used.\n");
+			continue;
+		}
+
+		// Add to polygon's list of connected traversals
+		cl_navmesh_polies[start_pos_poly].connected_traversals[cl_navmesh_polies[start_pos_poly].connected_traversals_count] = i;
+		cl_navmesh_polies[start_pos_poly].connected_traversals_count += 1;
+		cl_navmesh_traversals[i].end_poly = end_pos_poly;
+		// TODO - Add traversal to end polygon list of traversals?
+	}
+
 	print("Connected polygons calculated.\n");
 }
 
@@ -1502,8 +1614,7 @@ void cl_navmesh_calc_polies_centers()
 
 
 //Saves the current cl_navmesh to a file
-void cl_navmesh_editor_save_navmesh()
-{
+void cl_navmesh_editor_save_navmesh() {
 	int v_major = 0;
 	int v_minor = 0;
 	int v_patch = 0;
@@ -1530,8 +1641,7 @@ void cl_navmesh_editor_save_navmesh()
 	fputs(file,ftos(cl_navmesh_vert_count),"\n");
 	
 	//Write all vertex positions
-	for(float i = 0; i < cl_navmesh_vert_count; i++)
-	{
+	for(float i = 0; i < cl_navmesh_vert_count; i++) {
 		fputs(file,vtos(cl_navmesh_verts[i].pos),"\n");
 	}
 	
@@ -1539,8 +1649,7 @@ void cl_navmesh_editor_save_navmesh()
 	fputs(file,ftos(cl_navmesh_poly_count),"\n");
 	
 	//Write all polygon data to file
-	for(float i = 0; i < cl_navmesh_poly_count; i++)
-	{
+	for(float i = 0; i < cl_navmesh_poly_count; i++) {
 		// Write vert count
 		fputs(file,ftos(cl_navmesh_polies[i].vert_count),"\n");
 		// Write vertices
@@ -1572,6 +1681,11 @@ void cl_navmesh_editor_save_navmesh()
 		fputs(file,ftos(cl_navmesh_polies[i].connected_polies_neighbor_edge_index[1]),"\n");
 		fputs(file,ftos(cl_navmesh_polies[i].connected_polies_neighbor_edge_index[2]),"\n");
 		fputs(file,ftos(cl_navmesh_polies[i].connected_polies_neighbor_edge_index[3]),"\n");
+		// Write connected traversals
+		fputs(file,ftos(cl_navmesh_polies[i].connected_traversals_count),"\n");
+		for(float j = 0; j < cl_navmesh_polies[i].connected_traversals_count; j++) {
+			fputs(file,ftos(cl_navmesh_polies[i].connected_traversals[j]),"\n");
+		}
 		// Write polygon doortarget
 		fputs(file,cl_navmesh_polies[i].doortarget,"\n");
 
@@ -1583,7 +1697,24 @@ void cl_navmesh_editor_save_navmesh()
 		// Getting polygon entrance edge index
 		fputs(file,itos(cl_navmesh_polies[i].entrance_edge),"\n");	
 	}
-	
+
+	// -----------------------------------------------------------------------
+	// Write Traversals
+	// -----------------------------------------------------------------------
+	print("Writing "); 
+	print((ftos(cl_navmesh_traversal_count)));
+	print(" traversals.\n");
+	fputs(file,ftos(cl_navmesh_traversal_count),"\n");
+	for(float i = 0; i < cl_navmesh_traversal_count; i++) {
+		fputs(file,vtos(cl_navmesh_traversals[i].start_pos),"\n");
+		fputs(file,vtos(cl_navmesh_traversals[i].midpoint_pos),"\n");
+		fputs(file,vtos(cl_navmesh_traversals[i].end_pos),"\n");
+		fputs(file,ftos(cl_navmesh_traversals[i].angle),"\n");
+		fputs(file,ftos(cl_navmesh_traversals[i].use_midpoint),"\n");
+		fputs(file,ftos(cl_navmesh_traversals[i].end_poly),"\n");
+	}
+	// -----------------------------------------------------------------------
+
 	fclose(file);
 	
 	print("Navmesh saved to file \"",h,"\".\n");
@@ -1591,6 +1722,7 @@ void cl_navmesh_editor_save_navmesh()
 //Overwrites current navmesh with an empty navmesh
 void cl_navmesh_editor_clear_navmesh()
 {
+	cl_navmesh_deselect_all();
 	cl_navmesh_vert_count = 0;
 	for(float i = 0; i < NAV_MAX_VERTS; i++)
 	{
@@ -1634,14 +1766,33 @@ void cl_navmesh_editor_clear_navmesh()
 		cl_navmesh_polies[i].connected_polies_neighbor_edge_index[2] = -1;
 		cl_navmesh_polies[i].connected_polies_neighbor_edge_index[3] = -1;
 
+		for(float j = 0; j < NAV_MAX_POLY_TRAVERSALS; j++) {
+			cl_navmesh_polies[i].connected_traversals[j] = -1;
+		}
+		cl_navmesh_polies[i].connected_traversals_count = 0;
+
 		cl_navmesh_polies[i].doortarget = "";
 		
 		cl_navmesh_polies[i].entrance_edge = -1;
 	}
+	cl_navmesh_traversal_count = 0;
+	for(float i = 0; i < NAV_MAX_TRAVERSALS; i++) {
+		cl_navmesh_traversals[i].start_pos.x = 0;
+		cl_navmesh_traversals[i].start_pos.y = 0;
+		cl_navmesh_traversals[i].start_pos.z = 0;
+		cl_navmesh_traversals[i].midpoint_pos.x = 0;
+		cl_navmesh_traversals[i].midpoint_pos.y = 0;
+		cl_navmesh_traversals[i].midpoint_pos.z = 0;
+		cl_navmesh_traversals[i].end_pos.x = 0;
+		cl_navmesh_traversals[i].end_pos.y = 0;
+		cl_navmesh_traversals[i].end_pos.z = 0;
+		cl_navmesh_traversals[i].angle = 0;
+		cl_navmesh_traversals[i].use_midpoint = false;
+		cl_navmesh_traversals[i].end_poly = -1;
+	}
 }
 //Overwrites currently loaded navmesh with navmesh stored in fail
-void cl_navmesh_editor_load_navmesh()
-{
+void cl_navmesh_editor_load_navmesh() {
 	string filepath;
 	float file;
 	
@@ -1727,6 +1878,12 @@ void cl_navmesh_editor_load_navmesh()
 		fgets(file);//1
 		fgets(file);//2
 		fgets(file);//3
+		// Don't care about connected traversals
+		float n_traversals = stof(fgets(file));
+		for(float j = 0; j < n_traversals; j++) {
+			fgets(file); // discard the j-th traversal index
+		}
+
 		// Load doortarget field
 		cl_navmesh_polies[i].doortarget = fgets(file);
 
@@ -1738,6 +1895,37 @@ void cl_navmesh_editor_load_navmesh()
 		cl_navmesh_polies[i].entrance_edge = stoi(fgets(file));
 		// cl_navmesh_polies[i].entrance_edge = -1; // Temp fix to load old files
 	}
+
+	// -----------------------------------------------------------------------
+	// Load Traversals
+	// -----------------------------------------------------------------------
+	// TODO - Increment navmesh version count, if 0.0.0, load file without traversals
+	//Next line contains the number of traverals
+	cl_navmesh_traversal_count = stof(fgets(file));
+	
+	//The next lines are each traversal
+	for(float i = 0; i < cl_navmesh_traversal_count; i++) {
+		line = fgets(file);
+		temp = stov(line);
+		cl_navmesh_traversals[i].start_pos.x = temp.x;
+		cl_navmesh_traversals[i].start_pos.y = temp.y;
+		cl_navmesh_traversals[i].start_pos.z = temp.z;
+		line = fgets(file);
+		temp = stov(line);
+		cl_navmesh_traversals[i].midpoint_pos.x = temp.x;
+		cl_navmesh_traversals[i].midpoint_pos.y = temp.y;
+		cl_navmesh_traversals[i].midpoint_pos.z = temp.z;
+		line = fgets(file);
+		temp = stov(line);
+		cl_navmesh_traversals[i].end_pos.x = temp.x;
+		cl_navmesh_traversals[i].end_pos.y = temp.y;
+		cl_navmesh_traversals[i].end_pos.z = temp.z;
+		cl_navmesh_traversals[i].angle = stof(fgets(file));
+		cl_navmesh_traversals[i].use_midpoint = stof(fgets(file));
+		// Don't care about traversal end polygon index
+		fgets(file);
+	}
+	// -----------------------------------------------------------------------
 	
 	fclose(file);
 }
@@ -1809,51 +1997,42 @@ void cl_navmesh_draw_test_ent(vector pos, vector scale, vector color, float alph
 	R_EndPolygon();
 }
 
-void cl_navmesh_place_test_goalent()
-{
+void cl_navmesh_place_test_goalent() {
 	goalent_pos = getentity(player_localentnum, GE_ORIGIN);
-	
 	goalent_set = TRUE;
-	
 	
 	//Calculate data that the navmesh exporer will calculate
 	cl_navmesh_calc_polies_centers();
 	cl_navmesh_calc_connected_polies();
 	
-	if(goalent_set == TRUE && startent_set == TRUE)
-	{
-		print("Getting start poly.");
+	if(goalent_set == TRUE && startent_set == TRUE) {
+		print("Getting start poly: ");
 		float start = cl_navmesh_get_containing_poly(startent_pos);
-		print("Getting goal poly.");
+		print("Getting goal poly: ");
 		float goal = cl_navmesh_get_containing_poly(goalent_pos);
 		cl_navmesh_pathfind_start(start,goal,startent_pos,goalent_pos);
 	}
-	
-
 }
-void cl_navmesh_place_test_startent()
-{
+
+void cl_navmesh_place_test_startent() {
 	startent_pos = getentity(player_localentnum, GE_ORIGIN);
-	
 	startent_set = TRUE;
 	
 	//Calculate data that the navmesh exporer will calculate
 	cl_navmesh_calc_polies_centers();
 	cl_navmesh_calc_connected_polies();
 	
-	if(goalent_set == TRUE && startent_set == TRUE)
-	{
-		print("Getting start poly.");
+	if(goalent_set == TRUE && startent_set == TRUE) {
+		print("Getting start poly: ");
 		float start = cl_navmesh_get_containing_poly(startent_pos);
-		print("Getting goal poly.");
+		print("Getting goal poly: ");
 		float goal = cl_navmesh_get_containing_poly(goalent_pos);
 		cl_navmesh_pathfind_start(start,goal,startent_pos,goalent_pos);
 	}
 }
 
 //Returns 1 if pos is inside poly at index poly_index, 0 otherwise
-float cl_navmesh_is_inside_poly(vector pos, float poly_index)
-{
+float cl_navmesh_is_inside_poly(vector pos, float poly_index) {
 	
 	//TODO: check if z coord is close enough to poly
 	
@@ -1863,8 +2042,7 @@ float cl_navmesh_is_inside_poly(vector pos, float poly_index)
 	local vector next_vert;
 	float vert_count = cl_navmesh_polies[poly_index].vert_count;
 	//We are considered to be in the polygon, if pos is on the left of all edges of the polygon (if verts are ordered in CW order)
-	for(float i = 0; i < vert_count; i++)
-	{
+	for(float i = 0; i < vert_count; i++) {
 		vert = cl_navmesh_verts[cl_navmesh_polies[poly_index].verts[i]].pos;
 		next_vert = cl_navmesh_verts[cl_navmesh_polies[poly_index].verts[(i + 1) % vert_count]].pos;
 		
@@ -1880,8 +2058,7 @@ float cl_navmesh_is_inside_poly(vector pos, float poly_index)
 	//FOR DEBUG: select that polygon if succesfull
 	cl_navmesh_deselect_all();
 	selected_vert_count = cl_navmesh_polies[poly_index].vert_count;
-	for(float i = 0; i < selected_vert_count; i++)
-	{
+	for(float i = 0; i < selected_vert_count; i++) {
 		selected_verts[i] = cl_navmesh_polies[poly_index].verts[i];
 	}	
 	//============================================
@@ -2027,590 +2204,890 @@ float cl_navmesh_get_containing_poly(vector pos)
 //=============================================== Actual A* functions ============================================
 //================================================================================================================
 
-//Calculates the heuristic h score value (Our best guess for how far this node is from the goal node)
-float cl_pathfind_calc_h_score(float current, float goal)
-{
+//Calculates the heuristic h score value for a navmesh polygon (Our best guess for how far this node is from the goal node)
+float cl_pathfind_calc_poly_h_score(float current_poly_idx, float goal_poly_idx) {
 	//FIXME: we could just as easily return vlen()^2 for comparisons... (saves a sqrt operation)
-	return vlen(cl_navmesh_polies[goal].center - cl_navmesh_polies[current].center);
+	return vlen(cl_navmesh_polies[goal_poly_idx].center - cl_navmesh_polies[current_poly_idx].center);
+}
+
+//Calculates the heuristic h score value for a navmesh traversal (Our best guess for how far this node is from the goal node)
+float cl_pathfind_calc_traversal_h_score(float current_traversal_idx, float goal_poly_idx) {
+	//FIXME: we could just as easily return vlen()^2 for comparisons... (saves a sqrt operation)
+	vector traversal_end_pos = cl_navmesh_get_traversal_end_pos(current_traversal_idx);
+	return vlen(cl_navmesh_polies[goal_poly_idx].center - traversal_end_pos);
 }
 
 //Struct containing all arrays that the pathfind code requires to operate
-pathfind_result *cl_test_pathfind_result;
+navmesh_pathfind_result *cl_test_pathfind_result;
 
 //Returns the polygon with the lowest f score from polygons the open set
-float cl_pathfind_get_lowest_f_score()
-{
+float cl_pathfind_get_lowest_f_score_poly() {
 	//TODO: implement a better algorithm for finding the lowest score
-	
 	float best_score = 100000;
 	float best_score_index = -1;
 	
-	for(float i = 0; i < cl_navmesh_poly_count; i++)
-	{
-		if(cl_test_pathfind_result->poly_set[i] == PATHFIND_POLY_SET_OPEN)
-		{
-			if(cl_test_pathfind_result->poly_f_score[i] < best_score)
-			{
+	for(float i = 0; i < cl_navmesh_poly_count; i++) {
+		if(cl_test_pathfind_result->poly_set[i] == PATHFIND_POLY_SET_OPEN) {
+			if(cl_test_pathfind_result->poly_f_score[i] < best_score) {
 				best_score = cl_test_pathfind_result->poly_f_score[i];
 				best_score_index = i;
 			}
 		}
 	}
-	
 	return best_score_index;
 }
 
+
+//Returns the traversal with the lowest f score from polygons the open set
+float cl_pathfind_get_lowest_f_score_traversal() {
+	//TODO: implement a better algorithm for finding the lowest score
+	float best_score = 100000;
+	float best_score_index = -1;
+	
+	for(float i = 0; i < cl_navmesh_traversal_count; i++) {
+		if(cl_test_pathfind_result->traversal_set[i] == PATHFIND_POLY_SET_OPEN) {
+			if(cl_test_pathfind_result->traversal_f_score[i] < best_score) {
+				best_score = cl_test_pathfind_result->traversal_f_score[i];
+				best_score_index = i;
+			}
+		}
+	}	
+	return best_score_index;
+}
+
+
 void cl_pathfind_clear_result_data() {
 	//Technically we only need to iterate over navmesh_poly_count...
-	for(int i = 0; i < NAV_MAX_POLIES; i++)
-	{
+	for(float i = 0; i < NAV_MAX_POLIES; i++) {
 		cl_test_pathfind_result->poly_set[i] = PATHFIND_POLY_SET_NONE;
-		cl_test_pathfind_result->poly_prev[i] = -1;
+		cl_test_pathfind_result->poly_prev_poly[i] = -1;
+		cl_test_pathfind_result->poly_prev_traversal[i] = -1;
 		cl_test_pathfind_result->poly_g_score[i] = 0;
 		cl_test_pathfind_result->poly_f_score[i] = 0;
-		cl_test_pathfind_result->result_node_path[i] = -1;
-		
-		cl_test_pathfind_result->result_path[i].x = 0;
-		cl_test_pathfind_result->result_path[i].y = 0;
-		cl_test_pathfind_result->result_path[i].z = 0;
-		
-		cl_test_pathfind_result->portals_right_vert[i] = -1;
-		cl_test_pathfind_result->portals_left_vert[i] = -1;
+
+		cl_test_pathfind_result->path_polygons[i] = -1;
+		cl_test_pathfind_result->path_traversals[i] = -1;
+				
+		cl_test_pathfind_result->portals_left_pos[i].x = 0;
+		cl_test_pathfind_result->portals_left_pos[i].y = 0;
+		cl_test_pathfind_result->portals_left_pos[i].z = 0;
+		cl_test_pathfind_result->portals_right_pos[i].x = 0;
+		cl_test_pathfind_result->portals_right_pos[i].y = 0;
+		cl_test_pathfind_result->portals_right_pos[i].z = 0;
+		cl_test_pathfind_result->portals_traversal[i] = -1;
+
+		cl_test_pathfind_result->point_path_points[i].x = 0;
+		cl_test_pathfind_result->point_path_points[i].y = 0;
+		cl_test_pathfind_result->point_path_points[i].y = 0;
+		cl_test_pathfind_result->point_path_traversals[i] = -1;
 	}
-	cl_test_pathfind_result->result_node_length = 0;
-	cl_test_pathfind_result->result_length = 0;
+	for(float i = 0;i < NAV_MAX_TRAVERSALS; i++) {
+		cl_test_pathfind_result->traversal_set[i] = PATHFIND_POLY_SET_NONE;
+		cl_test_pathfind_result->traversal_prev_poly[i] = -1;
+		cl_test_pathfind_result->traversal_g_score[i] = 0;
+		cl_test_pathfind_result->traversal_f_score[i] = 0;
+	}
+	cl_test_pathfind_result->path_length = 0;
 	cl_test_pathfind_result->portals_length = 0;
+	cl_test_pathfind_result->point_path_length = 0;
 }
 
 
-vector get_left_portal_corner(pathfind_result *res, int portal_idx) {
-	// return cl_navmesh_verts[res->portals_left_vert[portal_idx]].pos;
+// vector cl_pathfind_get_left_portal_corner(navmesh_pathfind_result *res, int portal_idx) {
+// 	// return cl_navmesh_verts[res->portals_left_vert[portal_idx]].pos;
 
-	// Find the vertex opposite this portal edge
-	vector corner = cl_navmesh_verts[res->portals_left_vert[portal_idx]].pos;
-	vector opposite_corner = cl_navmesh_verts[res->portals_right_vert[portal_idx]].pos;
-	// Move 20 qu or 20% of the edge length, whichever is smaller:
-	float edge_len = vlen(opposite_corner - corner);
-	vector edge_dir = normalize(opposite_corner - corner);
-	return corner + edge_dir * min(edge_len * 0.2, 20);
-}
+// 	// Find the vertex opposite this portal edge
+// 	vector corner = cl_navmesh_verts[res->portals_left_vert[portal_idx]].pos;
+// 	vector opposite_corner = cl_navmesh_verts[res->portals_right_vert[portal_idx]].pos;
+// 	// Move 20 qu or 20% of the edge length, whichever is smaller:
+// 	float edge_len = vlen(opposite_corner - corner);
+// 	vector edge_dir = normalize(opposite_corner - corner);
+// 	return corner + edge_dir * min(edge_len * 0.2, 20);
+// }
 
-vector get_right_portal_corner(pathfind_result *res, int portal_idx) {
-	// return cl_navmesh_verts[res->portals_right_vert[portal_idx]].pos;
+// vector cl_pathfind_get_right_portal_corner(navmesh_pathfind_result *res, int portal_idx) {
+// 	// return cl_navmesh_verts[res->portals_right_vert[portal_idx]].pos;
 
-	// Find the vertex opposite this portal edge
-	vector corner = cl_navmesh_verts[res->portals_right_vert[portal_idx]].pos;
-	vector opposite_corner = cl_navmesh_verts[res->portals_left_vert[portal_idx]].pos;
-	// Move 20 qu or 20% of the edge length, whichever is smaller:
-	float edge_len = vlen(opposite_corner - corner);
-	vector edge_dir = normalize(opposite_corner - corner);
-	return corner + edge_dir * min(edge_len * 0.2, 20);
-}
+// 	// Find the vertex opposite this portal edge
+// 	vector corner = cl_navmesh_verts[res->portals_right_vert[portal_idx]].pos;
+// 	vector opposite_corner = cl_navmesh_verts[res->portals_left_vert[portal_idx]].pos;
+// 	// Move 20 qu or 20% of the edge length, whichever is smaller:
+// 	float edge_len = vlen(opposite_corner - corner);
+// 	vector edge_dir = normalize(opposite_corner - corner);
+// 	return corner + edge_dir * min(edge_len * 0.2, 20);
+// }
 
 
 //Applies a funnel algorithm to the path defined by the array cl_test_pathfind_result->result_node_path 
 // and populates pathfind result path
 void cl_pathfind_smooth_path(vector start_point, vector goal_point) {
-	//Evaluate portals and identify left / right portal vertices
-	for(float i = 1; i < cl_test_pathfind_result->result_node_length; i++) {
-		float prev_poly = cl_test_pathfind_result->result_node_path[i-1];
-		float poly = cl_test_pathfind_result->result_node_path[i];
-		
-		// Find what index prev_poly is linked to poly
-		float link_index = -1;
-		for(float j = 0; j < cl_navmesh_polies[prev_poly].connected_polies_count; j++) {
-			if(cl_navmesh_polies[prev_poly].connected_polies[j] == poly) {
-				link_index = j;
-				break;
+
+	float cur_poly;
+	float cur_traversal;
+	float prev_poly;
+	float prev_traversal;
+	vector cur_portal_left_pos = '0 0 0';
+	vector cur_portal_right_pos = '0 0 0';
+	float cur_portal_traversal = -1;
+	vector traversal_start_pos;
+	vector traversal_end_pos;
+
+	// Build the list of portals
+	for(float i = 1; i < cl_test_pathfind_result->path_length; i++) {
+		cur_poly = cl_test_pathfind_result->path_polygons[i];
+		cur_traversal = cl_test_pathfind_result->path_traversals[i];
+		prev_poly = cl_test_pathfind_result->path_polygons[i-1];
+		prev_traversal = cl_test_pathfind_result->path_traversals[i-1];
+
+		// If polygon and came from polygon, portal = shared edge
+		if(cur_poly != -1 && prev_poly != -1) {
+			// Find which of prev_poly's edges connects to cur_poly
+			float prev_poly_edge_index = -1;
+			for(float j = 0; j < cl_navmesh_polies[prev_poly].connected_polies_count; j++) {
+				if(cl_navmesh_polies[prev_poly].connected_polies[j] == cur_poly) {
+					prev_poly_edge_index = j;
+					break;
+				}
 			}
+			cur_portal_left_pos = cl_navmesh_verts[cl_navmesh_polies[prev_poly].connected_polies_left_vert[prev_poly_edge_index]].pos;
+			cur_portal_right_pos = cl_navmesh_verts[cl_navmesh_polies[prev_poly].connected_polies_right_vert[prev_poly_edge_index]].pos;
+			cur_portal_traversal = -1;
+
+			// ----------------------------------------------------------------
+			// Narrow the portal from each side by 20% or 20qu, whichever is smaller
+			// ----------------------------------------------------------------
+			float edge_len = vlen(cur_portal_right_pos - cur_portal_left_pos);
+			vector edge_dir = normalize(cur_portal_right_pos - cur_portal_left_pos);
+			float ofs = min(edge_len * 0.2, 20);
+			cur_portal_left_pos = cur_portal_left_pos + edge_dir * ofs;
+			cur_portal_right_pos = cur_portal_right_pos - edge_dir * ofs;
+			// ----------------------------------------------------------------
+		}
+		// If polygon and came from traversal, portal = traversal exit
+		else if(cur_poly != -1 && prev_traversal != -1) {
+			traversal_end_pos = cl_navmesh_get_traversal_end_pos(prev_traversal);
+			cur_portal_left_pos = traversal_end_pos;
+			cur_portal_right_pos = traversal_end_pos;
+			cur_portal_traversal = -1;
+			// TODO - Denote that it came from traversal? maybe we don't care?
+		}
+		// If traversal and came from polygon, portal = traversal start
+		else if(cur_traversal != -1 && prev_poly != -1) {
+			traversal_start_pos = cl_navmesh_traversals[cur_traversal].start_pos;
+			cur_portal_left_pos = traversal_start_pos;
+			cur_portal_right_pos = traversal_start_pos;
+			cur_portal_traversal = cur_traversal;
 		}
 
-		//Use that index to get left and right vertices
-		cl_test_pathfind_result->portals_left_vert[cl_test_pathfind_result->portals_length] = cl_navmesh_polies[prev_poly].connected_polies_left_vert[link_index];
-		cl_test_pathfind_result->portals_right_vert[cl_test_pathfind_result->portals_length++] = cl_navmesh_polies[prev_poly].connected_polies_right_vert[link_index];
+		cl_test_pathfind_result->portals_left_pos[cl_test_pathfind_result->portals_length] = cur_portal_left_pos;
+		cl_test_pathfind_result->portals_right_pos[cl_test_pathfind_result->portals_length] = cur_portal_right_pos;
+		cl_test_pathfind_result->portals_traversal[cl_test_pathfind_result->portals_length] = cur_portal_traversal;
+		cl_test_pathfind_result->portals_length++;
 	}
 
-	//the last left edge / right edge is the goal position
-	
-	print("Portals: ");
-	for(float i = 0; i < cl_test_pathfind_result->portals_length; i++)
-	{
-		print("[");
+
+	// TODO - Should I add goal_pos as the final portal?
+	cl_test_pathfind_result->portals_left_pos[cl_test_pathfind_result->portals_length] = goal_point;
+	cl_test_pathfind_result->portals_right_pos[cl_test_pathfind_result->portals_length] = goal_point;
+	cl_test_pathfind_result->portals_traversal[cl_test_pathfind_result->portals_length] = -1;
+	cl_test_pathfind_result->portals_length++;
+
+
+
+	vector cur_funnel_corner = start_point;
+	vector cur_funnel_left = cl_test_pathfind_result->portals_left_pos[0];
+	vector cur_funnel_right = cl_test_pathfind_result->portals_right_pos[0];
+
+	float next_portal_left_in_funnel;
+	float next_portal_right_in_funnel;
+
+	// Loop through all portals, adding necessary funnel corners to final path
+	for(float i = 0; i < cl_test_pathfind_result->portals_length; i++) {
+		cur_portal_left_pos = cl_test_pathfind_result->portals_left_pos[i];
+		cur_portal_right_pos = cl_test_pathfind_result->portals_right_pos[i];
+		cur_portal_traversal = cl_test_pathfind_result->portals_traversal[i];
+
+
+		// TODO - Project portal points to axis made by cur funnel points
+		// Then we can check 
+		// TODO - Compute value for a point:
+		// TODO		0: On funnel center
+		// TODO		< -1 outside of funnel to the left
+		// TODO		> 1 outside of funnel to the right
+
+
+		float cur_portal_left_in_funnel = pathfind_point_in_funnel( cur_portal_left_pos,  cur_funnel_corner, cur_funnel_left, cur_funnel_right);
+		float cur_portal_right_in_funnel = pathfind_point_in_funnel(cur_portal_right_pos, cur_funnel_corner, cur_funnel_left, cur_funnel_right);
+
+		print("Current portal: ");
 		print(ftos(i));
-		print("] = (");
-		print(ftos(cl_test_pathfind_result->portals_left_vert[i]));
-		print(" , ");
-		print(ftos(cl_test_pathfind_result->portals_right_vert[i]));
-		print(") , ");
+		print(" (l: ");
+		print(ftos(cur_portal_left_pos.x));
+		print(",");
+		print(ftos(cur_portal_left_pos.y));
+		print(", r: ");
+		print(ftos(cur_portal_right_pos.x));
+		print(",");
+		print(ftos(cur_portal_right_pos.y));
+		print(", t: ");
+		print(ftos(cur_portal_traversal));
+		print(") -");
+		print(" In funnel? (");
+		print(ftos(cur_portal_left_in_funnel));
+		print(",");
+		print(ftos(cur_portal_right_in_funnel));
+		print(") - ");
+		print("Funnel: (");
+		print(ftos(cur_funnel_left.x));
+		print(",");
+		print(ftos(cur_funnel_left.y));
+		print(" -> ");
+		print(ftos(cur_funnel_corner.x));
+		print(",");
+		print(ftos(cur_funnel_corner.y));
+		print(" -> ");
+		print(ftos(cur_funnel_right.x));
+		print(",");
+		print(ftos(cur_funnel_right.y));
+		print(")\n");
+		// print(vtos(cur_funnel_left));
+
+
+		// If cur portal left point is in cur funnel, narrow the cur funnel
+		if(cur_portal_left_in_funnel >= -1 && cur_portal_left_in_funnel <= 1) {
+			cur_funnel_left = cur_portal_left_pos;
+		}
+		// If cur portal right point is in cur funnel, narrow the cur funnel
+		if(cur_portal_right_in_funnel >= -1 && cur_portal_right_in_funnel <= 1) {
+			cur_funnel_right = cur_portal_right_pos;
+		}
+
+		// If cur portal is completely outside (to left of) current funnel
+		if(cur_portal_left_in_funnel < -1 && cur_portal_right_in_funnel < -1) {
+			// Add cur funnel left point to final path:
+			cl_test_pathfind_result->point_path_points[cl_test_pathfind_result->point_path_length] = cur_funnel_left;
+			cl_test_pathfind_result->point_path_traversals[cl_test_pathfind_result->point_path_length] = -1;
+			cl_test_pathfind_result->point_path_length++;
+
+			// Set next funnel to start at cur funnel left point
+			cur_funnel_corner = cur_funnel_left;
+			// Set next funnel left point to next portal left
+			cur_funnel_left = cl_test_pathfind_result->portals_left_pos[i+1];
+			// Set next funnel right point to next portal right
+			cur_funnel_right = cl_test_pathfind_result->portals_right_pos[i+1];
+		}
+		// If cur portal is completely outside (to right of) current funnel
+		else if(cur_portal_left_in_funnel > 1 && cur_portal_right_in_funnel > 1) {
+			// Add cur funnel right point to final path:
+			cl_test_pathfind_result->point_path_points[cl_test_pathfind_result->point_path_length] = cur_funnel_right;
+			cl_test_pathfind_result->point_path_traversals[cl_test_pathfind_result->point_path_length] = -1;
+			cl_test_pathfind_result->point_path_length++;
+
+			// Set next funnel to start at cur funnel right point
+			cur_funnel_corner = cur_funnel_right;
+			// Set next funnel left point to next portal left
+			cur_funnel_left = cl_test_pathfind_result->portals_left_pos[i+1];
+			// Set next funnel right point to next portal right
+			cur_funnel_right = cl_test_pathfind_result->portals_right_pos[i+1];
+		}
+
+		// If cur portal is a traversal
+		if(cur_portal_traversal != -1) {
+			vector start_pos = cl_navmesh_traversals[cur_portal_traversal].start_pos;
+			vector end_pos = cl_navmesh_get_traversal_end_pos(cur_portal_traversal);
+			// Add traversal start point to final path:
+			cl_test_pathfind_result->point_path_points[cl_test_pathfind_result->point_path_length] = start_pos;
+			cl_test_pathfind_result->point_path_traversals[cl_test_pathfind_result->point_path_length] = cur_portal_traversal;
+			cl_test_pathfind_result->point_path_length++;
+			// Add traversal end point to final path:
+			// FIXME - Should I remove this?
+			cl_test_pathfind_result->point_path_points[cl_test_pathfind_result->point_path_length] = end_pos;
+			cl_test_pathfind_result->point_path_traversals[cl_test_pathfind_result->point_path_length] = -1;
+			cl_test_pathfind_result->point_path_length++;
+
+
+			// Set funnel to start at traversal endpoint and use the next portal
+			cur_funnel_corner = end_pos;
+			cur_funnel_left = cl_test_pathfind_result->portals_left_pos[i+1];
+			cur_funnel_right = cl_test_pathfind_result->portals_right_pos[i+1];
+		}
 	}
-	
-	//starting at start_pos (not at start center point)
-	//get vectors that point to first left edge and first right edge
-	vector funnel_apex = start_point;
-	float funnel_left_index = 0;
-	//Index of the funnel's left vertex in the portal list
-	vector funnel_left = get_left_portal_corner(cl_test_pathfind_result, 0);
-	//Index of the funnel's right vertex in the portal list
-	float funnel_right_index = 0;
-	vector funnel_right = get_right_portal_corner(cl_test_pathfind_result, 0);
-	
-	vector next_funnel_left;
-	vector next_funnel_right;
-	
-	float inside_right_edge;
-	float inside_left_edge;
-	
-	while(1) {
-		print("=============Funnel iteration.==========\n");
-		print("\tCurrent left edge: ");
-		print(ftos(cl_test_pathfind_result->portals_left_vert[funnel_left_index]));
-		print("\n");
-		print("\tCurrent right edge: ");
-		print(ftos(cl_test_pathfind_result->portals_right_vert[funnel_right_index]));
-		print("\n");
-		
-		//Check if we have reached the end of the portals, consider the goal position as the last portal
-		//If we are not at the last index of the left portal
-		
-		//Keeping track of whether or not advancing the left edge or right edge narrows the funnel
-		float advanced_left = FALSE;
-		float advanced_right = FALSE;
-		
-		//Consider the end goal point as the last portal
-		//================ Checking left funnel edge =================
-		if(funnel_left_index < cl_test_pathfind_result->portals_length) {
-			print("\t-- Trying to advance left edge. --\n");
-			
-			if(funnel_left_index < cl_test_pathfind_result->portals_length - 1) {
-				// next_funnel_left = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[funnel_left_index+1]].pos;
-				next_funnel_left = get_left_portal_corner(cl_test_pathfind_result, funnel_left_index + 1);
-				print("\t\tNext left edge is vert: ");
-				print(ftos(cl_test_pathfind_result->portals_left_vert[funnel_left_index+1]));
-				print(".\n");
-			}
-			else {
-				print("\t\tTrying next left edge as goal point.\n");
-				//If funnel_left is pointing to the last portal in the array, consider the goal_point the last portal
-				next_funnel_left = goal_point;
-			}
 
-			inside_right_edge = pathfind_point_is_to_left(funnel_apex,funnel_right,next_funnel_left);
-			//If the next left edge crosses the current right edge
-			if(inside_right_edge < 0) {
-				print("\t\tnext left edge crosses current right edge.\n");
-				//Add funnel right point to path
-				// cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = funnel_right;
-				vector corner = funnel_right;
-				// // ------------------------------------------------------------
-				// // Instead of adding the funnel's corner to the path, 
-				// // move away from the corner by some small amount
-				// // ------------------------------------------------------------
-				// // Find the first portal along the path with this corner
-				// int portal_idx = funnel_right_index;
-				// for(int i = funnel_right_index; i >= 0; i--) {
-				// 	if(cl_test_pathfind_result->portals_right_vert[i] == cl_test_pathfind_result->portals_right_vert[funnel_right_index]) {
-				// 		portal_idx = i;
-				// 		continue;
-				// 	}
-				// 	break;
-				// }
-				// // For every portal with this corner, add a point to the path
-				// for(int i = portal_idx; i <= funnel_right_index; i++) {
-				// 	// Find the vertex opposite this portal edge
-				// 	vector opposite_corner = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[i]].pos;
-				// 	// Move 20 qu or 20% of the edge length, whichever is smaller:
-				// 	float edge_len = vlen(opposite_corner - corner);
-				// 	vector edge_dir = normalize(opposite_corner - corner);
-				// 	vector delta_corner = edge_dir * min(edge_len * 0.2, 20);
-				// 	cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = corner + delta_corner;
-				// }
-				// // ------------------------------------------------------------
-				cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = corner;
+	// Always add goal point to the path
+	cl_test_pathfind_result->point_path_points[cl_test_pathfind_result->point_path_length] = goal_point;
+	cl_test_pathfind_result->point_path_traversals[cl_test_pathfind_result->point_path_length] = -1;
+	cl_test_pathfind_result->point_path_length++;
 
-				//Check if we are at the end of our portal list
-				if(funnel_right_index >= cl_test_pathfind_result->portals_length - 1) {
-					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-					return;
-				}
-				
-				print("\t\tnew funnel apex is now vert: ");
-				print(ftos(cl_test_pathfind_result->portals_right_vert[funnel_right_index]));
-				print("\n");
 
-				//Restart algorithm with the portal after the right point
-				funnel_apex = funnel_right;
-				
-				funnel_left_index = funnel_right_index + 1;
-				// funnel_left = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[funnel_left_index]].pos;
-				funnel_left = get_left_portal_corner(cl_test_pathfind_result, funnel_left_index);
-				funnel_right_index = funnel_right_index + 1;
-				// funnel_right = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[funnel_right_index]].pos;
-				funnel_right = get_right_portal_corner(cl_test_pathfind_result, funnel_right_index);
-				continue;
-			}
-			//If the next left edge is in the funnel
-			inside_left_edge = pathfind_point_is_to_left(funnel_left,funnel_apex,next_funnel_left);
-			if(inside_left_edge >= 0 && inside_right_edge >= 0) {
-				print("\t\tnext left edge is in the funnel, narrowing funnel.\n");
-				//Advance the left edge
-				funnel_left = next_funnel_left;
-				funnel_left_index++;
-				advanced_left = TRUE;
-				//Check if the portal we just added was the goal point (will be after the list)
-				if(funnel_left_index >= cl_test_pathfind_result->portals_length) {
-					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-					return;
-				}
-			}
-		}
-		//================ Checking right funnel edge =================
-		if(funnel_right_index < cl_test_pathfind_result->portals_length) {
-			print("\t -- Trying to advance right edge --\n");
-			
-			if(funnel_right_index < cl_test_pathfind_result->portals_length - 1) {
-				next_funnel_right = get_right_portal_corner(cl_test_pathfind_result, funnel_right_index + 1);
-				// next_funnel_right = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[funnel_right_index+1]].pos;
-				print("\t\tNext right edge is vert: ");
-				print(ftos(cl_test_pathfind_result->portals_right_vert[funnel_right_index+1]));
-				print(".\n");
-			}
-			else {
-				print("\t\tTrying next right edge as goal point.\n");
-				//If funnel_right is pointing to the last portal in the array, consider the goal_point the last portal
-				next_funnel_right = goal_point;
-			}
-			
-			//If the next right edge crosses the current left edge
-			inside_left_edge = pathfind_point_is_to_left(funnel_left,funnel_apex,next_funnel_right);
-			if(inside_left_edge < 0) {
-				print("\t\tnext right edge crosses current left edge.\n");
-				//Add funnel left point to path
-				// cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = funnel_left;
-				vector corner = funnel_left;
-				// // ------------------------------------------------------------
-				// // Instead of adding the funnel's corner to the path, 
-				// // move away from the corner by some small amount
-				// // ------------------------------------------------------------
-				// // Find the first portal along the path with this corner
-				// int portal_idx = funnel_left_index;
-				// for(int i = funnel_left_index; i >= 0; i--) {
-				// 	if(cl_test_pathfind_result->portals_left_vert[i] == cl_test_pathfind_result->portals_left_vert[funnel_left_index]) {
-				// 		portal_idx = i;
-				// 		continue;
-				// 	}
-				// 	break;
-				// }
-				// // For every portal with this corner, add a point to the path
-				// for(int i = portal_idx; i <= funnel_left_index; i++) {
-				// 	// Find the vertex opposite this portal edge
-				// 	vector opposite_corner = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[i]].pos;
-				// 	// Move 20 qu or 20% of the edge length, whichever is smaller:
-				// 	float edge_len = vlen(opposite_corner - corner);
-				// 	vector edge_dir = normalize(opposite_corner - corner);
-				// 	vector delta_corner = edge_dir * min(edge_len * 0.2, 20);
-				// 	cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = corner + delta_corner;
-				// }
-				// // ------------------------------------------------------------
-				cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = corner;
+	// TODO - Rewrite this algorithm:
+	// we have a cur funnel composed of the corner, and the portal
+	// we have a cur portal which is a left edge and a right edge
+	// if cur portal is narrower, update the current funnel
+	// if cur portal is wider, keep the current funnel
+	// if cur portal is outside of funnel, add funnel right or left to list of path points
+	// if cur portal is a traversal start, add traversal start to list of points, denote that its a traversal
+	// 		continue from traversal end point, setting exit as corner, and getting the next portal from there...
 
-				//Check if we are at the end of our portal list
-				if(funnel_left_index >= cl_test_pathfind_result->portals_length - 1) {
-					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-					return;
-				}
-				
-				//Restart algorithm with the portal after the right point
-				funnel_apex = funnel_left;
-				print("\t\tnew funnel apex is now vert: ");
-				print(ftos(cl_test_pathfind_result->portals_left_vert[funnel_left_index]));
-				print("\n");
-				
-				funnel_right_index = funnel_left_index + 1;
-				funnel_right = get_right_portal_corner(cl_test_pathfind_result, funnel_right_index);
-				// funnel_right = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[funnel_right_index]].pos;
-				funnel_left_index = funnel_left_index + 1;
-				funnel_left = get_left_portal_corner(cl_test_pathfind_result, funnel_left_index);
-				// funnel_left = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[funnel_left_index]].pos;
-				continue;
-			}
-			//If the next right edge is in the funnel
-			inside_right_edge = pathfind_point_is_to_left(funnel_apex,funnel_right,next_funnel_right);			
-			if(inside_left_edge >= 0 && inside_right_edge >= 0) {
-				print("\t\tnext right edge is in the funnel, narrowing funnel.\n");
-				//Advance the left edge
-				funnel_right = next_funnel_right;
-				funnel_right_index++;
-				advanced_right = TRUE;
-				
-				//Check if the portal we just added was the goal point (will be after the list)
-				if(funnel_right_index >= cl_test_pathfind_result->portals_length) {
-					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-					return;
-				}
-			}
-		}
-		if(advanced_left == FALSE && advanced_right == FALSE) {
-			print("Hit funnel freeze condition.\n");
-			
-			float left_vert = -1;
-			float left_type;
-			float left_portal_index;//index of the vertex in the list of portals
-			
-			float right_vert = -1;
-			float right_type;
-			float right_portal_index;//index of the vertex in the list of portals
-			
-			float crossed = 1;//Indicates the vert crossed the funnel
-			float contained = 2;//Indicates a vert is in the funnel
-			
-			float last_vert = -1;//used to skip calculating the same vertex more than once
-			
-			
-			//Find the closest vertex in the portal left with the lowest index that crosses the funnel or is in the funnel
-			for(float i = funnel_left_index + 1; i < cl_test_pathfind_result->portals_length + 1; i++) {
-				if(i < cl_test_pathfind_result->portals_length - 1) {
-					//Don't calculate the same vertex again
-					if(last_vert == cl_test_pathfind_result->portals_left_vert[i])
-						continue;
-					last_vert = cl_test_pathfind_result->portals_left_vert[i];
-
-					next_funnel_left = get_left_portal_corner(cl_test_pathfind_result, i);
-					// next_funnel_left = cl_navmesh_verts[last_vert].pos;
-				}
-				else {
-					//consider goal pos as last portal edge
-					next_funnel_left = goal_point;
-				}
-				
-				inside_right_edge = pathfind_point_is_to_left(funnel_apex,funnel_right,next_funnel_left);
-				
-				//If the left vertex crosses the funnel (left vertex is outside the funnel's right edge)
-				if(inside_right_edge < 0) {
-					left_vert = cl_test_pathfind_result->portals_left_vert[i];
-					left_type = crossed;
-					break;
-				}
-				
-				inside_left_edge = pathfind_point_is_to_left(funnel_left,funnel_apex,next_funnel_left);
-				
-				//If the left vertex is within the funnel
-				if(inside_left_edge >= 0 && inside_right_edge >= 0) {
-					left_vert = cl_test_pathfind_result->portals_left_vert[i];
-					left_type = contained;
-					left_portal_index = i;
-					break;
-				}
-			}
-			
-			last_vert = -1;
-			
-			//Find the closest vertex in the portal right with the lowest index that crosses the funnel or is in the funnel
-			for(float i = funnel_right_index + 1; i < cl_test_pathfind_result->portals_length; i++) {
-				if(i < cl_test_pathfind_result->portals_length - 1) {
-					//Don't calculate the same vertex again
-					if(last_vert == cl_test_pathfind_result->portals_right_vert[i])
-						continue;
-					last_vert = cl_test_pathfind_result->portals_right_vert[i];
-
-					next_funnel_right = get_right_portal_corner(cl_test_pathfind_result, i);
-					// next_funnel_right = cl_navmesh_verts[last_vert].pos;
-				}
-				//consider goal pos as last portal edge
-				else {
-					next_funnel_right = goal_point;
-				}
-				
-				inside_left_edge = pathfind_point_is_to_left(funnel_left,funnel_apex,next_funnel_right);
-				
-				//If the right vertex crosses the funnel (right vertex is outside the funnel's left edge)
-				if(inside_left_edge < 0) {
-					right_vert = cl_test_pathfind_result->portals_right_vert[i];
-					right_type = crossed;
-					break;
-				}
-				
-				inside_right_edge = pathfind_point_is_to_left(funnel_apex,funnel_right,next_funnel_right);
-				
-				//If the right vertex is within the funnel
-				if(inside_left_edge >= 0 && inside_right_edge >= 0) {
-					right_vert = cl_test_pathfind_result->portals_right_vert[i];
-					right_type = contained;
-					right_portal_index = i;
-					break;
-				}
-			}
-			
-			//If no vertices were found, goal is reachable from here
-			if(left_vert == -1 && right_vert == -1) {
-				cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-				return;
-			}
-			
-			float use_left;
-			//If both verts were found
-			//Find which vertex has a lower index
-			if(left_vert != -1 && right_vert != -1) {
-				if(left_portal_index < right_portal_index) {	
-					use_left = TRUE;
-				}
-				else {	
-					use_left = FALSE;
-				}	
-			}
-			
-			//if left vert was found
-			else if(left_vert != -1) {
-				use_left = TRUE;
-			}
-			//else right vert was found
-			else {
-				use_left = FALSE;
-			}
-			
-			if(use_left) {
-				if(left_type == crossed) {
-					//Place corner at current right funnel edge
-					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = funnel_right;
-					
-					//Restart algorithm with the portal after the right point
-					funnel_apex = funnel_right;
-					
-					//Check if portal after this portal is goal:
-					funnel_right_index++;
-					if(funnel_right_index >= cl_test_pathfind_result->portals_length) {
-						cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-						return;
-					}
-					
-					funnel_left_index = funnel_right_index;
-					// funnel_left = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[funnel_left_index]].pos;
-					// funnel_right = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[funnel_right_index]].pos;
-					funnel_left = get_left_portal_corner(cl_test_pathfind_result, funnel_left_index);
-					funnel_right = get_right_portal_corner(cl_test_pathfind_result, funnel_right_index);
-					continue;
-				}
-				//in funnel
-				else {
-					//If the next funnel right is the goal, we are done
-					//Check if portal after this portal is goal:
-					if(right_portal_index >= cl_test_pathfind_result->portals_length) {
-						cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-						return;
-					}
-					//Update current left funnel edge to use this vertex
-					funnel_left = next_funnel_left;
-					funnel_left_index = left_portal_index;
-					continue;
-				}
-			}
-			//use right
-			else {
-				if(right_type == crossed)
-				{
-					//Place corner at current left funnel edge
-					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = funnel_left;
-					
-					//Restart algorithm with the portal after the left point
-					funnel_apex = funnel_left;
-					
-					//Check if portal after this portal is goal:
-					funnel_left_index++;
-					if(funnel_left_index >= cl_test_pathfind_result->portals_length) {
-						cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-						return;
-					}
-					
-					funnel_right_index = funnel_left_index;
-					funnel_left = get_left_portal_corner(cl_test_pathfind_result, funnel_left_index);
-					funnel_right = get_right_portal_corner(cl_test_pathfind_result, funnel_right_index);
-					continue;
-				}
-				//in funnel
-				else {
-					//If the next funnel right is the goal, we are done
-					//Check if portal after this portal is goal:
-					if(right_portal_index >= cl_test_pathfind_result->portals_length) {
-						cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
-						return;
-					}
-					//Update current right funnel edge to use this vertex
-					funnel_right = next_funnel_right;
-					funnel_right_index = right_portal_index;
-					continue;
-				}
-			}
-		}
-	print("==========================\n");
-	}
 }
 
+// void cl_pathfind_smooth_path(vector start_point, vector goal_point) {
+// 	//Evaluate portals and identify left / right portal vertices
+// 	for(float i = 1; i < cl_test_pathfind_result->result_node_length; i++) {
+// 		float prev_poly = cl_test_pathfind_result->result_node_path[i-1];
+// 		float poly = cl_test_pathfind_result->result_node_path[i];
+		
+// 		// Find what index prev_poly is linked to poly
+// 		float link_index = -1;
+// 		for(float j = 0; j < cl_navmesh_polies[prev_poly].connected_polies_count; j++) {
+// 			if(cl_navmesh_polies[prev_poly].connected_polies[j] == poly) {
+// 				link_index = j;
+// 				break;
+// 			}
+// 		}
+
+// 		//Use that index to get left and right vertices
+// 		cl_test_pathfind_result->portals_left_vert[cl_test_pathfind_result->portals_length] = cl_navmesh_polies[prev_poly].connected_polies_left_vert[link_index];
+// 		cl_test_pathfind_result->portals_right_vert[cl_test_pathfind_result->portals_length] = cl_navmesh_polies[prev_poly].connected_polies_right_vert[link_index];
+// 		cl_test_pathfind_result->portals_length++;
+// 	}
+
+// 	// The last portal's left and right edges are both the goal position
+// 	print("Portals: ");
+// 	for(float i = 0; i < cl_test_pathfind_result->portals_length; i++) {
+// 		print("[");
+// 		print(ftos(i));
+// 		print("] = (");
+// 		print(ftos(cl_test_pathfind_result->portals_left_vert[i]));
+// 		print(" , ");
+// 		print(ftos(cl_test_pathfind_result->portals_right_vert[i]));
+// 		print(") , ");
+// 	}
+	
+// 	//starting at start_pos (not at start center point)
+// 	//get vectors that point to first left edge and first right edge
+// 	vector funnel_apex = start_point;
+// 	float funnel_left_index = 0;
+// 	//Index of the funnel's left vertex in the portal list
+// 	vector funnel_left = cl_pathfind_get_left_portal_corner(cl_test_pathfind_result, 0);
+// 	//Index of the funnel's right vertex in the portal list
+// 	float funnel_right_index = 0;
+// 	vector funnel_right = cl_pathfind_get_right_portal_corner(cl_test_pathfind_result, 0);
+	
+// 	vector next_funnel_left = '0 0 0';
+// 	vector next_funnel_right = '0 0 0';
+// 	vector corner;
+	
+// 	float inside_right_edge;
+// 	float inside_left_edge;
+	
+// 	while(1) {
+// 		print("=============Funnel iteration.==========\n");
+// 		print("\tCurrent left edge: ");
+// 		print(ftos(cl_test_pathfind_result->portals_left_vert[funnel_left_index]));
+// 		print("\n");
+// 		print("\tCurrent right edge: ");
+// 		print(ftos(cl_test_pathfind_result->portals_right_vert[funnel_right_index]));
+// 		print("\n");
+		
+// 		//Check if we have reached the end of the portals, consider the goal position as the last portal
+// 		//If we are not at the last index of the left portal
+		
+// 		//Keeping track of whether or not advancing the left edge or right edge narrows the funnel
+// 		float advanced_left = FALSE;
+// 		float advanced_right = FALSE;
+		
+// 		//Consider the end goal point as the last portal
+// 		//================ Checking left funnel edge =================
+// 		if(funnel_left_index < cl_test_pathfind_result->portals_length) {
+// 			print("\t-- Trying to advance left edge. --\n");
+			
+// 			if(funnel_left_index < cl_test_pathfind_result->portals_length - 1) {
+// 				// next_funnel_left = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[funnel_left_index+1]].pos;
+// 				next_funnel_left = cl_pathfind_get_left_portal_corner(cl_test_pathfind_result, funnel_left_index + 1);
+// 				print("\t\tNext left edge is vert: ");
+// 				print(ftos(cl_test_pathfind_result->portals_left_vert[funnel_left_index+1]));
+// 				print(".\n");
+// 			}
+// 			else {
+// 				print("\t\tTrying next left edge as goal point.\n");
+// 				//If funnel_left is pointing to the last portal in the array, consider the goal_point the last portal
+// 				next_funnel_left = goal_point;
+// 			}
+
+// 			inside_right_edge = pathfind_point_is_to_left(funnel_apex,funnel_right,next_funnel_left);
+// 			//If the next left edge crosses the current right edge
+// 			if(inside_right_edge < 0) {
+// 				print("\t\tnext left edge crosses current right edge.\n");
+// 				//Add funnel right point to path
+// 				// cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = funnel_right;
+// 				corner = funnel_right;
+// 				// // ------------------------------------------------------------
+// 				// // Instead of adding the funnel's corner to the path, 
+// 				// // move away from the corner by some small amount
+// 				// // ------------------------------------------------------------
+// 				// // Find the first portal along the path with this corner
+// 				// int portal_idx = funnel_right_index;
+// 				// for(int i = funnel_right_index; i >= 0; i--) {
+// 				// 	if(cl_test_pathfind_result->portals_right_vert[i] == cl_test_pathfind_result->portals_right_vert[funnel_right_index]) {
+// 				// 		portal_idx = i;
+// 				// 		continue;
+// 				// 	}
+// 				// 	break;
+// 				// }
+// 				// // For every portal with this corner, add a point to the path
+// 				// for(int i = portal_idx; i <= funnel_right_index; i++) {
+// 				// 	// Find the vertex opposite this portal edge
+// 				// 	vector opposite_corner = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[i]].pos;
+// 				// 	// Move 20 qu or 20% of the edge length, whichever is smaller:
+// 				// 	float edge_len = vlen(opposite_corner - corner);
+// 				// 	vector edge_dir = normalize(opposite_corner - corner);
+// 				// 	vector delta_corner = edge_dir * min(edge_len * 0.2, 20);
+// 				// 	cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = corner + delta_corner;
+// 				// }
+// 				// // ------------------------------------------------------------
+// 				cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = corner;
+
+// 				//Check if we are at the end of our portal list
+// 				if(funnel_right_index >= cl_test_pathfind_result->portals_length - 1) {
+// 					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 					return;
+// 				}
+				
+// 				print("\t\tnew funnel apex is now vert: ");
+// 				print(ftos(cl_test_pathfind_result->portals_right_vert[funnel_right_index]));
+// 				print("\n");
+
+// 				//Restart algorithm with the portal after the right point
+// 				funnel_apex = funnel_right;
+				
+// 				funnel_left_index = funnel_right_index + 1;
+// 				// funnel_left = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[funnel_left_index]].pos;
+// 				funnel_left = cl_pathfind_get_left_portal_corner(cl_test_pathfind_result, funnel_left_index);
+// 				funnel_right_index = funnel_right_index + 1;
+// 				// funnel_right = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[funnel_right_index]].pos;
+// 				funnel_right = cl_pathfind_get_right_portal_corner(cl_test_pathfind_result, funnel_right_index);
+// 				continue;
+// 			}
+// 			//If the next left edge is in the funnel
+// 			inside_left_edge = pathfind_point_is_to_left(funnel_left,funnel_apex,next_funnel_left);
+// 			if(inside_left_edge >= 0 && inside_right_edge >= 0) {
+// 				print("\t\tnext left edge is in the funnel, narrowing funnel.\n");
+// 				//Advance the left edge
+// 				funnel_left = next_funnel_left;
+// 				funnel_left_index++;
+// 				advanced_left = TRUE;
+// 				//Check if the portal we just added was the goal point (will be after the list)
+// 				if(funnel_left_index >= cl_test_pathfind_result->portals_length) {
+// 					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 					return;
+// 				}
+// 			}
+// 		}
+// 		//================ Checking right funnel edge =================
+// 		if(funnel_right_index < cl_test_pathfind_result->portals_length) {
+// 			print("\t -- Trying to advance right edge --\n");
+			
+// 			if(funnel_right_index < cl_test_pathfind_result->portals_length - 1) {
+// 				next_funnel_right = cl_pathfind_get_right_portal_corner(cl_test_pathfind_result, funnel_right_index + 1);
+// 				// next_funnel_right = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[funnel_right_index+1]].pos;
+// 				print("\t\tNext right edge is vert: ");
+// 				print(ftos(cl_test_pathfind_result->portals_right_vert[funnel_right_index+1]));
+// 				print(".\n");
+// 			}
+// 			else {
+// 				print("\t\tTrying next right edge as goal point.\n");
+// 				//If funnel_right is pointing to the last portal in the array, consider the goal_point the last portal
+// 				next_funnel_right = goal_point;
+// 			}
+			
+// 			//If the next right edge crosses the current left edge
+// 			inside_left_edge = pathfind_point_is_to_left(funnel_left,funnel_apex,next_funnel_right);
+// 			if(inside_left_edge < 0) {
+// 				print("\t\tnext right edge crosses current left edge.\n");
+// 				//Add funnel left point to path
+// 				// cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = funnel_left;
+// 				corner = funnel_left;
+// 				// // ------------------------------------------------------------
+// 				// // Instead of adding the funnel's corner to the path, 
+// 				// // move away from the corner by some small amount
+// 				// // ------------------------------------------------------------
+// 				// // Find the first portal along the path with this corner
+// 				// int portal_idx = funnel_left_index;
+// 				// for(int i = funnel_left_index; i >= 0; i--) {
+// 				// 	if(cl_test_pathfind_result->portals_left_vert[i] == cl_test_pathfind_result->portals_left_vert[funnel_left_index]) {
+// 				// 		portal_idx = i;
+// 				// 		continue;
+// 				// 	}
+// 				// 	break;
+// 				// }
+// 				// // For every portal with this corner, add a point to the path
+// 				// for(int i = portal_idx; i <= funnel_left_index; i++) {
+// 				// 	// Find the vertex opposite this portal edge
+// 				// 	vector opposite_corner = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[i]].pos;
+// 				// 	// Move 20 qu or 20% of the edge length, whichever is smaller:
+// 				// 	float edge_len = vlen(opposite_corner - corner);
+// 				// 	vector edge_dir = normalize(opposite_corner - corner);
+// 				// 	vector delta_corner = edge_dir * min(edge_len * 0.2, 20);
+// 				// 	cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = corner + delta_corner;
+// 				// }
+// 				// // ------------------------------------------------------------
+// 				cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = corner;
+
+// 				//Check if we are at the end of our portal list
+// 				if(funnel_left_index >= cl_test_pathfind_result->portals_length - 1) {
+// 					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 					return;
+// 				}
+				
+// 				//Restart algorithm with the portal after the right point
+// 				funnel_apex = funnel_left;
+// 				print("\t\tnew funnel apex is now vert: ");
+// 				print(ftos(cl_test_pathfind_result->portals_left_vert[funnel_left_index]));
+// 				print("\n");
+				
+// 				funnel_right_index = funnel_left_index + 1;
+// 				funnel_right = cl_pathfind_get_right_portal_corner(cl_test_pathfind_result, funnel_right_index);
+// 				// funnel_right = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[funnel_right_index]].pos;
+// 				funnel_left_index = funnel_left_index + 1;
+// 				funnel_left = cl_pathfind_get_left_portal_corner(cl_test_pathfind_result, funnel_left_index);
+// 				// funnel_left = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[funnel_left_index]].pos;
+// 				continue;
+// 			}
+// 			//If the next right edge is in the funnel
+// 			inside_right_edge = pathfind_point_is_to_left(funnel_apex,funnel_right,next_funnel_right);			
+// 			if(inside_left_edge >= 0 && inside_right_edge >= 0) {
+// 				print("\t\tnext right edge is in the funnel, narrowing funnel.\n");
+// 				//Advance the left edge
+// 				funnel_right = next_funnel_right;
+// 				funnel_right_index++;
+// 				advanced_right = TRUE;
+				
+// 				//Check if the portal we just added was the goal point (will be after the list)
+// 				if(funnel_right_index >= cl_test_pathfind_result->portals_length) {
+// 					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 					return;
+// 				}
+// 			}
+// 		}
+// 		if(advanced_left == FALSE && advanced_right == FALSE) {
+// 			print("Hit funnel freeze condition.\n");
+			
+// 			float left_vert = -1;
+// 			float left_type = -1;
+// 			float left_portal_index = -1;//index of the vertex in the list of portals
+			
+// 			float right_vert = -1;
+// 			float right_type = -1;
+// 			float right_portal_index = -1;//index of the vertex in the list of portals
+			
+// 			float crossed = 1;//Indicates the vert crossed the funnel
+// 			float contained = 2;//Indicates a vert is in the funnel
+			
+// 			float last_vert = -1;//used to skip calculating the same vertex more than once
+			
+			
+// 			//Find the closest vertex in the portal left with the lowest index that crosses the funnel or is in the funnel
+// 			for(float i = funnel_left_index + 1; i < cl_test_pathfind_result->portals_length + 1; i++) {
+// 				if(i < cl_test_pathfind_result->portals_length - 1) {
+// 					//Don't calculate the same vertex again
+// 					if(last_vert == cl_test_pathfind_result->portals_left_vert[i])
+// 						continue;
+// 					last_vert = cl_test_pathfind_result->portals_left_vert[i];
+
+// 					next_funnel_left = cl_pathfind_get_left_portal_corner(cl_test_pathfind_result, i);
+// 					// next_funnel_left = cl_navmesh_verts[last_vert].pos;
+// 				}
+// 				else {
+// 					//consider goal pos as last portal edge
+// 					next_funnel_left = goal_point;
+// 				}
+				
+// 				inside_right_edge = pathfind_point_is_to_left(funnel_apex,funnel_right,next_funnel_left);
+				
+// 				//If the left vertex crosses the funnel (left vertex is outside the funnel's right edge)
+// 				if(inside_right_edge < 0) {
+// 					left_vert = cl_test_pathfind_result->portals_left_vert[i];
+// 					left_type = crossed;
+// 					break;
+// 				}
+				
+// 				inside_left_edge = pathfind_point_is_to_left(funnel_left,funnel_apex,next_funnel_left);
+				
+// 				//If the left vertex is within the funnel
+// 				if(inside_left_edge >= 0 && inside_right_edge >= 0) {
+// 					left_vert = cl_test_pathfind_result->portals_left_vert[i];
+// 					left_type = contained;
+// 					left_portal_index = i;
+// 					break;
+// 				}
+// 			}
+			
+// 			last_vert = -1;
+			
+// 			//Find the closest vertex in the portal right with the lowest index that crosses the funnel or is in the funnel
+// 			for(float i = funnel_right_index + 1; i < cl_test_pathfind_result->portals_length; i++) {
+// 				if(i < cl_test_pathfind_result->portals_length - 1) {
+// 					//Don't calculate the same vertex again
+// 					if(last_vert == cl_test_pathfind_result->portals_right_vert[i])
+// 						continue;
+// 					last_vert = cl_test_pathfind_result->portals_right_vert[i];
+
+// 					next_funnel_right = cl_pathfind_get_right_portal_corner(cl_test_pathfind_result, i);
+// 					// next_funnel_right = cl_navmesh_verts[last_vert].pos;
+// 				}
+// 				//consider goal pos as last portal edge
+// 				else {
+// 					next_funnel_right = goal_point;
+// 				}
+				
+// 				inside_left_edge = pathfind_point_is_to_left(funnel_left,funnel_apex,next_funnel_right);
+				
+// 				//If the right vertex crosses the funnel (right vertex is outside the funnel's left edge)
+// 				if(inside_left_edge < 0) {
+// 					right_vert = cl_test_pathfind_result->portals_right_vert[i];
+// 					right_type = crossed;
+// 					break;
+// 				}
+				
+// 				inside_right_edge = pathfind_point_is_to_left(funnel_apex,funnel_right,next_funnel_right);
+				
+// 				//If the right vertex is within the funnel
+// 				if(inside_left_edge >= 0 && inside_right_edge >= 0) {
+// 					right_vert = cl_test_pathfind_result->portals_right_vert[i];
+// 					right_type = contained;
+// 					right_portal_index = i;
+// 					break;
+// 				}
+// 			}
+			
+// 			//If no vertices were found, goal is reachable from here
+// 			if(left_vert == -1 && right_vert == -1) {
+// 				cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 				return;
+// 			}
+			
+// 			float use_left;
+// 			//If both verts were found
+// 			//Find which vertex has a lower index
+// 			if(left_vert != -1 && right_vert != -1) {
+// 				if(left_portal_index < right_portal_index) {	
+// 					use_left = TRUE;
+// 				}
+// 				else {	
+// 					use_left = FALSE;
+// 				}	
+// 			}
+			
+// 			//if left vert was found
+// 			else if(left_vert != -1) {
+// 				use_left = TRUE;
+// 			}
+// 			//else right vert was found
+// 			else {
+// 				use_left = FALSE;
+// 			}
+			
+// 			if(use_left) {
+// 				if(left_type == crossed) {
+// 					//Place corner at current right funnel edge
+// 					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = funnel_right;
+					
+// 					//Restart algorithm with the portal after the right point
+// 					funnel_apex = funnel_right;
+					
+// 					//Check if portal after this portal is goal:
+// 					funnel_right_index++;
+// 					if(funnel_right_index >= cl_test_pathfind_result->portals_length) {
+// 						cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 						return;
+// 					}
+					
+// 					funnel_left_index = funnel_right_index;
+// 					// funnel_left = cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[funnel_left_index]].pos;
+// 					// funnel_right = cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[funnel_right_index]].pos;
+// 					funnel_left = cl_pathfind_get_left_portal_corner(cl_test_pathfind_result, funnel_left_index);
+// 					funnel_right = cl_pathfind_get_right_portal_corner(cl_test_pathfind_result, funnel_right_index);
+// 					continue;
+// 				}
+// 				//in funnel
+// 				else {
+// 					//If the next funnel right is the goal, we are done
+// 					//Check if portal after this portal is goal:
+// 					if(right_portal_index >= cl_test_pathfind_result->portals_length) {
+// 						cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 						return;
+// 					}
+// 					//Update current left funnel edge to use this vertex
+// 					funnel_left = next_funnel_left;
+// 					funnel_left_index = left_portal_index;
+// 					continue;
+// 				}
+// 			}
+// 			//use right
+// 			else {
+// 				if(right_type == crossed) {
+// 					//Place corner at current left funnel edge
+// 					cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = funnel_left;
+					
+// 					//Restart algorithm with the portal after the left point
+// 					funnel_apex = funnel_left;
+					
+// 					//Check if portal after this portal is goal:
+// 					funnel_left_index++;
+// 					if(funnel_left_index >= cl_test_pathfind_result->portals_length) {
+// 						cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 						return;
+// 					}
+					
+// 					funnel_right_index = funnel_left_index;
+// 					funnel_left = cl_pathfind_get_left_portal_corner(cl_test_pathfind_result, funnel_left_index);
+// 					funnel_right = cl_pathfind_get_right_portal_corner(cl_test_pathfind_result, funnel_right_index);
+// 					continue;
+// 				}
+// 				//in funnel
+// 				else {
+// 					//If the next funnel right is the goal, we are done
+// 					//Check if portal after this portal is goal:
+// 					if(right_portal_index >= cl_test_pathfind_result->portals_length) {
+// 						cl_test_pathfind_result->result_path[cl_test_pathfind_result->result_length++] = goal_point;
+// 						return;
+// 					}
+// 					//Update current right funnel edge to use this vertex
+// 					funnel_right = next_funnel_right;
+// 					funnel_right_index = right_portal_index;
+// 					continue;
+// 				}
+// 			}
+// 		}
+// 	print("==========================\n");
+// 	}
+// }
+
+
 //Evaluates the path that is found in the pathfinding algorithm and populates an array with the nodes in the path from start to goal
-void pathfind_trace_path(float start, float goal)
+void cl_pathfind_trace_path(float start_poly, float goal_poly)
 {
-	float current = start;
+	// print("Polygon from poly: ");
+	// for(float i = 0; i < cl_navmesh_poly_count; i++) {
+	// 	print(ftos(i));
+	// 	print(": ");
+	// 	print(ftos(cl_test_pathfind_result->poly_prev_poly[i]));
+	// 	print(", ");
+	// }
+	// print("\n");
+	// print("Polygon from traversal: ");
+	// for(float i = 0; i < cl_navmesh_poly_count; i++) {
+	// 	print(ftos(i));
+	// 	print(": ");
+	// 	print(ftos(cl_test_pathfind_result->poly_prev_traversal[i]));
+	// 	print(", ");
+	// }
+	// print("\n");
+	// print("Traversal from polygon:");
+	// for(float i = 0; i < cl_navmesh_traversal_count; i++) {
+	// 	print(ftos(i));
+	// 	print(": ");
+	// 	print(ftos(cl_test_pathfind_result->traversal_prev_poly[i]));
+	// 	print(", ");
+	// }
+	// print("\n");
+
+
 	//Count the length of the path (how many polygons the path traverses)
-	current = goal;
-	cl_test_pathfind_result->result_node_length = 1;
-	do
-	{
-		//print("Poly ");
-		//print(ftos(current));
-		//print(" came from  ");
-		//print(ftos(cl_test_pathfind_result->poly_prev[current]));
-		//print(".\n");
-		current = cl_test_pathfind_result->poly_prev[current];
-		cl_test_pathfind_result->result_node_length++;
-	} while(current != start);
+	float current_poly = goal_poly;
+	float current_traversal = -1;
+	cl_test_pathfind_result->path_length = 1;
+	do {
+		// Current node is a polygon
+		if(current_poly != -1) {
+			current_traversal = cl_test_pathfind_result->poly_prev_traversal[current_poly];
+			current_poly = cl_test_pathfind_result->poly_prev_poly[current_poly];
+		}
+		// Current node is a traversal
+		else if(current_traversal != -1) {
+			current_poly = cl_test_pathfind_result->traversal_prev_poly[current_traversal];
+			current_traversal = -1;
+		}
+		cl_test_pathfind_result->path_length++;
+	} while(current_poly != start_poly);
 	
 	
-	//Starting at goal waypoint, add the traversed waypoints to the result path in reverse order
-	current = goal;
-	for(float i = 0; i < cl_test_pathfind_result->result_node_length; i++)
-	{
-		cl_test_pathfind_result->result_node_path[cl_test_pathfind_result->result_node_length - 1 - i] = current;
-		current = cl_test_pathfind_result->poly_prev[current];
+	// Starting at goal_poly, add the traversed polygons / traversals to the result path in reverse order
+	current_poly = goal_poly;
+	current_traversal = -1;
+	for(float i = 0; i < cl_test_pathfind_result->path_length; i++) {
+		// print("Current node (P=");
+		// print(ftos(current_poly));
+		// print(",T=");
+		// print(ftos(current_traversal));
+		// print(") came from ");
+
+		cl_test_pathfind_result->path_polygons[cl_test_pathfind_result->path_length - 1 - i] = current_poly;
+		cl_test_pathfind_result->path_traversals[cl_test_pathfind_result->path_length - 1 - i] = current_traversal;
+		// Current node is a polygon
+		if(current_poly != -1) {
+			current_traversal = cl_test_pathfind_result->poly_prev_traversal[current_poly];
+			current_poly = cl_test_pathfind_result->poly_prev_poly[current_poly];
+		}
+		// Current node is a traversal
+		else if(current_traversal != -1) {
+			current_poly = cl_test_pathfind_result->traversal_prev_poly[current_traversal];
+			current_traversal = -1;
+		}
+
+		// print(" (P=");
+		// print(ftos(current_poly));
+		// print(",T=");
+		// print(ftos(current_traversal));
+		// print(")\n");
 	}
 	
-	// print("Pathfind success, path length: ");
-	// print(ftos(cl_test_pathfind_result->result_node_length));
-	// print(".\n");
-	// print("Path: ");
-	// for(float i = 0; i < cl_test_pathfind_result->result_node_length; i++)
-	// {
-	// 	if(i > 0)
-	// 		print(" , ");
-	// 	print(ftos(cl_test_pathfind_result->result_node_path[i]));
-	// }
-	// print(" .\n");
+	print("Pathfind success, path length: ");
+	print(ftos(cl_test_pathfind_result->path_length));
+	print(".\n");
+	print("Path: ");
+	for(float i = 0; i < cl_test_pathfind_result->path_length; i++) {
+		if(i > 0) {
+			print(" , ");
+		}
+		if(cl_test_pathfind_result->path_polygons[i] != -1) {
+			print("P");
+			print(ftos(cl_test_pathfind_result->path_polygons[i]));
+		}
+		else if(cl_test_pathfind_result->path_traversals[i] != -1) {
+			print("T");
+			print(ftos(cl_test_pathfind_result->path_traversals[i]));
+		}
+	}
+	print(" .\n");
 }
 
 //Accepts start polygon and goal polygon
 //Returns 1 on success.
 //Returns 0 on fail.
-float cl_navmesh_pathfind_start(float start, float goal, vector start_pos, vector end_pos)
-{
-	if(start == -1)
-	{
+float cl_navmesh_pathfind_start(float start_poly, float goal_poly, vector start_pos, vector end_pos) {
+	if(start_poly == -1) {
 		print("Error: pathfind start node invalid.\n");
 		return 0;
 	}
-	if(goal == -1)
-	{
+	if(goal_poly == -1) {
 		print("Error: pathfind goal node invalid.\n");
 		return 0;
 	}
-	if(start == goal)
-	{
+	if(start_poly == goal_poly) {
 		//Calculating node path
-		cl_test_pathfind_result->result_node_path[0] = start;
-		cl_test_pathfind_result->result_node_length = 1;
+		cl_test_pathfind_result->path_polygons[0] = start_poly;
+		cl_test_pathfind_result->path_traversals[0] = -1;
+		cl_test_pathfind_result->path_length = 1;
 		print("Pathind success: trivial case (start = goal).\n");
 		
 		//Calculating vector based path (go directly to goal)
-		cl_test_pathfind_result->result_path[0].x = end_pos.x;
-		cl_test_pathfind_result->result_path[0].y = end_pos.y;
-		cl_test_pathfind_result->result_path[0].z = end_pos.z;
-		cl_test_pathfind_result->result_length = 1;
+		cl_test_pathfind_result->point_path_points[0].x = end_pos.x;
+		cl_test_pathfind_result->point_path_points[0].y = end_pos.y;
+		cl_test_pathfind_result->point_path_points[0].z = end_pos.z;
+		// Indicate non-traversal
+		cl_test_pathfind_result->point_path_traversals[0] = -1;
+		cl_test_pathfind_result->point_path_length = 1;
 		return 1;
 	}
 	
@@ -2618,9 +3095,9 @@ float cl_navmesh_pathfind_start(float start, float goal, vector start_pos, vecto
 	cl_pathfind_clear_result_data();
 	
 	//Adding start polygon to the open set
-	cl_test_pathfind_result->poly_set[start] = PATHFIND_POLY_SET_OPEN;
-	cl_test_pathfind_result->poly_g_score[start] = 0;
-	cl_test_pathfind_result->poly_f_score[start] = 0 + cl_pathfind_calc_h_score(start , goal);
+	cl_test_pathfind_result->poly_set[start_poly] = PATHFIND_POLY_SET_OPEN;
+	cl_test_pathfind_result->poly_g_score[start_poly] = 0;
+	cl_test_pathfind_result->poly_f_score[start_poly] = 0 + cl_pathfind_calc_poly_h_score(start_poly , goal_poly);
 	
 	//Fields that need to be set:
 	//cl_test_pathfind_result->poly_set[NAV_MAX_POLIES];
@@ -2628,148 +3105,265 @@ float cl_navmesh_pathfind_start(float start, float goal, vector start_pos, vecto
 	//cl_test_pathfind_result->poly_g_score[NAV_MAX_POLIES];
 	//cl_test_pathfind_result->poly_f_score[NAV_MAX_POLIES];
 	
-	print("Pathfind init. Start: ");
-	print(ftos(start));
-	print(" , Goal: ");
-	print(ftos(goal));
-	print(".\n");
+	// print("Pathfind init. Start: ");
+	// print(ftos(start_poly));
+	// print(" , Goal: ");
+	// print(ftos(goal_poly));
+	// print(".\n");
 	
-	float current = start;
-	
+	float current_poly = start_poly;
+	float current_traversal = -1;
 	float pathfind_success = FALSE;
 	
-	while(current != -1)
-	{
-		if(current == goal)
-		{
-			//print("Current is now goal. Breaking.\n");
-			pathfind_success = TRUE;
-			break;
+	// While we have a traversal OR a polygon
+	while(current_poly != -1 || current_traversal != -1) {
+
+		// If we are currently evaluating a polygon:
+		if(current_poly != -1) {
+			if(current_poly == goal_poly) {
+				//print("Current is now goal. Breaking.\n");
+				pathfind_success = TRUE;
+				break;
+			}
+
+			//Add current node to the closed set
+			cl_test_pathfind_result->poly_set[current_poly] = PATHFIND_POLY_SET_CLOSED;
+			//Add connected neighbor polygons to the open set
+			for(float i = 0; i < cl_navmesh_polies[current_poly].connected_polies_count; i++) {
+				float neighbor_poly = cl_navmesh_polies[current_poly].connected_polies[i];
+				
+				// print("Checking poly ");
+				// print(ftos(current_poly));
+				// print("'s neighbor poly ");
+				// print(ftos(neighbor_poly));
+				// print(".\n");
+
+				// ----------------------------------------------------------------
+				// Door check
+				// ----------------------------------------------------------------
+				// NOTE - If polygon's door hasn't been opened, don't consider it.
+				// NOTE - This check isn't done in the navmesh editor.
+				// ----------------------------------------------------------------
+
+				// // ----------------------------------------------------------------
+				// // Entrance edge
+				// // ----------------------------------------------------------------
+				// // Check if we can enter this polygon from this edge
+				// // If entrance_edge != -1, we can only enter the polygon from the edge at index "entrance_edge"
+				// if(cl_navmesh_polies[neighbor].entrance_edge != -1) {
+				// 	// print("-- Pathfind loop -- Evaluating a neighbor whose entrance_edge = ",ftos(cl_navmesh_polies[neighbor].entrance_edge),"\n");
+				// 	// print("Current polygon:",ftos(current),"\n");
+				// 	// print("Neighbor polygon:",ftos(neighbor),"\n");
+				// 	// print("Neighbor index:",ftos(i),"\n");
+				// 	// print("Current vertices: ");
+				// 	// for(float j = 0; j < cl_navmesh_polies[current].vert_count; j++) {
+				// 	// 	print(ftos(cl_navmesh_polies[current].verts[j]),",");
+				// 	// }
+				// 	// print("\n");
+				// 	// print("Neighbor vertices: ");
+				// 	// for(float j = 0; j < cl_navmesh_polies[neighbor].vert_count; j++) {
+				// 	// 	print(ftos(cl_navmesh_polies[neighbor].verts[j]),",");
+				// 	// }
+				// 	// print("\n");
+				// 	// print("Current left portal vertices: ");
+				// 	// for(float j = 0; j < cl_navmesh_polies[current].connected_polies_count; j++) {
+				// 	// 	print(ftos(cl_navmesh_polies[current].connected_polies_left_vert[j]),",");
+				// 	// }
+				// 	// print("\n");
+				// 	// print("Current right portal vertices: ");
+				// 	// for(float j = 0; j < cl_navmesh_polies[current].connected_polies_count; j++) {
+				// 	// 	print(ftos(cl_navmesh_polies[current].connected_polies_right_vert[j]),",");
+				// 	// }
+				// 	// print("\n");
+				// 	// print("neighbor left portal vertices: ");
+				// 	// for(float j = 0; j < cl_navmesh_polies[neighbor].connected_polies_count; j++) {
+				// 	// 	print(ftos(cl_navmesh_polies[neighbor].connected_polies_left_vert[j]),",");
+				// 	// }
+				// 	// print("\n");
+				// 	// print("neighbor right portal vertices: ");
+				// 	// for(float j = 0; j < cl_navmesh_polies[neighbor].connected_polies_count; j++) {
+				// 	// 	print(ftos(cl_navmesh_polies[neighbor].connected_polies_right_vert[j]),",");
+				// 	// }
+				// 	// print("\n");
+				// 	// print("Current neighbor edge index: ");
+				// 	// for(float j = 0; j < cl_navmesh_polies[current].connected_polies_count; j++) {
+				// 	// 	print(ftos(cl_navmesh_polies[current].connected_polies_neighbor_edge_index[j]),",");
+				// 	// }
+				// 	// print("\n");
+				// 	// print("Neighbor neighbor edge index: ");
+				// 	// for(float j = 0; j < cl_navmesh_polies[neighbor].connected_polies_count; j++) {
+				// 	// 	print(ftos(cl_navmesh_polies[neighbor].connected_polies_neighbor_edge_index[j]),",");
+				// 	// }
+				// 	// print("\n");
+				// 	// print("According to current polygon, the we're traversing the neighbor's edge with index: ", ftos(cl_navmesh_polies[current].connected_polies_neighbor_edge_index[i])," to enter neighbor.\n");
+
+				// 	// Check if the edge we're crossing from current to neighbor is the entrance edge
+				// 	if(cl_navmesh_polies[neighbor].entrance_edge != cl_navmesh_polies[current].connected_polies_neighbor_edge_index[i]) {
+				// 		// If it's not the entrance edge, skip this neighbor.
+				// 		// We can't walk from current to neighbor.
+				// 		continue;
+				// 	}
+				// }
+				// // ----------------------------------------------------------------
+
+
+				if(cl_test_pathfind_result->poly_set[neighbor_poly] != PATHFIND_POLY_SET_CLOSED) {
+					//print("Neighbor is not in closed list.\n");
+					//Calculate tentative f score
+					//Calculate tentative g score (distance from start to current + distance from current to neighbor)
+					float tentative_g_score = cl_test_pathfind_result->poly_g_score[current_poly] + vlen(cl_navmesh_polies[neighbor_poly].center - cl_navmesh_polies[current_poly].center);
+					
+					// If not in open-set, or this is a better score, set score for this polygon
+					if(cl_test_pathfind_result->poly_set[neighbor_poly] != PATHFIND_POLY_SET_OPEN || tentative_g_score < cl_test_pathfind_result->poly_g_score[neighbor_poly]) {
+						//print("Neighbor is not in open list, or a better g score has been found.\n");
+						//Adding neighbor to open set
+						cl_test_pathfind_result->poly_set[neighbor_poly] = PATHFIND_POLY_SET_OPEN;
+						
+						//Updating scores for neighbor node
+						float tentative_f_score = tentative_g_score + cl_pathfind_calc_poly_h_score(neighbor_poly , goal_poly);
+						cl_test_pathfind_result->poly_g_score[neighbor_poly] = tentative_g_score;
+						cl_test_pathfind_result->poly_f_score[neighbor_poly] = tentative_f_score;
+						
+						//Linking neighbor node to current node (for tracing path)
+						cl_test_pathfind_result->poly_prev_poly[neighbor_poly] = current_poly;
+						cl_test_pathfind_result->poly_prev_traversal[neighbor_poly] = -1;
+						
+						// print("Assigning Poly ");
+						// print(ftos(neighbor_poly));
+						// print(" came from poly ");
+						// print(ftos(current_poly));
+						// print(".\n");
+					}
+				}
+			}
+
+			//Add connected neighbor traversals to the open set
+			for(float i = 0; i < cl_navmesh_polies[current_poly].connected_traversals_count; i++) {
+				float neighbor_traversal = cl_navmesh_polies[current_poly].connected_traversals[i];
+
+				// print("Checking poly ");
+				// print(ftos(current_poly));
+				// print("'s neighbor traversal ");
+				// print(ftos(neighbor_traversal));
+				// print(".\n");
+
+				if(cl_test_pathfind_result->traversal_set[neighbor_traversal] != PATHFIND_POLY_SET_CLOSED) {
+					//Calculate tentative f score
+					//Calculate tentative g score (distance from start to current + distance from current to neighbor)
+					// vector traversal_start_pos = cl_navmesh_traversals[neighbor].start_pos;
+					vector traversal_end_pos = cl_navmesh_get_traversal_end_pos(neighbor_traversal);
+					// TODO - Should I cache traversal length?
+					float tentative_g_score = cl_test_pathfind_result->poly_g_score[current_poly] + vlen(traversal_end_pos - cl_navmesh_polies[current_poly].center);
+
+					// If not in open-set, or this is a better score, set score for this traversal
+					if(cl_test_pathfind_result->traversal_set[neighbor_traversal] != PATHFIND_POLY_SET_OPEN || tentative_g_score < cl_test_pathfind_result->traversal_g_score[neighbor_traversal]) {
+						//print("Neighbor is not in open list, or a better g score has been found.\n");
+						//Adding neighbor to open set
+						cl_test_pathfind_result->traversal_set[neighbor_traversal] = PATHFIND_POLY_SET_OPEN;
+						
+						//Updating scores for neighbor node
+						float tentative_f_score = tentative_g_score + cl_pathfind_calc_traversal_h_score(neighbor_traversal, goal_poly);
+						cl_test_pathfind_result->traversal_g_score[neighbor_traversal] = tentative_g_score;
+						cl_test_pathfind_result->traversal_f_score[neighbor_traversal] = tentative_f_score;
+						
+						//Linking neighbor node to current node (for tracing path)
+						cl_test_pathfind_result->traversal_prev_poly[neighbor_traversal] = current_poly;
+						// print("Assigning traversal ");
+						// print(ftos(neighbor_traversal));
+						// print(" came from poly ");
+						// print(ftos(current_poly));
+						// print(".\n");
+					}
+
+				}
+			}
 		}
-		//Add current node to the closed set
-		cl_test_pathfind_result->poly_set[current] = PATHFIND_POLY_SET_CLOSED;
-		//Add connected nodes to the open set
-		for(float i = 0; i < cl_navmesh_polies[current].connected_polies_count; i++)
-		{
-			float neighbor = cl_navmesh_polies[current].connected_polies[i];
-			
-			/*print("Checking poly ");
-			print(ftos(current));
-			print("'s neighbor ");
-			print(ftos(neighbor));
-			print(".\n");*/
+		else if(current_traversal != -1) {
+			// print("Checking traversal: ");
+			// print(ftos(current_traversal));
+			// print(" with end polygon: ");
+			// print(ftos(cl_navmesh_traversals[current_traversal].end_poly));
+			// print("\n");
+			//Add current traversal to the closed set
+			cl_test_pathfind_result->traversal_set[current_traversal] = PATHFIND_POLY_SET_CLOSED;
 
-			// ----------------------------------------------------------------
-			// Door check
-			// ----------------------------------------------------------------
-			// NOTE - If polygon's door hasn't been opened, don't consider it.
-			// NOTE - This check isn't done in the navmesh editor.
-			// ----------------------------------------------------------------
+			// Traversals have single neighbor polygons (at the traversal endpoint)
+			float neighbor_poly = cl_navmesh_traversals[current_traversal].end_poly;
+			if(neighbor_poly != -1) {
 
-			// ----------------------------------------------------------------
-			// Entrance edge
-			// ----------------------------------------------------------------
-			// Check if we can enter this polygon from this edge
-			// If entrance_edge != -1, we can only enter the polygon from the edge at index "entrance_edge"
-			if(cl_navmesh_polies[neighbor].entrance_edge != -1) {
-				// print("-- Pathfind loop -- Evaluating a neighbor whose entrance_edge = ",ftos(cl_navmesh_polies[neighbor].entrance_edge),"\n");
-				// print("Current polygon:",ftos(current),"\n");
-				// print("Neighbor polygon:",ftos(neighbor),"\n");
-				// print("Neighbor index:",ftos(i),"\n");
-				// print("Current vertices: ");
-				// for(float j = 0; j < cl_navmesh_polies[current].vert_count; j++) {
-				// 	print(ftos(cl_navmesh_polies[current].verts[j]),",");
-				// }
-				// print("\n");
-				// print("Neighbor vertices: ");
-				// for(float j = 0; j < cl_navmesh_polies[neighbor].vert_count; j++) {
-				// 	print(ftos(cl_navmesh_polies[neighbor].verts[j]),",");
-				// }
-				// print("\n");
-				// print("Current left portal vertices: ");
-				// for(float j = 0; j < cl_navmesh_polies[current].connected_polies_count; j++) {
-				// 	print(ftos(cl_navmesh_polies[current].connected_polies_left_vert[j]),",");
-				// }
-				// print("\n");
-				// print("Current right portal vertices: ");
-				// for(float j = 0; j < cl_navmesh_polies[current].connected_polies_count; j++) {
-				// 	print(ftos(cl_navmesh_polies[current].connected_polies_right_vert[j]),",");
-				// }
-				// print("\n");
-				// print("neighbor left portal vertices: ");
-				// for(float j = 0; j < cl_navmesh_polies[neighbor].connected_polies_count; j++) {
-				// 	print(ftos(cl_navmesh_polies[neighbor].connected_polies_left_vert[j]),",");
-				// }
-				// print("\n");
-				// print("neighbor right portal vertices: ");
-				// for(float j = 0; j < cl_navmesh_polies[neighbor].connected_polies_count; j++) {
-				// 	print(ftos(cl_navmesh_polies[neighbor].connected_polies_right_vert[j]),",");
-				// }
-				// print("\n");
-				// print("Current neighbor edge index: ");
-				// for(float j = 0; j < cl_navmesh_polies[current].connected_polies_count; j++) {
-				// 	print(ftos(cl_navmesh_polies[current].connected_polies_neighbor_edge_index[j]),",");
-				// }
-				// print("\n");
-				// print("Neighbor neighbor edge index: ");
-				// for(float j = 0; j < cl_navmesh_polies[neighbor].connected_polies_count; j++) {
-				// 	print(ftos(cl_navmesh_polies[neighbor].connected_polies_neighbor_edge_index[j]),",");
-				// }
-				// print("\n");
-				// print("According to current polygon, the we're traversing the neighbor's edge with index: ", ftos(cl_navmesh_polies[current].connected_polies_neighbor_edge_index[i])," to enter neighbor.\n");
+				// print("Checking traversal ");
+				// print(ftos(current_traversal));
+				// print("'s neighbor poly ");
+				// print(ftos(neighbor_poly));
+				// print(".\n");
 
-				// Check if the edge we're crossing from current to neighbor is the entrance edge
-				if(cl_navmesh_polies[neighbor].entrance_edge != cl_navmesh_polies[current].connected_polies_neighbor_edge_index[i]) {
-					// If it's not the entrance edge, skip this neighbor.
-					// We can't walk from current to neighbor.
-					continue;
+				if(cl_test_pathfind_result->poly_set[neighbor_poly] != PATHFIND_POLY_SET_CLOSED) {
+					//print("Neighbor is not in closed list.\n");
+					//Calculate tentative f score
+					//Calculate tentative g score (distance from start to current + distance from current to neighbor)
+					vector traversal_end_pos = cl_navmesh_get_traversal_end_pos(current_traversal);
+					float tentative_g_score = cl_test_pathfind_result->traversal_g_score[current_traversal] + vlen(cl_navmesh_polies[neighbor_poly].center - traversal_end_pos);
+					
+					// If not in open-set, or this is a better score, set score for this polygon
+					if(cl_test_pathfind_result->poly_set[neighbor_poly] != PATHFIND_POLY_SET_OPEN || tentative_g_score < cl_test_pathfind_result->poly_g_score[neighbor_poly]) {
+						//print("Neighbor is not in open list, or a better g score has been found.\n");
+						//Adding neighbor to open set
+						cl_test_pathfind_result->poly_set[neighbor_poly] = PATHFIND_POLY_SET_OPEN;
+						
+						//Updating scores for neighbor node
+						float tentative_f_score = tentative_g_score + cl_pathfind_calc_poly_h_score(neighbor_poly , goal_poly);
+						cl_test_pathfind_result->poly_g_score[neighbor_poly] = tentative_g_score;
+						cl_test_pathfind_result->poly_f_score[neighbor_poly] = tentative_f_score;
+						
+						//Linking neighbor node to current node (for tracing path)
+						cl_test_pathfind_result->poly_prev_poly[neighbor_poly] = -1;
+						cl_test_pathfind_result->poly_prev_traversal[neighbor_poly] = current_traversal;
+						
+						// print("Assigning Poly ");
+						// print(ftos(neighbor_poly));
+						// print(" came from traversal ");
+						// print(ftos(current_traversal));
+						// print(".\n");
+					}
 				}
 			}
-			// ----------------------------------------------------------------
+		}
 
+		// current = cl_pathfind_get_lowest_f_score();
+		float best_openset_poly = cl_pathfind_get_lowest_f_score_poly();
+		float best_openset_traversal = cl_pathfind_get_lowest_f_score_traversal();
 
-			if(cl_test_pathfind_result->poly_set[neighbor] != PATHFIND_POLY_SET_CLOSED)
-			{
-				//print("Neighbor is not in closed list.\n");
-				//Calculate tentative f score
-				//Calculate tentative g score (distance from start to current + distance from current to neighbor)
-				float tentative_g_score = cl_test_pathfind_result->poly_g_score[current] + vlen(cl_navmesh_polies[neighbor].center - cl_navmesh_polies[current].center);
-				
-				if(cl_test_pathfind_result->poly_set[neighbor] != PATHFIND_POLY_SET_OPEN || tentative_g_score < cl_test_pathfind_result->poly_g_score[neighbor])
-				{
-					//print("Neighbor is not in open list, or a better g score has been found.\n");
-					//Adding neighbor to open set
-					cl_test_pathfind_result->poly_set[neighbor] = PATHFIND_POLY_SET_OPEN;
-					
-					//Updating scores for neighbor node
-					float tentative_f_score = tentative_g_score + cl_pathfind_calc_h_score(neighbor , goal);
-					cl_test_pathfind_result->poly_g_score[neighbor] = tentative_g_score;
-					cl_test_pathfind_result->poly_f_score[neighbor] = tentative_f_score;
-					
-					//Linking neighbor node to current node (for tracing path)
-					cl_test_pathfind_result->poly_prev[neighbor] = current;
-					
-					/*print("Assigning Poly ");
-					print(ftos(neighbor));
-					print(" came from  ");
-					print(ftos(current));
-					print(".\n");*/
-				}
-				
+		// print("Best openset poly: ");
+		// print(ftos(best_openset_poly));
+		// print("\n");
+		// print("Best openset traversal: ");
+		// print(ftos(best_openset_traversal));
+		// print("\n");
+
+		// If we have both, compare their f-scores
+		if(best_openset_poly != -1 && best_openset_traversal != -1) {
+			// If traversal score is better, don't consider polygon
+			if(cl_test_pathfind_result->traversal_f_score[best_openset_poly] < cl_test_pathfind_result->poly_f_score[best_openset_poly]) {
+				best_openset_poly = -1;
 			}
-		}		
-		
-		current = cl_pathfind_get_lowest_f_score();
+			// If polygon score is better, don't consider traversal
+			else {
+				best_openset_traversal = -1;
+			}
+		}
+		// Assign what we found, loop will terminate if we have neither
+		current_traversal = best_openset_traversal;
+		current_poly = best_openset_poly;
+		// --------------------------------------------------------------------
 	}
+
+
 	
 	
 	//Tracing the pathfind results
-	if(pathfind_success == TRUE)
-	{
-		pathfind_trace_path(start,goal);
-		
-		cl_pathfind_smooth_path(start_pos,end_pos);
-		
+	if(pathfind_success == TRUE) {
+		cl_pathfind_trace_path(start_poly, goal_poly);
+		cl_pathfind_smooth_path(start_pos, end_pos);
 		return 1;
 	}
 	print("Pathfind fail");
@@ -2778,10 +3372,8 @@ float cl_navmesh_pathfind_start(float start, float goal, vector start_pos, vecto
 
 
 //This renders the raw pathfind results (polygon center to polygon center)
-void cl_navmesh_pathfind_draw_result_node_path()
-{
-	//FIXME: don't call if length is 0
-	if(cl_test_pathfind_result->result_node_length < 1)
+void cl_navmesh_pathfind_draw_result_path() {
+	if(cl_test_pathfind_result->path_length < 1)
 		return;
 	//================= Drawing Polygon Center ======================
 	//=======================================
@@ -2789,132 +3381,101 @@ void cl_navmesh_pathfind_draw_result_node_path()
 	R_BeginPolygon("debug/wireframe",0);
 	R_BeginPolygon("debug/solid_nocull",0);
 	
-	vector color;
-	color = [1,0.1,0.5];
+	vector ofs = [0,0,-5];
+	vector size = [5,5,5];
+	vector color = [1,0.1,0.5];
 	float alpha = 0.2;//0.3
 	float edge_width = 2;
 	float edge_alpha = 0.2;//0.3
+
+	vector cur_point = '0 0 0';
+	vector cur_end_point = '0 0 0';
+	vector prev_point = '0 0 0';
 	
-	for(float i = 0; i < cl_test_pathfind_result->result_node_length; i++)
-	{
-		vector pos = cl_navmesh_polies[cl_test_pathfind_result->result_node_path[i]].center + [0,0,-5];
-		//bottom face
-		R_PolygonVertex(pos + [-5,5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,-5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [-5,-5,-5], [0,0,0], color,alpha);
-		R_EndPolygon();
-		//Top face
-		R_PolygonVertex(pos + [-5,5,5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,5,5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,-5,5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [-5,-5,5], [0,0,0], color,alpha);
-		R_EndPolygon();
-		//Front face
-		R_PolygonVertex(pos + [-5,-5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,-5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,-5,5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [-5,-5,5], [0,0,0], color,alpha);
-		R_EndPolygon();
-		//Back face
-		R_PolygonVertex(pos + [-5,5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,5,5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [-5,5,5], [0,0,0], color,alpha);
-		R_EndPolygon();
-		//Left face
-		R_PolygonVertex(pos + [-5,-5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [-5,5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [-5,5,5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [-5,-5,5], [0,0,0], color,alpha);
-		R_EndPolygon();
-		//Right face
-		R_PolygonVertex(pos + [5,-5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,5,-5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,5,5], [0,0,0], color,alpha);
-		R_PolygonVertex(pos + [5,-5,5], [0,0,0], color,alpha);
-		R_EndPolygon();
-		
-		if(i > 0)
-		{
-			//Draw an edge connecting ith node to previous node
-			R_PolygonVertex(cl_navmesh_polies[cl_test_pathfind_result->result_node_path[i]].center + [0,0,-5] + [0,0,-edge_width], [0,0,0], color, edge_alpha);
-			R_PolygonVertex(cl_navmesh_polies[cl_test_pathfind_result->result_node_path[i]].center + [0,0,-5] + [0,0,edge_width], [0,0,0], color, edge_alpha);
-			R_PolygonVertex(cl_navmesh_polies[cl_test_pathfind_result->result_node_path[i-1]].center + [0,0,-5] + [0,0,edge_width], [0,0,0], color, edge_alpha);
-			R_PolygonVertex(cl_navmesh_polies[cl_test_pathfind_result->result_node_path[i-1]].center + [0,0,-5] + [0,0,-edge_width], [0,0,0], color, edge_alpha);
-			R_EndPolygon();
+	for(float i = 0; i < cl_test_pathfind_result->path_length; i++) {
+		// Current path entry is a polygon, draw box at polygon center
+		if(cl_test_pathfind_result->path_polygons[i] != -1) {
+			cur_point = cl_navmesh_polies[cl_test_pathfind_result->path_polygons[i]].center + ofs;
+			cur_end_point = cur_point;
+			cl_navmesh_draw_box(cur_point, size, color, alpha);
 		}
+		// Current path entry is a traversal, draw box at start and end
+		else if(cl_test_pathfind_result->path_traversals[i] != -1) {
+			cur_point = cl_navmesh_traversals[cl_test_pathfind_result->path_traversals[i]].start_pos + ofs;
+			cur_end_point = cl_navmesh_get_traversal_end_pos(cl_test_pathfind_result->path_traversals[i]) + ofs;
+			cl_navmesh_draw_box(cur_point, size, color, alpha);
+			cl_navmesh_draw_box(cur_end_point, size, color, alpha);
+			cl_navmesh_draw_line(cur_end_point, cur_point, edge_width, color, edge_alpha);
+		}
+
+		// Draw an edge connecting i-th node to previous node
+		if(i > 0) {
+			cl_navmesh_draw_line(prev_point, cur_point, edge_width, color, edge_alpha);
+		}
+
+		prev_point = cur_end_point;
 	}
-	
-	
 }
 
 
-void cl_navmesh_pathfind_draw_result_portals()
-{
+void cl_navmesh_pathfind_draw_result_portals() {
+	// TODO - Update this to account for traversals (at least once I implement funnel algorithm for traversals)
 	if(cl_test_pathfind_result->portals_length < 1)
 		return;
 	vector color;
 	color = [0.5,0.5,1.0];
 	float edge_width = 4;
 	float edge_alpha = 0.2;//0.3
+
+	vector portal_left;
+	vector portal_right;
 	
-	for(float i = 0; i < cl_test_pathfind_result->portals_length; i++)
-	{
-		cl_navmesh_draw_vert(cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[i]].pos + [0,0,-10],[0.5,0.5,1],0.4);
-		cl_navmesh_draw_vert(cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[i]].pos + [0,0,-8],[0.5,1,0.5],0.4);
+	for(float i = 0; i < cl_test_pathfind_result->portals_length; i++) {
+		portal_left = cl_test_pathfind_result->portals_left_pos[i];
+		portal_right = cl_test_pathfind_result->portals_right_pos[i];
+
+		cl_navmesh_draw_vert(portal_left + [0,0,-10],[0.5,0.5,1],0.4);
+		cl_navmesh_draw_vert(portal_right + [0,0,-8],[0.5,1,0.5],0.4);
 		
 		R_BeginPolygon("debug/wireframe",0);
 		R_BeginPolygon("debug/solid_nocull",0);
 		
 		//Draw an edge connecting portals
-		R_PolygonVertex(cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[i]].pos + [0,0,-10] + [0,0,-edge_width], [0,0,0], color, edge_alpha);
-		R_PolygonVertex(cl_navmesh_verts[cl_test_pathfind_result->portals_left_vert[i]].pos + [0,0,-10] + [0,0,edge_width], [0,0,0], color, edge_alpha);
-		R_PolygonVertex(cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[i]].pos + [0,0,-8] + [0,0,edge_width], [0,0,0], color, edge_alpha);
-		R_PolygonVertex(cl_navmesh_verts[cl_test_pathfind_result->portals_right_vert[i]].pos + [0,0,-8] + [0,0,-edge_width], [0,0,0], color, edge_alpha);
-		R_EndPolygon();
+		cl_navmesh_draw_line(portal_left + [0,0,-10], portal_right + [0,0,-8], edge_width, color, edge_alpha);
 	}
 }
 
-void cl_navmesh_pathfind_draw_result_path()
-{		
-	if(cl_test_pathfind_result->result_length < 1)
+void cl_navmesh_pathfind_draw_result_point_path() {
+	// TODO - Update this to account for traversals
+	if(cl_test_pathfind_result->point_path_length < 1)
 		return;
 		
 	vector color;
 	color = [1.0,0.0,0.0];
 	float edge_width = 4;
+	float alpha = 0.4;
 	float edge_alpha = 0.2;//0.3
+	vector ofs = [0,0,10];
 	
 	//Drawing the a line connecting the start and first path node
-	cl_navmesh_draw_vert(startent_pos + [0,0,10],[1,0,0],0.4);
-	R_BeginPolygon("debug/wireframe",0);
-	R_BeginPolygon("debug/solid_nocull",0);
+	cl_navmesh_draw_vert(startent_pos + ofs, color, alpha);
+	cl_navmesh_draw_line(startent_pos + ofs, cl_test_pathfind_result->point_path_points[0] + ofs, edge_width, color, edge_alpha);
+
+
+	vector cur_point = '0 0 0';
+	vector prev_point = '0 0 0';
 	
-	//Draw an edge connecting portals
-	R_PolygonVertex(cl_test_pathfind_result->result_path[0] + [0,0,10] + [0,0,-edge_width], [0,0,0], color, edge_alpha);
-	R_PolygonVertex(cl_test_pathfind_result->result_path[0] + [0,0,10] + [0,0,edge_width], [0,0,0], color, edge_alpha);
-	R_PolygonVertex(startent_pos + [0,0,10] + [0,0,edge_width], [0,0,0], color, edge_alpha);
-	R_PolygonVertex(startent_pos + [0,0,10] + [0,0,-edge_width], [0,0,0], color, edge_alpha);
-	R_EndPolygon();
-	
-	
-	for(float i = 0; i < cl_test_pathfind_result->result_length; i++)
-	{
-		cl_navmesh_draw_vert(cl_test_pathfind_result->result_path[i] + [0,0,10],[1,0,0],0.4);
+	for(float i = 0; i < cl_test_pathfind_result->point_path_length; i++) {
+		cur_point = cl_test_pathfind_result->point_path_points[i];
+		cl_navmesh_draw_vert(cur_point + ofs, color, alpha);
+
+		// TODO - if traversal, draw endpoint and line?
 		
-		if(i > 0)
-		{
-			R_BeginPolygon("debug/wireframe",0);
-			R_BeginPolygon("debug/solid_nocull",0);
-			
-			//Draw an edge connecting portals
-			R_PolygonVertex(cl_test_pathfind_result->result_path[i] + [0,0,10] + [0,0,-edge_width], [0,0,0], color, edge_alpha);
-			R_PolygonVertex(cl_test_pathfind_result->result_path[i] + [0,0,10] + [0,0,edge_width], [0,0,0], color, edge_alpha);
-			R_PolygonVertex(cl_test_pathfind_result->result_path[i-1] + [0,0,10] + [0,0,edge_width], [0,0,0], color, edge_alpha);
-			R_PolygonVertex(cl_test_pathfind_result->result_path[i-1] + [0,0,10] + [0,0,-edge_width], [0,0,0], color, edge_alpha);
-			R_EndPolygon();
+		if(i > 0) {
+			//Draw an edge connecting path points
+			cl_navmesh_draw_line(cur_point + ofs, prev_point + ofs, edge_width, color, edge_alpha);
 		}
+		prev_point = cur_point;
 	}
 }
 
@@ -2944,7 +3505,7 @@ void cl_toggle_navmesh_editor()
 		}
 		// Allocate memory for pathfind result
 		if(cl_test_pathfind_result == 0) {
-			cl_test_pathfind_result = memalloc(sizeof(pathfind_result));
+			cl_test_pathfind_result = memalloc(sizeof(navmesh_pathfind_result));
 			cl_pathfind_clear_result_data();
 		}
 		
@@ -3284,14 +3845,14 @@ void cl_navmesh_traversal_editor_get_point_pos() {
 		print(".\n");
 	}
 	else if(cl_navmesh_traversal_editor_cur_point == 1) {
-		print("Traversal midpoint: ");
+		print("Traversal mid point: ");
 		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].midpoint_pos));
-		print(". (relative to start pos)\n");
+		print(". (relative to start point)\n");
 	}
 	else if(cl_navmesh_traversal_editor_cur_point == 2) {
-		print("Traversal endpoint: ");
+		print("Traversal end point: ");
 		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos));
-		print(". (relative to start pos)\n");
+		print(". (relative to start point)\n");
 	}
 };
 
@@ -3308,21 +3869,21 @@ void cl_navmesh_traversal_editor_set_point_pos(vector pos) {
 	if(cl_navmesh_traversal_editor_cur_point == 0) {
 		cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos = pos;
 
-		print("Traversal start point set to: ");
+		print("Traversal start pos set to: ");
 		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos));
 		print(".\n");
 	}
 	else if(cl_navmesh_traversal_editor_cur_point == 1) {
 		cl_navmesh_traversals[cl_navmesh_selected_traversal].midpoint_pos = pos;
 
-		print("Traversal midpoint set to: ");
+		print("Traversal mid pos set to: ");
 		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].midpoint_pos));
 		print(". (relative to start pos)\n");
 	}
 	else if(cl_navmesh_traversal_editor_cur_point == 2) {
 		cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos = pos;
 
-		print("Traversal endpoint set to: ");
+		print("Traversal end pos set to: ");
 		print(vtos(cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos));
 		print(". (relative to start pos)\n");
 	}
