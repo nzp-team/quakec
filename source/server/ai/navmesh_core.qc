@@ -6,6 +6,10 @@ float sv_navmesh_vert_count;
 navmesh_poly sv_navmesh_polies[NAV_MAX_POLIES];
 float sv_navmesh_poly_count;
 
+// List of all navmesh traversals
+navmesh_traversal sv_navmesh_traversals[NAV_MAX_TRAVERSALS];
+float sv_navmesh_traversal_count;
+
 void () Navmesh_Editor_Logic =
 {
 	if (!cl_navmesh_edit_mode) {
@@ -62,16 +66,16 @@ void () Navmesh_Editor_Logic =
 };
 
 
-void sv_load_navmesh_data()
-{
+void sv_load_navmesh_data() {
 	string filepath;
 	float file;
 	
 	filepath = strcat(mappath, ".nav");
+	print("Loading server-side navmesh from file \"", filepath, "\"\n");
+
 	file = fopen(filepath,FILE_READ);
-	
-	if(file == -1)
-	{
+
+	if(file == -1) {
 		print("Error: file \"",filepath,"\" not found.\n");
 		return;
 	}
@@ -83,8 +87,7 @@ void sv_load_navmesh_data()
 	string line = fgets(file);
 	float vert_count = stof(line);
 	
-	if(vert_count > sv_navmesh_verts.length)
-	{
+	if(vert_count > sv_navmesh_verts.length) {
 		print("Error: navmesh file \"",filepath,"\" has an invalid vert count. (" , line, " > ", ftos(sv_navmesh_verts.length),").\n");
 		fclose(file);
 		return;
@@ -98,8 +101,7 @@ void sv_load_navmesh_data()
 	
 
 	//Reading all of the vertex positions
-	for(float i = 0; i < sv_navmesh_vert_count; i++)
-	{
+	for(float i = 0; i < sv_navmesh_vert_count; i++) {
 		line = fgets(file);
 		temp = stov(line);
 		sv_navmesh_verts[i].pos.x = temp.x;
@@ -111,47 +113,89 @@ void sv_load_navmesh_data()
 	sv_navmesh_poly_count = stof(fgets(file));
 	
 	//The next lines are each polygon
-	for(float i = 0; i < sv_navmesh_poly_count; i++)
-	{
-		//Getting vertex count
+	for(float i = 0; i < sv_navmesh_poly_count; i++) {
+		// Get vertex count
 		sv_navmesh_polies[i].vert_count = stof(fgets(file));
-		//Getting vertices
+		// Get vertices
 		sv_navmesh_polies[i].verts[0] = stof(fgets(file));
 		sv_navmesh_polies[i].verts[1] = stof(fgets(file));
 		sv_navmesh_polies[i].verts[2] = stof(fgets(file));
 		sv_navmesh_polies[i].verts[3] = stof(fgets(file));
-		//Getting polygon center
+		// Get polygon center
 		temp = stov(fgets(file));
 		sv_navmesh_polies[i].center.x = temp.x;
 		sv_navmesh_polies[i].center.y = temp.y;
 		sv_navmesh_polies[i].center.z = temp.z;
-		//Getting link count
+		// Get link count
 		sv_navmesh_polies[i].connected_polies_count = stof(fgets(file));
-		//Getting links
+		// Get links
 		sv_navmesh_polies[i].connected_polies[0] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies[1] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies[2] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies[3] = stof(fgets(file));
-		//Getting link edge left vertex
+		// Get link edge left vertex
 		sv_navmesh_polies[i].connected_polies_left_vert[0] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_left_vert[1] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_left_vert[2] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_left_vert[3] = stof(fgets(file));
-		//Getting link edge right vertex
+		// Get link edge right vertex
 		sv_navmesh_polies[i].connected_polies_right_vert[0] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_right_vert[1] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_right_vert[2] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_right_vert[3] = stof(fgets(file));
-		//Get link edge neighbor entrance edge index
+		// Get link edge neighbor entrance edge index
 		sv_navmesh_polies[i].connected_polies_neighbor_edge_index[0] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_neighbor_edge_index[1] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_neighbor_edge_index[2] = stof(fgets(file));
 		sv_navmesh_polies[i].connected_polies_neighbor_edge_index[3] = stof(fgets(file));
+
+		// If navmesh file version 0.0.0, no traversals
+		// FIXME - Need a better way to do this..
+		if(strcmp(nav_file_version, "0.0.0") != 0) {
+			// Get connected traversals
+			sv_navmesh_polies[i].connected_traversals_count = stof(fgets(file));
+			for(float j = 0; j < sv_navmesh_polies[i].connected_traversals_count; j++) {
+				sv_navmesh_polies[i].connected_traversals[j] = stof(fgets(file));
+			}
+		}
 		//Get polygon doortarget
 		sv_navmesh_polies[i].doortarget = fgets(file);
 		//Get entrance edge
 		sv_navmesh_polies[i].entrance_edge = stoi(fgets(file));
 	}
+
+	// -----------------------------------------------------------------------
+	// Load Traversals
+	// -----------------------------------------------------------------------
+	// If navmesh file version 0.0.0, no traversals
+	// FIXME - Need a better way to do this..
+	if(strcmp(nav_file_version, "0.0.0") != 0) {
+		//Next line contains the number of traverals
+		sv_navmesh_traversal_count = stof(fgets(file));
+		
+		//The next lines are each traversal
+		for(float i = 0; i < sv_navmesh_traversal_count; i++) {
+			line = fgets(file);
+			temp = stov(line);
+			sv_navmesh_traversals[i].start_pos.x = temp.x;
+			sv_navmesh_traversals[i].start_pos.y = temp.y;
+			sv_navmesh_traversals[i].start_pos.z = temp.z;
+			line = fgets(file);
+			temp = stov(line);
+			sv_navmesh_traversals[i].midpoint_pos.x = temp.x;
+			sv_navmesh_traversals[i].midpoint_pos.y = temp.y;
+			sv_navmesh_traversals[i].midpoint_pos.z = temp.z;
+			line = fgets(file);
+			temp = stov(line);
+			sv_navmesh_traversals[i].end_pos.x = temp.x;
+			sv_navmesh_traversals[i].end_pos.y = temp.y;
+			sv_navmesh_traversals[i].end_pos.z = temp.z;
+			sv_navmesh_traversals[i].angle = stof(fgets(file));
+			sv_navmesh_traversals[i].use_midpoint = stof(fgets(file));
+			sv_navmesh_traversals[i].end_poly = stof(fgets(file));
+		}
+	}
+	// -----------------------------------------------------------------------
 	fclose(file);
 }
 

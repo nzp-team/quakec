@@ -230,9 +230,9 @@ void() SUB_Null2 = {};
 #define     VEC_VIEW_OFS  '0 0 32'
 
 #ifndef HANDHELD
-#define 	MAX_ZOMB 		24
+#define 	MAX_ZOMBIES 		24
 #else
-#define 	MAX_ZOMB 		12
+#define 	MAX_ZOMBIES 		12
 #endif // HANDHELD
 
 vector	trace_plane_normal;
@@ -477,13 +477,98 @@ string world_fog;
 #ifdef PC
 void() Navmesh_Editor_Logic;
 void() sv_load_navmesh_data;
+//One struct for temp pathfinding calculations per zombie 
+//navmesh_pathfind_result sv_zombie_pathfind_result[MAX_ZOMBIES];
+navmesh_pathfind_result *sv_zombie_pathfind_result; // Used as primary. The one that's followed
+navmesh_pathfind_result *sv_zombie_pathfind_result_aux; // Used as secondary, so we can pathfind without losing current path
 #endif // PC
 
-// //One struct for temp pathfinding calculations per zombie 
-// //pathfind_result sv_zombie_pathfind_result[MAX_ZOMBIES];
-// pathfind_result *sv_zombie_pathfind_result;
+//=================================================================
+//========================== AI defs ==============================
+var struct framegroup {
+    float start_frame;
+    float end_frame;
+    float duration;
+    // void(entity) start_callback; 	// Called at the first frame of the range
+    void(entity) frame_callback;  	// Called at every frame of the range (after start / finish callbacks)
+    // void(entity) end_callback; 	    // Called at the last frame of the range
+    // FIXME - Increasing the size of this framegroup by one more function pointer causes chaos...
+    // I assume I run out of space to pass framegroups along as arguments at any point...
+    // It starts to write into weird memory locations, like overriding self / world... things just break down.
+    // TODO - How can I refactor this to work?
+    void(entity) think_callback;    // Called at each think invocation
+    // -- Maybe I can get rid of start / end callbacks? idk
+    // I should think about how I actually plan on using these...
+
+    // TODO - Get rid of start / end callback, add fields to the AI_Chase class that denotes
+    // TODO - These callbacks will be executed at the same time as frame anyways.
+};
+
+class AI_Chase : entity {
+    // framegroup_registry *th_reg;
+    entity path_target; // If specified, path towards entity
+    vector path_pos; // Otherwise, path towards location specified
+    float think_delta_time; // Delta time (seconds) between each `this.think();`
+
+    // ------------------------------
+    // Current Framegroup value vars
+    // ------------------------------
+    float cur_fg_start_time;
+    float cur_fg_start_frame;
+    float cur_fg_end_frame;
+    float cur_fg_duration;
+    // void() endanimfunc = SUB_Null;
+    // virtual void(entity) cur_fg_start_callback = SUB_Null;
+    virtual void(entity) cur_fg_frame_callback = (void(entity)) SUB_Null;
+    // virtual void(entity) cur_fg_end_callback = SUB_Null;
+    virtual void(entity) cur_fg_think_callback = (void(entity)) SUB_Null;
+    // ------------------------------
+    // Framegroup state vars
+    // ------------------------------
+    float cur_fg_idx; // Counter for checking when the framegroup has been changed
+    float cur_fg_frame_callback_next_frame;
+    float cur_fg_frame_callback_is_start_frame; // Is set to true when performing cur_fg_frame_callback for the first framegroup frame 
+    float cur_fg_frame_callback_is_end_frame;   // Is set to true when performing cur_fg_frame_callback for the final framegroup frame
+    // ------------------------------
+
+    float pathfind_result_idx; // TODO - Need to increment this on instantiation
+
+
+    // Constructor. Called when calling `spawn(AI_Chase);`
+    virtual void() AI_Chase;
+
+
+    virtual void() think;
+    virtual void (float duration) set_framegroup_duration;
+    virtual void (framegroup fgroup) set_framegroup;
+
+
+    virtual void () fg_die = {};
+    virtual void () fg_walk = {};
+    virtual void () fg_attack = {};
+    virtual void () fg_idle = {};
+
+    virtual void (float dist) do_walk_to_goal;
+};
+
+
+class AI_Zombie : AI_Chase {
+    entity enemy; // If near, attack
+
+    // Constructor. Called when calling `spawn(AI_Zombie);`
+    // virtual void() AI_Zombie = {};
+    // This should be called explicitly:
+    virtual void(vector org) init;
+
+    virtual void () fg_die;
+    virtual void () fg_walk;
+    virtual void () fg_attack;
+    virtual void () fg_idle;
+};
+
 
 //=================================================================
+
 
 //Misc patch definitions
 .string teddyremovetarget;

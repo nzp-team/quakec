@@ -340,12 +340,17 @@ void() worldspawn =
 	mappath = strzone(mappath);
 
 	LoadWaypointData();
-	// sv_load_navmesh_data();
+// TODO - Add PSP equivalent for loading navmesh
+#ifdef PC
+	sv_load_navmesh_data();
+	//Allocating memory for the zombie's pathfinding data
+	sv_zombie_pathfind_result = memalloc(sizeof(navmesh_pathfind_result) * MAX_ZOMBIES);
+	sv_zombie_pathfind_result_aux = memalloc(sizeof(navmesh_pathfind_result) * MAX_ZOMBIES);
+	// I should technically deallocate the memory somewhere, but I've nowhere to put this, and it SHOULD be cleared automatically upon vm reset
+	// memfree(sv_zombie_pathfind_result);
+	// memfree(sv_zombie_pathfind_result_aux);
+#endif // PC
 		
-	// //Allocating memory for the zombie's pathfinding data
-	// sv_zombie_pathfind_result = memalloc(sizeof(pathfind_result) * MAX_ZOMBIES);
-	//I should technically deallocate the memory, but I've nowhere to put this, and it SHOULD be cleared automatically upon vm reset
-	//memfree(sv_zombie_pathfind_result);
 
 
 	//set game elements

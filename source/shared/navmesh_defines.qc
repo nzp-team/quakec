@@ -147,7 +147,7 @@ struct navmesh_pathfind_result {
 	float portals_traversal[NAV_MAX_POLIES];
 	// ---------------------------------------------------------
 
-	
+
 	// ---------------------------------------------------------
 	// Final path is a list of 3D points and traversals
 	// ---------------------------------------------------------

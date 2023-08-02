@@ -1479,15 +1479,15 @@ void cl_navmesh_calc_connected_polies() {
 				cl_navmesh_polies[j].connected_polies_count++;
 				//=======================================================================================
 				
-				print("Poly ");
-				print(ftos(i));
-				print(" is connected to ");
-				print(ftos(j));
-				print(" and poly ");
-				print(ftos(j));
-				print(" is connected to ");
-				print(ftos(i));
-				print(".\n");
+				// print("Poly ");
+				// print(ftos(i));
+				// print(" is connected to ");
+				// print(ftos(j));
+				// print(" and poly ");
+				// print(ftos(j));
+				// print(" is connected to ");
+				// print(ftos(i));
+				// print(".\n");
 			}	
 		}
 	}
@@ -1616,7 +1616,7 @@ void cl_navmesh_calc_polies_centers()
 //Saves the current cl_navmesh to a file
 void cl_navmesh_editor_save_navmesh() {
 	int v_major = 0;
-	int v_minor = 0;
+	int v_minor = 1;
 	int v_patch = 0;
 	float file;
 	string h;
@@ -1878,10 +1878,15 @@ void cl_navmesh_editor_load_navmesh() {
 		fgets(file);//1
 		fgets(file);//2
 		fgets(file);//3
-		// Don't care about connected traversals
-		float n_traversals = stof(fgets(file));
-		for(float j = 0; j < n_traversals; j++) {
-			fgets(file); // discard the j-th traversal index
+
+		// If navmesh file version 0.0.0, no traversals
+		// FIXME - Need a better way to do this..
+		if(strcmp(nav_file_version, "0.0.0") != 0) {
+			// Don't care about connected traversals
+			float n_traversals = stof(fgets(file));
+			for(float j = 0; j < n_traversals; j++) {
+				fgets(file); // discard the j-th traversal index
+			}
 		}
 
 		// Load doortarget field
@@ -1899,31 +1904,33 @@ void cl_navmesh_editor_load_navmesh() {
 	// -----------------------------------------------------------------------
 	// Load Traversals
 	// -----------------------------------------------------------------------
-	// TODO - Increment navmesh version count, if 0.0.0, load file without traversals
-	//Next line contains the number of traverals
-	cl_navmesh_traversal_count = stof(fgets(file));
-	
-	//The next lines are each traversal
-	for(float i = 0; i < cl_navmesh_traversal_count; i++) {
-		line = fgets(file);
-		temp = stov(line);
-		cl_navmesh_traversals[i].start_pos.x = temp.x;
-		cl_navmesh_traversals[i].start_pos.y = temp.y;
-		cl_navmesh_traversals[i].start_pos.z = temp.z;
-		line = fgets(file);
-		temp = stov(line);
-		cl_navmesh_traversals[i].midpoint_pos.x = temp.x;
-		cl_navmesh_traversals[i].midpoint_pos.y = temp.y;
-		cl_navmesh_traversals[i].midpoint_pos.z = temp.z;
-		line = fgets(file);
-		temp = stov(line);
-		cl_navmesh_traversals[i].end_pos.x = temp.x;
-		cl_navmesh_traversals[i].end_pos.y = temp.y;
-		cl_navmesh_traversals[i].end_pos.z = temp.z;
-		cl_navmesh_traversals[i].angle = stof(fgets(file));
-		cl_navmesh_traversals[i].use_midpoint = stof(fgets(file));
-		// Don't care about traversal end polygon index
-		fgets(file);
+	// If navmesh file version 0.0.0, no traversals
+	if(strcmp(nav_file_version, "0.0.0") != 0) {
+		// Next line contains the number of traverals
+		cl_navmesh_traversal_count = stof(fgets(file));
+		
+		// Next lines are each traversal
+		for(float i = 0; i < cl_navmesh_traversal_count; i++) {
+			line = fgets(file);
+			temp = stov(line);
+			cl_navmesh_traversals[i].start_pos.x = temp.x;
+			cl_navmesh_traversals[i].start_pos.y = temp.y;
+			cl_navmesh_traversals[i].start_pos.z = temp.z;
+			line = fgets(file);
+			temp = stov(line);
+			cl_navmesh_traversals[i].midpoint_pos.x = temp.x;
+			cl_navmesh_traversals[i].midpoint_pos.y = temp.y;
+			cl_navmesh_traversals[i].midpoint_pos.z = temp.z;
+			line = fgets(file);
+			temp = stov(line);
+			cl_navmesh_traversals[i].end_pos.x = temp.x;
+			cl_navmesh_traversals[i].end_pos.y = temp.y;
+			cl_navmesh_traversals[i].end_pos.z = temp.z;
+			cl_navmesh_traversals[i].angle = stof(fgets(file));
+			cl_navmesh_traversals[i].use_midpoint = stof(fgets(file));
+			// Don't care about traversal end polygon index
+			fgets(file);
+		}
 	}
 	// -----------------------------------------------------------------------
 	
@@ -2397,6 +2404,8 @@ void cl_pathfind_smooth_path(vector start_point, vector goal_point) {
 	vector cur_funnel_corner = start_point;
 	vector cur_funnel_left = cl_test_pathfind_result->portals_left_pos[0];
 	vector cur_funnel_right = cl_test_pathfind_result->portals_right_pos[0];
+	float cur_funnel_left_portal_idx = 0;
+	float cur_funnel_right_portal_idx = 0;
 
 	float next_portal_left_in_funnel;
 	float next_portal_right_in_funnel;
@@ -2415,51 +2424,30 @@ void cl_pathfind_smooth_path(vector start_point, vector goal_point) {
 		// TODO		< -1 outside of funnel to the left
 		// TODO		> 1 outside of funnel to the right
 
-
 		float cur_portal_left_in_funnel = pathfind_point_in_funnel( cur_portal_left_pos,  cur_funnel_corner, cur_funnel_left, cur_funnel_right);
 		float cur_portal_right_in_funnel = pathfind_point_in_funnel(cur_portal_right_pos, cur_funnel_corner, cur_funnel_left, cur_funnel_right);
 
-		print("Current portal: ");
-		print(ftos(i));
-		print(" (l: ");
-		print(ftos(cur_portal_left_pos.x));
-		print(",");
-		print(ftos(cur_portal_left_pos.y));
-		print(", r: ");
-		print(ftos(cur_portal_right_pos.x));
-		print(",");
-		print(ftos(cur_portal_right_pos.y));
-		print(", t: ");
-		print(ftos(cur_portal_traversal));
-		print(") -");
-		print(" In funnel? (");
-		print(ftos(cur_portal_left_in_funnel));
-		print(",");
-		print(ftos(cur_portal_right_in_funnel));
-		print(") - ");
-		print("Funnel: (");
-		print(ftos(cur_funnel_left.x));
-		print(",");
-		print(ftos(cur_funnel_left.y));
-		print(" -> ");
-		print(ftos(cur_funnel_corner.x));
-		print(",");
-		print(ftos(cur_funnel_corner.y));
-		print(" -> ");
-		print(ftos(cur_funnel_right.x));
-		print(",");
-		print(ftos(cur_funnel_right.y));
-		print(")\n");
+		print("{'portal_idx': ", ftos(i), ", 'portal': ");
+		print(" [(", ftos(cur_portal_left_pos.x), ",", ftos(cur_portal_left_pos.y), "), (", ftos(cur_portal_right_pos.x), ",", ftos(cur_portal_right_pos.y));
+		print(")], 'traversal': ", ftos(cur_portal_traversal), ", ");
+		print("'funnel_result': (", ftos(cur_portal_left_in_funnel), ",", ftos(cur_portal_right_in_funnel), "), ");
+		print("'funnel': [");
+		print("(", ftos(cur_funnel_left.x), ",", ftos(cur_funnel_left.y), "), ");
+		print("(", ftos(cur_funnel_corner.x), ",", ftos(cur_funnel_corner.y), "), ");
+		print("(", ftos(cur_funnel_right.x), ",", ftos(cur_funnel_right.y), ")");
+		print("]},\n");
 		// print(vtos(cur_funnel_left));
 
 
 		// If cur portal left point is in cur funnel, narrow the cur funnel
 		if(cur_portal_left_in_funnel >= -1 && cur_portal_left_in_funnel <= 1) {
 			cur_funnel_left = cur_portal_left_pos;
+			cur_funnel_left_portal_idx = i;
 		}
 		// If cur portal right point is in cur funnel, narrow the cur funnel
 		if(cur_portal_right_in_funnel >= -1 && cur_portal_right_in_funnel <= 1) {
 			cur_funnel_right = cur_portal_right_pos;
+			cur_funnel_right_portal_idx = i;
 		}
 
 		// If cur portal is completely outside (to left of) current funnel
@@ -2469,12 +2457,18 @@ void cl_pathfind_smooth_path(vector start_point, vector goal_point) {
 			cl_test_pathfind_result->point_path_traversals[cl_test_pathfind_result->point_path_length] = -1;
 			cl_test_pathfind_result->point_path_length++;
 
+			// Update funnel to start at the current funnel left endpoint, pointing to the next portal in the list
 			// Set next funnel to start at cur funnel left point
 			cur_funnel_corner = cur_funnel_left;
-			// Set next funnel left point to next portal left
-			cur_funnel_left = cl_test_pathfind_result->portals_left_pos[i+1];
-			// Set next funnel right point to next portal right
-			cur_funnel_right = cl_test_pathfind_result->portals_right_pos[i+1];
+
+			// Advance the funnel's left point to the next portal
+			cur_funnel_left_portal_idx += 1;
+			cur_funnel_right = cl_test_pathfind_result->portals_right_pos[cur_funnel_left_portal_idx];
+			cur_funnel_left = cl_test_pathfind_result->portals_left_pos[cur_funnel_left_portal_idx];
+			cur_funnel_right_portal_idx = cur_funnel_left_portal_idx;
+			// Restart funnel algorithm from the funnel's endpoint
+			i = cur_funnel_left_portal_idx - 1;
+			continue;
 		}
 		// If cur portal is completely outside (to right of) current funnel
 		else if(cur_portal_left_in_funnel > 1 && cur_portal_right_in_funnel > 1) {
@@ -2483,12 +2477,18 @@ void cl_pathfind_smooth_path(vector start_point, vector goal_point) {
 			cl_test_pathfind_result->point_path_traversals[cl_test_pathfind_result->point_path_length] = -1;
 			cl_test_pathfind_result->point_path_length++;
 
+			// Update funnel to start at the current funnel right endpoint, pointing to the next portal in the list
 			// Set next funnel to start at cur funnel right point
 			cur_funnel_corner = cur_funnel_right;
-			// Set next funnel left point to next portal left
-			cur_funnel_left = cl_test_pathfind_result->portals_left_pos[i+1];
-			// Set next funnel right point to next portal right
-			cur_funnel_right = cl_test_pathfind_result->portals_right_pos[i+1];
+
+			// Advance the funnel's right point to the next portal
+			cur_funnel_right_portal_idx += 1;
+			cur_funnel_right = cl_test_pathfind_result->portals_right_pos[cur_funnel_right_portal_idx];
+			cur_funnel_left = cl_test_pathfind_result->portals_left_pos[cur_funnel_right_portal_idx];
+			cur_funnel_left_portal_idx = cur_funnel_right_portal_idx;
+			// Restart funnel algorithm from the funnel's endpoint
+			i = cur_funnel_right_portal_idx - 1;
+			continue;
 		}
 
 		// If cur portal is a traversal
@@ -2510,6 +2510,8 @@ void cl_pathfind_smooth_path(vector start_point, vector goal_point) {
 			cur_funnel_corner = end_pos;
 			cur_funnel_left = cl_test_pathfind_result->portals_left_pos[i+1];
 			cur_funnel_right = cl_test_pathfind_result->portals_right_pos[i+1];
+			cur_funnel_left_portal_idx = i+1;
+			cur_funnel_right_portal_idx = i+1;
 		}
 	}
 

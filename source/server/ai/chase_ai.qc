@@ -1,35 +1,8 @@
-var struct framegroup {
-    float start_frame;
-    float end_frame;
-    float duration;
-    // void(entity) start_callback; 	// Called at the first frame of the range
-    void(entity) frame_callback;  	// Called at every frame of the range (after start / finish callbacks)
-    // void(entity) end_callback; 	    // Called at the last frame of the range
-    // FIXME - Increasing the size of this framegroup by one more function pointer causes chaos...
-    // I assume I run out of space to pass framegroups along as arguments at any point...
-    // It starts to write into weird memory locations, like overriding self / world... things just break down.
-    // TODO - How can I refactor this to work?
-    void(entity) think_callback;    // Called at each think invocation
-    // -- Maybe I can get rid of start / end callbacks? idk
-    // I should think about how I actually plan on using these...
 
-    // TODO - Get rid of start / end callback, add fields to the AI_Chase class that denotes
-    // TODO - These callbacks will be executed at the same time as frame anyways.
-};
 
 
 // FIXME - This framegroup  nonsense is causing chaos... the struct is too large apparently... what can I cut out?
 
-
-framegroup make_empty_framegroup(__out framegroup fg) {
-    fg.start_frame = -1;
-    fg.end_frame = -1;
-    fg.duration = 1.0;
-    // fg.start_callback = SUB_Null;
-    fg.frame_callback = SUB_Null;
-    // fg.end_callback = SUB_Null;
-    fg.think_callback = SUB_Null;
-}
 
 void init_framegroup(   float start_frame, float end_frame, float duration,
                         void(entity) frame_callback, 
@@ -44,215 +17,159 @@ void init_framegroup(   float start_frame, float end_frame, float duration,
 
 
 
+// Constructor. Called when calling `spawn(AI_Chase);`
+void() AI_Chase::AI_Chase = {
+    this.path_target = world;
+    this.path_pos = world.origin;
+    this.think_delta_time = 0.1; // Call `this.think();` 10x per second
+    this.cur_fg_idx = 0;
+};
 
 
-
-class AI_Chase : entity {
-    // framegroup_registry *th_reg;
-    entity path_target; // If specified, path towards entity
-    vector path_pos; // Otherwise, path towards location specified
-    float think_delta_time; // Delta time (seconds) between each `this.think();`
-
-    // ------------------------------
-    // Current Framegroup value vars
-    // ------------------------------
-    float cur_fg_start_time;
-    float cur_fg_start_frame;
-    float cur_fg_end_frame;
-    float cur_fg_duration;
-    // void() endanimfunc = SUB_Null;
-    // virtual void(entity) cur_fg_start_callback = SUB_Null;
-    virtual void(entity) cur_fg_frame_callback = SUB_Null;
-    // virtual void(entity) cur_fg_end_callback = SUB_Null;
-    virtual void(entity) cur_fg_think_callback = SUB_Null;
-    // ------------------------------
-    // Framegroup state vars
-    // ------------------------------
-    float cur_fg_idx; // Counter for checking when the framegroup has been changed
-    float cur_fg_frame_callback_next_frame;
-    float cur_fg_frame_callback_is_start_frame; // Is set to true when performing cur_fg_frame_callback for the first framegroup frame 
-    float cur_fg_frame_callback_is_end_frame;   // Is set to true when performing cur_fg_frame_callback for the final framegroup frame
-
-    // ------------------------------
-
-
-    // Constructor. Called when calling `spawn(AI_Chase);`
-    virtual void() AI_Chase = {
-        this.path_target = world;
-        this.path_pos = world.origin;
-        this.think_delta_time = 0.1; // Call `this.think();` 10x per second
-        this.cur_fg_idx = 0;
-    };
-
-
-    virtual void() think = {
-        if(this.cur_fg_start_time >= 0) {
-            float cur_framegroup_idx = this.cur_fg_idx;
-            float dt = time - this.cur_fg_start_time;
-            float lerp_frac = (dt / this.cur_fg_duration);
-            // Frame ranges are inclusive, do an un-clamped interpolation to include the final frame
-            float cur_frame = unclamped_lerp(this.cur_fg_start_frame, this.cur_fg_end_frame, lerp_frac);
-            // For rendering, keep frame number always within current animation
-            if(this.cur_fg_end_frame > this.cur_fg_start_frame) {
-                this.frame = clamp(cur_frame, this.cur_fg_start_frame, this.cur_fg_end_frame);
-            }
-            else {
-                this.frame = clamp(cur_frame, this.cur_fg_end_frame, this.cur_fg_start_frame);
-            }
-
-            // print("Cur frame: ");
-            // print(ftos(this.frame));
-            // print(", start_frame: ");
-            // print(ftos(this.cur_fg_start_frame));
-            // print(", end_frame: ");
-            // print(ftos(this.cur_fg_end_frame));
-            // print(", cur_frame: ");
-            // print(ftos(cur_frame));
-            // print(", next frame callback: ");
-            // print(ftos(this.cur_fg_frame_callback_next_frame));
-            // print(", duration: ");
-            // print(ftos(this.cur_fg_duration));
-            // print("\n");
-
-            // TODO - round frame to nearest frame?
-
-            // If the animation is playing forward (low frame num to high frame num)
-            if(this.cur_fg_end_frame > this.cur_fg_start_frame) {
-                if(cur_frame >= this.cur_fg_frame_callback_next_frame) {
-                    if(cur_frame >= this.cur_fg_end_frame + 1) {
-                        this.cur_fg_frame_callback_is_end_frame = true;
-                    }
-                    this.cur_fg_frame_callback(this); // FIXME - This can override and invoke new things, need to be careful
-                    // Callback may have assigned new framegroup
-                    if(this.cur_fg_idx == cur_framegroup_idx) {
-                        this.cur_fg_frame_callback_is_start_frame = false;
-                        this.cur_fg_frame_callback_is_end_frame = false;
-                        this.cur_fg_frame_callback_next_frame = floor(cur_frame) + 1;
-                    }
-                    // print("\tSet next frame callback frame to: ");
-                    // print(ftos(this.cur_fg_frame_callback_next_frame));
-                    // print("\n");
-                }
-            }
-            // else the animation is playing in reverse (high frame num to low frame num)
-            else {
-                if(cur_frame <= this.cur_fg_frame_callback_next_frame) {
-                    if(cur_frame <= this.cur_fg_end_frame - 1) {
-                        this.cur_fg_frame_callback_is_end_frame = true;
-                    }
-                    this.cur_fg_frame_callback(this);
-                    // Callback may have assigned new framegroup
-                    if(this.cur_fg_idx == cur_fg_idx) {
-                        this.cur_fg_frame_callback_is_start_frame = false;
-                        this.cur_fg_frame_callback_is_end_frame = false;
-                        this.cur_fg_frame_callback_next_frame = ceil(cur_frame) - 1;
-                    }
-                }
-            }
-            // Callback may have assigned new framegroup
-            // if(this.cur_fg_idx == cur_fg_idx) {
-                this.cur_fg_think_callback(this);
-            // }
-        }
-        this.nextthink = time + this.think_delta_time;
-    };
-
-    virtual void (float duration) set_framegroup_duration = {
-        // If no current framegroup, stop
-        if(this.cur_fg_start_time < 0) {
-            print("Warning: Attempted to set framegroup duration without an active framegroup.\n");
-            return;
-        }
-
-        this.cur_fg_duration = duration;
-        // --------------------------------------------------------------------
-        // Adjust think_delta_time so no frames are skipped
-        // --------------------------------------------------------------------
-        float n_anim_frames = fabs(this.cur_fg_end_frame - this.cur_fg_start_frame);
-        float time_per_frame = duration / n_anim_frames;
-        // If faster than 10FPS, make thinks be called more often to not miss a frame callback
-        if(time_per_frame < 0.10) {
-            this.think_delta_time = time_per_frame * 0.5;
+void() AI_Chase::think = {
+    if(this.cur_fg_start_time >= 0) {
+        float cur_framegroup_idx = this.cur_fg_idx;
+        float dt = time - this.cur_fg_start_time;
+        float lerp_frac = (dt / this.cur_fg_duration);
+        // Frame ranges are inclusive, do an un-clamped interpolation to include the final frame
+        float cur_frame = unclamped_lerp(this.cur_fg_start_frame, this.cur_fg_end_frame, lerp_frac);
+        // For rendering, keep frame number always within current animation
+        if(this.cur_fg_end_frame > this.cur_fg_start_frame) {
+            this.frame = clamp(cur_frame, this.cur_fg_start_frame, this.cur_fg_end_frame);
         }
         else {
-            this.think_delta_time = 0.1;
+            this.frame = clamp(cur_frame, this.cur_fg_end_frame, this.cur_fg_start_frame);
         }
-        // --------------------------------------------------------------------
-    };
 
-    virtual void (framegroup fgroup) set_framegroup = {
-        // Increment framegroup counter. Reset every 100, we only use this to check when it has changed
-        this.cur_fg_idx = (this.cur_fg_idx + 1) % 100;
-
-        // FIXME - frame callback isn't guaranteed to be called for every frame because sometimes we skip over frames
-        // FIXME - I should modify the think delta time to run at 80% of the time between frames, or 0.10 seconds, whichever is greater.
-        // FIXME - That way, if are playing an animation really fast, it'll call think more often
-        this.cur_fg_start_frame = fgroup.start_frame;
-        this.cur_fg_end_frame = fgroup.end_frame;
-        this.cur_fg_frame_callback = fgroup.frame_callback;
-        this.cur_fg_think_callback = fgroup.think_callback;
-        this.set_framegroup_duration(fgroup.duration);
-
-        // Start the animation now
-        this.cur_fg_frame_callback_is_start_frame = true;
-        this.cur_fg_frame_callback_is_end_frame = false;
-        this.frame = this.cur_fg_start_frame;
-        this.cur_fg_start_time = time;
-        this.cur_fg_frame_callback_next_frame = this.cur_fg_start_frame;
-        // print("Done setting framegroup! Start frame: ");
-        // print(ftos(fgroup.start_frame));
-        // print(", End frame: ");
-        // print(ftos(fgroup.end_frame));
+        // print("Cur frame: ");
+        // print(ftos(this.frame));
+        // print(", start_frame: ");
+        // print(ftos(this.cur_fg_start_frame));
+        // print(", end_frame: ");
+        // print(ftos(this.cur_fg_end_frame));
+        // print(", cur_frame: ");
+        // print(ftos(cur_frame));
+        // print(", next frame callback: ");
+        // print(ftos(this.cur_fg_frame_callback_next_frame));
+        // print(", duration: ");
+        // print(ftos(this.cur_fg_duration));
         // print("\n");
-    };
 
+        // TODO - round frame to nearest frame?
 
-    virtual void () fg_die = {};
-    virtual void () fg_walk = {};
-    virtual void () fg_attack = {};
-    virtual void () fg_idle = {};
-
-
-    virtual void (float dist) do_walk_to_goal = {
-        if(dist == 0) {
-            return;
+        // If the animation is playing forward (low frame num to high frame num)
+        if(this.cur_fg_end_frame > this.cur_fg_start_frame) {
+            if(cur_frame >= this.cur_fg_frame_callback_next_frame) {
+                if(cur_frame >= this.cur_fg_end_frame + 1) {
+                    this.cur_fg_frame_callback_is_end_frame = true;
+                }
+                this.cur_fg_frame_callback(this); // FIXME - This can override and invoke new things, need to be careful
+                // Callback may have assigned new framegroup
+                if(this.cur_fg_idx == cur_framegroup_idx) {
+                    this.cur_fg_frame_callback_is_start_frame = false;
+                    this.cur_fg_frame_callback_is_end_frame = false;
+                    this.cur_fg_frame_callback_next_frame = floor(cur_frame) + 1;
+                }
+                // print("\tSet next frame callback frame to: ");
+                // print(ftos(this.cur_fg_frame_callback_next_frame));
+                // print("\n");
+            }
         }
-
-        vector goal_pos = path_pos;
-        if(this.path_target != world) {
-            goal_pos = this.path_target.origin;
+        // else the animation is playing in reverse (high frame num to low frame num)
+        else {
+            if(cur_frame <= this.cur_fg_frame_callback_next_frame) {
+                if(cur_frame <= this.cur_fg_end_frame - 1) {
+                    this.cur_fg_frame_callback_is_end_frame = true;
+                }
+                this.cur_fg_frame_callback(this);
+                // Callback may have assigned new framegroup
+                if(this.cur_fg_idx == cur_fg_idx) {
+                    this.cur_fg_frame_callback_is_start_frame = false;
+                    this.cur_fg_frame_callback_is_end_frame = false;
+                    this.cur_fg_frame_callback_next_frame = ceil(cur_frame) - 1;
+                }
+            }
         }
+        // Callback may have assigned new framegroup
+        // if(this.cur_fg_idx == cur_fg_idx) {
+            this.cur_fg_think_callback(this);
+        // }
+    }
+    this.nextthink = time + this.think_delta_time;
+};
 
-        this.ideal_yaw = vectoyaw(goal_pos - this.origin);
-        ChangeYaw();
-        vector new_velocity;
-        float dist_to_goal = vlen(goal_pos - this.origin);
-        if(dist > dist_to_goal) {
-            dist = dist_to_goal;
-        }
-        new_velocity = normalize(goal_pos - this.origin) * dist;
-        new_velocity_z = this.velocity_z;
-        this.velocity = new_velocity;
-    };
+void (float duration) AI_Chase::set_framegroup_duration = {
+    // If no current framegroup, stop
+    if(this.cur_fg_start_time < 0) {
+        print("Warning: Attempted to set framegroup duration without an active framegroup.\n");
+        return;
+    }
+
+    this.cur_fg_duration = duration;
+    // --------------------------------------------------------------------
+    // Adjust think_delta_time so no frames are skipped
+    // --------------------------------------------------------------------
+    float n_anim_frames = fabs(this.cur_fg_end_frame - this.cur_fg_start_frame);
+    float time_per_frame = duration / n_anim_frames;
+    // If faster than 10FPS, make thinks be called more often to not miss a frame callback
+    if(time_per_frame < 0.10) {
+        this.think_delta_time = time_per_frame * 0.5;
+    }
+    else {
+        this.think_delta_time = 0.1;
+    }
+    // --------------------------------------------------------------------
+};
+
+void (framegroup fgroup) AI_Chase::set_framegroup = {
+    // Increment framegroup counter. Reset every 100, we only use this to check when it has changed
+    this.cur_fg_idx = (this.cur_fg_idx + 1) % 100;
+
+    // FIXME - frame callback isn't guaranteed to be called for every frame because sometimes we skip over frames
+    // FIXME - I should modify the think delta time to run at 80% of the time between frames, or 0.10 seconds, whichever is greater.
+    // FIXME - That way, if are playing an animation really fast, it'll call think more often
+    this.cur_fg_start_frame = fgroup.start_frame;
+    this.cur_fg_end_frame = fgroup.end_frame;
+    this.cur_fg_frame_callback = fgroup.frame_callback;
+    this.cur_fg_think_callback = fgroup.think_callback;
+    this.set_framegroup_duration(fgroup.duration);
+
+    // Start the animation now
+    this.cur_fg_frame_callback_is_start_frame = true;
+    this.cur_fg_frame_callback_is_end_frame = false;
+    this.frame = this.cur_fg_start_frame;
+    this.cur_fg_start_time = time;
+    this.cur_fg_frame_callback_next_frame = this.cur_fg_start_frame;
+    // print("Done setting framegroup! Start frame: ");
+    // print(ftos(fgroup.start_frame));
+    // print(", End frame: ");
+    // print(ftos(fgroup.end_frame));
+    // print("\n");
 };
 
 
+void (float dist) AI_Chase::do_walk_to_goal = {
+    if(dist == 0) {
+        return;
+    }
 
+    vector goal_pos = path_pos;
+    if(this.path_target != world) {
+        goal_pos = this.path_target.origin;
+    }
 
-
-class AI_Zombie : AI_Chase {
-    entity enemy; // If near, attack
-
-    // Constructor. Called when calling `spawn(AI_Zombie);`
-    // virtual void() AI_Zombie = {};
-    // This should be called explicitly:
-    virtual void(vector org) init;
-
-    virtual void () fg_die;
-    virtual void () fg_walk;
-    virtual void () fg_attack;
-    virtual void () fg_idle;
+    this.ideal_yaw = vectoyaw(goal_pos - this.origin);
+    ChangeYaw();
+    vector new_velocity;
+    float dist_to_goal = vlen(goal_pos - this.origin);
+    if(dist > dist_to_goal) {
+        dist = dist_to_goal;
+    }
+    new_velocity = normalize(goal_pos - this.origin) * dist;
+    new_velocity_z = this.velocity_z;
+    this.velocity = new_velocity;
 };
+
 
 
 
@@ -410,18 +327,17 @@ void create_framegroups() {
     // death2  139     148
 
     // In blender, it's frames 38 to 53, inclusive
-    // make_empty_framegroup(fg_zombie_walk_0);
     init_framegroup( 38, 53, 1.0, zombie_walk_frame_callback, zombie_walk_think_callback, fg_zombie_walk_0);
-    init_framegroup(  53,   66,   10.0, SUB_Null, SUB_Null, fg_zombie_walk_1);
-    init_framegroup(  67,   82,   10.0, SUB_Null, SUB_Null, fg_zombie_walk_2);
-    init_framegroup(  116,  129,  10.0, SUB_Null, SUB_Null, fg_zombie_jog_0);
-    init_framegroup(  78,   85,   10.0, SUB_Null, SUB_Null, fg_zombie_run_0);
-    init_framegroup(  0,    12,   10.0, SUB_Null, SUB_Null, fg_zombie_idle_0);
-    init_framegroup(  86,   90,   10.0, SUB_Null, SUB_Null, fg_zombie_attack_0);
-    init_framegroup(  91,   96,   10.0, SUB_Null, SUB_Null, fg_zombie_attack_1);
-    init_framegroup(  123,  133,  10.0, SUB_Null, SUB_Null, fg_zombie_die_0);
-    init_framegroup(  134,  138,  10.0, SUB_Null, SUB_Null, fg_zombie_die_1);
-    init_framegroup(  139,  148,  10.0, SUB_Null, SUB_Null, fg_zombie_die_2);
+    init_framegroup(  53,   66,   10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_walk_1);
+    init_framegroup(  67,   82,   10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_walk_2);
+    init_framegroup(  116,  129,  10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_jog_0);
+    init_framegroup(  78,   85,   10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_run_0);
+    init_framegroup(  0,    12,   10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_idle_0);
+    init_framegroup(  86,   90,   10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_attack_0);
+    init_framegroup(  91,   96,   10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_attack_1);
+    init_framegroup(  123,  133,  10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_die_0);
+    init_framegroup(  134,  138,  10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_die_1);
+    init_framegroup(  139,  148,  10.0, (void(entity)) SUB_Null, (void(entity)) SUB_Null, fg_zombie_die_2);
 };
 
 

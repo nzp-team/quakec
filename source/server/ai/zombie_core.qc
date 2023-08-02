@@ -1593,7 +1593,7 @@ float() getMaxZombies =
 	if (dogWave == true) {
 		return 2;
 	} else {
-		return MAX_ZOMB;
+		return MAX_ZOMBIES;
 	}
 }
 
