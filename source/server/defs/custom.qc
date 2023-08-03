@@ -532,6 +532,7 @@ class AI_Chase : entity {
     // ------------------------------
 
     float pathfind_result_idx; // TODO - Need to increment this on instantiation
+    float pathfind_cur_point_idx;
 
 
     // Constructor. Called when calling `spawn(AI_Chase);`

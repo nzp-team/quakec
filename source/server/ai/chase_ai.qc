@@ -148,6 +148,12 @@ void (framegroup fgroup) AI_Chase::set_framegroup = {
 };
 
 
+// Computes the length of a vector ignoring the Z-component
+float (vector ofs) vlen_xy = {
+    return sqrt(ofs.x * ofs.x + ofs.y * ofs.y);
+}
+
+
 void (float dist) AI_Chase::do_walk_to_goal = {
     if(dist == 0) {
         return;
@@ -157,6 +163,44 @@ void (float dist) AI_Chase::do_walk_to_goal = {
     if(this.path_target != world) {
         goal_pos = this.path_target.origin;
     }
+
+
+
+// TODO - For PSP, call engine-side function that gets us next walk point
+#ifdef PC
+	navmesh_pathfind_result* res = &(sv_zombie_pathfind_result[this.pathfind_result_idx]);
+	float start_poly = sv_navmesh_get_containing_poly(this.origin);
+	float goal_poly = sv_navmesh_get_containing_poly(goal_pos);
+	float pathfind_success = sv_navmesh_pathfind_start(start_poly, goal_poly, this.origin, goal_pos, res);
+    this.pathfind_cur_point_idx = 0;
+
+    if(pathfind_success) {
+        goal_pos = res->point_path_points[this.pathfind_cur_point_idx];
+
+        // TOOD - If close, continue to next one...
+        // TODO - Also make sure we're "close enough" in Z...
+        if(vlen_xy(this.origin - goal_pos) < 20) {
+            print("Distance from target: ", ftos(vlen_xy(this.origin - goal_pos)), ", Cur point: ", ftos(this.pathfind_cur_point_idx), "\n");
+            print("Current traversal: ", ftos(res->point_path_traversals[this.pathfind_cur_point_idx]),"\n");
+            // If this point path is a traversal, teleport to traversal end spot
+            if(res->point_path_traversals[this.pathfind_cur_point_idx] != -1) {
+                vector traversal_end_pos = sv_navmesh_get_traversal_end_pos(res->point_path_traversals[this.pathfind_cur_point_idx]);
+                print("Setting origin to end position: ", vtos(traversal_end_pos), "\n");
+                this.origin = traversal_end_pos;
+            }
+            this.pathfind_cur_point_idx += 1;
+            goal_pos = res->point_path_points[this.pathfind_cur_point_idx];
+        }
+    }
+    else {
+        dist = 0;
+        // TODO - Idle animation?
+    }
+#endif // PC
+
+
+
+
 
     this.ideal_yaw = vectoyaw(goal_pos - this.origin);
     ChangeYaw();
@@ -303,6 +347,7 @@ void zombie_walk_think_callback(entity ent) {
         zombie_ent.path_target = player_ent;
         ent.enemy = player_ent;
     }
+
 
     float n_anim_frames = fabs(zombie_ent.cur_fg_end_frame - zombie_ent.cur_fg_start_frame);
     // float dist_per_frame = 5.23125; // qu
