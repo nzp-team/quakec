@@ -500,6 +500,41 @@ var struct framegroup {
     // -- Maybe I can get rid of start / end callbacks? idk
     // I should think about how I actually plan on using these...
 
+// -----------–-----------–-----------–-----------–-----------–-----------–----
+// Animation Definitions
+// -----------–-----------–-----------–-----------–-----------–-----------–----
+// For the animation system, we could define each animation as the start and 
+// end frame range, but we'd like to be able to compose animations out of 
+// frame numbers that are not contiguous (e.g. frames=[0,1,5,6,2,3]).
+// To pull this off, we need to treat animations as a list of frame numbers.
+
+// For the animation system, we want to pass around pointers to thse arrays so
+// that an entity can keep track of the frame list for its current animation.
+// However, QC only allows for function pointers. Meaning, that if we want to 
+// pass around these animations, then we can only pass them around as function 
+// pointers. Thus, we must create two functions for each frame list, one for 
+// each thing we would need to do to a read-only array: 
+//      - access an index
+//      - get the array length
+
+// To pull this off, we'd need to define the following two functions for 
+// every animation:
+// float get_anim_frame_zombie_walk1(float frame_idx) {float frames[] = {38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53}; return frames[frame_idx]};
+// float get_anim_length_zombie_walk1(float frame_idx) {float frames[] = {38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53}; return frames.length};
+
+// But, instead of doing that for _every_ animation, the following preprocessor
+// directive will generate the above two functions from the single statement:
+// DEFINE_ANIM(zombie_walk1, 38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53);
+
+// After the above statement, the functions `get_anim_frame_zombie_walk1` and
+// `get_anim_length_zombie_walk1` have been defined and are now available to 
+// use and pass around.
+// -----------–-----------–-----------–-----------–-----------–-----------–----
+#define DEFINE_ANIM( ANIM_NAME, ...); \
+    float get_anim_frame_##ANIM_NAME## (float frame_idx) {float frames[] = {__VA_ARGS__}; return frames[frame_idx];}; \
+    float get_anim_length_##ANIM_NAME## () {float frames[] = {__VA_ARGS__}; return frames.length;};
+// -----------–-----------–-----------–-----------–-----------–-----------–----
+
     // TODO - Get rid of start / end callback, add fields to the AI_Chase class that denotes
     // TODO - These callbacks will be executed at the same time as frame anyways.
 };
