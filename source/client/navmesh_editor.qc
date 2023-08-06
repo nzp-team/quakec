@@ -244,26 +244,6 @@ void cl_navmesh_draw_poly(float poly_index) {
 		vector d = cl_navmesh_verts[cl_navmesh_polies[poly_index].verts[3]].pos;
 		cl_navmesh_draw_quad(a,b,c,d,face_color,face_alpha,TRUE);
 	}
-
-	// If polygon's entrance edge is set, draw other edges as red.
-	// if(cl_navmesh_polies[poly_index].entrance_edge != -1) {
-	// 	for(int i = 0; i < cl_navmesh_polies[poly_index].vert_count; i++) {
-	// 		if(i == cl_navmesh_polies[poly_index].entrance_edge)
-	// 			continue;
-
-	// 		// Draw this edge as solid red
-	// 		int edge_vert_a_idx = i;
-	// 		int edge_vert_b_idx = (i + 1) % cl_navmesh_polies[poly_index].vert_count;
-	// 		int edge_vert_a = cl_navmesh_polies[poly_index].verts[edge_vert_a_idx];
-	// 		int edge_vert_b = cl_navmesh_polies[poly_index].verts[edge_vert_b_idx];
-	// 		vector start = cl_navmesh_verts[edge_vert_a].pos;
-	// 		vector end = cl_navmesh_verts[edge_vert_b].pos;
-
-	// 		vector edge_color = [0.9,0.2,0.2];
-	// 		float edge_alpha = 0.7;
-	// 		cl_navmesh_draw_line(start,end,2,edge_color,edge_alpha);
-	// 	}
-	// }
 }
 
 
@@ -1115,7 +1095,6 @@ void cl_navmesh_make_poly()
 		cl_navmesh_polies[cl_navmesh_poly_count].verts[i] = selected_verts[i];
 	}
 	cl_navmesh_polies[cl_navmesh_poly_count].vert_count = selected_vert_count;
-	// cl_navmesh_polies[cl_navmesh_poly_count].entrance_edge = -1;
 	cl_navmesh_poly_count++;
 }
 
@@ -1133,7 +1112,6 @@ void cl_navmesh_delete_poly_at_index(float poly_index)
 		}
 
 		// Copy down other fields:
-		// cl_navmesh_polies[i].entrance_edge = cl_navmesh_polies[i+1].entrance_edge;
 		cl_navmesh_polies[i].doortarget = cl_navmesh_polies[i+1].doortarget;
 
 	}
@@ -1143,7 +1121,6 @@ void cl_navmesh_delete_poly_at_index(float poly_index)
 	{
 		cl_navmesh_polies[cl_navmesh_poly_count-1].verts[j] = -1;
 	}
-	// cl_navmesh_polies[cl_navmesh_poly_count-1].entrance_edge = -1;
 	cl_navmesh_polies[cl_navmesh_poly_count-1].doortarget = "";
 
 	cl_navmesh_poly_count--;
@@ -1492,12 +1469,6 @@ void cl_navmesh_calc_connected_polies() {
 		}
 	}
 
-
-	// TODO - For every traversal, assign its start position to a polygon
-	// TODO - For every traversal, somehow associate the exit point with a polygon...
-	// For entrance, it makes sense to go: poly -> traversal
-	// For exit... traversal -> poly? I think that makes sense...
-
 	for(float i = 0; i < cl_navmesh_traversal_count; i++) {
 		print("Checking traversal for connected polies\n");
 		makevectors([0, cl_navmesh_traversals[i].angle, 0]);
@@ -1692,10 +1663,6 @@ void cl_navmesh_editor_save_navmesh() {
 		if(cl_navmesh_polies[i].doortarget != "") {
 			print("CLSAVENAVMESH - Polygon at index ",ftos(i)," has doortarget: \"", cl_navmesh_polies[i].doortarget, "\"" );
 		}
-
-
-		// Getting polygon entrance edge index
-		// fputs(file,itos(cl_navmesh_polies[i].entrance_edge),"\n");	
 	}
 
 	// -----------------------------------------------------------------------
@@ -1772,8 +1739,6 @@ void cl_navmesh_editor_clear_navmesh()
 		cl_navmesh_polies[i].connected_traversals_count = 0;
 
 		cl_navmesh_polies[i].doortarget = "";
-		
-		// cl_navmesh_polies[i].entrance_edge = -1;
 	}
 	cl_navmesh_traversal_count = 0;
 	for(float i = 0; i < NAV_MAX_TRAVERSALS; i++) {
@@ -1888,10 +1853,8 @@ void cl_navmesh_editor_load_navmesh() {
 		// cl_navmesh_polies[i].doortarget = ""; // Temp fix to load old files
 		// If v0.0.0, discard entrance edge (no longer used)
 		if(nav_file_version == "0.0.0") {
-			// cl_navmesh_polies[i].entrance_edge = stoi(fgets(file));
 			fgets(file);
 		}
-		// cl_navmesh_polies[i].entrance_edge = -1; // Temp fix to load old files
 	}
 
 	// -----------------------------------------------------------------------
@@ -3006,7 +2969,6 @@ void cl_register_navmesh_commands() =
 	registercommand("yes");
 	registercommand("nav_load_navmesh");
 	registercommand("nav_toggle_poly_door");
-	// registercommand("nav_toggle_poly_entrance_edge");
 	registercommand("nav_print_poly_door");
 
 	// --- Traversal Commands ---
@@ -3070,26 +3032,6 @@ void cl_navmesh_editor_print_poly_door() {
 	print(cl_navmesh_polies[selected_polygon].doortarget);
 	print("\"\n");
 }
-
-
-// void cl_navmesh_editor_toggle_entrance_edge() {
-// 	int selected_polygon = cl_navmesh_get_selected_poly();
-// 	if(selected_polygon == -1) {
-// 		print("Can't make door polygon. No polygon selected.\n");
-// 		return;
-// 	}
-
-// 	cl_navmesh_polies[selected_polygon].entrance_edge += 1;
-// 	// If entrance edge index is no longer valid, reset it to -1
-// 	if(cl_navmesh_polies[selected_polygon].entrance_edge >= cl_navmesh_polies[selected_polygon].vert_count) {
-// 		cl_navmesh_polies[selected_polygon].entrance_edge = -1;
-// 	}
-
-// 	print("Selected Polygon entrance edge set to: ");
-// 	print(itos(cl_navmesh_polies[selected_polygon].entrance_edge));
-// 	print("\n");
-// }
-
 
 
 
@@ -3500,21 +3442,6 @@ float(string cmd) cl_navmesh_console_commands =
 		case "nav_print_poly_door":
 			cl_navmesh_editor_print_poly_door();
 			return TRUE;
-		// case "nav_toggle_poly_entrance_edge":
-		// 	cl_navmesh_editor_toggle_entrance_edge();
-		// 	// TODO - Make currently selected polygon only be traversible from
-		// 	// TODO   one direction to another.
-		// 	// TODO 
-		// 	// TODO - If no polygon selected, stop.
-		// 	// TODO - If Quad, assume verts sorted CCW from BL
-		// 	// TODO		- if not one-way, make one-way poly from 01 to 23
-		// 	// TODO		- if one-way from 01 to 23, make one-way from 12 to 03
-		// 	// TODO		- if one-way from 12 to 03, make one-way from 23 to 01
-		// 	// TODO		- if one-way from 12 to 03, make one-way from 03 to 12
-		// 	// TODO		- if one-way from 03 to 12, make normal polygon
-		// 	// TODO	- If tri, should I support one-way? (probably not, tbh)
-		// 	// TODO		
-		// 	return TRUE;
 		case "nav_place_traversal":
 			cl_navmesh_editor_place_traversal();
 			return TRUE;

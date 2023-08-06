@@ -38,8 +38,6 @@ struct navmesh_poly {
 	float verts[4];
 	float vert_count;
 	string doortarget; // "" or matches the .wayTarget field of a door entity. Polygon is only used when door is open (i.e. door.state == STATE_BOTTOM)
-	// TODO - Remove this, will be replaced by traversals
-	// int entrance_edge; // If != -1, specifies which edge index this polygon can be entered from. (0,1,2, or 3)
 
 	float connected_traversals_count; // How many traversals start in this polygon
 	float connected_traversals[NAV_MAX_POLY_TRAVERSALS]; // List of traversals that start in this polygon

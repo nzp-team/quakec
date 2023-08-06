@@ -152,7 +152,6 @@ void sv_load_navmesh_data() {
 		sv_navmesh_polies[i].doortarget = fgets(file);
 		// If v0.0.0, throw away entrance edge (legacy feature not supported)
 		if(nav_file_version == "0.0.0") {
-			// sv_navmesh_polies[i].entrance_edge = stoi(fgets(file));
 			fgets(file);
 		}
 	}

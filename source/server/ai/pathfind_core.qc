@@ -1235,23 +1235,6 @@ float sv_navmesh_pathfind_start(float start_poly, float goal_poly, vector start_
 // 			}
 // 			// ----------------------------------------------------------------
 
-// 			// ----------------------------------------------------------------
-// 			// Entrance edge
-// 			// ----------------------------------------------------------------
-// 			// Check if we can enter the neighbor polygon from the current polygon
-// 			// across the edge connecting the current and neighbor polygons.
-
-// 			// If entrance_edge != -1, we can only enter the polygon from the edge at index "entrance_edge"
-// 			if(sv_navmesh_polies[neighbor].entrance_edge != -1) {
-// 				// Check if the edge we're crossing from current to neighbor is the entrance edge
-// 				if(sv_navmesh_polies[neighbor].entrance_edge != sv_navmesh_polies[current].connected_polies_neighbor_edge_index[i]) {
-// 					// If it's not the entrance edge, skip this neighbor.
-// 					// We can't walk from current to neighbor.
-// 					continue;
-// 				}
-// 			}
-// 			// ----------------------------------------------------------------
-
 
 // 			if(res->poly_set[neighbor] != PATHFIND_POLY_SET_CLOSED) {
 // 				//print("Neighbor is not in closed list.\n");
