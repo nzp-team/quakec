@@ -971,11 +971,22 @@ float sv_navmesh_pathfind_start(float start_poly, float goal_poly, vector start_
 				// print(ftos(neighbor_poly));
 				// print(".\n");
 
+
 				// ----------------------------------------------------------------
 				// Door check
 				// ----------------------------------------------------------------
 				// NOTE - If polygon's door hasn't been opened, don't consider it.
-				// NOTE - This check isn't done in the navmesh editor.
+				// If this polygon references a door:
+				if(sv_navmesh_polies[neighbor_poly].doortarget != "") {
+					entity door;
+					door = find(world, wayTarget, sv_navmesh_polies[neighbor_poly].doortarget);
+					if(door != world) {
+						// If the referenced door is closed, don't consider this polygon.
+						if(door.state == STATE_BOTTOM) {
+							continue;
+						}
+					}
+				}
 				// ----------------------------------------------------------------
 
 

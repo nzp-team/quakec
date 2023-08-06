@@ -80,15 +80,14 @@ void sv_load_navmesh_data() {
 		return;
 	}
 		
-	//First line contains navmesh file semver
+	// First line contains navmesh file semver
 	string nav_file_version = fgets(file);
 
-	//Next line contains vertex count
-	string line = fgets(file);
-	float vert_count = stof(line);
+	// Next line contains vertex count
+	float vert_count = stof(fgets(file));
 	
 	if(vert_count > sv_navmesh_verts.length) {
-		print("Error: navmesh file \"",filepath,"\" has an invalid vert count. (" , line, " > ", ftos(sv_navmesh_verts.length),").\n");
+		print("Error: navmesh file \"",filepath,"\" has an invalid vert count. (" , vert_count, " > ", ftos(sv_navmesh_verts.length),").\n");
 		fclose(file);
 		return;
 	}
@@ -96,21 +95,15 @@ void sv_load_navmesh_data() {
 	//The navmesh appears to be valid (we shouldn't need to clear the current navmesh values)
 	sv_navmesh_vert_count = vert_count;
 	
-	//Temp vector to assign component-wise
-	vector temp;
-	
 
 	//Reading all of the vertex positions
 	for(float i = 0; i < sv_navmesh_vert_count; i++) {
-		line = fgets(file);
-		temp = stov(line);
-		sv_navmesh_verts[i].pos.x = temp.x;
-		sv_navmesh_verts[i].pos.y = temp.y;
-		sv_navmesh_verts[i].pos.z = temp.z;
+		sv_navmesh_verts[i].pos = stov(fgets(file));
 	}
 	
 	//Next line contains the number of polygons
 	sv_navmesh_poly_count = stof(fgets(file));
+	print("Polygon count: ", ftos(sv_navmesh_poly_count), "\n");
 	
 	//The next lines are each polygon
 	for(float i = 0; i < sv_navmesh_poly_count; i++) {
@@ -122,10 +115,7 @@ void sv_load_navmesh_data() {
 		sv_navmesh_polies[i].verts[2] = stof(fgets(file));
 		sv_navmesh_polies[i].verts[3] = stof(fgets(file));
 		// Get polygon center
-		temp = stov(fgets(file));
-		sv_navmesh_polies[i].center.x = temp.x;
-		sv_navmesh_polies[i].center.y = temp.y;
-		sv_navmesh_polies[i].center.z = temp.z;
+		sv_navmesh_polies[i].center = stov(fgets(file));
 		// Get link count
 		sv_navmesh_polies[i].connected_polies_count = stof(fgets(file));
 		// Get links
@@ -151,7 +141,7 @@ void sv_load_navmesh_data() {
 
 		// If navmesh file version 0.0.0, no traversals
 		// FIXME - Need a better way to do this..
-		if(strcmp(nav_file_version, "0.0.0") != 0) {
+		if(nav_file_version != "0.0.0") {
 			// Get connected traversals
 			sv_navmesh_polies[i].connected_traversals_count = stof(fgets(file));
 			for(float j = 0; j < sv_navmesh_polies[i].connected_traversals_count; j++) {
@@ -160,8 +150,11 @@ void sv_load_navmesh_data() {
 		}
 		//Get polygon doortarget
 		sv_navmesh_polies[i].doortarget = fgets(file);
-		//Get entrance edge
-		sv_navmesh_polies[i].entrance_edge = stoi(fgets(file));
+		// If v0.0.0, throw away entrance edge (legacy feature not supported)
+		if(nav_file_version == "0.0.0") {
+			// sv_navmesh_polies[i].entrance_edge = stoi(fgets(file));
+			fgets(file);
+		}
 	}
 
 	// -----------------------------------------------------------------------
@@ -169,27 +162,15 @@ void sv_load_navmesh_data() {
 	// -----------------------------------------------------------------------
 	// If navmesh file version 0.0.0, no traversals
 	// FIXME - Need a better way to do this..
-	if(strcmp(nav_file_version, "0.0.0") != 0) {
+	if(nav_file_version != "0.0.0") {
 		//Next line contains the number of traverals
 		sv_navmesh_traversal_count = stof(fgets(file));
 		
 		//The next lines are each traversal
 		for(float i = 0; i < sv_navmesh_traversal_count; i++) {
-			line = fgets(file);
-			temp = stov(line);
-			sv_navmesh_traversals[i].start_pos.x = temp.x;
-			sv_navmesh_traversals[i].start_pos.y = temp.y;
-			sv_navmesh_traversals[i].start_pos.z = temp.z;
-			line = fgets(file);
-			temp = stov(line);
-			sv_navmesh_traversals[i].midpoint_pos.x = temp.x;
-			sv_navmesh_traversals[i].midpoint_pos.y = temp.y;
-			sv_navmesh_traversals[i].midpoint_pos.z = temp.z;
-			line = fgets(file);
-			temp = stov(line);
-			sv_navmesh_traversals[i].end_pos.x = temp.x;
-			sv_navmesh_traversals[i].end_pos.y = temp.y;
-			sv_navmesh_traversals[i].end_pos.z = temp.z;
+			sv_navmesh_traversals[i].start_pos = stov(fgets(file));
+			sv_navmesh_traversals[i].midpoint_pos = stov(fgets(file));
+			sv_navmesh_traversals[i].end_pos = stov(fgets(file));
 			sv_navmesh_traversals[i].angle = stof(fgets(file));
 			sv_navmesh_traversals[i].use_midpoint = stof(fgets(file));
 			sv_navmesh_traversals[i].end_poly = stof(fgets(file));
@@ -272,22 +253,19 @@ float sv_navmesh_dist_to_poly(vector pos, float poly_index)
 //Returns polygon that pos is inside of. 
 //If we are in no polygon, returns a polygon whose edge we are sufficiently close to (might be in but are not due to a small error)
 //Otherwise, returns -1
-float sv_navmesh_get_containing_poly(vector pos)
-{
+float sv_navmesh_get_containing_poly(vector pos) {
 	//Get nearest polygon, and check if pos is in that polygon
 	float closest_poly = -1;
 	float closest_poly_dist = 1000000;
 	
 	//In reality, there's no need to try ALL polygons, the one we are in should be within the nearest 10 or so, but checking all to be safe
-	for(float i = 0; i < sv_navmesh_poly_count; i++)
-	{
+	for(float i = 0; i < sv_navmesh_poly_count; i++) {
 		//Check if we are sufficiently close enough to polygon i in the z-axis
 		//Current method of checking: if pos is within 30 qu of polygon z-axis bounds
 		float poly_min_z = sv_navmesh_verts[sv_navmesh_polies[i].verts[0]].pos.z;
 		float poly_max_z = poly_min_z;
 
-		for(float j = 0; j < sv_navmesh_polies[i].vert_count; j++)
-		{
+		for(float j = 0; j < sv_navmesh_polies[i].vert_count; j++) {
 			float vert_z = sv_navmesh_verts[sv_navmesh_polies[i].verts[j]].pos.z;
 			poly_min_z = min(poly_min_z, vert_z);
 			poly_max_z = max(poly_max_z, vert_z);
@@ -295,15 +273,12 @@ float sv_navmesh_get_containing_poly(vector pos)
 
 		// If we NOT between [min - 30, max + 30], skip this polygon
 		// if(fabs(sv_navmesh_polies[0].center.z - pos.z) >= 30)
-		if(pos.z < poly_min_z - 30 || pos.z > poly_max_z + 30)
-		{
+		if(pos.z < poly_min_z - 30 || pos.z > poly_max_z + 30) {
 			continue;
 		}
 		
-		
 		//Check if we are in polygon i
-		if(sv_navmesh_is_inside_poly(pos,i))
-		{
+		if(sv_navmesh_is_inside_poly(pos,i)) {
 			// NOTE - Because is_inside_poly only checks if we are in it on X & Y axes,
 			// NOTE   we may have found a polygon on a floor below us or above us.
 			// NOTE   However, this may not be an issue. A polygon on a floor below
@@ -317,25 +292,17 @@ float sv_navmesh_get_containing_poly(vector pos)
 		
 		//If we are not in polygon i, check if we arse very close to one of its edges
 		float dist = sv_navmesh_dist_to_poly(pos,i);
-		
-		if(dist >= 0)
-		{
-			if(dist < closest_poly_dist)
-			{
-				closest_poly = i;
-				closest_poly_dist = dist;
-			}
+		if(dist >= 0 && dist < closest_poly_dist) {
+			closest_poly = i;
+			closest_poly_dist = dist;
 		}
-
 	}
 	//============================================
 	
-	/*if(closest_poly == -1)
-	{
+	/*if(closest_poly == -1) {
 		print("Ent pos is not in or near any polygons.\n");
 	}
-	else
-	{
+	else {
 		print("Ent pos is near but not in poly: closest_poly.\n");
 	}*/
 	

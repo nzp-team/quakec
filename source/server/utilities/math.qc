@@ -107,6 +107,23 @@ float(float a, float b, float mix) unclamped_lerp =
     return (b * mix + a * ( 1 - mix ) );
 }
 
+#ifndef PC // FTE has built-ins for min / max
+float(float a, float b) min = 
+{
+    return a < b ? a : b;
+}
+
+float(float a, float b) max = 
+{
+    return a > b ? a : b;
+}
+#endif // PC
+
+// Computes the length of a vector ignoring the Z-component
+float (vector ofs) vlen_xy = {
+    return vlen([ofs.x, ofs.y, 0]);
+}
+
 
 vector(vector a, vector b, float mix) lerpVector =
 {

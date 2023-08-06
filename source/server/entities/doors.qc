@@ -348,7 +348,8 @@ void() door_trigger_touch =
 	
 #ifdef PC
 	if(cvar("navmesh_edit_mode")) {
-		if(strcmp(cvar_string("nav_editor_active_door"), self.owner.wayTarget) != 0) {
+		// if(strcmp(cvar_string("nav_editor_active_door"), self.owner.wayTarget) != 0) {
+		if(cvar_string("nav_editor_active_door") != self.owner.wayTarget) {
 			bprint(PRINT_HIGH, "Current Door for navmesh editor set to \"");
 			bprint(PRINT_HIGH, self.owner.wayTarget);      // naiveil (FIXME)
 			bprint(PRINT_HIGH, "\"\n");
