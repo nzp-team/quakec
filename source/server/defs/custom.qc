@@ -533,7 +533,15 @@ class AI_Chase : entity {
     // framegroup_registry *th_reg;
     entity path_target; // If specified, path towards entity
     vector path_pos; // Otherwise, path towards location specified
-    float think_delta_time; // Delta time (seconds) between each `this.think();`
+    float state;
+    float substate;
+
+    // -----------------------------
+    // Traversal state vars
+    // -----------------------------
+    float cur_traversal_idx;
+    float cur_traversal_end_time;
+    float cur_traversal_start_time;
 
 
     // Regardless of what animation we're playing (or not playing), we have a think callback
@@ -575,32 +583,12 @@ class AI_Chase : entity {
         this.cur_anim_get_frame_func = anim_frame_func;
         this.cur_anim_length = anim_length;
         this.cur_anim_stop_type = stop_type;
-        this.cur_anim_frametime = 0.1; // TODO - Make this a param?
-        this.cur_anim_frametime = 0.2; // TODO - Make this a param?
+        this.cur_anim_frametime = 0.1;
 
         // Reset Animation state Vars
         this.cur_anim_start_time = time;
         this.cur_anim_frame_idx = 0;
-
-        // Adjust think_delta_time if needed
-        // If we want to play the animation faster than 10FPS, call logic ticks faster so the animation will be played
-        if(this.cur_anim_frametime < 0.10) {
-            this.think_delta_time = this.cur_anim_frametime * 0.5;
-        }
-        else {
-            this.think_delta_time = 0.1;
-        }
-        this.think_delta_time = this.cur_anim_frametime * 0.5;
-        this.think_delta_time = this.cur_anim_frametime * 0.1;
-
-
-
-        // TODO - Do some math and figure out if we need to 
-        // TODO - Thinktime should be adjusted so that 
-        // TOOD - this.thinktime = min(0.1, this.cur_anim_frametime * 0.05);
-
-        // TODO - Reset FPS to 10 FPS, (frametime = 0.1)
-        // TODO - Add a function that allows this to play slower or faster?
+        this.frame = anim_frame_func(0);
     };
 
     // Queue up another animation to play when the current one finishes
@@ -617,7 +605,6 @@ class AI_Chase : entity {
         this.next_anim_length = anim_length;
         this.next_anim_stop_type = stop_type;
         this.next_anim_frametime = 0.1;
-        this.next_anim_frametime = 0.2; // FIXME - Parameterize this?
     };
 
 

@@ -248,7 +248,7 @@ void cl_navmesh_draw_poly(float poly_index) {
 
 
 // Calculates world-space coordinate of traversal endpoint
-vector cl_navmesh_get_traversal_midpoint(float traversal_index) {
+vector cl_navmesh_get_traversal_midpoint_pos(float traversal_index) {
 	vector start_pos = cl_navmesh_traversals[traversal_index].start_pos;
 	vector midpoint_pos = cl_navmesh_traversals[traversal_index].midpoint_pos;
 	// vector end_pos = cl_navmesh_traversals[traversal_index].end_pos;

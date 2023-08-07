@@ -30,7 +30,7 @@
 //===========================================================================================================
 
 // Calculates world-space coordinate of traversal endpoint
-vector sv_navmesh_get_traversal_midpoint(float traversal_index) {
+vector sv_navmesh_get_traversal_midpoint_pos(float traversal_index) {
 	vector start_pos = sv_navmesh_traversals[traversal_index].start_pos;
 	vector midpoint_pos = sv_navmesh_traversals[traversal_index].midpoint_pos;
 	// vector end_pos = sv_navmesh_traversals[traversal_index].end_pos;
@@ -879,24 +879,24 @@ void sv_pathfind_trace_path(float start_poly, float goal_poly, navmesh_pathfind_
 		// print(")\n");
 	}
 	
-	print("Pathfind success, path length: ");
-	print(ftos(res->path_length));
-	print(".\n");
-	print("Path: ");
-	for(float i = 0; i < res->path_length; i++) {
-		if(i > 0) {
-			print(" , ");
-		}
-		if(res->path_polygons[i] != -1) {
-			print("P");
-			print(ftos(res->path_polygons[i]));
-		}
-		else if(res->path_traversals[i] != -1) {
-			print("T");
-			print(ftos(res->path_traversals[i]));
-		}
-	}
-	print(" .\n");
+	// print("Pathfind success, path length: ");
+	// print(ftos(res->path_length));
+	// print(".\n");
+	// print("Path: ");
+	// for(float i = 0; i < res->path_length; i++) {
+	// 	if(i > 0) {
+	// 		print(" , ");
+	// 	}
+	// 	if(res->path_polygons[i] != -1) {
+	// 		print("P");
+	// 		print(ftos(res->path_polygons[i]));
+	// 	}
+	// 	else if(res->path_traversals[i] != -1) {
+	// 		print("T");
+	// 		print(ftos(res->path_traversals[i]));
+	// 	}
+	// }
+	// print(" .\n");
 }
 
 
@@ -906,11 +906,11 @@ void sv_pathfind_trace_path(float start_poly, float goal_poly, navmesh_pathfind_
 //Returns 0 on fail.
 float sv_navmesh_pathfind_start(float start_poly, float goal_poly, vector start_pos, vector end_pos, navmesh_pathfind_result* res) {
 	if(start_poly == -1) {
-		print("Error: pathfind start node invalid.\n");
+		print("Error: pathfind start polygon invalid.\n");
 		return 0;
 	}
 	if(goal_poly == -1) {
-		print("Error: pathfind goal node invalid.\n");
+		print("Error: pathfind goal polygon invalid.\n");
 		return 0;
 	}
 	if(start_poly == goal_poly) {
@@ -918,7 +918,7 @@ float sv_navmesh_pathfind_start(float start_poly, float goal_poly, vector start_
 		res->path_polygons[0] = start_poly;
 		res->path_traversals[0] = -1;
 		res->path_length = 1;
-		print("Pathind success: trivial case (start = goal).\n");
+		// print("Pathind success: trivial case (start = goal).\n");
 		
 		//Calculating vector based path (go directly to goal)
 		res->point_path_points[0].x = end_pos.x;

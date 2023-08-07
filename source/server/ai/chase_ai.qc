@@ -16,17 +16,26 @@ DEFINE_ANIM(zombie_die2, 135,136,137,138,139);                                  
 DEFINE_ANIM(zombie_die3, 140,141,142,143,144,145,146,147,148,149);                                      // Defines: get_anim_frame_zombie_die3,                  get_anim_length_zombie_die3
 DEFINE_ANIM(zombie_die_wunder, 212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228);    // Defines: get_anim_frame_zombie_die_wunder,            get_anim_length_zombie_die_wunder
 DEFINE_ANIM(zombie_fall, 150,151,152,153);                                                              // Defines: get_anim_frame_zombie_fall,                  get_anim_length_zombie_fall
-DEFINE_ANIM(zombie_land, 154,155,156,157,158,159,160);                                                  // Defines: get_anim_frame_zombie_land,                  get_anim_length_zombie_land
+DEFINE_ANIM(zombie_land, 154,155,156,157,158,159,159);                                                  // Defines: get_anim_frame_zombie_land,                  get_anim_length_zombie_land
 DEFINE_ANIM(zombie_jump, 161,162,163,164,165,166,167);                                                  // Defines: get_anim_frame_zombie_jump,                  get_anim_length_zombie_jump
-DEFINE_ANIM(zombie_climb, 168,169,170,171,172,173,174,175,176,177,178,179,180,181,182);                 // Defines: get_anim_frame_zombie_climb,                 get_anim_length_zombie_climb
+DEFINE_ANIM(zombie_climb, 168,169,170,171,172,173,174,175,176,177,178,179,180,181);                     // Defines: get_anim_frame_zombie_climb,                 get_anim_length_zombie_climb
+DEFINE_ANIM(zombie_jump_low, 164,165,166);                                                  // Defines: get_anim_frame_zombie_jump_low,              get_anim_length_zombie_jump_low
+DEFINE_ANIM(zombie_climb_low, 171,172,173,174,175,176,177,178,179,180,181);                             // Defines: get_anim_frame_zombie_climb_low,             get_anim_length_zombie_climb_low
+DEFINE_ANIM(zombie_fall_loop, 151,152,153,152);                                                              // Defines: get_anim_frame_zombie_fall_loop,            get_anim_length_zombie_fall_loop
 
+
+
+
+#define AI_STATE_PATHING 0
+#define AI_STATE_TRAVERSING 1
 
 
 // Constructor. Called when calling `spawn(AI_Chase);`
 void() AI_Chase::AI_Chase = {
     this.path_target = world;
     this.path_pos = world.origin;
-    this.think_delta_time = 0.1; // Call `this.think();` 10x per second
+    this.cur_anim_frametime = 0.1;
+    // this.think_delta_time = 0.1; // Call `this.think();` 10x per second
 };
 
 
@@ -35,11 +44,12 @@ void() AI_Chase::think = {
     // ------------------------------------------------------------------------
     // Animation logic
     // ------------------------------------------------------------------------
-    float cur_anim_prev_frame_idx = floor(this.cur_anim_frame_idx);
 
     // Check if we're updating the current animation being played
     if(this.cur_anim_get_frame_func != SUB_Null) {
-        this.cur_anim_frame_idx = (time - this.cur_anim_start_time) / this.cur_anim_frametime;
+        float cur_anim_prev_frame_idx = floor(this.cur_anim_frame_idx);
+        this.cur_anim_frame_idx += 1;
+        // this.cur_anim_frame_idx = (time - this.cur_anim_start_time) / this.cur_anim_frametime;
 
         // If at the final frame, we're done
         if(this.cur_anim_frame_idx >= this.cur_anim_length) {
@@ -71,16 +81,16 @@ void() AI_Chase::think = {
             this.cur_anim_frame_idx = floor(this.cur_anim_frame_idx);
             this.frame = this.cur_anim_get_frame_func(this.cur_anim_frame_idx);
 
-            if(floor(this.cur_anim_frame_idx) != cur_anim_prev_frame_idx) {
-                this.frame_callback();
-            }
+            // if(floor(this.cur_anim_frame_idx) != cur_anim_prev_frame_idx) {
+            //     this.frame_callback();
+            // }
         }
         // print("Frame_idx: ", ftos(this.cur_anim_frame_idx), " Actual frame: ", ftos(this.frame), "\n");
     }
     // ------------------------------------------------------------------------
 
-
-    this.nextthink = time + this.think_delta_time;
+    // this.nextthink = time + this.think_delta_time;
+    this.nextthink = time + this.cur_anim_frametime;
     this.think_callback();
 };
 
@@ -109,7 +119,7 @@ void (float move_speed) AI_Chase::do_walk_to_goal = {
 	navmesh_pathfind_result* res = &(sv_zombie_pathfind_result[this.pathfind_result_idx]);
 	float start_poly = sv_navmesh_get_containing_poly(this.origin);
 	float goal_poly = sv_navmesh_get_containing_poly(goal_pos);
-	float pathfind_success = sv_navmesh_pathfind_start(start_poly, goal_poly, this.origin, goal_pos, res);
+    float pathfind_success = sv_navmesh_pathfind_start(start_poly, goal_poly, this.origin, goal_pos, res);
     this.pathfind_cur_point_idx = 0;
 
     if(pathfind_success) {
@@ -118,13 +128,18 @@ void (float move_speed) AI_Chase::do_walk_to_goal = {
         // TOOD - If close, continue to next one...
         // TODO - Also make sure we're "close enough" in Z...
         if(vlen_xy(this.origin - goal_pos) < 5) {
-            print("Distance from target: ", ftos(vlen_xy(this.origin - goal_pos)), ", Cur point: ", ftos(this.pathfind_cur_point_idx), "\n");
-            print("Current traversal: ", ftos(res->point_path_traversals[this.pathfind_cur_point_idx]),"\n");
+            // print("Distance from target: ", ftos(vlen_xy(this.origin - goal_pos)), ", Cur point: ", ftos(this.pathfind_cur_point_idx), "\n");
+            // print("Current traversal: ", ftos(res->point_path_traversals[this.pathfind_cur_point_idx]),"\n");
             // If this point path is a traversal, teleport to traversal end spot
+
             if(res->point_path_traversals[this.pathfind_cur_point_idx] != -1) {
-                vector traversal_end_pos = sv_navmesh_get_traversal_end_pos(res->point_path_traversals[this.pathfind_cur_point_idx]);
-                print("Setting origin to end position: ", vtos(traversal_end_pos), "\n");
-                this.origin = traversal_end_pos;
+                this.state = AI_STATE_TRAVERSING;
+                this.substate = 0;
+                this.cur_traversal_idx = res->point_path_traversals[this.pathfind_cur_point_idx];
+                // print("Setting state to traversing.\n");
+                // vector traversal_end_pos = sv_navmesh_get_traversal_end_pos(res->point_path_traversals[this.pathfind_cur_point_idx]);
+                // print("Setting origin to end position: ", vtos(traversal_end_pos), "\n");
+                // this.origin = traversal_end_pos;
             }
             this.pathfind_cur_point_idx += 1;
             goal_pos = res->point_path_points[this.pathfind_cur_point_idx];
@@ -140,10 +155,10 @@ void (float move_speed) AI_Chase::do_walk_to_goal = {
     this.ideal_yaw = vectoyaw(goal_pos - this.origin);
     ChangeYaw();
     vector new_velocity;
-    float walk_dist = move_speed * this.think_delta_time;
+    float walk_dist = move_speed * this.cur_anim_frametime;
     float dist_to_goal = vlen(goal_pos - this.origin);
     if(walk_dist > dist_to_goal) {
-        move_speed = dist_to_goal / this.think_delta_time;
+        move_speed = dist_to_goal / this.cur_anim_frametime;
     }
     new_velocity = normalize(goal_pos - this.origin) * move_speed;
     new_velocity_z = this.velocity_z;
@@ -172,6 +187,10 @@ float get_zombie_walk_is_footstep(float frame) {
         case 47:        // Right foot
         case 51:     // Left foot
             return 1;
+        // ------------ Zombie Walk 2 --------------
+        // ------------ Zombie Walk 3 --------------
+        // ------------ Zombie Jog 1 --------------
+        // ------------ Zombie Run 1 --------------
         default:
             return 0;
     }
@@ -207,6 +226,91 @@ float get_zombie_walk_dist_for_frame(float frame) {
             return 6.5;
         case 53:
             return 7.7;
+        // ------------ Zombie Walk 2 --------------
+        case 54: 
+            return 4.2;
+        case 55: 
+            return 5.9;
+        case 56: 
+            return 3;
+        case 57: 
+            return 5.7;
+        case 58: 
+            return 4.2;
+        case 59: 
+            return 7.2;
+        case 60: 
+            return 4.5;
+        case 61: 
+            return 3.4;
+        case 62: 
+            return 1.2;
+        case 63: 
+            return 6.7;
+        case 64: 
+            return 8.4;
+        case 65: 
+            return 1.3;
+        case 66: 
+            return 6.3;
+        case 67: 
+            return 3.6;
+        // ------------ Zombie Walk 3 --------------
+        case 68: 
+            return 3.4;
+        case 69: 
+            return 2;
+        case 70: 
+            return 5.4;
+        case 71: 
+            return 5.6;
+        case 72: 
+            return 3;
+        case 73: 
+            return 3.1;
+        case 74: 
+            return 3;
+        case 75: 
+            return 2.9;
+        case 76: 
+            return 3.3;
+        case 77: 
+            return 2.2;
+        case 78: 
+            return 3.7;
+        case 79: 
+            return 4.2;
+        case 80: 
+            return 5.3;
+        case 81: 
+            return 5.2;
+        case 82: 
+            return 2.2;
+        case 83: 
+            return 2.4;
+        // ------------ Zombie Jog 1 --------------
+        case 84: 
+        case 85: 
+        case 86: 
+        case 87: 
+        case 88: 
+        case 89: 
+        case 90: 
+        case 91: 
+        case 92: 
+            return 6;
+        // ------------ Zombie Run 1 --------------
+        case 93: 
+        case 94: 
+        case 95: 
+        case 96: 
+        case 97: 
+        case 98: 
+        case 99: 
+        case 100: 
+        case 101: 
+        case 102: 
+            return 15;
         default:
             return 0.0;
     }
@@ -214,54 +318,291 @@ float get_zombie_walk_dist_for_frame(float frame) {
 
 
 
-// Called once per animation frame:
-void zombie_walk_frame_callback() {
-    AI_Zombie zombie_ent = (AI_Zombie) self;
-    // print("frame called\n");
-    // print("frame called. At frame: ");
-    // print(ftos(ent.frame));
-    // // print(", is first frame? ");
-    // // print(ftos(zombie_ent.cur_fg_frame_callback_is_start_frame));
-    // // print(", is final frame? ");
-    // // print(ftos(zombie_ent.cur_fg_frame_callback_is_end_frame));
-    // print("\n");
 
-    if(get_zombie_walk_is_footstep(zombie_ent.frame)) {
-        if(random() < 0.5) {
-            sound(self, 5, "sounds/zombie/s0.wav", 1, ATTN_NORM);
+void zombie_traversal_logic() {
+    AI_Zombie zombie_ent = (AI_Zombie) self;
+
+    float traversal_idx = zombie_ent.cur_traversal_idx;
+    vector start_pos = sv_navmesh_traversals[traversal_idx].start_pos;
+    vector midpoint_pos;
+    vector end_pos = sv_navmesh_get_traversal_end_pos(traversal_idx);
+
+
+    string traversal_type;
+    traversal_type = "jump_up";
+    // traversal_type = "jump_down";
+    // traversal_type = "jump_gap";
+    // traversal_type = "hop_barricade";
+    // traversal_type = "hop_fence";
+    // traversal_type = "window";
+    // traversal_type = "teleport";
+
+    // Jump up logic
+    if(traversal_type == "jump_up") {
+        // zombie_ent.angles.y = sv_navmesh_traversals[traversal_idx].angle;
+        float delta_angle = sv_navmesh_traversals[traversal_idx].angle - zombie_ent.angles.y;
+        // Apply smallest delta angle
+        delta_angle = ((delta_angle + 180) % 360) - 180;
+            // zombie_ent.angles.y = sv_navmesh_traversals[traversal_idx].angle;
+            float delta_angle = sv_navmesh_traversals[traversal_idx].angle - zombie_ent.angles.y;
+
+            // FIXME - Replace this with mods....
+            // delta_angle = (((delta_angle - 180) % 180) + 180) % 180;
+            // ((delta_angle - 180) % 360) + 180
+            while(delta_angle < -180) {
+                delta_angle += 360;
+            }
+            while(delta_angle > 180) {
+                delta_angle -= 360;
+            }
+
+            zombie_ent.angles.y += 0.5 * delta_angle;        zombie_ent.angles.y += 0.5 * delta_angle;
+
+        // Jump up traversal consists of the following substates:
+        //      0: Start traversal, play jump up anim
+        //      1: Wait for jump up anim to complete
+        //      2: Move zombie up to ledge
+        //      3: Play zombie get up animation
+        //
+        // Check height of ledge we're climbing:
+        float traversal_height = end_pos.z - start_pos.z;
+        vector goal_pos;
+        float traversal_time;
+        float lerp_frac;
+        float anim_time;
+
+        // Fall down
+        if(traversal_height < 0 ) {
+            if(zombie_ent.substate == 0) {
+                zombie_ent.movetype = MOVETYPE_STEP;
+                zombie_ent.play_anim(get_anim_frame_zombie_fall, get_anim_length_zombie_fall(), ANIM_STOP_TYPE_STOP);
+                zombie_ent.queue_anim(get_anim_frame_zombie_fall_loop, get_anim_length_zombie_fall_loop(), ANIM_STOP_TYPE_LOOP);
+                traversal_time = min(-traversal_height * (0.35 / 100.0), 2.0);
+                zombie_ent.cur_traversal_start_time = time;
+                zombie_ent.cur_traversal_end_time = time + traversal_time;
+                zombie_ent.substate = 1;
+            }
+            else if(zombie_ent.substate == 1) {
+                lerp_frac = (time - zombie_ent.cur_traversal_start_time) / (zombie_ent.cur_traversal_end_time - zombie_ent.cur_traversal_start_time);
+                zombie_ent.origin = lerpVector(start_pos, end_pos, lerp_frac * lerp_frac);
+                if(lerp_frac >= 1.0) {
+                    zombie_ent.play_anim(get_anim_frame_zombie_land, get_anim_length_zombie_land(), ANIM_STOP_TYPE_NEXT_ANIM);
+                    zombie_ent.cur_anim_frametime = 0.05;
+                    zombie_ent.queue_anim(get_anim_frame_zombie_walk1, get_anim_length_zombie_walk1(), ANIM_STOP_TYPE_LOOP);
+                    zombie_ent.state = AI_STATE_PATHING;
+                    zombie_ent.movetype = MOVETYPE_WALK;
+                }
+            }
         }
+
+
+        // Short ledge
+        else if(traversal_height < 98) {
+            if(zombie_ent.substate == 0) {
+                zombie_ent.movetype = MOVETYPE_STEP;
+
+                // If short jump up, play short jump / short climb anim
+                zombie_ent.play_anim(get_anim_frame_zombie_jump_low, get_anim_length_zombie_jump_low(), ANIM_STOP_TYPE_STOP);
+                // zombie_ent.cur_anim_frametime = 0.08;
+                anim_time = (zombie_ent.cur_anim_length - 1) * zombie_ent.cur_anim_frametime;
+                // zombie_ent.cur_traversal_end_time = time + anim_time - (2 * zombie_ent.cur_anim_frametime);
+                zombie_ent.cur_traversal_end_time = 0;
+                // Stash anim stop-time in this variable so we can tell when to proceed: (minus three frames)
+
+                zombie_ent.cur_traversal_start_time = time;
+                zombie_ent.cur_traversal_end_time = time + 0.3;
+                zombie_ent.substate = 1;
+            }
+            if(zombie_ent.substate == 1) {
+                lerp_frac = (time - zombie_ent.cur_traversal_start_time) / (zombie_ent.cur_traversal_end_time - zombie_ent.cur_traversal_start_time);
+                makevectors([0, sv_navmesh_traversals[traversal_idx].angle, 0]);
+                goal_pos = end_pos - '0 0 77' - v_forward * 21;
+                zombie_ent.origin = lerpVector(start_pos, goal_pos, lerp_frac);
+
+                if(lerp_frac >= 1) {
+                    zombie_ent.substate = 2;
+                    // If short jump up, play short climb anim
+                    zombie_ent.play_anim(get_anim_frame_zombie_climb_low, get_anim_length_zombie_climb_low(), ANIM_STOP_TYPE_STOP);
+                    anim_time = (zombie_ent.cur_anim_length - 1) * zombie_ent.cur_anim_frametime;
+                    zombie_ent.cur_traversal_start_time = time;
+                    zombie_ent.cur_traversal_end_time = time + anim_time;
+                }
+            }
+            else if(zombie_ent.substate == 2) {
+                lerp_frac = (time - zombie_ent.cur_traversal_start_time) / (zombie_ent.cur_traversal_end_time - zombie_ent.cur_traversal_start_time);
+                start_pos = end_pos - '0 0 77' - v_forward * 21;
+                zombie_ent.origin = lerpVector(start_pos, end_pos, lerp_frac);
+                if(lerp_frac >= 1.0) {
+                    zombie_ent.state = AI_STATE_PATHING;
+                    zombie_ent.movetype = MOVETYPE_WALK;
+                    // FIXME - Need a better way to revert to walking
+                    zombie_ent.play_anim(get_anim_frame_zombie_walk1, get_anim_length_zombie_walk1(), ANIM_STOP_TYPE_LOOP);
+                }
+            }
+        }
+        // Tall ledge
         else {
-            sound(self, 5, "sounds/zombie/s1.wav", 1, ATTN_NORM);
+            if(zombie_ent.substate == 0) {
+                zombie_ent.movetype = MOVETYPE_STEP;
+                zombie_ent.play_anim(get_anim_frame_zombie_jump, get_anim_length_zombie_jump(), ANIM_STOP_TYPE_STOP);
+                // zombie_ent.cur_anim_frametime = 0.08;
+                anim_time = (zombie_ent.cur_anim_length - 1) * zombie_ent.cur_anim_frametime;
+                zombie_ent.cur_traversal_end_time = time + anim_time - (1 * zombie_ent.cur_anim_frametime);
+                // Stash anim stop-time in this variable so we can tell when to proceed: (minus three frames)
+                zombie_ent.substate = 1;
+
+                // zombie_ent.cur_anim_get_frame_func = (float(float)) SUB_Null;
+                // Figure out how fast to move the zombie
+                // float traversal_length = vlen(end_pos - start_pos);
+                // zombie_ent.cur_traversal_start_time = time;
+                // FIXME - Some traversals will have a different way of getting speed...
+            }
+            else if(zombie_ent.substate == 1) {
+                if(zombie_ent.cur_traversal_end_time <= time) {
+                    // Zombie jumping should be real fast, 
+                    traversal_time = 0.2; // seconds
+                    // TODO - Should we determine how fast the zombie moves based on traversal distance? 
+                    // TODO   Otherwise zombie will always jump up in 0.5 seconds regardless of ledge height
+                    zombie_ent.cur_traversal_start_time = time;
+                    zombie_ent.cur_traversal_end_time = time + traversal_time;
+                    zombie_ent.substate = 2;
+                }
+            }
+            else if(zombie_ent.substate == 2) {
+                lerp_frac = (time - zombie_ent.cur_traversal_start_time) / (zombie_ent.cur_traversal_end_time - zombie_ent.cur_traversal_start_time);
+                makevectors([0, sv_navmesh_traversals[traversal_idx].angle, 0]);
+                goal_pos = end_pos - '0 0 98' - v_forward * 28;
+                zombie_ent.origin = lerpVector(start_pos, goal_pos, lerp_frac);
+
+
+                if(lerp_frac >= 1) {
+                    zombie_ent.substate = 3;
+                    zombie_ent.play_anim(get_anim_frame_zombie_climb, get_anim_length_zombie_climb(), ANIM_STOP_TYPE_STOP);
+                    anim_time = (zombie_ent.cur_anim_length - 1) * zombie_ent.cur_anim_frametime;
+                    zombie_ent.cur_traversal_start_time = time;
+                    zombie_ent.cur_traversal_end_time = time + anim_time;
+                }
+            }
+            else if(zombie_ent.substate == 3) {
+                lerp_frac = (time - zombie_ent.cur_traversal_start_time) / (zombie_ent.cur_traversal_end_time - zombie_ent.cur_traversal_start_time);
+                start_pos = end_pos - '0 0 98' - v_forward * 28;
+                zombie_ent.origin = lerpVector(start_pos, end_pos, lerp_frac);
+                if(lerp_frac >= 1.0) {
+                    zombie_ent.state = AI_STATE_PATHING;
+                    zombie_ent.movetype = MOVETYPE_WALK;
+                    // FIXME - Need a better way to revert to walking
+                    zombie_ent.play_anim(get_anim_frame_zombie_walk1, get_anim_length_zombie_walk1(), ANIM_STOP_TYPE_LOOP);
+                }
+            }
         }
+
+
+        // FIXME - I need better alignment tools...
+
+
+        return;
     }
 
-    // Ideal animation velocity:
-    // float dist_per_frame = get_zombie_walk_dist_for_frame(zombie_ent.frame);
-    // float speed = dist_per_frame / zombie_ent.cur_anim_frametime;
-    // // Convert that to velocity at think_time:
-    // zombie_ent.do_walk_to_goal(speed);
-};
+
+
+    // // Starting traversal
+    // if(zombie_ent.substate == 0) {
+    //     zombie_ent.velocity = '0 0 0';
+    //     // zombie_ent.cur_anim_get_frame_func = (float(float)) SUB_Null;
+    //     // Start zombie animation:
+    //     // zombie_ent.play_anim(get_anim_frame_zombie_window_hop, get_anim_length_zombie_window_hop(), ANIM_STOP_TYPE_STOP);
+    //     // zombie_ent.play_anim(get_anim_frame_zombie_jump_climb, get_anim_length_zombie_jump_climb(), ANIM_STOP_TYPE_STOP);
+    //     // zombie_ent.cur_anim_get_frame_func = (float(float)) SUB_Null;
+    //     // Figure out how fast to move the zombie
+    //     float traversal_length = vlen(end_pos - start_pos);
+    //     float anim_time = (zombie_ent.cur_anim_length - 1) * zombie_ent.cur_anim_frametime;
+
+    //     zombie_ent.cur_traversal_start_time = time;
+    //     // FIXME - Some traversals will have a different way of getting speed...
+    //     zombie_ent.cur_traversal_end_time = time + anim_time;
+    //     zombie_ent.substate = 1;
+    //     zombie_ent.movetype = MOVETYPE_STEP;
+    //     zombie_ent.angles.y = sv_navmesh_traversals[traversal_idx].angle;
+    // }
+    // // Moving zombie across traversal
+    // if(zombie_ent.substate == 1) {
+    //     float lerp_frac = (time - zombie_ent.cur_traversal_start_time) / (zombie_ent.cur_traversal_end_time - zombie_ent.cur_traversal_start_time);
+
+    //     if(lerp_frac > 1.0) {
+    //         zombie_ent.state = AI_STATE_PATHING;
+    //         zombie_ent.movetype = MOVETYPE_WALK;
+
+    //         // TODO - How to tell zombie to play walk anim again?
+    //         // FIXME - This ain't right
+    //         zombie_ent.play_anim(get_anim_frame_zombie_walk1, get_anim_length_zombie_walk1(), ANIM_STOP_TYPE_LOOP);
+    //     }
+
+    //     // If the traversal uses the midpoint, lerp across midpoint
+    //     if(sv_navmesh_traversals[zombie_ent.cur_traversal_idx].use_midpoint) {
+    //         print("Current lerpfrac: ", ftos(lerp_frac), "\n");
+    //         midpoint_pos = sv_navmesh_get_traversal_midpoint_pos(traversal_idx);
+    //         // Lerp from start to midpoint
+    //         if(lerp_frac < 0.5) {
+    //             zombie_ent.origin = lerpVector(start_pos, midpoint_pos, lerp_frac * 2.0);
+    //         }
+    //         // Lerp from midpoint to end
+    //         else {
+    //             zombie_ent.origin = lerpVector(midpoint_pos, end_pos, (lerp_frac - 0.5) * 2.0);
+    //         }
+    //     }
+    //     // Otherwise, lerp from start to end
+    //     else {
+    //         zombie_ent.origin = lerpVector(start_pos, end_pos, lerp_frac);
+    //     }
+
+
+
+    //     // TODO - Moving 
+    //     // vector start_pos = sv_navmesh_traversals[traversal_idx].start_pos;
+    //     // vector end_pos = sv_navmesh_get_traversal_end_pos(traversal_idx);
+    // }
+}
+
+
+
 
 
 // Called once per ent.think invocation
-void zombie_walk_think_callback() {
-    print("Think called\n");
-    // print("Think called for frame: ");
-    // print(ftos(ent.frame));
-    // print("\n");
+void zombie_think_callback() {
     AI_Zombie zombie_ent = (AI_Zombie) self;
-    
-    // "::classname" denotes the global ".string classname" field.
-    entity player_ent = find( world, classname, "player"); 
-    if(player_ent != world) {
-        zombie_ent.path_target = player_ent;
-        zombie_ent.enemy = player_ent;
+
+    if(zombie_ent.state == AI_STATE_PATHING) {
+        // "::classname" denotes the global ".string classname" field.
+        entity player_ent = find( world, classname, "player"); 
+        if(player_ent != world) {
+            zombie_ent.path_target = player_ent;
+            zombie_ent.enemy = player_ent;
+        }
+
+        if(get_zombie_walk_is_footstep(zombie_ent.frame)) {
+            if(random() < 0.5) {
+                sound(self, 5, "sounds/zombie/s0.wav", 1, ATTN_NORM);
+            }
+            else {
+                sound(self, 5, "sounds/zombie/s1.wav", 1, ATTN_NORM);
+            }
+        }
+        // Ideal animation velocity:
+        float dist_per_frame = get_zombie_walk_dist_for_frame(zombie_ent.frame);
+        float speed = dist_per_frame / zombie_ent.cur_anim_frametime;
+        zombie_ent.do_walk_to_goal(speed);
+    }
+    else if(zombie_ent.state == AI_STATE_TRAVERSING) {
+        zombie_traversal_logic();
+        // TODO - Need to figure out how to dispatch different traversals...
+
+
+
+        // TODO - If we're traversing, then we should have stashed
+
+        // res->point_path_traversals[this.pathfind_cur_point_idx]
     }
 
-    // // Ideal animation velocity:
-    float dist_per_frame = get_zombie_walk_dist_for_frame(zombie_ent.frame);
-    float speed = dist_per_frame / zombie_ent.cur_anim_frametime;
-    zombie_ent.do_walk_to_goal(speed);
 };
 
 
@@ -303,9 +644,11 @@ void(vector org) AI_Zombie::init = {
     // SetUpHitBoxes(self);
     // ---------------------------------
     this.yaw_speed = 20;
+    this.cur_anim_frametime = 0.1;
     // ---------------------------------
-    this.think_delta_time = 0.1; // 10x per second
-    this.nextthink = time + this.think_delta_time;
+    // this.think_delta_time = 0.1; // 10x per second
+    // this.nextthink = time + this.think_delta_time;
+    this.nextthink = time + this.cur_anim_frametime;
     // this.cur_fg_start_time = -1;
 }
 
@@ -390,8 +733,37 @@ void() test_new_ent = {
     zombie.frame = get_anim_frame_zombie_rise(0);
     zombie.play_anim(get_anim_frame_zombie_rise, get_anim_length_zombie_rise(), ANIM_STOP_TYPE_NEXT_ANIM);
     zombie.queue_anim(get_anim_frame_zombie_walk1, get_anim_length_zombie_walk1(), ANIM_STOP_TYPE_LOOP);
-    zombie.frame_callback = zombie_walk_frame_callback;
-    zombie.think_callback = zombie_walk_think_callback;
+
+    zombie.think_callback = zombie_think_callback;
+    zombie.state = AI_STATE_PATHING;
+    // zombie.play_anim(get_anim_frame_zombie_rise, get_anim_length_zombie_rise(), ANIM_STOP_TYPE_LOOP);
+
+
+
+    // if(random() < 0.33) {
+    //     zombie.queue_anim(get_anim_frame_zombie_walk1, get_anim_length_zombie_walk1(), ANIM_STOP_TYPE_LOOP);
+    // }
+    // else if(random() < 0.5) {
+    //     zombie.queue_anim(get_anim_frame_zombie_walk2, get_anim_length_zombie_walk2(), ANIM_STOP_TYPE_LOOP);
+    // }
+    // else {
+    //     zombie.queue_anim(get_anim_frame_zombie_walk3, get_anim_length_zombie_walk3(), ANIM_STOP_TYPE_LOOP);
+    // }
+    // if(random() < 0.2) {
+    //     zombie.queue_anim(get_anim_frame_zombie_walk1, get_anim_length_zombie_walk1(), ANIM_STOP_TYPE_LOOP);
+    // }
+    // else if(random() < 0.25) {
+    //     zombie.queue_anim(get_anim_frame_zombie_walk2, get_anim_length_zombie_walk2(), ANIM_STOP_TYPE_LOOP);
+    // }
+    // else if(random() < 0.33) {
+    //     zombie.queue_anim(get_anim_frame_zombie_walk3, get_anim_length_zombie_walk3(), ANIM_STOP_TYPE_LOOP);
+    // }
+    // else if(random() < 0.5) {
+    //     zombie.queue_anim(get_anim_frame_zombie_jog1, get_anim_length_zombie_jog1(), ANIM_STOP_TYPE_LOOP);
+    // }
+    // else {
+    //     zombie.queue_anim(get_anim_frame_zombie_run1, get_anim_length_zombie_run1(), ANIM_STOP_TYPE_LOOP);
+    // }
 
 
     // zombie.play_anim(get_anim_frame_zombie_walk1, get_anim_length_zombie_walk1(), ANIM_STOP_TYPE_NEXT_ANIM);
@@ -399,9 +771,9 @@ void() test_new_ent = {
 
 
     // TODO - Set frametime to something random?
-    zombie.cur_anim_frametime = 0.1;
+    // zombie.cur_anim_frametime = 0.1;
     // zombie.next_anim_frametime = 0.05 + 0.1 * random();
-    zombie.next_anim_frametime = 0.13;
+    // zombie.next_anim_frametime = 0.2;
     // zombie.next_anim_frametime = 0.1;
 
 };
