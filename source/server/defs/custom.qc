@@ -591,7 +591,7 @@ class AI_Chase : entity {
         this.frame = anim_frame_func(0);
     };
 
-    // Queue up another animation to play when the current one finishes
+    // Queue up another animation to play when the current one finishes.
     virtual void(float(float) anim_frame_func, float anim_length, anim_stop_type stop_type) queue_anim {
         // This isn't allowed, we can't queue more than one animation.
         // Queued animation stop type must be: ANIM_STOP_TYPE_STOP, or ANIM_STOP_TYPE_LOOP

@@ -235,12 +235,10 @@ void cl_navmesh_draw_poly(float poly_index) {
 		face_color = [0.8,0.2,0.2];
 	}
 
-	if(cl_navmesh_polies[poly_index].vert_count == 3)
-	{
+	if(cl_navmesh_polies[poly_index].vert_count == 3) {
 		cl_navmesh_draw_tri(a,b,c,face_color,face_alpha,TRUE);
 	}
-	else
-	{
+	else {
 		vector d = cl_navmesh_verts[cl_navmesh_polies[poly_index].verts[3]].pos;
 		cl_navmesh_draw_quad(a,b,c,d,face_color,face_alpha,TRUE);
 	}
@@ -451,8 +449,7 @@ void cl_navmesh_editor_draw() {
 	
 	
 	//The following code block is for detecting and placing waypoints at bsp map corners
-	if(cl_navmesh_place_corner_state == NAVMESH_PLACE_CORNER_PLACING || cl_navmesh_place_corner_state == NAVMESH_PLACE_CORNER_CONFIRM)
-	{
+	if(cl_navmesh_place_corner_state == NAVMESH_PLACE_CORNER_PLACING || cl_navmesh_place_corner_state == NAVMESH_PLACE_CORNER_CONFIRM) {
 		
 		//vector vorg = getentity(player_localentnum, GE_ORIGIN);
 		//vector vorg = getviewprop(VF_ORIGIN) - VEC_VIEW_OFS;
@@ -2906,10 +2903,7 @@ void cl_navmesh_pathfind_draw_result_point_path() {
 	}
 }
 
-void cl_toggle_navmesh_editor()
-{
-	
-	
+void cl_toggle_navmesh_editor() {
 	if(cvar("navmesh_edit_mode")) {
 		cvar_set("navmesh_edit_mode", "0");
 		print("cl_navmesh editor: 0\n");
@@ -2936,7 +2930,6 @@ void cl_toggle_navmesh_editor()
 			cl_pathfind_clear_result_data();
 		}
 		
-
 		cl_navmesh_deselect_all();
 		cl_navmesh_selected_traversal = -1;
 		cl_navmesh_traversal_edit_mode = false;
@@ -2945,8 +2938,7 @@ void cl_toggle_navmesh_editor()
 }
 
 
-void cl_register_navmesh_commands() = 
-{
+void cl_register_navmesh_commands() {
 	registercommand("nav_editor");
 	registercommand("nav_place_vert");
 	registercommand("nav_delete_verts");
@@ -2987,7 +2979,7 @@ void cl_register_navmesh_commands() =
 	registercommand("nav_trav_set_point_pos");
 	registercommand("nav_trav_get_angle");
 	registercommand("nav_trav_set_angle");
-
+	registercommand("nav_trav_auto_adjust");
 }
 
 float cl_confirm_clear_navmesh;
@@ -3087,15 +3079,18 @@ float cl_navmesh_get_nearest_traversal() {
 	vector player_pos = getentity(player_localentnum, GE_ORIGIN);
 	float closest_dist = vlen(player_pos - cl_navmesh_traversals[0].start_pos);
 	float closest_index = 0;
-	
 	float temp_dist;
 	
-	for(float i = 1; i < cl_navmesh_traversal_count; i++)
-	{
+	for(float i = 1; i < cl_navmesh_traversal_count; i++) {
+		// Check traversal start position
 		temp_dist = vlen(player_pos - cl_navmesh_traversals[i].start_pos);
-		
-		if(temp_dist < closest_dist)
-		{
+		if(temp_dist < closest_dist) {
+			closest_dist = temp_dist;
+			closest_index = i;
+		}
+		// Also check traversal end position
+		temp_dist = vlen(player_pos - cl_navmesh_get_traversal_end_pos(i));
+		if(temp_dist < closest_dist) {
 			closest_dist = temp_dist;
 			closest_index = i;
 		}
@@ -3330,13 +3325,123 @@ void cl_navmesh_traversal_editor_set_angle(float angle) {
 	print(".\n");
 };
 
+void cl_navmesh_traversal_editor_auto_adjust_traversal() {
+	if(cl_navmesh_selected_traversal == -1) {
+		return;
+	}
+
+	vector start_pos = cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos;
+	vector midpoint_pos = cl_navmesh_get_traversal_midpoint_pos(cl_navmesh_selected_traversal);
+	vector end_pos = cl_navmesh_get_traversal_end_pos(cl_navmesh_selected_traversal);
+
+	vector ofs = '0 0 16';
+	tracebox(start_pos + ofs, VEC_HULL_MIN, VEC_HULL_MAX, start_pos - ofs, TRUE, player);
+	cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos.z = trace_endpos.z;
+	tracebox(end_pos + ofs, VEC_HULL_MIN, VEC_HULL_MAX, end_pos - ofs, TRUE, player);
+	cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos.z = trace_endpos.z - start_pos.z;
 
 
 
 
 
+	// FIXME - Pull from traversal struct
+	string traversal_type = "ledge";
 
 
+	// If "ledge" traversal, 
+	if(traversal_type == "ledge") {
+		start_pos = cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos;
+		end_pos = cl_navmesh_get_traversal_end_pos(cl_navmesh_selected_traversal);
+
+		vector top_point;
+		vector bottom_point;
+
+		if(start_pos.z < end_pos.z) {
+			bottom_point = start_pos;
+			top_point = end_pos;
+		}
+		else {
+			top_point = start_pos;
+			bottom_point = end_pos;
+		}
+		
+		// --------------------------------------------------------------------
+		// Binary search to find the ledge location
+		// --------------------------------------------------------------------
+		vector search_start = top_point;
+		vector search_midpoint;
+		vector search_end = bottom_point;
+		search_end.z = search_start.z;
+		// What if there's a wall above the bottom point?
+
+		for(float i = 0; i < 6; i++) {
+			search_midpoint = (search_start + search_end) * 0.5;
+			tracebox(search_midpoint + ofs, VEC_HULL_MIN, VEC_HULL_MAX, search_midpoint - ofs, TRUE, player);
+			print("--------------------------------\n");
+			print("iter: ", ftos(i), " start: ", vtos(search_start), " end: ", vtos(search_end), " mid: ");
+			print(vtos(search_midpoint), " frac: ", ftos(trace_fraction), "\n");
+			if(trace_fraction >= 1.0 || trace_startsolid) {
+				search_end = search_midpoint;
+			}
+			else {
+				search_start = search_midpoint;
+			}
+		}
+		vector ledge_pos = (search_start + search_end) * 0.5;
+		// ledge_pos is the center of the bbox, offset to find the corner near the ledge
+		// https://stackoverflow.com/a/1343531
+		// float angle = vectoangles(search_end - search_stard).y;
+		// float abs_cos_angle = fabs(cos(angle));
+		// float abs_sin_angle = fabs(sin(angle));
+		// float bbox_width = (VEC_HULL_MAX.x - VEC_HULL_MIN.x) / 2;
+		// float bbox_depth = (VEC_HULL_MAX.y - VEC_HULL_MIN.y) / 2;
+		// float ofs_dist;
+		// if(bbox_width * abs_sin_angle <= bbox_depth * abs_cos_angle) {
+		// 	ofs_dist = bbox_width / abs_cos_angle;
+		// }
+		// else {
+		// 	ofs_dist = bbox_depth / abs_sin_angle;
+		// }
+		// ledge_pos += normalize(top_point - [bottom_point.x, bottom_point.y, top_point.z]) * ofs_dist;
+		// Push 16 qu towards the top point
+		// NOTE: This won't be accurate for sloped ledges, but we're just
+		// trying to get close-enough so the animations look half-decent
+		ledge_pos += normalize(top_point - [bottom_point.x, bottom_point.y, top_point.z]) * 16;
+		// Lower by the bbox height to the center
+		ledge_pos.z += VEC_HULL_MIN.z;
+		// --------------------------------------------------------------------
+
+
+
+		// --------------------------------------------------------------------
+		// Offset the traversal such that the top point is 10qu away from the ledge
+		// --------------------------------------------------------------------
+		float traversal_length = 50; // qu
+		float start_to_ledge = 10; // qu
+		// First, make sure the end_pos is exactly 50qu away from the start
+		cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos.x = 0;
+		cl_navmesh_traversals[cl_navmesh_selected_traversal].end_pos.y = traversal_length;
+
+		// Compute vector pointing from start towards ledge:
+		vector delta_pos = start_pos - ledge_pos;
+		delta_pos.z = 0;
+		float cur_dist = vlen(delta_pos);
+		delta_pos = normalize(delta_pos);
+
+		// If traversal start is at the bottom, move traversal start 40qu away from ledge
+		if(start_pos.z < end_pos.z) {
+			cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos += delta_pos * ((traversal_length - start_to_ledge) - cur_dist);
+		}
+		// If traversal start is at the top, move traversal start 10qu away from ledge
+		else {
+			cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos += delta_pos * (start_to_ledge - cur_dist);
+		}
+
+		// Next, adjust distance between the traversal start and the ledge
+		// so that it's exactly 25 qu away.
+		// --------------------------------------------------------------------
+	}
+}
 
 
 
@@ -3480,6 +3585,9 @@ float(string cmd) cl_navmesh_console_commands =
 			return TRUE;
 		case "nav_trav_set_angle":
 			cl_navmesh_traversal_editor_set_angle(stof(argv(1)));
+			return TRUE;
+		case "nav_trav_auto_adjust":
+			cl_navmesh_traversal_editor_auto_adjust_traversal();
 			return TRUE;
 		default:
 			break;

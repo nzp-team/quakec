@@ -153,7 +153,16 @@ void (float move_speed) AI_Chase::do_walk_to_goal = {
 
 
     this.ideal_yaw = vectoyaw(goal_pos - this.origin);
-    ChangeYaw();
+
+    // ChangeYaw();
+    // Apply smallest delta angle
+    float delta_angle = this.ideal_yaw - this.angles.y;
+    delta_angle = ((delta_angle + 180) % 360) - 180;
+    this.angles.y += 0.3 * delta_angle;        
+
+
+
+
     vector new_velocity;
     float walk_dist = move_speed * this.cur_anim_frametime;
     float dist_to_goal = vlen(goal_pos - this.origin);
@@ -329,8 +338,7 @@ void zombie_traversal_logic() {
 
 
     string traversal_type;
-    traversal_type = "jump_up";
-    // traversal_type = "jump_down";
+    traversal_type = "ledge";
     // traversal_type = "jump_gap";
     // traversal_type = "hop_barricade";
     // traversal_type = "hop_fence";
@@ -338,25 +346,13 @@ void zombie_traversal_logic() {
     // traversal_type = "teleport";
 
     // Jump up logic
-    if(traversal_type == "jump_up") {
-        // zombie_ent.angles.y = sv_navmesh_traversals[traversal_idx].angle;
-        float delta_angle = sv_navmesh_traversals[traversal_idx].angle - zombie_ent.angles.y;
+    if(traversal_type == "ledge") {
+        // Adjust zombie angle to its smallest representation
+        zombie_ent.angles.y = ((zombie_ent.angles.y + 180) % 360) - 180;
         // Apply smallest delta angle
+        float delta_angle = sv_navmesh_traversals[traversal_idx].angle - zombie_ent.angles.y;
         delta_angle = ((delta_angle + 180) % 360) - 180;
-            // zombie_ent.angles.y = sv_navmesh_traversals[traversal_idx].angle;
-            float delta_angle = sv_navmesh_traversals[traversal_idx].angle - zombie_ent.angles.y;
-
-            // FIXME - Replace this with mods....
-            // delta_angle = (((delta_angle - 180) % 180) + 180) % 180;
-            // ((delta_angle - 180) % 360) + 180
-            while(delta_angle < -180) {
-                delta_angle += 360;
-            }
-            while(delta_angle > 180) {
-                delta_angle -= 360;
-            }
-
-            zombie_ent.angles.y += 0.5 * delta_angle;        zombie_ent.angles.y += 0.5 * delta_angle;
+        zombie_ent.angles.y += 0.5 * delta_angle;        
 
         // Jump up traversal consists of the following substates:
         //      0: Start traversal, play jump up anim
@@ -394,13 +390,10 @@ void zombie_traversal_logic() {
                 }
             }
         }
-
-
         // Short ledge
         else if(traversal_height < 98) {
             if(zombie_ent.substate == 0) {
                 zombie_ent.movetype = MOVETYPE_STEP;
-
                 // If short jump up, play short jump / short climb anim
                 zombie_ent.play_anim(get_anim_frame_zombie_jump_low, get_anim_length_zombie_jump_low(), ANIM_STOP_TYPE_STOP);
                 // zombie_ent.cur_anim_frametime = 0.08;
@@ -416,7 +409,7 @@ void zombie_traversal_logic() {
             if(zombie_ent.substate == 1) {
                 lerp_frac = (time - zombie_ent.cur_traversal_start_time) / (zombie_ent.cur_traversal_end_time - zombie_ent.cur_traversal_start_time);
                 makevectors([0, sv_navmesh_traversals[traversal_idx].angle, 0]);
-                goal_pos = end_pos - '0 0 77' - v_forward * 21;
+                goal_pos = end_pos - '0 0 72' - v_forward * 21;
                 zombie_ent.origin = lerpVector(start_pos, goal_pos, lerp_frac);
 
                 if(lerp_frac >= 1) {
@@ -430,7 +423,7 @@ void zombie_traversal_logic() {
             }
             else if(zombie_ent.substate == 2) {
                 lerp_frac = (time - zombie_ent.cur_traversal_start_time) / (zombie_ent.cur_traversal_end_time - zombie_ent.cur_traversal_start_time);
-                start_pos = end_pos - '0 0 77' - v_forward * 21;
+                start_pos = end_pos - '0 0 72' - v_forward * 21;
                 zombie_ent.origin = lerpVector(start_pos, end_pos, lerp_frac);
                 if(lerp_frac >= 1.0) {
                     zombie_ent.state = AI_STATE_PATHING;
