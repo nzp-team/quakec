@@ -420,6 +420,137 @@ void() cl_navmesh_pathfind_draw_result_portals;
 void() cl_navmesh_pathfind_draw_result_point_path;
 
 
+entity cl_navmesh_traversal_test_ent;
+
+void cl_navmesh_draw_traversal_test_ent() {
+	if(cl_navmesh_selected_traversal == -1) {
+		return;
+	}
+
+	if(cl_navmesh_traversal_test_ent == world) {
+		cl_navmesh_traversal_test_ent = spawn();
+		setmodel(cl_navmesh_traversal_test_ent, "models/ai/zfull.mdl");
+		print("woo\n");
+	}
+
+	float traversal_speed_scale = 1.0; // 4x slower
+	float lerp_frac = (time * traversal_speed_scale) % 1.0;
+
+
+	cl_navmesh_traversal_test_ent.angles.y = cl_navmesh_traversals[cl_navmesh_selected_traversal].angle;
+	makevectors([0, cl_navmesh_traversals[cl_navmesh_selected_traversal].angle, 0]);
+	cl_navmesh_traversal_test_ent.drawmask = MASK_ENGINE;
+
+	vector start_pos = cl_navmesh_traversals[cl_navmesh_selected_traversal].start_pos;
+	vector end_pos = cl_navmesh_get_traversal_end_pos(cl_navmesh_selected_traversal);
+	// cl_navmesh_traversal_test_ent.origin = start_pos + lerp_frac * (end_pos - start_pos);
+	float trav_state_a_dur;
+	float trav_state_b_dur;
+	float trav_state_c_dur;
+	float lerp_subfrac;
+	float ent_framenum;
+	float ent_frametime = 0.1;
+
+	// TODO - Detect traversal type
+	// string traversal_type = "ledge";
+	string traversal_type = "leap";
+	if(traversal_type == "ledge") {
+		vector ledge_pos;
+		float traversal_height = end_pos.z - start_pos.z;
+
+		if(traversal_height < 0) {
+			trav_state_a_dur = min(-traversal_height * (0.35 / 100.0), 2.0);
+			trav_state_b_dur = 6*ent_frametime * 0.5; // double-speed
+			lerp_frac *= (trav_state_a_dur + trav_state_b_dur);
+
+			if(lerp_frac < trav_state_a_dur) {
+				lerp_subfrac = lerp_frac / (trav_state_a_dur);
+				cl_navmesh_traversal_test_ent.origin = lerp_vector(start_pos, end_pos, lerp_subfrac * lerp_subfrac);
+				ent_framenum = 150 + lerp_subfrac*4;
+			}
+			else {
+				lerp_subfrac = (lerp_frac - (trav_state_a_dur)) / trav_state_b_dur;
+				cl_navmesh_traversal_test_ent.origin = end_pos;
+				ent_framenum = 154 + lerp_subfrac*6;
+
+			}
+		}
+		else if(traversal_height < 98) {
+			ledge_pos = end_pos - '0 0 85' - v_forward * 28;
+			trav_state_a_dur = 3*ent_frametime;
+			trav_state_b_dur = 11*ent_frametime;
+			lerp_frac *= trav_state_a_dur + trav_state_b_dur;
+
+			// Play low jump anim (frames 163-165)
+			if(lerp_frac < trav_state_a_dur) {
+				lerp_subfrac = lerp_frac / (trav_state_a_dur);
+				cl_navmesh_traversal_test_ent.origin = lerp_vector(start_pos, ledge_pos, lerp_subfrac);
+				ent_framenum = 163 + lerp_subfrac * 6;
+			}
+			// Lerp to endpos, play low climb anim (frames 170-180)
+			else {
+				lerp_subfrac = (lerp_frac - (trav_state_a_dur)) / trav_state_b_dur;
+				cl_navmesh_traversal_test_ent.origin = lerp_vector(ledge_pos, end_pos, lerp_subfrac);
+				ent_framenum = 170 + lerp_subfrac * 10;
+			}
+		}
+		else {
+			// Traversal states:
+			ledge_pos = end_pos - '0 0 98' - v_forward * 28;
+			trav_state_a_dur = 6*ent_frametime;
+			trav_state_b_dur = 0.15;
+			trav_state_c_dur = 14*ent_frametime;
+			lerp_frac *= trav_state_a_dur + trav_state_b_dur + trav_state_c_dur;
+
+			// Play jump anim (frames 160-166)
+			if(lerp_frac < trav_state_a_dur) {
+				lerp_subfrac = lerp_frac / (trav_state_a_dur);
+				cl_navmesh_traversal_test_ent.origin = start_pos;
+				ent_framenum = 160 + lerp_subfrac * 6;
+			}
+			// Lerp to ledge pos
+			else if(lerp_frac < trav_state_a_dur + trav_state_b_dur) {
+				lerp_subfrac = (lerp_frac - (trav_state_a_dur)) / trav_state_b_dur;
+				cl_navmesh_traversal_test_ent.origin = lerp_vector(start_pos, ledge_pos, lerp_subfrac);
+				ent_framenum = 166 + lerp_subfrac * 1;
+			}
+			// Lerp to endpos, play climb anim (frames 167-180)
+			else {
+				lerp_subfrac = (lerp_frac - (trav_state_a_dur + trav_state_b_dur)) / trav_state_c_dur;
+				cl_navmesh_traversal_test_ent.origin = lerp_vector(ledge_pos, end_pos, lerp_subfrac);
+				ent_framenum = 167 + lerp_subfrac * 14;
+			}
+		}
+	}
+	else if(traversal_type == "leap") {
+		trav_state_a_dur = 5*ent_frametime; // Play anim (218-233)
+		trav_state_b_dur = 8*ent_frametime; // Play anim (233-241), lerp across gap
+		trav_state_c_dur = 5*ent_frametime; // Play anim (242-247)
+		lerp_frac *= (trav_state_a_dur + trav_state_b_dur + trav_state_c_dur);
+		lerp_subfrac = lerp_frac;
+
+		if(lerp_frac < trav_state_a_dur) {
+			lerp_subfrac = lerp_frac / (trav_state_a_dur);
+			cl_navmesh_traversal_test_ent.origin = start_pos;
+			ent_framenum = 228 + lerp_subfrac * 5;
+		}
+		else if(lerp_frac < trav_state_a_dur + trav_state_b_dur) {
+			lerp_subfrac = (lerp_frac - (trav_state_a_dur)) / trav_state_b_dur;	
+			vector midpoint_pos = cl_navmesh_get_traversal_midpoint_pos(cl_navmesh_selected_traversal);
+			cl_navmesh_traversal_test_ent.origin = lerp_vector_bezier(start_pos, midpoint_pos, end_pos, lerp_subfrac);
+			ent_framenum = 233 + lerp_subfrac * 8;
+		}
+		else {
+			lerp_subfrac = (lerp_frac - (trav_state_a_dur + trav_state_b_dur)) / trav_state_c_dur;
+			cl_navmesh_traversal_test_ent.origin = end_pos;
+			ent_framenum = 242 + lerp_subfrac * 5;
+		}
+	}
+	cl_navmesh_traversal_test_ent.frame = floor(ent_framenum);
+	cl_navmesh_traversal_test_ent.frame2 = floor(ent_framenum+ 1);
+	cl_navmesh_traversal_test_ent.lerpfrac = ent_framenum % 1.0;
+}
+
 
 void cl_navmesh_editor_draw() {	
 	for(float i = 0; i < cl_navmesh_vert_count; i++) {
@@ -446,6 +577,11 @@ void cl_navmesh_editor_draw() {
 	cl_navmesh_pathfind_draw_result_path();
 	cl_navmesh_pathfind_draw_result_portals();
 	cl_navmesh_pathfind_draw_result_point_path();
+
+	// If a traversal is selected, draw a zombie being animated
+	if(cl_navmesh_selected_traversal != -1) {
+		cl_navmesh_draw_traversal_test_ent();
+	}
 	
 	
 	//The following code block is for detecting and placing waypoints at bsp map corners
@@ -1845,7 +1981,7 @@ void cl_navmesh_editor_load_navmesh() {
 		cl_navmesh_polies[i].doortarget = fgets(file);
 
 		if(cl_navmesh_polies[i].doortarget != "") {
-			print("CLLOADNAVMESH - Polygon at index ",ftos(i)," has doortarget: \"", cl_navmesh_polies[i].doortarget, "\"" );
+			print("CLLOADNAVMESH - Polygon at index ",ftos(i)," has doortarget: \"", cl_navmesh_polies[i].doortarget, "\"\n" );
 		}
 		// cl_navmesh_polies[i].doortarget = ""; // Temp fix to load old files
 		// If v0.0.0, discard entrance edge (no longer used)
@@ -2216,17 +2352,11 @@ void cl_pathfind_clear_result_data() {
 		cl_test_pathfind_result->path_polygons[i] = -1;
 		cl_test_pathfind_result->path_traversals[i] = -1;
 				
-		cl_test_pathfind_result->portals_left_pos[i].x = 0;
-		cl_test_pathfind_result->portals_left_pos[i].y = 0;
-		cl_test_pathfind_result->portals_left_pos[i].z = 0;
-		cl_test_pathfind_result->portals_right_pos[i].x = 0;
-		cl_test_pathfind_result->portals_right_pos[i].y = 0;
-		cl_test_pathfind_result->portals_right_pos[i].z = 0;
+		cl_test_pathfind_result->portals_left_pos[i] = '0 0 0';
+		cl_test_pathfind_result->portals_right_pos[i] = '0 0 0';
 		cl_test_pathfind_result->portals_traversal[i] = -1;
 
-		cl_test_pathfind_result->point_path_points[i].x = 0;
-		cl_test_pathfind_result->point_path_points[i].y = 0;
-		cl_test_pathfind_result->point_path_points[i].y = 0;
+		cl_test_pathfind_result->point_path_points[i] = '0 0 0';
 		cl_test_pathfind_result->point_path_traversals[i] = -1;
 	}
 	for(float i = 0;i < NAV_MAX_TRAVERSALS; i++) {
@@ -3389,20 +3519,6 @@ void cl_navmesh_traversal_editor_auto_adjust_traversal() {
 		}
 		vector ledge_pos = (search_start + search_end) * 0.5;
 		// ledge_pos is the center of the bbox, offset to find the corner near the ledge
-		// https://stackoverflow.com/a/1343531
-		// float angle = vectoangles(search_end - search_stard).y;
-		// float abs_cos_angle = fabs(cos(angle));
-		// float abs_sin_angle = fabs(sin(angle));
-		// float bbox_width = (VEC_HULL_MAX.x - VEC_HULL_MIN.x) / 2;
-		// float bbox_depth = (VEC_HULL_MAX.y - VEC_HULL_MIN.y) / 2;
-		// float ofs_dist;
-		// if(bbox_width * abs_sin_angle <= bbox_depth * abs_cos_angle) {
-		// 	ofs_dist = bbox_width / abs_cos_angle;
-		// }
-		// else {
-		// 	ofs_dist = bbox_depth / abs_sin_angle;
-		// }
-		// ledge_pos += normalize(top_point - [bottom_point.x, bottom_point.y, top_point.z]) * ofs_dist;
 		// Push 16 qu towards the top point
 		// NOTE: This won't be accurate for sloped ledges, but we're just
 		// trying to get close-enough so the animations look half-decent

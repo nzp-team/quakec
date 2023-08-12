@@ -240,3 +240,16 @@ float invertfloat(float input) {
 // custom weapon defs
 // now 90% slimmed down
 float currentWeaponTracker;
+
+
+
+vector(vector a, vector b, float mix) lerp_vector {
+    if (mix <= 0) return a;
+    if (mix >= 1) return b;
+    return (b * mix + a * ( 1 - mix ) );
+}
+
+
+vector lerp_vector_bezier(vector a, vector b, vector c, float mix) {
+	return lerp_vector(lerp_vector(a,b,mix), lerp_vector(b,c,mix), mix);
+}

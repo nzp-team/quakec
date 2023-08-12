@@ -137,9 +137,9 @@ struct navmesh_pathfind_result {
 	// It denotes crossing from one polygon to another, or crossing a polygon into a traversal
 	// This contains the number of portals in the path (same as path_length - 1)
 	float portals_length;
-	// The left vertex of the i-th portal (-1 if the i-th portal is a traversal)
+	// The left position of the i-th portal's left endpoint
 	vector portals_left_pos[NAV_MAX_POLIES];
-	// The right vertex of the i-th portal (-1 if the i-th portal is a traversal)
+	// The right position of the i-th portal's right endpoint
 	vector portals_right_pos[NAV_MAX_POLIES];
 	// If the i-th portal is a traversal, contains the traversal index, -1 otherwise.
 	float portals_traversal[NAV_MAX_POLIES];
