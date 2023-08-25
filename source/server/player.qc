@@ -648,11 +648,10 @@ void() PlayerSpawn =
 	self.weaponnum = 0;
 	self.perks = G_PERKS;
 	SetPerk(self, self.perks);
-	
-	//self.zoom = 1;			// This is to fix an aimin bug for the kar scope
 
 	if (rounds < 1 && player_count == 0) {
-		sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
+		sound(self, 0, "sounds/rounds/splash.wav", 1, ATTN_NONE);
+		sound(self, 1, "sounds/rounds/nround.wav", 0.75, ATTN_NONE);
 	}
 
 	PromptLevelChange(self.nextthink + 3, 1, self);	

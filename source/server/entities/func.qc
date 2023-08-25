@@ -341,8 +341,8 @@ void() button_touch =
 			centerprint(other,ftos(self.cost));
 			centerprint(other,"]\n");
 
-			if (other.button7) {
-
+			if (other.button7 && !other.semiuse) {
+				other.semiuse = true;
 				if(other.points >= self.cost) {
 					self.enemy = other;
 					addmoney(other, 0 - self.cost, FALSE);
@@ -351,6 +351,7 @@ void() button_touch =
 					return;
 				} else {
 					centerprint(other, STR_NOTENOUGHPOINTS);
+					sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 				}
 			}
 		}

@@ -273,10 +273,12 @@ void() teleport_touch =
 		useprint(other, 15, self.cost, 0);
 	
 
-	if (other.button7) {
-
+	if (other.button7 && !other.semiuse) {
+		other.semiuse = true;
+		
 		if (other.points < self.cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
+			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 			return;
 		}
 

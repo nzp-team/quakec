@@ -267,8 +267,9 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		}
 	}
 
-	if (other.button7)
+	if (other.button7 && !other.semiuse)
 	{
+		other.semiuse = true;
 		if (other.points >= self.cost)
 		{
 			door_fire();
@@ -287,15 +288,13 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 			}
 			addmoney(other, self.cost*-1, 0);
 			self.solid = SOLID_NOT;
-			//centerprint (other, "");
-			//useprint (other, 0, 0, 0);
-			//other.total_bought = other.total_bought + 1;
 		}
 		else
 		{
 			if(other.classname == "player" && !other.downed)
 			{
 				centerprint (other, STR_NOTENOUGHPOINTS);
+				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 				other.semiuse = 1;
 			}
 		}
@@ -647,7 +646,12 @@ void() func_door_nzp =
 	if (self.cost)
 	{
 		self.classname = "door_nzp_cost";
-	//	total_buy = total_buy +1;
+		switch(self.sounds)
+		{
+			case 1: precache_sound("sounds/misc/wood_door.wav"); break;
+			case 2: precache_sound("sounds/misc/debris.wav"); break;
+			default: break;
+		}
 	}
 	else
 		self.classname = "door_nzp";

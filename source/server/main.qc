@@ -136,16 +136,18 @@ void() precaches =
 	// sprites
 	precache_model ("models/sprites/sprkle.spr");
 	precache_model ("models/sprites/explosion.spr");
-	precache_model ("models/sprites/lightning.spr");
 	precache_model ("models/sprites/null.spr");
-	precache_model ("models/way/current_way.spr");
-	precache_model ("models/way/current_way_door.spr");
-	precache_model ("models/way/last_way.spr");
-	precache_model ("models/way/last_way_door.spr");
-	precache_model ("models/way/normal_way.spr");
-	precache_model ("models/way/normal_way_door.spr");
-	precache_model ("models/way/way_jump.spr");
-	precache_model ("models/way/way_land.spr");
+
+	if (waypoint_mode) {
+		precache_model ("models/way/current_way.spr");
+		precache_model ("models/way/current_way_door.spr");
+		precache_model ("models/way/last_way.spr");
+		precache_model ("models/way/last_way_door.spr");
+		precache_model ("models/way/normal_way.spr");
+		precache_model ("models/way/normal_way_door.spr");
+		precache_model ("models/way/way_jump.spr");
+		precache_model ("models/way/way_land.spr");
+	}
 
 	// zombie
 	precache_model ("models/ai/zfull.mdl");
@@ -163,7 +165,6 @@ void() precaches =
 
 	// start weapons
 	precache_model ("models/weapons/m1911/v_colt.mdl");
-	precache_model ("models/weapons/m1911/g_colt.mdl");
 	precache_model ("models/weapons/knife/v_knife.mdl");
 	precache_model ("models/weapons/grenade/v_grenade.mdl");
 	precache_model ("models/weapons/grenade/g_grenade.mdl");
@@ -217,10 +218,8 @@ void() precaches =
 	precache_sound("sounds/rounds/splash.wav");
 	precache_sound("sounds/music/end.wav");
 
-	// misc
+	// purchasing
 	precache_sound("sounds/misc/buy.wav");
-	precache_sound("sounds/misc/wood_door.wav");
-	precache_sound("sounds/misc/debris.wav");
 	precache_sound("sounds/misc/denybuy.wav");
 
 	// power-ups

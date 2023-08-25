@@ -299,7 +299,7 @@ void() touch_perk =
 		// sequence = perk ID in client
 		useprint(other, 9, price, self.sequence);
 
-		if (other.points >= price && other.button7) {
+		if (other.points >= price && other.button7 && !other.semiuse) {
 			addmoney(other, -price, 0);
 
 			// Pass along the Perk information to the Player to avoid complications later on, then Drink!
@@ -315,9 +315,12 @@ void() touch_perk =
 					ReviveGoAway();
 				}
 			}
-		} else if (other.button7) {
+			other.semiuse = true;
+		} else if (other.button7 && !other.semiuse) {
 			// We tried to use, but we don't have the cash..
 			centerprint(other, STR_NOTENOUGHPOINTS);
+			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			other.semiuse = true;
 		}
 	}
 }
@@ -427,6 +430,7 @@ void() setup_perk =
 void() perk_revive =
 {
 	precache_sound ("sounds/pu/byebye.wav");
+	precache_model ("models/sprites/lightning.spr");
 
 	//
 	// Set Default Stats for Compatibility
@@ -1533,6 +1537,7 @@ void() mystery_touch =
 			}
 			else {
         		centerprint (other, STR_NOTENOUGHPOINTS);
+				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 			}
 		}
 		if (self.boxstatus == 2)
@@ -1697,10 +1702,11 @@ void() mystery_box =
 	Load_Mbox_Data();
 
 	precache_model ("models/machines/mystery.mdl");
-	precache_model ("models/machines/mglow$.mdl");
-	precache_model ("models/props/teddy.mdl"); 
 	precache_sound ("sounds/machines/mbox_open.wav"); 
 	precache_sound ("sounds/machines/mbox_close.wav"); 
+
+	if (!(self.spawnflags & MBOX_SPAWNFLAG_NOLIGHT))
+		precache_model ("models/machines/mglow$.mdl");
 	
 	self.solid = SOLID_TRIGGER;
 	self.classname = "mystery";
@@ -1875,6 +1881,7 @@ void touch_pap() {
 		}
 		else if (other.button7 && other.weapon) {
 			centerprint (other, STR_NOTENOUGHPOINTS);
+			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 		}
 	} else if (self.papState == 2) {
 		useprint (other, 7, 0, 0);

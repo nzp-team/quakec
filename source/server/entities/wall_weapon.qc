@@ -180,6 +180,7 @@ void () WallWeapon_TouchTrigger =
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
 				centerprint(other, STR_NOTENOUGHPOINTS);
+				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 				return;
 			}
 
@@ -225,6 +226,7 @@ void () WallWeapon_TouchTrigger =
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
 				centerprint(other, STR_NOTENOUGHPOINTS);
+				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 				return;
 			}
 
@@ -290,7 +292,6 @@ void () WallWeapon_TouchTrigger =
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
-
 			return;
 		}
 		else
@@ -320,6 +321,7 @@ void () WallWeapon_TouchTrigger =
 			{
 				if (other.points < self.cost2) {
 					centerprint(other, STR_NOTENOUGHPOINTS);
+					sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 					return;
 				} else {
 					addmoney(other, -self.cost2, FALSE);
@@ -347,6 +349,7 @@ void () WallWeapon_TouchTrigger =
 		other.semiuse = 1;
 		if (other.points < self.cost) {
 			centerprint (other, STR_NOTENOUGHPOINTS);
+			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 			return;
 		}
 
