@@ -1523,6 +1523,7 @@ void() mystery_touch =
 	
 	if (other.button7 && !other.semiuse)
 	{
+		other.semiuse = true;
 		if (!self.boxstatus)
 		{
 			if (other.points >= 950)
@@ -1542,7 +1543,6 @@ void() mystery_touch =
 		}
 		if (self.boxstatus == 2)
 		{
-			other.semiuse = 1;
 			if (self.owner == other)
 			{
 				other.reload_delay = 0;
