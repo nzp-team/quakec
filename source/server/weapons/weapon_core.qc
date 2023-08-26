@@ -1529,7 +1529,7 @@ void() GrenadeExplode =
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);	
 
 	if (self.classname == "grenade")
-		DamgageExplode (self, self.owner, 200, 50, 256);
+		DamgageExplode (self, self.owner, 200, 50, 200);
 	else if (self.classname == "betty")
 		DamgageExplode (self, self.owner, 12000, 11000, 128);
 	else
@@ -1537,7 +1537,7 @@ void() GrenadeExplode =
 	
 #ifdef FTE
 
-    te_customflash(self.origin, 178, 300, '1 1 1');
+    te_customflash(self.origin, 200, 300, '1 1 1');
 
 #endif // FTE
 
