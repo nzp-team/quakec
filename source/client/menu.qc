@@ -1185,6 +1185,29 @@ void() Draw_Extra_Main =
 
 	// Draw desc
 	drawstring([0.025*g_width, 0.865*g_height, 0], main_desc, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+
+	// Social Links
+	// Discord doesn't allow permanant invites anymore, "bummer"..
+	//drawsubpic([g_width - 32, g_height - 32], [28, 28], "gfx/menu/social.tga", [0, 0], [0.5, 0.5], [1, 1, 1], 1); // Discord
+	drawsubpic([g_width - 32, g_height - 32], [28, 28], "gfx/menu/social.tga", [0.5, 0], [0.5, 0.5], [1, 1, 1], 1); // YouTube
+	drawsubpic([g_width - 32, g_height - 64], [28, 28], "gfx/menu/social.tga", [0, 0.5], [0.5, 0.5], [1, 1, 1], 1); // Twitter
+	drawsubpic([g_width - 32, g_height - 96], [28, 28], "gfx/menu/social.tga", [0.5, 0.5], [0.5, 0.5], [1, 1, 1], 1); // Patreon
+
+	// Draw text when hovering over specific social icons
+	if (cursor_pos_x >= g_width - 32 && cursor_pos_y >= g_height - 96) {
+		string advert_text;
+
+		if (cursor_pos_y >= g_height - 32) {
+			advert_text = "youtube.com/@nzpteam";
+		} else if (cursor_pos_y >= g_height - 64) {
+			advert_text = "twitter.com/NZPTeam";
+		} else {
+			advert_text = "patreon.com/cypressimplex";
+		}
+
+		drawfill([cursor_pos_x - (strlen(advert_text) * 10) - 5, cursor_pos_y + 2], [strlen(advert_text) * 10, 10], [0, 0, 0], 0.90);
+		drawstring([cursor_pos_x - (strlen(advert_text) * 10) - 5, cursor_pos_y + 2], advert_text, [10, 10], [1, 1, 0], 1, 0);
+	}
 }
 
 void() Draw_Extra_Solo =
