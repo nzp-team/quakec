@@ -82,6 +82,29 @@ void() SUB_UseTargets =
 	if (self.target8)
 		tempcount = tempcount + 1;
 
+	//
+	// print the message
+	//
+	if (activator.classname == "player" && self.message != "")
+	{
+		centerprint (activator, self.message);
+	}
+
+	//
+	// kill the killtagets
+	//
+	if (self.killtarget)
+	{
+		t = world;
+		do
+		{
+			t = find (t, targetname, self.killtarget);
+			if (!t)
+				breakthis = true;
+			remove (t);
+		} while (!breakthis);
+	}
+
 	while(tempcount > temptotal)
 	{
 		temptotal = temptotal + 1;
@@ -123,30 +146,6 @@ void() SUB_UseTargets =
 			t.target7 = self.target7;
 			t.target8 = self.target8;
 			return;
-		}
-		
-		
-	//
-	// print the message
-	//
-		if (activator.classname == "player" && self.message != "")
-		{
-			centerprint (activator, self.message);
-		}
-
-	//
-	// kill the killtagets
-	//
-		if (self.killtarget)
-		{
-			t = world;
-			do
-			{
-				t = find (t, targetname, self.killtarget);
-				if (!t)
-					breakthis = true;
-				remove (t);
-			} while (!breakthis);
 		}
 		
 	//
