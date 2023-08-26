@@ -623,6 +623,22 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					final_damage *= 60;
 				}
 				DamageHandler (ent, ent, final_damage, S_EXPLOSIVE);
+
+				// shake the camera on impact
+				vector distance;
+				distance = inflictor.angles - ent.angles;
+
+				// just to prevent radical punchangles
+				while(distance_x > 10 || distance_x < -10) {
+					distance_x /= 2;
+				}
+				while(distance_y > 10 || distance_y < -10) {
+					distance_y /= 2;
+				}
+
+				// apply
+				ent.punchangle_x = distance_x;
+				ent.punchangle_y = distance_y;
 			}
 		}
 		else if (ent.classname == "explosive_barrel")
