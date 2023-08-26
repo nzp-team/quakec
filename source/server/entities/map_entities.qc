@@ -132,8 +132,11 @@ void() teddy_spawn =
 	self.health = 0;
 	self.th_die = teddy_react;
 	
-	if (self.noise)
-    	precache_sound (self.noise);
+	if (self.noise) {
+		// FIXME: make a convert_old_sound_path function like we do for models.
+		if (self.noise == "misc/buy.wav") self.noise = "sounds/misc/buy.wav";
+		precache_sound (self.noise);
+	}
 };
 
 /* ==================
