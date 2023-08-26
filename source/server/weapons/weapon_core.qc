@@ -2170,7 +2170,7 @@ void() CheckPlayer =
 			
 			DamageHandler (self, other, damage, S_ZOMBIE);	
 
-			if (self.health <= 10)
+			if (self.health <= 5)
 				GiveAchievement(7, self);	
 		}
 		
