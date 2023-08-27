@@ -1097,12 +1097,16 @@ void() power_switch =
 // MBOX_FreeEnt(ent)
 // Marks an MBOX entity as able to be used.
 //
-inline void(entity ent) MBOX_FreeEnt =
+void(entity ent) MBOX_FreeEnt =
 {
 	setmodel(ent, "");
 	ent.classname = "freeMboxEntity";
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
+
+#ifdef FTE
+	ent.alpha = 1;
+#endif
 };
 
 //
@@ -1321,6 +1325,10 @@ void() findboxspot =
 		setmodel(g,"models/machines/mglow$.mdl");
 		setorigin(g,newspot.origin);
 		g.angles = newspot.angles;
+
+#ifdef FTE
+		g.alpha = 0.5;
+#endif
 	}
 	
 	// Remove teddy
@@ -1431,6 +1439,10 @@ void() finish_mbox_setup =
 		setmodel(g,"models/machines/mglow$.mdl");
 		setorigin(g,self.origin);
 		g.angles = self.angles;
+
+#ifdef FTE
+		g.alpha = 0.5;
+#endif
     }
 }
 

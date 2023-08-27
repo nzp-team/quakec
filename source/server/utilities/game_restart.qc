@@ -32,6 +32,11 @@ void() func_door_nzp;
 void(entity e) Light_None;
 void() setup_perk;
 void() touch_perk;
+void(entity ent) MBOX_FreeEnt;
+entity() MBOX_GetFreeEnt;
+void() mystery_touch;
+
+#define MBOX_SPAWNFLAG_NOLIGHT 		2
 
 //
 // GameRestart_CleanPowerUps()
@@ -158,6 +163,78 @@ void() GameRestart_ResetPerkaColas =
 	GameRestart_TurnPerkOff("perk_mule");		// Mule Kick
 }
 
+//
+// GameRestart_ResetMysteryBox
+// Clean-Up the Mystery Box.
+//
+void() GameRestart_ResetMysteryBox =
+{
+	// Check if there is a Mystery Box in the map
+	entity mystery_box = find(world, classname, "mystery");
+
+	if (mystery_box != world) {
+		mystery_box.boxstatus = 0;
+		mystery_box.frame = 0;
+		mystery_box.spins = 0;
+
+		if (mystery_box.goaldummy != world)
+			mystery_box.goaldummy.frame = 0;
+
+		if (mystery_box.boxweapon)
+			MBOX_FreeEnt(mystery_box.boxweapon);
+
+		// If the Mystery Box is not in its original
+		// location.
+		if (mystery_box.origin != boxOrigin) {
+			mystery_box.model = "models/props/teddy.mdl";
+			mystery_box.frame = 2;
+			mystery_box.classname = "mystery_box_tp_spot";
+			mystery_box.touch = SUB_Null;
+			mystery_box.angles_y -= 90;
+
+			if (mystery_box.goaldummy != world)
+				MBOX_FreeEnt(mystery_box.goaldummy);
+
+			// This isn't the normal spawn position
+			if (mystery_box.origin != boxOrigin) {
+				// Find the original spot
+				entity original_box = find(world, classname, "mystery_box_tp_spot");
+				while (original_box != world) {
+					if (original_box.origin == boxOrigin)
+						break;
+					
+					original_box = find(original_box, classname, "mystery_box_tp_spot");
+				}
+
+				// Spawn the Box Glow if permitted
+				if (!(mystery_box.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) {
+					entity light = MBOX_GetFreeEnt();
+					light.classname = "mystery_glow";
+					original_box.goaldummy = light;
+
+					setmodel(light, "models/machines/mglow$.mdl");
+					setorigin(light, original_box.origin);
+					light.angles = original_box.angles;
+
+#ifdef FTE
+					light.alpha = 0.5;
+#endif
+				}
+
+				original_box.touch = mystery_touch;
+				original_box.solid = SOLID_TRIGGER;
+				original_box.classname = "mystery";
+				setorigin(original_box, original_box.origin);
+				setmodel(original_box, "models/machines/mystery.mdl");
+				setsize (original_box, VEC_HULL2_MIN, VEC_HULL2_MAX);
+			}
+
+			Light_None(mystery_box);
+			setmodel(mystery_box, mystery_box.model);
+		}
+	}
+}
+
 //moto -- put this here because it keeps soft_restart somewhat clean..
 void(entity door) reclose_door = {
 	entity  oldself;
@@ -176,7 +253,7 @@ void(entity door) reclose_door = {
 }
 
 void() Soft_Restart = {
-	entity who, oldself, doors, box, endgame;
+	entity who, oldself, doors, endgame;
 	self = find(world,classname,"player");
 	oldself = self;
 	
@@ -208,6 +285,7 @@ void() Soft_Restart = {
     GameRestart_CleanWallSummons();		// Delete residual wall weapon spawns from our last game.
 	GameRestart_RepairBarricades();		// Make sure all barricades are fully repaired.
 	GameRestart_ResetPerkaColas(); 		// Turn all of the Perk-a-Cola lights off, reset states.
+	GameRestart_ResetMysteryBox();		// Clean up the Mystery Box, delete floating weapon, etc.
 
 	//close doors
 	doors = findfloat(world, isopen, 1);
@@ -215,23 +293,6 @@ void() Soft_Restart = {
 		if (doors.isopen)
 			reclose_door(doors);
 		doors = findfloat(world, isopen, 1);
-	}
-
-	//revert mystery box
-	box = find(world, classname, "mystery");
-	if (box) {
-		box.boxstatus = 0;
-		box.frame = 0;
-		box.goaldummy.frame = 0;
-		boxCount = 0;
-		box.origin = boxOrigin;
-		//self = box;
-
-		if (box.boxweapon)
-			remove(box.boxweapon);
-
-		//mystery_box();
-		//self = oldself;
 	}
 
 	//reset buyable ending
