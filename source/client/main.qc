@@ -554,7 +554,7 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 
 	// Increment the stopwatch
 	// FIXME: I don't really liket his being in UpdateView.. this has nothing to do with rendering.
-	stopwatch_sec = time - (stopwatch_min * 60 + (stopwatch_hr * 360));
+	stopwatch_sec = time - (stopwatch_min * 60 + (stopwatch_hr * 3600));
 
 	if (stopwatch_sec >= 60) {
 		stopwatch_min += stopwatch_sec/60;
