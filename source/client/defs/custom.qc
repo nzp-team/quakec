@@ -212,6 +212,11 @@ int 	platform_is_web;
 #define 	OPTION_WEB_ONLY 	1
 #define 	OPTION_WEB_AND_EXE	2
 
+// Stopwatch server time counter
+float 	stopwatch_sec;
+int 	stopwatch_min;
+int 	stopwatch_hr;
+
 //controller buttons
 
 /*

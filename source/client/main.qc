@@ -177,6 +177,10 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	// force build date text in menu
 	cvar_set("cl_showbuildtime", "1");
 
+	// in-game stopwatch
+	registercvar("scr_serverstopwatch", "0");
+	stopwatch_sec = stopwatch_min = stopwatch_hr = 0;
+
 	// retrieve custom maps
 	Customs_Get();
 
@@ -548,6 +552,18 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 
 	cvar_set("r_viewmodel_fov", ftos(cvar("r_viewmodel_default_fov")*getstatf(STAT_VIEWZOOM)));
 
+	// Increment the stopwatch
+	// FIXME: I don't really liket his being in UpdateView.. this has nothing to do with rendering.
+	stopwatch_sec = time - (stopwatch_min * 60 + (stopwatch_hr * 360));
+
+	if (stopwatch_sec >= 60) {
+		stopwatch_min += stopwatch_sec/60;
+	}
+
+	if (stopwatch_min >= 60) {
+		stopwatch_hr += stopwatch_min/60;
+		stopwatch_min = 0;
+	}
 
 	//autoadd entities received from servers for drawing	
 	addentities(MASK_ENGINE);

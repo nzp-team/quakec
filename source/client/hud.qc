@@ -1522,6 +1522,25 @@ void(float width, float height) HUD_ReviveIcons =
 	}
 }
 
+void(float width, float height) HUD_StopWatch =
+{
+	string sec, min, hr;
+	string stopwatch;
+
+	if (stopwatch_sec < 10) {
+		sec = strcat("0", substring(ftos(stopwatch_sec), 0, 3));
+	} else {
+		sec = substring(ftos(stopwatch_sec), 0, 4);
+	}
+
+	if (stopwatch_min < 10) min = strcat("0", ftos(stopwatch_min)); else min = ftos(stopwatch_min);
+	if (stopwatch_hr < 10) hr = strcat("0", ftos(stopwatch_hr)); else hr = ftos(stopwatch_hr);
+
+	stopwatch = strcat(hr, ":", min, ":", sec);
+
+	drawstring([width - (strlen(stopwatch) * 12) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
+}
+
 /*******************
 *     HUD Draw     *
 *******************/
@@ -1576,6 +1595,10 @@ void(float width, float height) HUD_Draw =
 
 			HUD_PlayerNames(width, height);
 			HUD_ReviveIcons(width, height);
+
+			if (cvar("scr_serverstopwatch")) {
+				HUD_StopWatch(width, height);
+			}
 		} else {
 			HUD_Waypoint(width, height);
 		}
