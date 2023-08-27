@@ -4179,7 +4179,7 @@ float(float wep) GetWeaponZoomAmount =
 			return 25;
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
-			return 50;
+			return 47;
 		case W_THOMPSON:
 		case W_GIBS:
 			return 10;
