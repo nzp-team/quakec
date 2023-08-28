@@ -83,7 +83,7 @@ void() menu_quit =
 void() menu_back =
 {
 	if (in_menu == MENU_GSETTINGS || in_menu == MENU_CSETTINGS ||
-	in_menu == MENU_AUDSETTINGS) {
+	in_menu == MENU_AUDSETTINGS || in_menu == MENU_CONSETTINGS) {
 		if (wasigs == TRUE)
 			in_menu = MENU_IGS;
 		else
