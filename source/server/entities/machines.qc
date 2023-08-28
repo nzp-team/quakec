@@ -146,7 +146,7 @@ void DrinkPerk(float perk) {
 	self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	
 	self.knife_delay = self.reload_delay2 = self.fire_delay2 = self.fire_delay = self.reload_delay = 3 + time;		
-	Set_W_Frame (tempe.weapon_animduration, tempe.weapon2_animduration, 0, 0, PERK, GivePerk, tempe.weapon2model, true, S_RIGHT);
+	Set_W_Frame (tempe.weapon_animduration, tempe.weapon2_animduration, 2.25, 0, PERK, GivePerk, tempe.weapon2model, true, S_RIGHT);
 	self = tempe;
 	sound(other, CHAN_ITEM, self.oldmodel, 1, ATTN_NORM);
 

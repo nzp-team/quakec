@@ -596,7 +596,6 @@ void() PU_Touch =
 void() PU_SparkleThink =
 {
 	float f;
-	float r;
 
 	f = self.frame;
 	while(f == self.frame) {
