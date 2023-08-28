@@ -253,3 +253,39 @@ vector(vector a, vector b, float mix) lerp_vector {
 vector lerp_vector_bezier(vector a, vector b, vector c, float mix) {
 	return lerp_vector(lerp_vector(a,b,mix), lerp_vector(b,c,mix), mix);
 }
+
+/*
+ * clamp
+ *
+ * Limits the given value to the given range.
+ *
+ * value: A number
+ *
+ * minValue: The minimum value of the range
+ *
+ * maxValue: The maximum value of the range
+ *
+ * Returns: A number within the given range.
+ */
+float(float value, float minValue, float maxValue) clamp = {
+    if (value < minValue) {
+        return minValue;
+    }
+    else if (value > maxValue) {
+        return maxValue;
+    }
+
+    return value;
+};
+
+vector(vector a, vector b, float mix) lerpVector =
+{
+    if (mix <= 0) return a;
+    if (mix >= 1) return b;
+    return (b * mix + a * ( 1 - mix ) );
+}
+
+
+// Entity type identifiers when fields are synced from SSQC to CSQC
+// TODO - Generalize this to other AI_Chase types?
+#define ENT_TYPE_ZOMBIE 5

@@ -571,8 +571,12 @@ void cl_navmesh_editor_draw() {
 		cl_navmesh_draw_traversal(i);
 	}
 	
-	cl_navmesh_draw_test_ent(startent_pos, [1,1,1], [0,1,0], 0.4);
-	cl_navmesh_draw_test_ent(goalent_pos, [1,1,1], [1,0,0], 0.4);
+	if(startent_set) {
+		cl_navmesh_draw_test_ent(startent_pos, [1,1,1], [0,1,0], 0.4);
+	}
+	if(goalent_set) {
+		cl_navmesh_draw_test_ent(goalent_pos, [1,1,1], [1,0,0], 0.4);
+	}
 	
 	cl_navmesh_pathfind_draw_result_path();
 	cl_navmesh_pathfind_draw_result_portals();
@@ -2025,8 +2029,10 @@ void cl_navmesh_editor_load_navmesh() {
 
 float(float start, float goal, vector start_pos, vector end_pos) cl_navmesh_pathfind_start;
 
-void cl_navmesh_draw_test_ent(vector pos, vector scale, vector color, float alpha)
-{
+void cl_navmesh_draw_test_ent(vector pos, vector scale, vector color, float alpha) {
+
+
+
 	//Assigning the shader as something else so that fte doesn't batch the calls (leading to colors not changing between draw calls)
 	R_BeginPolygon("debug/wireframe",0);
 	R_BeginPolygon("debug/solid_nocull",0);

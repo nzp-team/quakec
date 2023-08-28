@@ -1194,9 +1194,27 @@ float(float modlindex, optional float useabstransforms) skel_create = #263; /* P
 		Allocates a new uninitiaised skeletal object, with enough bone info to animate the given model.
 		eg: self.skeletonobject = skel_create(self.modelindex); */
 
+typedef struct {
+	int sourcemodelindex; /*frame data will be imported from this model, bones must be compatible*/
+	int reserved;
+	int firstbone;
+	int lastbone;
+	float prescale;	/*0 destroys existing data, 1 retains it*/
+	float scale[4];	/*you'll need to do lerpfrac manually*/
+	int animation[4];
+	float animationtime[4];
+	/*halflife models*/
+	float subblend[2];
+	float controllers[5];
+} skelblend_t;
+
+
 float(float skel, entity ent, float modelindex, float retainfrac, float firstbone, float lastbone, optional float addfrac) skel_build = #264; /* Part of FTE_CSQC_SKELETONOBJECTS
 		Animation data (according to the entity's frame info) is pulled from the specified model and blended into the specified skeletal object.
 		If retainfrac is set to 0 on the first call and 1 on the others, you can blend multiple animations together according to the addfrac value. The final weight should be 1. Other values will result in scaling and/or other weirdness. You can use firstbone and lastbone to update only part of the skeletal object, to allow legs to animate separately from torso, use 0 for both arguments to specify all, as bones are 1-based. */
+
+float(float skel, int numblends, skelblend_t *weights, int structsize) skel_build_ptr = #0:skel_build_ptr; /*
+		Like skel_build, but slightly simpler. */
 
 float(float skel) skel_get_numbones = #265; /* Part of FTE_CSQC_SKELETONOBJECTS
 		Retrives the number of bones in the model. The valid range is 1<=bone<=numbones. */
@@ -1385,6 +1403,12 @@ string(string key) serverkey = #354; /*
 
 float(string key, optional float assumevalue) serverkeyfloat = #0:serverkeyfloat; /*
 		Version of serverkey that returns the value as a float (which avoids tempstrings). */
+
+
+float(string skinfilename, optional string skindata) loadcustomskin = #377;
+void(entity e, float skinobj) applycustomskin = #378;
+void(float skinobj) releasecustomskin = #379;
+
 
 __variant*(int size) memalloc = #384; /* Part of FTE_MEMALLOC
 		Allocate an arbitary block of memory */

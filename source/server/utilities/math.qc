@@ -12,29 +12,6 @@ float(float a, float b) mod;
 float(float x) sign;
 float(float value, float minValue, float maxValue) wrap;
 
-/*
- * clamp
- *
- * Limits the given value to the given range.
- *
- * value: A number
- *
- * minValue: The minimum value of the range
- *
- * maxValue: The maximum value of the range
- *
- * Returns: A number within the given range.
- */
-float(float value, float minValue, float maxValue) clamp = {
-    if (value < minValue) {
-        return minValue;
-    }
-    else if (value > maxValue) {
-        return maxValue;
-    }
-
-    return value;
-};
 
 /*
  * mod
@@ -125,12 +102,6 @@ float (vector ofs) vlen_xy = {
 }
 
 
-vector(vector a, vector b, float mix) lerpVector =
-{
-    if (mix <= 0) return a;
-    if (mix >= 1) return b;
-    return (b * mix + a * ( 1 - mix ) );
-}
 
 // for a relaxing lerp: hermite lerp.
 float(float a, float b, float mix) lerpHermite =

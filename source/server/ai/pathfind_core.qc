@@ -1293,8 +1293,9 @@ float sv_navmesh_pathfind(entity from, entity to) {
     // We can perform pathfinding logic without losing our current path.
 
     // TODO - In pathfinding, I need a reference to the calling entity to know which traversal types this entity can use
-    AI_Chase chase_ent = (AI_Chase) from;
-	navmesh_pathfind_result* res = &(sv_zombie_pathfind_result[chase_ent.pathfind_result_idx]);
+    // AI_Chase chase_ent = (AI_Chase) from;
+	// navmesh_pathfind_result* res = &(sv_zombie_pathfind_result[chase_ent.pathfind_result_idx]);
+	navmesh_pathfind_result* res = &(sv_zombie_pathfind_result[0]); // FIXME
 	
 	float start = sv_navmesh_get_containing_poly(from.origin);
 	float goal = sv_navmesh_get_containing_poly(to.origin);

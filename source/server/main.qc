@@ -98,6 +98,58 @@ void() StartFrame =
 		return;
 	}
 
+	// ------------------------------------------------------------------------
+	// Debugging IQM SSQC hitmeshes
+	// ------------------------------------------------------------------------
+	entity player = find(world, classname, "player");
+	if(player != world) {
+		vector player_pos = player.origin;
+		vector player_angles = player.v_angle;
+		makevectors(player_angles);
+		vector view_ofs = '0 0 32';
+		// traceline(player_pos + view_ofs, player_pos + view_ofs + v_forward * 1000, 0, player);
+		// player.dimension_hit = 0;
+		// traceline(player_pos + view_ofs, player_pos + view_ofs + v_forward * 1000, 4, player);
+		traceline(player_pos + view_ofs, player_pos + view_ofs + v_forward * 1000, MOVE_HITMODEL, player); // 1<<2
+		// traceline(player_pos + view_ofs, player_pos + view_ofs + v_forward * 1000, MOVE_EVERYTHING, player); // 1<<5
+		// traceline(player_pos + view_ofs, player_pos + view_ofs + v_forward * 1000, MOVE_EVERYTHING | MOVE_HITMODEL, player); // 1<<5
+		// traceline(player_pos + view_ofs, player_pos + view_ofs + v_forward * 1000, 0, player); 
+		player.dimension_hit |= HITBOX_DIM_ZOMBIES;
+		// traceline(player_pos + view_ofs, player_pos + view_ofs + v_forward * 1000, MOVE_OTHERONLY | MOVE_HITMODEL, player); 
+
+		// print("trace dist: ", ftos(1000 * trace_fraction), "\n");
+		if(trace_ent.classname == "ai_zombie") {
+			// entity zombie_ent = (AI_Chase) trace_ent;
+			// TODO - Modify end limb state...
+			switch(trace_surface_id) {
+				case 1:
+					print("Zombie body\n");
+					break;
+				case 2:
+					print("Zombie head\n");
+					break;
+				case 3:
+					print("Zombie left arm\n");
+					break;
+				case 4:
+					print("Zombie left leg\n");
+					break;
+				case 5:
+					print("Zombie right leg\n");
+					break;
+				case 6:
+					print("Zombie right arm\n");
+					break;
+				default:
+					// print("\n");
+					break;	
+			}
+		}
+	}
+
+
+	// ------------------------------------------------------------------------
+
 	if (cl_navmesh_edit_mode) {
 		return;
 	}
