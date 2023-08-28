@@ -1295,13 +1295,13 @@ void() Float_Decrease =
 void() findboxspot =
 {	
 	local entity newspot;
-	local float box = rint(random(boxCount));
-	newspot = boxLocations[box];
+	local float box = rint(random(mystery_box_count));
+	newspot = mystery_boxes[box];
 
 	// Ensure the spot we choose is valid.
 	while(newspot == world || newspot == self.owner) {
-		box = rint(random(boxCount));
-		newspot = boxLocations[box];
+		box = rint(random(mystery_box_count));
+		newspot = mystery_boxes[box];
 	}
 
 	// Make our current spot a tp_spot
@@ -1347,17 +1347,200 @@ void() findboxspot =
 	setsize (newspot, VEC_HULL2_MIN, VEC_HULL2_MAX);
 }
 
-void() remove_box =
+//
+// MBOX_MakeActive()
+// Sets the Mystery Box touch to mystery_touch (delay)
+//
+void() MBOX_MakeActive =
 {
-	if (!(self.owner.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) 
-		if (self.owner.goaldummy != world) {
-			MBOX_FreeEnt(self.owner.goaldummy);
-		}
+	self.touch = mystery_touch;
+}
 
-	self.owner.frame = 0;	// set box frame
+//
+// MBOX_FindNewSpot()
+// Locate a new location for the Mystery Box.
+//
+void() MBOX_FindNewSpot =
+{
+	entity new_box = world;
+
+	// Find a new Mystery Box location
+	while(new_box == world || new_box == self) {
+		float box_index = rint(random(mystery_box_count));
+		new_box = mystery_boxes[box_index];
+	}
+
+	// Stupid Teddy Bear being rotated!!
+	new_box.angles_y += 90;
+
+	// Convert the spawn to a Mystery Box
+	new_box.spawnflags = self.spawnflags;
+	new_box.spins = new_box.boxstatus = 0;
+	new_box.think = MBOX_MakeActive;
+	new_box.nextthink = time + 2;
+	new_box.solid = SOLID_TRIGGER;
+	new_box.classname = "mystery";
+	new_box.frame = 0;
+	setmodel(new_box, "models/machines/mystery.mdl");
+	setsize(new_box, VEC_HULL2_MIN, VEC_HULL2_MAX);
+
+	// Spawn the Box Glow if permitted
+	if (!(new_box.spawnflags & MBOX_SPAWNFLAG_NOLIGHT))
+	{
+		entity light;
+		light = MBOX_GetFreeEnt();
+		light.classname = "mystery_glow";
+		new_box.goaldummy = light;
+		setmodel(light,"models/machines/mglow$.mdl");
+		setorigin(light, new_box.origin);
+		light.angles = new_box.angles;
+		light.effects = EF_FULLBRIGHT;
+
+#ifdef FTE
+
+		light.alpha = 0.5;
+
+#endif // FTE
+	}
+
+	// Spawn some sparkles so it doesn't just "appear"
+	SpawnSpark(new_box.origin, 0.75);
+	// "Woosh" Effect
+	sound(new_box, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NORM);
+}
+
+//
+// MBOX_StopFlying()
+// We've done our dance, go away and
+// delay respawning.
+//
+void() MBOX_StopFlying = 
+{
+	// Spark Effect
+	SpawnSpark(self.origin, 0.75);
+	// "Woosh" Effect
+	sound(self, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NORM);
+	// Disappear!
+	self.model = "models/props/teddy.mdl";
+	setmodel(self, self.model);
+	self.frame = 2;
+	// Clean up
+	self.origin = self.oldvelocity;
+	self.angles = self.movement;
+	self.velocity = 0;
+	self.angles_y -= 90;
+	self.classname = "mystery_box_tp_spot";
+	self.touch = SUB_Null;
+	// 12 Second delay to finding a new spot
+	self.think = MBOX_FindNewSpot;
+	self.nextthink = time + 12;
+}
+
+//
+// MBOX_AnimateFly()
+// Rotate the Mystery Box as it flies away.
+//
+void() MBOX_AnimateFly =
+{
+	if (self.score == 0)
+		self.angles_x += 6;
+	else
+		self.angles_x -= 6;
+
+	if (self.angles_x - self.movement_x >= 20)
+		self.score = 1;
+	else if (self.angles_x - self.movement_x <= -20)
+		self.score = 0;
+
+	if(self.ltime < time) {
+		MBOX_StopFlying();
+	} else {
+		self.nextthink = time + 0.05;
+	}
+}
+
+//
+// MBOX_FlyAway()
+// The actual leave animation.
+//
+void() MBOX_FlyAway =
+{
+	// Begin rising
 	makevectors(self.angles);
-	self.velocity = v_up*100;
-	self.think = findboxspot;
+	self.movetype = MOVETYPE_NOCLIP;
+	self.velocity = v_up * 7;
+	// Animation lasts 4 seconds
+	self.ltime = time + 4;
+	// Animation Update
+	self.think = MBOX_AnimateFly;
+	self.nextthink = time + 0.05;
+}
+
+//
+// MBOX_Leave()
+// Starts Mystery Box Leave animation.
+//
+void() MBOX_Leave =
+{
+	// Broadcast the laughter
+	sound(self, CHAN_ITEM, "sounds/pu/byebye.wav", 1, ATTN_NONE);
+	// "Woosh" Effect
+	sound(self, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NORM);
+	// Spark Effect
+	SpawnSpark(self.origin, 0.75);
+	// Turn off Light & Glow
+	Light_None(self);
+	if (!(self.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) 
+		if (self.goaldummy != world)
+			MBOX_FreeEnt(self.goaldummy);
+	// Save old position and angle
+	self.oldvelocity = self.origin;
+	self.movement = self.angles;
+	// Start flying
+	self.think = MBOX_FlyAway;
+	self.nextthink = time + 0.05;
+}
+
+//
+// MBOX_TeddyDespawn()
+// Frees the Teddy Bear entity.
+//
+void() MBOX_TeddyDespawn =
+{
+	self.velocity = 0;
+	MBOX_FreeEnt(self);
+}
+
+//
+// MBOX_TeddyLeave()
+// Make the Teddy Bear float away and start the
+// timer for the Mystery Box to follow.
+//
+void() MBOX_TeddyLeave =
+{
+	// Fly slowly
+	self.velocity = v_up*75;
+	self.think = MBOX_TeddyDespawn;
+	self.nextthink = time + 5;
+	// Linger for 3 seconds, and then the Box follows.
+	self.owner.think = MBOX_Leave;
+	self.owner.nextthink = time + 3;
+}
+
+//
+// MBOX_PresentTeddy()
+// Lets the Teddy Bear idle for a few seconds,
+// return player points, kick-off leave.
+//
+void() MBOX_PresentTeddy =
+{
+	// Return the Player's points.
+	addmoney(self.owner.owner, 950, 0);
+	// Broadcast the bad luck.
+	sound(self, CHAN_ITEM, "sounds/misc/buy.wav", 1, ATTN_NONE);
+	sound(self, 2, "sounds/misc/giggle.wav", 1, ATTN_NONE);
+	// Linger for 2 seconds, and then fly away.
+	self.think = MBOX_TeddyLeave;
 	self.nextthink = time + 2;
 }
 
@@ -1404,9 +1587,8 @@ void() Float_Change =
 			self.model = "models/props/teddy.mdl";
 			setmodel(self, self.model);
 			self.angles_y = self.angles_y - 90;
-			self.nextthink = time + 5;
-			self.think = remove_box;
-			sound (self, CHAN_ITEM, "sounds/pu/byebye.wav", 1, ATTN_NORM);
+			self.nextthink = time + 1;
+			self.think = MBOX_PresentTeddy;
 			ach_tracker_luck++;
 
 			if (ach_tracker_luck >= 10)
@@ -1454,7 +1636,7 @@ void() allocate_floating_weapons =
 
 	// Spawn all of our floating weapon entities
 	// Multiply by 2 to account for the glow.
-	for (float i = 0; i < boxCount * 3; i++) {
+	for (float i = 0; i < mystery_box_count * 3; i++) {
 		entity tempe = spawn();
 		tempe.classname = "freeMboxEntity";
 	}
@@ -1505,6 +1687,7 @@ void() mystery_box_tp_spot =
 {
 	precache_model ("models/props/teddy.mdl"); 
 	precache_sound ("sounds/pu/byebye.wav");
+	precache_sound ("sounds/misc/giggle.wav");
 	
 	self.solid=SOLID_TRIGGER;
 	self.classname = "mystery_box_tp_spot";
@@ -1517,8 +1700,8 @@ void() mystery_box_tp_spot =
 		self.angles_y -= 90;
 	}
 	
-	boxLocations[boxCount] = self;
-	boxCount++;
+	mystery_boxes[mystery_box_count] = self;
+	mystery_box_count++;
 };
 
 void() mystery_touch =
@@ -1731,8 +1914,8 @@ void() mystery_box =
 	self.touch = mystery_touch;
 	boxOrigin = self.origin;
 
-	boxLocations[boxCount] = self;
-	boxCount++;
+	mystery_boxes[mystery_box_count] = self;
+	mystery_box_count++;
 
 	self.think = allocate_floating_weapons;
 	self.nextthink = time + 0.2;

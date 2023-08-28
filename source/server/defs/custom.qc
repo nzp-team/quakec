@@ -401,8 +401,8 @@ float isPowerOn;
 .float spins;
 .float papState;
 float BoxWeapons[27];
-entity boxLocations[32];
-float boxCount;
+float mystery_box_count;
+entity mystery_boxes[16];
 vector boxOrigin;
 
 #ifdef FTE
