@@ -2207,6 +2207,53 @@ void () Weapon_Logic =
 #endif // FTE
 
 	//
+	// Force-ADS if toggled
+	//
+	if (cvar("cl_adsmode")) {
+		// Toggle ADS back and forth
+		if (self.ads_toggle == false) {
+			W_AimOut();
+			self.zoom = 0;
+
+#ifdef FTE
+
+			self.viewzoom = 1;
+			UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
+			UpdateV2model(self.weapon2model, 0);
+
+#endif // FTE
+		} else if (self.reload_delay < time && self.reload_delay2 < time &&
+		self.knife_delay < time && self.grenade_delay < time) {
+			W_AimIn();
+
+#ifdef FTE
+
+			if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
+					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
+						if (self.scopetime >= time) {
+							self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
+							self.zoom = 2;
+						}
+			} else {
+				self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
+			}
+
+#endif // FTE
+
+			if (!self.zoom) {
+				if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
+					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
+					SetUpdate(self, UT_ZOOM2, 0, 0, 0);
+					self.zoom = 2;
+					self.scopetime = time + 0.3;
+				} else {
+					self.zoom = 1;
+				}
+			}
+		}
+	}
+
+	//
 	// Fire Button Logic
 	// NOTE: Since the right weapon is the "normal" side there's some
 	// flip flop logic on FTE so that LMB will fire the left side instead.
@@ -2260,38 +2307,12 @@ void () Weapon_Logic =
 #endif // FTE
 
 		} else {
-			// Toggle ADS back and forth
 			if (cvar("cl_adsmode")) {
-
 				if (self.ads_release == false)
 					return;
 
 				self.ads_toggle = !self.ads_toggle;
 				self.ads_release = false;
-
-				if (self.ads_toggle == false) {
-					W_AimOut();
-					self.zoom = 0;
-
-#ifdef FTE
-
-					self.viewzoom = 1;
-					UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-					UpdateV2model(self.weapon2model, 0);
-
-#endif // FTE
-
-				} else {
-					W_AimIn();
-					self.zoom = 1;
-
-#ifdef FTE
-
-					self.viewzoom = 0.9;
-
-#endif // FTE
-
-				}
 			} else {
 				W_AimIn();
 
@@ -2325,9 +2346,11 @@ void () Weapon_Logic =
 	}
 	// AIM button is released
 	else if (!self.button8 && self.zoom) {
-
 		// So ADS toggle knows not to spam updates.
 		self.ads_release = true;
+
+		if (cvar("cl_adsmode") && self.ads_toggle == true)
+			return;
 
 #ifdef FTE
 
@@ -2371,6 +2394,10 @@ void () Weapon_Logic =
 #endif // FTE
 
 	} else {
+		
+		// So ADS toggle knows not to spam updates.
+		self.ads_release = true;
+
 		// Check for release for semi automatic weapons.
 		if (IsDualWeapon(self.weapon)) {
 
