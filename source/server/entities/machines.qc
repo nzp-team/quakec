@@ -1340,6 +1340,7 @@ void() findboxspot =
 	newspot.touch = mystery_touch;
 	newspot.solid=SOLID_TRIGGER;
 	newspot.classname = "mystery";
+	newspot.spawnflags = self.owner.spawnflags;
 	setorigin(newspot, newspot.origin);
 	setmodel (newspot, "models/machines/mystery.mdl");
 	newspot.frame = 0;
@@ -1349,8 +1350,9 @@ void() findboxspot =
 void() remove_box =
 {
 	if (!(self.owner.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) 
-		if (self.owner.goaldummy != world)
-			setmodel(self.owner.goaldummy, "");
+		if (self.owner.goaldummy != world) {
+			MBOX_FreeEnt(self.owner.goaldummy);
+		}
 
 	self.owner.frame = 0;	// set box frame
 	makevectors(self.angles);
