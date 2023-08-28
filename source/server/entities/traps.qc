@@ -294,13 +294,17 @@ void() zapper_switch =
 
 void() set_zapper_bbox =
 {
+	vector bbmin, bbmax;
 	// Retrieve the distance between this zapper and the one
 	// it's linked to.
 	entity other_zapper = find(world, targetname, self.target);
 	float distance = abs(vlen(other_zapper.origin - self.origin));
 
-	vector bbmin = '0 0 0';
-	vector bbmax = '0 0 0';
+	// Point upward by default
+	bbmin = '-20 -20 -4';
+	bbmax_x = 20;
+	bbmax_y = 20;
+	bbmax_z = distance/2;
 
 	// X Axis
 	if (self.angles_x) {
@@ -399,6 +403,7 @@ void() zapper_node =
     setorigin(self, self.origin);
     setmodel(self, self.model);
 	makevectors(self.angles);
+	setsize (self, VEC_HULL_MIN, VEC_HULL_MAX);
     
 	self.movetype = MOVETYPE_NONE;
 	self.think = set_zapper_bbox;
