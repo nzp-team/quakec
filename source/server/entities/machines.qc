@@ -464,7 +464,7 @@ void() perk_revive =
 
 	// View Model End Frame
 	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 22;
+		self.weapon2_animduration = 31;
 	}
 
 	// Light Effect
@@ -531,7 +531,7 @@ void() perk_flopper =
 
 	// View Model End Frame
 	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 22;
+		self.weapon2_animduration = 31;
 	}
 
 	// Light Effect
@@ -596,7 +596,7 @@ void() perk_juggernog =
 
 	// View Model End Frame
 	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 22;
+		self.weapon2_animduration = 31;
 	}
 
 	// Light Effect
@@ -661,7 +661,7 @@ void() perk_staminup =
 
 	// View Model End Frame
 	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 22;
+		self.weapon2_animduration = 31;
 	}
 
 	// Light Effect
@@ -726,7 +726,7 @@ void() perk_speed =
 
 	// View Model End Frame
 	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 22;
+		self.weapon2_animduration = 31;
 	}
 
 	// Light Effect
@@ -791,7 +791,7 @@ void() perk_double =
 
 	// View Model End Frame
 	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 22;
+		self.weapon2_animduration = 31;
 	}
 
 	// Light Effect
@@ -857,7 +857,7 @@ void() perk_deadshot =
 
 	// View Model End Frame
 	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 22;
+		self.weapon2_animduration = 31;
 	}
 
 	// Light Effect
@@ -924,7 +924,7 @@ void() perk_mule =
 
 	// View Model End Frame
 	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 22;
+		self.weapon2_animduration = 31;
 	}
 
 	// Light Effect
