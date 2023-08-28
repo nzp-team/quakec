@@ -94,6 +94,7 @@ void() zapper_do_damage
 	// - Has a chance to gib.
 	// - No normal death sound, play elec sound on contact, then
 	// again on death.
+	// - Zombies do not drop Power-Ups when killed via traps.
 	if (other.classname == "ai_zombie_head" || other.classname == "ai_zombie_rarm"
 	|| other.classname == "ai_zombie_larm") {
 		// If we're a limb, grab our body.

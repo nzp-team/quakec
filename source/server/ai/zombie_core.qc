@@ -1149,7 +1149,7 @@ void() Zombie_Death =
 		self.s_time = 0;
 	}
 	
-	if(self.outside == FALSE)
+	if(self.outside == false && self.electro_targeted == false)
 	{
 		if (totalpowerups < POWERUPS_PER_ROUND)
 		{
