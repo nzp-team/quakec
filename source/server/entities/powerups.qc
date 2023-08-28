@@ -599,12 +599,9 @@ void() PU_SparkleThink =
 	float r;
 
 	f = self.frame;
-
-	while(f == self.frame)
-	{
-		r = random();
-		r = ((r > 0.2) ? 1 : 0) + ((r > 0.4) ? 1 : 0) + ((r > 0.6) ? 1 : 0) + ((r > 0.8) ? 1 : 0);
-		f = r;
+	while(f == self.frame) {
+		// Pick a random frame from [0,4]
+		f = floor(5 * random());
 	}
 	self.frame = f;
 	
