@@ -650,8 +650,8 @@ void() PlayerSpawn =
 	SetPerk(self, self.perks);
 
 	if (rounds < 1 && player_count == 0) {
-		sound(self, 0, "sounds/rounds/splash.wav", 1, ATTN_NONE);
-		sound(self, 1, "sounds/rounds/nround.wav", 0.75, ATTN_NONE);
+		sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
+		sound(self, CHAN_ITEM, "sounds/rounds/nround.wav", 0.75, ATTN_NONE);
 	}
 
 	PromptLevelChange(self.nextthink + 3, 1, self);	
