@@ -476,11 +476,11 @@ void() Update_Vmodel =
 .float prev_limbs_state;
 .float prev_skin;
 .float cur_skin_idx;
-#define ZOMBIE_LIMB_STATE_HEAD	1
-#define ZOMBIE_LIMB_STATE_ARM_L	2
-#define ZOMBIE_LIMB_STATE_ARM_R	4
-#define ZOMBIE_LIMB_STATE_LEG_L	8
-#define ZOMBIE_LIMB_STATE_LEG_R	16
+#define ZOMBIE_LIMB_STATE_HEAD		1
+#define ZOMBIE_LIMB_STATE_ARM_L		2
+#define ZOMBIE_LIMB_STATE_ARM_R		4
+#define ZOMBIE_LIMB_STATE_LEG_L		8
+#define ZOMBIE_LIMB_STATE_LEG_R		16
 
 #define ZOMBIE_IQM_GEOMSET_BODY 	0
 #define ZOMBIE_IQM_GEOMSET_HEAD 	1
@@ -509,34 +509,27 @@ float() zombie_predraw = {
 
 		// Due to QC's limit of 8-args per vararg func, split this up into 
 		// a few different sprintf calls.
-		string skin_str = sprintf("%s%s",
-			sprintf("%s%s",
-				sprintf("%s%s%s",
-					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_BODY, 	0),
-					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_HEAD, 	self.limbs_state & ZOMBIE_LIMB_STATE_HEAD ? 0 : 1),
-					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_EYES, 	self.limbs_state & ZOMBIE_LIMB_STATE_HEAD ? 0 : 1)
-				),sprintf("%s%s%s%s",
-					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_ARM_L, 	self.limbs_state & ZOMBIE_LIMB_STATE_ARM_L ? 0 : 1),
-					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_LEG_L, 	self.limbs_state & ZOMBIE_LIMB_STATE_LEG_L ? 0 : 1),
-					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_LEG_R, 	self.limbs_state & ZOMBIE_LIMB_STATE_LEG_R ? 0 : 1),
-					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_ARM_R, 	self.limbs_state & ZOMBIE_LIMB_STATE_ARM_R ? 0 : 1)
-				)
-			),
-			sprintf(
-				"replace	ZombieBody			\"%s\"	\n"
-				"replace	ZombieHead			\"%s\"	\n"
-				"replace	ZombieArmL			\"%s\"	\n"
-				"replace	ZombieLegL			\"%s\"	\n"
-				"replace	ZombieLegR			\"%s\"	\n"
-				"replace	ZombieArmR			\"%s\"	\n",
-				shader_name,
-				shader_name,
-				shader_name,
-				shader_name,
-				shader_name,
-				shader_name
-			)
-		);
+		string skin_str = "";
+		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_BODY, )
+
+
+		string skin_str = "";
+		// Add in the geomset defs
+		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_BODY, 0);
+		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_HEAD, self.limbs_state & ZOMBIE_LIMB_STATE_HEAD   == 0);
+		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_EYES, self.limbs_state & ZOMBIE_LIMB_STATE_HEAD   == 0);
+		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_ARM_L, self.limbs_state & ZOMBIE_LIMB_STATE_ARM_L == 0);
+		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_LEG_L, self.limbs_state & ZOMBIE_LIMB_STATE_LEG_L == 0);
+		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_LEG_R, self.limbs_state & ZOMBIE_LIMB_STATE_LEG_R == 0);
+		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_ARM_R, self.limbs_state & ZOMBIE_LIMB_STATE_ARM_R == 0);
+		// Add in the shader defs
+		skin_str = sprintf("%sreplace ZombieBody %S\n", skin_str, shader_name);
+		skin_str = sprintf("%sreplace ZombieHead %S\n", skin_str, shader_name);
+		skin_str = sprintf("%sreplace ZombieArmL %S\n", skin_str, shader_name);
+		skin_str = sprintf("%sreplace ZombieLegL %S\n", skin_str, shader_name);
+		skin_str = sprintf("%sreplace ZombieLegR %S\n", skin_str, shader_name);
+		skin_str = sprintf("%sreplace ZombieArmR %S\n", skin_str, shader_name);
+
 		// print("Zombie limbs: ", ftos(self.limbs_state), "\n");
 		// print("Zombie shader: ", shader_name, "\n");
 		// print(skin_str);
