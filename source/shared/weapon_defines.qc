@@ -3,7 +3,7 @@
 
 	all weapon stats are stored here
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2023 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -4239,4 +4239,45 @@ float(float wep) GetWeaponZoomAmount =
 	}
 
 	return 0;
+}
+
+//
+// WepDef_GetWeaponIDFromName(weapon)
+// Takes a string input and returns the weapon ID
+// from the associated string. Will be deprecated
+// when weapons are data-driven.
+//
+float(string weapon) WepDef_GetWeaponIDFromName =
+{
+	switch(weapon) {
+		case "m1911": return W_COLT;
+		case "kar98k": return W_KAR;
+		case "thompson": return W_THOMPSON;
+		case "357_magnum": return W_357;
+		case "bar": return W_BAR;
+		case "ballistic_knife": return W_BK;
+		case "browning": return W_BROWNING;
+		case "double_barreled_shotgun": return W_DB;
+		case "fg42": return W_FG;
+		case "gewehr": return W_GEWEHR;
+		case "kar98k_scoped": return W_KAR_SCOPE;
+		case "m1_garand": return W_M1;
+		case "m1a1_carbine": return W_M1A1;
+		case "m2_flamethrower": return W_M2;
+		case "mp40": return W_MP40;
+		case "mg42": return W_MG;
+		case "panzerschreck": return W_PANZER;
+		case "ppsh-41": return W_PPSH;
+		case "ptrs-41": return W_PTRS;
+		case "ray_gun": return W_RAY;
+		case "sawed_off_shotgun": return W_SAWNOFF;
+		case "stg-44": return W_STG;
+		case "trenchgun": return W_TRENCH;
+		case "type_100": return W_TYPE;
+		case "wunderwaffe": return W_TESLA;
+		case "mp5k": return W_MP5K;
+		case "springfield": return W_SPRING;
+		default: return W_NOWEP;
+	}
+	return W_COLT;
 }

@@ -62,6 +62,7 @@ inline void(entity ent) PU_FreeEnt =
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
 	ent.frame = 0;
+	ent.effects = 0;
 };
 
 //
@@ -665,6 +666,7 @@ void(vector where, float type) Spawn_Powerup =
 	}
 
 	// Assign the Power-Up model and sound
+	powerup.effects = EF_FULLBRIGHT;
 	powerup.model = powerup.oldmodel = PU_ModelPath(powerup.walktype);
 	setmodel(powerup, powerup.model);
 	powerup.powerup_vo = PU_VoiceoverPath(powerup.walktype);

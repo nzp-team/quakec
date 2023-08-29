@@ -34,7 +34,7 @@ void() setup_perk;
 void() touch_perk;
 void(entity ent) MBOX_FreeEnt;
 entity() MBOX_GetFreeEnt;
-void() mystery_touch;
+void() MBOX_Touch;
 
 #define MBOX_SPAWNFLAG_NOLIGHT 		2
 
@@ -185,7 +185,7 @@ void() GameRestart_ResetMysteryBox =
 
 		// If the Mystery Box is not in its original
 		// location.
-		if (mystery_box.origin != boxOrigin) {
+		if (mystery_box.origin != mystery_box_start_origin) {
 			mystery_box.model = "models/props/teddy.mdl";
 			mystery_box.frame = 2;
 			mystery_box.classname = "mystery_box_tp_spot";
@@ -196,11 +196,11 @@ void() GameRestart_ResetMysteryBox =
 				MBOX_FreeEnt(mystery_box.goaldummy);
 
 			// This isn't the normal spawn position
-			if (mystery_box.origin != boxOrigin) {
+			if (mystery_box.origin != mystery_box_start_origin) {
 				// Find the original spot
 				entity original_box = find(world, classname, "mystery_box_tp_spot");
 				while (original_box != world) {
-					if (original_box.origin == boxOrigin)
+					if (original_box.origin == mystery_box_start_origin)
 						break;
 					
 					original_box = find(original_box, classname, "mystery_box_tp_spot");
@@ -212,20 +212,23 @@ void() GameRestart_ResetMysteryBox =
 					light.classname = "mystery_glow";
 					original_box.goaldummy = light;
 
-					setmodel(light, "models/machines/mglow$.mdl");
+					setmodel(light, mystery_box_glow_model);
 					setorigin(light, original_box.origin);
 					light.angles = original_box.angles;
 
 #ifdef FTE
+
 					light.alpha = 0.5;
-#endif
+
+#endif // FTE
+
 				}
 
-				original_box.touch = mystery_touch;
+				original_box.touch = MBOX_Touch;
 				original_box.solid = SOLID_TRIGGER;
 				original_box.classname = "mystery";
 				setorigin(original_box, original_box.origin);
-				setmodel(original_box, "models/machines/mystery.mdl");
+				setmodel(original_box, mystery_box_model);
 				setsize (original_box, VEC_HULL2_MIN, VEC_HULL2_MAX);
 			}
 

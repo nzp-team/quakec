@@ -945,11 +945,11 @@ void(float width, float height) HUD_Useprint =
 			usestring = strcat("Hold ",usespace, " to Rebuild Barrier");
 			break;
 		case 6://box
-			usestring = strcat("Hold ",usespace, " to buy a Random Weapon");
+			usestring = strcat("Hold ",usespace, " for Mystery Box");
 			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
 			break;
 		case 7://box take
-			usestring = strcat("Hold ",usespace, " to take Weapon");
+			usestring = strcat("Hold ",usespace, " for ", GetWeaponName(useprint_weapon));
 			break;
 		case 8://power
 			usestring = "The Power must be Activated first";

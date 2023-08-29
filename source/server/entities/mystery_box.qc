@@ -26,10 +26,55 @@
 */
 
 void(vector where, float time_alive) SpawnSpark;
+void() MBOX_Touch;
 
 #define MBOX_SPAWNFLAG_NOTHERE 		1
 #define MBOX_SPAWNFLAG_NOLIGHT 		2
 
+//
+// MBOX_UpdateGlowFrame()
+// Updates the Glow model frame to match
+// the box if it exists.
+//
+void() MBOX_UpdateGlowFrame =
+{
+	if (self.goaldummy) self.goaldummy.frame = self.frame;
+};
+
+//
+// MBOX_PlayOpenAnimation()
+// Plays the open animation for the Mystery Box,
+// frames 1-8.
+//
+void() MBOX_PlayOpenAnimation  = [1, MBOX_OpenAnimation2 ] { self.frame = 1; MBOX_UpdateGlowFrame(); Light_Yellow(self); };
+void() MBOX_OpenAnimation2 = [2, MBOX_OpenAnimation3 ] { self.frame = 2; MBOX_UpdateGlowFrame(); };
+void() MBOX_OpenAnimation3 = [3, MBOX_OpenAnimation4 ] { self.frame = 3; MBOX_UpdateGlowFrame(); };
+void() MBOX_OpenAnimation4 = [4, MBOX_OpenAnimation5 ] { self.frame = 4; MBOX_UpdateGlowFrame(); };
+void() MBOX_OpenAnimation5 = [5, MBOX_OpenAnimation6 ] { self.frame = 5; MBOX_UpdateGlowFrame(); };
+void() MBOX_OpenAnimation6 = [6, MBOX_OpenAnimation7 ] { self.frame = 6; MBOX_UpdateGlowFrame(); };
+void() MBOX_OpenAnimation7 = [7, MBOX_OpenAnimation8 ] { self.frame = 7; MBOX_UpdateGlowFrame(); };
+void() MBOX_OpenAnimation8 = [8, SUB_Null            ] { self.frame = 8; MBOX_UpdateGlowFrame(); };
+
+//
+// MBOX_Reset()
+// Resets the Mystery Box to be ready for
+// another use.
+//
+inline void() MBOX_Reset = 
+{
+	self.frame = 0;
+	self.boxstatus = 0;
+};
+
+//
+// MBOX_PlayCloseAnimation()
+// Plays the open animation for the Mystery Box,
+// frames 9-12.
+//
+void() MBOX_PlayCloseAnimation  = [9, MBOX_CloseAnimation2 ] { self.frame = 9; MBOX_UpdateGlowFrame(); sound (self, CHAN_ITEM, mystery_box_close_sound, 1, ATTN_NORM); Light_None(self); };
+void() MBOX_CloseAnimation2 = [10, MBOX_CloseAnimation3 ] { self.frame = 10; MBOX_UpdateGlowFrame(); };
+void() MBOX_CloseAnimation3 = [10, MBOX_CloseAnimation4 ] { self.frame = 11; MBOX_UpdateGlowFrame(); };
+void() MBOX_CloseAnimation4 = [10, MBOX_Reset           ] { self.frame = 12; MBOX_UpdateGlowFrame(); };
 
 //
 // MBOX_FreeEnt(ent)
@@ -66,137 +111,21 @@ entity() MBOX_GetFreeEnt =
 	return ent;
 };
 
-void() updateBoxGlow
+//
+// MBOX_GetRandomBoxWeapon(user)
+// Returns a weapon from the Mystery Box allow-list
+// that the user is not holding.
+//
+float(entity user) MBOX_GetRandomBoxWeapon =
 {
-	if(self.goaldummy)
-	{
-		self.goaldummy.frame = self.frame;
-	}
-};
+    float weapon_index = rint((random() * (MAX_BOX_WEAPONS - 1)));
+    float weapon_id = mystery_box_weapons[weapon_index].weapon_id;
+    float weapon_allowed = mystery_box_weapons[weapon_index].allowed;
 
-
-void()	box_open1		=[	1,	box_open2	] { self.frame = 1;updateBoxGlow(); Light_Yellow(self);};
-void()	box_open2		=[	2,	box_open3	] { self.frame = 2;updateBoxGlow();};
-void()	box_open3		=[	3,	box_open4	] { self.frame = 3;updateBoxGlow();};
-void()	box_open4		=[	4,	box_open5	] { self.frame = 4;updateBoxGlow();};
-void()	box_open5		=[	5,	box_open6	] { self.frame = 5;updateBoxGlow();};
-void()	box_open6		=[	6,	box_open7	] { self.frame = 6;updateBoxGlow();};
-void()	box_open7		=[	7,	box_open8	] { self.frame = 7;updateBoxGlow();};
-void()	box_open8		=[	8,	SUB_Null	] { self.frame = 8;updateBoxGlow();};
-
-void() resetbox = 
-{
-	self.frame = 0;
-	self.boxstatus = 0;
-};
-
-
-void()	box_close1	=[	9,	box_close2	] { self.frame = 9;updateBoxGlow();sound (self, CHAN_ITEM, "sounds/machines/mbox_close.wav", 1, ATTN_NORM); Light_None(self);};
-void()	box_close2	=[	10,	box_close3	] { self.frame = 10;updateBoxGlow();};
-void()	box_close3	=[	11,	box_close4	] { self.frame = 11;updateBoxGlow();};
-void()	box_close4	=[	12,	resetbox	] { self.frame = 12;updateBoxGlow();};
-
-//
-// Getweaponid()
-// Returns weapon ID from Mbox ID, as they are slightly different
-// because.. reasons..
-//
-float(float r) Getweaponid =
-{	
-	switch(r) {
-		case 0:
-			return W_COLT;
-		case 1:
-			return W_KAR;
-		case 2:
-			return W_DB;
-		case 3:
-			return W_MG;
-		case 4:
-			return W_RAY;
-		case 5:
-			return W_THOMPSON;
-		case 6:
-			return W_M2;
-		case 7:
-			return W_PPSH;
-		case 8:
-			return W_SAWNOFF;
-		case 9:
-			return W_TESLA;
-		case 10:
-			return W_M1A1;
-		case 11:
-			return W_GEWEHR;
-		case 12:
-			return W_FG;
-		case 13:
-			return W_BROWNING;
-		case 14:
-			return W_KAR_SCOPE;
-		case 15:
-			return W_357;
-		case 16:
-			return W_STG;
-		case 17:
-			return W_PANZER;
-		case 18:
-			return W_BK;
-		case 19:
-			return W_PTRS;
-		case 20:
-			return W_MP40;
-		case 21:
-			return W_TRENCH;
-		case 22:
-			return W_BAR;
-		case 23:
-			return W_M1;
-		case 24:
-			return W_TYPE;
-		case 25:
-			return W_MP5K;
-		case 26:
-			return W_SPRING;
-	}
-
-	return r;
-}
-
-//
-// randomweapon()
-// Returns a Weapon if permitted by the map's MBOX data file.
-//
-float() randomweapon =
-{
-	float r;
-	r = rint((random() * 26));
-
-	// If this weapon is in our Box Array, we can return it.
-	if (BoxWeapons[r] == 1) {
-		return r;
-	} else { // It's not in the Array, try again until we find one.
-		return randomweapon();
-	}
-};
-
-//
-// CheckWeapon(w, user)
-// Checks all 3 weapon slots to see if the Player is holding specified
-// Weapon, ensures we do not give Duplicates.
-//
-float CheckWeapon (float w, entity user) =
-{
-	// Non-PaP Weapons
-	if (user.weapon == w || user.secondaryweapon == w || user.thirdweapon == w)
-		return 0;
-	
-	// PaP Weapons
-	if (EqualNonPapWeapon(user.weapon) == w || EqualNonPapWeapon(user.secondaryweapon) == w || EqualNonPapWeapon(user.thirdweapon) == w)
-		return 0;
-	
-	// We passed both, this weapon is okay
-	return 1;
+    if (weapon_allowed == true && !Weapon_PlayerHasWeapon(user, weapon_id, true))
+        return weapon_id;
+    else
+        return MBOX_GetRandomBoxWeapon(user);
 };
 
 //
@@ -209,7 +138,7 @@ void() Reset_MBox =
 	self.velocity = '0 0 0';
 	tempe = self;
 	self = self.owner;
-	box_close1();
+	MBOX_PlayCloseAnimation();
 	self = tempe;
 	self.owner.owner = world;
 	self.owner.boxstatus = 0;
@@ -264,7 +193,7 @@ void() findboxspot =
 		g = MBOX_GetFreeEnt();
 		g.classname = "mystery_glow";
 		newspot.goaldummy = g;
-		setmodel(g,"models/machines/mglow$.mdl");
+		setmodel(g, mystery_box_glow_model);
 		setorigin(g,newspot.origin);
 		g.angles = newspot.angles;
 
@@ -282,23 +211,23 @@ void() findboxspot =
 	// Set some values and change the found Spot to an MBox
 	newspot.spins = 0;
 	newspot.boxstatus = 0;
-	newspot.touch = mystery_touch;
+	newspot.touch = MBOX_Touch;
 	newspot.solid=SOLID_TRIGGER;
 	newspot.classname = "mystery";
 	newspot.spawnflags = self.owner.spawnflags;
 	setorigin(newspot, newspot.origin);
-	setmodel (newspot, "models/machines/mystery.mdl");
+	setmodel (newspot, mystery_box_model);
 	newspot.frame = 0;
 	setsize (newspot, VEC_HULL2_MIN, VEC_HULL2_MAX);
 }
 
 //
 // MBOX_MakeActive()
-// Sets the Mystery Box touch to mystery_touch (delay)
+// Sets the Mystery Box touch to MBOX_Touch (delay)
 //
 void() MBOX_MakeActive =
 {
-	self.touch = mystery_touch;
+	self.touch = MBOX_Touch;
 }
 
 //
@@ -326,7 +255,7 @@ void() MBOX_FindNewSpot =
 	new_box.solid = SOLID_TRIGGER;
 	new_box.classname = "mystery";
 	new_box.frame = 0;
-	setmodel(new_box, "models/machines/mystery.mdl");
+	setmodel(new_box, mystery_box_model);
 	setsize(new_box, VEC_HULL2_MIN, VEC_HULL2_MAX);
 
 	// Spawn the Box Glow if permitted
@@ -336,7 +265,7 @@ void() MBOX_FindNewSpot =
 		light = MBOX_GetFreeEnt();
 		light.classname = "mystery_glow";
 		new_box.goaldummy = light;
-		setmodel(light,"models/machines/mglow$.mdl");
+		setmodel(light, mystery_box_glow_model);
 		setorigin(light, new_box.origin);
 		light.angles = new_box.angles;
 		light.effects = EF_FULLBRIGHT;
@@ -481,7 +410,7 @@ void() MBOX_TeddyLeave =
 void() MBOX_PresentTeddy =
 {
 	// Return the Player's points.
-	addmoney(self.owner.owner, 950, 0);
+	addmoney(self.owner.owner, mystery_box_cost, 0);
 	// Broadcast the bad luck.
 	sound(self, CHAN_ITEM, "sounds/misc/buy.wav", 1, ATTN_NONE);
 	sound(self, 2, "sounds/misc/giggle.wav", 1, ATTN_NONE);
@@ -490,54 +419,79 @@ void() MBOX_PresentTeddy =
 	self.nextthink = time + 2;
 }
 
+//
+// MBOX_GetLeaveChancePercentage()
+// Generates a percentage chance for the Mystery Box
+// to leave.
+//
+float(float uses) MBOX_GetLeaveChancePercentage =
+{
+    // If there's only one Mystery Box, never try to leave.
+    // Additionally, you're always given 4 free uses.
+    if (mystery_box_count == 1 || uses <= 4)
+        return 0;
+
+    float chance_to_leave = 0;
+    
+    // There is a hardcoded 100% chance to leave after 8 uses
+    // if the box hasn't moved yet in a game.
+    if (mystery_box_leave_count == 0 && uses >= 8)
+        chance_to_leave = 100;
+
+    // There's a 15% chance for leaving if this is between the uses
+    // of 4 and 8.
+    if (uses >= 4 && uses < 8)
+        chance_to_leave = 15;
+
+    // Mystery Box behavior changes after it leaves for the first time
+    if (mystery_box_leave_count > 0) {
+        // 30% chance of leaving between uses 8 and 12.
+        if (uses >= 8 && uses < 12)
+            chance_to_leave = 30;
+        // 50% chance after the 12th use.
+        else if (uses >= 12)
+            chance_to_leave = 50;
+    }
+
+    return chance_to_leave/100;
+}
+
 void() Float_Change =
 {
-	entity tpspot;
-	float r, tempf, teddygen;
+	float tempf;
 	string temps;
 
-	tempf = randomweapon();
-	r = Getweaponid(tempf);
-	while (!CheckWeapon (r, self.owner.owner))
-	{
-		tempf = randomweapon();
-		r = Getweaponid(tempf);
-	}
-	temps = GetWeaponModel(r, 1);
+    float leave_chance;
+
+	tempf = MBOX_GetRandomBoxWeapon(self.owner.owner);
+	temps = GetWeaponModel(tempf, 1);
 	setmodel (self, temps);
 
 	self.boxstatus = self.boxstatus + 0.01;
 	if (self.wait <= time)
 	{
-		tpspot = find(world, classname, "mystery_box_tp_spot");
-		if (tpspot != world && self.owner.spins > 3) {
-				teddygen = random();
-				//bprint(PRINT_HIGH, "found tp spot\n");
-		} else {
-			teddygen = 0;
-			//bprint(PRINT_HIGH, "no tp spot or spins < 3\n");
-		}
+        leave_chance = MBOX_GetLeaveChancePercentage(self.owner.spins);
 				
 		self.velocity = '0 0 0';
 		
-		if (!teddygen || teddygen < 0.7) {		//teddy gen threshold, high means less chance
+		if (random() > leave_chance) {		//teddy gen threshold, high means less chance
 			self.owner.boxstatus = 2;
-			self.weapon = r;
+			self.weapon = tempf;
 			self.nextthink = time + 5;
 			self.think = Float_Decrease;
 			//bprint(PRINT_HIGH, "spot not found, or teddygun is > 0.7\n");
 			return;
 		}
 		else {
-			addmoney(self.owner.owner, 950, 0);
+			addmoney(self.owner.owner, mystery_box_cost, 0);
 			self.model = "models/props/teddy.mdl";
 			setmodel(self, self.model);
 			self.angles_y = self.angles_y - 90;
 			self.nextthink = time + 1;
 			self.think = MBOX_PresentTeddy;
-			ach_tracker_luck++;
+			mystery_box_leave_count++;
 
-			if (ach_tracker_luck >= 10)
+			if (mystery_box_leave_count >= 10)
 				GiveAchievement(11);
 			return;
 		}
@@ -566,7 +520,7 @@ void() finish_mbox_setup =
 		g.classname = "mystery_glow";
 
 		self.goaldummy = g;
-		setmodel(g,"models/machines/mglow$.mdl");
+		setmodel(g, mystery_box_glow_model);
 		setorigin(g,self.origin);
 		g.angles = self.angles;
 
@@ -579,34 +533,32 @@ void() finish_mbox_setup =
     }
 }
 
-void() allocate_floating_weapons =
+//
+// MBOX_AllocateTempEntities()
+// Spawns in all of the temp entities that are
+// used for the floating weapons, teddy bear,
+// and glow.
+//
+void() MBOX_AllocateTempEntities =
 {
 	self.think = SUB_Null;
 
-	// Spawn all of our floating weapon entities
-	// Multiply by 2 to account for the glow.
 	for (float i = 0; i < mystery_box_count * 3; i++) {
 		entity tempe = spawn();
 		tempe.classname = "freeMboxEntity";
 	}
 
 	finish_mbox_setup();
-}
+};
 
 void() Create_Floating_Weapon =
 {
 	entity gun;
-	float r, tempf;
+	float tempf;
 	string temps;
 
-	tempf = randomweapon();
-	r = Getweaponid(tempf);
-	while (!CheckWeapon (r, self.owner.owner))
-	{
-		tempf = randomweapon();
-		r = Getweaponid(tempf);
-	}
-	temps = GetWeaponModel(r, 1);
+	tempf = MBOX_GetRandomBoxWeapon(self.owner.owner);
+	temps = GetWeaponModel(tempf, 1);
 		
 	gun = MBOX_GetFreeEnt();
 	gun.classname = "mystery_weapon";
@@ -615,7 +567,6 @@ void() Create_Floating_Weapon =
 	setmodel (gun, temps);
 	setsize (gun, '0 0 0', '0 0 0');
 	gun.angles = self.angles;
-	gun.effects = EF_FULLBRIGHT;
 	
 	gun.movetype = MOVETYPE_NOCLIP;
 	gun.solid = SOLID_NOT;
@@ -653,7 +604,7 @@ void() mystery_box_tp_spot =
 	mystery_box_count++;
 };
 
-void() mystery_touch =
+void() MBOX_Touch =
 {
 	entity tempe;
 	
@@ -661,10 +612,17 @@ void() mystery_touch =
 		return;
 		
 	if (!self.boxstatus) {
-		useprint (other, 6, 950, 0);
+		useprint (other, 6, mystery_box_cost, 0);
 	}
 	if (self.boxstatus == 2 && self.owner == other) {
-		useprint (other, 7, 0, 0);
+
+#ifndef FTE
+
+		other.Weapon_Name_Touch = GetWeaponName(self.boxweapon.weapon);
+
+#endif // FTE
+
+		useprint (other, 7, 0, self.boxweapon.weapon);
 	}
 	
 	if (other.button7 && !other.semiuse)
@@ -672,13 +630,13 @@ void() mystery_touch =
 		other.semiuse = true;
 		if (!self.boxstatus)
 		{
-			if (other.points >= 950)
+			if (other.points >= mystery_box_cost)
 			{					
-				sound (self, CHAN_ITEM, "sounds/machines/mbox_open.wav", 1, ATTN_NORM);
-				addmoney(other, -950, FALSE);
+				sound (self, CHAN_ITEM, mystery_box_open_sound, 1, ATTN_NORM);
+				addmoney(other, -mystery_box_cost, FALSE);
 				self.boxstatus = 1;
 				self.owner = other;
-				box_open1 ();
+				MBOX_PlayOpenAnimation();
 				Create_Floating_Weapon();
 				self.spins++;
 			}
@@ -781,91 +739,314 @@ void() mystery_touch =
 				SwitchWeapon(self.weapon);
 				self = tempe;
 				MBOX_FreeEnt(self.boxweapon);
-				box_close1();
+				MBOX_PlayCloseAnimation();
 			}
 		}
 	}
 }
 
-
 //
-// Load_Mbox_Data()
-// Opens the map's MBOX Data File and adds parsed data
-// into the Box's weapon Array.
-// ----------
-// TODO: Possibly investigate making this a little better and more modular
-// so adding MBOX Weapons can be easier?
+// MBOX_GetWeaponIDFromMB1(mbox_id)
+// .mbox weapon IDs did not 100% correlate
+// to internal weapon IDs, so this converts
+// them appropriately.
 //
-void() Load_Mbox_Data =
+float MBOX_GetWeaponIDFromMB1(float mbox_id) =
 {
-	float file;
-	string h;
-	int weapons_all_disabled = 1;
+    switch(mbox_id) {
+        case 0: return W_COLT;
+        case 1: return W_KAR;
+        case 2: return W_DB;
+        case 3: return W_MG;
+        case 4: return W_RAY;
+        case 5: return W_THOMPSON;
+        case 6: return W_M2;
+        case 7: return W_PPSH;
+        case 8: return W_SAWNOFF;
+        case 9: return W_TESLA;
+        case 10: return W_M1A1;
+        case 11: return W_GEWEHR;
+        case 12: return W_FG;
+        case 13: return W_BROWNING;
+        case 14: return W_KAR_SCOPE;
+        case 15: return W_357;
+        case 16: return W_STG;
+        case 17: return W_PANZER;
+        case 18: return W_BK;
+        case 19: return W_PTRS;
+        case 20: return W_MP40;
+        case 21: return W_TRENCH;
+        case 22: return W_BAR;
+        case 23: return W_M1;
+        case 24: return W_TYPE;
+        case 25: return W_MP5K;
+        case 26: return W_SPRING;
+        default: return W_COLT;
+    }
+    return W_COLT;
+}
 
-	// Attempt to Open the File
-	h = strcat(mapname, ".mbox");
-	h = strcat("maps/",  h);
-	file = fopen (h, FILE_READ);
+//
+// MBOX_PrecacheWeaponData()
+// Iterates through the weapon array and
+// allocates necessary content for each
+// allowed weapon.
+//
+void() MBOX_PrecacheWeaponContent =
+{
+    for (float i = 0; i < MAX_BOX_WEAPONS; i++) {
+        if (mystery_box_weapons[i].allowed == true) {
+            precache_model(GetWeaponModel(mystery_box_weapons[i].weapon_id, 0));
+		    precache_model(GetWeaponModel(mystery_box_weapons[i].weapon_id, 1));
+		    precache_extra(mystery_box_weapons[i].weapon_id);
+        }
+    }
+}
 
-	// There was no MBOX Data, enable all Weapons!
-	// R.I.P. PSP Memory 90% of the time in this case..
-	if (file == -1) {
-		for (float i = 0; i < 27; i++) {
-			BoxWeapons[i] = 1;
-		}
-    fclose(file);
-	} else {
-		// Parse each Line and write the Data into our Array.
-		for (float i = 0; i < 27; i++) {
-			h = strtrim((fgets(file)));
-			BoxWeapons[i] = stof(h);
-			
-			if (stof(h) == 1)
-				weapons_all_disabled = 0;	
-		}
-	}
-	
-	if (weapons_all_disabled) {
-		for (float i = 0; i < 27; i++) {
-			BoxWeapons[i] = 1;
-		}
-	}
+//
+// MBOX_ParseMB1File(mbox_file)
+// Parses the old (2014) .mbox file and loads
+// it into the necessary structure.
+//
+void(float mbox_file) MBOX_ParseMB1File =
+{
+    string  file_line;
 
-	for(float i = 0; i < 27; i++) {
-		// Precache Weapon Data if enabled
-		if (BoxWeapons[i]) {
-			precache_model(GetWeaponModel(Getweaponid(i), 0));
-			precache_model(GetWeaponModel(Getweaponid(i), 1));
-			precache_extra(Getweaponid(i));
-		}
-	}
+    // Parse the .mbox line-by-line and fill the data structure.
+    for (float i = 0; i < MAX_BOX_WEAPONS; i++) {
+        file_line = strtrim((fgets(mbox_file)));
+        mystery_box_weapons[i].weapon_id = MBOX_GetWeaponIDFromMB1(i);
+        mystery_box_weapons[i].allowed = stof(file_line);
+        mystery_box_weapons[i].rarity = -1;
+    }
 
-	fclose(file);
+    // Precache the allowed weapons
+    MBOX_PrecacheWeaponContent();
+}
+
+//
+// MBOX_GetUnusedWeaponID()
+// Returns a weapon ID for a potential
+// box weapon that is not currently
+// in the list.
+//
+float() MBOX_GetUnusedWeaponID =
+{
+    // Iterate over every potential Box Weapon
+    for (float i = 0; i < MAX_BOX_WEAPONS; i++) {
+        float weapon_in_use = false;
+        float weapon_id = MBOX_GetWeaponIDFromMB1(i);
+
+        // Now over every weapon in the list
+        for (float j = 0; j < MAX_BOX_WEAPONS; j++) {
+            if (mystery_box_weapons[j].weapon_id == weapon_id)
+                weapon_in_use = true;
+        }
+
+        if (weapon_in_use == false) {
+            return weapon_id;
+        }
+    }
+
+    error("MBOX_GetunusedWeaponID: Could not find a free weapon slot!\n");
+    return 0;
+}
+
+//
+// MBOX_ParseMB2File(mbox_file)
+// Parses the current .mb2 file and loads it
+// into the necessary structure.
+//
+void(float mbox_file) MBOX_ParseMB2File =
+{
+    string file_line;
+
+    // Read the first line: It's our "header", should be
+    // "nzp_mbox2".
+    file_line = strtrim((fgets(mbox_file)));
+
+    if (file_line != "nzp_mbox2")
+        error(strcat("MBOX_ParseMB2File: Expected \"nzp_mbox2\" but got ", file_line));
+
+    // Read each line of the file in a loop
+    float finished_parsing = false;
+    float parsing_state = 0;
+    float is_allow_not_deny = false;
+    float weapons_parsed = 0;
+    float weapon_id = 0;
+    while(!finished_parsing) {
+        // Grab a new line
+        file_line = fgets(mbox_file);
+
+        // End of file.
+        if not (file_line) {
+            finished_parsing = true;
+            break;
+        }
+
+        file_line = strzone(strtrim(file_line));
+
+        // Check for comments, they always start with '#'.
+        // Also ignore whitespace.
+        string first_char = strzone(substring(file_line, 0, 1));
+        if (first_char == "#" || file_line == "") {
+            continue;
+        }
+        strunzone(first_char);
+
+        //
+        // Actual Content Parsing
+        //
+
+        // Retrieving if its an allow or deny list.
+        if (parsing_state == 0) {
+            if (file_line == "allow:")
+                is_allow_not_deny = true;
+            else if (file_line == "deny:")
+                is_allow_not_deny = false;
+            else
+                error(strcat("MBOX_ParseMB2File: Not an allow/deny specifier - ", file_line));
+
+            // Now that we know the list, we can begin
+            // parsing the weapons inside of it.
+            parsing_state++;
+        } else if (parsing_state == 1) {
+            // Get the weapon ID from it's name.
+            weapon_id = WepDef_GetWeaponIDFromName(file_line);
+
+            if (weapon_id == W_NOWEP)
+                error(strcat("MBOX_ParseMB2File: Not a weapon - ", file_line));
+
+            // Fill the list with it.
+            mystery_box_weapons[weapons_parsed].weapon_id = weapon_id;
+            mystery_box_weapons[weapons_parsed].allowed = is_allow_not_deny;
+            weapons_parsed++;
+        }
+
+        strunzone(file_line);
+    }
+
+    // At this point, the file has been parsed with all of the
+    // allowed/denied weapons, now we have to automatically
+    // fill in the rest for the opposite list.
+    for (float i = weapons_parsed; i < MAX_BOX_WEAPONS; i++) {
+        // We need to pick an ID to assign that hasn't already
+        // been used.
+        weapon_id = MBOX_GetUnusedWeaponID();
+        mystery_box_weapons[i].weapon_id = weapon_id;
+        mystery_box_weapons[i].allowed = !is_allow_not_deny;
+    }
+
+    // Precache the allowed weapons
+    MBOX_PrecacheWeaponContent();
+}
+
+//
+// MBOX_LoadData()
+// Seeks for either an .mb2 or .mbox file,
+// and adds the contents into the Mystery Box
+// weapon list.
+//
+void() MBOX_LoadData =
+{
+    float mbox_file;
+    string file_path;
+
+    // Attempt 1: Seek for maps/mapname.mb2 (mbox-2)
+    file_path = strcat(mapname, ".mb2");
+    file_path = strcat("maps/", file_path);
+    mbox_file = fopen(file_path, FILE_READ);
+    if (mbox_file != -1) {
+        MBOX_ParseMB2File(mbox_file);
+        fclose(mbox_file);
+        return;
+    }
+
+    // Attempt 2: Seek for maps/mapname.mbox (mbox-1)
+    file_path = strcat(mapname, ".mbox");
+    file_path = strcat("maps/", file_path);
+    mbox_file = fopen(file_path, FILE_READ);
+    if (mbox_file != -1) {
+        MBOX_ParseMB1File(mbox_file);
+        fclose(mbox_file);
+        return;
+    }
+
+    // Attempt 3: Include All Weapons
+    for (float i = 0; i < MAX_BOX_WEAPONS; i++) {
+        mystery_box_weapons[i].weapon_id = MBOX_GetWeaponIDFromMB1(i);
+        mystery_box_weapons[i].allowed = true;
+        mystery_box_weapons[i].rarity = -1;
+    }
+
+    // Precache it all.
+    MBOX_PrecacheWeaponContent();
+    
+    // Close the file pointer just in case.
+    fclose(mbox_file);
 }
 
 void() mystery_box =
 {
-	Load_Mbox_Data();
+    // Load and cache all of the allowed weapons into the hunk.
+    MBOX_LoadData();
 
-	precache_model ("models/machines/mystery.mdl");
-	precache_sound ("sounds/machines/mbox_open.wav"); 
-	precache_sound ("sounds/machines/mbox_close.wav"); 
+    //
+	// Set Default Stats for Compatibility
+	//
+	
+	// Model
+	if (!self.model) {
+		self.model = "models/machines/mystery.mdl";
+	}
 
-	if (!(self.spawnflags & MBOX_SPAWNFLAG_NOLIGHT))
-		precache_model ("models/machines/mglow$.mdl");
+    // Light Model
+	if (!self.weapon2model) {
+		self.weapon2model = "models/machines/mglow$.mdl";
+	}
+
+    // Cost
+	if (!self.cost) {
+		self.cost = 950;
+	}
+
+    // Open Sound
+	if (!self.oldmodel) {
+		self.oldmodel = "sounds/machines/mbox_open.wav";
+	}
+
+	// Close Sound
+	if (!self.powerup_vo) {
+		self.powerup_vo = "sounds/machines/mbox_close.wav";
+	}
+
+    // Store the custom presentation as globals
+    mystery_box_model = self.model;
+    mystery_box_glow_model = self.weapon2model;
+    mystery_box_open_sound = self.oldmodel;
+    mystery_box_close_sound = self.powerup_vo;
+    mystery_box_cost = self.cost;
+
+	precache_model(mystery_box_model);
+
+    if (!(self.spawnflags & MBOX_SPAWNFLAG_NOLIGHT))
+		precache_model (mystery_box_glow_model);
+
+	precache_sound(mystery_box_open_sound); 
+	precache_sound(mystery_box_close_sound); 
 	
 	self.solid = SOLID_TRIGGER;
 	self.classname = "mystery";
 	setorigin(self, self.origin);
-	setmodel (self, "models/machines/mystery.mdl");
+	setmodel (self, mystery_box_model);
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 
-	self.touch = mystery_touch;
-	boxOrigin = self.origin;
+	self.touch = MBOX_Touch;
 
+	mystery_box_start_origin = self.origin;
 	mystery_boxes[mystery_box_count] = self;
 	mystery_box_count++;
 
-	self.think = allocate_floating_weapons;
+	self.think = MBOX_AllocateTempEntities;
 	self.nextthink = time + 0.2;
-}
+};

@@ -109,7 +109,6 @@ void()  light_flame_small_white =       // Light with small flame & fire sound
 //
 void(entity e) Light_Red =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -135,7 +134,6 @@ void(entity e) Light_Red =
 //
 void(entity e) Light_Green =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -161,7 +159,6 @@ void(entity e) Light_Green =
 //
 void(entity e) Light_Blue =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -187,7 +184,6 @@ void(entity e) Light_Blue =
 //
 void(entity e) Light_Orange =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -213,7 +209,6 @@ void(entity e) Light_Orange =
 //
 void(entity e) Light_Purple =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -239,7 +234,6 @@ void(entity e) Light_Purple =
 //
 void(entity e) Light_Cyan =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -265,7 +259,6 @@ void(entity e) Light_Cyan =
 //
 void(entity e) Light_Pink =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -291,7 +284,6 @@ void(entity e) Light_Pink =
 //
 void(entity e) Light_Lime =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -317,7 +309,6 @@ void(entity e) Light_Lime =
 //
 void(entity e) Light_Yellow =
 {
-    e.effects = e.effects | EF_FULLBRIGHT;
 
 #ifndef FTE
 

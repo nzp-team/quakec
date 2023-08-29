@@ -29,7 +29,6 @@ float backupWepSkin;
 float sound_perk_delay; 
 void() W_Switch;
 void() W_TakeOut;
-void() mystery_touch;
 
 //
 // --------------------

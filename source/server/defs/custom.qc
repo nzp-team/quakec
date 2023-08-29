@@ -3,7 +3,7 @@
 
 	put custom server-only globals and fields here
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2023 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -66,7 +66,6 @@ void(string com) SV_ParseClientCommand;
 float 	ach_tracker_col2;
 float 	ach_tracker_barr;
 float 	ach_tracker_spin;
-float 	ach_tracker_luck;
 
 float global_trace_damage_multiplier;
 
@@ -396,14 +395,30 @@ float isPowerOn;
 .float revivesoda;
 .float collected;
 
-.float boxstatus;
+// Mystery Box
+#define MAX_BOX_WEAPONS 		27
+
+.float 	boxstatus;
 .entity boxweapon;
-.float spins;
-.float papState;
-float BoxWeapons[27];
-float mystery_box_count;
-entity mystery_boxes[16];
-vector boxOrigin;
+.float 	spins;
+.float 	papState;
+
+var struct mbox_struct
+{
+	float weapon_id; 	// ID for the relevant weapon.
+	float allowed;		// 1 for allowed, 0 for denied.
+	float rarity;		// 0-100 (float) percent change for obtaining. -1 for normal.
+} mystery_box_weapons[MAX_BOX_WEAPONS] = {};
+
+float 	mystery_box_count;
+float 	mystery_box_leave_count;
+float 	mystery_box_cost;
+string 	mystery_box_model;
+string 	mystery_box_glow_model;
+string 	mystery_box_open_sound;
+string 	mystery_box_close_sound;
+entity 	mystery_boxes[16];
+vector 	mystery_box_start_origin;
 
 #ifdef FTE
 
