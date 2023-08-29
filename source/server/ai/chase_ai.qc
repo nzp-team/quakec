@@ -88,8 +88,9 @@ class AI_Chase : entity {
 
 
     // --- Next / Queued animation vars ---
-    // float next_anim_model_idx;
-    // TODO - Start time for the next animation?
+    float next_anim_model_idx;
+    float next_anim_framegroup;
+    float next_anim_playback_speed;
 
 
     float pathfind_result_idx; // TODO - Need to increment this on instantiation
@@ -340,6 +341,7 @@ class AI_Chase : entity {
         this.path_target = world;
         // this.path_pos = world.origin;
         this.cur_anim_model_idx = -1;
+        this.next_anim_model_idx = -1;
         this.think_delta_time = 0.1; // Call `this.think();` 10x per second
 
         // TODO - Set model? Create skeleton?
@@ -365,6 +367,25 @@ class AI_Chase : entity {
                 break;
         }
     };
+
+    // Stop what you're doing and play this animation immediately.
+    virtual void(float anim_model_idx, float anim_framegroup) play_anim {
+        this.cur_anim_model_idx = anim_model_idx;
+        this.cur_anim_framegroup = 0;
+        this.cur_anim_start_time = time;
+        this.cur_anim_last_time = 0;
+        this.cur_anim_playback_speed = 1; // Reset value
+        // Indicate that we need to broadcast the current anim frame info:
+        self.SendFlags |= 2; // Indicate that we should update client-side animations
+    };
+
+    // Queue up another animation to play when the current one finishes
+    virtual void(float anim_model_idx, float anim_framegroup) queue_anim {
+        this.next_anim_model_idx = anim_model_idx;
+        this.next_anim_framegroup = anim_framegroup;
+        this.next_anim_playback_speed = 1.0;
+    };
+
 
     // The "logic tick" of the entity.
     virtual void() think = {
@@ -405,10 +426,17 @@ class AI_Chase : entity {
             else {
                 processmodelevents(this.cur_anim_model_idx, this.cur_anim_framegroup, events_start_time, events_end_time, this.handle_iqm_event);
             }
-            // if(cur_anim_time > anim_duration) {
-            //     print("Animation is over!");
-            //     // TODO - Execute queued animation?
-            // }
+
+            // If we have a queued animation, check if this animation is over (or is very close to being over)
+            if(this.next_anim_model_idx >= 0 && (cur_anim_time + this.think_delta_time * this.cur_anim_playback_speed) >= anim_duration) {
+                this.play_anim( this.next_anim_model_idx, this.next_anim_framegroup);
+                this.cur_anim_playback_speed = this.next_anim_playback_speed;
+                this.SendFlags |= 2; // Indicate that we should update client-side animations
+                // Reset queued anim fields
+                this.next_anim_playback_speed = 1.0;
+                this.next_anim_model_idx = -1;
+                this.next_anim_framegroup = 0;
+            }
         }
 
         this.nextthink = time + this.think_delta_time;
@@ -416,42 +444,11 @@ class AI_Chase : entity {
 
 
         if(this.cur_anim_model_idx >= 0) {
-            this.cur_anim_last_time = cur_anim_time;
+            // Recalculate cur_anim_time, in case another animation was triggered
+            this.cur_anim_last_time = (time - this.cur_anim_start_time) * this.cur_anim_playback_speed;
         }
-
-
     };
 
-
-
-
-    // Stop what you're doing and play this animation immediately.
-    virtual void(float anim_model_idx, float anim_framegroup) play_anim {
-        this.cur_anim_model_idx = anim_model_idx;
-        this.cur_anim_framegroup = 0;
-        this.cur_anim_start_time = time;
-        this.cur_anim_last_time = 0;
-        this.cur_anim_playback_speed = 1; // Reset value
-        // Indicate that we need to broadcast the current anim frame info:
-        self.SendFlags |= 2; // frame
-    };
-
-    // // Queue up another animation to play when the current one finishes.
-    // TODO - 
-    // virtual void(float(float) anim_frame_func, float anim_length, anim_stop_type stop_type) queue_anim {
-    //     // This isn't allowed, we can't queue more than one animation.
-    //     // Queued animation stop type must be: ANIM_STOP_TYPE_STOP, or ANIM_STOP_TYPE_LOOP
-    //     if(stop_type == ANIM_STOP_TYPE_NEXT_ANIM) {
-    //         return;
-    //     }
-    //     // Indicate that we have a next animation queued up the next time the current animation finishes.
-    //     this.cur_anim_stop_type = ANIM_STOP_TYPE_NEXT_ANIM;
-
-    //     this.next_anim_get_frame_func = anim_frame_func;
-    //     this.next_anim_length = anim_length;
-    //     this.next_anim_stop_type = stop_type;
-    //     this.next_anim_frametime = 0.1;
-    // };
 
 
 
@@ -503,13 +500,13 @@ void zombie_think_callback() {
         }
 
         // TEMP FIXME:
-        zombie.limbs_state = 0;
-        if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_HEAD;
-        if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_ARM_L;
-        if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_ARM_R;
-        if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_LEG_L;
-        if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_LEG_R;
-        zombie.SendFlags |= 8;
+        // zombie.limbs_state = 0;
+        // if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_HEAD;
+        // if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_ARM_L;
+        // if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_ARM_R;
+        // if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_LEG_L;
+        // if(random() < 0.9) zombie.limbs_state |= ZOMBIE_LIMB_STATE_LEG_R;
+        // zombie.SendFlags |= 8;
 
 
         // ----------------------------------------------------
@@ -601,7 +598,9 @@ void() test_new_ent = {
     skel_blend_data.animationtime[0] = 0;
     skel_build_ptr(zombie.skeletonindex, 1, &skel_blend_data, sizeof(skel_blend_data));
     // ------------------------------------------------------------------------
-    zombie.play_anim(zombie_anim_walk1_modelindex, 0);
+    zombie.play_anim(zombie_anim_rise_modelindex, 0);
+    zombie.queue_anim(zombie_anim_walk1_modelindex, 0);
+
     // zombie.play_anim(zombie_anim_walk2_modelindex, 0);
     // zombie.play_anim(zombie_anim_walk3_modelindex, 0);
     // zombie.play_anim(zombie_anim_jog1_modelindex, 0);

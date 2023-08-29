@@ -453,15 +453,197 @@ void() Update_Vmodel =
 		mzlflash.alpha = 0.01;
 }
 
-noref void(float isnew) CSQC_Ent_Update =
-{
-	if(isnew)
-		addentity(self);
+// FIXME - Add to Chase_AI ent def
+.float cur_anim_model_index; // Current animation model index
+.float cur_anim_framegroup;
+.float cur_anim_start_time;
+.float cur_anim_server_time; // Time at the last packet received
+.float cur_anim_playback_speed;
+
+
+
+.float cur_server_time;
+.vector cur_angles;
+.vector cur_origin;
+.vector cur_velocity;
+.float prev_server_time;
+.vector prev_angles;
+.vector prev_origin;
+.vector prev_velocity;
+
+
+.float limbs_state;
+.float prev_limbs_state;
+.float prev_skin;
+.float cur_skin_idx;
+#define ZOMBIE_LIMB_STATE_HEAD	1
+#define ZOMBIE_LIMB_STATE_ARM_L	2
+#define ZOMBIE_LIMB_STATE_ARM_R	4
+#define ZOMBIE_LIMB_STATE_LEG_L	8
+#define ZOMBIE_LIMB_STATE_LEG_R	16
+
+#define ZOMBIE_IQM_GEOMSET_BODY 	0
+#define ZOMBIE_IQM_GEOMSET_HEAD 	1
+#define ZOMBIE_IQM_GEOMSET_EYES 	2
+#define ZOMBIE_IQM_GEOMSET_ARM_L 	3
+#define ZOMBIE_IQM_GEOMSET_LEG_L 	4
+#define ZOMBIE_IQM_GEOMSET_LEG_R 	5
+#define ZOMBIE_IQM_GEOMSET_ARM_R 	6
+
+
+
+float() zombie_predraw = {
+	// Initialize skin:
+	// If no skin, or skin / limb state changed
+	if(self.cur_skin_idx < 0 || self.skin != self.prev_skin || self.limbs_state != self.prev_limbs_state) {
+		string shader_name;
+		switch(self.skin) {
+			case 0:
+				shader_name = "zombie_tex_0";
+				break;
+			case 1:
+			default:
+				shader_name = "zombie_tex_1";
+				break;
+		}
+
+		// Due to QC's limit of 8-args per vararg func, split this up into 
+		// a few different sprintf calls.
+		string skin_str = sprintf("%s%s",
+			sprintf("%s%s",
+				sprintf("%s%s%s",
+					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_BODY, 	0),
+					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_HEAD, 	self.limbs_state & ZOMBIE_LIMB_STATE_HEAD ? 0 : 1),
+					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_EYES, 	self.limbs_state & ZOMBIE_LIMB_STATE_HEAD ? 0 : 1)
+				),sprintf("%s%s%s%s",
+					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_ARM_L, 	self.limbs_state & ZOMBIE_LIMB_STATE_ARM_L ? 0 : 1),
+					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_LEG_L, 	self.limbs_state & ZOMBIE_LIMB_STATE_LEG_L ? 0 : 1),
+					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_LEG_R, 	self.limbs_state & ZOMBIE_LIMB_STATE_LEG_R ? 0 : 1),
+					sprintf("geomset %d %d \n", ZOMBIE_IQM_GEOMSET_ARM_R, 	self.limbs_state & ZOMBIE_LIMB_STATE_ARM_R ? 0 : 1)
+				)
+			),
+			sprintf(
+				"replace	ZombieBody			\"%s\"	\n"
+				"replace	ZombieHead			\"%s\"	\n"
+				"replace	ZombieArmL			\"%s\"	\n"
+				"replace	ZombieLegL			\"%s\"	\n"
+				"replace	ZombieLegR			\"%s\"	\n"
+				"replace	ZombieArmR			\"%s\"	\n",
+				shader_name,
+				shader_name,
+				shader_name,
+				shader_name,
+				shader_name,
+				shader_name
+			)
+		);
+		// print("Zombie limbs: ", ftos(self.limbs_state), "\n");
+		// print("Zombie shader: ", shader_name, "\n");
+		// print(skin_str);
+		float new_skin = loadcustomskin("", skin_str);
+		applycustomskin(self, new_skin);
+		if(self.cur_skin_idx >= 0) {
+			releasecustomskin(self.cur_skin_idx);
+		}
+		self.cur_skin_idx = new_skin;
+
+		// Backup values so we can know when they've changed
+		self.prev_skin = self.skin;
+		self.prev_limbs_state = self.limbs_state;
+	}
+
+
+	// ------------ Movement interpolation ---------------
+	float server_delta_time = clamp(self.cur_server_time - self.prev_server_time, 0.01, 0.1);
+	float lerp_frac = (time - self.cur_server_time) / server_delta_time;
+	setorigin(self, lerpVector(self.prev_origin, self.cur_origin, lerp_frac));
+	self.angles = lerpVector(self.prev_angles, self.cur_angles, lerp_frac);
+	self.velocity = lerpVector(self.prev_velocity, self.cur_velocity, lerp_frac);
+
+	// ------------ Animation interpolation ---------------
+	// float anim_time = self.cur_anim_frametime + (time - self.cur_anim_server_time);
+	float cur_anim_time = (time - self.cur_anim_start_time) * self.cur_anim_playback_speed;
+	skelblend_t skel_blend_data;
+    skel_blend_data.firstbone = -1;
+    skel_blend_data.lastbone = -1;
+    skel_blend_data.scale[0] = 1;
+    skel_blend_data.sourcemodelindex = self.cur_anim_model_index;
+    skel_blend_data.animation[0] = self.cur_anim_framegroup; // framegroup
+    skel_blend_data.animationtime[0] = cur_anim_time;
+    skel_build_ptr(self.skeletonindex, 1, &skel_blend_data, sizeof(skel_blend_data));
+	return FALSE;
+}
+
+
+noref void(float is_new) CSQC_Ent_Update {
+	float enttype = readbyte();
+	float msg_flags;
+	switch(enttype) {
+		case ENT_TYPE_ZOMBIE:
+			if(is_new) {
+				self.cur_skin_idx = -1;
+			}
+			// self.renderflags |= RF_FRAMETIMESARESTARTTIMES;
+			msg_flags = readbyte();
+			if(msg_flags & 1) {
+				// Back up current values
+				self.prev_server_time = self.cur_server_time;
+				self.prev_origin = self.cur_origin;
+				self.prev_angles = self.cur_angles;
+				self.prev_velocity = self.cur_velocity;
+				// Read new values
+				self.cur_server_time = time;
+				self.cur_origin.x = readcoord();
+				self.cur_origin.y = readcoord();
+				self.cur_origin.z = readcoord();
+				self.cur_angles.x = readcoord();
+				self.cur_angles.y = readcoord();
+				self.cur_angles.z = readcoord();
+				self.cur_velocity.x = readshort();
+				self.cur_velocity.y = readshort();
+				self.cur_velocity.z = readshort();
+				self.flags = readfloat();
+
+				// If delta position is too different, snap
+				if(vlen(self.cur_origin - self.prev_origin) > 256) {
+					self.prev_origin = self.cur_origin;
+				}
+			}
+			if(msg_flags & 2) {
+				// self.frame = readbyte();
+				self.cur_anim_model_index = readbyte();
+				self.cur_anim_framegroup = readbyte();
+				self.cur_anim_start_time = readfloat();
+				self.cur_anim_playback_speed = readfloat();
+				self.cur_anim_server_time = time;
+				// print("CSQC frame: ", ftos(self.frame), "\n");
+			}
+			if(msg_flags & 4) {
+				self.skin = readbyte();
+			}
+			if(msg_flags & 8) {
+				self.limbs_state = readbyte();
+			}
+			if(msg_flags & 64) {
+				self.skeletonindex = readbyte();
+				// print("CSQC skeleton index: ", ftos(self.skeletonindex), "\n");
+			}
+			if(msg_flags & 128) {
+				setmodelindex(self, readbyte());
+			}
+			self.predraw = zombie_predraw;
+			self.drawmask = MASK_ENGINE;
+			break;
+		default:
+			break;
+	}
+
+	// if(isnew)
+	// 	addentity(self);
 }
 
 // CALLED EVERY CLIENT RENDER FRAME
-noref void(float width, float height, float menushown) CSQC_UpdateView =
-{
+noref void(float width, float height, float menushown) CSQC_UpdateView {
 	//clear and update our global screen resolution vars
 	clearscene();
 	g_width = width;
