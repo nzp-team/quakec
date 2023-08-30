@@ -510,10 +510,6 @@ float() zombie_predraw = {
 		// Due to QC's limit of 8-args per vararg func, split this up into 
 		// a few different sprintf calls.
 		string skin_str = "";
-		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_BODY, )
-
-
-		string skin_str = "";
 		// Add in the geomset defs
 		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_BODY, 0);
 		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_HEAD, self.limbs_state & ZOMBIE_LIMB_STATE_HEAD   == 0);
@@ -522,7 +518,7 @@ float() zombie_predraw = {
 		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_LEG_L, self.limbs_state & ZOMBIE_LIMB_STATE_LEG_L == 0);
 		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_LEG_R, self.limbs_state & ZOMBIE_LIMB_STATE_LEG_R == 0);
 		skin_str = sprintf("%sgeomset %d %d\n", skin_str, ZOMBIE_IQM_GEOMSET_ARM_R, self.limbs_state & ZOMBIE_LIMB_STATE_ARM_R == 0);
-		// Add in the shader defs
+		// Add in the per-mesh shader defs
 		skin_str = sprintf("%sreplace ZombieBody %S\n", skin_str, shader_name);
 		skin_str = sprintf("%sreplace ZombieHead %S\n", skin_str, shader_name);
 		skin_str = sprintf("%sreplace ZombieArmL %S\n", skin_str, shader_name);
