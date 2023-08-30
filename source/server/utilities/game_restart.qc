@@ -238,6 +238,23 @@ void() GameRestart_ResetMysteryBox =
 	}
 }
 
+void() GameRestart_RestoreFakeRemovals =
+{
+	entity ent = findfloat(world, entity_removed, true);
+	while(ent != world) {
+		ent.entity_removed = false;
+		ent.model = ent.oldmodel;
+		ent.origin = ent.oldorigin;
+		ent.mins = ent.bbmins;
+		ent.maxs = ent.bbmaxs;
+		ent.solid = ent.sprintflag;
+		setsize(ent, ent.mins, ent.maxs);
+		setmodel(ent, ent.model);
+
+		ent = findfloat(ent, entity_removed, true);
+	}
+}
+
 //moto -- put this here because it keeps soft_restart somewhat clean..
 void(entity door) reclose_door = {
 	entity  oldself;
@@ -289,6 +306,7 @@ void() Soft_Restart = {
 	GameRestart_RepairBarricades();		// Make sure all barricades are fully repaired.
 	GameRestart_ResetPerkaColas(); 		// Turn all of the Perk-a-Cola lights off, reset states.
 	GameRestart_ResetMysteryBox();		// Clean up the Mystery Box, delete floating weapon, etc.
+	GameRestart_RestoreFakeRemovals();	// Puts back everything "removed" using Ent_FakeRemove().
 
 	//close doors
 	doors = findfloat(world, isopen, 1);

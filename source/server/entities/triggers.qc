@@ -277,7 +277,7 @@ void() teddy_react =
 		t = find (world, teddyremovetarget, self.target);
     
 		if (t)
-			remove(t); 
+			Ent_FakeRemove(t);
 	} else if (self.target) {
 		SUB_UseTargets();
 	}
@@ -291,7 +291,7 @@ void() teddy_react =
 	if (self.noise)
     	sound (dummy, CHAN_ITEM, self.noise, 1, ATTN_NORM);
 
-	remove(self);
+	Ent_FakeRemove(self);
 }
 
 /*

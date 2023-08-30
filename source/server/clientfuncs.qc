@@ -568,6 +568,21 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 // Unrelated to engine, but custom functions
 // *****************************************
 
+// "Removes" an entity that is placed back on restart.
+void(entity ent) Ent_FakeRemove =
+{
+	ent.entity_removed = true;
+	ent.oldmodel = ent.model;
+	ent.oldorigin = ent.origin;
+	ent.bbmins = ent.mins;
+	ent.bbmaxs = ent.maxs;
+	ent.sprintflag = ent.solid;
+
+	ent.solid = SOLID_NOT;
+	setsize(ent, '0 0 0', '0 0 0');
+	setmodel(ent, "");
+}
+
 void(string modelname) Precache_Set = // Precache model, and set myself to it
 {
 	modelname = convert_old_asset_path(modelname);

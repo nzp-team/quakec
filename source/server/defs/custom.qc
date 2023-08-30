@@ -507,6 +507,7 @@ waypoint_ai waypoints[MAX_WAYPOINTS];
 
 //Misc patch definitions
 .string teddyremovetarget;
+.float entity_removed;
 
 .float oldz;		// used for fall damage that does not truly work correctly
 
