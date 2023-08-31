@@ -1442,7 +1442,7 @@ void() set_z_health =
 	{	
 		local float i;
 		i = rounds - 10;
-		z_health = 1050;
+		z_health = 1040;
 		while(i > 0)
 		{
 			z_health *= 1.1; 
