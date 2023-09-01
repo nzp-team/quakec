@@ -3,7 +3,7 @@
 
 	zombie things
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2023 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -1159,7 +1159,7 @@ void() Zombie_Death =
 				powerup_activate *= 1.14;
 				powerup_score_threshold = total_powerup_points + powerup_activate;
 			}
-			else if (random () <= 0.02)
+			else if (random () <= 0.04)
 				Spawn_Powerup(self.origin + '0 0 13', -1);
 		}
 	}
