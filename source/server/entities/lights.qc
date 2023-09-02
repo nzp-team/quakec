@@ -107,8 +107,10 @@ void()  light_flame_small_white =       // Light with small flame & fire sound
 // Light_Red(e)
 // RGB: 255, 56, 56
 //
-void(entity e) Light_Red =
+void(entity e, optional float fullbright) Light_Red =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -132,8 +134,10 @@ void(entity e) Light_Red =
 // Light_Green(e)
 // RGB: 56, 255, 56
 //
-void(entity e) Light_Green =
+void(entity e, optional float fullbright) Light_Green =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -157,8 +161,10 @@ void(entity e) Light_Green =
 // Light_Blue(e)
 // RGB: 56, 56, 255
 //
-void(entity e) Light_Blue =
+void(entity e, optional float fullbright) Light_Blue =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -182,8 +188,10 @@ void(entity e) Light_Blue =
 // Light_Orange(e)
 // RGB: 255, 128, 0
 //
-void(entity e) Light_Orange =
+void(entity e, optional float fullbright) Light_Orange =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -207,8 +215,10 @@ void(entity e) Light_Orange =
 // Light_Purple(e)
 // RGB: 255, 28, 255
 //
-void(entity e) Light_Purple =
+void(entity e, optional float fullbright) Light_Purple =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -232,8 +242,10 @@ void(entity e) Light_Purple =
 // Light_Cyan(e)
 // RGB: 97, 178, 248
 //
-void(entity e) Light_Cyan =
+void(entity e, optional float fullbright) Light_Cyan =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -257,8 +269,10 @@ void(entity e) Light_Cyan =
 // Light_Pink(e)
 // RGB: 255, 180, 180
 //
-void(entity e) Light_Pink =
+void(entity e, optional float fullbright) Light_Pink =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -282,8 +296,10 @@ void(entity e) Light_Pink =
 // Light_Lime(e)
 // RGB: 128, 255, 128
 //
-void(entity e) Light_Lime =
+void(entity e, optional float fullbright) Light_Lime =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 
@@ -307,8 +323,10 @@ void(entity e) Light_Lime =
 // Light_Yellow(e)
 // RGB: 255, 255, 128
 //
-void(entity e) Light_Yellow =
+void(entity e, optional float fullbright) Light_Yellow =
 {
+    if (fullbright)
+        e.effects = EF_FULLBRIGHT;
 
 #ifndef FTE
 

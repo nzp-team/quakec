@@ -334,31 +334,31 @@ void(entity who) Turn_PerkLight_On =
 		Light_None(who);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_REDLIGHT) {
-		Light_Red(who);
+		Light_Red(who, true);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_GREENLIGHT) {
-		Light_Green(who);
+		Light_Green(who, true);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_BLUELIGHT) {
-		Light_Blue(who);
+		Light_Blue(who, true);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_ORANGELIGHT) {
-		Light_Orange(who);
+		Light_Orange(who, true);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_PURPLELIGHT) {
-		Light_Purple(who);
+		Light_Purple(who, true);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_CYANLIGHT) {
-		Light_Cyan(who);
+		Light_Cyan(who, true);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_PINKLIGHT) {
-		Light_Pink(who);
+		Light_Pink(who, true);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_LIMELIGHT) {
-		Light_Lime(who);
+		Light_Lime(who, true);
 	}
 	if (who.spawnflags & PERK_SPAWNFLAG_YELLOWLIGHT) {
-		Light_Yellow(who);
+		Light_Yellow(who, true);
 	}
 }
 

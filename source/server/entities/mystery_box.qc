@@ -523,6 +523,7 @@ void() finish_mbox_setup =
 		setmodel(g, mystery_box_glow_model);
 		setorigin(g,self.origin);
 		g.angles = self.angles;
+		g.effects = EF_FULLBRIGHT;
 
 #ifdef FTE
 
