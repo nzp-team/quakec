@@ -1243,7 +1243,14 @@ void touch_pap() {
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 		}
 	} else if (self.papState == 2) {
-		useprint (other, 7, 0, 0);
+
+#ifndef FTE
+
+		other.Weapon_Name_Touch = GetWeaponName(EqualPapWeapon(self.weapon));
+
+#endif // FTE
+
+		useprint (other, 7, 0, EqualPapWeapon(self.weapon));
 
 		if (other.button7) {
 			// Back-up current weapon into second slot, it's getting replaced.
