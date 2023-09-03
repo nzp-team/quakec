@@ -190,7 +190,7 @@ void() dog_die_wunder6 	=[ 42, 	dog_die_wunder7 	] {tesla_arc();};
 void() dog_die_wunder7 	=[ 43, 	dog_die_wunder8 	] {tesla_arc();};
 void() dog_die_wunder8 	=[ 44, 	dog_die_wunder9 	] {tesla_arc();};
 void() dog_die_wunder9 	=[ 45, 	dog_die_wunder10 	] {tesla_arc();};
-void() dog_die_wunder10 =[ 46, 	SUB_Null 	] {print("ayoooo\n");tesla_arc(); self.iszomb=0; self.nextthink=time+3; self.think=removeZombie;};
+void() dog_die_wunder10 =[ 46, 	SUB_Null 	] {tesla_arc(); self.iszomb=0; self.nextthink=time+3; self.think=removeZombie;};
 
 
 void() Dog_Death_Tesla = {
