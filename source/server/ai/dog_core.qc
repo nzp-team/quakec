@@ -85,19 +85,6 @@ $frame dogdeath1 dogdeath2
 void()	dog_deathanim		=[	$dogdeath1,		dog_deathanim2	] 	{self.frame = 35;};
 void()	dog_deathanim2		=[	$dogdeath2,		SUB_Null 		] 	{self.nextthink = time + 3; self.think = removeZombie;  self.frame = 36;};
 
-// DOG WAFFE DEATH
-// 37-46
-$frame dogwunder1 dogwunder2 dogwunder3 dogwunder4 dogwunder5 dogwunder6 dogwunder7 dogwunder8 dogwunder9 dogwunder10 
-void() die_dog_wunder1 	=[ $dogwunder1, 	die_dog_wunder2 	] {Zombie_Walk(0);Zombie_Tesla_Light();self.frame = 37;};
-void() die_dog_wunder2 	=[ $dogwunder2, 	die_dog_wunder3 	] {Zombie_Walk(0);self.frame = 38;};
-void() die_dog_wunder3 	=[ $dogwunder3, 	die_dog_wunder4 	] {Zombie_Walk(0);self.frame = 39;};
-void() die_dog_wunder4 	=[ $dogwunder4, 	die_dog_wunder5 	] {Zombie_Walk(0);self.frame = 40;};
-void() die_dog_wunder5 	=[ $dogwunder5, 	die_dog_wunder6 	] {Zombie_Walk(0);self.frame = 41;};
-void() die_dog_wunder6 	=[ $dogwunder6, 	die_dog_wunder7 	] {Zombie_Walk(0);Zombie_Find_Tesla_Target();self.frame = 42;};
-void() die_dog_wunder7 	=[ $dogwunder7, 	die_dog_wunder8 	] {Zombie_Walk(0);self.frame = 43;};
-void() die_dog_wunder8 	=[ $dogwunder8, 	die_dog_wunder9 	] {Zombie_Walk(0);self.frame = 44;};
-void() die_dog_wunder9 	=[ $dogwunder9, 	die_dog_wunder10 	] {Zombie_Walk(0);self.frame = 45;};
-void() die_dog_wunder10 =[ $dogwunder10, 	die_dog_wunder10 	] {Zombie_Walk(0);self.frame = 46;self.health = 0; self.th_die();};
 
 // DOG LIGHTNING SPAWN
 // 1-13
@@ -144,33 +131,38 @@ void() Dog_Think =
 }
 
 float dogCount;
-void() Dog_Death =
-{
-	self.aistatus = "0";
-	self.solid = SOLID_NOT;
-	self.movetype = MOVETYPE_NONE;
-	self.takedamage = DAMAGE_NO;
+
+
+void(entity ent) Dog_Death_Cleanup = {
+	// Already dead
+	if(ent.aistatus == "0") {
+		return;
+	}
+	ent.aistatus = "0";
+	ent.solid = SOLID_NOT;
+	ent.movetype = MOVETYPE_NONE;
+	ent.takedamage = DAMAGE_NO;
 	
-	sound(self, 5, "sounds/null.wav", 1, ATTN_NORM);
+	sound(ent, 5, "sounds/null.wav", 1, ATTN_NORM);
 	
-	self.usedent = world;
-	
-	self.health = 0;
+	ent.usedent = world;
+	ent.health = 0;
 	Remaining_Zombies = Remaining_Zombies - 1;
 	dogCount -= 1;
-	
+}
+
+
+void() Dog_Death = {
+	Dog_Death_Cleanup(self);
 	play_sound_z(3);
 	//Gotta' make sure we set it back down instead of glitching it up, yo'
-	if(self.s_time > 0 && sounds_playing > 0)
-	{
+	if(self.s_time > 0 && sounds_playing > 0) {
 		sounds_playing --;
 		self.s_time = 0;
 	}
 	
-	if (rounds == dogRound)
-	{
-		if (!Remaining_Zombies)
-			Spawn_Powerup(self.origin + '0 0 12', PU_MAXAMMO);
+	if(rounds == dogRound && Remaining_Zombies == 0) {
+		Spawn_Powerup(self.origin + '0 0 12', PU_MAXAMMO);
 	}
 	
 	float r = random();
@@ -178,14 +170,42 @@ void() Dog_Death =
 	// explode chance
 	if (r < 0.75 || self.electro_targeted == true) {
 		self.frame = 0;
-		setmodel (self, "models/sprites/explosion.spr");
+		setmodel(self, "models/sprites/explosion.spr");
 		sound (self, CHAN_VOICE, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);
 		dog_explodeanim();
 	} else {
 		dog_deathanim();
 	}
-	
 };
+
+
+// DOG WAFFE DEATH
+// 37-46
+void() dog_die_wunder1 	=[ 37, 	dog_die_wunder2 	] {tesla_arc();};
+void() dog_die_wunder2 	=[ 38, 	dog_die_wunder3 	] {tesla_arc();};
+void() dog_die_wunder3 	=[ 39, 	dog_die_wunder4 	] {tesla_arc();};
+void() dog_die_wunder4 	=[ 40, 	dog_die_wunder5 	] {tesla_arc();};
+void() dog_die_wunder5 	=[ 41, 	dog_die_wunder6 	] {tesla_arc();};
+void() dog_die_wunder6 	=[ 42, 	dog_die_wunder7 	] {tesla_arc();};
+void() dog_die_wunder7 	=[ 43, 	dog_die_wunder8 	] {tesla_arc();};
+void() dog_die_wunder8 	=[ 44, 	dog_die_wunder9 	] {tesla_arc();};
+void() dog_die_wunder9 	=[ 45, 	dog_die_wunder10 	] {tesla_arc();};
+void() dog_die_wunder10 =[ 46, 	SUB_Null 	] {print("ayoooo\n");tesla_arc(); self.iszomb=0; self.nextthink=time+3; self.think=removeZombie;};
+
+
+void() Dog_Death_Tesla = {
+	Dog_Death_Cleanup(self);
+	// TODO - place tesla spark correctly
+	tesla_spark(self.origin);
+
+	if(rounds == dogRound && Remaining_Zombies == 0) {
+		Spawn_Powerup(self.origin + '0 0 12', PU_MAXAMMO);
+	}
+
+	dog_die_wunder1();
+};
+
+
 
 void(entity where) spawn_a_dogB =
 {
@@ -242,7 +262,7 @@ void(entity where) spawn_a_dogB =
 	
 	sdog.th_melee = dog_meleeanim;
 	sdog.th_idle = dog_idleanim;
-	sdog.th_diewunder = die_dog_wunder1;
+	sdog.th_diewunder = Dog_Death_Tesla;
 
 	sdog.electro_targeted = 0;
 

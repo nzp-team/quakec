@@ -149,6 +149,7 @@ void() W_SprintStop;
 void SwitchWeapon(float to);
 void GetUp();
 void Weapon_Logic();
+void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float downed;
 .float fire_delay;
 .float fire_delay2;
@@ -275,7 +276,18 @@ float zombie_spawn_timer; // the actual timer for spawn delay
 .vector idlebox;
 .vector hop_spot;//used for windows (zombies hop to these)
 .vector goalorigin;
-.float teslacount;
+
+.float teslacount; // TODO - Remove this
+
+.float tesla_n_kills; // Player - Number of kills remaining for the current tesla shot
+.float tesla_next_arc_time; // Zombie - Time at which zombie should try arcing
+.float tesla_arc_num; // Zombie - current arc number
+.entity tesla_arc_parent; // Zombie - Track the entity that we arced from
+.entity tesla_arc_owner; // Zombie - Player ent that fired the tesla
+void(vector pos) tesla_spark;
+
+
+
 .float iszomb;
 .float onfire;
 .entity firer;

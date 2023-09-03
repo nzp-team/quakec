@@ -31,6 +31,7 @@ void() Zombie_Walk_Setup;
 void() crawler_rip_board1;
 void() crawler_da1;
 void() crawler_die1;
+void() crawler_death_wunder1;
 void() LinkZombiesHitbox;
 
 
@@ -1027,7 +1028,7 @@ void() removeZombie =
 	self.flags = 0;
 	self.crawling = 0;
 	self.bleedingtime = 0;
-	self.iszomb = 0;
+	self.iszomb = 0; // 1 for alive AI, 0 for corpses / unallocated reserevd ents
 	self.owner = world;
 
 	self.spawnflags = 0;
@@ -1095,46 +1096,55 @@ void()	zombie_deathC8		=[	$deathC8,		zombie_deathC9	] 	{self.frame = 146;zombie_
 void()	zombie_deathC9		=[	$deathC9,		zombie_deathC10	] 	{self.frame = 147;};
 void()	zombie_deathC10		=[	$deathC10,		SUB_Null		] 	{self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 148;};
 
-void() Zombie_Death =
-{
-	self.aistatus = "0";
-	self.solid = SOLID_NOT;
-	self.movetype = MOVETYPE_NONE;
-	self.takedamage = DAMAGE_NO;
-	
-	self.head.solid = SOLID_NOT;
-	self.head.movetype = MOVETYPE_NONE;
-	self.head.takedamage = DAMAGE_NO;
-	self.larm.solid = SOLID_NOT;
-	self.larm.movetype = MOVETYPE_NONE;
-	self.larm.takedamage = DAMAGE_NO;
-	self.rarm.solid = SOLID_NOT;
-	self.rarm.movetype = MOVETYPE_NONE;
-	self.rarm.takedamage = DAMAGE_NO;
 
-	// ...
-	sound(self, CHAN_WEAPON, "sounds/null.wav" ,1, ATTN_NORM);
-	sound(self, CHAN_VOICE, "sounds/null.wav" ,1, ATTN_NORM);
-	sound(self, CHAN_BODY, "sounds/null.wav" ,1, ATTN_NORM);
-	sound(self, CHAN_ITEM, "sounds/null.wav" ,1, ATTN_NORM);
+
+void(entity ent) Zombie_Death_Cleanup = {
+	// Already dead
+	if(ent.aistatus == "0") {
+		return;
+	}
+	ent.aistatus = "0";
+	ent.solid = SOLID_NOT;
+	ent.movetype = MOVETYPE_NONE;
+	ent.takedamage = DAMAGE_NO;
 	
-	self.usedent = world;
+	ent.head.solid = SOLID_NOT;
+	ent.head.movetype = MOVETYPE_NONE;
+	ent.head.takedamage = DAMAGE_NO;
+	ent.larm.solid = SOLID_NOT;
+	ent.larm.movetype = MOVETYPE_NONE;
+	ent.larm.takedamage = DAMAGE_NO;
+	ent.rarm.solid = SOLID_NOT;
+	ent.rarm.movetype = MOVETYPE_NONE;
+	ent.rarm.takedamage = DAMAGE_NO;
+
+	sound(ent, CHAN_WEAPON, "sounds/null.wav" ,1, ATTN_NORM);
+	sound(ent, CHAN_VOICE, "sounds/null.wav" ,1, ATTN_NORM);
+	sound(ent, CHAN_BODY, "sounds/null.wav" ,1, ATTN_NORM);
+	sound(ent, CHAN_ITEM, "sounds/null.wav" ,1, ATTN_NORM);
 	
-	if(self.goalentity.classname == "window")
+	ent.usedent = world;
+	
+	if(ent.goalentity.classname == "window")
 	{
-		if(self.goalentity.box1owner == self)
-			self.goalentity.box1owner = world;
-		if(self.goalentity.box2owner == self)
-			self.goalentity.box2owner = world;
-		if(self.goalentity.box3owner == self)
-			self.goalentity.box3owner = world;
-		if(self.goalentity.usedent == self)
-			self.goalentity.usedent = world;
+		if(ent.goalentity.box1owner == ent)
+			ent.goalentity.box1owner = world;
+		if(ent.goalentity.box2owner == ent)
+			ent.goalentity.box2owner = world;
+		if(ent.goalentity.box3owner == ent)
+			ent.goalentity.box3owner = world;
+		if(ent.goalentity.usedent == ent)
+			ent.goalentity.usedent = world;
 	}
 	
-	
-	self.health = 0;
+	ent.health = 0;
 	Remaining_Zombies = Remaining_Zombies - 1;
+}
+
+
+void() Zombie_Death =
+{
+	Zombie_Death_Cleanup(self);
 	
 	// Death Noises
 	if (self.electro_targeted == false)
@@ -1174,7 +1184,7 @@ void() Zombie_Death =
 		{
 			zombie_deathA1();
 		}
-		else if(random() < 0.6)
+		else if(random() < 0.5)
 		{
 			zombie_deathB1();
 		}
@@ -1190,7 +1200,6 @@ void() Zombie_Death =
 // Electric Damage
 // --------------------
 //
-void() Zombie_Tesla_Light;
 
 //
 // Z_ElectroShock
@@ -1206,7 +1215,13 @@ void() Z_ElectroShock =
 	self.death_timer_activated = true;
 
 	// Spawn a Sparkle
-	Zombie_Tesla_Light();
+	if(self.crawling == true) {
+		tesla_spark(self.origin - '0 0 18');
+	}
+	else {
+		tesla_spark(self.origin + '0 0 13');
+	}
+	// Zombie_Tesla_Light();
 
 	// Decide what to Gib
 	float r = random();
@@ -1256,129 +1271,48 @@ void() Z_ElectroShock =
 
 /////////////////////ZOMBIE WAFFE STUFF/////////////////////
 
-void() Zombie_Lightning_Think =
-{
-	self.frame++;
-
-	if (self.frame >= 3)
-		self.frame = 0;
-	
-	// suicide timer!
-	if(self.ltime < time) {
-		remove(self);
-	}
-
-	self.nextthink = time + 0.05;
-}
-
-void() Zombie_Tesla_Light =
-{
-	// lightning sprite
-	local entity lightning = spawn();
-	setmodel(lightning, "models/sprites/lightning.spr");
-	setorigin(lightning, self.origin + '0 0 13');
-	lightning.think = Zombie_Lightning_Think;
-	lightning.nextthink = time + 0.05;
-	lightning.ltime = time + 1;
-}
-
-void() Zombie_Find_Tesla_Target =
-{
-	entity 	zombs = findradius(self.origin, 200);
-	entity 	tempe;
-	vector 	org;
-	vector 	targetorg;
-	float	break_loop;
-
-	if (self.teslacount > 10)
-		return;
-
-	break_loop = false;
-	while(break_loop == false) {
-
-		if (zombs == world) {
-			break_loop = true;
-			continue;
-		}
-
-		if (zombs.classname == "ai_zombie" || zombs.classname == "ai_dog") {
-			break_loop = true;
-
-			zombs.firer = self.firer;
-
-			// remove libs
-			if (zombs.head)
-				setmodel(zombs.head, "");
-			if (zombs.larm)
-				setmodel(zombs.larm, "");
-			if (zombs.rarm)
-				setmodel(zombs.rarm, "");
-
-			// add 50pts
-			addmoney(self.firer, 50, true);
-
-			// kill
-			self.firer.kills += 1;
-
-			// add to tesla count
-			zombs.teslacount = self.teslacount + 1;
-
-			// classname change
-			zombs.classname = "wunder";
-			zombs.head.classname = zombs.larm.classname = 
-			zombs.rarm.classname = "wunder_limb";
-
-			// just to be extra careful
-			zombs.takedamage = zombs.head.takedamage = 
-			zombs.larm.takedamage = zombs.rarm.takedamage = DAMAGE_NO;
-
-			org = self.origin + '0 0 13';
-			targetorg = zombs.origin + '0 0 13';
-
-			// shoot lightning
-
-#ifdef FTE
-
-			te_lightning2(self, org, targetorg);
-
-#else
-
-			WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
-			WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
-			WriteEntity (MSG_BROADCAST, self);
-			WriteCoord (MSG_BROADCAST, org_x);
-			WriteCoord (MSG_BROADCAST, org_y);
-			WriteCoord (MSG_BROADCAST, org_z);
-			WriteCoord (MSG_BROADCAST, targetorg_x);
-			WriteCoord (MSG_BROADCAST, targetorg_y);
-			WriteCoord (MSG_BROADCAST, targetorg_z);
-
-#endif // FTE
-
-			// anim play
-			tempe = self;
-			self = zombs;
-			self.th_diewunder();
-			self = tempe;
-		}
-		zombs = zombs.chain;
-	}
-}
-
 // Wunder'd
 // 149-152 (FIXME - animate wunder'd zombies)
 $frame wunder1 wunder2 wunder3 wunder4 wunder5 wunder6 wunder7 wunder8 wunder9 wunder10
 
-void() zombie_wunder1		=[	$wunder1,		zombie_wunder2	]	{play_sound_z(4);Zombie_Tesla_Light();Zombie_Walk(0);self.frame = 149;self.solid = SOLID_NOT;};
-void() zombie_wunder2		=[	$wunder2,		zombie_wunder3	]	{Zombie_Walk(0);self.frame = 150;};
-void() zombie_wunder3		=[	$wunder3,		zombie_wunder4	]	{Zombie_Walk(0);Zombie_Find_Tesla_Target();self.frame = 151;};
-void() zombie_wunder4		=[	$wunder4,		zombie_wunder5	]	{Zombie_Walk(0);self.frame = 152;};
-void() zombie_wunder5		=[	$wunder5,		zombie_wunder6	]	{Zombie_Walk(0);self.frame = 151;};
-void() zombie_wunder6		=[	$wunder6,		zombie_wunder7	]	{Zombie_Walk(0);self.frame = 152;};
-void() zombie_wunder7		=[	$wunder7,		zombie_wunder8	]	{Zombie_Walk(0);self.frame = 151;};
-void() zombie_wunder8		=[	$wunder8,		zombie_wunder9	]	{play_sound_z(3);Zombie_Walk(0);self.frame = 152;};
-void() zombie_wunder9		=[	$wunder9,		zombie_wunder10	]	{Zombie_Walk(0);self.frame = 151;};
-void() zombie_wunder10		=[	$wunder10,		SUB_Null 		]	{self.health = 0; self.th_die();Zombie_Walk(0);self.frame = 152;};
+void() zombie_wunder1		=[	$wunder1,		zombie_wunder2	]	{tesla_arc(); play_sound_z(4); self.frame = 149;};
+void() zombie_wunder2		=[	$wunder2,		zombie_wunder3	]	{tesla_arc(); self.frame = 150;};
+void() zombie_wunder3		=[	$wunder3,		zombie_wunder4	]	{tesla_arc();  self.frame = 151;};
+void() zombie_wunder4		=[	$wunder4,		zombie_wunder5	]	{tesla_arc(); self.frame = 152;};
+void() zombie_wunder5		=[	$wunder5,		zombie_wunder6	]	{tesla_arc(); self.frame = 151;};
+void() zombie_wunder6		=[	$wunder6,		zombie_wunder7	]	{tesla_arc(); self.frame = 152;};
+void() zombie_wunder7		=[	$wunder7,		zombie_wunder8	]	{tesla_arc(); self.frame = 151;};
+void() zombie_wunder8		=[	$wunder8,		zombie_wunder9	]	{tesla_arc(); play_sound_z(3); self.frame = 152;};
+void() zombie_wunder9		=[	$wunder9,		zombie_wunder10	]	{tesla_arc(); self.frame = 151;};
+void() zombie_wunder10		=[	$wunder10,		SUB_Null 		]	{
+	tesla_arc(); self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie;self.frame = 152;
+	// Play final death anim:
+	if(random() < 0.3) {
+		zombie_deathA1();
+	}
+	else if(random() < 0.5) {
+		zombie_deathB1();
+	}
+	else {
+		zombie_deathC1();
+	}
+};
+
+
+
+
+void() Zombie_Tesla_Death = {
+	Zombie_Death_Cleanup(self);
+	if(self.crawling == true) {
+		tesla_spark(self.origin - '0 0 18');
+		crawler_death_wunder1();
+	}
+	else {
+		tesla_spark(self.origin + '0 0 13');
+		zombie_wunder1();
+	}
+};
+
 
 /////////////////////ZOMBIE SPAWNING/////////////////////
 void() zombieRise =
@@ -1551,12 +1485,11 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.rarm.takedamage = DAMAGE_NO;
 
 #ifndef FTE
-
 	updateLimb (zSpawn, 2, zSpawn.rarm);
-
-#endif
+#endif // FTE
 
 };
+
 void(entity szombie)  SetUpHitBoxes =
 {
 	szombie.head.solid = SOLID_CORPSE;
@@ -1740,7 +1673,7 @@ void(entity where) spawn_a_zombieB =
 	szombie.th_fall = zombie_fall1;
 	szombie.th_land = zombie_land1;
 
-	szombie.th_diewunder = zombie_wunder1;
+	szombie.th_diewunder = Zombie_Tesla_Death;
 	
 	//szombie.th_jump = zombie_jump1;
 	//szombie.th_grabledge = zombie_grabledge1;

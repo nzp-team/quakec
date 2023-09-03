@@ -139,6 +139,21 @@ void() crawler_die1		=[	0,		crawler_die2] 	{SetZombieHitBox(CRAWLER_BBOX);self.f
 void() crawler_die2		=[	1,		crawler_die3] 	{self.frame = 38;};
 void() crawler_die3		=[	2,		SUB_Null] 	{self.iszomb = 0; self.frame = 39;self.nextthink = time + 3;self.think = removeZombie; addmoney(other, 60, true); if (crawler_num > 0) {crawler_num = crawler_num - 1;}};
 
+//====================== Crawler Tesla Death ============================
+void() crawler_death_wunder1		=[	72,		crawler_death_wunder2	]	{tesla_arc(); play_sound_z(4); };
+void() crawler_death_wunder2		=[	73,		crawler_death_wunder3	]	{tesla_arc(); };
+void() crawler_death_wunder3		=[	74,		crawler_death_wunder4	]	{tesla_arc();  };
+void() crawler_death_wunder4		=[	75,		crawler_death_wunder5	]	{tesla_arc(); };
+void() crawler_death_wunder5		=[	76,		crawler_death_wunder6	]	{tesla_arc(); };
+void() crawler_death_wunder6		=[	77,		crawler_death_wunder7	]	{tesla_arc(); };
+void() crawler_death_wunder7		=[	73,		crawler_death_wunder8	]	{tesla_arc(); };
+void() crawler_death_wunder8		=[	74,		crawler_death_wunder9	]	{tesla_arc(); };
+void() crawler_death_wunder9		=[	75,		crawler_death_wunder10	]	{tesla_arc(); };
+void() crawler_death_wunder10		=[	40,		SUB_Null 		]	{tesla_arc(); self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie;};
+
+
+
+
 //======================== Climb Over Barricade ====================
 //40-70
 void() crawler_climbBarricade1	=[	0,		crawler_climbBarricade2] 	{self.movetype = MOVETYPE_STEP;self.zoom = 1;self.frame = 40;Zombie_Think();};
@@ -236,6 +251,7 @@ void(entity who) makeCrawler =
 	who.th_melee = zombie_attack;
 	who.th_idle = crawler_idle1;
 	who.th_windowhop = crawler_climbBarricade1;
+	who.th_diewunder = Zombie_Tesla_Death;
 	
 	who.th_fall = crawler_fall1;
 	who.th_land = crawler_land1;
