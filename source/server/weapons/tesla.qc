@@ -170,7 +170,7 @@ void() tesla_arc = {
                     // Check traceline to make sure is visible
                     vector trace_start = self.origin + tesla_arc_ofs_for_ent(self);
                     vector trace_end = ent.origin + tesla_arc_ofs_for_ent(self);
-                    traceline(trace_start, trace_end, MOVE_NOMONSTERS, world);
+                    traceline(trace_start, trace_end, 1, world); // MOVE_NOMONSTERS=1
                     if(trace_fraction >= 1.0) {
                         best_dist = dist;
                         best_ent = ent;
