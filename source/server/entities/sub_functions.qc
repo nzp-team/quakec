@@ -99,9 +99,11 @@ void() SUB_UseTargets =
 		do
 		{
 			t = find (t, targetname, self.killtarget);
-			if (!t)
+			if (t == world || !t) {
 				breakthis = true;
-			remove (t);
+				continue;
+			}
+			Ent_FakeRemove(t);
 		} while (!breakthis);
 	}
 
