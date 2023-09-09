@@ -4021,6 +4021,9 @@ vector(float wep) GetWeaponRecoil =
 }
 
 // Flash offset is multiplied because vectors have limited precision within qc
+// Y, Z, X for .. reasons!
+// Y will always be flipped IE, if its negative in blender, it will be positive
+// in QC.
 vector (float wep) GetWeaponFlash_Offset = 
 {
 		switch(wep) {
@@ -4060,34 +4063,40 @@ vector (float wep) GetWeaponFlash_Offset =
 				return [3899, -5021, 78199];
 			case W_FG:
 			case W_IMPELLER:
-				return [14000, -10000, 70000];
+				return [11847, -6792, 77246];
 			case W_GEWEHR:
 			case W_COMPRESSOR:
-				return [6500, -8500, 65000];
+				return [5261, -8070, 78777];
 			case W_PPSH:
 			case W_REAPER:
-				return [11100, -9000, 86300];
+				return [7325, -5742, 60803];
 			case W_MP40:
 			case W_AFTERBURNER:
-				return [11300, -11300, 85000];
+				return [11621, -9366, 79787];
 			case W_MP5K:
 			case W_KOLLIDER:
-				return [19300, -15300, 85000];
+				return [10327, -9776, 45327];
 			case W_STG:
 			case W_SPATZ:
 				return [10300, -10230, 100000];
 			case W_M1:
 			case W_M1000:
-				return [3506, -1500, 33000];
+				return [7223, -4235, 94189];
 			case W_BROWNING:
 			case W_ACCELERATOR:
-				return [15726, -23375, 170713];
+				return [7374, -8656, 84620];
 			case W_PTRS:
 			case W_PENETRATOR:
-				return [10988, -14242, 180300];
+				return [5768, -7709, 160570];
 			case W_TYPE:
 			case W_SAMURAI:
 				return [488, -2300, 25300];
+			case W_TESLA:
+			case W_DG3:
+				return [12347, -9557, 108920];
+			case W_RAY:
+			case W_PORTER:
+				return [12566, -6463, 49165];
 			default:
 				return [5488, -2742, 35300];
 		}
@@ -4133,34 +4142,40 @@ float (float wep) GetWeaponFlash_Size = {
 			return 16;
 		case W_FG:
 		case W_IMPELLER:
-			return 18;
+			return 16;
 		case W_GEWEHR:
 		case W_COMPRESSOR:
 			return 12;
 		case W_PPSH:
 		case W_REAPER:
-			return 14;
+			return 12;
 		case W_MP40:
 		case W_AFTERBURNER:
-			return 14;
+			return 10;
 		case W_MP5K:
 		case W_KOLLIDER:
-			return 14;
+			return 10;
 		case W_STG:
 		case W_SPATZ:
 			return 16;
 		case W_M1:
 		case W_M1000:
-			return 5;
+			return 14;
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			return 27;
+			return 16;
 		case W_PTRS:
 		case W_PENETRATOR:
 			return 30;
 		case W_TYPE:
 		case W_SAMURAI:
 			return 5;
+		case W_TESLA:
+		case W_DG3:
+			return 20;
+		case W_RAY:
+		case W_PORTER:
+			return 10;
 		default:
 			return 5;
 	}
