@@ -1449,7 +1449,8 @@ void() betty_do_rise =
 
 void() betty_touch = 
 {
-	if (other.classname == "grenade")
+	// Only trigger if an enemy is making contact.
+	if (other.classname != "ai_zombie" && other.classname != "ai_dog")
 		return;
 
   	if (other == self.owner || other.solid == SOLID_TRIGGER)
