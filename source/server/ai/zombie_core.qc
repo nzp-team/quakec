@@ -1108,6 +1108,7 @@ void(entity ent) Zombie_Death_Cleanup = {
 	ent.movetype = MOVETYPE_NONE;
 	ent.takedamage = DAMAGE_NO;
 	
+	ent.head.classname = "";
 	ent.head.solid = SOLID_NOT;
 	ent.head.movetype = MOVETYPE_NONE;
 	ent.head.takedamage = DAMAGE_NO;
