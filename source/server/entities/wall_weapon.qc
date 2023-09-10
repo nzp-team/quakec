@@ -108,6 +108,11 @@ void() weapon_wall =
 	makevectors(self.angles);
 	setorigin(self.enemy, self.origin + v_right*-4);
 
+	// Backwards compatibility for betties brokenly using
+	// cost2.
+	if (self.cost == 0 && self.weapon == W_BETTY)
+		self.cost = self.cost2;
+
 	// Prep it for usage.
 	self.skin = 0;
 	self.frame = self.sequence;
@@ -248,10 +253,12 @@ void () WallWeapon_TouchTrigger =
 	}
 	if (self.weapon == W_BETTY)
 	{
-		if (other.secondary_grenades < 2)
-			useprint (other, 3, self.cost2, self.weapon);
-		else
+		// Betties are a one-time purchase.
+		if (other.grenades & 2)
 			return;
+
+		useprint (other, 4, self.cost, self.weapon);
+
 		if (!other.button7 || other.semiuse)
 			return;
 		if (other.points < self.cost2)

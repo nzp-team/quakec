@@ -594,7 +594,9 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 	{
 		if(ent.classname == "player" && ent == attacker) // we don't want OUR explosives to harm other players..
 		{
-			if (ent.perks & P_FLOP)
+			if (ent.perks & P_FLOP)	// PhD Flopper makes us immune to any explosive damage
+				final_damage = 0;
+			else if (inflictor.classname == "betty") // Self-inflicted betties don't do damage either.
 				final_damage = 0;
 			else
 			{
@@ -623,23 +625,22 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					final_damage *= 60;
 				}
 				DamageHandler (ent, ent, final_damage, S_EXPLOSIVE);
-
-				// shake the camera on impact
-				vector distance;
-				distance = inflictor.angles - ent.angles;
-
-				// just to prevent radical punchangles
-				while(distance_x > 10 || distance_x < -10) {
-					distance_x /= 2;
-				}
-				while(distance_y > 10 || distance_y < -10) {
-					distance_y /= 2;
-				}
-
-				// apply
-				ent.punchangle_x = distance_x;
-				ent.punchangle_y = distance_y;
 			}
+			// shake the camera on impact
+			vector distance;
+			distance = inflictor.angles - ent.angles;
+
+			// just to prevent radical punchangles
+			while(distance_x > 10 || distance_x < -10) {
+				distance_x /= 2;
+			}
+			while(distance_y > 10 || distance_y < -10) {
+				distance_y /= 2;
+			}
+			
+			// apply
+			ent.punchangle_x = distance_x;
+			ent.punchangle_y = distance_y;
 		}
 		else if (ent.classname == "explosive_barrel")
 		{

@@ -1403,14 +1403,23 @@ void() GrenadeExplode =
 		DamgageExplode (self, self.owner, 12000, 11000, 128);
 	else
 		DamgageExplode (self, self.owner, 1200, 1000, 75);
-	
+
 #ifdef FTE
 
     te_customflash(self.origin, 200, 300, '1 1 1');
 
 #endif // FTE
 
-    CallExplosion(self.origin);
+	// Really stupid hack: For betties, let's dramatically increase
+	// the explosion effect.
+	if (self.classname == "betty") {
+		CallExplosion(self.origin);	
+		CallExplosion(self.origin);	
+		CallExplosion(self.origin);	
+		CallExplosion(self.origin);	
+	} else {
+    	CallExplosion(self.origin);		
+	}
 	
 	SUB_Remove ();
 };
@@ -1432,79 +1441,6 @@ void() Velocity_reduce =
 	
 	NadeStraighten();
 };
-
-void() betty_do_rise =
-{
-	if (self.ltime < time) {
-		self.velocity = '0 0 0';
-		self.movetype = MOVETYPE_NONE;
-		self.think = SUB_Null;
-		GrenadeExplode();
-	}
-
-	self.nextthink = time + 0.05;
-	makevectors(self.angles);
-	self.velocity = v_up*70;
-}
-
-void() betty_touch = 
-{
-	// Only trigger if an enemy is making contact.
-	if (other.classname != "ai_zombie" && other.classname != "ai_dog")
-		return;
-
-  	if (other == self.owner || other.solid == SOLID_TRIGGER)
-    	return;
-
-	self.think = betty_do_rise;
-	self.touch = SUB_Null;
-	self.nextthink = time + 0.1;
-	self.ltime = time + 0.35;
-}
-
-void() W_ThrowBetty =
-{
-	entity betty;
-	betty = spawn ();
-	betty.owner = self;
-	betty.grenade_delay = betty.owner.grenade_delay;
-	betty.owner.grenade_delay = 0;
-	betty.movetype = MOVETYPE_NOCLIP;
-	betty.solid = SOLID_TRIGGER;
-	betty.classname = "betty";
-
-	betty.velocity = v_forward*0;
-	betty.touch = betty_touch;
-
-	setmodel (betty, "models/weapons/grenade/g_betty.mdl");
-	setsize (betty, '-64 -64 -4', '64 64 32');
-
-	betty.origin = betty.owner.origin - self.view_ofs + '0 0 1';
-	//if player isn't on ground, drop the betty to the floor.
-	if (!(self.flags & FL_ONGROUND)) {
-		local entity oldself;
-		oldself = self;
-		self = betty;
-		
-#ifdef FTE
-
-		droptofloor();
-
-#else
-
-		droptofloor(0, 0);
-
-#endif // FTE
-
-		self = oldself;
-	}
-	betty.origin += v_forward * 0;
-	setorigin (betty, betty.origin);
-
-	self.animend = ReturnWeaponModel;
-	self.callfuncat = 0;
-	self.isBuying = false;  
-}
 
 void() W_ThrowGrenade =
 {
@@ -1549,7 +1485,7 @@ void() W_ThrowGrenade =
 		self.callfuncat = 0;
 		self.isBuying = false;
 	} else if (self.pri_grenade_state == 1) {
-		W_ThrowBetty();
+		Betty_Drop();
 	} else  {
 		centerprint (other, "No grenadetype defined...\n");
 	}
@@ -1566,30 +1502,10 @@ void() W_ThrowGrenade =
 	SetUpdate(self, UT_HUD, 6, 0, 0);
 }
 
-
-void() checkHoldB =
-{
-	if (!self.button3)
-	{
-		if(self.grenade_delay < time)
-			self.grenade_delay = time + 0.05;
-		self.isBuying = true;
-		Set_W_Frame (18, 23, 0, 5, GRENADE, W_ThrowBetty, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
-		sound (self, CHAN_WEAPON, "sounds/weapons/grenade/throw.wav", 1, ATTN_NORM);
-		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
-		self.throw_delay = time + 0.9;
-	}
-	else
-	{    
-		self.isBuying = true;
-		Set_W_Frame (18, 18, 0, 0, GRENADE, checkHoldB, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
-	}	
-}
-
 void() checkHold =
 {
 	if (self.pri_grenade_state == 1) {
-		checkHoldB();
+		Betty_CheckForRelease();
 		return;
 	}
 
@@ -1609,23 +1525,6 @@ void() checkHold =
     	self.isBuying = true;
 		Set_W_Frame (2, 2, 0, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
 	}
-}
-
-
-void() W_Betty = {
-	if (self.throw_delay > time || self.zoom || self.downed || self.secondary_grenades < 1 || self.isBuying)
-		return;
-
-	// Prevent the Player from Sprinting and also avoid issues with
-	// the equipment being completely cancelled..
-	if (self.sprinting)
-		W_SprintStop();
-
-	Set_W_Frame (0, 18, 0, 0, GRENADE, checkHoldB, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
-	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
-	self.secondary_grenades -= 1;
-	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.seminade = true;
 }
 
 void() W_Grenade =
@@ -1777,7 +1676,7 @@ void () Impulse_Functions =
 			switch_nade();
 			break;
 		case 33:
-			W_Betty();
+			W_PrimeBetty();
 			break;
 		case 26:
 		case 30:
@@ -2301,7 +2200,7 @@ void () Weapon_Logic =
         if (self.pri_grenade_state == 0)
 		    W_Grenade();
         else
-            W_Betty();
+            W_PrimeBetty();
 		self.seminade = true;
 	} else if (!self.button3 && self.seminade) {
 		self.seminade = false;

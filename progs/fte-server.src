@@ -37,6 +37,7 @@
 ../source/server/weapons/tesla.qc
 ../source/server/weapons/flamethrower.qc
 ../source/server/weapons/grenade_launcher.qc
+../source/server/weapons/bouncing_betty.qc
 ../source/server/weapons/weapon_core.qc
 
 ../source/server/entities/powerups.qc
