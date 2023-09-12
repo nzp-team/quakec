@@ -446,26 +446,29 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 
 		victim.health = victim.health - damage;
 
-		if (d_style == S_EXPLOSIVE) {
-			if (victim.health < z_health*0.5)
-			{
-				if (victim.crawling != TRUE && !(victim.health <= 0) && crawler_num < 5 && victim.classname != "ai_dog")
-				{
-					makeCrawler(victim);
-					GiveAchievement(3, attacker);
-				}
-				else
-				{
-					if (attacker.classname == "player" && (victim.health - damage) > 0)
-						addmoney(attacker, 10, 1);
-				}
+		if (d_style == S_EXPLOSIVE && damage != 0) {
+			if (victim.health > 0 && victim.crawling == 2) {
+				makeCrawler(victim);
+				GiveAchievement(3, attacker);
 			}
-			// MOTO - explosives seem to work fine without, but with will cause counter and QC errors..
-			//else
-			//	victim.th_die();	
+			// if (victim.health < z_health*0.5)
+			// {
+			// 	if (victim.crawling != TRUE && !(victim.health <= 0) && crawler_num < 5 && victim.classname != "ai_dog")
+			// 	{
+			// 		makeCrawler(victim);
+			// 		GiveAchievement(3, attacker);
+			// 	}
+			// 	else
+			// 	{
+			// 		if (attacker.classname == "player" && (victim.health - damage) > 0)
+			// 			addmoney(attacker, 10, 1);
+			// 	}
+			// }
 				
 			if (victim.health <= 0)
 				addmoney(attacker, 60, 1);
+			else
+				addmoney(attacker, 10, 1);
 		}
 
 		if (victim.health <= 0 || instakill_finished) {
@@ -684,29 +687,50 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				}
 			}
 
-			r = rounds;
-			multi = 1.07;
-			while(r > 0)
-			{
-				multi *= 1.05;
-				r --;
+			// cypress -- accurate explosive damage
+			// cod likes to override the damage to ai with
+			// explosives (yay!).
+			if (inflictor.classname == "grenade") {
+				// grenades follow the logic of (rounds + (rand 150-500))
+				// rounds is basically meaningless though.. wtf?
+				final_damage = rounds + rint(random() * 350) + 150;
+			} else if (inflictor.classname == "projectile_grenade") {
+				// projectile-based grenades (mustang & sally) seem to do
+				// more damage than standard grenades.
+				// (rounds + (rand 1200-5000))
+				final_damage = rounds + rint(random() * 3800) + 1200;
+			} else if (inflictor.classname == "rocket") {
+				// rockets were kinda tricky to figure out, this is as close
+				// as i can get and i'm not super confident..
+				// (rounds * (rand 0-100) * weapon_damage/500).
+				final_damage = (rounds * rint(random() * 100)) * damage2/500;
+			} else {
+				r = rounds;
+				multi = 1.07;
+				while(r > 0)
+				{
+					multi *= 1.05;
+					r --;
+				}
+				
+				if (mindamage == 75) 
+				{
+					final_damage = (200 * multi) + 185;
+				}
+				else 
+				{
+					final_damage = (mindamage + damage2)/2;
+				}
 			}
+
+			// to decide if this should make a crawler, check if we've done 10% or more damage
+			if (final_damage / ent.health > 0.10 && ent.crawling != true && ent.classname != "ai_dog") {
+				ent.crawling = 2;
+			}	
 			
-			if (mindamage == 75) 
-			{
-				final_damage = (200 * multi) + 185;
-			}
-			else 
-			{
-				final_damage = (mindamage + damage2)/2;
-			}
-			
-			if (final_damage > 0)
-			{
-				/* ndaekill = true; */
+			if (final_damage > 0) {
 				if (CanDamage (ent, inflictor))
 					DamageHandler (ent, attacker, final_damage, S_EXPLOSIVE);
-				/* kill = false; */
 			}
 		}
 		ent = ent.chain;

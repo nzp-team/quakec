@@ -39,7 +39,7 @@ void(float side) W_FireGrenade =
 	nade.owner = self;
 	nade.movetype = MOVETYPE_BOUNCE;
 	nade.solid = SOLID_BBOX;
-	nade.classname = "explosiveNade";
+	nade.classname = "projectile_grenade";
 
 	makevectors (self.v_angle);
 

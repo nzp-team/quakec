@@ -96,6 +96,7 @@ void() W_FireRocket =
 	rocket.movetype = MOVETYPE_FLY;
 
 	rocket.weapon = self.weapon;
+	rocket.classname = "rocket";
 	rocket.solid = SOLID_BBOX;
 
     // Start initial velocity projection.
