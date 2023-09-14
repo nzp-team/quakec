@@ -1462,7 +1462,7 @@ void() W_ThrowGrenade =
 
 		makevectors (self.v_angle);
 
-		nade.velocity = v_forward*800;
+		nade.velocity = v_forward*1400;
 		
 		nade.avelocity = '400 -400 400';
 
@@ -1537,11 +1537,11 @@ void() W_Grenade =
 	if (self.sprinting)
 		W_SprintStop();
 
-	Set_W_Frame (0, 2, 0, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
+	Set_W_Frame (0, 2, 0.6, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
 	self.primary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.grenade_delay = time + 5;
+	self.grenade_delay = time + 5.6;
     self.seminade = true;
 } 
 
