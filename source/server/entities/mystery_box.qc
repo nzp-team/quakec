@@ -56,6 +56,16 @@ void() MBOX_OpenAnimation7 = [7, MBOX_OpenAnimation8 ] { self.frame = 7; MBOX_Up
 void() MBOX_OpenAnimation8 = [8, SUB_Null            ] { self.frame = 8; MBOX_UpdateGlowFrame(); };
 
 //
+// MBOX_WaitEnd()
+// Ends the per-use delay for the Mystery Box.
+//
+void() MBOX_WaitEnd =
+{
+	self.boxstatus = 0;
+	self.think = SUB_Null;
+}
+
+//
 // MBOX_Reset()
 // Resets the Mystery Box to be ready for
 // another use.
@@ -63,7 +73,12 @@ void() MBOX_OpenAnimation8 = [8, SUB_Null            ] { self.frame = 8; MBOX_Up
 inline void() MBOX_Reset = 
 {
 	self.frame = 0;
-	self.boxstatus = 0;
+	self.boxstatus = -1;
+
+	// Add a 3 second delay before the Mystery Box
+	// can be interact with again.
+	self.think = MBOX_WaitEnd;
+	self.nextthink = time + 3;
 };
 
 //
@@ -651,7 +666,6 @@ void() MBOX_Touch =
 			if (self.owner == other)
 			{
 				other.reload_delay = 0;
-				self.boxstatus = 0;
 				self.owner = world;
 				if (other.weapon != self.boxweapon.weapon && other.secondaryweapon != self.boxweapon.weapon && other.secondaryweapon && other.thirdweapon != self.boxweapon.weapon)
 				{	
