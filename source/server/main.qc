@@ -165,6 +165,7 @@ void() precaches =
 
 	// start weapons
 	precache_model ("models/weapons/m1911/v_colt.mdl");
+	precache_model ("models/weapons/m1911/g_colt.mdl");
 	precache_model ("models/weapons/knife/v_knife.mdl");
 	precache_model ("models/weapons/grenade/v_grenade.mdl");
 	precache_model ("models/weapons/grenade/g_grenade.mdl");

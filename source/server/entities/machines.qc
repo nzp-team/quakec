@@ -1180,7 +1180,7 @@ void PapUpgrade(entity pap, entity buyer) {
 
 	////////////////////////////////////////
 
-	self.fire_delay = self.reload_delay = 4.5 + time;
+	self.fire_delay = self.reload_delay = 2.0 + time;
 	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NORM);
 
 	pap.weapon = self.weapon;
@@ -1196,7 +1196,7 @@ void PapUpgrade(entity pap, entity buyer) {
 
     self.isBuying = true;
 
-	Set_W_Frame (0, 39, 0, 0, 0, W_TakeOut, "models/machines/v_pap.mdl", true, S_BOTH);
+	Set_W_Frame (0, 39, 2.0, 0, 0, W_TakeOut, "models/machines/v_pap.mdl", true, S_BOTH);
 	self.weapon2model = "";
 	UpdateV2model(self.weapon2model, 0);
 
