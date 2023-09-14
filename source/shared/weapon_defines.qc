@@ -3262,11 +3262,8 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/colt/magout.wav");
 			precache_sound("sounds/weapons/colt/magin.wav");
 			precache_sound("sounds/weapons/colt/slide.wav");
-
-			if (weptype == W_BIATCH) {
-				precache_model ("models/weapons/m1911/v_biatch_right.mdl");
-				precache_model ("models/weapons/m1911/v_biatch_left.mdl");
-			}
+			precache_model ("models/weapons/m1911/v_biatch_right.mdl");
+			precache_model ("models/weapons/m1911/v_biatch_left.mdl");
 			break;
 		case W_KAR_SCOPE:
 		case W_KAR:
