@@ -794,7 +794,7 @@ void() LungeKnifeHit =
 	if (self.weapon == W_BK)
 		traceline (source, source + v_forward*80*1.2, 0, self); // naievil -- added some extra length
 	else
-		traceline (source, source + v_forward*64*1.2, 0, self); // naievil -- ^^
+		traceline (source, source + v_forward*74*1.2, 0, self); // naievil -- ^^
 	
 	org = trace_endpos - v_forward*3; // naievil -- changed to factor of 3 from 4
 	
@@ -1278,9 +1278,9 @@ void () W_Knife =
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
 	if (self.weapon == W_BK)
-		traceline (source, source + v_forward*128, 0, self);
+		traceline (source, source + v_forward*80*1.2, 0, self);
 	else
-		traceline (source, source + v_forward*100, 0, self);
+		traceline (source, source + v_forward*74*1.2, 0, self);
 	
 	org = trace_endpos - v_forward*4;
 
@@ -1320,7 +1320,7 @@ void () W_Knife =
 		}
 		else if (self.bowie)
 		{
-			Set_W_Frame (4, 10, 0.7, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
+			Set_W_Frame (4, 10, 1.0, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
 			self.knife_delay = time + 1.3;
 		}
@@ -1328,11 +1328,11 @@ void () W_Knife =
 		{
 			self.punchangle_x = -5;
 			self.punchangle_y = -10;
-			Set_W_Frame (4, 12, 0.7, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
+			Set_W_Frame (4, 12, 0.74, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
-			self.knife_delay = time + 1;
+			self.knife_delay = time + 1.1;
 		}
-		self.velocity = v_forward * 200;
+		self.velocity = v_forward * r * 6;
 		
 	}
 	else
@@ -1345,7 +1345,7 @@ void () W_Knife =
 		}
 		else if (self.bowie)
 		{
-			Set_W_Frame (0, 3, 0.3, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
+			Set_W_Frame (0, 3, 0.65, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
 			self.knife_delay = time + 0.9;
 		}
@@ -1354,9 +1354,9 @@ void () W_Knife =
 			self.punchangle_x = -5;
 			self.punchangle_y = -10;
 			//self.punchangle_z = 5;
-			Set_W_Frame (0, 3, 0.3, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
+			Set_W_Frame (0, 3, 0.45, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
-			self.knife_delay = time + 0.7;
+			self.knife_delay = time + 0.8;
 		}
 	}
 	self.reload_delay2 = self.reload_delay = 0;

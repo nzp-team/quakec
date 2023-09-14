@@ -336,7 +336,7 @@ void () WallWeapon_TouchTrigger =
 					entity tempz;
 					tempz = self;
 					self = other;
-					Set_W_Frame(15, 30, 0, 0, 0, ReturnWeaponModel, "models/weapons/knife/v_bowie.mdl", false, S_BOTH);
+					Set_W_Frame(15, 30, 2.75, 0, 0, ReturnWeaponModel, "models/weapons/knife/v_bowie.mdl", false, S_BOTH);
 					self.bowie = 1;
 				}
 			}
