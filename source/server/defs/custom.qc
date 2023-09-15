@@ -417,9 +417,10 @@ float isPowerOn;
 
 var struct mbox_struct
 {
-	float weapon_id; 	// ID for the relevant weapon.
-	float allowed;		// 1 for allowed, 0 for denied.
-	float rarity;		// 0-100 (float) percent change for obtaining. -1 for normal.
+	float weapon_id; 			// ID for the relevant weapon.
+	float allowed;				// 1 for allowed, 0 for denied.
+	float rarity;				// 0-100 (float) percent change for obtaining. -1 for normal.
+	float already_obtained;		// true if only one allowed and a client already holds it.
 } mystery_box_weapons[MAX_BOX_WEAPONS] = {};
 
 float 	mystery_box_count;

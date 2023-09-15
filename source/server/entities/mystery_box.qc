@@ -135,7 +135,8 @@ float(entity user) MBOX_GetRandomBoxWeapon =
 {
     float weapon_index = rint((random() * (MAX_BOX_WEAPONS - 1)));
     float weapon_id = mystery_box_weapons[weapon_index].weapon_id;
-    float weapon_allowed = mystery_box_weapons[weapon_index].allowed;
+    float weapon_allowed = mystery_box_weapons[weapon_index].allowed && 
+							!mystery_box_weapons[weapon_index].already_obtained;
 
     if (weapon_allowed == true && !Weapon_PlayerHasWeapon(user, weapon_id, true))
         return weapon_id;
@@ -620,6 +621,22 @@ void() mystery_box_tp_spot =
 	mystery_box_count++;
 };
 
+void() MBOX_UpdatePosessionStatus =
+{
+	entity player = find(world, classname, "player");
+
+	while(player != world) {
+		for(float i = 0; i < MAX_BOX_WEAPONS; i++) {
+			float weapon_id = mystery_box_weapons[i].weapon_id;
+			mystery_box_weapons[i].already_obtained = false;
+			if (Weapon_PlayerHasWeapon(player, weapon_id, true) && WepDef_OnlyOneAllowed(weapon_id)) {
+				mystery_box_weapons[i].already_obtained = true;
+			}
+		}
+		player = find(player, classname, "player");
+	}
+}
+
 void() MBOX_Touch =
 {
 	entity tempe;
@@ -654,6 +671,7 @@ void() MBOX_Touch =
 				self.owner = other;
 				MBOX_PlayOpenAnimation();
 				Create_Floating_Weapon();
+				MBOX_UpdatePosessionStatus();
 				self.spins++;
 			}
 			else {

@@ -4254,6 +4254,24 @@ float(float wep) GetWeaponZoomAmount =
 }
 
 //
+// WepDef_OnlyOneAllowed(weapon)
+// Returns true if server is only allowed to distribute
+// this weapon to one player at a time (e.g., from Box).
+//
+float(float weapon) WepDef_OnlyOneAllowed =
+{
+	switch(weapon) {
+		case W_TESLA:
+		case W_DG3:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
 // WepDef_GetWeaponIDFromName(weapon)
 // Takes a string input and returns the weapon ID
 // from the associated string. Will be deprecated
