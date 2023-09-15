@@ -1136,7 +1136,7 @@ void PapSendOut() {
 	self.nextthink = time + 15;
     self.think = reset_pap;
 }
-
+void() W_PlayTakeOut;
 void PapUpgrade(entity pap, entity buyer) {
    	entity tempe;
    	string modelname; 
@@ -1196,7 +1196,8 @@ void PapUpgrade(entity pap, entity buyer) {
 
     self.isBuying = true;
 
-	Set_W_Frame (0, 39, 2.0, 0, 0, W_TakeOut, "models/machines/v_pap.mdl", true, S_BOTH);
+	SwitchWeapon(self.weapon);
+	Set_W_Frame (0, 39, 2.0, 0, 0, W_PlayTakeOut, "models/machines/v_pap.mdl", true, S_BOTH);
 	self.weapon2model = "";
 	UpdateV2model(self.weapon2model, 0);
 
