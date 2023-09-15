@@ -1944,7 +1944,7 @@ void() CheckPlayer =
 void () Weapon_Logic =
 {
 	// HACK HACK: Don't let the frame updater take control of hold fire.
-	if (self.weaponframe == GetFrame(self.weapon, FIRE_HOLD) && GetFrame(self.weapon, FIRE_HOLD) != 0) {
+	if (self.weaponframe == GetFrame(self.weapon, FIRE_HOLD) && GetFrame(self.weapon, FIRE_HOLD) != 0 && !self.isBuying) {
 
 	} else {
 		W_Frame_Update();
@@ -2043,7 +2043,8 @@ void () Weapon_Logic =
 		if (IsDualWeapon(self.weapon)) { self.semi2 = false; } else { self.semi = false; }
 
 		// Hold fire weapons should get set back to base frame.
-		if (GetFrame(self.weapon, FIRE_HOLD) != 0 && self.weaponframe == GetFrame(self.weapon, FIRE_HOLD)) {
+		if (GetFrame(self.weapon, FIRE_HOLD) != 0 && self.weaponframe == GetFrame(self.weapon, FIRE_HOLD) &&
+		!self.isBuying) {
 			self.weaponframe = 0;
 		}
 
