@@ -254,9 +254,6 @@ void() W_Switch =
 		SwitchWeapon(self.weapon);
 		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
 		
-		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0; 
-		
-		
 #ifndef FTE
 
 		self.Weapon_Name = GetWeaponName(self.weapon);
@@ -280,7 +277,6 @@ void() W_PutOut =
 	if (self.secondaryweapon && !self.new_anim_stop)
 	{
 		Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, W_Switch, 0);
-		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
 	}
 }
 
@@ -290,8 +286,6 @@ void() W_TakeOut =
 
 	W_AimOut();
 	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
-
-	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
 }
 
 float(entity who) hasWeapon =

@@ -144,6 +144,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
 {
     float start_frame = 0;
     float end_frame = 0;
+	float duration = 0;
 
     switch(animation_type) {
         case ANIM_SPRINT_START:
@@ -161,10 +162,12 @@ void (float animation_type, void(optional float t) end_function, float playback_
         case ANIM_TAKE_OUT:
             start_frame = GetFrame(self.weapon, TAKE_OUT_START);
             end_frame = GetFrame(self.weapon, TAKE_OUT_END);
+			duration = getWeaponDelay(self.weapon, TAKEOUT);
             break;
         case ANIM_PUT_AWAY:
             start_frame = GetFrame(self.weapon, PUT_OUT_START);
             end_frame = GetFrame(self.weapon, PUT_OUT_END);
+			duration = getWeaponDelay(self.weapon, PUTOUT);
             break;
         case ANIM_FIRST_TAKE:
             start_frame = GetFrame(self.weapon, FIRST_TAKE_START);
@@ -173,6 +176,8 @@ void (float animation_type, void(optional float t) end_function, float playback_
         default:
             break;
     }
+
+	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + duration;
 
     UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 	self.weapon2model = GetWeapon2Model(self.weapon);

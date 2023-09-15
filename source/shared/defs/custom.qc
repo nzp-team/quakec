@@ -182,6 +182,8 @@ const float EVENT_SONGPLAY 				= 41;
 #define REVIVE		10
 #define RELOAD_EMP 	11
 #define RELOAD_PAR 	12
+#define PUTOUT 		13
+#define TAKEOUT 	14
 
 #define S_HEADSHOT	1
 #define S_KNIFE		2

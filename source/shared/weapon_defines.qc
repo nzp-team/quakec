@@ -1036,23 +1036,39 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 1.9;
 			else if (delaytype == FIRE)
 				return 0.100;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_BIATCH:
 			if (delaytype == RELOAD)
 				return 1.8;
 			else if (delaytype == FIRE)
 				return 0.225;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
     	case W_ARMAGEDDON:
 		case W_KAR:
 			if (delaytype == RELOAD)
 				return 2.5;
 			else if (delaytype == FIRE)
 				return 0.3;
+			else if (delaytype == PUTOUT)
+				return 0.25;
+			else if (delaytype == TAKEOUT)
+				return 0.5;
     	case W_PULVERIZER:
 		case W_SPRING:
 			if (delaytype == RELOAD)
 				return 2.25;
 			else if (delaytype == FIRE)
 				return 0.33;
+			else if (delaytype == PUTOUT)
+				return 0.45;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_THOMPSON:
 		case W_GIBS:
 			if (delaytype == RELOAD)
@@ -1062,31 +1078,51 @@ float(float wep, float delaytype) getWeaponDelay =
 					return 0.085;
 				return 0.07;
 			}
+			else if (delaytype == PUTOUT)
+				return 0.5;
+			else if (delaytype == TAKEOUT)
+				return 0.35;
 		case W_357:
 		case W_KILLU:
 			if (delaytype == RELOAD)
 				return 3;
 			else if (delaytype == FIRE)
 				return 0.4;
+			else if (delaytype == PUTOUT)
+				return 0.6;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_BAR:
 			if (delaytype == RELOAD)
 				return 2.75;
 			else if (delaytype == FIRE)
 				return 0.17;
+			else if (delaytype == PUTOUT)
+				return 0.55;
+			else if (delaytype == TAKEOUT)
+				return 0.65;
 		case W_WIDOW:
 			if (delaytype == RELOAD)
 				return 2.75;
 			else if (delaytype == FIRE)
 				return 0.11;
+			else if (delaytype == PUTOUT)
+				return 0.55;
+			else if (delaytype == TAKEOUT)
+				return 0.65;
 		case W_BROWNING:
 			if (delaytype == RELOAD_EMP)
 				return 2;
-			if (delaytype == RELOAD_PAR)
+			else if (delaytype == RELOAD_PAR)
 				return 3;
-			if (delaytype == RELOAD)
+			else if (delaytype == RELOAD)
 				return 4.0;
 			else if (delaytype == FIRE)
 				return 0.104;
+			else if (delaytype == PUTOUT)
+				return 0.75;
+			else if (delaytype == TAKEOUT)
+				return 0.75;
 		case W_ACCELERATOR:
 			if (delaytype == RELOAD_EMP)
 				return 2;
@@ -1096,32 +1132,56 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 4;
 			else if (delaytype == FIRE)
 				return 0.088;
+			else if (delaytype == PUTOUT)
+				return 0.75;
+			else if (delaytype == TAKEOUT)
+				return 0.75;
 		case W_DB:
 			if (delaytype == RELOAD)
 				return 3;
 			else if (delaytype == FIRE)
 				return 0.5;
+			else if (delaytype == PUTOUT)
+				return 0.5;
+			else if (delaytype == TAKEOUT)
+				return 0.65;
 		case W_BORE:
 			if (delaytype == RELOAD)
 				return 2.5;
 			else if (delaytype == FIRE)
 				return 0.5;
+			else if (delaytype == PUTOUT)
+				return 0.5;
+			else if (delaytype == TAKEOUT)
+				return 0.65;
 		case W_FG:
 			if (delaytype == RELOAD)
 			  	return 2.75;
 			else if (delaytype == FIRE)
 				return 0.075;
+			else if (delaytype == PUTOUT)
+				return 0.45;
+			else if (delaytype == TAKEOUT)
+				return 0.6;
 		case W_IMPELLER:
 			if (delaytype == RELOAD)
 			  	return 2.75;
 			else if (delaytype == FIRE)
 				return 0.068;
+			else if (delaytype == PUTOUT)
+				return 0.45;
+			else if (delaytype == TAKEOUT)
+				return 0.6;
 		case W_GEWEHR:
 		case W_COMPRESSOR:
 			if (delaytype == RELOAD)
 				return 3;
 			else if (delaytype == FIRE)
 				return 0.200;
+			else if (delaytype == PUTOUT)
+				return 0.9;
+			else if (delaytype == TAKEOUT)
+				return 0.65;
 		case W_M1:
 		case W_M1000:
 			if (delaytype == RELOAD_EMP)
@@ -1132,127 +1192,223 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 1.4;
 			else if (delaytype == FIRE)
 				return 0.275;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.35;
 		case W_M1A1:
 			if (delaytype == RELOAD)
 				return 2.9;
 			else if (delaytype == FIRE)
 				return 0.220;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.5;
 		case W_WIDDER:
 			if (delaytype == RELOAD)
 				return 2.9;
 			else if (delaytype == FIRE)
 				return 0.150;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.5;
 		case W_M2:
 		case W_FIW:
 			if (delaytype == RELOAD)
 				return 2.7;
 			else if (delaytype == FIRE)
 				return 0.02;
+			else if (delaytype == PUTOUT)
+				return 0.3;
+			else if (delaytype == TAKEOUT)
+				return 0.5;
 		case W_MP40:
 			if (delaytype == RELOAD)
 				return 2.3;
 			else if (delaytype == FIRE)
 				return 0.120;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_AFTERBURNER:
 			if (delaytype == RELOAD)
 				return 2.3;
 			else if (delaytype == FIRE)
 				return 0.110;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_MP5K:
 			if (delaytype == RELOAD)
 				return 3.2;
 			else if (delaytype == FIRE)
 				return 0.085;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_KOLLIDER:
 			if (delaytype == RELOAD)
 				return 3.2;
 			else if (delaytype == FIRE)
 				return 0.085;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_MG:
 			if (delaytype == RELOAD)
 				return 4.5;
 			else if (delaytype == FIRE)
 				return 0.065;
+			else if (delaytype == PUTOUT)
+				return 0.9;
+			else if (delaytype == TAKEOUT)
+				return 0.6;
 		case W_BARRACUDA:
 			if (delaytype == RELOAD)
 				return 4.5;
 			else if (delaytype == FIRE)
 				return 0.045;
+			else if (delaytype == PUTOUT)
+				return 0.9;
+			else if (delaytype == TAKEOUT)
+				return 0.6;
 		case W_PANZER:
 		case W_LONGINUS:
 			if (delaytype == RELOAD)
 				return 2.85;
 			else if (delaytype == FIRE)
 				return 0.331;
+			else if (delaytype == PUTOUT)
+				return 0.45;
+			else if (delaytype == TAKEOUT)
+				return 0.4;
 		case W_PPSH:
 			if (delaytype == RELOAD)
 				return 2.1;
 			else if (delaytype == FIRE)
 				return 0.05;
+			else if (delaytype == PUTOUT)
+				return 0.35;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_REAPER:
 			if (delaytype == RELOAD)
 				return 2.1;
 			else if (delaytype == FIRE)
 				return 0.04;
+			else if (delaytype == PUTOUT)
+				return 0.35;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_PTRS:
 		case W_PENETRATOR:
 			if (delaytype == RELOAD)
 				return 4.5;
 			else if (delaytype == FIRE)
 				return 0.8;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.7;
 		case W_RAY:
 		case W_PORTER:
 			if (delaytype == RELOAD)
 				return 2.75;
 			else if (delaytype == FIRE)
 				return 0.35;
+			else if (delaytype == PUTOUT)
+				return 0.6;
+			else if (delaytype == TAKEOUT)
+				return 0.3;
 		case W_SAWNOFF:
 			if (delaytype == RELOAD)
 				return 2.65;
 			else if (delaytype == FIRE)
 				return 0.283;
+			else if (delaytype == PUTOUT)
+				return 0.5;
+			else if (delaytype == TAKEOUT)
+				return 0.65;
 		case W_SNUFF:
 			if (delaytype == RELOAD)
 				return 2;
 			else if (delaytype == FIRE)
 				return 0.283;
+			else if (delaytype == PUTOUT)
+				return 0.5;
+			else if (delaytype == TAKEOUT)
+				return 0.65;
 		case W_STG:
 			if (delaytype == RELOAD)
 				return 2.15;
 			else if (delaytype == FIRE)
 				return 0.110;
+			else if (delaytype == PUTOUT)
+				return 0.55;
+			else if (delaytype == TAKEOUT)
+				return 0.5;
 		case W_SPATZ:
 			if (delaytype == RELOAD)
 				return 2.15;
 			else if (delaytype == FIRE)
 				return 0.08;
+			else if (delaytype == PUTOUT)
+				return 0.55;
+			else if (delaytype == TAKEOUT)
+				return 0.5;
 		case W_TRENCH:
 		case W_GUT:
 			if (delaytype == RELOAD)
 				return 0.6;
 			else if (delaytype == FIRE)
 				return 0.283;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.6;
 		case W_TYPE:
 			if (delaytype == RELOAD)
 				return 2.25;
 			else if (delaytype == FIRE)
 				return 0.09;
+			else if (delaytype == PUTOUT)
+				return 0.35;
+			else if (delaytype == TAKEOUT)
+				return 0.35;
 		case W_SAMURAI:
 			if (delaytype == RELOAD)
 				return 2.25;
 			else if (delaytype == FIRE)
 				return 0.07;
+			else if (delaytype == PUTOUT)
+				return 0.35;
+			else if (delaytype == TAKEOUT)
+				return 0.35;
 		case W_TESLA:
 			if (delaytype == RELOAD)
 				return 4;
 			else if (delaytype == FIRE)
 				return 1;
+			else if (delaytype == PUTOUT)
+				return 0.7;
+			else if (delaytype == TAKEOUT)
+				return 0.9;
 			break;
 		case W_DG3:
 			if (delaytype == RELOAD)
 				return 3.3;
 			else if (delaytype == FIRE)
 				return 1;
+			else if (delaytype == PUTOUT)
+				return 0.7;
+			else if (delaytype == TAKEOUT)
+				return 0.9;
 			break;
     }
 
