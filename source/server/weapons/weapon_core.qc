@@ -410,6 +410,9 @@ void(float side) W_AdvanceAnim =
 
 void(float side) W_Reload =
 {
+	if (self.zoom == 2)
+		return;
+
 	if (self.weapon == W_M2 || self.weapon == W_FIW)
 		return;
 	
@@ -2117,6 +2120,9 @@ void () Weapon_Logic =
 			UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 			UpdateV2model(self.weapon2model, 0);
 			self.viewzoom = 1;
+			self.zoom = 0;
+			if (self.currentmag == 0)
+				W_Reload(S_BOTH);
 		} else {
 			if (self.viewzoom == 0.75) {
 				W_AimOut();
