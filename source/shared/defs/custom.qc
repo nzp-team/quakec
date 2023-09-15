@@ -125,7 +125,7 @@ const float EVENT_SONGPLAY 				= 41;
 #define W_LONGINUS     50 //panzer
 #define W_PENETRATOR   51 //ptrs
 #define W_WIDOW        52 //bar
-//#define W_KRAUS      53 //ballistic
+#define W_KRAUS        53 //ballistic
 #define W_MP5K         54
 #define W_M14          55
 

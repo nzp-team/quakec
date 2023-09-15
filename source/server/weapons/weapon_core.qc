@@ -69,7 +69,7 @@ void() W_PlayTakeOut =
 
 void() W_AimIn =
 {
-	if (self.weapon == W_TESLA || self.weapon == W_DG3)
+	if (WepDef_DoesNotADS(self.weapon))
 		return;
 
 	if (IsDualWeapon(self.weapon) ||
@@ -77,7 +77,6 @@ void() W_AimIn =
 		self.knife_delay > time ||
 		self.sprinting ||
 		self.new_anim_stop ||
-		self.weapon == W_BK || 
 		self.semiknife == true) {		
 		return;
 	}
@@ -785,7 +784,7 @@ void() LungeKnifeHit =
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
 
-	if (self.weapon == W_BK)
+	if (self.weapon == W_BK || self.weapon == W_KRAUS)
 		traceline (source, source + v_forward*80*1.2, 0, self); // naievil -- added some extra length
 	else
 		traceline (source, source + v_forward*74*1.2, 0, self); // naievil -- ^^
@@ -806,14 +805,8 @@ void() LungeKnifeHit =
 		}
 		sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
 		
-		if (self.bowie && self.weapon == W_BK)
-			f_damage = 1200;
-		else if (self.bowie)
-			f_damage = 1000;
-		else if (self.weapon == W_BK)
-			f_damage = 500;
-		else
-			f_damage = 150;
+		// Calculate melee damage
+		f_damage = WepDefp_CalculateMeleeDamage(self.weapon, self.bowie);
 					
 		if (trace_ent.classname == "ai_zombie_head")
 		{
@@ -1271,7 +1264,7 @@ void () W_Knife =
 	sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife.wav", 1, ATTN_NORM);
 	makevectors (self.v_angle);
 	source = self.origin + self.view_ofs;
-	if (self.weapon == W_BK)
+	if (self.weapon == W_BK || self.weapon == W_KRAUS)
 		traceline (source, source + v_forward*80*1.2, 0, self);
 	else
 		traceline (source, source + v_forward*74*1.2, 0, self);
@@ -1306,7 +1299,7 @@ void () W_Knife =
 
 	if (r > 40 && hit)//lunge
 	{
-		if (self.weapon == W_BK)
+		if (self.weapon == W_BK || self.weapon == W_KRAUS)
 		{
 			Set_W_Frame (14, 24, 1.4, 0, KNIFE, SUB_Null, "models/weapons/bk/v_bk.mdl", false, S_RIGHT);
 			self.fire_delay = time + 1.5;
@@ -1331,7 +1324,7 @@ void () W_Knife =
 	}
 	else
 	{
-		if (self.weapon == W_BK)//slash
+		if (self.weapon == W_BK || self.weapon == W_KRAUS)//slash
 		{
 			Set_W_Frame (8, 13, 0, 0.4, KNIFE, SUB_Null, "models/weapons/bk/v_bk.mdl", false, S_RIGHT);
 			self.fire_delay = time + 0.5;

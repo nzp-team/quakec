@@ -52,6 +52,8 @@ string(float wep) GetWeaponName =
 			return "The Widow Maker";
 		case W_BK:
 			return "Ballistic Knife";
+		case W_KRAUS:
+			return "The Krauss Refibrillator";
 		case W_BROWNING:
 			return "Browning M1919";
 		case W_ACCELERATOR:
@@ -560,6 +562,16 @@ float(float wep, float type) getWeaponMultiplier =
 				case LIMBS_X: 		return 1;
 			}
 			break;
+		case W_BK:
+		case W_KRAUS:
+			switch (type)
+			{
+				case HEAD_X:		return 2;
+				case UPPER_TORSO_X:	return 1;
+				case LOWER_TORSO_X:	return 1;
+				case LIMBS_X: 		return 1;
+			}
+			break;
 	}
 	return 1;
 }
@@ -669,6 +681,9 @@ float(float wep) getWeaponMag =
 			return 3;
 		case W_DG3:
 			return 6;
+		case W_BK:
+		case W_KRAUS:
+			return 1;
 	}
 	return 0;
 }
@@ -778,6 +793,10 @@ float(float wep) getWeaponAmmo =
 			return 15;
 		case W_DG3:
 			return 32;
+		case W_BK:
+			return 4;
+		case W_KRAUS:
+			return 9;
 	}
 	return 0;
 }
@@ -879,6 +898,10 @@ float(float wep) getWeaponDamage =
 			return 100;
 		case W_SAMURAI:
 			return 200;
+		case W_BK:
+			return 500;
+		case W_KRAUS:
+			return 1000;
     }
 
     return 0;
@@ -1410,6 +1433,17 @@ float(float wep, float delaytype) getWeaponDelay =
 			else if (delaytype == TAKEOUT)
 				return 0.9;
 			break;
+		case W_BK:
+		case W_KRAUS:
+			if (delaytype == RELOAD)
+				return 0.75;
+			else if (delaytype == FIRE)
+				return 0.8;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.4;
+			break;
     }
 
     return 0;
@@ -1453,6 +1487,8 @@ float GetWeaponWalkSpeed(float perks, float weapon)
 		case W_DG3:
 		case W_MP5K:
 		case W_KOLLIDER:
+		case W_BK:
+		case W_KRAUS:
 			speed_multiplier = SPEED_MULTIPLIER_STANDARD;
 			break;
 		case W_357:
@@ -2565,6 +2601,42 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 16;
 			}
 			break;
+		case W_BK:
+		case W_KRAUS:
+			switch (frametype)
+			{
+				case FIRE_START:
+					return 28;
+				case FIRE_END:
+					return 32;
+				case RELOAD_START:
+					return 33;
+				case RELOAD_END:
+					return 46;
+				case SPRINT_IN_START:
+					return 51;
+				case SPRINT_IN_END:
+					return 53;
+				case SPRINT_START:
+					return 54;
+				case SPRINT_END:
+					return 61;
+				case SPRINT_OUT_START:
+					return 62;
+				case SPRINT_OUT_END:
+					return 64;
+				case TAKE_OUT_START:
+					return 4;
+				case TAKE_OUT_END:
+					return 6;
+				case PUT_OUT_START:
+					return 47;
+				case PUT_OUT_END:
+					return 50;
+				case RELOAD_CANCEL:
+					return 41;
+			}
+			break;
 	}
 
     return 0;
@@ -2755,6 +2827,7 @@ string(float wep, float gorvmodel) GetWeaponModel =
 			else
 				return ("models/weapons/tesla/v_tesla.mdl");
 		case W_BK:
+		case W_KRAUS:
 			if (gorvmodel)
 				return ("models/weapons/bk/g_bk.mdl");
 			else
@@ -2864,6 +2937,9 @@ string(float wep) GetWeaponSound =
 		case W_TESLA:
 		case W_DG3:
       		return "sounds/weapons/tesla/shoot.wav";
+		case W_BK:
+		case W_KRAUS:
+			return "sounds/weapons/ballknife/shoot.wav";
     }
 
     return "";
@@ -2922,6 +2998,7 @@ float(float wep) IsPapWeapon = {
 		case W_DG3:
 		case W_PULVERIZER:
 		case W_FIW:
+		case W_KRAUS:
 			return 1;
 		default:
 			return 0;
@@ -3007,6 +3084,8 @@ float(float wep)  EqualNonPapWeapon =
 			return W_TESLA;
 		case W_FIW:
 			return W_M2;
+		case W_KRAUS:
+			return W_BK;
 		default:
 			return wep;
 	}
@@ -3069,6 +3148,8 @@ float(float wep)  EqualPapWeapon =
 			return W_M14;
 		case W_M2:
 			return W_FIW;
+		case W_BK:
+			return W_KRAUS;
 		default:
 			return wep;
 	}
@@ -3404,6 +3485,12 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 				sound (self ,5, "sounds/weapons/tesla/clipoff.wav", 1, ATTN_NORM);
 			else if (curweaponframe == 51)
 				sound (self ,5, "sounds/weapons/tesla/switchon.wav", 1, ATTN_NORM);
+			break;
+		case W_BK:
+		case W_KRAUS:
+			if (curweaponframe == 41)
+				sound(self, 5, "sounds/weapons/ballknife/insert.wav", 1, ATTN_NORM);
+			break;
 	}
 }
 
@@ -3610,6 +3697,11 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/tesla/switchon.wav");
 			precache_sound("sounds/weapons/tesla/shoot.wav");
 			break;
+		case W_BK:
+		case W_KRAUS:
+			precache_sound("sounds/weapons/ballknife/shoot.wav");
+			precache_sound("sounds/weapons/ballknife/insert.wav");
+			break;
 		case W_GRENADE:
 			precache_model("models/props/grenade_bag.mdl");
 			break;
@@ -3721,6 +3813,9 @@ float(float wep) getWeaponRecoilReturn =
 		case W_TESLA:
 		case W_DG3:
 			return 1813;
+		case W_BK:
+		case W_KRAUS:
+			return 460;
 	}
 	return 0;
 }
@@ -3735,6 +3830,8 @@ float(float weapon, float stance) CrossHairWeapon =
 		case W_BIATCH:
 		case W_357:
 		case W_KILLU:
+		case W_BK:
+		case W_KRAUS:
 			crosshair_spread = 22;
 			break;
 		case W_PTRS:
@@ -3851,6 +3948,8 @@ float(float weapon, float stance) CrossHairMaxSpread =
 		case W_PORTER:
 		case W_TYPE:
 		case W_SAMURAI:
+		case W_BK:
+		case W_KRAUS:
 			crosshair_spread = 48;
 			break;
 		case W_PTRS:
@@ -4143,6 +4242,10 @@ vector(float wep) GetWeaponRecoil =
 		case W_DG3:
 			kick_change = '74 74 85';
 			break;
+		case W_BK:
+		case W_KRAUS:
+			kick_change = '3 3 3';
+			break;
 	}
 	total_recoil = kick_change_x + kick_change_y + kick_change_z;
 
@@ -4407,6 +4510,54 @@ float(float wep) GetWeaponZoomAmount =
 	}
 
 	return 0;
+}
+
+//
+// WepDef_CalculateMeleeDamage(weapon, has_bowie)
+// Returns the amount of melee damage the Player can
+// do given their weapon and Bowie Knife status.
+//
+float(float weapon, float has_bowie) WepDefp_CalculateMeleeDamage =
+{
+	switch(weapon) {
+		case W_BK:
+			if (has_bowie)
+				return 1000;
+			return 500;
+			break;
+		case W_KRAUS:
+			if (has_bowie)
+				return 1500;
+			return 1000;
+			break;
+		default:
+			break;
+	}
+
+	if (has_bowie)
+		return 1000;
+
+	return 150;
+}
+
+//
+// WepDef_DoesNotADS(weapon)
+// Returns true if the weapon should not be allowed
+// to aim down the sight.
+//
+float(float weapon) WepDef_DoesNotADS =
+{
+	switch(weapon) {
+		case W_TESLA:
+		case W_DG3:
+		case W_BK:
+		case W_KRAUS:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
 }
 
 //
