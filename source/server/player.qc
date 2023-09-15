@@ -282,7 +282,8 @@ void() PlayerPreThink =
 
 #endif // FTE
 
-		self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
+		if (!self.isBuying)
+			self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	}
 	if(self.isspec != 0 && !self.downed)
 	{
