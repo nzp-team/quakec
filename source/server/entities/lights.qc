@@ -97,7 +97,7 @@ void()  light_torch_large_yellow =      // Light with larger flame & fire sound
 void()  light_flame_small_white =       // Light with small flame & fire sound
 {   L_Setup();   makestatic(self);                  }
 void()  light_spot = 			// Spotlight
-{   L_Setup();   makestatic(self);		    }
+{   L_Setup();   				    }
 
 //
 // --------------------
