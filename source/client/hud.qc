@@ -1138,14 +1138,15 @@ vector crosshair_color;
 
 void() Draw_Crosshair =
 {
-	//void(float width, vector pos1, vector pos2, vector rgb, float alpha, optional float drawflag) drawline
 	if (cvar("cl_crosshair_debug")) {
 		drawline(2, [g_width/2, g_height/2, 0], [0, g_height, 0], [1, 0, 0], 0.5);
 		drawline(2, [g_width/2, g_height/2, 0], [g_width, 0, 0], [0, 1, 1], 0.5);
 		drawline(2, [g_width, g_height, 0], [g_width/2, g_height/2, 0], [0, 1, 0], 0.5);
 		drawline(2, [0, 0, 0], [g_width/2, g_height/2, 0], [0, 0, 1], 0.5);
-		//return;
 	}
+
+	if (!cvar("crosshair"))
+		return;
 
 	if (!crosshair_opacity)
 		crosshair_opacity = 1;
