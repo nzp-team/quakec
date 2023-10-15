@@ -49,27 +49,7 @@ float(string params) Command_give =
 	float wep = stof(argv(1));
 
 	if (wep) {
-		self.weapon = wep;
-		self.currentammo = getWeaponAmmo(wep);
-		self.currentmag = getWeaponMag(wep);
-		if (IsDualWeapon(wep)) {
-			self.currentmag2 = self.currentmag;
-		}
-
-		if (GetFrame(self.weapon, FIRST_TAKE_START) != 0)
-			Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
-		else
-			Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
-
-		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
-
-#ifndef FTE
-
-		self.Weapon_Name = GetWeaponName(self.weapon);
-
-#endif // FTE
-
-		SwitchWeapon(self.weapon);
+		Weapon_GiveWeapon(wep, 0, 0);
 
         return COMMAND_SUCCESS;
     }

@@ -350,7 +350,10 @@ void() Soft_Restart = {
 	rounds = 0;
 	self.score = 0;
 	self.points = 0;
-	self.secondaryweapon = 0;
+
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		self.weapons[i].weapon_id = 0;
+	}
 
 	// naievil -- clear betty
 	self.secondary_grenades = 0;

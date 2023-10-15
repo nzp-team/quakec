@@ -130,8 +130,6 @@ void(entity person, float expamt , float doublepoint) addmoney;
 float sprint_max_time = 4.0;
 .float sprinting;
 .float weaponskin;
-.float secondaryweaponskin;
-.float thirdweaponskin;
 .float stamina;
 .float sprint_timer;
 .float sprint_duration;
@@ -167,26 +165,33 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float currentmagbk;
 .float currentmagbk2;
 .float currentammobk;
-.float secondaryammo;
-.float thirdammo;
 .float semi;
 .float semi2;
 .float semiuse;
 .float semiswitch;		// Weapon Swap Toggle
 .float seminade;		// Grenade Toggle
 .float semireload;
-.float secondarymag;
-.float secondarymag2;
-.float secondaryweapon;
-.float thirdmag;
-.float thirdmag2;
-.float thirdweapon;
 .float NeedLoad;
 .string weapon2model;
 .float weapon2frame;
 .float reloadinterupted;
 .float hitcount;
-.float weaponnum;	// 0 for weapon one, 1 for second weapon...we invert value for easy comparison, a third gun would need to be hardwired
+
+#define MAX_PLAYER_WEAPONS 		3
+#define MULEKICK_WEAPON_SLOT	3
+
+var struct guninventory_struct
+{
+	float 	weapon_id;
+	float 	weapon_magazine;
+	float 	weapon_magazine_left;
+	float 	weapon_reserve;
+	float 	weapon_skin;
+	float 	is_mulekick_weapon;
+};
+
+.guninventory_struct weapons[MAX_PLAYER_WEAPONS];
+.float weapon_count;
 
 //Reviving
 .float invoke_revive;

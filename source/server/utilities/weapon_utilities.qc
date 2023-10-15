@@ -26,6 +26,15 @@
 
 */
 
+// FTEQCC currently has an optimization bug with -fastarrays
+// that leads to corruption with the weapon list. Disable
+// if we're not on FTE.
+#ifndef FTE
+
+#pragma flag disable fastarrays
+
+#endif // FTE
+
 // TODO: Actually implement some of these..
 // Frame types, generalized.
 #define ANIM_FIRE                   0
@@ -39,6 +48,7 @@
 #define ANIM_AIM                    8
 
 void() W_AimOut;
+void() ReturnWeaponModel;
 
 //
 // Weapon_GetPlayerAmmoInSlot(person, slot)
@@ -47,9 +57,9 @@ void() W_AimOut;
 float(entity person, float slot) Weapon_GetPlayerAmmoInSlot =
 {
 	switch(slot) {
-		case 1: return person.currentammo;
-		case 2: return person.secondaryammo;
-		case 3: return person.thirdammo;
+		case 1: return person.weapons[0].weapon_reserve;
+		case 2: return person.weapons[1].weapon_reserve;
+		case 3: return person.weapons[2].weapon_reserve;
 		default: return 0;
 	}
 };
@@ -61,9 +71,9 @@ float(entity person, float slot) Weapon_GetPlayerAmmoInSlot =
 void(entity person, float slot, float ammo) Weapon_SetPlayerAmmoInSlot =
 {
 	switch(slot) {
-		case 1: person.currentammo = ammo; break;
-		case 2: person.secondaryammo = ammo; break;
-		case 3: person.thirdammo = ammo; break;
+		case 1: person.weapons[0].weapon_reserve = ammo; break;
+		case 2: person.weapons[1].weapon_reserve = ammo; break;
+		case 3: person.weapons[2].weapon_reserve = ammo; break;
 		default: return; break;
 	}
 };
@@ -77,28 +87,21 @@ void(entity person, float slot, float ammo) Weapon_SetPlayerAmmoInSlot =
 //
 float(entity person, float comparison, float include_pap) Weapon_PlayerHasWeapon =
 {
-	// Storage.
-	float first, second, third;
+	for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		// Storage.
+		float weapon_id;
 
-	// If we're including pap'd weapons, just convert the weapon set to the base
-	// ones to save on comparison checks.
-	if (include_pap == true) {
-		first = EqualNonPapWeapon(person.weapon);
-		second = EqualNonPapWeapon(person.secondaryweapon);
-		third = EqualNonPapWeapon(person.thirdweapon);
-	} else {
-		first = person.weapon;
-		second = person.secondaryweapon;
-		third = person.thirdweapon;
+		// If we're including pap'd weapons, just convert the weapon set to the base
+		// ones to save on comparison checks.
+		if (include_pap == true)
+			weapon_id = EqualNonPapWeapon(person.weapons[i].weapon_id);
+		else
+			weapon_id = person.weapons[i].weapon_id;
+
+		// Now do the comparison
+		if (weapon_id == comparison)
+			return i + 1;
 	}
-
-	// Now do the comparisons
-	if (first == comparison)
-		return 1;
-	if (second == comparison)
-		return 2;
-	if (third == comparison)
-		return 3;
 
 	return 0;
 };
@@ -186,3 +189,232 @@ void (float animation_type, void(optional float t) end_function, float playback_
     W_AimOut();
     Set_W_Frame(start_frame, end_frame, playback_duration, 0, 0, end_function, GetWeaponModel(self.weapon, 0), false, S_BOTH);
 };
+
+//
+// Weapon_SwapWeapons()
+// Performs a standard weapon swap.
+//
+void Weapon_SwapWeapons(float play_animation)
+{
+ 	float weapon_count = 0;
+
+ 	// Un-zoom camera
+ 	self.zoom = false;
+
+	// Fix fire rate exploit
+	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = true;
+
+	// Store current weapons locally
+	guninventory_struct weapons_storage[MAX_PLAYER_WEAPONS];
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		if (self.weapons[i].weapon_id != 0) {
+			weapon_count++;
+			weapons_storage[i].weapon_id = self.weapons[i].weapon_id;
+			weapons_storage[i].weapon_magazine = self.weapons[i].weapon_magazine;
+			weapons_storage[i].weapon_magazine_left = self.weapons[i].weapon_magazine_left;
+			weapons_storage[i].weapon_reserve = self.weapons[i].weapon_reserve;
+			weapons_storage[i].weapon_skin = self.weapons[i].weapon_skin;
+			weapons_storage[i].is_mulekick_weapon = self.weapons[i].is_mulekick_weapon;
+		}
+	}
+
+	// Iterate over the player inventory and shift the array around!
+	for(float j = 0; j < weapon_count; j++) {
+		if (j != weapon_count - 1) {
+			self.weapons[j + 1].weapon_id = weapons_storage[j].weapon_id;
+			self.weapons[j + 1].weapon_magazine = weapons_storage[j].weapon_magazine;
+			self.weapons[j + 1].weapon_magazine_left = weapons_storage[j].weapon_magazine_left;
+			self.weapons[j + 1].weapon_reserve = weapons_storage[j].weapon_reserve;
+			self.weapons[j + 1].weapon_skin = weapons_storage[j].weapon_skin;
+			self.weapons[j + 1].is_mulekick_weapon = weapons_storage[j].is_mulekick_weapon;
+		} else {
+		 	self.weapons[0].weapon_id = weapons_storage[j].weapon_id;
+			self.weapons[0].weapon_magazine = weapons_storage[j].weapon_magazine;
+			self.weapons[0].weapon_magazine_left = weapons_storage[j].weapon_magazine_left;
+			self.weapons[0].weapon_reserve = weapons_storage[j].weapon_reserve;
+			self.weapons[0].weapon_skin = weapons_storage[j].weapon_skin;
+			self.weapons[0].is_mulekick_weapon = weapons_storage[j].is_mulekick_weapon;
+		}
+	}
+
+	if (play_animation == true) {
+		// Properly update the weapon ID
+		self.weapon = self.weapons[0].weapon_id;
+
+		SwitchWeapon(self.weapon);
+		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
+		
+#ifndef FTE
+
+		self.Weapon_Name = GetWeaponName(self.weapon);
+		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
+		self.Flash_Size = GetWeaponFlash_Size(self.weapon);
+
+#endif // FTE
+
+	}
+
+};
+
+//
+// Weapon_SetActiveInslot(slot)
+// Iterates through the Inventory array until weapon 0
+// is what was in the requested slot.
+//
+void Weapon_SetActiveInSlot(float slot, float play_first_raise)
+{
+	if (slot != 0)
+		Weapon_SwapWeapons(false);
+
+	// Properly update the weapon ID
+	self.weapon = self.weapons[0].weapon_id;
+
+	SwitchWeapon(self.weapon);
+
+	if (GetFrame(self.weapon, FIRST_TAKE_START) != 0 && play_first_raise == true)
+		Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
+	else
+		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
+		
+#ifndef FTE
+
+	self.Weapon_Name = GetWeaponName(self.weapon);
+	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
+	self.Flash_Size = GetWeaponFlash_Size(self.weapon);
+
+#endif // FTE
+
+};
+
+//
+// Weapon_AssignWeapon(weapon_slot, weapon_id, weapon_mag, weapon_reserve)
+// Fills in weapon data for provided slot.
+//
+void Weapon_AssignWeapon(float weapon_slot, float weapon_id, float weapon_mag, float weapon_reserve)
+{
+	// Fill the stats as necessary
+	self.weapons[weapon_slot].weapon_id = weapon_id;
+			
+	if (weapon_mag > 0) {
+		self.weapons[weapon_slot].weapon_magazine = weapon_mag;
+		if (IsDualWeapon(self.weapons[weapon_slot].weapon_id))
+			self.weapons[weapon_slot].weapon_magazine_left = weapon_mag;
+	} else {
+		self.weapons[weapon_slot].weapon_magazine = getWeaponMag(self.weapons[weapon_slot].weapon_id);
+		if (IsDualWeapon(self.weapons[weapon_slot].weapon_id))
+			self.weapons[weapon_slot].weapon_magazine_left = getWeaponMag(self.weapons[weapon_slot].weapon_id);
+		else
+			self.weapons[weapon_slot].weapon_magazine_left = 0;
+	}
+
+	if (weapon_reserve > 0)
+		self.weapons[weapon_slot].weapon_reserve = weapon_reserve;
+	else
+		self.weapons[weapon_slot].weapon_reserve = getWeaponAmmo(self.weapons[weapon_slot].weapon_id);
+
+	if (weapon_slot == MULEKICK_WEAPON_SLOT - 1)
+		self.weapons[weapon_slot].is_mulekick_weapon = true;
+
+	self.weapons[weapon_slot].weapon_skin = GetWepSkin(weapon_id);
+
+	// Now tell the player to hold it.
+	Weapon_SetActiveInSlot(weapon_slot, true);
+};
+
+//
+// Weapon_GiveWeapon(weapon_id, weapon_mag, weapon_reserve)
+// Assigns a weapon to the next free slot
+// in player inventory.
+//
+void Weapon_GiveWeapon(float weapon_id, float weapon_mag, float weapon_reserve)
+{
+	float should_leave = false;
+
+	// Find next available weapon slot
+	float weapon_slots;
+
+	if ((self.perks & P_MULE))
+		weapon_slots = MULEKICK_WEAPON_SLOT;
+	else
+		weapon_slots = MULEKICK_WEAPON_SLOT - 1;
+
+	for(float i = 0; i < weapon_slots; i++) {
+		if (self.weapons[i].weapon_id == 0) {
+			for(float j = 0; j < i; j++) {
+				Weapon_SwapWeapons(false);
+			}
+			Weapon_AssignWeapon(i, weapon_id, weapon_mag, weapon_reserve);
+			should_leave = true;
+			break;
+		}
+	}
+
+	if (should_leave)
+		return;
+
+	// All slots are occupied, fill in current slot
+	Weapon_AssignWeapon(0, weapon_id, weapon_mag, weapon_reserve);
+};
+
+//
+// Weapons_FixUpList()
+// Iterates through client weapon list and 
+// re-orders to remove gaps with IDs of 0.
+//
+void Weapon_FixUpList()
+{
+	// Store current weapons locally
+	guninventory_struct weapons_storage[MAX_PLAYER_WEAPONS];
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		if (self.weapons[i].weapon_id != 0) {
+			weapons_storage[i].weapon_id = self.weapons[i].weapon_id;
+			weapons_storage[i].weapon_magazine = self.weapons[i].weapon_magazine;
+			weapons_storage[i].weapon_magazine_left = self.weapons[i].weapon_magazine_left;
+			weapons_storage[i].weapon_reserve = self.weapons[i].weapon_reserve;
+			weapons_storage[i].weapon_skin = self.weapons[i].weapon_skin;
+			weapons_storage[i].is_mulekick_weapon = self.weapons[i].is_mulekick_weapon;
+		}
+	}
+
+	// Reset all of the player's weapons
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		self.weapons[i].weapon_id = 0;
+		self.weapons[i].weapon_magazine = 0;
+		self.weapons[i].weapon_magazine_left = 0;
+		self.weapons[i].weapon_reserve = 0;
+		self.weapons[i].weapon_skin = 0;
+		self.weapons[i].is_mulekick_weapon = false;
+	}
+
+	float weapon_index = 0;
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		if (weapons_storage[i].weapon_id != 0) {
+			self.weapons[weapon_index].weapon_id = weapons_storage[i].weapon_id;
+			self.weapons[weapon_index].weapon_magazine = weapons_storage[i].weapon_magazine;
+			self.weapons[weapon_index].weapon_magazine_left = weapons_storage[i].weapon_magazine_left;
+			self.weapons[weapon_index].weapon_reserve = weapons_storage[i].weapon_reserve;
+			self.weapons[weapon_index].weapon_skin = weapons_storage[i].weapon_skin;
+			self.weapons[weapon_index].is_mulekick_weapon = weapons_storage[i].is_mulekick_weapon;
+			weapon_index++;
+		}
+	}
+};
+
+void Weapon_RemoveWeapon(float slot)
+{
+	if (slot == 0) {
+		Weapon_SwapWeapons(false);
+		slot = 1;
+	}
+		
+	self.weapons[slot].is_mulekick_weapon = false;
+	self.weapons[slot].weapon_id = 0;
+	Weapon_FixUpList();
+};
+
+// Re-enable fast array optimization.
+#ifndef FTE
+
+#pragma flag enable fastarrays
+
+#endif // FTE

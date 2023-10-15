@@ -685,91 +685,11 @@ void() MBOX_Touch =
 			{
 				other.reload_delay = 0;
 				self.owner = world;
-				if (other.weapon != self.boxweapon.weapon && other.secondaryweapon != self.boxweapon.weapon && other.secondaryweapon && other.thirdweapon != self.boxweapon.weapon)
-				{	
-					if ((other.perks & P_MULE) && !other.thirdweapon) {
-						// store secondary weapon
-						local float tempf = other.secondaryweapon;
-						local float tempf1 = other.secondarymag;
-						local float tempf2 = other.secondaryammo;
-						local float tempf3 = other.secondarymag2;
-						// move primary to secondary
-						other.secondaryweapon = other.weapon;
-						other.secondarymag = other.currentmag;
-						other.secondarymag2 = other.currentmag2;
-						other.secondaryammo = other.currentammo;
-						// move secondary to tertiary
-						other.thirdweapon = tempf;
-						other.thirdmag = tempf1;
-						other.thirdammo = tempf2;
-						other.thirdmag2 = tempf3;
-					}	
-
-					// give boxweapon
-					other.weapon = self.boxweapon.weapon;
-          			other.currentammo = getWeaponAmmo(self.boxweapon.weapon);
-					other.currentmag = getWeaponMag(self.boxweapon.weapon);
-					other.weaponskin = 0;
-
-					if (other.weapon != W_KAR_SCOPE && other.weapon != W_HEADCRACKER && !IsDualWeapon(other.weapon)) {
-						other.weapon2model = "";
-					}
-					
-#ifndef FTE
-
-					other.Flash_Offset = GetWeaponFlash_Offset(self.boxweapon.weapon);
-					other.Flash_Size = GetWeaponFlash_Size(self.boxweapon.weapon);
-					other.Weapon_Name = GetWeaponName(self.boxweapon.weapon);
-
-#endif // FTE
-
-				}
-				else if (other.weapon == self.boxweapon.weapon)
-				{
-					other.currentammo = getWeaponAmmo(self.boxweapon.weapon);
-					other.currentmag = getWeaponMag(self.boxweapon.weapon);
-				}
-				else if (other.secondaryweapon == self.boxweapon.weapon)
-				{
-					other.secondaryammo = getWeaponAmmo(self.boxweapon.weapon);
-					other.secondarymag = getWeaponMag(self.boxweapon.weapon);
-				}
-				else if (other.thirdweapon == self.boxweapon.weapon)
-				{
-					other.thirdammo = getWeaponAmmo(self.boxweapon.weapon);
-					other.thirdmag = getWeaponMag(self.boxweapon.weapon);
-				}
-				else if (!other.secondaryweapon)
-				{
-					WeaponSwitch(other);
-					other.weapon = self.boxweapon.weapon;
-					other.currentammo = getWeaponAmmo(self.boxweapon.weapon);
-					other.currentmag = getWeaponMag(self.boxweapon.weapon);
-					other.weaponskin = GetWepSkin(self.boxweapon.weapon);
-
-#ifndef FTE
-
-					other.Flash_Offset = GetWeaponFlash_Offset(self.boxweapon.weapon);
-					other.Flash_Size = GetWeaponFlash_Size(self.boxweapon.weapon);
-					other.Weapon_Name = GetWeaponName(self.boxweapon.weapon);
-
-#endif // FTE
-
-				}
-				else if (!other.thirdweapon && (other.perks & P_MULE))
-				{
-					
-				}
 				sound(self, 0,"sounds/misc/ching.wav", 1, 1);
 				tempe = self;
 				self = other;
 
-				if (GetFrame(self.weapon, FIRST_TAKE_START) != 0)
-					Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
-				else
-					Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
-
-				SwitchWeapon(self.weapon);
+				Weapon_GiveWeapon(tempe.boxweapon.weapon, 0, 0);
 				self = tempe;
 				MBOX_FreeEnt(self.boxweapon);
 				MBOX_PlayCloseAnimation();

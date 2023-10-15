@@ -133,7 +133,6 @@ void() weapon_wall =
 void () WallWeapon_TouchTrigger =
 {
 	entity oldent;
-	float tempf, tempf1, tempf2, tempf3;
 
 	float wcost;
 
@@ -363,47 +362,6 @@ void () WallWeapon_TouchTrigger =
 		other.semiuse = true;
 		other.ach_tracker_coll++;
 
-		if (other.weapon && !other.secondaryweapon) {
-			tempf = other.currentammo;
-			other.currentammo = other.secondaryammo;
-			other.secondaryammo = tempf;
-
-			tempf1 = other.currentmag;
-			other.currentmag = other.secondarymag;
-			other.secondarymag = tempf1;
-
-			tempf2 = other.weapon;
-			other.weapon = other.secondaryweapon;
-			other.secondaryweapon = tempf2;
-
-			tempf3 = other.currentmag2;
-			other.currentmag2 = other.secondarymag2;
-			other.secondarymag2 = tempf3;
-		} else if (other.weapon && other.secondaryweapon) {
-			if ((other.perks & P_MULE) && !other.thirdweapon) {
-				// store secondary weapon
-				tempf = other.secondaryweapon;
-				tempf1 = other.secondarymag;
-				tempf2 = other.secondaryammo;
-				tempf3 = other.secondarymag2;
-				// move primary to secondary
-				other.secondaryweapon = other.weapon;
-				other.secondarymag = other.currentmag;
-				other.secondarymag2 = other.currentmag2;
-				other.secondaryammo = other.currentammo;
-				// move secondary to tertiary
-				other.thirdweapon = tempf;
-				other.thirdmag = tempf1;
-				other.thirdammo = tempf2;
-				other.thirdmag2 = tempf3;
-			}
-
-			// free current slot
-			other.currentammo = 0;
-			other.currentmag = 0;
-			other.weapon = 0;
-		}
-
 		sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 		other.reload_delay = 0;
 		addmoney(other, -1*self.cost, 0);
@@ -413,27 +371,10 @@ void () WallWeapon_TouchTrigger =
 			self.use();
 			self = oldent;
 		}
-		other.weapon = self.weapon;
-
-		other.currentammo = getWeaponAmmo(self.weapon);
-		other.currentmag = getWeaponMag(self.weapon);
 		tempe = self;
 		self = other;
 
-		SwitchWeapon(self.weapon);
-
-		if (GetFrame(self.weapon, FIRST_TAKE_START) != 0)
-			Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
-		else
-			Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
-
-#ifndef FTE
-
-		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
-		self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-		self.Weapon_Name = GetWeaponName(self.weapon);
-
-#endif // FTE
+		Weapon_GiveWeapon(tempe.weapon, 0, 0);
 
 		self = tempe;
 	}

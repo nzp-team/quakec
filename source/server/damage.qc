@@ -184,10 +184,10 @@ void() rec_downed =
 void() GetDown =
 {
 	// 'Pro Gamer Move' achievement.
-	if (rounds <= 1 && self.currentmag == 0 && 
-	self.currentmag2 == 0 && self.currentammo == 0 && 
-	self.secondarymag == 0 && self.secondarymag2 == 0 && 
-	self.secondaryammo == 0) {
+	if (rounds <= 1 && self.weapons[0].weapon_magazine == 0 && 
+	self.weapons[0].weapon_magazine_left == 0 && self.weapons[0].weapon_reserve == 0 && 
+	self.weapons[1].weapon_magazine == 0 && self.weapons[1].weapon_magazine_left == 0 && 
+	self.weapons[1].weapon_reserve == 0) {
 		GiveAchievement(9, self);
 	}
 
@@ -199,8 +199,17 @@ void() GetDown =
 	if (self.stance == 1) self.new_ofs_z = self.view_ofs_z - 24;
 	self.stance = 0;
 
-	// Get Rid of Mule Kick Weapon (FIXME -- this just obliterates the third slot)
-	self.thirdweapon = 0;
+	// Get rid of Mule Kick Weapon
+	if (self.weapons[0].is_mulekick_weapon == true)
+		Weapon_SwapWeapons(false);
+
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		if (self.weapons[i].is_mulekick_weapon == true) {
+			self.weapons[i].weapon_id = 0;
+			self.weapons[i].is_mulekick_weapon = false;
+		}
+	}
+	Weapon_FixUpList();
 
 	// Calculate the loss in points, take away points from downed Player.
 	float point_difference;
@@ -237,10 +246,11 @@ void() GetDown =
 	// Take away weapons and Perks
 	self.perks = 0;
 	SetPerk(self, self.perks);
+
 	self.weaponbk = self.weapon;
-	self.currentammobk = self.currentammo;
-	self.currentmagbk = self.currentmag;
-	self.currentmagbk2 = self.currentmag2;
+	self.currentammobk = self.weapons[0].weapon_reserve;
+	self.currentmagbk = self.weapons[0].weapon_magazine;
+	self.currentmagbk2 = self.weapons[0].weapon_magazine_left;
 
 	// Reset Juggernog health
 	self.max_health = self.health = PLAYER_START_HEALTH;
@@ -258,34 +268,39 @@ void() GetDown =
 
 		switch(weapon_slot) {
 			case 1:
-				total_ammo = self.currentmag + self.currentmag2 + self.currentammo;
+				total_ammo = self.weapons[0].weapon_magazine + self.weapons[0].weapon_magazine_left + self.weapons[0].weapon_reserve;
 				break;
 			case 2:
-				total_ammo = self.secondarymag + self.secondarymag2 + self.secondaryammo;
-				self.weapon = self.secondaryweapon;
+				total_ammo = self.weapons[1].weapon_magazine + self.weapons[1].weapon_magazine_left + self.weapons[1].weapon_reserve;
+				Weapon_SwapWeapons(false);
 				break;
 		}
 
+		self.weaponbk = self.weapon;
+		self.currentammobk = self.weapons[0].weapon_reserve;
+		self.currentmagbk = self.weapons[0].weapon_magazine;
+		self.currentmagbk2 = self.weapons[0].weapon_magazine_left;
+
 		// If it's greater than the mag size, we can fill the magazine.
 		if (total_ammo > getWeaponMag(self.weapon)) {
-			self.currentmag = getWeaponMag(self.weapon);
+			self.weapons[0].weapon_magazine = getWeaponMag(self.weapon);
 
 			// subtract it from the total ammo
-			total_ammo -= self.currentmag;
+			total_ammo -= self.weapons[0].weapon_magazine;
 		} else {
-			self.currentmag = total_ammo;
+			self.weapons[0].weapon_magazine = total_ammo;
 			total_ammo = 0;
 		}
 
 		// Check for dual wield mag too
 		if (IsDualWeapon(self.weapon)) {
 			if (total_ammo > getWeaponMag(self.weapon)) {
-				self.currentmag2 = getWeaponMag(self.weapon);
+				self.weapons[0].weapon_magazine_left = getWeaponMag(self.weapon);
 
 				// subtract it from the total ammo
-				total_ammo -= self.currentmag2;
+				total_ammo -= self.weapons[0].weapon_magazine_left;
 			} else {
-				self.currentmag2 = total_ammo;
+				self.weapons[0].weapon_magazine_left = total_ammo;
 				total_ammo = 0;
 			}
 		}
@@ -294,23 +309,19 @@ void() GetDown =
 		if (self.weapon != W_RAY && self.weapon != W_PORTER) {
 			// Now see if the reserve ammo is more than max downed capacity
 			if (total_ammo > getWeaponMag(self.weapon)*2) {
-				self.currentammo = getWeaponMag(self.weapon)*2;
+				self.weapons[0].weapon_reserve = getWeaponMag(self.weapon)*2;
 			} else {
 				// It's not so just fill it
-				self.currentammo = total_ammo;
+				self.weapons[0].weapon_reserve = total_ammo;
 			}
 		} else {
-			self.currentammo = 0;
+			self.weapons[0].weapon_reserve = 0;
 		}
 	} else {
 		if (!coop) {
-			self.weapon = W_BIATCH;
-			self.currentammo = 12;
-			self.currentmag = self.currentmag2 = 6;
+			Weapon_AssignWeapon(0, W_BIATCH, 6, 12);
 		} else {
-			self.weapon = W_COLT;
-			self.currentmag = 8;
-			self.currentammo = 16;
+			Weapon_AssignWeapon(0, W_COLT, 8, 16);
 		}
 	}
 
@@ -334,11 +345,7 @@ void() GetDown =
 }
 
 void () GetUp =
-{
-	local string modelname;
-	float startframe;
-	float endframe;
-	
+{	
 	playgetup();				// animation
 	
 	self.new_ofs_z = self.view_ofs_z + 42;
@@ -358,13 +365,13 @@ void () GetUp =
 				self.currentmagbk += self.currentammobk;
 				self.currentammobk = 0;
 			}	
-		} else if (self.weapon == self.secondaryweapon) {
-			self.secondaryammo -= self.teslacount;
+		} else if (self.weapon == self.weapons[1].weapon_id) {
+			self.weapons[1].weapon_reserve -= self.teslacount;
 
 			// Take from the mag if the reserve is empty now
-			if (self.secondaryammo < 0) {
-				self.secondarymag += self.secondaryammo;
-				self.secondaryammo = 0;
+			if (self.weapons[1].weapon_reserve < 0) {
+				self.weapons[0].weapon_magazine += self.weapons[1].weapon_reserve;
+				self.weapons[1].weapon_reserve = 0;
 			}
 		}
 	}
@@ -375,23 +382,8 @@ void () GetUp =
 		addmoney(self, self.requirespower, false);
 	}
 
-	if (self.weaponbk)
-	{
-		self.weapon = self.weaponbk;
-		self.currentammo = self.currentammobk;
-		self.currentmag = self.currentmagbk;
-		self.currentmag2 = self.currentmagbk2;
-	}	
-	modelname = GetWeaponModel(self.weapon, 0);
-	self.weaponmodel = modelname;
-	SwitchWeapon(self.weapon);
-	self.weapon2model = GetWeapon2Model(self.weapon);
 	self.movetype = MOVETYPE_WALK;
-  
-  	startframe = GetFrame(self.weapon,TAKE_OUT_START);
-	endframe = GetFrame(self.weapon,TAKE_OUT_END);
-	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, modelname, false, S_BOTH);
-	
+	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk);
 };
 
 // poll checking whether to see if our revive invoke is active

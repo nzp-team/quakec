@@ -595,31 +595,6 @@ float() crandom =
 	return 2*(random() - 0.5);
 }
 
-void WeaponSwitch(entity player) {
-	float wep, cmag, cmag2, cammo;
-
-	wep = other.weapon;
-	other.weapon = other.secondaryweapon;
-	other.secondaryweapon = wep;
-
-	cmag = other.currentmag;
-	other.currentmag = other.secondarymag;
-	other.secondarymag = cmag;
-
-	cmag2 = other.currentmag2;
-	other.currentmag2 = other.secondarymag2;
-	other.secondarymag2 = cmag2;
-
-	cammo = other.currentammo;
-	other.currentammo = other.secondaryammo;
-	other.secondaryammo = cammo;
-
-	entity tempe = self;
-	self = player;
-	SwitchWeapon(other.weapon);
-	self = tempe;
-}
-
 void(entity person, float expamt, float doublepoint) addmoney =
 {
 	if (person.classname != "player" || person.downed)

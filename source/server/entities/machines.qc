@@ -27,7 +27,6 @@
 
 float backupWepSkin;
 float sound_perk_delay; 
-void() W_Switch;
 void() W_TakeOut;
 
 //
@@ -1185,18 +1184,7 @@ void PapUpgrade(entity pap, entity buyer) {
 
 	pap.weapon = self.weapon;
 
-	self.weapon = self.secondaryweapon;
-	self.currentammo = self.secondaryammo;
-	self.currentmag = self.secondarymag;
-	self.currentmag2 = self.secondarymag2;
-	self.secondaryweapon = 0;
-	self.secondaryammo = 0;
-	self.secondarymag = 0;
-	self.secondarymag2 = 0;
-
-    self.isBuying = true;
-
-	SwitchWeapon(self.weapon);
+	Weapon_RemoveWeapon(0);
 	Set_W_Frame (0, 39, 2.0, 0, 0, W_PlayTakeOut, "models/machines/v_pap.mdl", true, S_BOTH);
 	self.weapon2model = "";
 	UpdateV2model(self.weapon2model, 0);
@@ -1254,43 +1242,10 @@ void touch_pap() {
 		useprint (other, 7, 0, EqualPapWeapon(self.weapon));
 
 		if (other.button7) {
-			// Back-up current weapon into second slot, it's getting replaced.
-			if (!other.secondaryweapon && other.weapon != EqualPapWeapon(self.weapon)) {
-				other.secondaryweapon = other.weapon;
-				other.secondarymag = other.currentmag;
-				other.secondarymag2 = other.currentmag2;
-				other.secondaryammo = other.currentammo;
-			}
-
-			other.weapon = EqualPapWeapon(self.weapon);
-			other.currentammo = getWeaponAmmo(other.weapon);
-			other.currentmag = getWeaponMag(other.weapon);
-
-			if (IsDualWeapon(other.weapon)) {
-				other.currentmag2 = other.currentmag;
-			}
-
-			entity tempe = self;
-			self = other;
-
-			SwitchWeapon(self.weapon);
-
-			if (GetFrame(self.weapon, FIRST_TAKE_START) != 0)
-				Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
-			else
-				Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
-
-#ifndef FTE
-
-			self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
-			self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-			self.Weapon_Name = GetWeaponName(self.weapon);
-			self.weaponskin = GetWepSkin(self.weapon);
-
-#endif // FTE
-
+ 			entity tempe = self;
+ 			self = other;
+			Weapon_GiveWeapon(EqualPapWeapon(tempe.weapon), 0, 0);
 			self = tempe;
-
 			// because PaP broke itself
 			self.think = reset_pap;
 			self.nextthink = time + 0.1;

@@ -51,7 +51,7 @@ void() ReturnWeaponModel =
 	UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
 	// Always try to reload after any action.
-	if (self.currentmag == 0 && self.currentammo != 0)
+	if (self.weapons[0].weapon_magazine == 0 && self.weapons[0].weapon_reserve != 0)
 		W_Reload(S_BOTH);
 
     // If the person is swapping, play the sprint anim if they're sprinting after swap. Otherwise it plays idle
@@ -187,96 +187,21 @@ void W_SprintStart () {
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
 }
 
-void() W_Switch =
+void() W_PutOutHack =
 {
-	if (self.secondaryweapon && self.secondaryweapon != 0 && !self.new_anim_stop && !other.button7)
-	{      
-		float tempf,tempf1,tempf2,tempf3,tempf4;
-
-		// un-zoom camera
-		self.zoom = false;
-
-		// fix fire rate exploit
-		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = true;
-
-		// just do normal weapon swapping if we don't have mule..
-		if (!(self.perks & P_MULE) || !self.thirdweapon) {
-			tempf = self.currentammo;
-			self.currentammo = self.secondaryammo;
-			self.secondaryammo = tempf;
-
-			tempf1 = self.currentmag;
-			self.currentmag = self.secondarymag;
-			self.secondarymag = tempf1;
-
-			tempf1 = self.currentmag2;
-			self.currentmag2 = self.secondarymag2;
-			self.secondarymag2 = tempf1;
-
-			tempf2 = self.weapon;
-			self.weapon = self.secondaryweapon;
-			self.secondaryweapon = tempf2;
-
-			tempf3 = self.weaponskin;
-			self.weaponskin = self.secondaryweaponskin;
-			self.secondaryweaponskin = tempf3;
-		} else {
-			// store primary weapon
-			tempf = self.weapon;
-			tempf1 = self.currentmag;
-			tempf2 = self.currentmag2;
-			tempf3 = self.currentammo;
-			tempf4 = self.weaponskin;
-
-			// set primary weapon to third weapon
-			self.weapon = self.thirdweapon;
-			self.currentmag = self.thirdmag;
-			self.currentmag2 = self.thirdmag2;
-			self.currentammo = self.thirdammo;
-			self.weaponskin = self.thirdweaponskin;
-
-			// set third weapon to secondary weapon
-			self.thirdweapon = self.secondaryweapon;
-			self.thirdmag = self.secondarymag;
-			self.thirdmag2 = self.secondarymag2;
-			self.thirdammo = self.secondaryammo;
-			self.thirdweaponskin = self.secondaryweaponskin;
-
-			// set secondary weapon to primary weapon
-			self.secondaryweapon = tempf;
-			self.secondarymag = tempf1;
-			self.secondarymag2 = tempf2;
-			self.secondaryammo = tempf3;
-			self.secondaryweaponskin = tempf4;
-		}
-
-		SwitchWeapon(self.weapon);
-		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
-		
-#ifndef FTE
-
-		self.Weapon_Name = GetWeaponName(self.weapon);
-		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
-		self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-
-#endif // FTE
-
-	}
+	Weapon_SwapWeapons(true);
 }
 
 void() W_PutOut =
 {
-	if (self.downed) {
+	// We don't hold more than one weapon
+	if (self.weapons[1].weapon_id == 0 || self.downed)
 		return;
-	}
 	
 	W_AimOut();
-	self.weaponnum = !self.weaponnum;
 	
-	if (self.secondaryweapon && !self.new_anim_stop)
-	{
-		Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, W_Switch, 0);
-	}
+	if (self.weapon_count != 1 && !self.new_anim_stop)
+		Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, W_PutOutHack, 0);
 }
 
 void() W_TakeOut =
@@ -285,14 +210,6 @@ void() W_TakeOut =
 
 	W_AimOut();
 	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
-}
-
-float(entity who) hasWeapon =
-{
-    if (other.weapon || other.secondaryweapon || other.thirdweapon)
-        return true;
-
-    return false;
 }
 
 
@@ -306,26 +223,26 @@ void(float side) W_Give_Ammo =
 	max_mag = getWeaponMag(self.weapon);
 
 	if (side == S_LEFT) {
-		ammo_shot = max_mag - self.currentmag2;
+		ammo_shot = max_mag - self.weapons[0].weapon_magazine_left;
 	} else {
-		ammo_shot = max_mag - self.currentmag;
+		ammo_shot = max_mag - self.weapons[0].weapon_magazine;
 	}
-	if (ammo_shot < self.currentammo)
+	if (ammo_shot < self.weapons[0].weapon_reserve)
 	{
-    	self.currentammo = self.currentammo - ammo_shot;
+    	self.weapons[0].weapon_reserve = self.weapons[0].weapon_reserve - ammo_shot;
       
 		loadammo = max_mag;
 	}
 	else
 	{
-		loadammo = self.currentmag + self.currentammo;
-		self.currentammo = 0;
+		loadammo = self.weapons[0].weapon_magazine + self.weapons[0].weapon_reserve;
+		self.weapons[0].weapon_reserve = 0;
 	}
 
 	if (side == S_LEFT) {
-		self.currentmag2 = loadammo;
+		self.weapons[0].weapon_magazine_left = loadammo;
 	} else {
-		self.currentmag = loadammo;
+		self.weapons[0].weapon_magazine = loadammo;
 	}
 };
 
@@ -335,7 +252,7 @@ void() ContinueReload = //Special reloads
 	if (self.new_anim_stop)
 		return;
 	
-	if (self.weapon == W_GUT && self.currentmag == 10)
+	if (self.weapon == W_GUT && self.weapons[0].weapon_magazine == 10)
     return;
 
 	float delay = 0;
@@ -344,7 +261,7 @@ void() ContinueReload = //Special reloads
 	float endframe = 0;
 	void(optional float t) endanimfunc = SUB_Null;
 	
-	if (self.currentmag >= getWeaponMag(self.weapon) || !self.currentammo || self.reloadinterupted) {
+	if (self.weapons[0].weapon_magazine >= getWeaponMag(self.weapon) || !self.weapons[0].weapon_reserve || self.reloadinterupted) {
 		if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER)
 		{
 			delay = 1; 
@@ -357,21 +274,21 @@ void() ContinueReload = //Special reloads
 			endanimfunc = W_LoadAmmo;
 		}
 		self.reloadinterupted = FALSE;
-	} else if (self.currentmag < getWeaponMag(self.weapon)) {
+	} else if (self.weapons[0].weapon_magazine < getWeaponMag(self.weapon)) {
 		if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER) {
-			self.currentmag++;
-        	self.currentammo = self.currentammo - 1;
+			self.weapons[0].weapon_magazine++;
+        	self.weapons[0].weapon_reserve = self.weapons[0].weapon_reserve - 1;
 			delay = 0.8; 
 			startframe = 19;
 			endframe = 24;
 			endanimfunc = ContinueReload;
 		} else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
-			if (self.weapon == W_GUT && self.currentammo >= 2 && self.currentmag < 9) {
-				self.currentmag = self.currentmag + 2;
-				self.currentammo = self.currentammo - 2;
+			if (self.weapon == W_GUT && self.weapons[0].weapon_reserve >= 2 && self.weapons[0].weapon_magazine < 9) {
+				self.weapons[0].weapon_magazine = self.weapons[0].weapon_magazine + 2;
+				self.weapons[0].weapon_reserve = self.weapons[0].weapon_reserve - 2;
 			} else {
-				self.currentmag++;
-				self.currentammo = self.currentammo - 1;
+				self.weapons[0].weapon_magazine++;
+				self.weapons[0].weapon_reserve = self.weapons[0].weapon_reserve - 1;
 			}
 			delay = 0.5; 
 			startframe = 18;
@@ -426,15 +343,15 @@ void(float side) W_Reload =
 	if (side == S_RIGHT &&
 		(self.reload_delay > time ||
 		self.new_anim_stop ||
-		!self.currentammo || 
-		self.currentmag >= getWeaponMag(self.weapon))){
+		!self.weapons[0].weapon_reserve || 
+		self.weapons[0].weapon_magazine >= getWeaponMag(self.weapon))){
 		return;
 	}
 	if (side == S_LEFT &&
 		(self.reload_delay2 > time ||
 		self.new_anim2_stop || 
-		!self.currentammo ||
-		self.currentmag2 >= getWeaponMag(self.weapon))) {
+		!self.weapons[0].weapon_reserve ||
+		self.weapons[0].weapon_magazine_left >= getWeaponMag(self.weapon))) {
 		return;
 	}
 
@@ -454,7 +371,7 @@ void(float side) W_Reload =
 		}
 	}
 	
-	if (self.currentammo)
+	if (self.weapons[0].weapon_reserve)
 	{
 		playreload();
 		
@@ -473,7 +390,7 @@ void(float side) W_Reload =
 		}
 		// Check for special reload type
 		else if (GetFrame(self.weapon, RELOAD_EMPTY_START) != 0) {
-			if (self.currentmag > 0) {
+			if (self.weapons[0].weapon_magazine > 0) {
 				startframe = GetFrame(self.weapon, RELOAD_PART_START);
 				endframe = GetFrame(self.weapon, RELOAD_PART_END);
 				delay = getWeaponDelay(self.weapon, RELOAD_PAR);
@@ -485,7 +402,7 @@ void(float side) W_Reload =
 			endanimfunc = W_AdvanceAnim;
 		}
 		else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
-			if (self.currentmag == 0) {
+			if (self.weapons[0].weapon_magazine == 0) {
 				self.NeedLoad = true;
 			}
 			startframe = 14;
@@ -522,7 +439,7 @@ void () W_LoadAmmo =
 {
 	if (!self.NeedLoad)
 		return;
-	if (!self.currentmag)
+	if (!self.weapons[0].weapon_magazine)
 	{
 		W_Reload(S_BOTH);
 		return;
@@ -567,10 +484,10 @@ void () W_LoadAmmo =
 
 void () CheckReload = 
 {
-	if (!self.currentmag2 && IsDualWeapon(self.weapon)) {
+	if (!self.weapons[0].weapon_magazine_left && IsDualWeapon(self.weapon)) {
 		W_Reload(S_LEFT);
 	}
-	if (!self.currentmag && self.currentammo) {
+	if (!self.weapons[0].weapon_magazine && self.weapons[0].weapon_reserve) {
 		W_Reload(S_RIGHT);
 	}
 }
@@ -1036,7 +953,7 @@ void(float side) W_Fire =
 	if (side == S_RIGHT &&
 		(time < self.fire_delay ||
 		self.new_anim_stop ||
-		self.reload_delay > time || !self.currentmag)) {
+		self.reload_delay > time || !self.weapons[0].weapon_magazine)) {
 		return;
 	}
 
@@ -1067,11 +984,11 @@ void(float side) W_Fire =
 	makevectors(self.v_angle);
 
 	//make sure magazine is loading
-	if (!self.currentmag && side == S_RIGHT)
+	if (!self.weapons[0].weapon_magazine && side == S_RIGHT)
 	{
 		W_Reload(S_RIGHT);
 		return;
-	} else if (!self.currentmag2 && side == S_LEFT)
+	} else if (!self.weapons[0].weapon_magazine_left && side == S_LEFT)
 	{
 		W_Reload(S_LEFT);
 		return;
@@ -1211,10 +1128,10 @@ void(float side) W_Fire =
 	sound (self, CHAN_WEAPON, soundname, 1, ATTN_NORM);
 
 	if (side == S_RIGHT) {
-		self.currentmag = self.currentmag - 1;
+		self.weapons[0].weapon_magazine = self.weapons[0].weapon_magazine - 1;
 		self.fire_delay = getWeaponDelay(self.weapon, FIRE) + time;
 	} else {
-		self.currentmag2 = self.currentmag2 - 1;
+		self.weapons[0].weapon_magazine_left = self.weapons[0].weapon_magazine_left - 1;
 		self.fire_delay2 = getWeaponDelay(self.weapon, FIRE) + time;
 	}
 
@@ -1479,10 +1396,6 @@ void() W_ThrowGrenade =
 	} else  {
 		centerprint (other, "No grenadetype defined...\n");
 	}
-
-	//if (!(self.flags & FL_ONGROUND)) {
-	//	self.secondary_grenades = self.secondary_grenades + 1;
-	//}
 
 	startframe = GetFrame(self.weapon,TAKE_OUT_START);
 	endframe = GetFrame(self.weapon,TAKE_OUT_END);
@@ -2121,7 +2034,7 @@ void () Weapon_Logic =
 			UpdateV2model(self.weapon2model, 0);
 			self.viewzoom = 1;
 			self.zoom = 0;
-			if (self.currentmag == 0)
+			if (self.weapons[0].weapon_magazine == 0)
 				W_Reload(S_BOTH);
 		} else {
 			if (self.viewzoom == 0.75) {
@@ -2181,7 +2094,7 @@ void () Weapon_Logic =
 		self.semiuse = false;
 	}
 	
-	if (self.button4 && !self.semiswitch && self.secondaryweapon && self.secondaryweapon !=0 && !self.zoom)
+	if (self.button4 && !self.semiswitch && self.weapon_count != 1 && !self.zoom)
 	{
 		W_PutOut();
 		self.semiswitch = true;
@@ -2224,4 +2137,10 @@ void () Weapon_Logic =
 	
 	CheckImpulses();
 	CheckPlayer();	
+
+	// These are sent to clients in engine for stat
+	// reference.
+	self.currentammo = self.weapons[0].weapon_reserve;
+	self.currentmag = self.weapons[0].weapon_magazine;
+	self.currentmag2 = self.weapons[0].weapon_magazine_left;
 }

@@ -337,6 +337,14 @@ void() PlayerPreThink =
 
 		self.ltime = time + 0.1;
 	}
+
+	for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		if (self.weapons[i].is_mulekick_weapon == true) {
+			string third_wep = GetWeaponName(self.weapons[i].weapon_id);
+			centerprint(self, strcat(third_wep, "\n"));
+		}
+	}
+	//centerprint(self, strcat(GetWeaponName(self.weapons[0].weapon_id), "\n"));
 };
 
 float player_trace_time;
@@ -623,10 +631,8 @@ void() PlayerSpawn =
 	self.new_ofs_z = self.view_ofs_z;
 	self.oldz = self.origin_z;
 
-	self.currentammo = G_STARTWEAPON[2];
-	self.currentmag = G_STARTWEAPON[1];
-	self.weapon = G_STARTWEAPON[0];
 	self.grenades = self.grenades | 1;  // add frag grenades to player inventory
+	Weapon_GiveWeapon(G_STARTWEAPON[0], G_STARTWEAPON[1], G_STARTWEAPON[2]);
 	
 	if (rounds)
 		self.primary_grenades = 2;
@@ -646,7 +652,6 @@ void() PlayerSpawn =
 
 	self.stamina = 3;
 	self.reviving = 0;
-	self.weaponnum = 0;
 	self.perks = G_PERKS;
 	SetPerk(self, self.perks);
 

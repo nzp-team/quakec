@@ -435,12 +435,10 @@ void() PU_MaxAmmo =
 	while(tempe) {
 
 		if (!tempe.downed) {
-			// Fill Primary Weapon
-			if (tempe.weapon) tempe.currentammo = getWeaponAmmo(tempe.weapon);
-			// Fill Secondary Weapon
-			if (tempe.secondaryweapon) tempe.secondaryammo = getWeaponAmmo(tempe.secondaryweapon);
-			// Fill Third Weapon
-			if (tempe.thirdweapon) tempe.thirdammo = getWeaponAmmo(tempe.thirdweapon);
+			// Fill all weapons
+			for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+				tempe.weapons[i].weapon_reserve = getWeaponAmmo(tempe.weapons[i].weapon_id);
+			}
 			// Give Grenades
 			tempe.primary_grenades = 4;
 			// Give Betties
