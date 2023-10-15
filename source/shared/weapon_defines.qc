@@ -1346,7 +1346,7 @@ float(float wep, float delaytype) getWeaponDelay =
 			else if (delaytype == FIRE)
 				return 0.35;
 			else if (delaytype == PUTOUT)
-				return 0.6;
+				return 1.0;
 			else if (delaytype == TAKEOUT)
 				return 0.3;
 		case W_SAWNOFF:
