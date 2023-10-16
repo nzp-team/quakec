@@ -4517,7 +4517,7 @@ float(float wep) GetWeaponZoomAmount =
 // Returns the amount of melee damage the Player can
 // do given their weapon and Bowie Knife status.
 //
-float(float weapon, float has_bowie) WepDefp_CalculateMeleeDamage =
+float(float weapon, float has_bowie) WepDef_CalculateMeleeDamage =
 {
 	switch(weapon) {
 		case W_BK:
@@ -4617,4 +4617,30 @@ float(string weapon) WepDef_GetWeaponIDFromName =
 		default: return W_NOWEP;
 	}
 	return W_COLT;
+}
+
+//
+// WepDef_GetWeaponCrosshairType(weapon)
+// Returns the type of crosshair used by active
+// weapon.
+// 0. No crosshair
+// 1. Standard crosshair (+)
+// 2. Area of Effect (o)
+// 3. Dot crosshair (.) (unused).
+// 4 is reserved for the grenade, do not use.
+//
+float WepDef_GetWeaponCrosshairType(float weapon)
+{
+	switch(weapon) {
+		case W_M2:
+		case W_FIW:
+		case W_TESLA:
+		case W_DG3:
+			return 2;
+		case W_PANZER:
+		case W_LONGINUS:
+			return 0;
+		default:
+			return 1;
+	}
 }

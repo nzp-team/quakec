@@ -49,6 +49,7 @@
 
 void() W_AimOut;
 void() ReturnWeaponModel;
+void(entity person) W_HideCrosshair;
 
 //
 // Weapon_GetPlayerAmmoInSlot(person, slot)
@@ -180,7 +181,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
             break;
     }
 
-	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + duration;
+	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + duration + 0.2;
 
     UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 	self.weapon2model = GetWeapon2Model(self.weapon);
@@ -242,6 +243,7 @@ void Weapon_SwapWeapons(float play_animation)
 		self.weapon = self.weapons[0].weapon_id;
 
 		SwitchWeapon(self.weapon);
+		W_HideCrosshair(self);
 		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
 		
 #ifndef FTE
@@ -272,9 +274,9 @@ void Weapon_SetActiveInSlot(float slot, float play_first_raise)
 	SwitchWeapon(self.weapon);
 
 	if (GetFrame(self.weapon, FIRST_TAKE_START) != 0 && play_first_raise == true)
-		Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, SUB_Null, 0);
+		Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, ReturnWeaponModel, 0);
 	else
-		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
+		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
 		
 #ifndef FTE
 
@@ -328,6 +330,8 @@ void Weapon_AssignWeapon(float weapon_slot, float weapon_id, float weapon_mag, f
 //
 void Weapon_GiveWeapon(float weapon_id, float weapon_mag, float weapon_reserve)
 {
+	W_HideCrosshair(self);
+
 	float should_leave = false;
 
 	// Find next available weapon slot

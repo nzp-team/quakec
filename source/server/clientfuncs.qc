@@ -321,6 +321,18 @@ void(float newtime, float newtype, entity change) PromptLevelChange =
 #endif // FTE
 }
 
+#ifdef FTE
+void(entity who) grenade_pulse =
+{
+
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_GRENADEPULSE);
+	msg_entity = who;
+	multicast('0 0 0', MULTICAST_ONE);
+
+}
+#endif // FTE
+
 void(entity who) UpdatePunchangle =
 {
 #ifdef FTE

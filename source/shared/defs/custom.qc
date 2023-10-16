@@ -55,6 +55,7 @@ const float EVENT_REVIVEOFF 			= 38;
 const float EVENT_REVIVECHANGE 			= 39;
 const float EVENT_WEAPONRECOIL 			= 40;
 const float EVENT_SONGPLAY 				= 41;
+const float EVENT_GRENADEPULSE 			= 42;
 
 // Define our FTE platform
 #ifndef STANDARD

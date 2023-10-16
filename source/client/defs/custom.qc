@@ -91,6 +91,7 @@ float scrollheight;
 float HUD_Change_time; 
 float Hitmark_time;
 float crosshair_spread_time;
+float crosshair_pulse_grenade;
 float zoom_2_time;
 float broadcast_time;
 float broadcast_type;

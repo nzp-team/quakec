@@ -1203,6 +1203,9 @@ noref void() CSQC_Parse_Event =
 		case EVENT_PLAYERUPDATE:
 			player_count = readbyte();
 			break;
+		case EVENT_GRENADEPULSE:
+			crosshair_pulse_grenade = true;
+			break;
 		case EVENT_WEAPONUPDATE:
 			float wepnum = readbyte();
 			string wepname = readstring();

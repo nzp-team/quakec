@@ -36,6 +36,48 @@ void() AI_RevertEnemySolidState
 float() push_away_zombies;
 #endif // FTE
 
+//
+// W_HideCrosshair(person)
+// Toggles off the crosshair for provided client.
+// This is considered "nasty" by use of stuffcmd,
+// however non-FTE has no way of better controlling
+// cvars for individual clients.
+//
+void(entity person) W_HideCrosshair =
+{
+	if (person == world)
+		return;
+
+	stuffcmd(person, "crosshair 0\n");
+}
+
+//
+// W_ShowCrosshair(person)
+// Toggles on the crosshair for provided client.
+// This is considered "nasty" by use of stuffcmd,
+// however non-FTE has no way of better controlling
+// cvars for individual clients.
+//
+void(entity person) W_ShowCrosshair =
+{
+	if (person == world)
+		return;
+
+	// Grab the type of crosshair
+	float crosshair_type;
+	
+	// Grenades have a special crosshair type that can pulse.
+	if (person.grenade_delay) {
+		crosshair_type = 4;
+	} else
+	 	crosshair_type = WepDef_GetWeaponCrosshairType(person.weapon);
+
+	string crosshair_string = "crosshair ";
+	crosshair_string = strzone(strcat(crosshair_string, ftos(crosshair_type)));
+	stuffcmd(person, strcat(crosshair_string, "\n"));
+	strunzone(crosshair_string);
+}
+
 void() ReturnWeaponModel =
 {
 	self.weaponmodel = GetWeaponModel(self.weapon, 0);
@@ -57,11 +99,13 @@ void() ReturnWeaponModel =
     // If the person is swapping, play the sprint anim if they're sprinting after swap. Otherwise it plays idle
     if (self.sprinting == TRUE)
         W_SprintStart();
-        
+
+	W_ShowCrosshair(self);
 }
 
 void() W_PlayTakeOut =
 {
+	W_HideCrosshair(self);
 	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
 }
 
@@ -197,19 +241,25 @@ void() W_PutOut =
 	// We don't hold more than one weapon
 	if (self.weapons[1].weapon_id == 0 || self.downed)
 		return;
+
+	float duration = getWeaponDelay(self.weapon, PUTOUT);
 	
 	W_AimOut();
+	W_HideCrosshair(self);
 	
 	if (self.weapon_count != 1 && !self.new_anim_stop)
-		Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, W_PutOutHack, 0);
+		Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, W_PutOutHack, duration);
 }
 
 void() W_TakeOut =
 {
 	self.isBuying = false;
 
+	float duration = getWeaponDelay(self.weapon, TAKEOUT);
+
 	W_AimOut();
-	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
+	W_HideCrosshair(self);
+	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, duration);
 }
 
 
@@ -254,6 +304,8 @@ void() ContinueReload = //Special reloads
 	
 	if (self.weapon == W_GUT && self.weapons[0].weapon_magazine == 10)
     return;
+
+	W_HideCrosshair(self);
 
 	float delay = 0;
 	string modelname = GetWeaponModel(self.weapon, 0);
@@ -359,6 +411,7 @@ void(float side) W_Reload =
 
 	W_AimOut();
 	W_SprintStop();
+	W_HideCrosshair(self);
 
 	float endframe, startframe, reloadcancelframe, delay;
 	string modelname = "";
@@ -726,7 +779,7 @@ void() LungeKnifeHit =
 		sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
 		
 		// Calculate melee damage
-		f_damage = WepDefp_CalculateMeleeDamage(self.weapon, self.bowie);
+		f_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
 					
 		if (trace_ent.classname == "ai_zombie_head")
 		{
@@ -1178,6 +1231,8 @@ void () W_Knife =
 	if (self.sprinting) {
 		W_SprintStop();
 	}
+
+	W_HideCrosshair(self);
 	
 	backupSkin = self.weaponskin;
 	self.weaponskin = 0;
@@ -1356,6 +1411,8 @@ void() W_ThrowGrenade =
 	float endframe;
 	local	entity nade;
 
+	W_HideCrosshair(self);
+
 	if (self.pri_grenade_state == 0) {
 		nade = spawn ();
 		nade.owner = self;
@@ -1425,7 +1482,18 @@ void() checkHold =
 	}
 	else
 	{
-    	self.isBuying = true;
+		if (self.isBuying == false) {
+			W_ShowCrosshair(self);
+			self.isBuying = true;
+		}
+
+		// Pulse the grenade crosshair every 1 second
+		float difference = rint(self.grenade_delay - time);
+		if (difference != self.beingrevived) {
+			self.beingrevived = difference;
+			grenade_pulse(self);
+		}
+
 		Set_W_Frame (2, 2, 0, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
 	}
 }
@@ -1440,11 +1508,12 @@ void() W_Grenade =
 	if (self.sprinting)
 		W_SprintStop();
 
+	W_HideCrosshair(self);
 	Set_W_Frame (0, 2, 0.6, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
 	self.primary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.grenade_delay = time + 5.6;
+	self.grenade_delay = time + 5;
     self.seminade = true;
 } 
 

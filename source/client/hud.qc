@@ -1145,7 +1145,18 @@ void() Draw_Crosshair =
 		drawline(2, [0, 0, 0], [g_width/2, g_height/2, 0], [0, 0, 1], 0.5);
 	}
 
-	if (!cvar("crosshair"))
+	hide_viewmodel = false;
+	if (getstatf(STAT_WEAPONZOOM) == 2 && zoom_2_time < time)
+    {
+		hide_viewmodel = true;
+		drawfill('0 0 0',  [g_width/2 - g_height/2, g_height, 0], '0 0 0', 1, 0);
+		drawpic([(g_width/2 - g_height/2),0,0], "gfx/hud/scope_nb.tga", [g_height, g_height, 1], [1,1,1], 1);
+		drawfill([(g_width/2 + g_height/2),0,0],  [g_width, g_height, 0], '0 0 0', 1, 0);
+		return;
+	}
+
+	float crosshair_value = cvar("crosshair");
+	if (!crosshair_value)
 		return;
 
 	if (!crosshair_opacity)
@@ -1184,15 +1195,6 @@ void() Draw_Crosshair =
 		crosshair_color = TEXT_RED;
 	else
 		crosshair_color = [1, 1, 1];
-
-	hide_viewmodel = false;
-	if (getstatf(STAT_WEAPONZOOM) == 2 && zoom_2_time < time)
-    {
-		hide_viewmodel = true;
-		drawfill('0 0 0',  [g_width/2 - g_height/2, g_height, 0], '0 0 0', 1, 0);
-		drawpic([(g_width/2 - g_height/2),0,0], "gfx/hud/scope_nb.tga", [g_height, g_height, 1], [1,1,1], 1);
-		drawfill([(g_width/2 + g_height/2),0,0],  [g_width, g_height, 0], '0 0 0', 1, 0);
-	}
 	
 	if (getstatf(STAT_HEALTH) < 1)
 		return;
@@ -1216,41 +1218,61 @@ void() Draw_Crosshair =
 		}
     }
 
-	if (getstatf(STAT_WEAPONZOOM) != 1 && getstatf(STAT_WEAPONZOOM) != 2) {
-		// 'O' crosshair
-		if (getstatf(STAT_ACTIVEWEAPON) == W_M2 || getstatf(STAT_ACTIVEWEAPON) == W_FIW || getstatf(STAT_ACTIVEWEAPON) == W_TESLA || getstatf(STAT_ACTIVEWEAPON) == W_DG3) {
-			float circle_offset = stringwidth("O", 0, [12, 12])/2;
-			drawstring([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [12, 12], crosshair_color, 1, 0);
+	// Standard crosshair (+)
+	if (crosshair_value == 1) {
+		int x_value, y_value;
+		int crosshair_offset;
+			
+		crosshair_offset = CrossHairWeapon(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)) + cur_spread;
+			
+		if (CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)) < crosshair_offset)
+			crosshair_offset = CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE));
+			
+		if (perks & P_DEAD)
+			crosshair_offset *= 0.65;
+
+		crosshair_offset_step += (crosshair_offset - crosshair_offset_step) * 0.5;
+
+		// Creds to heartologic for some actually good crosshair position stuff.
+		vector crossSize = [1, 5];
+		vector screenSize = [g_width, g_height];
+
+		drawfill(screenSize / 2 - [crossSize.x, +crossSize.y * 2 + crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // top
+		drawfill(screenSize / 2 - [crossSize.x, -crossSize.y * 1 - crosshair_offset_step + 2], crossSize, crosshair_color, crosshair_opacity, 0); // bottom
+		drawfill(screenSize / 2 - [+crossSize.y * 2 + crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // right
+		drawfill(screenSize / 2 - [-crossSize.y * 1 - crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // left
+	}
+	// Area of Effect (o)
+	else if (crosshair_value == 2) {
+		float circle_offset = stringwidth("O", 0, [12, 12])/2;
+		drawstring([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [12, 12], crosshair_color, 1, 0);
+	}
+	// Dot crosshair (.)
+	else if (crosshair_value == 3) {
+		vector screenSize2 = [g_width, g_height];
+		drawfill(screenSize2 / 2 - [2, 2], [4, 4], crosshair_color, crosshair_opacity, 0); // dot
+	}
+	// Grenade crosshair
+	else if (crosshair_value == 4) {
+		if (crosshair_pulse_grenade) {
+			crosshair_offset_step = 0;
+			cur_spread = 12;
 		}
-		// '.' crosshair
-		else if (getstatf(STAT_ACTIVEWEAPON) == W_PANZER || getstatf(STAT_ACTIVEWEAPON) == W_LONGINUS) {
-			vector screenSize2 = [g_width, g_height];
-			drawfill(screenSize2 / 2 - [2, 2], [4, 4], crosshair_color, crosshair_opacity, 0); // dot
-		} 
-		// Standard crosshair
-		else {
-			int x_value, y_value;
-			int crosshair_offset;
-			
-			crosshair_offset = CrossHairWeapon(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)) + cur_spread;
-			
-			if (CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)) < crosshair_offset)
-				crosshair_offset = CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE));
-			
-			if (perks & P_DEAD)
-				crosshair_offset *= 0.65;
 
-			crosshair_offset_step += (crosshair_offset - crosshair_offset_step) * 0.5;
+		crosshair_pulse_grenade = false;
 
-			// Creds to heartologic for some actually good crosshair position stuff.
-			vector crossSize = [1, 5];
-			vector screenSize = [g_width, g_height];
+		int crosshair_offset2;	
+		crosshair_offset2 = 3 + cur_spread;
+		crosshair_offset_step += (crosshair_offset2 - crosshair_offset_step) * 0.05;
 
-			drawfill(screenSize / 2 - [crossSize.x, +crossSize.y * 2 + crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // top
-			drawfill(screenSize / 2 - [crossSize.x, -crossSize.y * 1 - crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // bottom
-			drawfill(screenSize / 2 - [+crossSize.y * 2 + crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // right
-			drawfill(screenSize / 2 - [-crossSize.y * 1 - crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // left
-		}
+		// Creds to heartologic for some actually good crosshair position stuff.
+		vector crossSize2 = [1, 5];
+		vector screenSize3 = [g_width, g_height];
+
+		drawfill(screenSize3 / 2 - [crossSize2.x, +crossSize2.y * 2 + crosshair_offset_step], crossSize2, crosshair_color, crosshair_opacity, 0); // top
+		drawfill(screenSize3 / 2 - [crossSize2.x, -crossSize2.y * 1 - crosshair_offset_step + 2], crossSize2, crosshair_color, crosshair_opacity, 0); // bottom
+		drawfill(screenSize3 / 2 - [+crossSize2.y * 2 + crosshair_offset_step, crossSize2.x], [crossSize2.y, crossSize2.x], crosshair_color, crosshair_opacity, 0); // right
+		drawfill(screenSize3 / 2 - [-crossSize2.y * 1 - crosshair_offset_step, crossSize2.x], [crossSize2.y, crossSize2.x], crosshair_color, crosshair_opacity, 0); // left
 	}
 }
 
@@ -1556,9 +1578,7 @@ void(float width, float height) HUD_Draw =
 	
 	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 1) && !score_show)
 	{
-        
-        if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "" || getstatf(STAT_WEAPONZOOM) == 2)
-		    Draw_Crosshair();
+		Draw_Crosshair();
 
 		if (!cvar("waypoint_mode")) {
 			HUD_Health(width, height);

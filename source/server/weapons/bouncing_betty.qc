@@ -163,6 +163,8 @@ void() W_PrimeBetty =
 	if (self.sprinting)
 		W_SprintStop();
 
+	W_HideCrosshair(self);
+
     // Play the "prime" animation for the betty viewmodel.
 	Set_W_Frame (0, 18, 1, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
 

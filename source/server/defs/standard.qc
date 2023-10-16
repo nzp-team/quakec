@@ -266,6 +266,7 @@ string(float num)                                                               
 // 2001-11-15 DarkPlaces general builtin functions by Lord Havoc  end
 void    (string trackname)                                                                    	songegg             = #500;
 void    ()                                                                                   	nzp_maxammo         = #501;
+void    (entity who)                                                                            grenade_pulse       = #502;
 
 //
 // constants

@@ -25,6 +25,8 @@
 
 */
 
+void(entity person) W_ShowCrosshair;
+
 void() ContinueRun =
 {
 	float startframe;
@@ -157,6 +159,8 @@ void () W_Frame_Update =
 	}
 	else
 	{
+		if (self.callfuncat != self.weaponframe)
+			W_ShowCrosshair(self);
 		self.weaponframe_end = self.weaponframe = GetFrame(self.weapon,BASE_FRAME);
 		self.new_anim_stop = FALSE;
 		self.weapon_anim_type = 0;

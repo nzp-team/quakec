@@ -28,6 +28,7 @@
 float backupWepSkin;
 float sound_perk_delay; 
 void() W_TakeOut;
+void(entity person) W_HideCrosshair;
 
 //
 // --------------------
@@ -115,7 +116,7 @@ void GivePerk(optional float p) {
 	self.weaponskin = backupWepSkin;
 	self.perk_delay = self.fire_delay;
 
-	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, SUB_Null, 0);
+	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
 
 	SetPerk(self, self.perks);
 }
@@ -143,7 +144,8 @@ void DrinkPerk(float perk) {
 
 	self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	
-	self.knife_delay = self.reload_delay2 = self.fire_delay2 = self.fire_delay = self.reload_delay = 3 + time;		
+	self.knife_delay = self.reload_delay2 = self.fire_delay2 = self.fire_delay = self.reload_delay = 3 + time;	
+	W_HideCrosshair(self);	
 	Set_W_Frame (tempe.weapon_animduration, tempe.weapon2_animduration, 2.25, 0, PERK, GivePerk, tempe.weapon2model, true, S_RIGHT);
 	self = tempe;
 	sound(other, CHAN_ITEM, self.oldmodel, 1, ATTN_NORM);
@@ -1185,6 +1187,7 @@ void PapUpgrade(entity pap, entity buyer) {
 	pap.weapon = self.weapon;
 
 	Weapon_RemoveWeapon(0);
+	W_HideCrosshair(self);
 	Set_W_Frame (0, 39, 2.0, 0, 0, W_PlayTakeOut, "models/machines/v_pap.mdl", true, S_BOTH);
 	self.weapon2model = "";
 	UpdateV2model(self.weapon2model, 0);
