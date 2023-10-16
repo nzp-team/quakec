@@ -248,17 +248,6 @@ void() SUB_Null2 = {};
 
 #define     VEC_VIEW_OFS  '0 0 32'
 
-// FIXME: Limits Quakespasm to 12 zombies lol
-#ifdef FTE
-
-#define MAX_ZOMB 			24
-
-#else
-
-#define MAX_ZOMB 			12
-
-#endif // FTE 
-
 vector	trace_plane_normal;
 
 //

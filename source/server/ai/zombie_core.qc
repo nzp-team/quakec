@@ -1553,7 +1553,18 @@ void() spawnAllZombEnts =
 	local float i;
 	i = 0;
 
-	while(i < MAX_ZOMB)
+	// cypress -- let host engine dictate
+	// max ai at once.
+
+#ifdef FTE
+
+	while(i < 24)
+
+#else
+
+	while(i < nzp_maxai())
+
+#endif // FTE
 	{
 		spawnSingleZombEnt(i);
 		i++;
