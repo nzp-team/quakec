@@ -267,6 +267,7 @@ string(float num)                                                               
 void    (string trackname)                                                                    	songegg             = #500;
 void    ()                                                                                   	nzp_maxammo         = #501;
 void    (entity who)                                                                            grenade_pulse       = #502;
+float   ()                                                                                      nzp_maxai           = #503;
 
 //
 // constants
