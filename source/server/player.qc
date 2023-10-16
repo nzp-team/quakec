@@ -337,14 +337,6 @@ void() PlayerPreThink =
 
 		self.ltime = time + 0.1;
 	}
-
-	for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
-		if (self.weapons[i].is_mulekick_weapon == true) {
-			string third_wep = GetWeaponName(self.weapons[i].weapon_id);
-			centerprint(self, strcat(third_wep, "\n"));
-		}
-	}
-	//centerprint(self, strcat(GetWeaponName(self.weapons[0].weapon_id), "\n"));
 };
 
 float player_trace_time;
