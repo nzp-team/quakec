@@ -1156,7 +1156,7 @@ void() Draw_Crosshair =
 	}
 
 	float crosshair_value = cvar("crosshair");
-	if (!crosshair_value)
+	if (!crosshair_value || getstatf(STAT_WEAPONZOOM) == 1)
 		return;
 
 	if (!crosshair_opacity)
