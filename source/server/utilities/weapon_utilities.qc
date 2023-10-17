@@ -289,6 +289,21 @@ void Weapon_SetActiveInSlot(float slot, float play_first_raise)
 };
 
 //
+// Weapon_HasNoMulekickWeapon()
+// Returns true if the player does not
+// have a Mule Kick weapon slot.
+//
+float Weapon_HasNoMulekickWeapon()
+{
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		if (self.weapons[i].is_mulekick_weapon == true)
+			return false;
+	}
+
+	return true;
+}
+
+//
 // Weapon_AssignWeapon(weapon_slot, weapon_id, weapon_mag, weapon_reserve)
 // Fills in weapon data for provided slot.
 //
@@ -314,7 +329,7 @@ void Weapon_AssignWeapon(float weapon_slot, float weapon_id, float weapon_mag, f
 	else
 		self.weapons[weapon_slot].weapon_reserve = getWeaponAmmo(self.weapons[weapon_slot].weapon_id);
 
-	if (weapon_slot == MULEKICK_WEAPON_SLOT - 1)
+	if (weapon_slot == MULEKICK_WEAPON_SLOT - 1 && Weapon_HasNoMulekickWeapon())
 		self.weapons[weapon_slot].is_mulekick_weapon = true;
 
 	self.weapons[weapon_slot].weapon_skin = GetWepSkin(weapon_id);
@@ -406,13 +421,8 @@ void Weapon_FixUpList()
 
 void Weapon_RemoveWeapon(float slot)
 {
-	if (slot == 0) {
-		Weapon_SwapWeapons(false);
-		slot = 1;
-	}
-		
 	self.weapons[slot].is_mulekick_weapon = false;
-	self.weapons[slot].weapon_id = 0;
+	Weapon_AssignWeapon(slot, 0, 0, 0);
 	Weapon_FixUpList();
 };
 
