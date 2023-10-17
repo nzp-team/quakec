@@ -276,11 +276,12 @@ void() GetDown =
 		self.currentmagbk2 = self.weapons[0].weapon_magazine_left;
 
 		// If it's greater than the mag size, we can fill the magazine.
-		if (total_ammo > getWeaponMag(self.weapon)) {
+		if (total_ammo > getWeaponMag(self.weapon) || total_ammo == 0) {
 			self.weapons[0].weapon_magazine = getWeaponMag(self.weapon);
 
 			// subtract it from the total ammo
-			total_ammo -= self.weapons[0].weapon_magazine;
+			if (total_ammo != 0)
+				total_ammo -= self.weapons[0].weapon_magazine;
 		} else {
 			self.weapons[0].weapon_magazine = total_ammo;
 			total_ammo = 0;
@@ -288,11 +289,12 @@ void() GetDown =
 
 		// Check for dual wield mag too
 		if (IsDualWeapon(self.weapon)) {
-			if (total_ammo > getWeaponMag(self.weapon)) {
+			if (total_ammo > getWeaponMag(self.weapon) || total_ammo == 0) {
 				self.weapons[0].weapon_magazine_left = getWeaponMag(self.weapon);
 
 				// subtract it from the total ammo
-				total_ammo -= self.weapons[0].weapon_magazine_left;
+				if (total_ammo != 0)
+					total_ammo -= self.weapons[0].weapon_magazine_left;
 			} else {
 				self.weapons[0].weapon_magazine_left = total_ammo;
 				total_ammo = 0;
