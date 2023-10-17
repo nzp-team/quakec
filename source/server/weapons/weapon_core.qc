@@ -382,7 +382,7 @@ void(float side) W_Reload =
 	if (self.zoom == 2)
 		return;
 
-	if (self.weapon == W_M2 || self.weapon == W_FIW)
+	if (GetFiretype(self.weapon) == FIRETYPE_FLAME)
 		return;
 	
 	if (side == S_BOTH) {
@@ -996,7 +996,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 
 void(float side) W_Fire =
 {
-	if (self.weapon == W_M2 || self.weapon == W_FIW && self.cooldown)
+	if (GetFiretype(self.weapon) == FIRETYPE_FLAME && self.cooldown)
 		return;
 
 	if (self.semiswitch == true)

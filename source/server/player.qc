@@ -323,17 +323,19 @@ void() PlayerPreThink =
 
 	JumpCheck(0);
 
-	// refuel/cool m2
+	// refuel/cool flamethrowers
 	if (self.ltime < time) {
-		if (self.currentmag == 0 && !self.cooldown) {
+		if (self.weapons[0].weapon_magazine == 0 && !self.cooldown) {
 			self.cooldown = true;
 		}
 
-		if (self.cooldown && self.currentmag > 20)
+		if (self.cooldown && self.weapons[0].weapon_magazine > 20)
 			self.cooldown = false;
 		
-		if (self.weapon == W_M2 || self.weapon == W_FIW && self.currentmag < getWeaponMag(self.weapon))
-			self.currentmag += 1;
+		if (GetFiretype(self.weapon) == FIRETYPE_FLAME && 
+		self.weapons[0].weapon_magazine < getWeaponMag(self.weapon)) {
+			self.weapons[0].weapon_magazine += 1;
+		}
 
 		self.ltime = time + 0.1;
 	}
