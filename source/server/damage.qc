@@ -200,16 +200,10 @@ void() GetDown =
 	self.stance = 0;
 
 	// Get rid of Mule Kick Weapon
-	if (self.weapons[0].is_mulekick_weapon == true)
-		Weapon_SwapWeapons(false);
-
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
-		if (self.weapons[i].is_mulekick_weapon == true) {
-			self.weapons[i].weapon_id = 0;
-			self.weapons[i].is_mulekick_weapon = false;
-		}
+		if (self.weapons[i].is_mulekick_weapon == true)
+			Weapon_RemoveWeapon(i);
 	}
-	Weapon_FixUpList();
 
 	// Calculate the loss in points, take away points from downed Player.
 	float point_difference;
@@ -272,7 +266,7 @@ void() GetDown =
 				break;
 			case 2:
 				total_ammo = self.weapons[1].weapon_magazine + self.weapons[1].weapon_magazine_left + self.weapons[1].weapon_reserve;
-				Weapon_SwapWeapons(false);
+				Weapon_SwapWeapons(true);
 				break;
 		}
 
