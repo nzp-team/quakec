@@ -625,3 +625,23 @@ void(entity person, float expamt, float doublepoint) addmoney =
 
 	UpdatePlayerPoints(person.playernum, person.points, expamt, person.kills, person.netname, person);
 };
+
+float(entity them, entity me) PlayerIsLooking =
+{
+	float ret = false;
+	float old_solid = me.solid;
+	me.solid = SOLID_BBOX;
+	setorigin(me, me.origin);
+
+	vector source;
+	makevectors (them.v_angle);
+	source = them.origin + them.view_ofs;
+	traceline (source, source + v_forward*500, 0, them);
+
+	if (trace_ent == me)
+		ret = true;
+
+	me.solid = old_solid;
+	setorigin(me, me.origin);
+	return ret;
+};

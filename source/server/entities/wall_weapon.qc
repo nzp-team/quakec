@@ -92,7 +92,7 @@ void() weapon_wall =
 
 	// We are, indeed, Wall Chalk.
 	Precache_Set("models/misc/chalk.mdl");	
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
+	setsize (self, '-12 -12 -12', '12 12 12');
 
 	// Set-Up Weapon Prop.
 	entity weapon_prop = spawn();
@@ -102,7 +102,7 @@ void() weapon_wall =
 	self.enemy.solid = SOLID_NOT;
 	self.enemy.owner = self;
 	self.enemy.classname = "weapon_wall_prop";
-	setsize(self.enemy, VEC_HULL2_MIN, VEC_HULL2_MAX);
+	setsize(self.enemy, '0 0 0', '0 0 0');
 
 	// We want the Prop to be slightly behind the Chalk.
 	makevectors(self.angles);
@@ -136,7 +136,7 @@ void () WallWeapon_TouchTrigger =
 
 	float wcost;
 
-	if (other.classname != "player" || other.downed || other.isBuying) {
+	if (other.classname != "player" || other.downed || other.isBuying || !PlayerIsLooking(other, self)) {
 		return;
 	}
 
@@ -333,6 +333,13 @@ void () WallWeapon_TouchTrigger =
 					W_HideCrosshair(other);
 					addmoney(other, -self.cost2, FALSE);
 					other.ach_tracker_coll++;
+					if (self.enemy)
+					{
+						oldent = self;
+						self = self.enemy;
+						self.use();
+						self = oldent;
+					}
 					entity tempz;
 					tempz = self;
 					self = other;
@@ -396,8 +403,15 @@ void() WallWeapon_LinkChalk =
 	
 	ent = find (world, targetname, self.target);
 	
-	if (ent.classname == "weapon_wall")
-	    self.enemy = ent;
+	if (ent.classname == "weapon_wall") {
+		self.enemy = ent;
+		self.mins = self.enemy.mins;
+		self.maxs = self.enemy.maxs;
+		self.origin = self.enemy.origin;
+		setsize(self, self.mins, self.maxs);
+		setorigin(self, self.origin);
+	}
+	    
 }
 
 //

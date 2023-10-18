@@ -261,7 +261,7 @@ void() ReviveGoAway =
 //
 void() touch_perk =
 {  
-	if (other.classname != "player" || other.downed || other.isBuying == true)
+	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
 		return;
 
 	// If we're proned and the map permits, collect some spare change
@@ -1206,7 +1206,7 @@ void PapUpgrade(entity pap, entity buyer) {
 
 void touch_pap() {
   
-	if (other.classname != "player" || other.downed) {
+	if (other.classname != "player" || other.downed || !PlayerIsLooking(other, self)) {
 		return;
 	}
 
