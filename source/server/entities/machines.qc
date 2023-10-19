@@ -1088,6 +1088,10 @@ void() power_switch =
 // Pack-a-Punch
 // --------------------
 //
+// cypress 19 OCT 2023 -- Changed storage from .owner to .usedent,
+// as .owner causes issues with entity relinking, subsequently breaking
+// PlayerIsLooking().
+//
 
 void removeinpap() {
 	//remove(self);
@@ -1095,9 +1099,9 @@ void removeinpap() {
 
 //Self = floating gun
 void velocity_reduce_output() {
-    makevectors(self.owner.angles);
+    makevectors(self.usedent.angles);
 	self.velocity = [0,0,0];
-	setorigin(self, self.owner.origin + v_forward*25);
+	setorigin(self, self.usedent.origin + v_forward*25);
 
     //start floating back into pap
     self.velocity = v_forward*-1.5;
@@ -1106,13 +1110,13 @@ void velocity_reduce_output() {
 //Self = floating gun
 void velocity_reduce_output_in() {
 	self.velocity = [0,0,0];
-	setorigin(self, self.owner.origin);
+	setorigin(self, self.usedent.origin);
 }
 
 void() reset_pap =
 {
 	self.weapon = 0;
-	self.owner = 0;
+	self.usedent = 0;
 
 
 	if (self.goaldummy) {
@@ -1166,14 +1170,14 @@ void PapUpgrade(entity pap, entity buyer) {
 	floatmodelin.movetype = MOVETYPE_NOCLIP;
 	floatmodelin.solid = SOLID_NOT;
 
-	floatmodelin.owner = pap;
+	floatmodelin.usedent = pap;
     floatmodelin.velocity = v_forward*-25;
     
     floatmodelin.think = velocity_reduce_output_in;
     floatmodelin.nextthink = time + 1;
 
 	//model goes velocity_reduce_output
-    pap.owner = self;
+    pap.usedent = self;
 	pap.goaldummy = floatmodelin;
     pap.think = PapSendOut;
     pap.nextthink = time + 3.5;
