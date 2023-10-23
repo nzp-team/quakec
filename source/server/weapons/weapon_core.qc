@@ -411,7 +411,11 @@ void(float side) W_Reload =
 
 	W_AimOut();
 	W_SprintStop();
-	W_HideCrosshair(self);
+
+	// If it's a dual wielded weapon, we don't want to hide the crosshair
+	// unless both weapons are being reloaded.
+	if (!IsDualWeapon(self.weapon) || (self.reload_delay > time || self.reload_delay2 > time))
+		W_HideCrosshair(self);
 
 	float endframe, startframe, reloadcancelframe, delay;
 	string modelname = "";

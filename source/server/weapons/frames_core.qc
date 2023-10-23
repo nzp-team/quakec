@@ -93,6 +93,8 @@ void () W2_Frame_Update =
 	}
 	else
 	{
+		if (self.callfuncat2 != self.weapon2frame && self.reload_delay <= time)
+			W_ShowCrosshair(self);
 		self.weapon2frame = self.weapon2frame_end = self.weapon2frame = GetFrame(self.weapon,BASE_FRAME);
 		self.new_anim2_stop = FALSE;
 		self.weapon2_anim_type = 0;
@@ -159,7 +161,7 @@ void () W_Frame_Update =
 	}
 	else
 	{
-		if (self.callfuncat != self.weaponframe)
+		if (self.callfuncat != self.weaponframe && self.reload_delay2 <= time)
 			W_ShowCrosshair(self);
 		self.weaponframe_end = self.weaponframe = GetFrame(self.weapon,BASE_FRAME);
 		self.new_anim_stop = FALSE;
