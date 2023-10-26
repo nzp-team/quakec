@@ -122,19 +122,20 @@ void GivePerk(optional float p) {
 }
 
 //
-// DrinkPerk(perk)
+// DrinkPerk()
 // Gives Perk Bottle and jumps to GivePerk(p)
 //
-void DrinkPerk(float perk) {
+void DrinkPerk() {
+	float perk = self.style;
+	entity machine = self.usedent;
+
 	// Set the Perk Skin based on the Perk sequence.
 	// NOTE: If you add perks, you will either need to append
 	// the MDL with a tool like QuArK or add an edge-case
 	// after this instruction to have a valid skin.
-	other.weaponskin = self.sequence - 1;
+	self.weaponskin = machine.sequence - 1;
 
-	other.isBuying = true;
-	entity tempe = self;
-	self = other;
+	self.isBuying = true;
 	
 	if (self.sprinting) {
 		self.sprinting = 0;
@@ -146,15 +147,8 @@ void DrinkPerk(float perk) {
 	
 	self.knife_delay = self.reload_delay2 = self.fire_delay2 = self.fire_delay = self.reload_delay = 3 + time;	
 	W_HideCrosshair(self);	
-	Set_W_Frame (tempe.weapon_animduration, tempe.weapon2_animduration, 2.25, 0, PERK, GivePerk, tempe.weapon2model, true, S_RIGHT);
-	self = tempe;
-	sound(other, CHAN_ITEM, self.oldmodel, 1, ATTN_NORM);
-
-	// Play Perk Sting if we can and it exists
-	if (self.aistatus && self.ltime < time) {
-		sound(self, CHAN_AUTO, self.aistatus, 0.8, ATTN_IDLE);
-		self.ltime = time + self.anim_weapon_time;
-	}
+	Set_W_Frame (machine.weapon_animduration, machine.weapon2_animduration, 2.25, 0, PERK, GivePerk, machine.weapon2model, true, S_RIGHT);
+	sound(self, CHAN_ITEM, machine.oldmodel, 1, ATTN_NORM);
 }
 
 //
@@ -264,13 +258,6 @@ void() touch_perk =
 	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
 		return;
 
-	// If we're proned and the map permits, collect some spare change
-	if (other.stance == 0 && self.collected == false && G_PRONEPOINTS != 0) {
-		self.collected = true;
-		addmoney(other, G_PRONEPOINTS, 0);
-		sound(self, 0,"sounds/misc/ching.wav", 1, 1);
-	}
-
 	// Do this after the perk change check
 	if (other.stance == 0)
 		return;
@@ -302,9 +289,24 @@ void() touch_perk =
 		if (other.points >= price && other.button7 && !other.semiuse) {
 			addmoney(other, -price, 0);
 
+			// Play the sound of the bottle "vending"
+			sound(self, CHAN_ITEM,"sounds/machines/vend.wav", 1, 1);
+
+			// Play Perk Sting if we can and it exists
+			if (self.aistatus && self.ltime < time) {
+				sound(self, CHAN_AUTO, self.aistatus, 0.8, ATTN_IDLE);
+				self.ltime = time + self.anim_weapon_time;
+			}
+
 			// Pass along the Perk information to the Player to avoid complications later on, then Drink!
 			other.style = self.style;
-			DrinkPerk(self.style);
+
+			entity tempe = self; // Set machine to tempe
+			self = other; // Set self to client
+			self.usedent = tempe; // Set usedent to machine
+			Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, DrinkPerk, getWeaponDelay(self.weapon, PUTOUT));
+			other = self; // Set other to client
+			self = tempe; // Set self to machine
 
 			// Do Self-Revive checks
 			if (self.classname == "perk_revive" && !coop && !deathmatch) {
@@ -477,6 +479,7 @@ void() perk_revive =
 	precache_model(self.model);
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
+	precache_sound("sounds/machines/vend.wav");
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	precache_sound("sounds/weapons/papfire.wav");
@@ -544,6 +547,7 @@ void() perk_flopper =
 	precache_model(self.model);
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
+	precache_sound("sounds/machines/vend.wav");
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
@@ -609,6 +613,7 @@ void() perk_juggernog =
 	precache_model(self.model);
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
+	precache_sound("sounds/machines/vend.wav");
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
@@ -674,6 +679,7 @@ void() perk_staminup =
 	precache_model(self.model);
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
+	precache_sound("sounds/machines/vend.wav");
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
@@ -739,6 +745,7 @@ void() perk_speed =
 	precache_model(self.model);
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
+	precache_sound("sounds/machines/vend.wav");
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
@@ -804,6 +811,7 @@ void() perk_double =
 	precache_model(self.model);
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
+	precache_sound("sounds/machines/vend.wav");
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);
@@ -870,6 +878,7 @@ void() perk_deadshot =
 	precache_model(self.model);
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
+	precache_sound("sounds/machines/vend.wav");
 	setorigin(self, self.origin);
 	self.oldorigin = self.origin;
 	self.finalangle = self.angles;
@@ -937,6 +946,7 @@ void() perk_mule =
 	precache_model(self.model);
 	precache_model(self.weapon2model);
 	precache_sound(self.oldmodel);
+	precache_sound("sounds/machines/vend.wav");
 	if (self.aistatus) { precache_sound(self.aistatus); }
 	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	setorigin(self, self.origin);

@@ -399,7 +399,6 @@ float isPowerOn;
 .float perks;
 .float perk_delay;
 .float revivesoda;
-.float collected;
 
 // Mystery Box
 #define MAX_BOX_WEAPONS 		27
