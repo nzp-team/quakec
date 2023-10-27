@@ -4290,7 +4290,7 @@ vector (float wep) GetWeaponFlash_Offset =
 			case W_COLT:
 				return [5488, -2742, 35300];
 			case W_BIATCH:
-				return [8588, -3842, 35300];
+				return [6355, -2984, 36625];
 			case W_KAR:
 			case W_KAR_SCOPE:
 			case W_HEADCRACKER:
@@ -4647,4 +4647,20 @@ float WepDef_GetWeaponCrosshairType(float weapon)
 		default:
 			return 1;
 	}
+}
+//
+// WepDef_GetLeftFlashOffset(weapon)
+// Returns the offset from client view origin
+// for a left-handed weapon's muzzleflash.
+// See GetWeaponFlash_Offset() for data structure.
+//
+vector(float weapon) WepDef_GetLeftFlashOffset =
+{
+    switch(weapon) {
+        case W_BIATCH:
+            return [-8639, -3621, 39337];
+        default:
+            return [0, 0, 0];
+    }
+    return [0, 0, 0];
 }
