@@ -957,16 +957,16 @@ noref void() CSQC_Parse_Event =
 				
 				local vector muzzle_offset = GetWeaponFlash_Offset(getstatf(STAT_ACTIVEWEAPON))/1000;
 
+				// Firing from the left? Use the other position instead
+                if (side == 0 && IsDualWeapon(getstatf(STAT_ACTIVEWEAPON)))
+					muzzle_offset = WepDef_GetLeftFlashOffset(getstatf(STAT_ACTIVEWEAPON))/1000;
+
 				// ADS offset
 				if(getstatf(STAT_WEAPONZOOM) == 1)
 				{  
 					muzzle_offset += GetWeaponADSPos(weapon);
 					muzzle_offset[0] -= 2;
 				}
-                
-                // Firing from the left? Flip x-axis for muzzleflash
-                if (side == 0 && IsDualWeapon(getstatf(STAT_ACTIVEWEAPON)))
-                    muzzle_offset[0] = -muzzle_offset[0];
 				
 				muzzlepos += v_forward * muzzle_offset_z;
 				muzzlepos += v_right * muzzle_offset_x;
@@ -981,8 +981,11 @@ noref void() CSQC_Parse_Event =
 						pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", ftos(index))), muzzlepos, norm*24, 1);
 				}
 			}
+
+			if (GetFiretype(getstatf(STAT_ACTIVEWEAPON)) == FIRETYPE_GRENADE)
+				return;
 			
-			if(traceent == 0 && GetFiretype(getstatf(STAT_ACTIVEWEAPON)) != 3)
+			if(traceent == 0)
 			{
 				if (cvar("nzp_particles"))
 					pointparticles(particleeffectnum("weapons.impact"), pos, norm*24, 1);

@@ -1203,6 +1203,11 @@ void(float side) W_Fire =
 	// REFORMAT THIS 
 #ifndef FTE
 
+	if (side == S_LEFT)
+		self.Flash_Offset = WepDef_GetLeftFlashOffset(self.weapon);
+	else
+		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
+
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
 #else 
