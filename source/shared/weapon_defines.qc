@@ -1065,13 +1065,13 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.3;
 		case W_BIATCH:
 			if (delaytype == RELOAD)
-				return 1.8;
+				return 1.66;
 			else if (delaytype == FIRE)
 				return 0.225;
 			else if (delaytype == PUTOUT)
-				return 0.4;
+				return 0.15;
 			else if (delaytype == TAKEOUT)
-				return 0.3;
+				return 0.60;
     	case W_ARMAGEDDON:
 		case W_KAR:
 			if (delaytype == RELOAD)
@@ -1748,31 +1748,31 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case FIRE_END:
 					return 2;
 				case RELOAD_START:
-					return 3;
+					return 20;
 				case RELOAD_END:
-					return 36;
+					return 49;
 				case SPRINT_IN_START:
-					return 33;
+					return 9;
 				case SPRINT_IN_END:
-					return 34;
+					return 11;
 				case SPRINT_START:
-					return 44;
+					return 12;
 				case SPRINT_END:
-					return 43;
+					return 16;
 				case SPRINT_OUT_START:
-					return 50;
+					return 17;
 				case SPRINT_OUT_END:
-					return 42;
+					return 18;
 				case TAKE_OUT_START:
-					return 39;
+					return 5;
 				case TAKE_OUT_END:
-					return 42;
+					return 8;
 				case PUT_OUT_START:
-					return 36;
+					return 3;
 				case PUT_OUT_END:
-					return 39;
+					return 5;
 				case RELOAD_CANCEL:
-					return 13;
+					return 30;
 			}
 			break;
 		case W_KAR:
@@ -3463,12 +3463,14 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			}
 			break;
 		case W_BIATCH:
-			if (curweaponframe == 10) {
+			if (curweaponframe == 23) {
 				sound (self ,5, "sounds/weapons/colt/magout.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 19) {
+			} else if (curweaponframe ==30) {
 				sound (self ,5, "sounds/weapons/colt/magin.wav", 1, ATTN_NORM);
-			} else if(curweaponframe == 26) {
-				sound (self ,5, "sounds/weapons/colt/slide.wav", 1, ATTN_NORM);
+			} else if(curweaponframe == 36) {
+				sound (self ,5, "sounds/weapons/biatch/slideback.wav", 1, ATTN_NORM);
+			} else if(curweaponframe == 42) {
+				sound (self ,5, "sounds/weapons/biatch/sliderelease.wav", 1, ATTN_NORM);
 			}
 			break;
 		case W_TESLA:
@@ -3502,6 +3504,8 @@ void(float weptype) precache_extra =
 		case W_COLT:
 		case W_BIATCH:
 			precache_sound("sounds/weapons/colt/shoot.wav");
+			precache_sound("sounds/weapons/biatch/slideback.wav");
+			precache_sound("sounds/weapons/biatch/sliderelease.wav");
 			precache_sound("sounds/weapons/colt/magout.wav");
 			precache_sound("sounds/weapons/colt/magin.wav");
 			precache_sound("sounds/weapons/colt/slide.wav");
@@ -4286,7 +4290,7 @@ vector (float wep) GetWeaponFlash_Offset =
 			case W_COLT:
 				return [5488, -2742, 35300];
 			case W_BIATCH:
-				return [8588, -3842, 35300];
+				return [6355, -2984, 36625];
 			case W_KAR:
 			case W_KAR_SCOPE:
 			case W_HEADCRACKER:
@@ -4643,4 +4647,20 @@ float WepDef_GetWeaponCrosshairType(float weapon)
 		default:
 			return 1;
 	}
+}
+//
+// WepDef_GetLeftFlashOffset(weapon)
+// Returns the offset from client view origin
+// for a left-handed weapon's muzzleflash.
+// See GetWeaponFlash_Offset() for data structure.
+//
+vector(float weapon) WepDef_GetLeftFlashOffset =
+{
+    switch(weapon) {
+        case W_BIATCH:
+            return [-8639, -3621, 39337];
+        default:
+            return [0, 0, 0];
+    }
+    return [0, 0, 0];
 }
