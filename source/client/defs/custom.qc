@@ -83,6 +83,8 @@ float useprint_weapon;
 float useprint_cost;
 float useprint_time;
 
+float bettyprompt_time;
+
 string scrolltext;
 float stext;
 float scrollopacity;

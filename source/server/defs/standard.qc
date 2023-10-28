@@ -268,6 +268,7 @@ void    (string trackname)                                                      
 void    ()                                                                                   	nzp_maxammo         = #501;
 void    (entity who)                                                                            grenade_pulse       = #502;
 float   ()                                                                                      nzp_maxai           = #503;
+void    (entity who)                                                                            nzp_bettyprompt     = #504;
 
 //
 // constants

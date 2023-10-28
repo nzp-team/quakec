@@ -275,6 +275,7 @@ void () WallWeapon_TouchTrigger =
 			addmoney(other, 0 - self.cost2, FALSE);
 			other.grenades = other.grenades | 2;
 			other.secondary_grenades = 2;
+			nzp_bettyprompt(other);
 			if (self.enemy)
 			{
 				oldent = self;

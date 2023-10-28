@@ -1088,6 +1088,39 @@ void(float width, float height) HUD_Weaponstring =
 	drawstring([x - GetUltraWideOffset(), g_height - 49], weaponstring, [12, 12], [1, 1, 1], 1, 0);
 }
 
+/*********************
+* HUD Bouncing Betty *
+*********************/
+
+void(float width, float height) HUD_BouncingBetty =
+{
+	float top_x, bot_x, but_x;
+	string betty_key;
+	string betty_space;
+	string activate_string, activate_string2;
+
+	tokenize(findkeysforcommand("impulse 33"));
+	betty_key = strtoupper(keynumtostring(stof(argv(0))));
+
+	betty_space = "";
+	for(float i = 0; i < strlen(betty_key); i++) {
+		betty_space = strcat(betty_space, " ");
+	}
+
+	activate_string = strcat("Press ", betty_space, " to place a");
+	activate_string2 = "Bouncing Betty";
+
+	top_x = (g_width/2) - (stringwidth(activate_string, 0, [12, 12])/2);
+	bot_x = (g_width/2) - (stringwidth(activate_string2, 0, [12, 12])/2);
+
+	drawstring([top_x, g_height - 303], activate_string, [12, 12], [1, 1, 1], 1, 0); 
+	drawstring([bot_x, g_height - 289], activate_string2, [12, 12], [1, 1, 1], 1, 0); 
+
+	// Draw the highlighted button
+	but_x = top_x + stringwidth("Press ", 0, [12, 12, 0]);
+	drawstring([but_x, g_height - 303], betty_key, [12, 12], [1, 1, 0], 1, 0); 
+}
+
 /*******************
 * HUD Progress Bar *
 *******************/
@@ -1590,6 +1623,9 @@ void(float width, float height) HUD_Draw =
 
             if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "")
 			    HUD_AmmoString();
+
+			if (bettyprompt_time > time)
+				HUD_BouncingBetty(width, height);
 		
 			if (HUD_Change_time > time)
 			{

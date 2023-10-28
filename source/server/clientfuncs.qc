@@ -333,6 +333,18 @@ void(entity who) grenade_pulse =
 }
 #endif // FTE
 
+#ifdef FTE
+
+void(entity who) nzp_bettyprompt =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_BETTYPROMPT);
+	msg_entity = who;
+	multicast('0 0 0', MULTICAST_ONE);
+}
+
+#endif // FTE
+
 void(entity who) UpdatePunchangle =
 {
 #ifdef FTE
