@@ -28,6 +28,7 @@
 */
 
 void(entity e) Light_None;
+void() Spawns_Init;
 
 #define PLAYER_START_HEALTH		100
 
@@ -527,6 +528,57 @@ void() PollPlayerPoints =
 	}
 }
 
+//
+// Player_PickSpawnPoint()
+// Picks a valid spawn point for the
+// newly spawning player, as well as
+// assigns any spawn-specific fields
+// (e.g., starting weapon).
+//
+void() Player_PickSpawnPoint =
+{
+	entity spawn_point = world;
+	float found_viable_spawn = false;
+
+	// Assign a location
+	while(!found_viable_spawn) {
+		float index = random();
+
+		// assign one of the spawnpoints
+		if (index < 0.25)
+			spawn_point = find(world, classname, SPAWN_1_CLASS);
+		else if (index < 0.50)
+			spawn_point = find(world, classname, SPAWN_2_CLASS);
+		else if (index < 0.75)
+			spawn_point = find(world, classname, SPAWN_3_CLASS);
+		else
+			spawn_point = find(world, classname, SPAWN_4_CLASS);
+
+		float found_player_here = false;
+
+		entity ents_in_spawn_range = findradius(spawn_point.origin, 32);
+
+		// check if there's a player in the way
+		while(ents_in_spawn_range != world) {
+			if (ents_in_spawn_range.classname == "player")
+				found_player_here = true;
+
+			ents_in_spawn_range = ents_in_spawn_range.chain;
+		}
+
+		// no player in the way, this spawn is good.
+		if (found_player_here == false)
+			found_viable_spawn = true;
+	}
+
+	// Set their location
+	self.origin = spawn_point.origin + '0 0 1';
+	self.angles = spawn_point.angles;
+
+	// Assign their starting weapon
+	Weapon_GiveWeapon(spawn_point.weapon, spawn_point.currentmag, spawn_point.currentammo);
+};
+
 void() PlayerSpawn =
 {	
 	entity spawnpoint = world;
@@ -565,68 +617,16 @@ void() PlayerSpawn =
 			pl1 = self;
 	}
 
-	float viable_spawnpoint = false;
-
-	// if the mapper doesn't have the co-op ents set up, just plop everyone at the
-	// normal start.
-	if (find(world, classname, "info_player_tank") == world && 
-	find(world, classname, "info_player_nikolai") == world &&
-	find(world, classname, "info_player_takeo") == world && 
-	find(world, classname, "info_player_doctor") == world) {
-		spawnpoint = find(world, classname, "info_player_start");
-		viable_spawnpoint = true;
-	}
-
-	//
-	// pick a random spawn point regardless of solo or co-op
-	//
-
-	while(!viable_spawnpoint) {
-		float number = random();
-
-		// assign one of the spawnpoints
-		if (number < 0.25)
-			spawnpoint = find(world, classname, "info_player_tank");
-		else if (number < 0.50)
-			spawnpoint = find(world, classname, "info_player_nikolai");
-		else if (number < 0.75)
-			spawnpoint = find(world, classname, "info_player_takeo");
-		else
-			spawnpoint = find(world, classname, "info_player_doctor");
-
-		float found_player_here = false;
-
-		entity ents_in_spawn_range = findradius(spawnpoint.origin, 32);
-
-		// check if there's a player in the way
-		while(ents_in_spawn_range != world) {
-			if (ents_in_spawn_range.classname == "player")
-				found_player_here = true;
-
-			ents_in_spawn_range = ents_in_spawn_range.chain;
-		}
-
-		// no player in the way, this spawn is good.
-		if (found_player_here == false)
-			viable_spawnpoint = true;
-	}
-
-	// Mapper doesn't have our specific co-op spawn set up..
-	if (spawnpoint == world)
-		spawnpoint = find(world, classname, "info_player_start");
-
+	// Assign them a spawn location.
+	Player_PickSpawnPoint();
 	
-	self.origin = spawnpoint.origin + [0,0,1];
-	self.angles = spawnpoint.angles;
-	self.fixangle = TRUE;
+	self.fixangle = true;
 	setsize(self, [-16, -16, -32], [16, 16, 40]);
 	self.view_ofs = VEC_VIEW_OFS; // naievil -- set view_ofs to 32 to maintain half life (64) sizes
 	self.stance = 2;
 	self.new_ofs_z = self.view_ofs_z;
 	self.oldz = self.origin_z;
-
 	self.grenades = self.grenades | 1;  // add frag grenades to player inventory
-	Weapon_GiveWeapon(G_STARTWEAPON[0], G_STARTWEAPON[1], G_STARTWEAPON[2]);
 	
 	if (rounds)
 		self.primary_grenades = 2;
@@ -702,8 +702,15 @@ void() SpectatorSpawn =
 };
 
 //called when a client loads a map
+float spawns_initialized;
 void() PutClientInServer =
 {
+	// Init Spawn Points
+	if (!spawns_initialized) {
+		Spawns_Init();
+		spawns_initialized = true;
+	}
+
 	if(cvar("developer") || player_count > 1) {
 		bprint(PRINT_HIGH, self.netname);
 		bprint(PRINT_HIGH, " has joined the game.\n");

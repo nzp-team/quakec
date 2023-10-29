@@ -36,6 +36,11 @@
 
 #define STR_NOTENOUGHPOINTS	"Not Enough Points\n"	// To help aid consistency with these..
 
+#define SPAWN_1_CLASS       "info_player_1_spawn"
+#define SPAWN_2_CLASS       "info_player_2_spawn"
+#define SPAWN_3_CLASS       "info_player_3_spawn"
+#define SPAWN_4_CLASS       "info_player_4_spawn"
+
 float cheats_have_been_activated;
 
 // Quake assumes these are defined.
