@@ -227,6 +227,8 @@ void () WallWeapon_TouchTrigger =
 				return;
 			}
 
+			other.semiuse = true;
+
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
 				centerprint(other, STR_NOTENOUGHPOINTS);
@@ -234,7 +236,7 @@ void () WallWeapon_TouchTrigger =
 				return;
 			}
 
-			other.currentammo = getWeaponAmmo(other.weapon);
+			other.weapons[0].weapon_reserve = getWeaponAmmo(other.weapon);
 
 			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 			other.reload_delay = 0;
