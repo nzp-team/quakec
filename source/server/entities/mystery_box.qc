@@ -102,6 +102,7 @@ void(entity ent) MBOX_FreeEnt =
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
     ent.effects = 0;
+	ent.frame = 0;
 
 #ifdef FTE
 
