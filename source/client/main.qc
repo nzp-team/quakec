@@ -929,6 +929,8 @@ float() alphafade =
 	return 0;
 }
 
+#define DEG2RAD(x)	(x * M_PI / 180.f)
+
 noref void() CSQC_Parse_Event =
 {
 	local float first = readbyte();
@@ -950,28 +952,36 @@ noref void() CSQC_Parse_Event =
 
 			if(entnum == player_localentnum)
 			{
-				makevectors(view_angles);
+				// originally was view_angles, but thats only what is reported
+				// to the server, weapon kick is NOT reported, so offset continued
+				// to grow.
+				makevectors(getproperty(VF_ANGLES));
 				local vector offset = vmodel.origin + vmodel_muzzleoffset;
-				local vector muzzlepos;
+				local vector muzzlepos, muzzle_offset;
 				muzzlepos = getviewprop(VF_ORIGIN);
 				
-				local vector muzzle_offset = GetWeaponFlash_Offset(getstatf(STAT_ACTIVEWEAPON))/1000;
+				muzzle_offset = GetWeaponFlash_Offset(getstatf(STAT_ACTIVEWEAPON))/1000;
 
 				// Firing from the left? Use the other position instead
                 if (side == 0 && IsDualWeapon(getstatf(STAT_ACTIVEWEAPON)))
 					muzzle_offset = WepDef_GetLeftFlashOffset(getstatf(STAT_ACTIVEWEAPON))/1000;
 
 				// ADS offset
-				if(getstatf(STAT_WEAPONZOOM) == 1)
-				{  
-					muzzle_offset += GetWeaponADSPos(weapon);
-					muzzle_offset[0] -= 2;
+				if(getstatf(STAT_WEAPONZOOM) == 1) {  
+					muzzle_offset += GetWeaponADSOfs_PSP(weapon)/1000;
 				}
 				
 				muzzlepos += v_forward * muzzle_offset_z;
 				muzzlepos += v_right * muzzle_offset_x;
 				muzzlepos += v_up * muzzle_offset_y;			
 				mzlflash.alpha = 1;
+
+				// Scale the muzzleflash to meet viewmodel FOV
+				// FTE doesnt support vector scaling :(
+				// float afov = cvar("fov");
+				// float vfov = cvar("r_viewmodel_default_fov");
+				// float ascale = 1.0 / tan(DEG2RAD(afov/2.0)) * vfov / 90.0;
+				// mzlflash.scale = ascale;
 
 				if (cvar("nzp_particles") && cvar("r_drawviewmodel")) {
 					float index = rint(random() * 2);

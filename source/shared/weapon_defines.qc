@@ -4081,7 +4081,6 @@ float(float weapon, float value, float mag_not_reserve) W_IsLowAmmo =
 	}
 }
 
-// PSP Specific!!
 vector(float wep) GetWeaponRecoil =
 {
 	vector guaranteed = '0 0 0';
