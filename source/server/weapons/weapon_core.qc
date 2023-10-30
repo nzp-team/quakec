@@ -1935,6 +1935,7 @@ void () Weapon_Logic =
 
 	} else {
 		W_Frame_Update();
+		W2_Frame_Update();
 	}
 	
 		
