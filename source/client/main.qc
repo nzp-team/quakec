@@ -224,10 +224,6 @@ noref void() CSQC_WorldLoaded =
 	playerpoints[3] = -1;
 
 	Achievement_Init();
-	
-	// Dummy so that our other point particles work!
-	pointparticles(particleeffectnum("weapons.impact_decal"), '0 0 0', '0 0 0', 1);
-	pointparticles(particleeffectnum("muzzle.muzzle_part0"), '0 0 0', '0 0 0', 1);
 
 	huddir = "gfx/hud/";
 };
@@ -871,64 +867,6 @@ noref void() CSQC_Input_Frame =
 	input_angles = getproperty(VF_ANGLES);
 }
 
-float() tracerthink =
-{
-	//makevectors(self.angles);
-	local vector cross1 = normalize(crossproduct( getviewprop(VF_ORIGIN) - self.targetpos, self.targetpos - self.origin));
-	local vector cross2 = normalize(crossproduct( getviewprop(VF_ORIGIN) - self.origin, self.targetpos - self.origin));
-	R_BeginPolygon("tracers/mg");
-	
-	R_PolygonVertex(self.origin + cross2, '0 1 0', '1 1 1', self.alpha - 0.6);
-	R_PolygonVertex(self.origin - cross2, '0 0 0', '1 1 1', self.alpha - 0.6);
-	R_PolygonVertex(self.targetpos - cross1, '1 0 0', '1 1 1', self.alpha);
-
-	R_PolygonVertex(self.targetpos + cross1, '1 1 0', '1 1 1', self.alpha);
-	R_PolygonVertex(self.origin + cross2, '0 1 0', '1 1 1', self.alpha - 0.6);
-	R_PolygonVertex(self.targetpos - cross1, '1 0 0', '1 1 1', self.alpha);
-
-	/*R_PolygonVertex(self.origin + v_right, '0 1 0', '1 1 1', self.alpha - 0.4);
-	R_PolygonVertex(self.origin - v_right, '0 0 0', '1 1 1', self.alpha - 0.4);
-	R_PolygonVertex(self.targetpos - v_right, '1 0 0', '1 1 1', self.alpha);
-
-	R_PolygonVertex(self.targetpos + v_right, '1 1 0', '1 1 1', self.alpha);
-	R_PolygonVertex(self.origin + v_right, '0 1 0', '1 1 1', self.alpha - 0.4);
-	R_PolygonVertex(self.targetpos - v_right, '1 0 0', '1 1 1', self.alpha);*/
-
-
-	R_EndPolygon();
-
-	self.alpha -= (frametime * self.rate);
-	if(self.alpha <= 0)
-		remove(self);
-
-	return 0;
-}
-
-float() alphafade =
-{
-	
-	self.alpha -= (frametime * 3);
-	self.scale += (frametime * 9);
-	if(self.alpha <= 0.05)
-		remove(self);
-	
-	local vector cross1 = 10 * self.scale * normalize(crossproduct( getviewprop(VF_ORIGIN) - self.origin + self.targetpos * self.scale, self.targetpos * self.scale));
-	local vector cross2 = 10 * self.scale * normalize(crossproduct( getviewprop(VF_ORIGIN) - self.origin, self.targetpos * self.scale));
-	R_BeginPolygon("bloodsplat2");
-	
-	R_PolygonVertex(self.origin + cross2, '0 1 0', '1 1 1', self.alpha);
-	R_PolygonVertex(self.origin - cross2, '0 0 0', '1 1 1', self.alpha);
-	R_PolygonVertex(self.origin + (self.targetpos*self.scale*18) - cross1, '1 0 0', '1 1 1', self.alpha);
-
-	R_PolygonVertex(self.origin + (self.targetpos*self.scale*18) + cross1, '1 1 0', '1 1 1', self.alpha);
-	R_PolygonVertex(self.origin + cross2, '0 1 0', '1 1 1', self.alpha);
-	R_PolygonVertex(self.origin + (self.targetpos*self.scale*18) - cross1, '1 0 0', '1 1 1', self.alpha);
-	
-	R_EndPolygon();
-	
-	return 0;
-}
-
 #define DEG2RAD(x)	(x * M_PI / 180.f)
 
 noref void() CSQC_Parse_Event =
@@ -1002,19 +940,6 @@ noref void() CSQC_Parse_Event =
 
 				if (cvar("nzp_decals"))
 					pointparticles(particleeffectnum("weapons.impact_decal"), pos, '0 0 0', 1);
-			}
-			else
-			{
-				local vector entorg;
-				entorg = getentity(traceent, GE_ORIGIN);
-				norm = (norm * 0.25) + (normalize(pos - (entorg + '0 0 12')) * 0.75);
-				local entity splat = spawn();
-				splat.drawmask = 1;
-				splat.alpha = 1;
-				splat.scale = 0.05;
-				splat.angles = [random()*360, random()*360, random()*360];
-				splat.targetpos = norm * 1.5;
-				splat.predraw = alphafade;
 			}
 			break;
 		case EVENT_WEAPONRECOIL:
