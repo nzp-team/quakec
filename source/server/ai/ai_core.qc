@@ -510,10 +510,20 @@ void(float dist) Window_Hop =
 
 float() TryWalkToEnemy =
 {
-	//was tracebox
-	float TraceResult;
-	TraceResult = tracemove(self.origin,VEC_HULL_MIN,VEC_HULL_MAX,self.enemy.origin,TRUE,self);
-	if(TraceResult == 1) {
+	// TryWalkToEnemy attempts to see if a Zombie can ignore waypoints
+	// and just charge straight towards its enemy. Originally, this was
+	// pretty broken and limited. If it could draw a line from its origin
+	// to the player's, it'd walk right towards it. This was an issue if
+	// only the zombies's torso was exposed but not the head (meaning it
+	// could not fit in a walkable space). It now performs both a head
+	// trace and a foot trace. It also makes sure the Z (up/down) axis
+	// between the two entities are in close proximity to avoid neglecting
+	// staircases. -- cypress (30 Oct 2023)
+	float TraceResultHead, TraceResultFeet;
+	TraceResultHead = tracemove(self.origin + '0 0 32',VEC_HULL_MIN,VEC_HULL_MAX,self.enemy.origin,TRUE,self);
+	TraceResultFeet = tracemove(self.origin - '0 0 24',VEC_HULL_MIN,VEC_HULL_MAX,self.enemy.origin,TRUE,self);
+	float z_axis_diff = fabs(self.origin_z - self.enemy.origin_z);
+	if(TraceResultHead == 1 && TraceResultFeet == 1 && z_axis_diff <= 30) {
 		self.goalentity = self.enemy;
 		self.chase_time = time + 7;
 		return 1;
