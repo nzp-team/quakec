@@ -137,6 +137,7 @@ void() W_FireRay =
 	porter.movetype = MOVETYPE_FLY;
 	porter.weapon = self.weapon;
 	porter.solid = SOLID_BBOX;
+	porter.classname = "projectile_raybeam";
 
     // Start initial velocity projection.
 	makevectors(self.v_angle);

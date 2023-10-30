@@ -439,19 +439,6 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 				makeCrawler(victim);
 				GiveAchievement(3, attacker);
 			}
-			// if (victim.health < z_health*0.5)
-			// {
-			// 	if (victim.crawling != TRUE && !(victim.health <= 0) && crawler_num < 5 && victim.classname != "ai_dog")
-			// 	{
-			// 		makeCrawler(victim);
-			// 		GiveAchievement(3, attacker);
-			// 	}
-			// 	else
-			// 	{
-			// 		if (attacker.classname == "player" && (victim.health - damage) > 0)
-			// 			addmoney(attacker, 10, 1);
-			// 	}
-			// }
 				
 			if (victim.health <= 0)
 				addmoney(attacker, 60, 1);
@@ -573,6 +560,21 @@ float(entity targ, entity inflictor) CanDamage =
 	return FALSE;
 };
 
+float(float min, float max, vector org1, vector org2, float radius) calculate_proximity_value =
+{
+	float proximity_value;
+	float distance = fabs(vlen(org1 - org2));
+
+	if (distance <= radius) {
+		float normalized_distance = distance / radius;
+		proximity_value = min + (max - min) * (1 - normalized_distance);
+	} else {
+		proximity_value = min;
+	}
+	
+	return proximity_value;
+};
+
 void(entity inflictor, entity attacker, float damage2, float mindamage, float radius) DamgageExplode =
 {
 	float 	final_damage;
@@ -692,6 +694,10 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				// as i can get and i'm not super confident..
 				// (rounds * (rand 0-100) * weapon_damage/500).
 				final_damage = (rounds * rint(random() * 100)) * damage2/500;
+			} else if (inflictor.classname == "projectile_raybeam") {
+				//final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
+				//bprint(PRINT_HIGH, strcat("damage: ", ftos(final_damage), "\n"));
+				final_damage = damage2;
 			} else {
 				r = rounds;
 				multi = 1.07;
