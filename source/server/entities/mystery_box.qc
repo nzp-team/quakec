@@ -623,12 +623,16 @@ void() mystery_box_tp_spot =
 
 void() MBOX_UpdatePosessionStatus =
 {
+	// Set all weapon statuses as unobtained.
+	for(float i = 0; i < MAX_BOX_WEAPONS; i++) {
+		mystery_box_weapons[i].already_obtained = false;
+	}
+
 	entity player = find(world, classname, "player");
 
 	while(player != world) {
 		for(float i = 0; i < MAX_BOX_WEAPONS; i++) {
 			float weapon_id = mystery_box_weapons[i].weapon_id;
-			mystery_box_weapons[i].already_obtained = false;
 			if (Weapon_PlayerHasWeapon(player, weapon_id, true) && WepDef_OnlyOneAllowed(weapon_id)) {
 				mystery_box_weapons[i].already_obtained = true;
 			}
