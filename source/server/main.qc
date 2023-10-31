@@ -466,130 +466,229 @@ void() EndFrame =
 };
 
 //
+// convert_old_asset_path(asset)
 // a large switch statement to convert asset paths made for
 // older versions of nzp to the new standard
-// TODO: add strlower or similar to all platforms.
 //
 string(string asset) convert_old_asset_path =
 {
-	switch(asset) {
+	string lowered_asset = strzone(strtolower(asset));
+	string ret = "";
+
+	switch(lowered_asset) {
+		case "progs/player.mdl":
+			ret = "models/player.mdl";
+			break;
+		case "progs/ai/zal(.mdl":
+			ret = "models/ai/zal(.mdl";
+			break;
 		case "models/machines/quick_revive.mdl":
-			return "models/machines/quake_scale/quick_revive.mdl";
+			ret = "models/machines/quake_scale/quick_revive.mdl";
+			break;
 		case "models/machines/juggernog.mdl":
-			return "models/machines/quake_scale/juggernog.mdl";
+			ret = "models/machines/quake_scale/juggernog.mdl";
+			break;
 		case "models/machines/speed_cola.mdl":
-			return "models/machines/quake_scale/speed_cola.mdl";
+			ret = "models/machines/quake_scale/speed_cola.mdl";
+			break;
+		case "progs/misc/double_tap.mdl":
 		case "models/machines/double_tap.mdl":
-			return "models/machines/quake_scale/double_tap.mdl";
+			ret = "models/machines/quake_scale/double_tap.mdl";
+			break;
+		case "progs/misc/flopper.mdl":
 		case "models/machines/flopper.mdl":
-			return "models/machines/quake_scale/flopper.mdl";
+			ret = "models/machines/quake_scale/flopper.mdl";
+			break;
 		case "models/machines/staminup.mdl":
-			return "models/machines/quake_scale/staminup.mdl";
+			ret = "models/machines/quake_scale/staminup.mdl";
+			break;
 		case "models/machines/deadshot.mdl":
-			return "models/machines/quake_scale/deadshot.mdl";
+			ret = "models/machines/quake_scale/deadshot.mdl";
+			break;
 		case "models/machines/mulekick.mdl":
-			return "models/machines/quake_scale/mulekick.mdl";
+			ret = "models/machines/quake_scale/mulekick.mdl";
+			break;
+		case "progs/misc/pap.mdl":
 		case "models/machines/pap.mdl":
-			return "models/machines/quake_scale/pap.mdl";
-		case "progs/Sprites/lamp_glow.spr":
-			return "models/sprites/lamp_glow.spr";
-		case "progs/Sprites/lamp_glow2.spr":
-			return "models/sprites/lamp_glow2.spr";
-		case "progs/Sprites/lamp_glow3.spr":
-			return "models/sprites/lamp_glow.spr";
-		case "progs/Props/Kino_boxes2.mdl":
+			ret = "models/machines/quake_scale/pap.mdl";
+			break;
+		case "progs/sprites/lamp_glow.spr":
+			ret = "models/sprites/lamp_glow.spr";
+			break;
+		case "progs/sprites/lamp_glow2.spr":
+			ret = "models/sprites/lamp_glow2.spr";
+			break;
+		case "progs/sprites/lamp_glow3.spr":
+			ret = "models/sprites/lamp_glow.spr";
+			break;
 		case "progs/props/kino_boxes2.mdl":
-			return "models/props/Kino_boxes2.mdl";
+			ret = "models/props/Kino_boxes2.mdl";
+			break;
 		case "progs/props/kino_boxes3.mdl":
-			return "models/props/Kino_boxes3.mdl";
-		case "progs/Props/Kino_boxes4.mdl":
+			ret = "models/props/Kino_boxes3.mdl";
+			break;
 		case "progs/props/kino_boxes4.mdl":
-			return "models/props/Kino_boxes4.mdl";
-		case "progs/props/Kino_box.mdl":
+			ret = "models/props/Kino_boxes4.mdl";
+			break;
+		case "progs/props/teddy.mdl":
+		case "progs/misc/teddy.mdl":
+			ret = "models/props/teddy.mdl";
+			break;
 		case "progs/props/kino_box.mdl":
-		case "progs/Props/Kino_box.mdl":
-			return "models/props/Kino_box.mdl";
-		case "progs/Props/table_dinner.mdl":
-			return "models/props/table_dinner.mdl";
-		case "progs/Props/table_sq.mdl":
-			return "models/props/table_sq.mdl";
-		case "progs/Props/Kino_table.mdl":
+			ret = "models/props/Kino_box.mdl";
+			break;
+		case "progs/props/table_dinner.mdl":
+			ret = "models/props/table_dinner.mdl";
+			break;
+		case "progs/props/table_sq.mdl":
+			ret = "models/props/table_sq.mdl";
+			break;
+		case "progs/props/rebar.mdl":
+			ret = "models/props/rebar.mdl";
+			break;
 		case "progs/props/kino_table.mdl":
-			return "models/props/Kino_table.mdl";
+			ret = "models/props/Kino_table.mdl";
+			break;
 		case "progs/props/kino_couch.mdl":
-			return "models/props/kino_couch.mdl";
-		case "progs/Props/metal_chair.mdl":
-			return "models/props/metal_chair.mdl";
-		case "progs/Props/sandbags.mdl":
+			ret = "models/props/kino_couch.mdl";
+			break;
+		case "progs/props/metal_chair.mdl":
+			ret = "models/props/metal_chair.mdl";
+			break;
 		case "progs/props/sandbags.mdl":
-			return "models/props/sandbags.mdl";
-		case "progs/Props/shelf.mdl":
+			ret = "models/props/sandbags.mdl";
+			break;
+		case "progs/props/dentist_chair.mdl":
+			ret = "models/props/dentist_chair.mdl";
+			break;
+		case "progs/props/bath.mdl":
+			ret = "models/props/bath.mdl";
+			break;
 		case "progs/props/shelf.mdl":
-			return "models/props/shelf.mdl";
-		case "progs/Props/dummy.mdl":
+			ret = "models/props/shelf.mdl";
+			break;
 		case "progs/props/dummy.mdl":
-			return "models/props/dummy.mdl";
+			ret = "models/props/dummy.mdl";
+			break;
 		case "progs/props/stand.mdl":
-			return "models/props/stand.mdl";
-		case "progs/Props/radio.mdl":
-			return "models/props/radio.mdl";
-		case "progs/Props/radiator.mdl":
-			return "models/props/radiator.mdl";
-		case "progs/Props/lamp_ndu.mdl":
+			ret = "models/props/stand.mdl";
+			break;
+		case "progs/props/radio.mdl":
+			ret = "models/props/radio.mdl";
+			break;
+		case "progs/props/radiator.mdl":
+			ret = "models/props/radiator.mdl";
+			break;
 		case "progs/props/lamp_ndu.mdl":
-			return "models/props/lamp_ndu.mdl";
-		case "progs/Props/piano.mdl":
-			return "models/props/piano.mdl";
+			ret = "models/props/lamp_ndu.mdl";
+			break;
+		case "progs/props/lamp_ndu45.mdl":
+			ret = "models/props/lamp_ndu45.mdl";
+			break;
+		case "progs/props/barrel_m.mdl":
+			ret = "models/props/barrel_m.mdl";
+			break;
+		case "progs/props/lamp_oil.mdl":
+			ret = "models/props/lamp_oil.mdl";
+			break;
+		case "progs/props/piano.mdl":
+			ret = "models/props/piano.mdl";
+			break;
+		case "progs/props/pisuar.mdl":
+			ret = "models/props/pisuar.mdl";
+			break;
 		case "progs/props/teleporter.mdl":
-			return "models/props/teleporter.mdl";
+			ret = "models/props/teleporter.mdl";
+			break;
 		case "progs/props/chandelier.mdl":
-			return "models/props/chandelier.mdl";
+			ret = "models/props/chandelier.mdl";
+			break;
 		case "progs/props/vanity_table.mdl":
-			return "models/props/vanity_table.mdl";
+			ret = "models/props/vanity_table.mdl";
+			break;
 		case "progs/props/trash_con.mdl":
-			return "models/props/trash_con.mdl";
+			ret = "models/props/trash_con.mdl";
+			break;
+		case "progs/props/fridge.mdl":
+			ret = "models/props/fridge.mdl";
+			break;
 		case "progs/props/kino_chairset.mdl":
-			return "models/props/kino_chairset.mdl";
-		case "progs/props/Kino_lounge.mdl":
-			return "models/props/Kino_lounge.mdl";
+			ret = "models/props/kino_chairset.mdl";
+			break;
+		case "progs/props/kino_lounge.mdl":
+			ret = "models/props/Kino_lounge.mdl";
+			break;
 		case "progs/props/kino_stageprop.mdl":
-			return "models/props/kino_stageprop.mdl";
+			ret = "models/props/kino_stageprop.mdl";
+			break;
 		case "progs/props/mainframe_pad.mdl":
-			return "models/props/mainframe_pad.mdl";
-		case "progs/Gmodels/g_mp40.mdl":
+			ret = "models/props/mainframe_pad.mdl";
+			break;
+		case "progs/props/tree_ch.mdl":
+			ret = "models/props/tree_ch.mdl";
+			break;
+		case "progs/props/treesl.mdl":
+			ret = "models/props/treesl.mdl";
+			break;
+		case "progs/props/bed.mdl":
+			ret = "models/props/bed.mdl";
+			break;
 		case "progs/gmodels/g_mp40.mdl":
-			return "models/weapons/mp40/g_mp40.mdl";
+			ret = "models/weapons/mp40/g_mp40.mdl";
+			break;
 		case "progs/gmodels/g_thomp.mdl":
-			return "models/weapons/thomp/g_thomp.mdl";
-		case "progs/Gmodels/g_betty.mdl":
+			ret = "models/weapons/thomp/g_thomp.mdl";
+			break;
 		case "progs/gmodels/g_betty.mdl":
-			return "models/weapons/grenade/g_betty.mdl";
-		case "progs/GModels/g_fg.mdl":
-			return "models/weapons/fg42/g_fg.mdl";
+			ret = "models/weapons/grenade/g_betty.mdl";
+			break;
+		case "progs/gmodels/g_fg.mdl":
+			ret = "models/weapons/fg42/g_fg.mdl";
+			break;
 		case "progs/gmodels/g_m1.mdl":
-			return "models/weapons/garand/g_m1.mdl";
+			ret = "models/weapons/garand/g_m1.mdl";
+			break;
+		case "progs/gmodels/g_sawnoff.mdl":
+			ret = "models/weapons/sawnoff/g_sawnoff.mdl";
+			break;
 		case "progs/gmodels/g_trench.mdl":
-			return "models/weapons/trench/g_trench.mdl";
+			ret = "models/weapons/trench/g_trench.mdl";
+			break;
 		case "progs/gmodels/g_bar.mdl":
-			return "models/weapons/bar/g_bar.mdl";
+			ret = "models/weapons/bar/g_bar.mdl";
+			break;
 		case "progs/gmodels/g_grenade.mdl":
-			return "models/weapons/grenade/g_grenade.mdl";
+			ret = "models/weapons/grenade/g_grenade.mdl";
+			break;
 		case "progs/gmodels/g_gewehr.mdl":
-			return "models/weapons/gewehr/g_gewehr.mdl";
+			ret = "models/weapons/gewehr/g_gewehr.mdl";
+			break;
 		case "progs/gmodels/g_bowie.mdl":
-			return "models/weapons/knife/g_bowie.mdl";
+			ret = "models/weapons/knife/g_bowie.mdl";
+			break;
 		case "progs/gmodels/g_type.mdl":
-			return "models/weapons/type/g_type.mdl";
+			ret = "models/weapons/type/g_type.mdl";
+			break;
+		case "progs/gmodels/g_ppsh.mdl":
+			ret = "models/weapons/ppsh/g_ppsh.mdl";
+			break;
 		case "progs/gmodels/g_stg.mdl":
-			return "models/weapons/stg/g_stg.mdl";
+			ret = "models/weapons/stg/g_stg.mdl";
+			break;
 		case "models/misc/lightning.spr":
-			return "models/sprites/lightning.spr";
-		case "models/Derped/Wall_lamp.mdl":
-			return "models/props/lamp_wall.mdl";
+			ret = "models/sprites/lightning.spr";
+			break;
+		case "models/derped/wall_lamp.mdl":
+			ret = "models/props/lamp_wall.mdl";
+			break;
 		case "models/machines/power_switch.mdl":
-			return "models/machines/quake_scale/power_switch.mdl";
-		default: return asset;
+			ret = "models/machines/quake_scale/power_switch.mdl";
+			break;
+		default: 
+			ret = asset;
+			break;
 	}
 
-	return asset;
+	strunzone(lowered_asset);
+	return ret;
 };

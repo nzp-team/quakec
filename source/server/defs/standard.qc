@@ -264,6 +264,8 @@ string  (string s)                                                              
 float(string s)                                                                                 tokenize            = #441;
 string(float num)                                                                               argv                = #442;
 // 2001-11-15 DarkPlaces general builtin functions by Lord Havoc  end
+// DP_QC_STRING_CASE_FUNCTIONS
+string  (string s)                                                                              strtolower          = #480;
 void    (string trackname)                                                                    	songegg             = #500;
 void    ()                                                                                   	nzp_maxammo         = #501;
 void    (entity who)                                                                            grenade_pulse       = #502;
