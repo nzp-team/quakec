@@ -516,6 +516,9 @@ string(string asset) convert_old_asset_path =
 			ret = "models/sprites/lamp_glow.spr";
 			break;
 		case "progs/sprites/lamp_glow2.spr":
+			// HACK HACK -- old maps that used this sprite were working with
+			// a broken offset, fix it.
+			self.origin_z -= 32;
 			ret = "models/sprites/lamp_glow2.spr";
 			break;
 		case "progs/sprites/lamp_glow3.spr":
