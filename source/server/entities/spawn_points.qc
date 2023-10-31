@@ -318,15 +318,12 @@ void() Spawns_FillMissing =
         player_spawns[SPAWN_PLR_LEGACY] = false;
     }
 
-    // Check for maps that only have info_player_start
-    if (player_spawns[SPAWN_PLR_LEGACY] == true && 
-    player_spawns[SPAWN_PLR_1] == false &&
-    player_spawns[SPAWN_PLR_2] == false &&
-    player_spawns[SPAWN_PLR_3] == false &&
-    player_spawns[SPAWN_PLR_4] == false) {
-        // info_player_start becomes info_player_1_spawn
+    // Convert info_player_start to info_player_1_spawn
+    if (player_spawns[SPAWN_PLR_LEGACY] == true) {
         spawn_points[SPAWN_PLR_LEGACY].classname = SPAWN_1_CLASS;
         spawn_points[SPAWN_PLR_1] = spawn_points[SPAWN_PLR_LEGACY];
+        player_spawns[SPAWN_PLR_1] = true;
+        player_spawns[SPAWN_PLR_LEGACY] = false;
     }
 
     // Spawn points 2-4 if they dont exist
@@ -334,6 +331,7 @@ void() Spawns_FillMissing =
         if (player_spawns[i] == false) {
             spawn_points[i] = spawn();
             spawn_points[i].classname = spawn_names[i];
+            spawn_points[i].angles = spawn_points[SPAWN_PLR_1].angles;
             Spawns_SetUpPoint(spawn_points[i]);
             Spawns_FindViableSpawnSpot(spawn_points[i]);
         }
