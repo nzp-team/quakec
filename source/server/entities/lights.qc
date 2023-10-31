@@ -87,17 +87,19 @@ void()  light_environment   =           // Sun cast from Sky
 void()  light_fluorospark   =           // Light with buzz ambient
 {   L_Setup();                                                              }
 void()  light_globe         =           // Light with visible globe
-{   L_Setup();  makestatic(self);                   }
+{   L_Setup();  makestatic(self);                                           }
 void()  light_torch_small_walltorch =   // Light with visible wall torch
-{   L_Setup(); makestatic(self);                   }
+{   L_Setup(); makestatic(self);                                            }
+void()  light_flame_large_yellow =
+{   L_Setup(); makestatic(self);                                            }
 void()  light_torch_small_yellow =      // Light with small flame & fire sound
-{   L_Setup();    makestatic(self);                  }
+{   L_Setup();    makestatic(self);                                         }
 void()  light_torch_large_yellow =      // Light with larger flame & fire sound
-{   L_Setup();   self.frame = 1; makestatic(self);   }
+{   L_Setup();   self.frame = 1; makestatic(self);                          }
 void()  light_flame_small_white =       // Light with small flame & fire sound
-{   L_Setup();   makestatic(self);                  }
+{   L_Setup();   makestatic(self);                                          }
 void()  light_spot = 			// Spotlight
-{   L_Setup();   				    }
+{   L_Setup();   				                                            }
 
 //
 // --------------------

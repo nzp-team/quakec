@@ -199,7 +199,7 @@ void(float dist, vector vec) do_walk_to_vec =
 	if(self.outside == false)
 	{
 		// this is a performance net negative for like 0 gain in horde space.
-		//push_away_zombies();
+		push_away_zombies();
 	}
 	ChangeYaw();
 	vector new_velocity;
