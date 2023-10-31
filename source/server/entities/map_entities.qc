@@ -69,7 +69,17 @@ void() radioPlay =
 
 	if (self.radioState == 1) {
 		sound (self, CHAN_ITEM, self.tune, 1, ATTN_NORM);
+
+#ifndef FTE
+
+		self.nextthink = time + GetSoundLen(self.tune);
+
+#else
+
 		self.nextthink = time + self.length;
+
+#endif // FTE
+
 		self.think = radioPlay;
 	} else if (self.radioState == 0) {
 		sound (self, CHAN_ITEM, "sounds/null.wav", 1, ATTN_NONE);
@@ -83,7 +93,7 @@ void() radio_hit =
 	self.health = 1;
 
 	sound (self, CHAN_ITEM, "sounds/misc/radio.wav", 1, ATTN_NORM);
-	self.nextthink = time + 1;//getSoundLen("sounds/music/tune1.wav");
+	self.nextthink = time + 1;
 	self.think = radioPlay;
 	
 	if (self.radioState == 0)
@@ -97,10 +107,13 @@ void() item_radio =
 	precache_model ("models/props/radio.mdl");
 	precache_sound ("sounds/misc/radio.wav");
 
-	if(self.tune) {
-		precache_sound (self.tune);
+	// Backwards compatibility
+	if (!self.tune) {
+		self.tune = "sounds/music/tune1.wav";
+		self.length = 10.1;
 	}
 
+	precache_sound (self.tune);
 	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything
 	self.solid=SOLID_BBOX;
 	self.classname = "item_radio";
