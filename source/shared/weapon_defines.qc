@@ -2440,35 +2440,35 @@ float(float wep, float frametype, optional float z) GetFrame =
 			switch (frametype)
 			{
 				case FIRE_START:
-					return 3;
+					return 2;
 				case FIRE_END:
-					return 7;
+					return 5;
 				case RELOAD_START:
-					return 9;
+					return 7;
 				case RELOAD_END:
-					return 54;
+					return 49;
 				case SPRINT_IN_START:
-					return 60;
-				case SPRINT_IN_END:
-					return 64;
-				case SPRINT_START:
-					return 64;
-				case SPRINT_END:
-					return 69;
-				case SPRINT_OUT_START:
-					return 70;
-				case SPRINT_OUT_END:
-					return 73;
-				case TAKE_OUT_START:
-					return 57;
-				case TAKE_OUT_END:
-					return 59;
-				case PUT_OUT_START:
-					return 54;
-				case PUT_OUT_END:
 					return 56;
+				case SPRINT_IN_END:
+					return 59;
+				case SPRINT_START:
+					return 59;
+				case SPRINT_END:
+					return 66;
+				case SPRINT_OUT_START:
+					return 66;
+				case SPRINT_OUT_END:
+					return 69;
+				case TAKE_OUT_START:
+					return 53;
+				case TAKE_OUT_END:
+					return 55;
+				case PUT_OUT_START:
+					return 50;
+				case PUT_OUT_END:
+					return 53;
 				case RELOAD_CANCEL:
-					return 36;
+					return 49;
 			}
 			break;
 		case W_STG:
@@ -3424,13 +3424,13 @@ void (float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			break;
 		case W_RAY:
 		case W_PORTER:
-			if (curweaponframe == 14) {
+			if (curweaponframe == 10) {
 				sound (self ,5, "sounds/weapons/raygun/open.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 23) {
+			} else if (curweaponframe == 19) {
 				sound (self ,5, "sounds/weapons/raygun/out.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 36) {
+			} else if (curweaponframe == 33) {
 				sound (self ,5, "sounds/weapons/raygun/in.wav", 1, ATTN_NORM);
-			} else if (curweaponframe == 45) {
+			} else if (curweaponframe == 41) {
 				sound (self ,5, "sounds/weapons/raygun/close.wav", 1, ATTN_NORM);
 			}
 			break;
