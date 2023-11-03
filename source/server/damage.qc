@@ -698,6 +698,9 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				//final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
 				//bprint(PRINT_HIGH, strcat("damage: ", ftos(final_damage), "\n"));
 				final_damage = damage2;
+			} else if (inflictor.classname == "player") {
+				// phd flopper.
+				final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
 			} else {
 				r = rounds;
 				multi = 1.07;

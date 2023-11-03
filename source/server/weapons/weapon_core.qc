@@ -1003,7 +1003,7 @@ void(float side) W_Fire =
 	if (GetFiretype(self.weapon) == FIRETYPE_FLAME && self.cooldown)
 		return;
 
-	if (self.semiswitch == true)
+	if (self.semiswitch == true || self.dive)
 		return;
 
 	//First check that we can actualy fire
@@ -1171,6 +1171,12 @@ void(float side) W_Fire =
 
 	if (self.perks & P_DOUBLE) {
 		delay *= 0.66;
+	}
+
+	// Players shouldn't be allowed to move while firing and prone.
+	if (self.stance == 0) {
+		self.speed_penalty = 0;
+		self.speed_penalty_time = time + delay;
 	}
 
 	if (self.weapon == W_GUT || self.weapon == W_KAR_SCOPE || self.weapon == W_TRENCH || self.weapon == W_KAR || self.weapon == W_ARMAGEDDON || self.weapon == W_HEADCRACKER || self.weapon == W_SPRING || self.weapon == W_PULVERIZER)
@@ -1589,7 +1595,7 @@ void() dolphin_dive =		//naievil
 	self.flags = self.flags - (self.flags & FL_JUMPRELEASED);
 	self.flags = self.flags - FL_ONGROUND;	// don't stairwalk
 	makevectors (self.v_angle);
-    self.velocity = self.velocity * 1.2;		
+    self.velocity = self.velocity * 1.1;		
 	self.velocity_z = self.velocity_z + 270;
 
 	if (self.button2)
@@ -1897,16 +1903,18 @@ void() CheckPlayer =
 	
 	if (!self.button2 && self.flags & FL_ONGROUND) {
 		if (self.dive) {
-			if (self.perks & P_FLOP && fabs(self.oldz - self.origin_z) > 90) {
+			if (self.perks & P_FLOP && fabs(self.oldz - self.origin_z) >= 64) {
 				sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);	
-				DamgageExplode (self, self, 225, 75, 128);
+				DamgageExplode (self, self, 5000, 1000, 300);
 
 #ifdef FTE
 
-				te_customflash(self.origin, 128, 300, '1 1 1');
+				te_customflash(self.origin, 300, 300, '1 0.6 0.1');
 
 #endif // FTE
 
+				CallExplosion(self.origin);
+				CallExplosion(self.origin);
 				CallExplosion(self.origin);
 			}
 			self.dive = 0;
@@ -1957,6 +1965,22 @@ void () Weapon_Logic =
 
 #endif // FTE
 
+	// If the player is aiming down the sight while prone and moving,
+	// force them to stop
+	if (self.stance == 0 && self.velocity && self.zoom) {
+		W_AimOut();
+		self.zoom = 0;
+
+#ifdef FTE
+
+		self.viewzoom = 1;
+		UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
+		UpdateV2model(self.weapon2model, 0);
+
+#endif // FTE
+
+	}
+
 	//
 	// Force-ADS if toggled
 	//
@@ -1975,6 +1999,9 @@ void () Weapon_Logic =
 #endif // FTE
 		} else if (self.reload_delay < time && self.reload_delay2 < time &&
 		self.knife_delay < time && self.grenade_delay < time) {
+			if (self.stance == 0 && self.velocity)
+				return;
+
 			W_AimIn();
 
 #ifdef FTE
@@ -2066,6 +2093,9 @@ void () Weapon_Logic =
 				self.ads_toggle = !self.ads_toggle;
 				self.ads_release = false;
 			} else {
+				if (self.stance == 0 && self.velocity)
+					return;
+
 				W_AimIn();
 
 #ifdef FTE

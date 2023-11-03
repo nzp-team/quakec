@@ -266,7 +266,7 @@ void() PlayerPreThink =
 		
 		switch(self.stance) {
 			case 1:
-				self.maxspeed *= 0.5;
+				self.maxspeed *= 0.65;
 				break;
 			case 0:
 				self.maxspeed *= 0.25;
