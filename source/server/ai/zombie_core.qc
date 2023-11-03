@@ -726,7 +726,7 @@ void() zombie_hop10_5=[	$hop10,	SUB_Null		] {self.frame = self.head.frame = 122;
 															if(self.crawling == 2) 
 															{
 																makeCrawler(self); 
-																return;
+																//return;
 															}
 															self.movetype = MOVETYPE_WALK;
 															self.th_walk();
