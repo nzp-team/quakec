@@ -377,38 +377,133 @@ void() PU_DoublePoints =
 };
 
 //
+// PU_CarpenterFinalize
+// Remove the Carpenter Watcher and
+// rewards Players with Score.
+//
+void() PU_CarpenterFinalize =
+{
+	entity players = find(world, classname, "player");
+
+	// Reward Players with Points
+	while(players) {
+		addmoney(players, 200, 1);
+
+		players = find(players, classname, "player");
+	}
+
+	entity windows = find(world, classname, "window");
+
+	// Reset all windows
+	while(windows) {
+		windows.isspec = 0;
+		windows.box1owner = world;
+		windows.usedent = world;
+		windows.owner = world;
+		windows.ads_release = 0;
+
+		windows = find(windows, classname, "window");
+	}
+
+	carp_powerup_active = false;
+
+	// Free ourselves
+	PU_FreeEnt(self);
+};
+
+//
+// PU_CarpenterFindWindow
+// Finds a Barricade elligible for Repair
+//
+entity() PU_CarpenterFindWindow =
+{
+	entity windows = find(world, classname, "window");
+
+	while(windows != world) {
+		// Window needs repaired and is repairable
+		if (windows.health < 6 && windows.health != -10 && !windows.isspec
+		&& !windows.ads_release)
+			return windows;
+
+		windows = find(windows, classname, "window");
+	}
+
+	// No Windows are elligible, return world.
+	return world;
+};
+
+//
+// PU_CarpenterRepair()
+// Attempts to Repair a Barricade
+//
+void() PU_CarpenterRepair =
+{
+	// Find a new Barricade to Repair
+	if (self.goaldummy == world || self.goaldummy.isspec == 0) {
+
+		if (self.goaldummy != world)
+			self.goaldummy.owner = world;
+
+		self.goaldummy = PU_CarpenterFindWindow();
+		self.kills = false;
+
+		// Didn't find one, so end the Carpenter sequence.
+		if (self.goaldummy == world) {
+			self.think = PU_CarpenterFinalize;
+			self.nextthink = time + 0.1;
+			return;
+		}
+
+		// Mark the window as being Repaired
+		self.goaldummy.isspec = 1;
+		self.goaldummy.ads_release = 1;
+		self.goaldummy.owner = self;
+	}
+	// Repair our current Barricade
+	else if (!self.kills) {
+		// Trigger the animation
+		entity tempe = self;
+		self = self.goaldummy;
+		switch(self.health) {
+			case 5: window_carpenter_11(); break;
+			case 4: window_carpenter_9(); break;
+			case 3: window_carpenter_7(); break;
+			case 2: window_carpenter_5(); break;
+			case 1: window_carpenter_3(); break;
+			default: window_carpenter_1(); break;
+		}
+		self.health = 6;
+		self = tempe;
+
+		// We're actively building
+		self.kills = true;
+		self.ltime = time + 2.1;
+	} else {
+		if (self.ltime < time) {
+			self.goaldummy.frame = 88;
+			self.goaldummy.isspec = 0;
+			self.goaldummy.health = 6;
+		}
+	}
+
+	self.nextthink = time + 0.05;
+};
+
+//
 // PU_Carpenter()
 // Carpenter Power-Up Function
 //
 void() PU_Carpenter =
 {
-	entity tempe;
-	entity tempe2;
-	tempe2 = self;
+	// create our watcher entity
+	entity carp_watcher;
+	carp_watcher = PU_GetFreeEnt();
+	carp_watcher.classname = "pu_carpwatcher";
 
-	tempe = find(world, classname, "window");
+	carp_watcher.think = PU_CarpenterRepair;
+	carp_watcher.nextthink = time + 0.05;
 
-	// Repair Barricades
-	while(tempe != world) {
-		// Target non-full and board-able Barricades
-		if (tempe.health < 6 && tempe.health != -10) {
-			self = tempe;
-			window_carpenter_1();
-			self.health = 6;
-			self = tempe2;
-		}
-
-		tempe = find(tempe, classname, "window");
-	}
-
-	tempe = find(world, classname, "player");
-
-	// Reward Players with Points
-	while(tempe) {
-		addmoney(tempe, 200, 1);
-
-		tempe = find(tempe, classname, "player");
-	}
+	carp_powerup_active = true;
 };
 
 //

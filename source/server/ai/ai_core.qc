@@ -403,7 +403,7 @@ void(float dist) Window_Walk =
 				ChangeYaw();
 				return;
 			}
-			if(self.goalentity.health > 0)
+			if(self.goalentity.health > 0 && !self.goalentity.owner)
 			{
 				self.reload_delay = time + 30;
 				self.th_melee();				
@@ -412,9 +412,12 @@ void(float dist) Window_Walk =
 				else
 					self.chase_time = time + 0.75;
 				return;
+			} else if (self.goalentity.owner) {
+				self.chase_time = time + 0.15;
+				return;
 			}
 		}
-		if(self.goalentity.health <= 0)
+		if(self.goalentity.health <= 0 && !self.goalentity.owner)
 		{
 			self.outside = 2;
 			self.chase_time = 0;
@@ -486,8 +489,10 @@ void(float dist) Window_Hop =
 			self.chase_time = time + 0.2;
 			if(self.tries > 10) {
 				// wait enough time before freeing window, to give time for zomb to move.
-				self.goalentity.think = free_window;
-				self.goalentity.nextthink = time + 0.5;
+				if (!self.goalentity.owner) {
+					self.goalentity.think = free_window;
+					self.goalentity.nextthink = time + 0.5;
+				}
 				//self.goalentity.usedent = world;//free up the window if we've been waiting to hop
 			}
 		}
@@ -497,8 +502,10 @@ void(float dist) Window_Hop =
 		self.outside = FALSE;
 		//self.goalentity.usedent = world;//free up the window, we're done hopping it
 		//self.used = 0;
-		self.goalentity.think = free_window;
-		self.goalentity.nextthink = time + 0.5;
+		if (!self.goalentity.owner) {
+			self.goalentity.think = free_window;
+			self.goalentity.nextthink = time + 0.5;
+		}
 		self.goalentity = world;
 		self.enemy = find_new_enemy(self);
 		//self.th_die();

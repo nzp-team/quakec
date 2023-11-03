@@ -235,12 +235,12 @@ void()	window_carpenter_8	=[	8,		window_carpenter_9 	]	{self.frame = 72;};
 void()	window_carpenter_9	=[	7,		window_carpenter_10 ]		{self.frame = 79;sound(self, 1, self.oldmodel, 1, ATTN_NORM);};
 void()	window_carpenter_10	=[	8,		window_carpenter_11	]	{self.frame = 80;};
 void()	window_carpenter_11	=[	7,		window_carpenter_12 ]		{self.frame = 87;sound(self, 2, self.oldmodel, 1, ATTN_NORM);};
-void()	window_carpenter_12	=[	8,		SUB_Null		 	]	{self.frame = 88;};
+void()	window_carpenter_12	=[	8,		SUB_Null		 	]	{self.frame = 88;self.isspec = 0;};
 
 
 void() Window_Damage =
 {
-	if(self.health == 0)
+	if(self.health == 0 || self.owner)
 		return;
 
 	sound(self, CHAN_VOICE, self.aistatus, 1, ATTN_NORM);
@@ -315,6 +315,9 @@ void() Rebuild_Anims =
 };
 void() window_touch =
 {
+	if (self.owner)
+		return;
+	
 	if(other.classname == "player" && !other.downed && self.health != -10)
 	{
 		if(self.health < 6)

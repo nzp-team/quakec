@@ -448,6 +448,7 @@ float total_windows_down;
 float total_powerup_points;
 float powerup_score_threshold;
 float powerup_activate;
+float carp_powerup_active;
 float nuke_powerup_active;
 float nuke_powerups_activated;
 float nuke_powerup_spawndelay;

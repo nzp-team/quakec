@@ -27,6 +27,8 @@
 
 */
 
+void(vector where, float type) Spawn_Powerup;
+
 // Whether the command prohibits client-sending.
 float client_parse_override;
 
@@ -132,6 +134,28 @@ float(string params) Command_noclip =
 } 
 
 //
+// Command_powerup()
+// Spawns a Power-Up of a given ID in front of you.
+//
+float(string params) Command_powerup =
+{
+	// Anti-Cheat in Co-Op.
+	if (coop && cheats_have_been_activated == false) {
+		bprint(PRINT_HIGH, "Someone tried to issue spawn_pu in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
+	// Grab parameters.
+    tokenize(params);
+	float value = stof(argv(0));
+
+	makevectors(self.angles);
+	Spawn_Powerup(self.origin + v_forward * 50, value);
+
+	return COMMAND_SUCCESS;
+};
+
+//
 // Command_tracedmgmultiplier()
 // Multiplies damage output with weapons that fire Traces.
 //
@@ -176,7 +200,8 @@ var struct {
 	{"qc_soft_restart", Command_softrestart, false, "Executes the Soft_Restart QuakeC function. Useful for debugging its functionality.\n"},
 	{"god", Command_godmode, false, "Toggles God Mode.\n"},
 	{"noclip", Command_noclip, false, "Toggles No Clip.\n"},
-	{"sv_tracedmgmultiplier", Command_tracedmgmultiplier, true, "Multiplies damage output with weapons that fire Traces.\n"}
+	{"sv_tracedmgmultiplier", Command_tracedmgmultiplier, true, "Multiplies damage output with weapons that fire Traces.\n"},
+	{"spawn_pu", Command_powerup, true, "Spawns a Power-Up of a given ID in front of you. -1 for random.\n"}
 };
 
 //
