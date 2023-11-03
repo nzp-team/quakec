@@ -561,7 +561,7 @@ void(float width, float height) HUD_Rounds =
 	
 		if (endroundchange > time)
 		{
-			blinking = ((int)(time*1000)&510) - 255;
+			blinking = ((int)(time*475)&510) - 255;
 			blinking = fabs(blinking);
 		}
 		else
@@ -628,8 +628,10 @@ void(float width, float height) HUD_Rounds =
 			x_offset = x_offset +  roundwidth_num - (8*width/480);
 		}
 		
-		if (endroundchange == 0)
-			endroundchange = time + 2;
+		if (endroundchange == 0) {
+			endroundchange = time + 7.5;
+			blinking = 0;
+		}
 	}
 	else if (rounds_change == 5)//blink white
 	{
@@ -696,9 +698,8 @@ void(float width, float height) HUD_Rounds =
 		endroundchange = 0;
 		
 		color_shift_init = 0;
-		blinking = ((int)(time*1000)&510) - 255;
-		
-		blinking = fabs(blinking);
+		blinking += frametime*500;
+		if (blinking > 255) blinking = 255;
 			
 		if (rounds > 0 && rounds < 11)
 		{

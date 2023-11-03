@@ -146,7 +146,7 @@ void() EndRound =
 	} else {
 		playSoundAtPlayers("sounds/rounds/eround.wav");
 	}
-	round_changetime = time + 5;
+	round_changetime = time + 10;
 
 	// No Perks? No Problem & Abstinence Program
 	if (rounds >= 10) {
@@ -320,7 +320,7 @@ void() Round_Core =
 	}
 
 	if (Remaining_Zombies < 1 && !Delay_Time) {
-		Delay_Time = time + 2;
+		Delay_Time = time + 1;
 		rounds_change = 3;
 	} else if (Delay_Time && Delay_Time < time) {
 		Delay_Time = 0;
