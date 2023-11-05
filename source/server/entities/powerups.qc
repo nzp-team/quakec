@@ -523,32 +523,41 @@ float() PU_CarpenterRequirement =
 //
 void() PU_MaxAmmo =
 {
+	entity players;
 	entity tempe;
 	
-	tempe = find(world, classname, "player");
+	players = find(world, classname, "player");
 
-	while(tempe) {
+	while(players) {
 
-		if (!tempe.downed) {
+		if (!players.downed) {
 			// Fill all weapons
 			for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
-				tempe.weapons[i].weapon_reserve = getWeaponAmmo(tempe.weapons[i].weapon_id);
+				players.weapons[i].weapon_reserve = getWeaponAmmo(players.weapons[i].weapon_id);
 			}
 			// Give Grenades
-			tempe.primary_grenades = 4;
+			players.primary_grenades = 4;
 			// Give Betties
-			if (tempe.grenades & 2) tempe.secondary_grenades = 2;
+			if (players.grenades & 2) players.secondary_grenades = 2;
 		} else {
 			// Reset shots fired, fill 2 mags into reserve.
-			tempe.teslacount = 0;
-			tempe.currentammo = getWeaponMag(tempe.weapon) * 2;
+			players.teslacount = 0;
+			players.weapons[0].weapon_reserve = getWeaponMag(players.weapon) * 2;
 		}	
+
+		// Force the player to reload if their mag is empty
+		if (players.weapons[0].weapon_magazine == 0 || players.weapons[0].weapon_magazine_left == 0) {
+			tempe = self;
+			self = players;
+			W_Reload(S_BOTH);
+			self = tempe;
+		}
 
 		// MAX AMMO! text
 
 #ifdef FTE
 
-		ScrollText("MAX AMMO!", tempe);
+		ScrollText("MAX AMMO!", players);
 
 #else
 
@@ -556,7 +565,7 @@ void() PU_MaxAmmo =
 
 #endif // FTE
 
-		tempe = find(tempe, classname, "player");
+		players = find(players, classname, "player");
 	}
 };
 

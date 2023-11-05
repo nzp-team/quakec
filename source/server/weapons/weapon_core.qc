@@ -94,7 +94,7 @@ void() ReturnWeaponModel =
 	UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
 	// Always try to reload after any action.
-	if (self.weapons[0].weapon_magazine == 0 && self.weapons[0].weapon_reserve != 0)
+	if ((self.weapons[0].weapon_magazine == 0 || self.weapons[0].weapon_magazine_left == 0) && self.weapons[0].weapon_reserve != 0)
 		W_Reload(S_BOTH);
 
     // If the person is swapping, play the sprint anim if they're sprinting after swap. Otherwise it plays idle

@@ -181,7 +181,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
             break;
     }
 
-	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + duration + 0.2;
+	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + duration;
 
     UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 	self.weapon2model = GetWeapon2Model(self.weapon);
