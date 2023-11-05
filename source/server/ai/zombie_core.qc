@@ -434,8 +434,8 @@ void() Zombie_Think = //called every frame for zombies
 
 	if (self.bleedingtime < time && !self.head.deadflag)
 	{
-		self.bleedingtime = time + 2;
-		DamageHandler (self, self.usedent, z_health * 0.05, S_HEADSHOT);
+		self.bleedingtime = time + 1;
+		DamageHandler (self, self.usedent, z_health * 0.2, S_HEADSHOT);
 	}
 }
 
@@ -1314,6 +1314,30 @@ void() Zombie_Tesla_Death = {
 	}
 };
 
+//
+// Zombie_HeadCanGib(weapon)
+// Checks if a Zombie is in a state where
+// it's head can gib.
+//
+float(entity who, float weapon) Zombie_HeadCanGib =
+{
+	// First, is this weapon even capable?
+	if (!WepDef_WeaponCanGibEnemy(weapon))
+		return false;
+
+	// Has it's head already been ripped off?
+	if (!who.head.deadflag)
+		return false;
+
+	// If they have more than 10%(?) of health,
+	// don't gib.
+	float health_ratio = who.head.health / z_health;
+	if (health_ratio > 0.10)
+		return false;
+
+	// Seems to pass, let it gib!
+	return true;
+};
 
 /////////////////////ZOMBIE SPAWNING/////////////////////
 void() zombieRise =

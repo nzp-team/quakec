@@ -27,6 +27,7 @@
 */
 
 void() W_PutOut;
+float(entity who, float weapon) Zombie_HeadCanGib;
 void(float side) W_Reload;
 void() GrenadeExplode;
 void() W_SprintStart;
@@ -598,7 +599,6 @@ void(vector where) spawn_gibs = {
 
 }
 
-
 void Parse_Damage () = // DO NOT TOUCH
 {
 	entity ent;
@@ -628,60 +628,45 @@ void Parse_Damage () = // DO NOT TOUCH
 
 			total_dmg = body_ent.hitamount;
 
-			if (body_ent.head.washit) {
+			if (body_ent.head.washit) {					
 				total_dmg += body_ent.head.hitamount;
 				body_ent.head.health -= body_ent.head.hitamount;
 				head_hit = 1;
 
-				// Head = Gone!
-				if (body_ent.head.health <= 0) {
-					// Head has already been blown off, bro
-					if (!body_ent.head.deadflag)
-						return;
+				// Check if we should Gib the head, before this would
+				// be a really weird check to "ressurect" a zombie if
+				// it was out of health. I *think* this is more accurate
+				// now. -- cypress (5 nov 2023)
+				if (Zombie_HeadCanGib(body_ent, self.weapon)) {
+					makevectors(body_ent.head.owner.angles);
+ 					vector where = body_ent.head.owner.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
+ 					spawn_gibs(where);
 
-					vector where;
-
-					// If our weapon is capable, blow the head off
-					if (getWeaponDamage(self.weapon) >= 100) {
-						makevectors(body_ent.head.owner.angles);
-						where = body_ent.head.owner.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
-						spawn_gibs(where);
-
-						// Should the Zombie try and walk on?
-						if (random() <= 0.05) {
-							body_ent.bleedingtime = time + 2;
-						} else {
-							// Nah, he dead.
-							total_dmg *= 5000;
-						}
+					body_ent.head.deadflag = false;
+					body_ent.head.solid = SOLID_NOT;
+					setmodel(body_ent.head, "");
+					body_ent.head.frame = 0;
 					
-						body_ent.head.deadflag = false;
-						body_ent.head.solid = SOLID_NOT;
-						setmodel(body_ent.head,"");
-						body_ent.head.frame = 0;
-					
-						body_ent.usedent = self;
-						body_ent.bleedingtime = time + 2;
+					body_ent.usedent = self;
+					body_ent.bleedingtime = time + 1;
 
 #ifndef FTE
 
-						updateLimb (body_ent.head.owner, 0, world);
+					updateLimb (body_ent.head.owner, 0, world);
 
 #endif // FTE
 
-					}
 				}
 				
 				body_ent.head.washit = 0;
 				body_ent.head.hitamount = 0;
 			}
 			if (body_ent.larm.washit) {
-				total_dmg = total_dmg + body_ent.larm.hitamount;
+				total_dmg += body_ent.larm.hitamount;
+				body_ent.larm.health -= body_ent.larm.hitamount;
 
-				body_ent.larm.health = body_ent.larm.health - body_ent.larm.hitamount;
-				if (body_ent.larm.health <= 0 && self.weapon != W_COLT && body_ent.larm.owner.rarm.deadflag && body_ent.larm.deadflag)
+				if (WepDef_WeaponCanGibEnemy(self.weapon) && body_ent.larm.owner.rarm.deadflag && body_ent.larm.deadflag)
 				{
-					
 					makevectors(body_ent.larm.owner.angles);
 					where = body_ent.larm.owner.origin + (body_ent.larm.view_ofs_x * v_right) + (body_ent.larm.view_ofs_y * v_forward) + (body_ent.larm.view_ofs_z * v_up);
 					spawn_gibs(where);
@@ -703,10 +688,10 @@ void Parse_Damage () = // DO NOT TOUCH
 				body_ent.larm.hitamount = 0;
 			}
 			if (body_ent.rarm.washit) {
-				total_dmg = total_dmg + body_ent.rarm.hitamount;
+				total_dmg += body_ent.rarm.hitamount;
+				body_ent.rarm.health -= body_ent.rarm.hitamount;
 
-				body_ent.rarm.health = body_ent.rarm.health - body_ent.rarm.hitamount;
-				if (body_ent.rarm.health <= 0 && self.weapon != W_COLT && body_ent.rarm.owner.larm.deadflag && body_ent.rarm.deadflag) {
+				if (WepDef_WeaponCanGibEnemy(self.weapon) && body_ent.rarm.owner.larm.deadflag && body_ent.rarm.deadflag) {
 					
 					makevectors(body_ent.rarm.owner.angles);
 					where = body_ent.rarm.owner.origin + (body_ent.rarm.view_ofs_x * v_right) + (body_ent.rarm.view_ofs_y * v_forward) + (body_ent.rarm.view_ofs_z * v_up);
@@ -788,7 +773,6 @@ void() LungeKnifeHit =
 		if (trace_ent.classname == "ai_zombie_head")
 		{
 			hit_ent = trace_ent.owner;
-			f_damage = f_damage*1.5;
 		}
 		else if (trace_ent.classname == "ai_zombie_larm")
 		{

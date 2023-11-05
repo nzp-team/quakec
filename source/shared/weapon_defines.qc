@@ -4623,6 +4623,23 @@ float(string weapon) WepDef_GetWeaponIDFromName =
 }
 
 //
+// WepDef_WeaponCanGibEnemy(weapon)
+// Returns true if the weapon is capable of
+// gibbing/blowing limbs off.
+//
+float WepDef_WeaponCanGibEnemy(float weapon)
+{
+	switch(weapon) {
+		case W_COLT: return 0;
+		case W_357: return 0;
+		case W_KILLU: return 0;
+		default: return 1;
+	}
+
+	return 1;
+}
+
+//
 // WepDef_GetWeaponCrosshairType(weapon)
 // Returns the type of crosshair used by active
 // weapon.
@@ -4647,6 +4664,7 @@ float WepDef_GetWeaponCrosshairType(float weapon)
 			return 1;
 	}
 }
+
 //
 // WepDef_GetLeftFlashOffset(weapon)
 // Returns the offset from client view origin
