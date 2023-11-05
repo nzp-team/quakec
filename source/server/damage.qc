@@ -577,7 +577,7 @@ float(float min, float max, vector org1, vector org2, float radius) calculate_pr
 
 void(entity inflictor, entity attacker, float damage2, float mindamage, float radius) DamgageExplode =
 {
-	float 	final_damage;
+	float 	final_damage = 0;
 	entity	ent;
 
 	float 	multi, r;
@@ -617,7 +617,6 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					final_damage /= radius;
 					final_damage *= 60;
 				}
-				DamageHandler (ent, ent, final_damage, S_EXPLOSIVE);
 			}
 			// shake the camera on impact
 			vector distance;
@@ -724,11 +723,11 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			if (final_damage / ent.health > 0.10 && ent.crawling != true && ent.classname != "ai_dog") {
 				ent.crawling = 2;
 			}	
-			
-			if (final_damage > 0) {
-				if (CanDamage (ent, inflictor))
-					DamageHandler (ent, attacker, final_damage, S_EXPLOSIVE);
-			}
+		}
+
+		if (final_damage > 0) {
+			if (CanDamage (ent, inflictor))
+				DamageHandler (ent, attacker, final_damage, S_EXPLOSIVE);
 		}
 		ent = ent.chain;
 	}

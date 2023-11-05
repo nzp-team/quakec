@@ -56,6 +56,9 @@ void() Betty_Touch =
     // Additional sanity check -- don't activate because of us.
   	if (other == self.owner || other.solid == SOLID_TRIGGER)
     	return;
+	// Don't activate if our center point can't even reach the enemy
+	if (!CanDamage(other, self))
+		return;
 
     // Next step is to rise!
 	self.think = Betty_Rise;
