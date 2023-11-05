@@ -157,18 +157,19 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	screen_height_219[1] = 1440;
 
 	// cvars for custom settings
-	cvar_set("cl_adsmode", "0");
-	cvar_set("cl_cinematic", "0");
-	cvar_set("nzp_particles", "1");
-	cvar_set("nzp_decals", "1");
+	autocvar(cl_adsmode, 0);
+	autocvar(cl_cinematic, 0);
+	autocvar(nzp_particles, 1);
+	autocvar(nzp_decals, 1);
+	autocvar(vid_ultrawide_limiter, 0);
 
 	// per-channel volume
-	cvar_set("snd_channel1volume", "1");
-	cvar_set("snd_channel2volume", "1");
-	cvar_set("snd_channel3volume", "1");
-	cvar_set("snd_channel4volume", "1");
-	cvar_set("snd_channel5volume", "1");
-	cvar_set("snd_channel6volume", "1");
+	autocvar(snd_channel1volume, 1);
+	autocvar(snd_channel2volume, 1);
+	autocvar(snd_channel3volume, 1);
+	autocvar(snd_channel4volume, 1);
+	autocvar(snd_channel5volume, 1);
+	autocvar(snd_channel6volume, 1);
 
 	// force nearest filtering for hud elements to avoid blur
 	cvar_set("gl_texturemode2d", "gl_nearest");
@@ -178,7 +179,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	cvar_set("cl_showbuildtime", "1");
 
 	// in-game stopwatch
-	registercvar("scr_serverstopwatch", "0");
+	autocvar(scr_serverstopwatch, 0);
 	stopwatch_sec = stopwatch_min = stopwatch_hr = 0;
 
 	// retrieve custom maps

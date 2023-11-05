@@ -82,6 +82,9 @@ void() menu_quit =
 
 void() menu_back =
 {
+	if (in_menu == MENU_CSETTINGS)
+		localcmd("saveconfig\n");
+	
 	if (in_menu == MENU_GSETTINGS || in_menu == MENU_CSETTINGS ||
 	in_menu == MENU_AUDSETTINGS || in_menu == MENU_CONSETTINGS) {
 		if (wasigs == TRUE)
@@ -225,7 +228,7 @@ void() settings_fps = {
 	else
 		fps = 0;
 
-	cvar_set("show_fps", ftos(fps));
+	localcmd(strcat("seta show_fps ", ftos(fps)));
 }
 
 void() settings_rescale = {
@@ -236,7 +239,7 @@ void() settings_rescale = {
 	if (renderscale > 1)
 		renderscale = 1;
 
-	cvar_set("r_renderscale", ftos(renderscale));
+	localcmd(strcat("seta r_renderscale ", ftos(renderscale)));
 }
 
 void() settings_rescale2 = {
@@ -247,7 +250,7 @@ void() settings_rescale2 = {
 	if (renderscale < 0.10)
 		renderscale = 0.10;
 
-	cvar_set("r_renderscale", ftos(renderscale));
+	localcmd(strcat("seta r_renderscale ", ftos(renderscale)));
 }
 
 void() settings_brite = {
@@ -259,7 +262,7 @@ void() settings_brite = {
 		br = 2;
 	}
 
-	cvar_set("gamma", ftos(br));
+	localcmd(strcat("seta gamma ", ftos(br)));
 }
 
 void() settings_brite2 = {
@@ -271,7 +274,7 @@ void() settings_brite2 = {
 		br = 0.5;
 	}
 
-	cvar_set("gamma", ftos(br));
+	localcmd(strcat("seta gamma ", ftos(br)));
 }
 
 void() settings_fov = {
@@ -281,7 +284,7 @@ void() settings_fov = {
 	if (fov < 120)
 		fov += 5;
 
-	cvar_set("fov", ftos(fov));
+	localcmd(strcat("seta fov ", ftos(fov)));
 }
 
 void() settings_fov2 = {
@@ -291,7 +294,7 @@ void() settings_fov2 = {
 	if (fov > 50)
 		fov -= 5;
 
-	cvar_set("fov", ftos(fov));
+	localcmd(strcat("seta fov ", ftos(fov)));
 }
 
 void() settings_mfps = {
@@ -304,7 +307,7 @@ void() settings_mfps = {
 	if (fps < 500)
 		fps += 5;
 
-	cvar_set("cl_maxfps", ftos(fps));
+	localcmd(strcat("seta cl_maxfps ", ftos(fps)));
 }
 
 void() settings_mfps2 = {
@@ -317,7 +320,7 @@ void() settings_mfps2 = {
 	if (fps > 20)
 		fps -= 5;
 
-	cvar_set("cl_maxfps", ftos(fps));
+	localcmd(strcat("seta cl_maxfps ", ftos(fps)));
 }
 
 void() settings_vs = {
@@ -328,7 +331,7 @@ void() settings_vs = {
 	else
 		vs = 0;
 
-	cvar_set("vid_vsync", ftos(vs));
+	localcmd(strcat("seta vid_vsync ", ftos(vs)));
 }
 
 void() settings_fs = {
@@ -340,9 +343,9 @@ void() settings_fs = {
 
 void() settings_xb = {
 	if (cvar("vid_ultrawide_limiter")) {
-		cvar_set("vid_ultrawide_limiter", "0");
+		localcmd("seta vid_ultrawide_limiter 0");
 	} else {
-		cvar_set("vid_ultrawide_limiter", "1");
+		localcmd("seta vid_ultrawide_limiter 1");
 	}
 }
 
@@ -354,7 +357,7 @@ void() settings_pt = {
 	else
 		pt = 0;
 
-	cvar_set("nzp_particles", ftos(pt));
+	localcmd(strcat("seta nzp_particles ", ftos(pt)));
 }
 
 void() settings_fb = {
@@ -365,14 +368,14 @@ void() settings_fb = {
 	else
 		fb = 0;
 
-	cvar_set("r_fullbright", ftos(fb));
+	localcmd(strcat("seta r_fullbright ", ftos(fb)));
 }
 
 void() settings_ro = {
 	if (cvar_string("gl_texturemode") == "gl_nearest")
-		cvar_set("gl_texturemode", "gl_linear_mipmap_linear");
+		localcmd("seta gl_texturemode gl_linear_mipmap_linear");
 	else
-		cvar_set("gl_texturemode", "gl_nearest");
+		localcmd("seta gl_texturemode gl_nearest");
 }
 
 void() UpdateResolutions = {
@@ -546,7 +549,7 @@ void() settings_apply = {
 		localcmd(strcat("vid_fullscreen ", ftos(fullscreenval), "\n"));
 		localcmd("vid_restart\n");
 	}
-
+	localcmd("saveconfig\n");
 }
 
 void() bind_walkf = {
@@ -700,7 +703,7 @@ void() settings_sens = {
 	if (sens > 15)
 		sens = 15;
 
-	cvar_set("sensitivity", ftos(sens));
+	localcmd(strcat("seta sensitivity ", ftos(sens)));
 }
 
 void() settings_sens2 = {
@@ -711,17 +714,14 @@ void() settings_sens2 = {
 	if (sens < 0)
 		sens = 0;
 
-	cvar_set("sensitivity", ftos(sens));
+	localcmd(strcat("seta sensitivity ", ftos(sens)));
 }
 
 void() settings_adsmode =
 {
 	float adsmode = cvar("cl_adsmode");
 
-	if (adsmode == 0)
-		cvar_set("cl_adsmode", ftos(1));
-	else
-		cvar_set("cl_adsmode", ftos(0));
+	localcmd(strcat("seta cl_adsmode ", ftos(!adsmode)));
 }
 
 void() setting_mastervol =
@@ -733,7 +733,7 @@ void() setting_mastervol =
 	if (vol > 1)
 		vol = 1;
 
-	cvar_set("volume", ftos(vol));
+	localcmd(strcat("seta volume ", ftos(vol)));
 }
 
 void() setting_mastervol2 =
@@ -745,7 +745,7 @@ void() setting_mastervol2 =
 	if (vol < 0)
 		vol = 0;
 
-	cvar_set("volume", ftos(vol));
+	localcmd(strcat("seta volume ", ftos(vol)));
 }
 
 void() setting_chann1vol =
@@ -757,7 +757,7 @@ void() setting_chann1vol =
 	if (vol > 1)
 		vol = 1;
 
-	cvar_set("snd_channel1volume", ftos(vol));
+	localcmd(strcat("seta snd_channel1volume ", ftos(vol)));
 }
 
 void() setting_chann1vol2 =
@@ -769,7 +769,7 @@ void() setting_chann1vol2 =
 	if (vol < 0)
 		vol = 0;
 
-	cvar_set("snd_channel1volume", ftos(vol));
+	localcmd(strcat("seta snd_channel1volume ", ftos(vol)));
 }
 
 void() setting_chann2vol =
@@ -781,7 +781,7 @@ void() setting_chann2vol =
 	if (vol > 1)
 		vol = 1;
 
-	cvar_set("snd_channel2volume", ftos(vol));
+	localcmd(strcat("seta snd_channel2volume ", ftos(vol)));
 }
 
 void() setting_chann2vol2 =
@@ -793,7 +793,7 @@ void() setting_chann2vol2 =
 	if (vol < 0)
 		vol = 0;
 
-	cvar_set("snd_channel2volume", ftos(vol));
+	localcmd(strcat("seta snd_channel2volume ", ftos(vol)));
 }
 
 void() setting_chann3vol =
@@ -805,7 +805,7 @@ void() setting_chann3vol =
 	if (vol > 1)
 		vol = 1;
 
-	cvar_set("snd_channel3volume", ftos(vol));
+	localcmd(strcat("seta snd_channel3volume ", ftos(vol)));
 }
 
 void() setting_chann3vol2 =
@@ -817,7 +817,7 @@ void() setting_chann3vol2 =
 	if (vol < 0)
 		vol = 0;
 
-	cvar_set("snd_channel3volume", ftos(vol));
+	localcmd(strcat("seta snd_channel3volume ", ftos(vol)));
 }
 
 void() setting_chann4vol =
@@ -829,7 +829,7 @@ void() setting_chann4vol =
 	if (vol > 1)
 		vol = 1;
 
-	cvar_set("snd_channel4volume", ftos(vol));
+	localcmd(strcat("seta snd_channel4volume ", ftos(vol)));
 }
 
 void() setting_chann4vol2 =
@@ -841,7 +841,7 @@ void() setting_chann4vol2 =
 	if (vol < 0)
 		vol = 0;
 
-	cvar_set("snd_channel4volume", ftos(vol));
+	localcmd(strcat("seta snd_channel4volume ", ftos(vol)));
 }
 
 void() setting_chann5vol =
@@ -853,7 +853,7 @@ void() setting_chann5vol =
 	if (vol > 1)
 		vol = 1;
 
-	cvar_set("snd_channel5volume", ftos(vol));
+	localcmd(strcat("seta snd_channel5volume ", ftos(vol)));
 }
 
 void() setting_chann5vol2 =
@@ -865,7 +865,7 @@ void() setting_chann5vol2 =
 	if (vol < 0)
 		vol = 0;
 
-	cvar_set("snd_channel5volume", ftos(vol));
+	localcmd(strcat("seta snd_channel5volume ", ftos(vol)));
 }
 
 void() setting_chann6vol =
@@ -877,7 +877,7 @@ void() setting_chann6vol =
 	if (vol > 1)
 		vol = 1;
 
-	cvar_set("snd_channel6volume", ftos(vol));
+	localcmd(strcat("seta snd_channel6volume ", ftos(vol)));
 }
 
 void() setting_chann6vol2 =
@@ -889,7 +889,7 @@ void() setting_chann6vol2 =
 	if (vol < 0)
 		vol = 0;
 
-	cvar_set("snd_channel6volume", ftos(vol));
+	localcmd(strcat("seta snd_channel6volume ", ftos(vol)));
 }
 
 //rmb null
