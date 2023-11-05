@@ -195,6 +195,24 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	}
 };
 
+//
+// Init_Particles()
+// Spawns a dummy particle for each effect
+// so it loads. (FIXME - is there a better
+// way?)
+//
+void() Init_Particles =
+{
+	for(int i = 0; i < 3; i++) {
+		pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", itos(i))), '0 0 0', '0 0 0', 0);
+		pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", itos(i))), '0 0 0', '0 0 0', 0);
+	}					
+	pointparticles(particleeffectnum("weapons.impact"), '0 0 0', '0 0 0', 0);
+	pointparticles(particleeffectnum("weapons.impact_decal"), '0 0 0', '0 0 0', 0);
+	pointparticles(particleeffectnum("weapons.explode"), '0 0 0', '0 0 0', 0);
+	pointparticles(particleeffectnum("blood.blood_particle"), '0 0 0', '0 0 0', 0);
+}
+
 noref void() CSQC_WorldLoaded =
 {
 	//precache_model("models/weapons/mg/mzl.iqm");
@@ -224,6 +242,7 @@ noref void() CSQC_WorldLoaded =
 	playerpoints[3] = -1;
 
 	Achievement_Init();
+	Init_Particles();
 
 	huddir = "gfx/hud/";
 };
