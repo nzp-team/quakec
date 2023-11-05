@@ -2252,11 +2252,4 @@ void () Weapon_Logic =
 	self.currentammo = self.weapons[0].weapon_reserve;
 	self.currentmag = self.weapons[0].weapon_magazine;
 	self.currentmag2 = self.weapons[0].weapon_magazine_left;
-	self.weaponskin = self.weapons[0].weapon_skin;
-
-#ifndef FTE
-
-	self.weapon2skin = self.weapons[0].weapon_skin;
-
-#endif // FTE
 }
