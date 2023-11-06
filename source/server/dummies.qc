@@ -44,6 +44,10 @@ void() info_player_tank         = {};
 void() info_player_nikolai		= {};
 void() info_player_doctor		= {};
 void() info_player_takeo		= {};
+void() info_player_1_spawn 		= {};
+void() info_player_2_spawn 		= {};
+void() info_player_3_spawn 		= {};
+void() info_player_4_spawn 		= {};
 
 void() zapper1 = {remove(self);};
 void() zapper2 = {remove(self);};
