@@ -37,6 +37,13 @@ float walk;
 float in_menu; //what menu are we in
 float time_in_menu;
 
+// Loading screen definitions
+float in_loadscreen;
+float loadscreen_timetrigger;
+string loadscreen_mapname;
+string loadscreen_maptitle;
+string loadscreen_tip;
+
 entity player;
 entity vmodel;
 entity v2model;

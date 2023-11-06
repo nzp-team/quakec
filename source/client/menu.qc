@@ -103,27 +103,33 @@ void() menu_back =
 
 void() menu_loadndu =
 {
-	localcmd("map ndu\n");
+	loadscreen_timetrigger = cltime + 0.1;
+	loadscreen_mapname = "ndu";
+	loadscreen_maptitle = "Nacht der Untoten";
 };
 
 void() menu_loadwh =
 {
-	localcmd("map warehouse\n");
+	loadscreen_timetrigger = cltime + 0.1;
+	loadscreen_mapname = "warehouse";
+	loadscreen_maptitle = "Warehouse";
 };
 
 void() menu_loadch =
 {
-	localcmd("map christmas_special\n");
+	loadscreen_timetrigger = cltime + 0.1;
+	loadscreen_mapname = "christmas_special";
+	loadscreen_maptitle = "Christmas Special";
 };
 
 void() menu_loadwn =
 {
-	localcmd("map wahnsinn\n");
+	//localcmd("map wahnsinn\n");
 };
 
 void() menu_loadkn =
 {
-	localcmd("map kino\n");
+	//localcmd("map kino\n");
 };
 
 void() menu_join =
@@ -938,7 +944,7 @@ var struct
 	{[6, 95], "Kino der Toten", -1, menu_loadndu, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 7
 	{[6, 115], "Warehouse", -1, menu_loadwh, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 8
 	{[6, 135], "Wahnsinn", -1, menu_loadwh, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 9
-	{[6, 155], "Christmas Special", -1, menu_loadwh, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 10
+	{[6, 155], "Christmas Special", -1, menu_loadch, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 10
 	// ...
 	{[6, 185], "Custom Maps", -1, menu_customs, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 11
 
@@ -994,7 +1000,7 @@ var struct
 
 	// Custom Maps
 	{[6, -2], "Next Page", -1, menu_custom_next, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0, OPTION_WEB_AND_EXE}, // 51
-	{[6, -1], "Previous Page", -1, menu_custom_back, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0, OPTION_WEB_AND_EXE}, // 52
+	{[6, -1], "Previous Page", -1, menu_custom_back, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 1, OPTION_WEB_AND_EXE}, // 52
 
 	// Everything, pretty much
 	{[6, 0], "Back", -1, menu_back, null, MENU_SINGLE + MENU_MULTI + MENU_SETTINGS + MENU_ABOUT + 
@@ -1106,7 +1112,7 @@ void() Controller_UpdateButton =
 	drawstring([0.025*g_width, 0.375*g_height, 0], ftos(GPActive[2]), [g_height * 0.020, g_height * 0.020, 1], [0.8,0.8,0.8], 1, 0);
 }
 
-
+float button_timer;
 void(float index, float type) Button_Click = 
 {
 	// don't click if not active
@@ -1129,6 +1135,9 @@ void(float index, float type) Button_Click =
 		pos_y = g_height - 95;
 	
 	if (cursor_pos_x > pos_x && cursor_pos_x < pos_x + 300 && cursor_pos_y > pos_y && cursor_pos_y < pos_y + 14) {
+		if (button_timer > cltime)
+			return;
+
 		if (type == 0) { //left click
 			buttons[index].action();
 		} else { //right click
@@ -1137,6 +1146,7 @@ void(float index, float type) Button_Click =
 		
 		lastActive = -1;
 		localsound_enhanced("sounds/menu/enter.wav", CHAN_SFX, 1);
+		button_timer = cltime + 0.25;
 	}
 
 	if (in_menu == MENU_CUSTOMS)
@@ -1661,13 +1671,16 @@ void() Draw_Extra_Customs =
 
 	for (float i = 0; i < 10; i++) {
 		if (cursor_pos_x > 6 && cursor_pos_x < 320 && 
-			cursor_pos_y > 75 + (20 * i) && cursor_pos_y < 75 + (20 * i) + 14) {
+			cursor_pos_y > 75 + (20 * i) && cursor_pos_y < 75 + (20 * i) + 14 && button_timer <= cltime) {
 
 			if (i != last_active_custom_select)
 				localsound_enhanced("sounds/menu/navigate.wav", CHAN_SFX, 1);
 
-			if (customs_interact)
-				localcmd(strcat("map "), custom_map_names[i]);
+			if (customs_interact) {
+				loadscreen_timetrigger = cltime + 0.1;
+				loadscreen_mapname = custom_map_names[i];
+				loadscreen_maptitle = custom_maps[i + multiplier].map_name_pretty;
+			}
 			
 			if (last_active_custom_select != -1)
 				custom_map_active[last_active_custom_select] = FALSE;
@@ -1889,8 +1902,36 @@ void() Draw_Extra_ASettings =
 float menu_sound_length;
 float menu_sound_time;
 
+string() LoadScreen_GiveTip;
 void() Draw_Menu =
 {
+	// CSQC likes to take us back and forth between UpdateView and UpdateViewLoading,
+	// meaning normally you'd see the menu pop in and out of scene. We add a delay
+	// before the loading sequence and make sure to draw the first load screen "frame",
+	// so when this back and forth shenanigan happens, the client will not notice
+	// this stupid hack.
+	if (loadscreen_timetrigger) {
+		if (!loadscreen_tip)
+			loadscreen_tip = LoadScreen_GiveTip();
+
+		drawpic([0, 0], strcat("gfx/lscreen/", loadscreen_mapname), [g_width, g_height], [1, 1, 1], 1);
+
+		drawfill ([0, 0], [g_width, 32, 1], [0, 0, 0], 0.68, 0);
+		drawfill ([0, g_height - 32], [g_width, 32, 1], [0, 0, 0], 0.68, 0);
+
+		drawstring([g_width/2 - (stringwidth(loadscreen_tip, 0, [12, 12])/2), g_height - 16, 0], loadscreen_tip, [12, 12], [1, 1, 1], 1, 0);
+		drawstring([6, 6], loadscreen_maptitle, [24, 24], TEXT_ORANGE, 1, 0);
+
+		drawfill ([g_width/2 - 160, g_height - 42], [320, 18, 1], [0.27, 0.27, 0.27], 1, 0);
+		drawfill ([g_width/2 - 164, g_height - 46], [328, 26, 1], [0, 0, 0], 0.77, 0);
+		drawstring([g_width/2 - (stringwidth("Loading...", 0, [14, 14])/2), g_height - 40, 0], "Loading...", [14, 14], [1, 1, 1], 1, 0);
+
+		if (loadscreen_timetrigger < cltime) {
+			in_loadscreen = true;
+		}
+		return;
+	}
+
 	// main menu theme iterating
 	if (menu_initialized == false && in_menu == MENU_MAIN) {
 		localsound_enhanced("tracks/tensioned_by_the_damned.ogg", CHAN_MUSIC, 1);
