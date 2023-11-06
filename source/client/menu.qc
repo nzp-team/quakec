@@ -84,7 +84,7 @@ void() menu_back =
 {
 	if (in_menu == MENU_CSETTINGS)
 		localcmd("saveconfig\n");
-	
+
 	if (in_menu == MENU_GSETTINGS || in_menu == MENU_CSETTINGS ||
 	in_menu == MENU_AUDSETTINGS || in_menu == MENU_CONSETTINGS) {
 		if (wasigs == TRUE)
@@ -902,10 +902,10 @@ void() null = {
 	MENU GUIDELINES (to preserve consistency)
 	
 	* Buttons that belong to the same category should have a spacing
-	difference of 0.05.
+	difference of 20.
 
 	* Buttons that do not belong to the same category should have
-	a spacing difference of 0.075.
+	a spacing difference of 30.
 
 */
 
@@ -922,101 +922,102 @@ var struct
 	int		platform_dependency; 	// what platforms is this option visible on
 } buttons[] =
 {
-	//Main
-	{[0.025, 0.175, 0], "Solo", -1, menu_single, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE},
-	//{[0.025, 0.225, 0], "Cooperative", -1, menu_multi, null, MENU_MAIN},
-	{[0.025, 0.300, 0], "Settings", -1, menu_settings, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.350, 0], "Achievements", -1, menu_achievements, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.425, 0], "Credits", -1, menu_about, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.500, 0], "Exit", -1, menu_quit, null, MENU_MAIN, 0, OPTION_EXE_ONLY},
+	// Main
+	{[6, 75], "Solo", -1, menu_single, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 0
+	{[6, 95], "Cooperative", -1, menu_multi, null, MENU_MAIN, 1, OPTION_WEB_AND_EXE}, // 1
+	// ...
+	{[6, 125], "Settings", -1, menu_settings, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 2
+	{[6, 145], "Achievements", -1, menu_achievements, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 3
+	// ...
+	{[6, 175], "Credits", -1, menu_about, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 4
+	// ...
+	{[6, 205], "Exit", -1, menu_quit, null, MENU_MAIN, 0, OPTION_EXE_ONLY}, // 5
 
-	//Solo
-	{[0.025, 0.175, 0], "Nacht der Untoten", -1, menu_loadndu, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.275, 0], "Warehouse", -1, menu_loadwh, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.450, 0], "Custom Maps", -1, menu_customs, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE},
+	// Solo
+	{[6, 75], "Nacht der Untoten", -1, menu_loadndu, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 6
+	{[6, 95], "Kino der Toten", -1, menu_loadndu, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 7
+	{[6, 115], "Warehouse", -1, menu_loadwh, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 8
+	{[6, 135], "Wahnsinn", -1, menu_loadwh, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 9
+	{[6, 155], "Christmas Special", -1, menu_loadwh, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 10
+	// ...
+	{[6, 185], "Custom Maps", -1, menu_customs, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 11
 
-	//Pause
-	{[0.025, 0.500, 0], "Resume", -1, menu_resume, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.550, 0], "Restart", -1, menu_restart, null, MENU_PAUSE, 0, OPTION_EXE_ONLY},
-	{[0.025, 0.600, 0], "Settings", -1, menu_settings, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.650, 0], "Main Menu", -1, menu_main, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.850, 0], "Waypoint Menu", -1, menu_waypoint, null, MENU_PAUSE, 0, OPTION_EXE_ONLY},
+	// Pause
+	{[6, 75], "Resume Carnage", -1, menu_resume, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE}, // 12
+	{[6, 95], "Restart", -1, menu_restart, null, MENU_PAUSE, 0, OPTION_EXE_ONLY}, // 13
+	{[6, 115], "Settings", -1, menu_settings, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE}, // 14
+	{[6, 135], "Main Menu", -1, menu_main, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE}, // 15
+	{[6, 0], "Waypoint Menu", -1, menu_waypoint, null, MENU_PAUSE, 0, OPTION_EXE_ONLY}, // 16
 
-	//Restart
-	{[0.025, 0.500, 0], "Yes", -1, menu_resy, null, MENU_RES, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.550, 0], "No", -1, menu_resn, null, MENU_RES, 0, OPTION_WEB_AND_EXE},
+	// Restart
+	{[6, 75], "Yes", -1, menu_resy, null, MENU_RES, 0, OPTION_WEB_AND_EXE}, // 17
+	{[6, 95], "No", -1, menu_resn, null, MENU_RES, 0, OPTION_WEB_AND_EXE}, // 18
 
-	//Settings
-	{[0.025, 0.175, 0], "Graphics Settings", -1, menu_graphics, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.350, 0], "Controls", -1, menu_controls, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE},
+	// Settings
+	{[6, 75], "Graphics Settings", -1, menu_graphics, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE}, // 19
+	{[6, 95], "Controls", -1, menu_controls, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE}, // 20
+	{[6, 115], "Control Settings", -1, menu_consettings, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE}, // 21
+	{[6, 135], "Audio Settings", -1, menu_audsettings, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE}, // 22
 
-	//Graphics
-	{[0.025, 0.175, 0], "Resolution", -1, settings_re, settings_re, MENU_GSETTINGS, 0, OPTION_EXE_ONLY},
-	{[0.025, 0.225, 0], "Aspect Ratio", -1, settings_ar, settings_ar2, MENU_GSETTINGS, 0, OPTION_EXE_ONLY},
-	{[0.025, 0.275, 0], "Fullscreen", -1, settings_fs, settings_fs, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.325, 0], "Show FPS", -1, settings_fps, settings_fps, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.375, 0], "Max FPS", -1, settings_mfps, settings_mfps2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.425, 0], "VSync", -1, settings_vs, settings_vs, MENU_GSETTINGS, 0, OPTION_EXE_ONLY},
-	{[0.025, 0.475, 0], "Field of View", -1, settings_fov, settings_fov2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.525, 0], "Brightness", -1, settings_brite, settings_brite2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},	
-	{[0.025, 0.575, 0], "Ultrawide Mode", -1, settings_xb, settings_xb, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.625, 0], "Particles", -1, settings_pt, settings_pt, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.675, 0], "Fullbright", -1, settings_fb, settings_fb, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.725, 0], "Retro", -1, settings_ro, settings_ro, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.800, 0], "Save & Apply", -1, settings_apply, settings_apply, MENU_GSETTINGS + MENU_CONSETTINGS +
-																			MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE},
+	// Graphics
+	{[6, 75, 0], "Render Scale", -1, settings_rescale, settings_rescale2, MENU_GSETTINGS, 0, OPTION_WEB_ONLY}, // 23
+	{[6, 95], "Resolution", -1, settings_re, settings_re, MENU_GSETTINGS, 0, OPTION_EXE_ONLY}, // 24
+	{[6, 115], "Aspect Ratio", -1, settings_ar, settings_ar2, MENU_GSETTINGS, 0, OPTION_EXE_ONLY}, // 25
+	{[6, 135], "Fullscreen", -1, settings_fs, settings_fs, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 26
+	{[6, 155], "Show FPS", -1, settings_fps, settings_fps, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 27
+	{[6, 175], "Max FPS", -1, settings_mfps, settings_mfps2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 28
+	{[6, 195], "VSync", -1, settings_vs, settings_vs, MENU_GSETTINGS, 0, OPTION_EXE_ONLY}, // 29
+	{[6, 215], "Field of View", -1, settings_fov, settings_fov2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 30
+	{[6, 235], "Brightness", -1, settings_brite, settings_brite2, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 31
+	{[6, 255], "Ultrawide Mode", -1, settings_xb, settings_xb, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 32
+	{[6, 275], "Particles", -1, settings_pt, settings_pt, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 33
+	{[6, 295], "Fullbright", -1, settings_fb, settings_fb, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 34
+	{[6, 315], "Retro", -1, settings_ro, settings_ro, MENU_GSETTINGS, 0, OPTION_WEB_AND_EXE}, // 35
+	{[6, -1], "Save & Apply", -1, settings_apply, settings_apply, MENU_GSETTINGS + MENU_CONSETTINGS +
+																			MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 36
 
-	//Controls
-	{[0.025, 0.175, 0], "Walk Forward", -1, bind_walkf, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.225, 0], "Walk Backward", -1, bind_walkb, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.275, 0], "Walk Left", -1, bind_walkl, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.325, 0], "Walk Right", -1, bind_walkr, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.375, 0], "Jump", -1, bind_jump, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.425, 0], "Sprint", -1, bind_sprint, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.475, 0], "Change Stance", -1, bind_stance, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-
-	{[0.025, 0.525, 0], "Weapon Next", -1, bind_wpnn, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.575, 0], "Weapon Previous", -1, bind_wpnp, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-
-	{[0.025, 0.625, 0], "Interact", -1, bind_interact, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.675, 0], "Reload", -1, bind_reload, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.725, 0], "Melee", -1, bind_knife, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.775, 0], "Grenade", -1, bind_nade, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.825, 0], "Secondary Grenade", -1, bind_switchnade, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE},
+	// Controls
+	{[6, 75], "Walk Forward", -1, bind_walkf, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 37
+	{[6, 95], "Walk Backward", -1, bind_walkb, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 38
+	{[6, 115], "Walk Left", -1, bind_walkl, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 39
+	{[6, 135], "Walk Right", -1, bind_walkr, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 40
+	{[6, 155], "Jump", -1, bind_jump, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 41
+	{[6, 175], "Sprint", -1, bind_sprint, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 42
+	{[6, 195], "Change Stance", -1, bind_stance, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 43
+	{[6, 215], "Weapon Next", -1, bind_wpnn, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 44
+	{[6, 235], "Weapon Previous", -1, bind_wpnp, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 45
+	{[6, 255], "Interact", -1, bind_interact, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 46
+	{[6, 275], "Reload", -1, bind_reload, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 47
+	{[6, 295], "Melee", -1, bind_knife, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 48
+	{[6, 315], "Grenade", -1, bind_nade, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 49
+	{[6, 335], "Secondary Grenade", -1, bind_switchnade, null, MENU_CSETTINGS, 0, OPTION_WEB_AND_EXE}, // 50
 
 	// Custom Maps
-	{[0.025, 0.825, 0], "Next Page", -1, menu_custom_next, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0, OPTION_WEB_AND_EXE},
-	{[0.025, 0.875, 0], "Previous Page", -1, menu_custom_back, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0, OPTION_WEB_AND_EXE},
+	{[6, -2], "Next Page", -1, menu_custom_next, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0, OPTION_WEB_AND_EXE}, // 51
+	{[6, -1], "Previous Page", -1, menu_custom_back, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 0, OPTION_WEB_AND_EXE}, // 52
 
-	//Everything, pretty much
-	{[0.025, 0.925, 0], "Back", -1, menu_back, null, MENU_SINGLE + MENU_MULTI + MENU_SETTINGS + MENU_ABOUT + 
+	// Everything, pretty much
+	{[6, 0], "Back", -1, menu_back, null, MENU_SINGLE + MENU_MULTI + MENU_SETTINGS + MENU_ABOUT + 
 													 MENU_IGS + MENU_GSETTINGS + MENU_CSETTINGS + MENU_CUSTOMS +
                                                      MENU_ACHIEVEMENTS + MENU_CONSETTINGS + MENU_AUDSETTINGS, 0, 
-													 OPTION_WEB_AND_EXE},
+													 OPTION_WEB_AND_EXE}, // 53
 
-	{[0.025, 0.275, 0], "Control Settings", -1, menu_consettings, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE}, // 47
-	{[0.025, 0.175, 0], "ADS Mode", -1, settings_adsmode, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 48
-	{[0.025, 0.225, 0], "Look Sensitivity", -1, settings_sens, settings_sens2, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 49
+	// Control Settings
+	{[6, 75], "ADS Mode", -1, settings_adsmode, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 54
+	{[6, 95], "Look Sensitivity", -1, settings_sens, settings_sens2, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 55
 
-	{[0.025, 0.325, 0], "Wahnsinn", -1, menu_loadwn, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 50
-	{[0.025, 0.375, 0], "Christmas Special", -1, menu_loadch, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 51
-	{[0.025, 0.225, 0], "Kino der Toten", -1, menu_loadch, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 52
-
-	{[0.025, 0.225, 0], "Audio Settings", -1, menu_audsettings, null, MENU_SETTINGS + MENU_IGS, 0, OPTION_WEB_AND_EXE}, // 53
-	{[0.025, 0.175, 0], "Master Volume", -1, setting_mastervol, setting_mastervol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 54
-	{[0.025, 0.225, 0], "Music Volume", -1, setting_chann1vol, setting_chann1vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 55
-	{[0.025, 0.275, 0], "SFX Volume", -1, setting_chann2vol, setting_chann2vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 56
-	{[0.025, 0.325, 0], "Channel 3 Volume", -1, setting_chann3vol, setting_chann3vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 57
-	{[0.025, 0.375, 0], "Channel 4 Volume", -1, setting_chann4vol, setting_chann4vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 58
-	{[0.025, 0.425, 0], "Channel 5 Volume", -1, setting_chann5vol, setting_chann5vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 59
-	{[0.025, 0.475, 0], "Channel 6 Volume", -1, setting_chann6vol, setting_chann6vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 60
-
-	// Web specific options
-	{[0.025, 0.175, 0], "Render Scale", -1, settings_rescale, settings_rescale2, MENU_GSETTINGS, 0, OPTION_WEB_ONLY} // 61
+	// Audio Settings
+	{[6, 75], "Master Volume", -1, setting_mastervol, setting_mastervol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 56
+	{[6, 95], "Music Volume", -1, setting_chann1vol, setting_chann1vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 57
+	{[6, 115], "SFX Volume", -1, setting_chann2vol, setting_chann2vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 58
+	{[6, 135], "Channel 3 Volume", -1, setting_chann3vol, setting_chann3vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 59
+	{[6, 155], "Channel 4 Volume", -1, setting_chann4vol, setting_chann4vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 60
+	{[6, 175], "Channel 5 Volume", -1, setting_chann5vol, setting_chann5vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 61
+	{[6, 195], "Channel 6 Volume", -1, setting_chann6vol, setting_chann6vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE} // 62
 };
 
 //REMEMBER TO UPDATE THIS CONST IF YOU ADD BUTTONS
-const float BUTTONS_COUNT = 62;
+float BUTTONS_COUNT = 63;
 float lastActive;
 
 
@@ -1029,7 +1030,7 @@ void(float index) Update_Button =
 	else if (!platform_is_web && buttons[index].platform_dependency == OPTION_WEB_ONLY)
 		return;
 
-	float btnscale = 0.030*g_height;
+	//float btnscale = 0.030*g_height;
 
 	if(in_menu != in_menu & buttons[index].group) 
 		buttons[index].active = -1;
@@ -1042,32 +1043,39 @@ void(float index) Update_Button =
 			return;
 	}
 	
-	local vector pos = buttons[index].pos;
-	pos_x *= g_width;
-	pos_y *= g_height;
+	vector pos = buttons[index].pos;
+
+	if (pos_y == 0)
+		pos_y = g_height - 22;
+	else if (pos_y == -1)
+		pos_y = g_height - 75;
+	else if (pos_y == -2)
+		pos_y = g_height - 95;
+	//pos_x *= g_width;
+	//pos_y *= g_height;
 
 	if (next_gray_out == 1)
-		buttons[44].gray_out = 1;
+		buttons[51].gray_out = 1;
 	else
-		buttons[44].gray_out = 0;
+		buttons[51].gray_out = 0;
 
 	if (back_gray_out == 1)
-		buttons[45].gray_out = 1;
+		buttons[52].gray_out = 1;
 	else
-		buttons[45].gray_out = 0;
+		buttons[52].gray_out = 0;
 
 	if (buttons[index].gray_out == 0) {
 		if(buttons[index].active > 0) {
-			drawstring(pos, buttons[index].text, [g_height * 0.030, g_height * 0.030, 1], [1,0,0], 1, 0);
+			drawstring(pos, buttons[index].text, [14, 14], [1, 0, 0], 1, 0);
 		} else {
-			drawstring(pos, buttons[index].text, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+			drawstring(pos, buttons[index].text, [14, 14], [1, 1, 1], 1, 0);
 		}
 	} else {
-		drawstring(pos, buttons[index].text, [g_height * 0.030, g_height * 0.030, 1], [0.5,0.5,0.5], 1, 0);
+		drawstring(pos, buttons[index].text, [14, 14], [0.25, 0.25, 0.25], 1, 0);
 	}
 	
 
-	if (cursor_pos_x > pos_x && cursor_pos_x < pos_x + (g_height * 0.6) && cursor_pos_y > pos_y && cursor_pos_y < pos_y + btnscale && buttons[index].gray_out == 0) {
+	if (cursor_pos_x > pos_x && cursor_pos_x < pos_x + 300 && cursor_pos_y > pos_y && cursor_pos_y < pos_y + 14 && buttons[index].gray_out == 0) {
 		if (index != lastActive)
 			localsound_enhanced("sounds/menu/navigate.wav", CHAN_SFX, 1);
 		
@@ -1101,8 +1109,6 @@ void() Controller_UpdateButton =
 
 void(float index, float type) Button_Click = 
 {
-	float btnscale = 0.030*g_height;
-
 	// don't click if not active
 	if(buttons[index].active == -1)
 		return;
@@ -1113,11 +1119,16 @@ void(float index, float type) Button_Click =
 	if (!platform_is_web && buttons[index].platform_dependency == OPTION_WEB_ONLY)
 		return;
 		
-	local vector pos = buttons[index].pos;
-	pos_x *= g_width;
-	pos_y *= g_height;
+	vector pos = buttons[index].pos;
+
+	if (pos_y == 0)
+		pos_y = g_height - 22;
+	else if (pos_y == -1)
+		pos_y = g_height - 75;
+	else if (pos_y == -2)
+		pos_y = g_height - 95;
 	
-	if (cursor_pos_x > pos_x && cursor_pos_x < pos_x + (g_height * 0.6) && cursor_pos_y > pos_y && cursor_pos_y < pos_y + btnscale) {
+	if (cursor_pos_x > pos_x && cursor_pos_x < pos_x + 300 && cursor_pos_y > pos_y && cursor_pos_y < pos_y + 14) {
 		if (type == 0) { //left click
 			buttons[index].action();
 		} else { //right click
@@ -1149,33 +1160,30 @@ void() Menu_Click_Custom =
 
 void() Draw_Extra_Main =
 {
-	local string main_desc = "";
+	string main_desc = "";
 
-	// Draw darkened co-op button
-	drawstring([0.025*g_width, 0.225*g_height, 0], "Co-Op (Coming Soon!)", [g_height * 0.03, g_height * 0.03, 1], [0.5, 0.5, 0.5], 1, 0);
-	
 	// Division lines
-	drawfill ([0.025*g_width, 0.275*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
-	drawfill ([0.025*g_width, 0.400*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
+	drawfill ([6, 115], [270, 4], [0.5, 0.5, 0.5], 1, 0);
+	drawfill ([6, 165], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 	
 	if (platform_is_web == false)
-		drawfill ([0.025*g_width, 0.475*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
+		drawfill ([6, 195], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Get description for menu option
 	switch(lastActive) {
 		case 0:
 			main_desc = "Take on the Hordes by yourself.";
 			break;
-		case 1:
+		case 2:
 			main_desc = "Adjust your Settings to Optimize your Experience.";
 			break;
-		case 2:
+		case 3:
 			main_desc = "View locked or unlocked Achievements.";
 			break;
-		case 3:
+		case 4:
 			main_desc = "See who made NZ:P possible.";
 			break;
-		case 4:
+		case 5:
 			main_desc = "Return to System.";
 			break;
 		default:
@@ -1184,7 +1192,7 @@ void() Draw_Extra_Main =
 	}
 
 	// Draw desc
-	drawstring([0.025*g_width, 0.865*g_height, 0], main_desc, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, g_height - 42, 0], main_desc, [12, 12], [1, 1, 1], 1, 0);
 
 	// Social Links
 	// Discord doesn't allow permanant invites anymore, "bummer"..
@@ -1223,11 +1231,11 @@ void() Draw_Extra_Solo =
 	string solo_img = "";
 
 	// Division lines
-	drawfill ([0.025*g_width, 0.425*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
+	drawfill ([6, 175], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Map descriptions
 	switch(lastActive) {
-		case 5:
+		case 6:
 			solo_desc = "Desolate bunker located on a Ge-";
 			solo_desc2 = "rman airfield, stranded after a";
 			solo_desc3 = "brutal plane crash surrounded by";
@@ -1238,33 +1246,21 @@ void() Draw_Extra_Solo =
 			solo_desc8 = "to the overwhelming onslaught?";
 			solo_img = "gfx/menu/nacht_der_untoten.png";
 			break;
-		case 6:
+		case 8:
 			solo_desc = "Old Warehouse full of Zombies!";
 			solo_desc2 = "Fight your way to the Power";
 			solo_desc3 = "Switch through the Hordes!";
 			solo_img = "gfx/menu/warehouse.png";
 			break;
-		case 50:
-			solo_desc = "An abandoned and bleak mental house";
-			solo_desc2 = "surrounded by debris and fog. Teddy";
-			solo_desc3 = "is deceitful, find him.";
-			solo_img = "gfx/menu/wahnsinn.png";
-			break;
-		case 51:
+		case 10:
 			solo_desc = "No Santa this year. Though we're";
 			solo_desc2 = "sure you will get presents from";
 			solo_desc3 = "the undead! Will you accept them?";
 			solo_img = "gfx/menu/christmas_special.png";
 			break;
-		case 52:
-			solo_desc = "A WW2-era theatre left to rot in";
-			solo_desc2 = "West Berlin. See what secrets await";
-			solo_desc3 = "in this Theatre of the Damned.";
-			solo_img = "gfx/menu/kino_der_toten.png";
-			break;
-		case 7:
+		case 11:
 			solo_desc = "Custom Maps made by Community on";
-			solo_desc2 = "the Forum and Discord!";
+			solo_desc2 = "GitHub Discussions!";
 			solo_img = "gfx/menu/custom.png";
 			break;
 		default:
@@ -1275,39 +1271,35 @@ void() Draw_Extra_Solo =
 
 	// Map img
 	if (solo_img != "")
-		drawpic([0.490*g_width, 0.115*g_height, 0], solo_img, [0.425*g_width, 0.385*g_height, 0], [1,1,1], 1);
+		drawpic([g_width - 340 - 6, 75], solo_img, [300, 170], [1, 1, 1], 1);
 
 	// Draw desc
-	drawstring([0.425*g_width, 0.540*g_height, 0], solo_desc, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.425*g_width, 0.580*g_height, 0], solo_desc2, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.425*g_width, 0.620*g_height, 0], solo_desc3, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.425*g_width, 0.660*g_height, 0], solo_desc4, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.425*g_width, 0.700*g_height, 0], solo_desc5, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.425*g_width, 0.740*g_height, 0], solo_desc6, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.425*g_width, 0.780*g_height, 0], solo_desc7, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.425*g_width, 0.820*g_height, 0], solo_desc8, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([g_width - 360, 250, 0], solo_desc, [11, 11], [1, 1, 1], 1, 0);
+	drawstring([g_width - 360, 265, 0], solo_desc2, [11, 11], [1, 1, 1], 1, 0);
+	drawstring([g_width - 360, 280, 0], solo_desc3, [11, 11], [1, 1, 1], 1, 0);
+	drawstring([g_width - 360, 295, 0], solo_desc4, [11, 11], [1, 1, 1], 1, 0);
+	drawstring([g_width - 360, 310, 0], solo_desc5, [11, 11], [1, 1, 1], 1, 0);
+	drawstring([g_width - 360, 325, 0], solo_desc6, [11, 11], [1, 1, 1], 1, 0);
+	drawstring([g_width - 360, 340, 0], solo_desc7, [11, 11], [1, 1, 1], 1, 0);
+	drawstring([g_width - 360, 355, 0], solo_desc8, [11, 11], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Settings =
 {
-
-	// Division lines
-	drawfill ([0.025*g_width, 0.325*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
-
-	local string set_desc = "";
+	string set_desc = "";
 
 	// Descriptions
 	switch(lastActive) {
-		case 15:
+		case 19:
 			set_desc = "Adjust settings relating to Graphical Fidelity.";
 			break;
-		case 16:
+		case 20:
 			set_desc = "Customize your Control Scheme.";
 			break;
-		case 47:
+		case 21:
 			set_desc = "Adjust settings in relation to how NZ:P Controls.";
 			break;
-		case 53:
+		case 22:
 			set_desc = "Adjust Audio Levels.";
 			break;
 		default:
@@ -1316,47 +1308,31 @@ void() Draw_Extra_Settings =
 	}
 
 	// Draw desc
-	drawstring([0.025*g_width, 0.865*g_height, 0], set_desc, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, g_height - 42, 0], set_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
-//FIXME -- credits look ugly, font scaling & such
 void() Draw_Extra_Credits = 
 {
-	drawstring([0.03*g_width, 0.15*g_height, 0], "Blubswillrule:   Coding, Models, GFX, Sounds, Music", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.15*g_height + g_height*0.025 + 3, 0], [strlen("Blubswillrule")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
-			
-	drawstring([0.03*g_width, 0.20*g_height, 0], "Ju[s]tice:       Maps, Models, GFX", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.20*g_height + g_height*0.025 + 3, 0], [strlen("Ju[s]tice")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
-	
-	drawstring([0.03*g_width, 0.25*g_height, 0], "Jukki:           Coding", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.25*g_height + g_height*0.025 + 3, 0], [strlen("Jukki")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, 65], "Programming:", [12, 12], TEXT_ORANGE, 1, 0);
+	drawstring([6, 85], "Blubs, Jukki, DR_Mabuse1981, Naievil", [12, 12], [1, 1, 1], 1, 0);
+	drawstring([6, 105], "Cypress, ScatterBox", [12, 12], [1, 1, 1], 1, 0);
 
-	drawstring([0.03*g_width, 0.30*g_height, 0], "Biodude:         Sounds", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.30*g_height + g_height*0.025 + 3, 0], [strlen("Biodude")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, 130], "Models:", [12, 12], TEXT_ORANGE, 1, 0);
+	drawstring([6, 150], "Blubs, Ju[s]tice, Derped_Crusader", [12, 12], [1, 1, 1], 1, 0);
 
-	drawstring([0.03*g_width, 0.35*g_height, 0], "Dr_Mabuse1981:   Coding", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.35*g_height + g_height*0.025 + 3, 0], [strlen("Dr_Mabuse1981")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, 175], "GFX:", [12, 12], TEXT_ORANGE, 1, 0);
+	drawstring([6, 195], "Blubs, Ju[s]tice, Cypress, Derped_Crusader", [12, 12], [1, 1, 1], 1, 0);
 
-	drawstring([0.03*g_width, 0.40*g_height, 0], "Naievil:         Coding, NX Maintaining", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.40*g_height + g_height*0.025 + 3, 0], [strlen("Naievil")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, 220], "Sounds/Music:", [12, 12], TEXT_ORANGE, 1, 0);
+	drawstring([6, 240], "Blubs, Biodude, Cypress, Marty P.", [12, 12], [1, 1, 1], 1, 0);
 
-	drawstring([0.03*g_width, 0.45*g_height, 0], "MotoLegacy:      Coding, GFX, Music", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.45*g_height + g_height*0.025 + 3, 0], [strlen("MotoLegacy")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
-
-	drawstring([0.03*g_width, 0.50*g_height, 0], "Derped_Crusader: Models, GFX", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.50*g_height + g_height*0.025 + 3, 0], [strlen("Derped_Crusader")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
-
-	drawstring([0.03*g_width, 0.60*g_height, 0], "Special Thanks:", [g_height * 0.025, g_height * 0.025, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawfill ([.03*g_width, 0.60*g_height + g_height*0.025 + 3, 0], [strlen("Special Thanks")*12.5, 0.0025*g_height, 0], [0.8, 0.8, 0.8], 1, 0);
-			
-	drawstring([0.03*g_width, 0.640*g_height, 0], "- Spike:     FTEQW", [g_height * 0.020, g_height * 0.020, 1], [0.8, 0.8, 0.8], 1, 0);
-    drawstring([0.03*g_width, 0.660*g_height, 0], "- Shpuld:    Clean-CSQC", [g_height * 0.020, g_height * 0.020, 1], [0.8, 0.8, 0.8], 1, 0);
-    drawstring([0.03*g_width, 0.680*g_height, 0], "- Crow_Bar:  DQuake", [g_height * 0.020, g_height * 0.020, 1], [0.8, 0.8, 0.8], 1, 0);
-    drawstring([0.03*g_width, 0.700*g_height, 0], "- st1x51:    DQuakePlus", [g_height * 0.020, g_height * 0.020, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.03*g_width, 0.720*g_height, 0], "- fgsfdsfgs: QuakespasmNX", [g_height * 0.020, g_height * 0.020, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.03*g_width, 0.740*g_height, 0], "- Azenn:     GFX help", [g_height * 0.020, g_height * 0.020, 1], [0.8, 0.8, 0.8], 1, 0); 
-	drawstring([0.03*g_width, 0.760*g_height, 0], "- tavo:      Music help", [g_height * 0.020, g_height * 0.020, 1], [0.8, 0.8, 0.8], 1, 0);
-	drawstring([0.03*g_width, 0.780*g_height, 0], "- BCDeshiG:  Heavy bug testing", [g_height * 0.020, g_height * 0.020, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, 265], "Special Thanks:", [12, 12], TEXT_ORANGE, 1, 0);
+	drawstring([6, 285], "- Spike, Eukara:     FTEQW", [12, 12], [1, 1, 1], 1, 0);
+	drawstring([6, 305], "- Shpuld:            CleanQC4FTE", [12, 12], [1, 1, 1], 1, 0);
+	drawstring([6, 325], "- Crow_Bar, st1x51:  dQuake(plus)", [12, 12], [1, 1, 1], 1, 0);
+	drawstring([6, 345], "- fgsfdsfgs:         Quakespasm-NX", [12, 12], [1, 1, 1], 1, 0);
+	drawstring([6, 365], "- MasterFeizz:       ctrQuake", [12, 12], [1, 1, 1], 1, 0);
+	drawstring([6, 385], "- Rinnegatamante:    Initial VITA Port & Updater", [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Restart =
@@ -1372,21 +1348,21 @@ void() Draw_Extra_CSettings =
 
 	// ADS Mode
 	if (cvar("cl_adsmode") == 0)
-		drawstring([0.475*g_width, 0.175*g_height, 0], "HOLD", [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+		drawstring([320, 75], "HOLD", [14, 14], [1, 1, 1], 1, 0);
 	else
-		drawstring([0.475*g_width, 0.175*g_height, 0], "TOGGLE", [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+		drawstring([320, 75], "TOGGLE", [14, 14], [1, 1, 1], 1, 0);
 
 	// Look Sensitivity
-	drawstring([0.475*g_width, 0.225*g_height, 0], ftos(cvar("sensitivity")), [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 95], ftos(cvar("sensitivity")), [14, 14], [1, 1, 1], 1, 0);
 
 
 	// Descriptions
 	switch(lastActive) {
-		case 48:
+		case 54:
 			cset_desc = "Switch between Toggle/Hold to Aim Down Sight.";
 			break;
-		case 49:
-			cset_desc = "Change Look Sensitivity to change Cursor Responsiveness.";
+		case 55:
+			cset_desc = "Change Look Sensitivity to adjust responsiveness.";
 			break;
 		default:
 			cset_desc = "";
@@ -1394,10 +1370,10 @@ void() Draw_Extra_CSettings =
 	}
 
 	// Division lines
-	drawfill ([0.025*g_width, 0.775*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
+	drawfill ([6, g_height - 85], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Draw desc
-	drawstring([0.025*g_width, 0.865*g_height, 0], cset_desc, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, g_height - 42, 0], cset_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_GSettings =
@@ -1439,13 +1415,13 @@ void() Draw_Extra_GSettings =
 				arval = "ERR";
 				break;
 		}
-		drawstring([0.475*g_width, 0.225*g_height, 0], arval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+		drawstring([320, 115], arval, [14, 14], [1, 1, 1], 1, 0);
 	} else {
 		// Render Scale
 		resval = strcat(itos(ftoi(cvar("r_renderscale")*100)), "%");
 	}
 
-	drawstring([0.475*g_width, 0.175*g_height, 0], resval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 95], resval, [14, 14], [1, 1, 1], 1, 0);
 	
 	// Fullscreen
 	if (fullscreenval == 0)
@@ -1453,7 +1429,7 @@ void() Draw_Extra_GSettings =
 	else
 		sval = S_ENABLED;
 
-	drawstring([0.475*g_width, 0.275*g_height, 0], sval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 135], sval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Show FPS
 	if (cvar("show_fps") == 0)
@@ -1461,14 +1437,15 @@ void() Draw_Extra_GSettings =
 	else
 		fpsval = S_ENABLED;
 
-	drawstring([0.475*g_width, 0.325*g_height, 0], fpsval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 155], fpsval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Max FPS
 	// can't adjust when vsync is enabled, so grey out
-	if (!cvar("vid_vsync"))
-		drawstring([0.475*g_width, 0.375*g_height, 0], ftos(cvar("cl_maxfps")), [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
-	else 
-		drawstring([0.475*g_width, 0.375*g_height, 0], ftos(cvar("cl_maxfps")), [g_height * 0.030, g_height * 0.030, 1], [0.4,0.4,0.4], 1, 0);
+	if (!cvar("vid_vsync")) {
+		drawstring([320, 175], ftos(cvar("cl_maxfps")), [14, 14], [1, 1, 1], 1, 0);
+	} else { 
+		drawstring([320, 175], ftos(cvar("cl_maxfps")), [14, 14], [0.25, 0.25, 0.25], 1, 0);
+	}
 
 	// VSync
 	if (platform_is_web == false) {
@@ -1477,15 +1454,15 @@ void() Draw_Extra_GSettings =
 		else
 			vsyncval = S_ENABLED;
 
-		drawstring([0.475*g_width, 0.425*g_height, 0], vsyncval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+		drawstring([320, 195], vsyncval, [14, 14], [1, 1, 1], 1, 0);
 	}
 
 	// Field of View
-	drawstring([0.475*g_width, 0.475*g_height, 0], ftos(cvar("fov")), [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 215], ftos(cvar("fov")), [14, 14], [1, 1, 1], 1, 0);
 
 	// Brightness
 	// have to use a drawfill because of how gamma values are subtracted.. for some reason
-	drawfill ([0.475*g_width, 0.5255*g_height, 0], [g_height * (cvar("gamma")/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawfill ([320, 235], [cvar("gamma")/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
 	// Limit X Bounds
 	if (cvar("vid_ultrawide_limiter"))
@@ -1493,7 +1470,7 @@ void() Draw_Extra_GSettings =
 	else
 		ultraval = S_DISABLED;
 
-	drawstring([0.475*g_width, 0.5725*g_height, 0], ultraval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 255], ultraval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Particles
 	if (cvar("nzp_particles") == 0)
@@ -1501,7 +1478,7 @@ void() Draw_Extra_GSettings =
 	else
 		partval = S_ENABLED;
 
-	drawstring([0.475*g_width, 0.625*g_height, 0], partval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 275], partval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Fullbright
 	if (cvar("r_fullbright") == 0)
@@ -1509,7 +1486,7 @@ void() Draw_Extra_GSettings =
 	else
 		fullval = S_ENABLED;
 
-	drawstring([0.475*g_width, 0.675*g_height, 0], fullval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 295], fullval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Retro
 	if (cvar_string("gl_texturemode") == "gl_nearest")
@@ -1517,50 +1494,50 @@ void() Draw_Extra_GSettings =
 	else
 		retroval = S_DISABLED;
 
-	drawstring([0.475*g_width, 0.725*g_height, 0], retroval, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+	drawstring([320, 315], retroval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Descriptions
 	switch(lastActive) {
-		case 17:
+		case 24:
 			gset_desc = "Adjust Window Resolution.";
 			break;
-		case 18:
+		case 25:
 			gset_desc = "Change Window Aspect Ratio.";
 			break;
-		case 19:
+		case 26:
 			if (platform_is_web == false)
 				gset_desc = "Toggle Fullscreen (May fail depending on GPU).";
 			else
 				gset_desc = "Put Browser in Fullscreen when loaded in World.";
 			break;
-		case 20:
+		case 27:
 			gset_desc = "Toggle Framerate Overlay.";
 			break;
-		case 21:
+		case 28:
 			gset_desc = "Increase of Decrease Max Frames per Second.";
 			break;
-		case 22:
+		case 29:
 			gset_desc = "Toggle Vertical Sync.";
 			break;
-		case 23:
+		case 30:
 			gset_desc = "Adjust Game Field of View.";
 			break;
-		case 24:
+		case 31:
 			gset_desc = "Increase or Decrease Game Brightness.";
 			break;
-		case 25:
+		case 32:
 			gset_desc = "Makes HUD more visible when Ultrawide.";
 			break;
-		case 26:
+		case 33:
 			gset_desc = "Toggle Appearence of (most) Particles.";
 			break;
-		case 27:
+		case 34:
 			gset_desc = "Toggle all non-realtime lights (Requires Map Restart).";
 			break;
-		case 28:
+		case 35:
 			gset_desc = "Toggle texture filtering.";
 			break;
-		case 61:
+		case 23:
 			gset_desc = "Adjust scale factor for 3D rendering.";
 			break;
 		default:
@@ -1569,10 +1546,10 @@ void() Draw_Extra_GSettings =
 	}
 
 	// Division lines
-	drawfill ([0.025*g_width, 0.775*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
+	drawfill ([6, g_height - 85], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Draw desc
-	drawstring([0.025*g_width, 0.865*g_height, 0], gset_desc, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, g_height - 42, 0], gset_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Controls =
@@ -1594,7 +1571,7 @@ void() Draw_Extra_Controls =
 		if (buttoncon[i] == "01")
 			buttoncon[i] = "UNBOUND";
 
-		drawstring([0.475*g_width, (0.175+(0.05*i))*g_height, 0], buttoncon[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+		drawstring([320, 75+(20*i)], buttoncon[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 	}
 }
 
@@ -1683,9 +1660,8 @@ void() Draw_Extra_Customs =
 	}
 
 	for (float i = 0; i < 10; i++) {
-		if (cursor_pos_x > 0.025*g_width && cursor_pos_x < (0.025*g_width + g_height * 0.6) && 
-			cursor_pos_y > (0.175 + (0.05 * i))*g_height && cursor_pos_y < (0.175 + (0.05 * i))*g_height + 
-			(0.030*g_height)) {
+		if (cursor_pos_x > 6 && cursor_pos_x < 320 && 
+			cursor_pos_y > 75 + (20 * i) && cursor_pos_y < 75 + (20 * i) + 14) {
 
 			if (i != last_active_custom_select)
 				localsound_enhanced("sounds/menu/navigate.wav", CHAN_SFX, 1);
@@ -1704,58 +1680,58 @@ void() Draw_Extra_Customs =
 	for (float i = 0; i < 10; i++) {
 		if (custom_map_active[i] == TRUE || last_active_custom_select == i) {
 			if (custom_maps[i + multiplier].map_name_pretty)
-				drawstring([0.025*g_width, (0.175 + (0.05 * i))*g_height, 0], custom_maps[i + multiplier].map_name_pretty, [g_height * 0.030, g_height * 0.030, 1], [1,0,0], 1, 0);
+				drawstring([6, 75+(20*i)], custom_maps[i + multiplier].map_name_pretty, [14, 14], [1, 0, 0], 1, 0);
 			else
-				drawstring([0.025*g_width, (0.175 + (0.05 * i))*g_height, 0], custom_map_names[i], [g_height * 0.030, g_height * 0.030, 1], [1,0,0], 1, 0);
+				drawstring([6, 75+(20*i)], custom_map_names[i], [14, 14], [1, 0, 0], 1, 0);
 
 			float line_increment;
 			line_increment = 0;
 
 			if (custom_maps[i + multiplier].map_desc_1 != "" && custom_maps[i + multiplier].map_desc_1 != " ") {
-				drawstring([0.425*g_width, 0.540*g_height, 0], custom_maps[i + multiplier].map_desc_1, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+				drawstring([g_width - 360, 250, 0], custom_maps[i + multiplier].map_desc_1, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_2 != "" && custom_maps[i + multiplier].map_desc_2 != " ") {
 				line_increment++;
-				drawstring([0.425*g_width, (0.540 + (0.040*line_increment))*g_height, 0], custom_maps[i + multiplier].map_desc_2, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+				drawstring([g_width - 360, 265, 0], custom_maps[i + multiplier].map_desc_2, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_3 != "" && custom_maps[i + multiplier].map_desc_3 != " ") {
 				line_increment++;
-				drawstring([0.425*g_width, (0.540 + (0.040*line_increment))*g_height, 0], custom_maps[i + multiplier].map_desc_3, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+				drawstring([g_width - 360, 280, 0], custom_maps[i + multiplier].map_desc_3, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_4 != "" && custom_maps[i + multiplier].map_desc_4 != " ") {
 				line_increment++;
-				drawstring([0.425*g_width, (0.540 + (0.040*line_increment))*g_height, 0], custom_maps[i + multiplier].map_desc_4, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+				drawstring([g_width - 360, 295, 0], custom_maps[i + multiplier].map_desc_4, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_5 != "" && custom_maps[i + multiplier].map_desc_5 != " ") {
 				line_increment++;
-				drawstring([0.425*g_width, (0.540 + (0.040*line_increment))*g_height, 0], custom_maps[i + multiplier].map_desc_5, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+				drawstring([g_width - 360, 310, 0], custom_maps[i + multiplier].map_desc_5, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_6 != "" && custom_maps[i + multiplier].map_desc_6 != " ") {
 				line_increment++;
-				drawstring([0.425*g_width, (0.540 + (0.040*line_increment))*g_height, 0], custom_maps[i + multiplier].map_desc_6, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+				drawstring([g_width - 360, 325, 0], custom_maps[i + multiplier].map_desc_6, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_7 != "" && custom_maps[i + multiplier].map_desc_7 != " ") {
 				line_increment++;
-				drawstring([0.425*g_width, (0.540 + (0.040*line_increment))*g_height, 0], custom_maps[i + multiplier].map_desc_7, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+				drawstring([g_width - 360, 340, 0], custom_maps[i + multiplier].map_desc_7, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_8 != "" && custom_maps[i + multiplier].map_desc_8 != " ") {
 				line_increment++;
-				drawstring([0.425*g_width, (0.540 + (0.040*line_increment))*g_height, 0], custom_maps[i + multiplier].map_desc_8, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+				drawstring([g_width - 360, 355, 0], custom_maps[i + multiplier].map_desc_8, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_author != "" && custom_maps[i + multiplier].map_author != " ") {
 				line_increment++;
-				drawstring([0.425*g_width, (0.560 + (0.040*line_increment))*g_height, 0], custom_maps[i + multiplier].map_author, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0], 1, 0);
+				drawstring([g_width - 360, 235 + (20*line_increment), 0], custom_maps[i + multiplier].map_author, [11, 11], TEXT_ORANGE, 1, 0);
 			}
 
 			if (custom_maps[i + multiplier].map_use_thumbnail) {
-				drawpic([0.490*g_width, 0.115*g_height, 0], strcat("menu/custom/", custom_map_names[i], ".png"), [0.425*g_width, 0.385*g_height, 0], [1,1,1], 1);
+				drawpic([g_width - 340 - 6, 75], strcat("menu/custom/", custom_map_names[i], ".png"), [300, 170], [1, 1, 1], 1);
 			}
 
 		} else {
 			if (custom_maps[i + multiplier].map_name_pretty)
-				drawstring([0.025*g_width, (0.175 + (0.05 * i))*g_height, 0], custom_maps[i + multiplier].map_name_pretty, [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+				drawstring([6, 75+(20*i)], custom_maps[i + multiplier].map_name_pretty, [14, 14], [1, 1, 1], 1, 0);
 			else
-				drawstring([0.025*g_width, (0.175 + (0.05 * i))*g_height, 0], custom_map_names[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+				drawstring([6, 75+(20*i)], custom_map_names[i], [14, 14], [1, 1, 1], 1, 0);
 		}
 			
 	}
@@ -1855,47 +1831,47 @@ void() Draw_Extra_ASettings =
 	float chann6_volume = cvar("snd_channel6volume");
 
 	// Master Volume
-	drawfill ([0.475*g_width, 0.1755*g_height, 0], [g_height * (master_volume/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawfill ([320, 75], [master_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
 	// Music Volume
-	drawfill ([0.475*g_width, 0.2255*g_height, 0], [g_height * (chann1_volume/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawfill ([320, 95], [chann1_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
 	// SFX Volume
-	drawfill ([0.475*g_width, 0.2755*g_height, 0], [g_height * (chann2_volume/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawfill ([320, 115], [chann2_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
 	// Channel 3 Volume
-	drawfill ([0.475*g_width, 0.3255*g_height, 0], [g_height * (chann3_volume/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawfill ([320, 135], [chann3_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
 	// Channel 4 Volume
-	drawfill ([0.475*g_width, 0.3755*g_height, 0], [g_height * (chann4_volume/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawfill ([320, 155], [chann4_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
 	// Channel 5 Volume
-	drawfill ([0.475*g_width, 0.4255*g_height, 0], [g_height * (chann5_volume/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawfill ([320, 175], [chann5_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
 	// Channel 6 Volume
-	drawfill ([0.475*g_width, 0.4755*g_height, 0], [g_height * (chann6_volume/3), g_height * 0.030, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawfill ([320, 195], [chann6_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
 	// Descriptions
 	switch(lastActive) {
-		case 54:
+		case 56:
 			aset_desc = "Adjusts the overall volume of the game.";
 			break;
-		case 55:
+		case 57:
 			aset_desc = "Adjusts the volume of the music in the game.";
 			break;
-		case 56:
+		case 58:
 			aset_desc = "Adjusts the volume of sound effects in the game.";
 			break;
-		case 57:
+		case 59:
 			aset_desc = "Audio Level for Channel 3.";
 			break;
-		case 58:
+		case 60:
 			aset_desc = "Audio Level for Channel 4.";
 			break;
-		case 59:
+		case 61:
 			aset_desc = "Audio Level for Channel 5.";
 			break;
-		case 60:
+		case 62:
 			aset_desc = "Audio Level for Channel 6.";
 			break;
 		default:
@@ -1904,10 +1880,10 @@ void() Draw_Extra_ASettings =
 	}
 
 	// Division lines
-	drawfill ([0.025*g_width, 0.775*g_height, 0], [g_height * 0.600, g_height * 0.005, 1], [0.4, 0.4, 0.4], 1, 0);
+	drawfill ([6, g_height - 85], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Draw desc
-	drawstring([0.025*g_width, 0.865*g_height, 0], aset_desc, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, g_height - 42, 0], aset_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 float menu_sound_length;
@@ -1934,23 +1910,19 @@ void() Draw_Menu =
 	// background
 	if(serverkey("constate") == "disconnected")
 	{
-		if(g_width <= g_height * 1.77778)
-			drawpic([0,0,0], "menu/bg", [g_height * 1.77778, g_height, 1], [1, 1, 1], 1);
-		else
-			drawpic([0,0,0], "menu/bg", [g_width, g_height, 1], [1, 1, 1], 1);
+		drawpic([0,0,0], "menu/bg", [g_width, g_height, 1], [1, 1, 1], 1);
 	}
 
 	// Darken the BG
-	drawfill ([0, 0, 0], [g_width, g_height, 1], [0, 0, 0], 0.4, 0);
+	drawfill ([0, 0, 0], [g_width, g_height, 1], [0, 0, 0], 0.35, 0);
 
 	// version string
-	if (in_menu == MENU_MAIN || in_menu == MENU_ABOUT || in_menu == MENU_SINGLE || in_menu == MENU_ACHIEVEMENTS 
-		|| in_menu == MENU_CUSTOMS || in_menu == MENU_SETTINGS) {
+	if (in_menu == MENU_MAIN) {
 		string vers_string;
 
 		vers_string = build_datetime;
 
-		drawstring([(0.975*g_width -  stringwidth(vers_string, 0, [0.03*g_height, 0.03*g_height, 0])), 0.025*g_height, 0], vers_string, [g_height * 0.03, g_height * 0.03, 1], [0.8, 0.8, 0.8], 1, 0);
+		drawstring([(g_width - 6 - stringwidth(vers_string, 0, [12, 12])), 8], vers_string, [12, 12], [1, 1, 1], 1, 0);
 	}
 
 	//menu title
@@ -2012,7 +1984,7 @@ void() Draw_Menu =
 			title = "Nazi Zombies: Portable";
 	}
 	
-	drawstring([0.025*g_width, 0.025*g_width, 0], title, [g_height * 0.045, g_height * 0.045, 1], [0.8, 0.8, 0.8], 1, 0);
+	drawstring([6, 8, 0], title, [28, 28, 0], [1, 1, 1], 1, 0);
 
 	//Update buttons
 	local float i;

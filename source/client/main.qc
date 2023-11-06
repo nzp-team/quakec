@@ -99,7 +99,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	buttonBind[10] = "+button5";
 	buttonBind[11] = "+button6";
 	buttonBind[12] = "+button3";
-	buttonBind[13] = "impulse 25";
+	buttonBind[13] = "impulse 33";
 
 	// intialize screen resolutions
 
