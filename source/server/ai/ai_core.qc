@@ -125,6 +125,22 @@ entity(entity blarg) find_new_enemy =
 			targets = find(targets, classname, "zombie_horde_point");
 		}
 
+		// Last chance -- try a player spawn point.
+		targets = find(world, classname, "info_player_1_spawn");
+
+		while(targets != world) {
+			// Found one, let's see if it's closer than our last ideal target.
+			distance = vlen(blarg.origin - targets.origin);
+
+			if (distance < best_distance) {
+				best_target = targets;
+				best_distance = distance;
+			}
+
+			// Continue iterating
+			targets = find(targets, classname, "info_player_1_spawn");
+		}
+
 		// Return a horde point if we found one.
 		if (best_target != world)
 			return best_target;
@@ -655,7 +671,10 @@ void(float dist) Inside_Walk = {
 		
 		if(self.attack_delay < time) {
 			self.attack_delay = time + 1 + (1 * random());
-			self.th_melee();  
+
+			if (self.enemy.health)
+				self.th_melee(); 
+
 			if (self.enemy.downed == true)
 				self.enemy = find_new_enemy(self);
 			self.goalentity = self.enemy;

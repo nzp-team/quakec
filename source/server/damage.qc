@@ -181,6 +181,7 @@ void() rec_downed =
 	self.nextthink = time + 0.1;
 }
 
+float() push_away_zombies;
 void() GetDown =
 {
 	// 'Pro Gamer Move' achievement.
@@ -190,6 +191,9 @@ void() GetDown =
 	self.weapons[1].weapon_reserve == 0) {
 		GiveAchievement(9, self);
 	}
+
+	// Make any zombies inside of the player's bounding box leave
+	push_away_zombies();
 
 	// Play Last Stand Animation
 	PAnim_GetDown1();

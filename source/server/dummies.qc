@@ -49,6 +49,8 @@ void() info_player_2_spawn 		= {};
 void() info_player_3_spawn 		= {};
 void() info_player_4_spawn 		= {};
 
+void() zombie_horde_point 		= {};
+
 void() zapper1 = {remove(self);};
 void() zapper2 = {remove(self);};
 void() item_switch = {remove(self);};
