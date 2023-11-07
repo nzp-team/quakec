@@ -138,7 +138,7 @@ void() precaches =
 	precache_model ("models/sprites/explosion.spr");
 	precache_model ("models/sprites/null.spr");
 
-	if (waypoint_mode) {
+	if (cvar("waypoint_mode")) {
 		precache_model ("models/way/current_way.spr");
 		precache_model ("models/way/current_way_door.spr");
 		precache_model ("models/way/last_way.spr");

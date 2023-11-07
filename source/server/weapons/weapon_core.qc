@@ -1687,6 +1687,7 @@ void () Impulse_Functions =
 			}
 			
 			waypoint_mode = 1;
+			localcmd("restart\n");
 			break;
 		default:
 
