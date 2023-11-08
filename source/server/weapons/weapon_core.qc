@@ -949,7 +949,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 
 #ifdef FTE
 
-			//AI_SetAllEnemiesBBOX();
+			AI_SetAllEnemiesBBOX();
 
 #endif // FTE
 
@@ -957,7 +957,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 
 #ifdef FTE
 
-			//AI_RevertEnemySolidState();
+			AI_RevertEnemySolidState();
 
 #endif // FTE
 

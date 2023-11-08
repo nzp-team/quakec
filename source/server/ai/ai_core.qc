@@ -824,56 +824,46 @@ void() Do_Zombie_AI = {
 
 void() AI_SetAllEnemiesBBOX =
 {
-	entity list;
+	entity zombies = find(world, classname, "ai_zombie");
 
-	// First target zombies
-	list = find(world, classname, "ai_zombie");
-	while (list != world) {
-		list.last_solid = list.solid;
-		list.solid = SOLID_BBOX;
-		list.had_solid_modified = true;
+	while(zombies != world) {
+		zombies.last_solid = zombies.solid;
+		zombies.solid = SOLID_BBOX;
 
-		if (list.head) {
-			list.head.last_solid = list.head.solid;
-			list.head.solid = SOLID_BBOX;
-			list.head.had_solid_modified = true;
-		}
-		if (list.larm) {
-			list.larm.last_solid = list.larm.solid;
-			list.larm.solid = SOLID_BBOX;
-			list.larm.had_solid_modified = true;
-		}
-		if (list.rarm) {
-			list.rarm.last_solid = list.rarm.solid;
-			list.rarm.solid = SOLID_BBOX;
-			list.larm.had_solid_modified = true;
+		if (zombies.head) {
+			zombies.head.last_solid = zombies.head.solid;
+			zombies.head.solid = SOLID_BBOX;
 		}
 
-		list = find(list, classname, "ai_zombie");
-	}
+		if (zombies.larm) {
+			zombies.larm.last_solid = zombies.larm.solid;
+			zombies.larm.solid = SOLID_BBOX;
+		}
 
-	// Now Dogs
-	list = find(world, classname, "ai_dog");
-	while (list != world) {
-		list.last_solid = list.solid;
-		list.solid = SOLID_BBOX;
-		list.had_solid_modified = true;
+		if (zombies.rarm) {
+			zombies.rarm.last_solid = zombies.rarm.solid;
+			zombies.rarm.solid = SOLID_BBOX;
+		}
 
-		list = find(list, classname, "ai_dog");
+		zombies = find(zombies, classname, "ai_zombie");
 	}
 }
 
 void() AI_RevertEnemySolidState =
 {
-	entity list;
+	entity zombies = find(world, classname, "ai_zombie");
 
-	list = findfloat(world, had_solid_modified, true);
+	while(zombies != world) {
+		zombies.solid = zombies.last_solid;
 
-	while (list != world) {
-		list.solid = list.last_solid;
-		list.had_solid_modified = false;
+		if (zombies.head)
+			zombies.head.solid = zombies.head.last_solid;
+		if (zombies.larm)
+			zombies.larm.solid = zombies.larm.last_solid;
+		if (zombies.rarm)
+			zombies.rarm.solid = zombies.rarm.last_solid;
 
-		list = findfloat(list, had_solid_modified, true);
+		zombies = find(zombies, classname, "ai_zombie");
 	}
 }
 
