@@ -165,8 +165,8 @@ void() HUD_AmmoString =
 			message = "NO AMMO";
 			textcolor = [215/255, 0, 0];
 		}
-		// Display LOW AMMO if both are low.
-		else if (reserve_is_low == true && mag_is_low == true)
+		// Display LOW AMMO if mag is low and reserve is empty
+		else if (mag_is_low == true && getstatf(STAT_AMMO) <= 0)
 		{
 			message = "LOW AMMO";
 			textcolor = [219/255, 203/255, 19/255];	
