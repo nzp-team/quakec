@@ -57,6 +57,7 @@ const float EVENT_WEAPONRECOIL 			= 40;
 const float EVENT_SONGPLAY 				= 41;
 const float EVENT_GRENADEPULSE 			= 42;
 const float EVENT_BETTYPROMPT 			= 43;
+const float EVENT_LIMBGIB				= 44;
 
 // Define our FTE platform
 #ifndef STANDARD

@@ -827,24 +827,26 @@ void() AI_SetAllEnemiesBBOX =
 	entity zombies = find(world, classname, "ai_zombie");
 
 	while(zombies != world) {
-		zombies.last_solid = zombies.solid;
-		zombies.solid = SOLID_BBOX;
+		if (zombies.aistatus == "1") {
+			zombies.last_solid = zombies.solid;
+			zombies.solid = SOLID_BBOX;
 
-		if (zombies.head) {
-			zombies.head.last_solid = zombies.head.solid;
-			zombies.head.solid = SOLID_BBOX;
+			if (zombies.head) {
+				zombies.head.last_solid = zombies.head.solid;
+				zombies.head.solid = SOLID_BBOX;
+			}
+
+			if (zombies.larm) {
+				zombies.larm.last_solid = zombies.larm.solid;
+				zombies.larm.solid = SOLID_BBOX;
+			}
+
+			if (zombies.rarm) {
+				zombies.rarm.last_solid = zombies.rarm.solid;
+				zombies.rarm.solid = SOLID_BBOX;
+			}
 		}
-
-		if (zombies.larm) {
-			zombies.larm.last_solid = zombies.larm.solid;
-			zombies.larm.solid = SOLID_BBOX;
-		}
-
-		if (zombies.rarm) {
-			zombies.rarm.last_solid = zombies.rarm.solid;
-			zombies.rarm.solid = SOLID_BBOX;
-		}
-
+		
 		zombies = find(zombies, classname, "ai_zombie");
 	}
 }
@@ -854,14 +856,16 @@ void() AI_RevertEnemySolidState =
 	entity zombies = find(world, classname, "ai_zombie");
 
 	while(zombies != world) {
-		zombies.solid = zombies.last_solid;
+		if (zombies.aistatus == "1") {
+			zombies.solid = zombies.last_solid;
 
-		if (zombies.head)
-			zombies.head.solid = zombies.head.last_solid;
-		if (zombies.larm)
-			zombies.larm.solid = zombies.larm.last_solid;
-		if (zombies.rarm)
-			zombies.rarm.solid = zombies.rarm.last_solid;
+			if (zombies.head)
+				zombies.head.solid = zombies.head.last_solid;
+			if (zombies.larm)
+				zombies.larm.solid = zombies.larm.last_solid;
+			if (zombies.rarm)
+				zombies.rarm.solid = zombies.rarm.last_solid;
+		}
 
 		zombies = find(zombies, classname, "ai_zombie");
 	}

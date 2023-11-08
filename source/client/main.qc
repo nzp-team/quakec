@@ -1245,7 +1245,7 @@ noref void() CSQC_Parse_Event =
             	pointparticles(particleeffectnum("weapons.explode"), org, '0 0 0', 1);
             break;
 		case EVENT_BLOOD:
-			local vector loc;
+			vector loc;
 
 			loc_x = readcoord();
             loc_y = readcoord();
@@ -1253,6 +1253,18 @@ noref void() CSQC_Parse_Event =
 			
 			if (cvar("nzp_particles"))
 				pointparticles(particleeffectnum("blood.blood_particle"), loc, '0 0 0', 1);
+			break;
+		case EVENT_LIMBGIB:
+			vector gloc;
+
+			gloc_x = readcoord();
+            gloc_y = readcoord();
+            gloc_z = readcoord();
+			
+			if (cvar("nzp_particles")) {
+				pointparticles(particleeffectnum("blood.blood_particle"), gloc, '0 0 0', 1);
+				pointparticles(particleeffectnum("blood.gibs"), gloc, '0 0 0', 1);
+			}
 			break;
 		case EVENT_WEAPONCHANGE:
 			local float to;

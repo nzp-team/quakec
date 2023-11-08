@@ -590,7 +590,7 @@ void(vector where) spawn_gibs = {
 #else
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_BLOOD);
+	WriteByte(MSG_MULTICAST, EVENT_LIMBGIB);
 	WriteCoord(MSG_MULTICAST, where_x);
 	WriteCoord(MSG_MULTICAST, where_y);
 	WriteCoord(MSG_MULTICAST, where_z);
