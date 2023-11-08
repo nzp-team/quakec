@@ -30,6 +30,7 @@
 void(entity e) Light_None;
 void() Spawns_Init;
 void() Perk_UpdateQuickRevive;
+void() SUB_UseTargets;
 
 #define PLAYER_START_HEALTH		100
 
@@ -578,6 +579,12 @@ void() Player_PickSpawnPoint =
 
 	// Assign their starting weapon
 	Weapon_GiveWeapon(spawn_point.weapon, spawn_point.currentmag, spawn_point.currentammo);
+
+	// Activate anything the Spawn was targeting
+	entity tempe = self;
+	self = spawn_point;
+	SUB_UseTargets();
+	self = tempe;
 };
 
 void() PlayerSpawn =
