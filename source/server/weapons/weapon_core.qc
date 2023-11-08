@@ -1797,7 +1797,43 @@ void() CheckPlayer =
 		self.changestance = false;
 	}
 	
-	/* Check player push start */
+	if (!self.button2 && self.flags & FL_ONGROUND) {
+		if (self.dive) {
+			if (self.perks & P_FLOP && fabs(self.oldz - self.origin_z) >= 64) {
+				sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);	
+				DamgageExplode (self, self, 5000, 1000, 300);
+
+#ifdef FTE
+
+				te_customflash(self.origin, 300, 300, '1 0.6 0.1');
+
+#endif // FTE
+
+				CallExplosion(self.origin);
+				CallExplosion(self.origin);
+				CallExplosion(self.origin);
+			}
+			self.dive = 0;
+		}
+
+		if (fabs(self.oldz - self.origin_z) + 64 > 176 && !(self.perks & P_FLOP)) {
+			float height = fabs(self.oldz - self.origin_z) + 64;
+			float damage = height*(0.68);
+
+			if (damage > 98) damage = 98;
+			
+			DamageHandler (self, other, damage, S_ZOMBIE);	
+
+			if (self.health <= 5)
+				GiveAchievement(7, self);	
+		}
+		
+		self.oldz = self.origin_z;		
+	}
+
+	//
+	// Revive Sequence
+	//
 #ifdef FTE
 
 	entity ent;
@@ -1805,7 +1841,7 @@ void() CheckPlayer =
 		
 	while(ent)
 	{
-		if(ent.classname == "player" && ent != self && ent.downed && !self.downed)
+		if(ent.classname == "player" && ent != self && ent.downed)
 		{
 
 			// perform a trace to make sure they're always facing the revivee
@@ -1815,10 +1851,10 @@ void() CheckPlayer =
 			traceline(source, source + v_forward*50, 0, self);
 			self.active_door = trace_ent;
 
-			if (ent.beingrevived == false && self.active_door == ent)
+			if (ent.beingrevived == false && self.active_door == ent && !self.downed)
 				useprint (self, 13, 0, 0);
 			
-			if (self.button7 && !ent.invoke_revive && self.active_door == ent) {
+			if (self.button7 && !ent.invoke_revive && self.active_door == ent && !self.downed) {
 				if (ent.beingrevived == true && ent.firer != self)
 					return;
 
@@ -1856,7 +1892,7 @@ void() CheckPlayer =
 					addmoney(self, ent.requirespower, false);
 				}
 			}
-			else if ((!self.button7 && self.reviving) || (self.reviving && self.active_door != ent) || ent.classname == "disconnected") {
+			else if (self.downed || (!self.button7 && self.reviving) || (self.reviving && self.active_door != ent) || ent.classname == "disconnected") {
 				if (ent.classname != "disconnected")
 					ChangeReviveIconState(ent.electro_targeted, 1);
 				else
@@ -1886,41 +1922,6 @@ void() CheckPlayer =
 
 #endif // FTE
 
-	/* Check for player push end */
-	
-	if (!self.button2 && self.flags & FL_ONGROUND) {
-		if (self.dive) {
-			if (self.perks & P_FLOP && fabs(self.oldz - self.origin_z) >= 64) {
-				sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);	
-				DamgageExplode (self, self, 5000, 1000, 300);
-
-#ifdef FTE
-
-				te_customflash(self.origin, 300, 300, '1 0.6 0.1');
-
-#endif // FTE
-
-				CallExplosion(self.origin);
-				CallExplosion(self.origin);
-				CallExplosion(self.origin);
-			}
-			self.dive = 0;
-		}
-
-		if (fabs(self.oldz - self.origin_z) + 64 > 176 && !(self.perks & P_FLOP)) {
-			float height = fabs(self.oldz - self.origin_z) + 64;
-			float damage = height*(0.68);
-
-			if (damage > 98) damage = 98;
-			
-			DamageHandler (self, other, damage, S_ZOMBIE);	
-
-			if (self.health <= 5)
-				GiveAchievement(7, self);	
-		}
-		
-		self.oldz = self.origin_z;		
-	}
 }
 
 void () Weapon_Logic =

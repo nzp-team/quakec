@@ -117,24 +117,16 @@ void() startspectate =
 //      Returns 1 if there IS someone in the world that's not downed
 float() PollPlayersAlive = 
 {
-	float i, gotalive;
-	entity playerent;
-	
-	gotalive = 0;
-	
-	for (i = 1; i <= 4; i++)
-	{
-		playerent = findfloat(world, playernum, i);
-		
-		if (playerent) {
-			if (!playerent.downed && !playerent.isspec) {
-				gotalive = 1;
-				break;
-			}
-		}
+	entity players = find(world, classname, "player");
+
+	while(players != world) {
+		if (!players.downed)
+			return 1;
+
+		players = find(players, classname, "player");
 	}
-	
-	return gotalive;
+
+	return 0;
 }
 
 // Endgamesetup -- think function for setting up the death of everyone
