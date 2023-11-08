@@ -29,6 +29,7 @@
 
 void(entity e) Light_None;
 void() Spawns_Init;
+void() Perk_UpdateQuickRevive;
 
 #define PLAYER_START_HEALTH		100
 
@@ -605,7 +606,6 @@ void() PlayerSpawn =
 	{
 		if(who)
 		{
-			coop = 1;
 			player_count++;
 			break;
 		}
@@ -726,6 +726,7 @@ void() PutClientInServer =
 
 #endif // FTE
 
+	Perk_UpdateQuickRevive();
 };
 
 //called when client disconnects from the server
@@ -741,6 +742,8 @@ void() ClientDisconnect =
 	self.movetype = MOVETYPE_TOSS;
 	self.nextthink = -1;
 	setmodel(self, "models/sprites/null.spr");
+
+	Perk_UpdateQuickRevive();
 };
 
 

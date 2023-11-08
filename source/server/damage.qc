@@ -227,7 +227,7 @@ void() GetDown =
 
 	float players_still_alive = PollPlayersAlive();
 
-	if ((coop && !players_still_alive) || (!coop && !(self.perks & P_REVIVE))) {
+	if ((player_count && !players_still_alive) || (!player_count && !(self.perks & P_REVIVE))) {
 		EndGameSetup();
 		return;
 	} else {
@@ -235,7 +235,7 @@ void() GetDown =
 	}
 
 	// Initiate Self-Revive on Solo
-	if ((self.perks & P_REVIVE) && !coop) {	
+	if ((self.perks & P_REVIVE) && !player_count) {	
 		self.progress_bar = 10 + time;     
 		self.progress_bar_time = 10;
 		self.progress_bar_percent = 1;
@@ -318,7 +318,7 @@ void() GetDown =
 			self.weapons[0].weapon_reserve = 0;
 		}
 	} else {
-		if (!coop) {
+		if (!player_count) {
 			Weapon_AssignWeapon(0, W_BIATCH, 6, 12);
 		} else {
 			Weapon_AssignWeapon(0, W_COLT, 8, 16);
@@ -334,7 +334,7 @@ void() GetDown =
 	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, self.weaponmodel, false, S_BOTH);
 
 	// Spawn Revive Sprite in Co-Op
-	if (coop) {
+	if (player_count) {
 		EnableReviveIcon(revive_index, self.origin + VEC_VIEW_OFS);
 		self.electro_targeted = revive_index;
 		revive_index++;
@@ -378,7 +378,7 @@ void () GetUp =
 	
 	self.teslacount = 0;
 
-	if (!coop) {
+	if (!player_count) {
 		addmoney(self, self.requirespower, false);
 	}
 

@@ -309,7 +309,7 @@ void() touch_perk =
 			self = tempe; // Set self to machine
 
 			// Do Self-Revive checks
-			if (self.classname == "perk_revive" && !coop && !deathmatch) {
+			if (self.classname == "perk_revive" && !player_count) {
 				// Increment self-revive count
 				self.revivesoda++;
 
@@ -400,14 +400,15 @@ void() Perk_Jingle =
 //
 void() setup_perk =
 {
-	local entity power = find(world, classname, "power_switch");
+	entity power = find(world, classname, "power_switch");
 
 	// Check for Revive before Power
-	if (self.classname == "perk_revive" && !coop && !deathmatch) {
+	if (self.classname == "perk_revive" && !player_count) {
 		Turn_PerkLight_On(self);
+		self.requirespower = false;
 	} else {
 		// Check for Power
-		if (power != world) {
+		if (power != world && !isPowerOn) {
 			self.requirespower = true;
 		} else {
 			// There's no Power Switch, so turn the rest On.
@@ -419,6 +420,24 @@ void() setup_perk =
 	if (self.powerup_vo) {
 		self.think = Perk_Jingle;
 		self.nextthink = time + rint((random() * 30)) + 30;
+	}
+}
+
+//
+// Perk_UpdateQuickRevive()
+// Tallies whether to make Quick Revive
+// solo or co-op accessible.
+//
+void() Perk_UpdateQuickRevive =
+{
+	entity revives = find(world, classname, "perk_revive");
+
+	while(revives != world) {
+		Light_None(revives);
+		revives.think = setup_perk;
+		revives.nextthink = time + 0.1;
+
+		revives = find(revives, classname, "perk_revive");
 	}
 }
 

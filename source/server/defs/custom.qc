@@ -48,8 +48,6 @@ string 	string_null;
 .string killtarget;
 entity 	activator;
 float 	framecount;
-float 	deathmatch;
-float 	coop;
 
 float music_override;
 
