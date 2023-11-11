@@ -79,6 +79,8 @@ void() Rocket_Impact =
 #endif // FTE
 
     CallExplosion(self.origin);
+	CallExplosion(self.origin);
+	CallExplosion(self.origin);
 
 	// Clean up!
 	SUB_Remove ();
