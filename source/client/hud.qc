@@ -1196,7 +1196,7 @@ void() Draw_Crosshair =
 	if (!crosshair_opacity)
 		crosshair_opacity = 1;
 
-	if (K_BACKDOWN || K_FORWARDDOWN || K_LEFTDOWN || K_RIGHTDOWN || input_buttons == 2) {
+	if ((K_BACKDOWN || K_FORWARDDOWN || K_LEFTDOWN || K_RIGHTDOWN || input_buttons == 2) && crosshair_value == 1) {
 		croshhairmoving = 1;
 
 		crosshair_opacity -= frametime;
@@ -1354,19 +1354,16 @@ void() HUD_Broadcast = {
 
 void() HUD_Scores =
 {
-	string subtext = "Name                Kills        Score";
-	float xback, i, x;
+	int j;
 	vector TEXTCOLOR = [1, 1, 1];
 	
 	if(serverkey("constate") != "disconnected")
 	{
-		float print_width = stringwidth(subtext, 0, [0.015*g_width, 0.015*g_width, 0]);
-		x = (g_width - print_width)/2;
-		drawstring([x,g_height*(5/12), 0], subtext, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
+		// Headers
+		drawstring([g_width/2 + 15, 175], "Points", [12, 12], TEXTCOLOR, 1, 0); 
+		drawstring([g_width/2 + 170, 175], "Kills", [12, 12], TEXTCOLOR, 1, 0); 
 	
-		xback = x;
-	
-		for (i = 0; i < 4; i = i + 1)
+		for (int i = 0; i < 4; i = i + 1)
 		{
 			if (playerpoints[i] == -1)
 				break;
@@ -1377,37 +1374,57 @@ void() HUD_Scores =
 				case 3: TEXTCOLOR = TEXT_GREEN; break;
 				default: TEXTCOLOR = [1, 1, 1]; break;
 			}
+
+			//
+			// Since positioning is center-aligned, we need to be careful how we do our X and Y
+			// pos. to keep things looking nicely centered and even with different aspect ratios.
+			//
+
+			// Center moneyback
+			drawpic([g_width/2 - 48,  195 + (30 * i)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+			// Left
+			for(j = 0; j < 3; j++) {
+				drawpic([(g_width/2 - 48) - (70 * (j+1)),  195 + (30 * i)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+			}
+			// Right
+			for(j = 0; j < 3; j++) {
+				drawpic([(g_width/2 - 48) + (70 * (j+1)),  195 + (30 * i)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+			}
 			
-			print_width = stringwidth(ftos(playerpoints[i]), 0, [0.015*g_width, 0.015*g_width, 0]);
-			x = (g_width + (0.5*g_width) - print_width)/2;
-			drawstring([x,g_height*(5.75/12)+(i*g_width*0.03), 0], ftos(playerpoints[i]), [0.015*g_width, 0.015*g_width, 0], TEXTCOLOR, 1, 0);
-			drawstring([x/1.36,g_height*(5.75/12)+(i*g_width*0.03), 0], ftos(playerkills[i]), [0.015*g_width, 0.015*g_width, 0], TEXTCOLOR, 1, 0); 
-			drawstring([xback,g_height*(5.75/12)+(i*g_width*0.03), 0], playernames[i], [0.015*g_width, 0.015*g_width, 0], TEXTCOLOR, 1, 0); 
+			// Name
+			drawstring([g_width/2 - 245, 200 + (30 * i)], playernames[i], [12, 12], TEXTCOLOR, 1, 0); 
+
+			// Points
+			float point_width = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+			float point_x = ((g_width/2) - (point_width)/2) + 52;
+			drawstring([point_x, 200 + (30 * i)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0); 
+
+			// Kills
+			float kill_width = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+			float kill_x = ((g_width/2) - (kill_width)/2) + 210;
+			drawstring([kill_x, 200 + (30 * i)], ftos(playerkills[i]), [12, 12], TEXTCOLOR, 1, 0); 
 		}
 	}
 }
 
 void() HUD_Endgame = {
-
-	string message = "GAME OVER";
-	string rnd = " rounds";
+	string game_over = "GAME OVER";
+	string survive;
+	string round;
 
 	if (rounds == 1)
-		rnd = " round";
+		round = " Round";
+	else
+		round = " Rounds";
 
-	string survive = strcat("You survived ", ftos(rounds), rnd);
-	
-	// first message
-	float print_width = stringwidth(message, 0, [(1/30)*g_width, (1/30)*g_width, 0]);
-	float x = (g_width - print_width)/2;
-	drawstring([x, g_height*(1/4), 0], message, [(1/30)*g_width, (1/30)*g_width, 0], [1, 1, 1], 1, 0);
+	survive = strcat("You Survived ", ftos(rounds), round);
 
-	// second message
-	print_width = stringwidth(survive, 0, [0.025*g_width, 0.025*g_width, 0]);
-	x = (g_width - print_width)/2;
-	drawstring([x,g_height*(1/3), 0], survive, [0.025*g_width, 0.025*g_width, 0], [1, 1, 1], 1, 0);
-	
-	// we can reuse our tab scores for the endgame
+	float game_over_width = stringwidth(game_over, 0, [24, 24]);
+	drawstring([g_width/2 - game_over_width/2, 100], game_over, [24, 24], [1, 1, 1], 1, 0);
+
+	float survive_width = stringwidth(survive, 0, [18, 18]);
+	drawstring([g_width/2 - survive_width/2, 135], survive, [18, 18], [1, 1, 1], 1, 0);
+
 	HUD_Scores();
 }
 
