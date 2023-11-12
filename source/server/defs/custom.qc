@@ -78,7 +78,6 @@ float global_trace_damage_multiplier;
 .float lastsound_time;
 .float isspec;
 string mappath;
-.float playernum;
 .float ads_toggle;
 float player_count;
 entity pl1;

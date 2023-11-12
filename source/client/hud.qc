@@ -1551,7 +1551,8 @@ void(float width, float height) HUD_PlayerNames =
 		float player_number = getplayerkeyfloat(i, "viewentity");
 
 		string text = getplayerkeyvalue(i, "name");
-		vector player_origin = getentity(player_number, GE_ORIGIN) + '0 0 48';
+		entity plr = findfloat(world, playernum, player_number);
+		vector player_origin = plr.origin + '0 0 48';
 		vector screen_position = project(player_origin);
 		vector text_color = '1 1 1';
 

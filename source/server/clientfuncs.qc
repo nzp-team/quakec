@@ -554,6 +554,9 @@ float Player_SendEntity( entity ePVEnt, float flChanged ) {
     WriteShort( MSG_ENTITY, self.velocity_x ); // Velocity X
     WriteShort( MSG_ENTITY, self.velocity_y ); // Velocity X
     WriteShort( MSG_ENTITY, self.velocity_z ); // Velocity X
+	WriteFloat( MSG_ENTITY, self.playernum ); // Player ID
+	WriteString( MSG_ENTITY, self.model ); // Player Model
+	WriteShort( MSG_ENTITY, self.movetype ); // Player Movetype
     WriteFloat( MSG_ENTITY, self.flags ); // Flags, important for physics
     return TRUE;
 }

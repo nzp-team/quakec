@@ -227,6 +227,8 @@ const float EVENT_LIMBGIB				= 44;
 #define STAT_FACINGENEMY 		66
 #define STAT_MAXHEALTH 			67
 
+.float playernum;
+
 //
 // invert float takes in float value between 0 and 1, inverts position
 // eg: 0.1 returns 0.9, 0.34 returns 0.66

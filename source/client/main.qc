@@ -591,8 +591,12 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.velocity_x = readshort();
 		self.velocity_y = readshort();
 		self.velocity_z = readshort();
+		self.playernum = readfloat();
+		self.model = readstring();
+		self.movetype = readshort();
 		self.flags = readfloat();
 			
+		setmodel(self, self.model);
 		setsize(self, [-16, -16, -32], [16, 16, 40]);
 		setorigin(self, self.origin);
 	} else {
