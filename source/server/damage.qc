@@ -581,11 +581,13 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 	
 	while (ent != world)
 	{
-		if(ent.classname == "player" && inflictor.owner == ent) // we don't want OUR explosives to harm other players..
+		if(ent.classname == "player")
 		{
 			if (ent.perks & P_FLOP)	// PhD Flopper makes us immune to any explosive damage
 				final_damage = 0;
 			else if (inflictor.classname == "betty") // Self-inflicted betties don't do damage either.
+				final_damage = 0;
+			else if (inflictor.owner != ent) // we don't want OUR explosives to harm other players..
 				final_damage = 0;
 			else
 			{
