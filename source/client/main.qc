@@ -62,6 +62,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	
 	precache_sound("sounds/menu/enter.wav");
 	precache_sound("sounds/menu/navigate.wav");
+	precache_model("models/player.mdl");
 
 	registercommand("togglemenu");
 	registercommand("startwalk");
@@ -507,10 +508,97 @@ void() Update_Vmodel =
 		mzlflash.alpha = 0.01;
 }
 
+float Player_PreDraw() =
+{
+    if (self.entnum == player_localentnum) {
+        self.movetype = MOVETYPE_WALK;
+		// Prepare rollback
+		vector vOldOrigin = self.origin;
+		vector vOldVelocity = self.velocity;
+		float fOldPMoveFlags = self.pmove_flags;
+
+		// Apply physics for every single input-frame that has not yet been
+		// acknowledged by the server (servercommandframe = last acknowledged frame)
+		for (int i = servercommandframe + 1; i <= clientcommandframe; i++) {
+		float flSuccess = getinputstate(i);
+
+			if (flSuccess == FALSE) {
+				continue;
+			}
+
+			// Partial frames are the worst
+			if (input_timelength == 0) {
+				break;
+			}
+			runstandardplayerphysics(self);
+		}
+				
+		// Smooth stair stepping, this has to be done manually!
+		playerOriginOld = playerOrigin;
+				
+		if ((self.flags & FL_ONGROUND) && (self.origin_z - playerOriginOld_z > 0)) {
+			playerOriginOld_z += frametime * 150;
+					
+			if (playerOriginOld_z > self.origin_z) {
+				playerOriginOld_z = self.origin_z;
+			}
+			if (self.origin_z - playerOriginOld_z > 18) {
+				playerOriginOld_z = self.origin_z - 18;
+			}
+			playerOrigin_z += playerOriginOld_z - self.origin_z;
+		} else {
+			playerOriginOld_z = self.origin_z;
+		}
+			
+		playerOrigin = [self.origin_x, self.origin_y, playerOriginOld_z];
+		playerVelocity = self.velocity;
+		addentity(self);
+
+		// Time to roll back
+		self.origin = vOldOrigin;
+		setorigin(self, self.origin);
+		self.velocity = vOldVelocity;
+		self.pmove_flags = fOldPMoveFlags;
+		self.movetype = MOVETYPE_NONE;
+
+		// Set renderflag for mirrors!
+		self.renderflags = RF_EXTERNALMODEL;
+    } else {
+        addentity(self);
+    }
+    return PREDRAW_NEXT;
+}
+
 noref void(float isnew) CSQC_Ent_Update =
 {
-	if(isnew)
-		addentity(self);
+	float ent_type = readbyte();
+
+	if (ent_type == 1) {
+		if (isnew == TRUE) {
+			self.classname = "player";
+			self.solid = SOLID_SLIDEBOX;
+			self.predraw = Player_PreDraw;
+			self.drawmask = MASK_ENGINE;
+			setmodel(self, "models/player.mdl");
+		}
+			
+		self.origin_x = readcoord();
+		self.origin_y = readcoord();
+		self.origin_z = readcoord();
+		self.angles_x = readcoord();
+		self.angles_y = readcoord();
+		self.angles_z = readcoord();
+		self.velocity_x = readshort();
+		self.velocity_y = readshort();
+		self.velocity_z = readshort();
+		self.flags = readfloat();
+			
+		setsize(self, [-16, -16, -32], [16, 16, 40]);
+		setorigin(self, self.origin);
+	} else {
+		if(isnew)
+			addentity(self);
+	}
 }
 
 float(__inout vector v) VectorNormalize =
@@ -848,6 +936,9 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 
 	//autoadd entities received from servers for drawing	
 	addentities(MASK_ENGINE);
+
+	setproperty(VF_ORIGIN, playerOrigin + [ 0, 0, getstatf(STAT_VIEWHEIGHT)]);
+	//setproperty(VF_ANGLES, view_angles);
 
 	//do viewmodel manipulation, purely cosmetic stuff
 	if(vmodel)

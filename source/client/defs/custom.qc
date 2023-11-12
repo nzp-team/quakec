@@ -249,3 +249,8 @@ string build_datetime;
 vector gun_kick;
 
 float hide_viewmodel;
+
+// csqc player prediction by eukara
+vector playerOrigin;
+vector playerOriginOld;
+vector playerVelocity;

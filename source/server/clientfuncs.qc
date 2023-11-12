@@ -534,6 +534,32 @@ void (float achievement_id, optional entity who) GiveAchievement =
 	}
 }
 
+#ifdef FTE
+
+/*
+=================
+Player_SendEntity
+
+    Networks the player info
+=================
+*/
+float Player_SendEntity( entity ePVEnt, float flChanged ) {
+    WriteByte( MSG_ENTITY, 1 );
+    WriteCoord( MSG_ENTITY, self.origin_x ); // Position X
+    WriteCoord( MSG_ENTITY, self.origin_y ); // Position Y
+    WriteCoord( MSG_ENTITY, self.origin_z ); // Position Z
+    WriteCoord( MSG_ENTITY, self.angles_x ); // Angle X
+    WriteCoord( MSG_ENTITY, self.angles_y ); // Angle Y
+    WriteCoord( MSG_ENTITY, self.angles_z ); // Angle Z
+    WriteShort( MSG_ENTITY, self.velocity_x ); // Velocity X
+    WriteShort( MSG_ENTITY, self.velocity_y ); // Velocity X
+    WriteShort( MSG_ENTITY, self.velocity_z ); // Velocity X
+    WriteFloat( MSG_ENTITY, self.flags ); // Flags, important for physics
+    return TRUE;
+}
+
+#endif // FTE
+
 void (float achievement_id, float progress_value, optional entity who) UpdateAchievementProgress =
 {
 

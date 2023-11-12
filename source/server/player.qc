@@ -347,6 +347,14 @@ void() PlayerPreThink =
 float player_trace_time;
 void() PlayerPostThink =
 {
+
+#ifdef FTE
+
+	// Network everything
+	self.SendFlags = 1;
+
+#endif // FTE
+
 	if(self.isspec)
 		return;
 			
@@ -671,6 +679,7 @@ void() PlayerSpawn =
 	stuffcmd(self, "cl_gunx 8;cl_guny 16;cl_gunz 25\n");
 	SetRound(self, G_STARTROUND);
 	self.viewzoom = 1;
+	self.SendEntity = Player_SendEntity;
 	self.weapon_animduration = getWeaponDelay(self.weapon, FIRE);
 
 	if (G_WORLDTEXT)
