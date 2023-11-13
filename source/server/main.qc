@@ -362,6 +362,51 @@ void() RelinkZombies =
 		if(ent.currentHitBoxSetup == 0)//empty bbox, we don't care to update
 			continue;
 
+#ifdef FTE
+		// This is just a weird hack we do to avoid spamming other clients in co-op with
+		// the update positions for limbs. Brings bandwidth from 90kbps->30kbps without
+		// a tick rate limit. 30kbps->12kbps with a tickrate of 20Hz. Basically, like we
+		// do other platforms for render speedups, if a zombie has all of its limbs dont
+		// bother drawing them all separately. draw one full mesh instead, then when it
+		// has been gibbed, then begin drawing separately -- cypress
+		if (ent.larm.deadflag && ent.rarm.deadflag && ent.head.deadflag) {
+			setmodel(ent.larm, "");
+			setmodel(ent.rarm, "");
+			setmodel(ent.head, "");
+
+			if (ent.crawling == 1)
+				setmodel(ent, "models/ai/zcfull.mdl");
+			else
+				setmodel(ent, "models/ai/zfull.mdl");
+		} else if (!(ent.crawling == 1 && ent.model == "models/ai/zbc%.mdl") || !(ent.model == "models/ai/zb%.mdl")) {
+			if (ent.crawling == 1)
+				setmodel(ent, "models/ai/zbc%.mdl");
+			else
+				setmodel(ent, "models/ai/zb%.mdl");
+
+			if (ent.larm.deadflag) {
+				if (ent.crawling == 1)
+					setmodel(ent.larm, "models/ai/zalc(.mdl");
+				else
+					setmodel(ent.larm, "models/ai/zal(.mdl");
+			}
+
+			if (ent.rarm.deadflag) {
+				if (ent.crawling == 1)
+					setmodel(ent.rarm, "models/ai/zarc(.mdl");
+				else
+					setmodel(ent.rarm, "models/ai/zar(.mdl");
+			}
+
+			if (ent.head.deadflag) {
+				if (ent.crawling == 1)
+					setmodel(ent.head, "models/ai/zhc^.mdl");
+				else
+					setmodel(ent.head, "models/ai/zh^.mdl");
+			}
+		}
+#endif // FTE
+
 		makevectors (ent.angles);
 
 		for(i = 0; i < 3; i++)
