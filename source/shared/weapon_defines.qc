@@ -2468,7 +2468,7 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case PUT_OUT_END:
 					return 53;
 				case RELOAD_CANCEL:
-					return 49;
+					return 48;
 			}
 			break;
 		case W_STG:
@@ -2598,7 +2598,7 @@ float(float wep, float frametype, optional float z) GetFrame =
 				case PUT_OUT_END:
 					return 71;
 				case RELOAD_CANCEL:
-					return 16;
+					return 39;
 			}
 			break;
 		case W_BK:
