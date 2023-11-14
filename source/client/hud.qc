@@ -1278,8 +1278,8 @@ void() Draw_Crosshair =
 	}
 	// Area of Effect (o)
 	else if (crosshair_value == 2) {
-		float circle_offset = stringwidth("O", 0, [12, 12])/2;
-		drawstring([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [12, 12], crosshair_color, 1, 0);
+		float circle_offset = stringwidth("O", 0, [14, 14])/2;
+		drawstring([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [14, 14], crosshair_color, 1, 0);
 	}
 	// Dot crosshair (.)
 	else if (crosshair_value == 3) {
