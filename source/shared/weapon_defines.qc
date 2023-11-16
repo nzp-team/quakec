@@ -3858,8 +3858,6 @@ float(float weapon, float stance) CrossHairWeapon =
 		case W_WIDOW:
 		case W_PPSH:
 		case W_REAPER:
-		case W_RAY:
-		case W_PORTER:
 		case W_TYPE:
 		case W_SAMURAI:
 		case W_FG:
@@ -3890,6 +3888,8 @@ float(float weapon, float stance) CrossHairWeapon =
 		case W_M1000:
 		case W_M1A1:
 		case W_WIDDER:
+		case W_RAY:
+		case W_PORTER:
 			crosshair_spread = 5;
 			break;
 		case W_PANZER:
@@ -3948,8 +3948,6 @@ float(float weapon, float stance) CrossHairMaxSpread =
 		case W_BARRACUDA:
 		case W_PPSH:
 		case W_REAPER:
-		case W_RAY:
-		case W_PORTER:
 		case W_TYPE:
 		case W_SAMURAI:
 		case W_BK:
@@ -3980,6 +3978,8 @@ float(float weapon, float stance) CrossHairMaxSpread =
 		case W_M1000:
 		case W_M1A1:
 		case W_WIDDER:
+		case W_RAY:
+		case W_PORTER:
 			crosshair_spread = 35;
 			break;
 		case W_PANZER:
