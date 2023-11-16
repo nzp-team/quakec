@@ -31,101 +31,197 @@ void(entity e) Light_None;
 void() Spawns_Init;
 void() Perk_UpdateQuickRevive;
 void() SUB_UseTargets;
+void() rec_downed;
 
 #define PLAYER_START_HEALTH		100
+
+#define PLAYER_ANIM_WALK 		1
+#define PLAYER_ANIM_SPRINT		2
 
 //
 // Player 3rd Person Animations
 //
 
-// Enter Last Stand
-void() PAnim_GetDown1	=[	1, 		PAnim_GetDown2	]	{self.frame = 32;};
-void() PAnim_GetDown2	=[	1, 		PAnim_GetDown3	]	{self.frame = 33;};
-void() PAnim_GetDown3	=[	1, 		PAnim_GetDown4	]	{self.frame = 34;};
-void() PAnim_GetDown4	=[	1, 		PAnim_GetDown5	]	{self.frame = 35;};
-void() PAnim_GetDown5	=[	1, 		PAnim_GetDown6	]	{self.frame = 36;};
-void() PAnim_GetDown6	=[	1, 		PAnim_GetDown6	]	{self.frame = 37;};
+// Walking
+void() PAnim_Walk		=[   1,     PAnim_Walk1			] {self.frame = 0;}
+void() PAnim_Walk1		=[   2,     PAnim_Walk2			] {self.frame = 1;}
+void() PAnim_Walk2		=[   3,     PAnim_Walk3			] {self.frame = 2;}
+void() PAnim_Walk3		=[   4,     PAnim_Walk4			] {self.frame = 3;}
+void() PAnim_Walk4		=[   5,     PAnim_Walk5			] {self.frame = 4;}
+void() PAnim_Walk5		=[   6,     PAnim_Walk6			] {self.frame = 5;}
+void() PAnim_Walk6		=[   7,     PAnim_Walk7			] {self.frame = 6;}
+void() PAnim_Walk7		=[   8,     PAnim_Walk8			] {self.frame = 7;}
+void() PAnim_Walk8		=[   9,     SUB_Null			] {self.frame = 8;}
 
-//
-void() playreload   	=[	1,		playreload1	  	] {self.frame = 11;}
-void() playreload1  	=[	2,		playreload2	  	] {self.frame = 12;}
-void() playreload2  	=[	3,		playreload3	  	] {self.frame = 13;}
-void() playreload3  	=[	4,		playreload4	  	] {self.frame = 14;}
-void() playreload4  	=[	5,		playreload5	  	] {self.frame = 15;}
-void() playreload5  	=[	6,		playreload6	  	] {self.frame = 16;}
-void() playreload6  	=[	7,		playreload7	  	] {self.frame = 17;}
-void() playreload7  	=[	8,		playreload8	 	] {self.frame = 18;}
-void() playreload8  	=[	9,		playreload9 	] {self.frame = 19;}
-void() playreload9   	=[	10,		playreload10	] {self.frame = 20;}
-void() playreload10 	=[	11,		playreload11	] {self.frame = 21;}
-void() playreload11 	=[	12,		playreload12	] {self.frame = 22;}
-void() playreload12 	=[	13,		playreload13	] {self.frame = 23;}
-void() playreload13 	=[	14,		playreload13	] {self.frame = 24;}
-//
-void() playdownfire 	=[	1,		playdownfire1	] {self.frame = 38;}
-void() playdownfire1  	=[	2,		playdownfire1	] {self.frame = 39;} 
-//
-void() playaim 	 		=[	1,		playaim1		] {self.frame = 8;} // naievil -- player aimin anim
-void() playaim1 		=[	2,		playaim1		] {self.frame = 9;} // naievil -- second player aimin anim
-//
-void() playout 	  		=[	1,		playout1		] {self.frame = 10;} // naievil -- player aim out anim
-void() playout1 		=[	2,		playout1		] {self.frame = 11;} // naievil -- second player aim out anim
-//
-void() playrun1 		=[	1,		playrun2		] {self.frame = 25;}
-void() playrun2 		=[	2,		playrun3		] {self.frame = 26;}
-void() playrun3		 	=[	3,		playrun4		] {self.frame = 27;}
-void() playrun4 		=[	4,		playrun5		] {self.frame = 28;}
-void() playrun5 		=[	5,		playrun6		] {self.frame = 29;}
-void() playrun6 		=[	6,		playrun7		] {self.frame = 30;}
-void() playrun7 		=[	7,		playrun8		] {self.frame = 31;}
-void() playrun8 		=[	8,		playrun9		] {self.frame = 25;}
-void() playrun9 		=[	9,		playrun10		] {self.frame = 26;}
-void() playrun10 		=[	10,		playrun11		] {self.frame = 27;}
-void() playrun11 		=[	11,		playrun12		] {self.frame = 28;}
-void() playrun12 		=[	12,		playrun13		] {self.frame = 29;}
-void() playrun13 		=[	13,		playrun14		] {self.frame = 30;}
-void() playrun14 		=[	14,		playrun15		] {self.frame = 25;}
-void() playrun15 		=[	15,		playrun16		] {self.frame = 26;}
-void() playrun16 		=[	16,		playrun17		] {self.frame = 27;}
-void() playrun17 		=[	17,		playrun18		] {self.frame = 28;}
-void() playrun18 		=[	18,		playrun19		] {self.frame = 29;}
-void() playrun19 		=[	19,		playrun20		] {self.frame = 30;}
-void() playrun20 		=[	20,		playrun21		] {self.frame = 31;}
-void() playrun21 		=[	21,		playrun22		] {self.frame = 25;}
-void() playrun22 		=[	22,		playrun23		] {self.frame = 26;}
-void() playrun23 		=[	23,		playrun24 		] {self.frame = 27;}
-void() playrun24 		=[	24,		playrun25		] {self.frame = 28;}
-void() playrun25 		=[	25,		playrun26		] {self.frame = 29;}
-void() playrun26 		=[	26,		playrun27		] {self.frame = 30;}
-void() playrun27 		=[	27,		playrun28		] {self.frame = 25;}
-void() playrun28 		=[	28,		playrun29		] {self.frame = 26;}
-void() playrun29 		=[	29,		playrun30		] {self.frame = 27;}
-void() playrun30 		=[	30,		playrun31		] {self.frame = 28;}
-void() playrun31 		=[	31,		playrun32		] {self.frame = 29;}
-void() playrun32 		=[	32,		playrun33		] {self.frame = 30;}
-void() playrun33 		=[	33,		playrun33		] {self.frame = 31;}
-//
-void() playwalk		    =[   1,     playwalk1		] {if (self.velocity) { self.frame = 0; }}
-void() playwalk1		=[   2,     playwalk2		] {if (self.velocity) { self.frame = 1; }}
-void() playwalk2		=[   3,     playwalk3		] {if (self.velocity) { self.frame = 2; }}
-void() playwalk3		=[   4,     playwalk4		] {if (self.velocity) { self.frame = 3; }}
-void() playwalk4		=[   5,     playwalk5		] {if (self.velocity) { self.frame = 4; }}
-void() playwalk5		=[   6,     playwalk6		] {if (self.velocity) { self.frame = 5; }}
-void() playwalk6		=[   7,     playwalk7		] {if (self.velocity) { self.frame = 6; }}
-void() playwalk7		=[   8,     playwalk8		] {if (self.velocity) { self.frame = 7; }}
-void() playwalk8		=[   9,     playwalk8		] {if (self.velocity) { self.frame = 8; }}
-//
-void() playgetup 		=[	1,		playgetup1		] {self.frame = 38;}
-void() playgetup1 		=[	2,		playgetup2		] {self.frame = 39;}
-void() playgetup2		=[	3,		playgetup3		] {self.frame = 40;}
-void() playgetup3		=[	4,		playgetup4		] {self.frame = 41;}
-void() playgetup4		=[	5,		playgetup5		] {self.frame = 42;}
-void() playgetup5		=[	6,		playgetup6		] {self.frame = 43;}
-void() playgetup6		=[	7,		playgetup7		] {self.frame = 44;}
-void() playgetup7		=[	8,		playgetup8		] {self.frame = 45;}
-void() playgetup8		=[	9,		playgetup9		] {self.frame = 46;}
-void() playgetup9		=[	10,		playgetup10		] {self.frame = 47;}
-void() playgetup10		=[	11,		playgetup10		] {self.frame = 48;}
+// Sprinting
+void() PAnim_Sprint 	=[	1,		PAnim_Sprint1		] {self.frame = 25;}
+void() PAnim_Sprint1 	=[	2,		PAnim_Sprint2		] {self.frame = 26;}
+void() PAnim_Sprint2	=[	3,		PAnim_Sprint3		] {self.frame = 27;}
+void() PAnim_Sprint3 	=[	4,		PAnim_Sprint4		] {self.frame = 28;}
+void() PAnim_Sprint4 	=[	5,		PAnim_Sprint5		] {self.frame = 29;}
+void() PAnim_Sprint5 	=[	6,		PAnim_Sprint6		] {self.frame = 30;}
+void() PAnim_Sprint6 	=[	7,		SUB_Null			] {self.frame = 31;}
+
+// Reloading
+void() PAnim_Reload   	=[	1,		PAnim_Reload1	  	] {self.frame = 11;}
+void() PAnim_Reload1  	=[	2,		PAnim_Reload2	  	] {self.frame = 12;}
+void() PAnim_Reload2  	=[	3,		PAnim_Reload3	  	] {self.frame = 13;}
+void() PAnim_Reload3  	=[	4,		PAnim_Reload4	  	] {self.frame = 14;}
+void() PAnim_Reload4  	=[	5,		PAnim_Reload5	  	] {self.frame = 15;}
+void() PAnim_Reload5  	=[	6,		PAnim_Reload6	  	] {self.frame = 16;}
+void() PAnim_Reload6  	=[	7,		PAnim_Reload7	  	] {self.frame = 17;}
+void() PAnim_Reload7  	=[	8,		PAnim_Reload8	 	] {self.frame = 18;}
+void() PAnim_Reload8  	=[	9,		PAnim_Reload9 		] {self.frame = 19;}
+void() PAnim_Reload9   	=[	10,		PAnim_Reload10		] {self.frame = 20;}
+void() PAnim_Reload10 	=[	11,		PAnim_Reload11		] {self.frame = 21;}
+void() PAnim_Reload11 	=[	12,		PAnim_Reload12		] {self.frame = 22;}
+void() PAnim_Reload12 	=[	13,		PAnim_Reload13		] {self.frame = 23;}
+void() PAnim_Reload13 	=[	14,		SUB_Null			] {self.frame = 24;}
+
+// Firing
+void() PAnim_Fire 		=[	1,		PAnim_Fire1	  		] {self.frame = 9;}
+void() PAnim_Fire1 		=[	2,		SUB_Null	  		] {self.frame = 10;}
+
+// Melee
+void() PAnim_Melee 		=[	1,		PAnim_Melee1	  	] {self.frame = 49;}
+void() PAnim_Melee1 	=[	2,		PAnim_Melee2	  	] {self.frame = 50;}
+void() PAnim_Melee2 	=[	3,		PAnim_Melee3	  	] {self.frame = 51;}
+void() PAnim_Melee3 	=[	4,		PAnim_Melee4	  	] {self.frame = 52;}
+void() PAnim_Melee4 	=[	5,		PAnim_Melee5	  	] {self.frame = 53;}
+void() PAnim_Melee5 	=[	6,		PAnim_Melee6	  	] {self.frame = 54;}
+void() PAnim_Melee6 	=[	7,		SUB_Null	  		] {self.frame = 55;}
+
+// Weapon Swap
+void() PAnim_Swap 		=[	1,		PAnim_Swap1	  		] {self.frame = 56;}
+void() PAnim_Swap1 		=[	2,		PAnim_Swap2	  		] {self.frame = 57;}
+void() PAnim_Swap2 		=[	3,		PAnim_Swap3	  		] {self.frame = 58;}
+void() PAnim_Swap3 		=[	4,		PAnim_Swap4	  		] {self.frame = 59;}
+void() PAnim_Swap4 		=[	5,		PAnim_Swap5	  		] {self.frame = 60;}
+void() PAnim_Swap5 		=[	6,		PAnim_Swap6	  		] {self.frame = 61;}
+void() PAnim_Swap6 		=[	7,		PAnim_Swap7	  		] {self.frame = 62;}
+void() PAnim_Swap7 		=[	8,		PAnim_Swap8	  		] {self.frame = 63;}
+void() PAnim_Swap8 		=[	9,		SUB_Null	  		] {self.frame = 64;}
+
+// Enter Dolphin Dive 
+void() PAnim_EnterDive 	=[	1,		PAnim_EnterDive1	] {self.frame = 203;}
+void() PAnim_EnterDive1 =[	2,		PAnim_EnterDive2	] {self.frame = 204;}
+void() PAnim_EnterDive2 =[	3,		PAnim_EnterDive3	] {self.frame = 205;}
+void() PAnim_EnterDive3 =[	4,		PAnim_EnterDive4	] {self.frame = 206;}
+void() PAnim_EnterDive4 =[	5,		SUB_Null			] {self.frame = 207;}
+
+// Flop from Dive
+void() PAnim_Flop 		=[	1,		PAnim_Flop1			] {self.frame = 208;}
+void() PAnim_Flop1 		=[	2,		PAnim_Flop2			] {self.frame = 209;}
+void() PAnim_Flop2 		=[	3,		PAnim_Flop3			] {self.frame = 210;}
+void() PAnim_Flop3 		=[	4,		SUB_Null			] {self.frame = 211;}
+
+// Enter Stand
+void() PAnim_Stand 		=[  1, 		PAnim_Stand1		] {self.frame = 114;}
+void() PAnim_Stand1 	=[  2, 		PAnim_Stand2		] {self.frame = 113;}
+void() PAnim_Stand2 	=[  3, 		SUB_Null			] {self.frame = 0;}
+
+// Enter Crouch
+void() PAnim_Crouch 	=[  1, 		PAnim_Crouch1		] {self.frame = 113;}
+void() PAnim_Crouch1 	=[  2, 		PAnim_Crouch2		] {self.frame = 114;}
+void() PAnim_Crouch2 	=[  3, 		SUB_Null			] {self.frame = 115;}
+
+// Walking, while Crouch
+void() PAnim_CrouchWalk =[  1, 		PAnim_CrouchWalk1	] {self.frame = 116;}
+void() PAnim_CrouchWalk1=[  2, 		PAnim_CrouchWalk2	] {self.frame = 117;}
+void() PAnim_CrouchWalk2=[  3, 		PAnim_CrouchWalk3	] {self.frame = 118;}
+void() PAnim_CrouchWalk3=[  4, 		PAnim_CrouchWalk4	] {self.frame = 119;}
+void() PAnim_CrouchWalk4=[  5, 		PAnim_CrouchWalk5	] {self.frame = 120;}
+void() PAnim_CrouchWalk5=[  6, 		PAnim_CrouchWalk6	] {self.frame = 121;}
+void() PAnim_CrouchWalk6=[  7, 		PAnim_CrouchWalk7	] {self.frame = 122;}
+void() PAnim_CrouchWalk7=[  8, 		PAnim_CrouchWalk8	] {self.frame = 123;}
+void() PAnim_CrouchWalk8=[  9, 		SUB_Null			] {self.frame = 124;}
+
+// Reloading, while Crouch
+void() PAnim_CrReload   =[	1,		PAnim_CrReload1	  	] {self.frame = 128;}
+void() PAnim_CrReload1  =[	2,		PAnim_CrReload2	  	] {self.frame = 129;}
+void() PAnim_CrReload2  =[	3,		PAnim_CrReload3	  	] {self.frame = 130;}
+void() PAnim_CrReload3  =[	4,		PAnim_CrReload4	  	] {self.frame = 131;}
+void() PAnim_CrReload4  =[	5,		PAnim_CrReload5	  	] {self.frame = 132;}
+void() PAnim_CrReload5  =[	6,		PAnim_CrReload6	  	] {self.frame = 133;}
+void() PAnim_CrReload6  =[	7,		PAnim_CrReload7	  	] {self.frame = 134;}
+void() PAnim_CrReload7  =[	8,		PAnim_CrReload8	 	] {self.frame = 135;}
+void() PAnim_CrReload8  =[	9,		PAnim_CrReload9 	] {self.frame = 136;}
+void() PAnim_CrReload9  =[	10,		SUB_Null			] {self.frame = 115;}
+
+// Firing, while Crouch
+void() PAnim_CrouchFire =[	1,		PAnim_CrouchFire1	] {self.frame = 126;}
+void() PAnim_CrouchFire1=[	2,		SUB_Null	  		] {self.frame = 127;}
+
+// Enter Prone
+void() PAnim_Prone 		=[  1, 		PAnim_Prone1		] {self.frame = 154;}
+void() PAnim_Prone1 	=[  2, 		PAnim_Prone2		] {self.frame = 155;}
+void() PAnim_Prone2 	=[  3, 		PAnim_Prone3		] {self.frame = 156;}
+void() PAnim_Prone3 	=[  4, 		PAnim_Prone4		] {self.frame = 157;}
+void() PAnim_Prone4 	=[  5, 		PAnim_Prone5		] {self.frame = 158;}
+void() PAnim_Prone5 	=[  6, 		PAnim_Prone6		] {self.frame = 159;}
+void() PAnim_Prone6 	=[  7, 		PAnim_Prone7		] {self.frame = 160;}
+void() PAnim_Prone7 	=[  8, 		PAnim_Prone8		] {self.frame = 161;}
+void() PAnim_Prone8 	=[  9, 		SUB_Null			] {self.frame = 162;}
+
+// Walking, while Prone
+void() PAnim_ProneWalk	=[  1, 		PAnim_ProneWalk1	] {self.frame = 162;}
+void() PAnim_ProneWalk1	=[  2, 		PAnim_ProneWalk2	] {self.frame = 163;}
+void() PAnim_ProneWalk2	=[  3, 		PAnim_ProneWalk3	] {self.frame = 164;}
+void() PAnim_ProneWalk3	=[  4, 		PAnim_ProneWalk4	] {self.frame = 165;}
+void() PAnim_ProneWalk4	=[  5, 		PAnim_ProneWalk5	] {self.frame = 166;}
+void() PAnim_ProneWalk5	=[  6, 		PAnim_ProneWalk6	] {self.frame = 167;}
+void() PAnim_ProneWalk6	=[  7, 		PAnim_ProneWalk7	] {self.frame = 168;}
+void() PAnim_ProneWalk7	=[  8, 		PAnim_ProneWalk8	] {self.frame = 169;}
+void() PAnim_ProneWalk8	=[  9, 		PAnim_ProneWalk9	] {self.frame = 170;}
+void() PAnim_ProneWalk9	=[  10, 	PAnim_ProneWalk10	] {self.frame = 171;}
+void() PAnim_ProneWalk10=[  11, 	PAnim_ProneWalk11	] {self.frame = 172;}
+void() PAnim_ProneWalk11=[  12, 	PAnim_ProneWalk12	] {self.frame = 173;}
+void() PAnim_ProneWalk12=[  13, 	SUB_Null			] {self.frame = 174;}
+
+// Reloading, while Prone 176-181
+void() PAnim_PrReload   =[	1,		PAnim_PrReload1	  	] {self.frame = 176;}
+void() PAnim_PrReload1  =[	2,		PAnim_PrReload2	  	] {self.frame = 177;}
+void() PAnim_PrReload2  =[	3,		PAnim_PrReload3	  	] {self.frame = 178;}
+void() PAnim_PrReload3  =[	4,		PAnim_PrReload4	  	] {self.frame = 179;}
+void() PAnim_PrReload4  =[	5,		PAnim_PrReload5	  	] {self.frame = 180;}
+void() PAnim_PrReload5  =[	6,		PAnim_PrReload6	  	] {self.frame = 181;}
+void() PAnim_PrReload6  =[	7,		SUB_Null	  		] {self.frame = 162;}
+
+// Enter Crouch, from Prone
+void() PAnim_UpCrouch 	=[  1, 		PAnim_UpCrouch1		] {self.frame = 161;}
+void() PAnim_UpCrouch1 	=[  2, 		PAnim_UpCrouch2		] {self.frame = 160;}
+void() PAnim_UpCrouch2 	=[  3, 		PAnim_UpCrouch3		] {self.frame = 159;}
+void() PAnim_UpCrouch3 	=[  4, 		PAnim_UpCrouch4		] {self.frame = 158;}
+void() PAnim_UpCrouch4 	=[  5, 		PAnim_UpCrouch5		] {self.frame = 157;}
+void() PAnim_UpCrouch5 	=[  6, 		PAnim_UpCrouch6		] {self.frame = 156;}
+void() PAnim_UpCrouch6 	=[  7, 		PAnim_UpCrouch7		] {self.frame = 155;}
+void() PAnim_UpCrouch7 	=[  8, 		PAnim_UpCrouch8		] {self.frame = 154;}
+void() PAnim_UpCrouch8 	=[  9, 		SUB_Null			] {self.frame = 115;}
+
+// Enter Last Stand
+void() PAnim_GetDown	=[	1, 		PAnim_GetDown1		] {self.frame = 32;};
+void() PAnim_GetDown1	=[	2, 		PAnim_GetDown2		] {self.frame = 33;};
+void() PAnim_GetDown2	=[	3, 		PAnim_GetDown3		] {self.frame = 34;};
+void() PAnim_GetDown3	=[	4, 		PAnim_GetDown4		] {self.frame = 35;};
+void() PAnim_GetDown4	=[	5, 		PAnim_GetDown5		] {self.frame = 36;};
+void() PAnim_GetDown5	=[	6, 		SUB_Null			] {self.frame = 37; rec_downed();};
+
+// Firing, while in Last Stand
+void() PAnim_LastFire 	=[	1,		PAnim_LastFire1		] {self.frame = 36;}
+void() PAnim_LastFire1  =[	2,		SUB_Null			] {self.frame = 37;} 
+
+// Leave Last Stand
+void() PAnim_GetUp 		=[	1,		PAnim_GetUp1		] {self.frame = 39;}
+void() PAnim_GetUp1		=[	2,		PAnim_GetUp2		] {self.frame = 40;}
+void() PAnim_GetUp2		=[	3,		PAnim_GetUp3		] {self.frame = 41;}
+void() PAnim_GetUp3		=[	4,		PAnim_GetUp4		] {self.frame = 42;}
+void() PAnim_GetUp4		=[	5,		PAnim_GetUp5		] {self.frame = 43;}
+void() PAnim_GetUp5		=[	6,		PAnim_GetUp6		] {self.frame = 44;}
+void() PAnim_GetUp6		=[	7,		PAnim_GetUp7		] {self.frame = 45;}
+void() PAnim_GetUp7		=[	8,		PAnim_GetUp8		] {self.frame = 46;}
+void() PAnim_GetUp8		=[	9,		PAnim_GetUp9		] {self.frame = 47;}
+void() PAnim_GetUp9		=[	10,		SUB_Null			] {self.frame = 48;}
+
 
 #define forward 	0
 #define backward 	1
@@ -237,7 +333,7 @@ void() PlayerPreThink =
 
 #endif // FTE
 
-			playrun1();
+			//playrun1();
 			self.maxspeed *= 1.5; // down from 1.66x, to match WaW
 		} else if (!self.sprinting && !self.zoom) {
 
@@ -367,13 +463,26 @@ void() PlayerPostThink =
 #ifdef FTE
 
 	//footsteps
-	if((vlen(self.velocity) > 100) &&(( time - self.lastsound_time > 0.4) || (time - self.lastsound_time > 0.3 && self.sprinting)) && (self.flags & FL_ONGROUND))
+	if((vlen(self.velocity) > 20) &&(( time - self.lastsound_time > 0.4) || (time - self.lastsound_time > 0.3 && self.sprinting)) && (self.flags & FL_ONGROUND))
 	{
-		local float movelen = vlen(input_movevalues);
+		float movelen = vlen(input_movevalues);
 		if(movelen > 300)
 		{
-			if (!self.sprinting)
-				playwalk();
+			if (self.tp_anim_time < time) {
+				if (self.sprinting) {
+					PAnim_Sprint();
+					self.tp_anim_time = time + 0.5;
+					self.tp_anim_type = PLAYER_ANIM_SPRINT;
+				} else {
+					self.tp_anim_time = time + 0.5;
+					self.tp_anim_type = PLAYER_ANIM_WALK;
+					switch(self.stance) {
+						case 2: PAnim_Walk(); break;
+						case 1: PAnim_CrouchWalk(); break;
+						case 0: PAnim_ProneWalk(); self.tp_anim_time += 0.65; break;
+					}
+				}
+			}
 				
 			local float ran = random();
 			if(ran > 0.8)

@@ -149,9 +149,6 @@ void() W_AimIn =
 	} else {
 		self.zoom = 1;
 	}
-	
-	if (!self.downed)	
-		playaim();
 }
 
 void() W_AimOut =
@@ -172,9 +169,6 @@ void() W_AimOut =
 	self.zoom = 0;
 
 #endif // FTE
-	
-	if (!self.downed)
-		playout();
 }
 
 void() W_SprintStop =
@@ -194,9 +188,6 @@ void() W_SprintStop =
 	self.sprinting = 0;
 	self.into_sprint = 0;
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
-	
-	if (self.velocity)
-		playwalk();
 }
 
 
@@ -249,6 +240,9 @@ void() W_PutOut =
 	
 	W_AimOut();
 	W_HideCrosshair(self);
+
+	if (self.stance == 2)
+		PAnim_Swap();
 	
 	if (self.weapon_count != 1 && !self.new_anim_stop)
 		Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, W_PutOutHack, duration);
@@ -433,7 +427,11 @@ void(float side) W_Reload =
 	
 	if (self.weapons[0].weapon_reserve)
 	{
-		playreload();
+		switch(self.stance) {
+			case 2: PAnim_Reload(); break;
+			case 1: PAnim_CrReload(); break;
+			case 0: if (!self.downed) PAnim_PrReload(); break;
+		}
 		
 		startframe = GetFrame(self.weapon,RELOAD_START);
 		endframe = GetFrame(self.weapon,RELOAD_END);
@@ -1043,6 +1041,16 @@ void(float side) W_Fire =
 		W_LoadAmmo();
 		return;
 	}
+
+	if (self.downed)
+		PAnim_LastFire();
+	else {
+		switch(self.stance) {
+			case 2: PAnim_Fire(); break;
+			case 1: PAnim_CrouchFire(); break;
+			case 0: break;
+		}
+	}
 	
 	//get some basic info
 	damage = getWeaponDamage(self.weapon);
@@ -1085,9 +1093,6 @@ void(float side) W_Fire =
 		else
 			spread *= 0.15;
 	}
-
-	if (self.downed)
-		playdownfire();
 
 	// Check if weapon is semi-automatic and if it is, if it's ready to be fired.
 	if (Weapon_IsSemiAutomatic(self.weapon)) {
@@ -1234,6 +1239,9 @@ void () W_Knife =
 	}
 
 	W_HideCrosshair(self);
+
+	if (self.stance == 2)
+		PAnim_Melee();
 	
 	backupSkin = self.weaponskin;
 	self.weaponskin = 0;
@@ -1531,23 +1539,28 @@ void() Change_Stance = {
 		case 2: 
 			self.new_ofs_z = self.view_ofs_z - 24;
 			self.stance = 1;
+			PAnim_Crouch();
 			break;
 		case 1:
 			if (self.isBuying) { //don't want to prone while buying a perk..
 				self.stance = 2;
 				self.new_ofs_z = self.view_ofs_z + 24;
+				PAnim_Stand();
 			} else if (!self.stancereset) {
 				self.new_ofs_z = self.view_ofs_z - 18;
 				self.stance = 0;
+				PAnim_Prone();
 			} else {
 				self.new_ofs_z = self.view_ofs_z + 24;
 				self.stance = 2;
 				self.stancereset = 0;
+				PAnim_Stand();
 			}
 			break;
 		case 0:
 			self.new_ofs_z = self.view_ofs_z + 18;
 			self.stance = self.stancereset = 1;
+			PAnim_UpCrouch();
 			break;
 		default: break;
 	}
@@ -1589,6 +1602,7 @@ void() dolphin_dive =		//naievil
 
 	self.dive = 1;
 	W_SprintStop();
+	PAnim_EnterDive();
 
 	sound(self, CHAN_VOICE, "sounds/player/jump.wav", 1, 1);
 
@@ -1815,6 +1829,7 @@ void() CheckPlayer =
 				CallExplosion(self.origin);
 				CallExplosion(self.origin);
 			}
+			PAnim_Flop();
 			self.dive = 0;
 		}
 

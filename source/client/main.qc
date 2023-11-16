@@ -593,8 +593,10 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.velocity_z = readshort();
 		self.playernum = readfloat();
 		self.model = readstring();
+		self.frame = readbyte();
 		self.movetype = readshort();
 		self.flags = readfloat();
+		self.scale = 1.4;
 			
 		setmodel(self, self.model);
 		setsize(self, [-16, -16, -32], [16, 16, 40]);

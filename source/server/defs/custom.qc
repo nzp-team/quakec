@@ -139,6 +139,8 @@ float sprint_max_time = 4.0;
 .float sprint_start_time;
 .float sprint_stop_time;
 .float sprint_rest_time;
+.float tp_anim_time;
+.float tp_anim_type;
 void() W_SprintStop;
 .float into_sprint;
 .float dive;

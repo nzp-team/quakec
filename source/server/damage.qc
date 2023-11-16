@@ -187,9 +187,6 @@ void() GetDown =
 	// Make any zombies inside of the player's bounding box leave
 	push_away_zombies();
 
-	// Play Last Stand Animation
-	PAnim_GetDown1();
-
 	// Force the player to prone.
 	if (self.stance == 2) self.new_ofs_z = self.view_ofs_z - 42;
 	if (self.stance == 1) self.new_ofs_z = self.view_ofs_z - 24;
@@ -332,13 +329,14 @@ void() GetDown =
 		revive_index++;
 	}
 
-	self.think = rec_downed;
-	self.nextthink = time + 0.1;
+	// Play Last Stand Animation
+	PAnim_GetDown();
 }
 
 void () GetUp =
 {	
-	playgetup();				// animation
+	// Play Getting Up Animation
+	PAnim_GetUp();
 	
 	self.new_ofs_z = self.view_ofs_z + 42;
 	self.stance = 2;
