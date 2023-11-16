@@ -499,7 +499,7 @@ void() LinkDoors =
 
 			if (self.health)
 				return;
-			if (self.targetname)
+			if (self.targetname && self.classname != "door_nzp_cost")
 				return;
 
 			self.owner.trigger_field = spawn_field(cmins, cmaxs);
