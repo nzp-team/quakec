@@ -465,12 +465,12 @@ void() zombie_footstep
 	if(self.laststep == 1)
 	{
 		self.laststep = 0;
-		sound(self, 5, "sounds/zombie/s0.wav", 1, ATTN_NORM);
+		sound(self, 5, "sounds/zombie/s0.wav", 0.6, ATTN_NORM);
 	}
 	else
 	{
 		self.laststep = 1;
-		sound(self, 5, "sounds/zombie/s1.wav", 1, ATTN_NORM);
+		sound(self, 5, "sounds/zombie/s1.wav", 0.6, ATTN_NORM);
 	}
 }
 

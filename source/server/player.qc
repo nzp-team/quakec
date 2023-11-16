@@ -171,7 +171,6 @@ void() PlayerJump =
 	}
 			
 	self.flags = self.flags - (self.flags & FL_JUMPRELEASED);
-	sound(self, CHAN_VOICE, "sounds/player/jump.wav", 1, 1.75);
 
 	if (self.button2)
 		self.button2 = 0;
@@ -361,8 +360,7 @@ void() PlayerPostThink =
 	//landsound
 	if((self.oldvelocity_z < -10) && (self.flags & FL_ONGROUND))
 	{
-		if(self.oldvelocity_z < -270)
-			sound(self, CHAN_BODY, "sounds/player/land.wav", 1, 1.75);
+		sound(self, CHAN_BODY, "sounds/player/land.wav", 0.6, 1.75);
 		self.lastsound_time = time - 0.15;
 	}
 	
@@ -379,15 +377,15 @@ void() PlayerPostThink =
 				
 			local float ran = random();
 			if(ran > 0.8)
-				sound(self, CHAN_BODY, "sounds/player/footstep1.wav", 0.8, 2.5);
+				sound(self, CHAN_BODY, "sounds/player/footstep1.wav", 0.6, 2.5);
 			else if(ran > 0.6)
-				sound(self, CHAN_BODY, "sounds/player/footstep2.wav", 0.8, 2.5);
+				sound(self, CHAN_BODY, "sounds/player/footstep2.wav", 0.6, 2.5);
 			else if(ran > 0.4)
-				sound(self, CHAN_BODY, "sounds/player/footstep3.wav", 0.8, 2.5);
+				sound(self, CHAN_BODY, "sounds/player/footstep3.wav", 0.6, 2.5);
 			else if(ran > 0.2)
-				sound(self, CHAN_BODY, "sounds/player/footstep4.wav", 0.8, 2.5);
+				sound(self, CHAN_BODY, "sounds/player/footstep4.wav", 0.6, 2.5);
 			else
-				sound(self, CHAN_BODY, "sounds/player/footstep5.wav", 0.8, 2.5);
+				sound(self, CHAN_BODY, "sounds/player/footstep5.wav", 0.6, 2.5);
 			self.lastsound_time = time;
 		}
 	}

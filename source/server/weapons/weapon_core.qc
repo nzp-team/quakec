@@ -1590,6 +1590,8 @@ void() dolphin_dive =		//naievil
 	self.dive = 1;
 	W_SprintStop();
 
+	sound(self, CHAN_VOICE, "sounds/player/jump.wav", 1, 1);
+
 	self.oldz = self.origin_z;
 	self.new_ofs_z = self.view_ofs_z - 42;
 	self.stance = 0;
