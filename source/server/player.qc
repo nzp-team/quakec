@@ -468,7 +468,8 @@ void() PlayerPostThink =
 		float movelen = vlen(input_movevalues);
 		if(movelen > 300)
 		{
-			if (self.tp_anim_time < time) {
+			if (self.tp_anim_time < time && self.reload_delay < time && self.reload_delay2 < time && self.fire_delay < time &&
+			self.fire_delay2 < time && self.knife_delay < time) {
 				if (self.sprinting) {
 					PAnim_Sprint();
 					self.tp_anim_time = time + 0.5;

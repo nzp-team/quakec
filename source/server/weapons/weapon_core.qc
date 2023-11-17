@@ -185,6 +185,8 @@ void() W_SprintStop =
 	Weapon_PlayViewModelAnimation(ANIM_SPRINT_STOP, ReturnWeaponModel, 0);
 
 	self.zoom = 0;
+	self.tp_anim_time = 0;
+	PAnim_Walk6(); // Run Walk for a few frames to simulate an ease in velocity
 	self.sprinting = 0;
 	self.into_sprint = 0;
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
