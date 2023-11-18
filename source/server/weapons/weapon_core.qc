@@ -1168,7 +1168,7 @@ void(float side) W_Fire =
 
 	// Players shouldn't be allowed to move while firing and prone.
 	if (self.stance == 0) {
-		self.speed_penalty = 0;
+		self.speed_penalty = 0.01;
 		self.speed_penalty_time = time + delay;
 	}
 
