@@ -477,9 +477,9 @@ void() PlayerPostThink =
 
 	if(self.isspec)
 		return;
-			
+
 	//landsound
-	if((self.oldvelocity_z < -10) && (self.flags & FL_ONGROUND))
+	if((self.oldvelocity_z < -212) && (self.flags & FL_ONGROUND))
 	{
 		sound(self, CHAN_BODY, "sounds/player/land.wav", 0.6, 1.75);
 		self.lastsound_time = time - 0.15;

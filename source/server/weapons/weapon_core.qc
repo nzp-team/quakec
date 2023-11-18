@@ -1845,8 +1845,10 @@ void() CheckPlayer =
 	}
 	
 	if (!self.button2 && self.flags & FL_ONGROUND) {
+		float dist = fabs(self.oldz - self.origin_z);
+
 		if (self.dive) {
-			if (self.perks & P_FLOP && fabs(self.oldz - self.origin_z) >= 64) {
+			if (self.perks & P_FLOP && dist >= 64) {
 				sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);	
 				DamgageExplode (self, self, 5000, 1000, 300);
 
@@ -1864,8 +1866,8 @@ void() CheckPlayer =
 			self.dive = 0;
 		}
 
-		if (fabs(self.oldz - self.origin_z) + 64 > 176 && !(self.perks & P_FLOP)) {
-			float height = fabs(self.oldz - self.origin_z) + 64;
+		if (dist + 64 > 176 && !(self.perks & P_FLOP)) {
+			float height = dist + 64;
 			float damage = height*(0.68);
 
 			if (damage > 98) damage = 98;
