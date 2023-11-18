@@ -188,9 +188,10 @@ void() GetDown =
 	push_away_zombies();
 
 	// Force the player to prone.
-	if (self.stance == 2) self.new_ofs_z = self.view_ofs_z - 42;
-	if (self.stance == 1) self.new_ofs_z = self.view_ofs_z - 24;
+	if (self.stance == 2) self.new_ofs_z = self.view_ofs_z - (PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT);
+	if (self.stance == 1) self.new_ofs_z = self.view_ofs_z - PLAYER_CROUCH_HEIGHT;
 	self.stance = 0;
+	setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 
 	// Get rid of Mule Kick Weapon
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
@@ -337,9 +338,20 @@ void () GetUp =
 {	
 	// Play Getting Up Animation
 	PAnim_GetUp();
+
+	// Player is able to get up from here
+	if (Player_CanStandHere(self)) {
+		self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
+		self.stance = 2;
+		setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+	}
+	// They can't, so make them crouch instead
+	else {
+		self.new_ofs_z = self.view_ofs_z + PLAYER_PRONE_HEIGHT;
+		self.stance = 1;
+		PAnim_CrouchWalk7(); // bad hack so they dont just end up fucking standing in a wall.
+	}
 	
-	self.new_ofs_z = self.view_ofs_z + 42;
-	self.stance = 2;
 	self.health = 100;
 	self.downedloop = 0;		// used for death timing vs endgame
 	self.downed = 0;

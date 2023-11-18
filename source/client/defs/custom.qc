@@ -168,6 +168,8 @@ vector TEXT_RED       = [1, 0, 0];
 float fade_time;
 float fade_type;
 
+.float stance;
+
 float menu_initialized;
 
 float customs_interact;

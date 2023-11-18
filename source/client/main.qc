@@ -596,10 +596,14 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.frame = readbyte();
 		self.movetype = readshort();
 		self.flags = readfloat();
+		self.stance = readbyte();
 		self.scale = 1.4;
 			
 		setmodel(self, self.model);
-		setsize(self, [-16, -16, -32], [16, 16, 40]);
+		if (self.stance == 2)
+			setsize(self, [-16, -16, -32], [16, 16, 40]);
+		else
+			setsize(self, [-16, -16, -32], [16, 16, 4]);
 		setorigin(self, self.origin);
 	} else {
 		if(isnew)

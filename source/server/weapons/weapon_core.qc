@@ -1539,29 +1539,44 @@ void() Change_Stance = {
 
 	switch(self.stance) {
 		case 2: 
-			self.new_ofs_z = self.view_ofs_z - 24;
+			self.new_ofs_z = self.view_ofs_z - PLAYER_CROUCH_HEIGHT;
 			self.stance = 1;
 			PAnim_Crouch();
+			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 			break;
 		case 1:
-			if (self.isBuying) { //don't want to prone while buying a perk..
+			// Prohibit Proning if Drinking a Perk-A-Cola
+			if (self.isBuying && Player_CanStandHere(self)) {
 				self.stance = 2;
-				self.new_ofs_z = self.view_ofs_z + 24;
+				self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
 				PAnim_Stand();
-			} else if (!self.stancereset) {
-				self.new_ofs_z = self.view_ofs_z - 18;
+				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+			} 
+			// Stance flag isn't set, so go Prone.
+			else if (!self.stancereset) {
+				self.new_ofs_z = self.view_ofs_z - PLAYER_PRONE_HEIGHT;
 				self.stance = 0;
 				PAnim_Prone();
-			} else {
-				self.new_ofs_z = self.view_ofs_z + 24;
+			} 
+			// Stance flag IS set, so stand if applicable.
+			else if (Player_CanStandHere(self)) {
+				self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
 				self.stance = 2;
 				self.stancereset = 0;
 				PAnim_Stand();
+				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+			} 
+			// There's no room to stand, just prone again.
+			else {
+				self.new_ofs_z = self.view_ofs_z - PLAYER_PRONE_HEIGHT;
+				self.stance = 0;
+				PAnim_Prone();
 			}
 			break;
 		case 0:
-			self.new_ofs_z = self.view_ofs_z + 18;
+			self.new_ofs_z = self.view_ofs_z + PLAYER_PRONE_HEIGHT;
 			self.stance = self.stancereset = 1;
+			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 			PAnim_UpCrouch();
 			break;
 		default: break;
@@ -1609,8 +1624,9 @@ void() dolphin_dive =		//naievil
 	sound(self, CHAN_VOICE, "sounds/player/jump.wav", 1, 1);
 
 	self.oldz = self.origin_z;
-	self.new_ofs_z = self.view_ofs_z - 42;
+	self.new_ofs_z = self.view_ofs_z - (PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT);
 	self.stance = 0;
+	setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 }
 
 
@@ -1643,16 +1659,18 @@ void () Impulse_Functions =
 
 #endif // FTE
 
-			if (self.dive || self.downed)
+			if (self.dive || self.downed || !Player_CanStandHere(self))
 				return;
 			switch(self.stance) {
 				case 0:
-					self.new_ofs_z = self.view_ofs_z + 42;
+					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
 					self.stance = 2;
+					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 					break;
 				case 1:
-					self.new_ofs_z = self.view_ofs_z + 24;
+					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
 					self.stance = 2;
+					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 					break;
 				default: break;
 			}
@@ -1802,10 +1820,10 @@ void() CheckPlayer =
 	// FIXME - can't do frame independent stance changing.. ofs starts spazzing..
 	if (self.view_ofs_z > self.new_ofs_z) {
 			self.changestance = true;
-			self.view_ofs_z = self.view_ofs_z - 1.5;
+			self.view_ofs_z = self.view_ofs_z - 1;
 	} else if (self.view_ofs_z < self.new_ofs_z) {
 			self.changestance = true;
-			self.view_ofs_z = self.view_ofs_z + 1.5;
+			self.view_ofs_z = self.view_ofs_z + 1;
 	} else {
 		self.changestance = false;
 	}
@@ -1813,6 +1831,17 @@ void() CheckPlayer =
 	if (self.view_ofs_z > 32) {
 		self.view_ofs_z = 32;
 		self.changestance = false;
+	}
+
+	// Diving on top of other players :)
+	if (self.dive && !(self.flags & FL_ONGROUND)) {
+		makevectors(self.angles);
+		traceline(self.origin, self.origin + (v_up * -40), 0, self);
+
+		if (trace_ent.classname == "player") {
+			DamageHandler(self, trace_ent, 100000, S_NORMAL);
+			DamageHandler(trace_ent, self, 100000, S_NORMAL);
+		}
 	}
 	
 	if (!self.button2 && self.flags & FL_ONGROUND) {

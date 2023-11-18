@@ -559,6 +559,13 @@ float Player_SendEntity( entity ePVEnt, float flChanged ) {
 	WriteByte( MSG_ENTITY, self.frame ); // Player's Frame
 	WriteShort( MSG_ENTITY, self.movetype ); // Player Movetype
     WriteFloat( MSG_ENTITY, self.flags ); // Flags, important for physics
+	WriteByte( MSG_ENTITY, self.stance ); // Player Stance
+	// WriteCoord( MSG_ENTITY, self.mins_x ); // Min Size X
+	// WriteCoord( MSG_ENTITY, self.mins_y ); // Min Size Y
+	// WriteCoord( MSG_ENTITY, self.maxs_z ); // Max Size Z
+	// WriteCoord( MSG_ENTITY, self.maxs_x ); // Max Size X
+	// WriteCoord( MSG_ENTITY, self.maxs_y ); // Max Size Y
+	// WriteCoord( MSG_ENTITY, self.maxs_z ); // Max Size Z
     return TRUE;
 }
 

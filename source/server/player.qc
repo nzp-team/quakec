@@ -35,6 +35,17 @@ void() rec_downed;
 
 #define PLAYER_START_HEALTH		100
 
+// 32x32x72
+#define PLAYER_MINS_STANDING 	'-16 -16 -32'
+#define PLAYER_MAXS_STANDING 	'16 16 40'
+
+// 32x32x36
+#define PLAYER_MINS_CROUCHING	'-16 -16 -32'
+#define PLAYER_MAXS_CROUCHING 	'16 16 4'
+
+#define PLAYER_CROUCH_HEIGHT 	25
+#define PLAYER_PRONE_HEIGHT 	23
+
 #define PLAYER_ANIM_WALK 		1
 #define PLAYER_ANIM_SPRINT		2
 
@@ -43,7 +54,7 @@ void() rec_downed;
 //
 
 // Walking
-void() PAnim_Walk		=[   1,     PAnim_Walk1			] {self.frame = 0;}
+void() PAnim_Walk		=[   1,     PAnim_Walk1			] {self.frame = 0; self.tp_anim_time = time + 0.5;}
 void() PAnim_Walk1		=[   2,     PAnim_Walk2			] {self.frame = 1;}
 void() PAnim_Walk2		=[   3,     PAnim_Walk3			] {self.frame = 2;}
 void() PAnim_Walk3		=[   4,     PAnim_Walk4			] {self.frame = 3;}
@@ -54,7 +65,7 @@ void() PAnim_Walk7		=[   8,     PAnim_Walk8			] {self.frame = 7;}
 void() PAnim_Walk8		=[   9,     SUB_Null			] {self.frame = 8;}
 
 // Sprinting
-void() PAnim_Sprint 	=[	1,		PAnim_Sprint1		] {self.frame = 25;}
+void() PAnim_Sprint 	=[	1,		PAnim_Sprint1		] {self.frame = 25; self.tp_anim_time = time + 0.65;}
 void() PAnim_Sprint1 	=[	2,		PAnim_Sprint2		] {self.frame = 26;}
 void() PAnim_Sprint2	=[	3,		PAnim_Sprint3		] {self.frame = 27;}
 void() PAnim_Sprint3 	=[	4,		PAnim_Sprint4		] {self.frame = 28;}
@@ -63,7 +74,7 @@ void() PAnim_Sprint5 	=[	6,		PAnim_Sprint6		] {self.frame = 30;}
 void() PAnim_Sprint6 	=[	7,		SUB_Null			] {self.frame = 31;}
 
 // Reloading
-void() PAnim_Reload   	=[	1,		PAnim_Reload1	  	] {self.frame = 11;}
+void() PAnim_Reload   	=[	1,		PAnim_Reload1	  	] {self.frame = 11; self.tp_anim_time = time + 1;}
 void() PAnim_Reload1  	=[	2,		PAnim_Reload2	  	] {self.frame = 12;}
 void() PAnim_Reload2  	=[	3,		PAnim_Reload3	  	] {self.frame = 13;}
 void() PAnim_Reload3  	=[	4,		PAnim_Reload4	  	] {self.frame = 14;}
@@ -79,11 +90,11 @@ void() PAnim_Reload12 	=[	13,		PAnim_Reload13		] {self.frame = 23;}
 void() PAnim_Reload13 	=[	14,		SUB_Null			] {self.frame = 24;}
 
 // Firing
-void() PAnim_Fire 		=[	1,		PAnim_Fire1	  		] {self.frame = 9;}
+void() PAnim_Fire 		=[	1,		PAnim_Fire1	  		] {self.frame = 9; self.tp_anim_time = time + 0.25;}
 void() PAnim_Fire1 		=[	2,		SUB_Null	  		] {self.frame = 10;}
 
 // Melee
-void() PAnim_Melee 		=[	1,		PAnim_Melee1	  	] {self.frame = 49;}
+void() PAnim_Melee 		=[	1,		PAnim_Melee1	  	] {self.frame = 49; self.tp_anim_time = time + 0.65;}
 void() PAnim_Melee1 	=[	2,		PAnim_Melee2	  	] {self.frame = 50;}
 void() PAnim_Melee2 	=[	3,		PAnim_Melee3	  	] {self.frame = 51;}
 void() PAnim_Melee3 	=[	4,		PAnim_Melee4	  	] {self.frame = 52;}
@@ -92,7 +103,7 @@ void() PAnim_Melee5 	=[	6,		PAnim_Melee6	  	] {self.frame = 54;}
 void() PAnim_Melee6 	=[	7,		SUB_Null	  		] {self.frame = 55;}
 
 // Weapon Swap
-void() PAnim_Swap 		=[	1,		PAnim_Swap1	  		] {self.frame = 56;}
+void() PAnim_Swap 		=[	1,		PAnim_Swap1	  		] {self.frame = 56; self.tp_anim_time = time + 1;}
 void() PAnim_Swap1 		=[	2,		PAnim_Swap2	  		] {self.frame = 57;}
 void() PAnim_Swap2 		=[	3,		PAnim_Swap3	  		] {self.frame = 58;}
 void() PAnim_Swap3 		=[	4,		PAnim_Swap4	  		] {self.frame = 59;}
@@ -103,30 +114,30 @@ void() PAnim_Swap7 		=[	8,		PAnim_Swap8	  		] {self.frame = 63;}
 void() PAnim_Swap8 		=[	9,		SUB_Null	  		] {self.frame = 64;}
 
 // Enter Dolphin Dive 
-void() PAnim_EnterDive 	=[	1,		PAnim_EnterDive1	] {self.frame = 203;}
+void() PAnim_EnterDive 	=[	1,		PAnim_EnterDive1	] {self.frame = 203; self.tp_anim_time = time + 5;}
 void() PAnim_EnterDive1 =[	2,		PAnim_EnterDive2	] {self.frame = 204;}
 void() PAnim_EnterDive2 =[	3,		PAnim_EnterDive3	] {self.frame = 205;}
 void() PAnim_EnterDive3 =[	4,		PAnim_EnterDive4	] {self.frame = 206;}
 void() PAnim_EnterDive4 =[	5,		SUB_Null			] {self.frame = 207;}
 
 // Flop from Dive
-void() PAnim_Flop 		=[	1,		PAnim_Flop1			] {self.frame = 208;}
+void() PAnim_Flop 		=[	1,		PAnim_Flop1			] {self.frame = 208; self.tp_anim_time = time + 1;}
 void() PAnim_Flop1 		=[	2,		PAnim_Flop2			] {self.frame = 209;}
 void() PAnim_Flop2 		=[	3,		PAnim_Flop3			] {self.frame = 210;}
 void() PAnim_Flop3 		=[	4,		SUB_Null			] {self.frame = 211;}
 
 // Enter Stand
-void() PAnim_Stand 		=[  1, 		PAnim_Stand1		] {self.frame = 114;}
+void() PAnim_Stand 		=[  1, 		PAnim_Stand1		] {self.frame = 114; self.tp_anim_time = time + 1;}
 void() PAnim_Stand1 	=[  2, 		PAnim_Stand2		] {self.frame = 113;}
 void() PAnim_Stand2 	=[  3, 		SUB_Null			] {self.frame = 0;}
 
 // Enter Crouch
-void() PAnim_Crouch 	=[  1, 		PAnim_Crouch1		] {self.frame = 113;}
+void() PAnim_Crouch 	=[  1, 		PAnim_Crouch1		] {self.frame = 113; self.tp_anim_time = time + 0.5;}
 void() PAnim_Crouch1 	=[  2, 		PAnim_Crouch2		] {self.frame = 114;}
 void() PAnim_Crouch2 	=[  3, 		SUB_Null			] {self.frame = 115;}
 
 // Walking, while Crouch
-void() PAnim_CrouchWalk =[  1, 		PAnim_CrouchWalk1	] {self.frame = 116;}
+void() PAnim_CrouchWalk =[  1, 		PAnim_CrouchWalk1	] {self.frame = 116; self.tp_anim_time = time + 0.5;}
 void() PAnim_CrouchWalk1=[  2, 		PAnim_CrouchWalk2	] {self.frame = 117;}
 void() PAnim_CrouchWalk2=[  3, 		PAnim_CrouchWalk3	] {self.frame = 118;}
 void() PAnim_CrouchWalk3=[  4, 		PAnim_CrouchWalk4	] {self.frame = 119;}
@@ -137,7 +148,7 @@ void() PAnim_CrouchWalk7=[  8, 		PAnim_CrouchWalk8	] {self.frame = 123;}
 void() PAnim_CrouchWalk8=[  9, 		SUB_Null			] {self.frame = 124;}
 
 // Reloading, while Crouch
-void() PAnim_CrReload   =[	1,		PAnim_CrReload1	  	] {self.frame = 128;}
+void() PAnim_CrReload   =[	1,		PAnim_CrReload1	  	] {self.frame = 128; self.tp_anim_time = time + 1;}
 void() PAnim_CrReload1  =[	2,		PAnim_CrReload2	  	] {self.frame = 129;}
 void() PAnim_CrReload2  =[	3,		PAnim_CrReload3	  	] {self.frame = 130;}
 void() PAnim_CrReload3  =[	4,		PAnim_CrReload4	  	] {self.frame = 131;}
@@ -149,11 +160,11 @@ void() PAnim_CrReload8  =[	9,		PAnim_CrReload9 	] {self.frame = 136;}
 void() PAnim_CrReload9  =[	10,		SUB_Null			] {self.frame = 115;}
 
 // Firing, while Crouch
-void() PAnim_CrouchFire =[	1,		PAnim_CrouchFire1	] {self.frame = 126;}
+void() PAnim_CrouchFire =[	1,		PAnim_CrouchFire1	] {self.frame = 126; self.tp_anim_time = time + 0.25;}
 void() PAnim_CrouchFire1=[	2,		SUB_Null	  		] {self.frame = 127;}
 
 // Enter Prone
-void() PAnim_Prone 		=[  1, 		PAnim_Prone1		] {self.frame = 154;}
+void() PAnim_Prone 		=[  1, 		PAnim_Prone1		] {self.frame = 154; self.tp_anim_time = time + 1.5;}
 void() PAnim_Prone1 	=[  2, 		PAnim_Prone2		] {self.frame = 155;}
 void() PAnim_Prone2 	=[  3, 		PAnim_Prone3		] {self.frame = 156;}
 void() PAnim_Prone3 	=[  4, 		PAnim_Prone4		] {self.frame = 157;}
@@ -164,7 +175,7 @@ void() PAnim_Prone7 	=[  8, 		PAnim_Prone8		] {self.frame = 161;}
 void() PAnim_Prone8 	=[  9, 		SUB_Null			] {self.frame = 162;}
 
 // Walking, while Prone
-void() PAnim_ProneWalk	=[  1, 		PAnim_ProneWalk1	] {self.frame = 162;}
+void() PAnim_ProneWalk	=[  1, 		PAnim_ProneWalk1	] {self.frame = 162; self.tp_anim_time = time + 1.5;}
 void() PAnim_ProneWalk1	=[  2, 		PAnim_ProneWalk2	] {self.frame = 163;}
 void() PAnim_ProneWalk2	=[  3, 		PAnim_ProneWalk3	] {self.frame = 164;}
 void() PAnim_ProneWalk3	=[  4, 		PAnim_ProneWalk4	] {self.frame = 165;}
@@ -178,8 +189,8 @@ void() PAnim_ProneWalk10=[  11, 	PAnim_ProneWalk11	] {self.frame = 172;}
 void() PAnim_ProneWalk11=[  12, 	PAnim_ProneWalk12	] {self.frame = 173;}
 void() PAnim_ProneWalk12=[  13, 	SUB_Null			] {self.frame = 174;}
 
-// Reloading, while Prone 176-181
-void() PAnim_PrReload   =[	1,		PAnim_PrReload1	  	] {self.frame = 176;}
+// Reloading, while Prone
+void() PAnim_PrReload   =[	1,		PAnim_PrReload1	  	] {self.frame = 176; self.tp_anim_time = time + 1;}
 void() PAnim_PrReload1  =[	2,		PAnim_PrReload2	  	] {self.frame = 177;}
 void() PAnim_PrReload2  =[	3,		PAnim_PrReload3	  	] {self.frame = 178;}
 void() PAnim_PrReload3  =[	4,		PAnim_PrReload4	  	] {self.frame = 179;}
@@ -188,7 +199,7 @@ void() PAnim_PrReload5  =[	6,		PAnim_PrReload6	  	] {self.frame = 181;}
 void() PAnim_PrReload6  =[	7,		SUB_Null	  		] {self.frame = 162;}
 
 // Enter Crouch, from Prone
-void() PAnim_UpCrouch 	=[  1, 		PAnim_UpCrouch1		] {self.frame = 161;}
+void() PAnim_UpCrouch 	=[  1, 		PAnim_UpCrouch1		] {self.frame = 161; self.tp_anim_time = time + 1;}
 void() PAnim_UpCrouch1 	=[  2, 		PAnim_UpCrouch2		] {self.frame = 160;}
 void() PAnim_UpCrouch2 	=[  3, 		PAnim_UpCrouch3		] {self.frame = 159;}
 void() PAnim_UpCrouch3 	=[  4, 		PAnim_UpCrouch4		] {self.frame = 158;}
@@ -199,7 +210,7 @@ void() PAnim_UpCrouch7 	=[  8, 		PAnim_UpCrouch8		] {self.frame = 154;}
 void() PAnim_UpCrouch8 	=[  9, 		SUB_Null			] {self.frame = 115;}
 
 // Enter Last Stand
-void() PAnim_GetDown	=[	1, 		PAnim_GetDown1		] {self.frame = 32;};
+void() PAnim_GetDown	=[	1, 		PAnim_GetDown1		] {self.frame = 32; self.tp_anim_time = time + 1;};
 void() PAnim_GetDown1	=[	2, 		PAnim_GetDown2		] {self.frame = 33;};
 void() PAnim_GetDown2	=[	3, 		PAnim_GetDown3		] {self.frame = 34;};
 void() PAnim_GetDown3	=[	4, 		PAnim_GetDown4		] {self.frame = 35;};
@@ -207,11 +218,11 @@ void() PAnim_GetDown4	=[	5, 		PAnim_GetDown5		] {self.frame = 36;};
 void() PAnim_GetDown5	=[	6, 		SUB_Null			] {self.frame = 37; rec_downed();};
 
 // Firing, while in Last Stand
-void() PAnim_LastFire 	=[	1,		PAnim_LastFire1		] {self.frame = 36;}
+void() PAnim_LastFire 	=[	1,		PAnim_LastFire1		] {self.frame = 36; self.tp_anim_time = time + 0.25;}
 void() PAnim_LastFire1  =[	2,		SUB_Null			] {self.frame = 37;} 
 
 // Leave Last Stand
-void() PAnim_GetUp 		=[	1,		PAnim_GetUp1		] {self.frame = 39;}
+void() PAnim_GetUp 		=[	1,		PAnim_GetUp1		] {self.frame = 39; self.tp_anim_time = time + 1;}
 void() PAnim_GetUp1		=[	2,		PAnim_GetUp2		] {self.frame = 40;}
 void() PAnim_GetUp2		=[	3,		PAnim_GetUp3		] {self.frame = 41;}
 void() PAnim_GetUp3		=[	4,		PAnim_GetUp4		] {self.frame = 42;}
@@ -257,6 +268,19 @@ float(float dir) checkMovement =
 	}
 }
 
+//
+// Player_CanStandHere
+// Performs a tracebox and will return true
+// if the player can stance in their current
+// space.
+//
+float(entity who) Player_CanStandHere =
+{
+	tracebox(who.origin, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING, who.origin, true, who);
+
+	return !trace_startsolid;
+}
+
 void() PlayerJump =
 {
 	if (!(self.flags & FL_ONGROUND) 
@@ -295,18 +319,19 @@ void(float override) JumpCheck =
 			  W_SprintStop();
 		  }
 			PlayerJump();
-		} else if (self.view_ofs_z == self.new_ofs_z && (self.flags & FL_ONGROUND)) {
+		} else if (self.view_ofs_z == self.new_ofs_z && (self.flags & FL_ONGROUND) && Player_CanStandHere(self)) {
 			switch(self.stance) {
 				case 0:
-					self.new_ofs_z = self.view_ofs_z + 42;
+					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
 					self.stance = 2;
 					break;
 				case 1:
-					self.new_ofs_z = self.view_ofs_z + 24;
+					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
 					self.stance = 2;
 					break;
 				default: break;
 			}
+			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 		}
 	} else
 		self.flags = self.flags | FL_JUMPRELEASED;
@@ -459,6 +484,31 @@ void() PlayerPostThink =
 		sound(self, CHAN_BODY, "sounds/player/land.wav", 0.6, 1.75);
 		self.lastsound_time = time - 0.15;
 	}
+
+	// Walking Animations
+	if (self.tp_anim_time < time && self.reload_delay < time && self.reload_delay2 < time 
+	&& self.fire_delay < time && self.fire_delay2 < time && self.knife_delay < time) {
+		if (vlen(self.velocity) > 20) {
+			if (self.sprinting) {
+				PAnim_Sprint();
+				self.tp_anim_type = PLAYER_ANIM_SPRINT;
+			} else {
+				self.tp_anim_type = PLAYER_ANIM_WALK;
+				switch(self.stance) {
+					case 2: PAnim_Walk(); break;
+					case 1: PAnim_CrouchWalk(); break;
+					case 0: PAnim_ProneWalk(); break;
+				}
+			}
+		} else {
+			// Stand still so Crouch Walk isn't stuck in place
+			switch(self.stance) {
+				case 2: self.frame = 0; break;
+				case 1: self.frame = 115; break;
+				case 0: self.frame = 162; break;
+			}
+		}
+	}
 	
 #ifdef FTE
 
@@ -467,24 +517,7 @@ void() PlayerPostThink =
 	{
 		float movelen = vlen(input_movevalues);
 		if(movelen > 300)
-		{
-			if (self.tp_anim_time < time && self.reload_delay < time && self.reload_delay2 < time && self.fire_delay < time &&
-			self.fire_delay2 < time && self.knife_delay < time) {
-				if (self.sprinting) {
-					PAnim_Sprint();
-					self.tp_anim_time = time + 0.5;
-					self.tp_anim_type = PLAYER_ANIM_SPRINT;
-				} else {
-					self.tp_anim_time = time + 0.5;
-					self.tp_anim_type = PLAYER_ANIM_WALK;
-					switch(self.stance) {
-						case 2: PAnim_Walk(); break;
-						case 1: PAnim_CrouchWalk(); break;
-						case 0: PAnim_ProneWalk(); self.tp_anim_time += 0.65; break;
-					}
-				}
-			}
-				
+		{		
 			local float ran = random();
 			if(ran > 0.8)
 				sound(self, CHAN_BODY, "sounds/player/footstep1.wav", 0.6, 2.5);
@@ -744,7 +777,7 @@ void() PlayerSpawn =
 	Player_PickSpawnPoint();
 	
 	self.fixangle = true;
-	setsize(self, [-16, -16, -32], [16, 16, 40]);
+	setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 	self.view_ofs = VEC_VIEW_OFS; // naievil -- set view_ofs to 32 to maintain half life (64) sizes
 	self.stance = 2;
 	self.new_ofs_z = self.view_ofs_z;
@@ -804,7 +837,7 @@ void() PlayerSpawn =
 	if (G_STARTROUND != 1) {
 		rounds = G_STARTROUND - 1;
 	}
-
+	self.perks = 8;
 };
 
 void() SpectatorSpawn =
@@ -820,7 +853,7 @@ void() SpectatorSpawn =
 	self.movetype = MOVETYPE_FLY;
 	self.origin = spawnpoint.origin + [0,0,1];
 	self.fixangle = TRUE;
-	setsize(self, [-16, -16, -24], [16, 16, 32]);
+	setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 	self.view_ofs = '0 0 22';
 	self.aiment = world;
 };
