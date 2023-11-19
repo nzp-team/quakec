@@ -3,7 +3,7 @@
 
 	main csqc code
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2023 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -1086,6 +1086,7 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	else
 	{
 		HUD_Draw(g_width, g_height);
+		Chat_Draw();
 	}
 };
 
@@ -1366,6 +1367,12 @@ noref void() CSQC_Parse_Event =
 				pointparticles(particleeffectnum("blood.blood_particle"), gloc, '0 0 0', 1);
 				pointparticles(particleeffectnum("blood.gibs"), gloc, '0 0 0', 1);
 			}
+			break;
+		case EVENT_CHATMESSAGE:
+			int sender = readbyte();
+			int player_id = readbyte();
+			string message = readstring();
+			Chat_Register(sender, player_id, message);
 			break;
 		case EVENT_WEAPONCHANGE:
 			local float to;

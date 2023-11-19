@@ -181,6 +181,26 @@ float(string params) Command_tracedmgmultiplier =
 }
 
 //
+// Command_say()
+// Sends message via CSQC to other clients (FTE-only)
+//
+float(string params) Command_say =
+{	
+	// Grab parameters.
+    tokenize(params);
+	string value = argv(0);
+
+#ifdef FTE
+
+	CSQC_SendChatMessage(self.playernum, params);
+
+#endif // FTE
+
+	client_parse_override = false;
+	return COMMAND_SUCCESS;
+}
+
+//
 // Server command table
 // command_name         : Command string entered into developer console.
 // command_function     : QuakeC function called when command is executed.
@@ -201,15 +221,31 @@ var struct {
 	{"god", Command_godmode, false, "Toggles God Mode.\n"},
 	{"noclip", Command_noclip, false, "Toggles No Clip.\n"},
 	{"sv_tracedmgmultiplier", Command_tracedmgmultiplier, true, "Multiplies damage output with weapons that fire Traces.\n"},
-	{"spawn_pu", Command_powerup, true, "Spawns a Power-Up of a given ID in front of you. -1 for random.\n"}
+	{"spawn_pu", Command_powerup, true, "Usage: spawn_pu <powerup>\n  Spawns a Power-Up of a given ID in front of you. -1 for random.\n"},
+	{"say", Command_say, true, "Usage: say <message>\n  Sends a chat message to CSQC for other clients.\n"}
 };
+
+//
+// SV_IsCommand(command_string)
+// Takes a single string and references if it is a
+// registered command, returns true if it is. Useful
+// for cl_chatmode interferring with custom commands.
+//
+float(string command_string) SV_IsCommand =
+{
+	for (float i = 0; i < server_commands.length; i++) {
+		if (command_string == server_commands[i].command_name)
+			return true;
+	}
+
+	return false;
+}
 
 //
 // SV_ParseClientCommand(command_string)
 // Server-Side client command parser to add special
 // gameplay commands that interact with QuakeC.
 //
-
 void(string command_string) SV_ParseClientCommand =
 {
 	// If true, we will avoid sending the command info
@@ -225,10 +261,10 @@ void(string command_string) SV_ParseClientCommand =
 	// Check for 'say' prefix (`cl_chatmode 2` will append it
 	// to everything unregistered by the client). Re-tokenize
 	// if found.
-	if (command == "say") {
+	if (command == "say" && SV_IsCommand(argv(1))) {
 		string fixed_command_string = argv(1);
 		tokenize(fixed_command_string);
-		command = argv(0);
+		command = argv(0);	
 	}
 
     // Now iterate over our commands

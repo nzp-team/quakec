@@ -536,6 +536,15 @@ void (float achievement_id, optional entity who) GiveAchievement =
 
 #ifdef FTE
 
+void CSQC_SendChatMessage(float player_id, string message) {
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_CHATMESSAGE);
+	WriteByte(MSG_MULTICAST, num_for_edict(self) - 1);
+	WriteByte(MSG_MULTICAST, player_id);
+	WriteString(MSG_MULTICAST, message);
+	multicast('0 0 0', MULTICAST_ALL);
+}
+
 /*
 =================
 Player_SendEntity

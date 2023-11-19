@@ -8,4 +8,5 @@
 ../source/client/menu.qc
 ../source/client/achievements.qc
 ../source/client/hud.qc
+../source/client/chat.qc
 ../source/client/main.qc
