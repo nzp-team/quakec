@@ -837,7 +837,6 @@ void() PlayerSpawn =
 	if (G_STARTROUND != 1) {
 		rounds = G_STARTROUND - 1;
 	}
-	self.perks = 8;
 };
 
 void() SpectatorSpawn =
