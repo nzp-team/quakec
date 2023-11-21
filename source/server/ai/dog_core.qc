@@ -69,7 +69,7 @@ void()	dog_idleanim6	=[	$dogstand6,	dog_idleanim	] {Dog_Think();self.frame = 24;
 // 25-34
 $frame dogmelee1 dogmelee2 dogmelee3 dogmelee4 dogmelee5 dogmelee6 dogmelee7 dogmelee8 dogmelee9 dogmelee10
 void()	dog_meleeanim	=[	$dogmelee1, 	dog_meleeanim2	] {Dog_Think(); makevectors(self.angles); self.velocity += v_forward * 50; self.frame = 26;};
-void()	dog_meleeanim2	=[	$dogmelee2, 	dog_meleeanim3	] {Dog_Think();Zombie_Walk(0);self.frame = 28;};
+void()	dog_meleeanim2	=[	$dogmelee2, 	dog_meleeanim3	] {Dog_Think();Zombie_Walk(0);self.frame = 28;sound(self, CHAN_VOICE, "sounds/hound/a0.wav", 1, ATTN_NORM);};
 void()	dog_meleeanim3	=[	$dogmelee3, 	dog_meleeanim4	] {Dog_Think();Zombie_Walk(0);zombie_attack2();self.frame = 30;};
 void()	dog_meleeanim4	=[	$dogmelee4, 	dog_meleeanim5	] {Dog_Think();Zombie_Walk(0);self.frame = 32;};
 void()	dog_meleeanim5	=[	$dogmelee5, 	dog_runanim		] {Dog_Think();Zombie_Walk(0);self.frame = 34;};
@@ -116,8 +116,27 @@ void() Dog_Walk_Setup =
 		dog_runanim();
 };
 
+//
+// Dog_Taunt()
+// Plays some random Taunt sounds
+//
+void() Dog_Taunt =
+{
+	if (self.sound_time > time)
+		return;
+
+	self.sound_time = time + 3 * random();
+
+	if (random() > 0.5)
+		sound(self, CHAN_VOICE, "sounds/hound/t0.wav", 1, ATTN_NORM);
+	else
+		sound(self, CHAN_VOICE, "sounds/hound/t1.wav", 1, ATTN_NORM);
+}
+
 void() Dog_Think =
 {
+	Dog_Taunt();
+
 	// Hellhounds begin to run whenever their target is in their line of sight.
 	// So perform a tracemove and see if it hits it
 	if (self.ads_release == 0) {
@@ -185,14 +204,17 @@ void() Dog_Death = {
 	if (self.onfire || self.electro_targeted) {
 		self.frame = 0;
 		setmodel(self, "models/sprites/explosion.spr");
-		sound (self, CHAN_VOICE, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);
+		sound (self, CHAN_WEAPON, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);
 		dog_explodeanim();
 	} else {
 		dog_deathanim();
 	}
 
+	sound(self, CHAN_BODY, "sounds/hound/d0.wav", 1, ATTN_NORM);
+
 	self.onfire = 0;
 	self.ads_release = 0;
+	spawn_time = time + zombie_spawn_delay;
 };
 
 
@@ -396,6 +418,8 @@ void(entity where) spawn_dog_lightning =
 	dogsprite.nextthink = time + 0.05;
 	dogsprite.ltime = time + 1.3; // we use ltime here to be out remove timer,
 								  // since using frames interrupts think()
+
+	sound(self, CHAN_AUTO, "sounds/misc/electric_bolt.wav", 1, ATTN_NONE);
 }
 
 float() spawn_a_dogA =
@@ -435,7 +459,7 @@ float() spawn_a_dogA =
 			//spawn_a_dogB(lastspawn);
 			spawn_dog_lightning(lastspawn);
 			dogCount++;
-			spawn_delay = time + 2;
+			spawn_time = time + zombie_spawn_delay;
 			return true;
 		}
 		lastspawn = find(lastspawn, classname, "spawn_dog");
@@ -453,6 +477,12 @@ void() spawn_dog =
 	precache_sound("sounds/rounds/droundend.wav");
 	precache_sound("sounds/rounds/droundstart.wav");
 	
+	precache_sound("sounds/misc/electric_bolt.wav");
+	precache_sound("sounds/hound/d0.wav");
+	precache_sound("sounds/hound/a0.wav");
+	precache_sound("sounds/hound/t0.wav");
+	precache_sound("sounds/hound/t1.wav");
+
 	setsize(self, '0 0 0', '0 0 0');
 	if (self.spawnflags & INACTIVE)
 	{
