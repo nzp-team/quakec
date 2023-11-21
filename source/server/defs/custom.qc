@@ -147,6 +147,8 @@ void() W_SprintStop;
 .float dive_delay;
 .vector movement;
 
+.float hunt_count; // How many Hellhounds are hunting a client
+
 //Weaponsystem defines
 void SwitchWeapon(float to);
 void GetUp();

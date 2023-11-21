@@ -27,6 +27,7 @@
 
 void(float what) play_sound_z;
 void() LinkZombiesHitbox;
+entity() Dog_FindEnemy;
 
 void() path_corner_touch =
 {
@@ -657,11 +658,18 @@ inline float(vector start, vector min, vector max, vector end, float nomonsters,
 #endif // FTE
 
 void(float dist) Inside_Walk = {
-	if(self.enemy_timeout < time || self.enemy == world || self.enemy.downed == true) {
-		self.enemy_timeout = time + 5;
-		local entity oldEnemy;
-		oldEnemy = self.enemy;
-		self.enemy = find_new_enemy(self);
+	// Hellhounds should only change targets if current one is in Last Stand
+	if (self.classname == "ai_dog" && self.enemy.downed == true) {
+		self.enemy = Dog_FindEnemy();
+	} 
+	// Normal Zombie time-out re-targeting
+	else if (self.classname != "ai_dog") {
+		if(self.enemy_timeout < time || self.enemy == world || self.enemy.downed == true) {
+			self.enemy_timeout = time + 5;
+			local entity oldEnemy;
+			oldEnemy = self.enemy;
+			self.enemy = find_new_enemy(self);
+		}
 	}
 	//================Check for proximity to player ===========
 	if(vlen(self.enemy.origin - self.origin) < 60) {
@@ -675,8 +683,12 @@ void(float dist) Inside_Walk = {
 			if (self.enemy.health)
 				self.th_melee(); 
 
-			if (self.enemy.downed == true)
-				self.enemy = find_new_enemy(self);
+			if (self.enemy.downed == true) {
+				if (self.classname == "ai_dog")
+					self.enemy = Dog_FindEnemy();
+				else
+					self.enemy = find_new_enemy(self);
+			}
 			self.goalentity = self.enemy;
 			self.chase_time = time + 5;
 		}
