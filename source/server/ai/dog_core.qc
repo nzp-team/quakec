@@ -228,8 +228,8 @@ void(entity where) spawn_a_dogB =
 	sdog.hop_step = 0;
 	sdog.gravity = 1.0;
 	
-	sdog.mins = '-8 -8 -32';//-16 16 -32
-	sdog.maxs = '8 8 30';//16 16 40
+	sdog.mins = '-16 -16 -32';
+	sdog.maxs = '16 16 4';
 	setsize (sdog, sdog.mins, sdog.maxs);
 		
 	if(pointcontents(sdog.origin - '0 0 36') == -2)
