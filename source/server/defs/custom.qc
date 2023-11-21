@@ -380,6 +380,7 @@ float() spawn_a_zombieA;
 float gotdog;
 float dogRound;
 float dogWave;
+float dog_round_count;
 float z_health;
 .float bleedingtime;
 .float time_to_die;

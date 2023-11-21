@@ -183,6 +183,7 @@ void() NewRound =
 		if (gotdog && rounds == (dogRound - 1)) {
 			playSoundAtPlayers("sounds/rounds/droundstart.wav");
 			dogWave = true;
+			dog_round_count++;
 		} else {
 			playSoundAtPlayers("sounds/rounds/nround.wav");
 		}

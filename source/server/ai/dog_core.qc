@@ -255,6 +255,23 @@ entity() Dog_FindEnemy =
 	return find(world, classname, "info_player_1_spawn");
 }
 
+//
+// Dog_GetHealth()
+// Returns the amount of health Hellhounds
+// should have.
+//
+float() Dog_GetHealth =
+{
+	switch(dog_round_count) {
+		case 1: return 400;
+		case 2: return 900;
+		case 3: return 1300;
+		default: return 1600;
+	}
+
+	return 1600;
+}
+
 void(entity where) spawn_a_dogB =
 {
 	local entity sdog;//USED FOR WHAT TO SPAWN
@@ -302,7 +319,7 @@ void(entity where) spawn_a_dogB =
 	
 	sdog.ideal_yaw = sdog.angles_y;
 	sdog.yaw_speed = 20;
-	sdog.health = z_health;
+	sdog.health = Dog_GetHealth();
 	sdog.th_die = Dog_Death;
 	sdog.th_walk = Dog_Walk_Setup;
 	sdog.outside = FALSE;
