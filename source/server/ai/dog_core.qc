@@ -68,8 +68,8 @@ void()	dog_idleanim6	=[	$dogstand6,	dog_idleanim	] {Dog_Think();self.frame = 24;
 // DOG MELEE
 // 25-34
 $frame dogmelee1 dogmelee2 dogmelee3 dogmelee4 dogmelee5 dogmelee6 dogmelee7 dogmelee8 dogmelee9 dogmelee10
-void()	dog_meleeanim	=[	$dogmelee1, 	dog_meleeanim2	] {Dog_Think();Zombie_Walk(5);self.frame = 26;};
-void()	dog_meleeanim2	=[	$dogmelee2, 	dog_meleeanim3	] {Dog_Think();Zombie_Walk(5);self.frame = 28;};
+void()	dog_meleeanim	=[	$dogmelee1, 	dog_meleeanim2	] {Dog_Think(); makevectors(self.angles); self.velocity += v_forward * 50; self.frame = 26;};
+void()	dog_meleeanim2	=[	$dogmelee2, 	dog_meleeanim3	] {Dog_Think();Zombie_Walk(0);self.frame = 28;};
 void()	dog_meleeanim3	=[	$dogmelee3, 	dog_meleeanim4	] {Dog_Think();Zombie_Walk(0);zombie_attack2();self.frame = 30;};
 void()	dog_meleeanim4	=[	$dogmelee4, 	dog_meleeanim5	] {Dog_Think();Zombie_Walk(0);self.frame = 32;};
 void()	dog_meleeanim5	=[	$dogmelee5, 	dog_runanim		] {Dog_Think();Zombie_Walk(0);self.frame = 34;};
