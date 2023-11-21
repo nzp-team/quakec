@@ -190,7 +190,7 @@ float() push_away_zombies =
 	return_value = 0;
 	while(ent)
 	{
-		if(ent.classname == "ai_zombie" && ent != self)
+		if(ent.aistatus == "1" && ent != self)
 		{
 			vector push;
 			push = ent.origin - self.origin;
