@@ -46,9 +46,9 @@ void() screen_shake =
 	r = crandom();
 	s = random();
   if (self.enemy.zoom == 2 || self.enemy.zoom == 1)
-    zoom_factor = 0.5;
+    zoom_factor = 0.25;
   else
-    zoom_factor = 1;
+    zoom_factor = 0.5;
 
 	self.enemy.punchangle_y = r * 4 * zoom_factor;
     self.enemy.punchangle_x = (4 + (s * 2)) * zoom_factor;
