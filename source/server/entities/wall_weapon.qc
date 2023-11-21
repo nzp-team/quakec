@@ -335,6 +335,7 @@ void () WallWeapon_TouchTrigger =
 				} else {
 					W_HideCrosshair(other);
 					addmoney(other, -self.cost2, FALSE);
+					sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 					other.ach_tracker_coll++;
 					if (self.enemy)
 					{
