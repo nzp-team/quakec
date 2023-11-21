@@ -121,17 +121,24 @@ void() Dog_Walk_Setup =
 		dog_runanim();
 };
 
-// decide our walktype based on player distance
 void() Dog_Think =
 {
-	if(vlen(self.enemy.origin - self.origin) < 200)
-		self.walktype = 2;
-	else
+	// Hellhounds begin to run whenever their target is in their line of sight.
+	// So perform a tracemove and see if it hits it
+	if (self.ads_release == 0) {
+		float result = tracemove(self.origin, VEC_HULL_MIN, VEC_HULL_MAX, self.enemy.origin, TRUE, self);
+		self.ads_release = result;
+	}
+
+	// Stalk...
+	if (self.ads_release == 0)
 		self.walktype = 1;
+	// Charge...
+	else
+		self.walktype = 2;
 }
 
 float dogCount;
-
 
 void(entity ent) Dog_Death_Cleanup = {
 	// Already dead
