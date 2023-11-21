@@ -58,26 +58,26 @@ void()	dog_walkanim12	=[	$dogwalk12,		Dog_Walk_Setup	] {Dog_Think();Zombie_Walk(
 // DOG IDLE
 // 19-24
 $frame dogstand1 dogstand2 dogstand3 dogstand4 dogstand5 dogstand6
-void()	dog_idleanim	=[	$dogstand1,	dog_idleanim2	] {self.frame = 19;};
-void()	dog_idleanim2	=[	$dogstand2,	dog_idleanim3	] {self.frame = 20;};
-void()	dog_idleanim3	=[	$dogstand3,	dog_idleanim4	] {self.frame = 21;};
-void()	dog_idleanim4	=[	$dogstand4,	dog_idleanim5	] {self.frame = 22;};
-void()	dog_idleanim5	=[	$dogstand5,	dog_idleanim6	] {self.frame = 23;};
-void()	dog_idleanim6	=[	$dogstand6,	dog_idleanim	] {self.frame = 24;};
+void()	dog_idleanim	=[	$dogstand1,	dog_idleanim2	] {Dog_Think();self.frame = 19;};
+void()	dog_idleanim2	=[	$dogstand2,	dog_idleanim3	] {Dog_Think();self.frame = 20;};
+void()	dog_idleanim3	=[	$dogstand3,	dog_idleanim4	] {Dog_Think();self.frame = 21;};
+void()	dog_idleanim4	=[	$dogstand4,	dog_idleanim5	] {Dog_Think();self.frame = 22;};
+void()	dog_idleanim5	=[	$dogstand5,	dog_idleanim6	] {Dog_Think();self.frame = 23;};
+void()	dog_idleanim6	=[	$dogstand6,	dog_idleanim	] {Dog_Think();self.frame = 24;};
 
 // DOG MELEE
 // 25-34
 $frame dogmelee1 dogmelee2 dogmelee3 dogmelee4 dogmelee5 dogmelee6 dogmelee7 dogmelee8 dogmelee9 dogmelee10
-void()	dog_meleeanim	=[	$dogmelee1, 	dog_meleeanim2	] {Zombie_Walk(0);self.frame = 25;};
-void()	dog_meleeanim2	=[	$dogmelee2, 	dog_meleeanim3	] {Zombie_Walk(0);self.frame = 26;};
-void()	dog_meleeanim3	=[	$dogmelee3, 	dog_meleeanim4	] {Zombie_Walk(0);self.frame = 27;};
-void()	dog_meleeanim4	=[	$dogmelee4, 	dog_meleeanim5	] {Zombie_Walk(0);self.frame = 28;};
-void()	dog_meleeanim5	=[	$dogmelee5, 	dog_meleeanim6	] {Zombie_Walk(0);self.frame = 29;};
-void()	dog_meleeanim6	=[	$dogmelee6, 	dog_meleeanim7	] {Zombie_Walk(0);zombie_attack2();self.frame = 30;};
-void()	dog_meleeanim7	=[	$dogmelee7, 	dog_meleeanim8	] {Zombie_Walk(0);self.frame = 31;};
-void()	dog_meleeanim8	=[	$dogmelee8, 	dog_meleeanim9	] {Zombie_Walk(0);self.frame = 32;};
-void()	dog_meleeanim9	=[	$dogmelee9, 	dog_meleeanim10	] {Zombie_Walk(0);self.frame = 33;};
-void()	dog_meleeanim10	=[	$dogmelee10, 	dog_runanim 	] {Zombie_Walk(0);self.frame = 34;};
+void()	dog_meleeanim	=[	$dogmelee1, 	dog_meleeanim2	] {Dog_Think();Zombie_Walk(0);self.frame = 25;};
+void()	dog_meleeanim2	=[	$dogmelee2, 	dog_meleeanim3	] {Dog_Think();Zombie_Walk(0);self.frame = 26;};
+void()	dog_meleeanim3	=[	$dogmelee3, 	dog_meleeanim4	] {Dog_Think();Zombie_Walk(0);self.frame = 27;};
+void()	dog_meleeanim4	=[	$dogmelee4, 	dog_meleeanim5	] {Dog_Think();Zombie_Walk(0);self.frame = 28;};
+void()	dog_meleeanim5	=[	$dogmelee5, 	dog_meleeanim6	] {Dog_Think();Zombie_Walk(0);self.frame = 29;};
+void()	dog_meleeanim6	=[	$dogmelee6, 	dog_meleeanim7	] {Dog_Think();Zombie_Walk(0);zombie_attack2();self.frame = 30;};
+void()	dog_meleeanim7	=[	$dogmelee7, 	dog_meleeanim8	] {Dog_Think();Zombie_Walk(0);self.frame = 31;};
+void()	dog_meleeanim8	=[	$dogmelee8, 	dog_meleeanim9	] {Dog_Think();Zombie_Walk(0);self.frame = 32;};
+void()	dog_meleeanim9	=[	$dogmelee9, 	dog_meleeanim10	] {Dog_Think();Zombie_Walk(0);self.frame = 33;};
+void()	dog_meleeanim10	=[	$dogmelee10, 	dog_runanim 	] {Dog_Think();Zombie_Walk(0);self.frame = 34;};
 
 // DOG DEATH
 // 35 - 36
@@ -136,6 +136,21 @@ void() Dog_Think =
 	// Charge...
 	else
 		self.walktype = 2;
+
+	// Play particles if we're on fire
+	if (self.onfire) {
+
+#ifdef FTE
+
+		te_flamejet(self.origin, v_up*8, 10);
+
+#else
+
+		particle (self.origin, v_up*8, 0, 0);
+
+#endif // FTE
+	}
+
 }
 
 float dogCount;
@@ -171,11 +186,8 @@ void() Dog_Death = {
 	if(rounds == dogRound && Remaining_Zombies == 0) {
 		Spawn_Powerup(self.origin + '0 0 12', PU_MAXAMMO);
 	}
-	
-	float r = random();
 
-	// explode chance
-	if (r < 0.75 || self.electro_targeted == true) {
+	if (self.onfire || self.electro_targeted) {
 		self.frame = 0;
 		setmodel(self, "models/sprites/explosion.spr");
 		sound (self, CHAN_VOICE, "sounds/weapons/grenade/explode.wav", 1, ATTN_NORM);
@@ -183,6 +195,8 @@ void() Dog_Death = {
 	} else {
 		dog_deathanim();
 	}
+
+	self.onfire = 0;
 };
 
 
@@ -324,6 +338,7 @@ void(entity where) spawn_a_dogB =
 	sdog.th_walk = Dog_Walk_Setup;
 	sdog.outside = FALSE;
 	sdog.iszomb = 1;
+	sdog.onfire = (random() > 0.5);
 	
 	sdog.th_melee = dog_meleeanim;
 	sdog.th_idle = dog_idleanim;
