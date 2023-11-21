@@ -106,7 +106,7 @@ void() dog_explodeanim2 	=[ 	$des2, 				dog_explodeanim3	] {self.frame = 2;};
 void() dog_explodeanim3 	=[ 	$des3, 				dog_explodeanim4	] {self.frame = 3;};
 void() dog_explodeanim4 	=[ 	$des4, 				dog_explodeanim5	] {self.frame = 4;};
 void() dog_explodeanim5 	=[ 	$des5, 				dog_explodeanim6 	] {self.frame = 5;};
-void() dog_explodeanim6 	=[ 	$des5, 				SUB_Null 		 	] {remove(self);};
+void() dog_explodeanim6 	=[ 	$des5, 				SUB_Null 		 	] {removeZombie();};
 
 void() Dog_Walk_Setup = 
 {	
