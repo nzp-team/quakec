@@ -31,29 +31,29 @@ void() Dog_Death;
 // DOG RUN
 // 0-6
 $frame dogrun1 dogrun2 dogrun3 dogrun4 dogrun5 dogrun6 dogrun7
-void()	dog_runanim		=[	$dogrun1,	dog_runanim2	] {Dog_Think();Zombie_Walk(25);self.frame = 0;};
-void()	dog_runanim2	=[	$dogrun2,	dog_runanim3	] {Dog_Think();Zombie_Walk(15);self.frame = 1;};
-void()	dog_runanim3	=[	$dogrun3,	dog_runanim4	] {Dog_Think();Zombie_Walk(15);self.frame = 2;zombie_footstep();};
-void()	dog_runanim4	=[	$dogrun4,	dog_runanim5	] {Dog_Think();Zombie_Walk(15);self.frame = 3;};
-void()	dog_runanim5	=[	$dogrun5,	dog_runanim6	] {Dog_Think();Zombie_Walk(15);self.frame = 4;};
-void()	dog_runanim6	=[	$dogrun6,	dog_runanim7	] {Dog_Think();Zombie_Walk(15);self.frame = 5;};
-void()	dog_runanim7	=[	$dogrun7, 	Dog_Walk_Setup 	] {Dog_Think();Zombie_Walk(15);self.frame = 6;zombie_footstep();};
+void()	dog_runanim		=[	$dogrun1,	dog_runanim2	] {Dog_Think();Zombie_Walk(30);self.frame = 0;};
+void()	dog_runanim2	=[	$dogrun2,	dog_runanim3	] {Dog_Think();Zombie_Walk(20);self.frame = 1;};
+void()	dog_runanim3	=[	$dogrun3,	dog_runanim4	] {Dog_Think();Zombie_Walk(20);self.frame = 2;zombie_footstep();};
+void()	dog_runanim4	=[	$dogrun4,	dog_runanim5	] {Dog_Think();Zombie_Walk(20);self.frame = 3;};
+void()	dog_runanim5	=[	$dogrun5,	dog_runanim6	] {Dog_Think();Zombie_Walk(20);self.frame = 4;};
+void()	dog_runanim6	=[	$dogrun6,	dog_runanim7	] {Dog_Think();Zombie_Walk(20);self.frame = 5;};
+void()	dog_runanim7	=[	$dogrun7, 	Dog_Walk_Setup 	] {Dog_Think();Zombie_Walk(20);self.frame = 6;zombie_footstep();};
 
 // DOG WALK
 // 7-18
 $frame dogwalk1 dogwalk2 dogwalk3 dogwalk4 dogwalk5 dogwalk6 dogwalk7 dogwalk8 dogwalk9 dogwalk10 dogwalk11 dogwalk12
-void()	dog_walkanim	=[	$dogwalk1,		dog_walkanim2	] {Dog_Think();Zombie_Walk(8);self.frame = 7;};
-void()	dog_walkanim2	=[	$dogwalk2,		dog_walkanim3	] {Dog_Think();Zombie_Walk(8);self.frame = 8;zombie_footstep();};
-void()	dog_walkanim3	=[	$dogwalk3,		dog_walkanim4	] {Dog_Think();Zombie_Walk(8);self.frame = 9;};
-void()	dog_walkanim4	=[	$dogwalk4,		dog_walkanim5	] {Dog_Think();Zombie_Walk(8);self.frame = 10;};
-void()	dog_walkanim5	=[	$dogwalk5,		dog_walkanim6	] {Dog_Think();Zombie_Walk(8);self.frame = 11;};
-void()	dog_walkanim6	=[	$dogwalk6,		dog_walkanim7	] {Dog_Think();Zombie_Walk(8);self.frame = 12;};
-void()	dog_walkanim7	=[	$dogwalk7,		dog_walkanim8	] {Dog_Think();Zombie_Walk(8);self.frame = 13;zombie_footstep();};
-void()	dog_walkanim8	=[	$dogwalk8,		dog_walkanim9	] {Dog_Think();Zombie_Walk(8);self.frame = 14;};
-void()	dog_walkanim9	=[	$dogwalk9,		dog_walkanim10	] {Dog_Think();Zombie_Walk(8);self.frame = 15;};
-void()	dog_walkanim10	=[	$dogwalk10,		dog_walkanim11	] {Dog_Think();Zombie_Walk(8);self.frame = 16;};
-void()	dog_walkanim11 	=[	$dogwalk11,		dog_walkanim12	] {Dog_Think();Zombie_Walk(8);self.frame = 17;};
-void()	dog_walkanim12	=[	$dogwalk12,		Dog_Walk_Setup	] {Dog_Think();Zombie_Walk(8);self.frame = 18;};
+void()	dog_walkanim	=[	$dogwalk1,		dog_walkanim2	] {Dog_Think();Zombie_Walk(10);self.frame = 7;};
+void()	dog_walkanim2	=[	$dogwalk2,		dog_walkanim3	] {Dog_Think();Zombie_Walk(10);self.frame = 8;zombie_footstep();};
+void()	dog_walkanim3	=[	$dogwalk3,		dog_walkanim4	] {Dog_Think();Zombie_Walk(10);self.frame = 9;};
+void()	dog_walkanim4	=[	$dogwalk4,		dog_walkanim5	] {Dog_Think();Zombie_Walk(10);self.frame = 10;};
+void()	dog_walkanim5	=[	$dogwalk5,		dog_walkanim6	] {Dog_Think();Zombie_Walk(10);self.frame = 11;};
+void()	dog_walkanim6	=[	$dogwalk6,		dog_walkanim7	] {Dog_Think();Zombie_Walk(10);self.frame = 12;};
+void()	dog_walkanim7	=[	$dogwalk7,		dog_walkanim8	] {Dog_Think();Zombie_Walk(10);self.frame = 13;zombie_footstep();};
+void()	dog_walkanim8	=[	$dogwalk8,		dog_walkanim9	] {Dog_Think();Zombie_Walk(10);self.frame = 14;};
+void()	dog_walkanim9	=[	$dogwalk9,		dog_walkanim10	] {Dog_Think();Zombie_Walk(10);self.frame = 15;};
+void()	dog_walkanim10	=[	$dogwalk10,		dog_walkanim11	] {Dog_Think();Zombie_Walk(10);self.frame = 16;};
+void()	dog_walkanim11 	=[	$dogwalk11,		dog_walkanim12	] {Dog_Think();Zombie_Walk(10);self.frame = 17;};
+void()	dog_walkanim12	=[	$dogwalk12,		Dog_Walk_Setup	] {Dog_Think();Zombie_Walk(10);self.frame = 18;};
 
 // DOG IDLE
 // 19-24
