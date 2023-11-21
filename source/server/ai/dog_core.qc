@@ -68,16 +68,11 @@ void()	dog_idleanim6	=[	$dogstand6,	dog_idleanim	] {Dog_Think();self.frame = 24;
 // DOG MELEE
 // 25-34
 $frame dogmelee1 dogmelee2 dogmelee3 dogmelee4 dogmelee5 dogmelee6 dogmelee7 dogmelee8 dogmelee9 dogmelee10
-void()	dog_meleeanim	=[	$dogmelee1, 	dog_meleeanim2	] {Dog_Think();Zombie_Walk(0);self.frame = 25;};
-void()	dog_meleeanim2	=[	$dogmelee2, 	dog_meleeanim3	] {Dog_Think();Zombie_Walk(0);self.frame = 26;};
-void()	dog_meleeanim3	=[	$dogmelee3, 	dog_meleeanim4	] {Dog_Think();Zombie_Walk(0);self.frame = 27;};
-void()	dog_meleeanim4	=[	$dogmelee4, 	dog_meleeanim5	] {Dog_Think();Zombie_Walk(0);self.frame = 28;};
-void()	dog_meleeanim5	=[	$dogmelee5, 	dog_meleeanim6	] {Dog_Think();Zombie_Walk(0);self.frame = 29;};
-void()	dog_meleeanim6	=[	$dogmelee6, 	dog_meleeanim7	] {Dog_Think();Zombie_Walk(0);zombie_attack2();self.frame = 30;};
-void()	dog_meleeanim7	=[	$dogmelee7, 	dog_meleeanim8	] {Dog_Think();Zombie_Walk(0);self.frame = 31;};
-void()	dog_meleeanim8	=[	$dogmelee8, 	dog_meleeanim9	] {Dog_Think();Zombie_Walk(0);self.frame = 32;};
-void()	dog_meleeanim9	=[	$dogmelee9, 	dog_meleeanim10	] {Dog_Think();Zombie_Walk(0);self.frame = 33;};
-void()	dog_meleeanim10	=[	$dogmelee10, 	dog_runanim 	] {Dog_Think();Zombie_Walk(0);self.frame = 34;};
+void()	dog_meleeanim	=[	$dogmelee1, 	dog_meleeanim2	] {Dog_Think();Zombie_Walk(5);self.frame = 26;};
+void()	dog_meleeanim2	=[	$dogmelee2, 	dog_meleeanim3	] {Dog_Think();Zombie_Walk(5);self.frame = 28;};
+void()	dog_meleeanim3	=[	$dogmelee3, 	dog_meleeanim4	] {Dog_Think();Zombie_Walk(0);zombie_attack2();self.frame = 30;};
+void()	dog_meleeanim4	=[	$dogmelee4, 	dog_meleeanim5	] {Dog_Think();Zombie_Walk(0);self.frame = 32;};
+void()	dog_meleeanim5	=[	$dogmelee5, 	dog_runanim		] {Dog_Think();Zombie_Walk(0);self.frame = 34;};
 
 // DOG DEATH
 // 35 - 36
@@ -197,6 +192,7 @@ void() Dog_Death = {
 	}
 
 	self.onfire = 0;
+	self.ads_release = 0;
 };
 
 
@@ -238,8 +234,10 @@ entity() Dog_FindEnemy =
 
 	// Assume that if this is being called again, stop hunting
 	// currently selected client
-	if (self.enemy != world)
+	if (self.enemy != world) {
 		self.enemy.hunt_count--;
+		self.ads_release = 0;
+	}
 
 	// Grab every player in the World
 	entity players = find(world, classname, "player");
