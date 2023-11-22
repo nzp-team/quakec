@@ -747,8 +747,7 @@ void(float dist) Zombie_Walk =  {
 	self.velocity_y = 0;
 	//self.flags = self.flags | FL_PARTIALGROUND;
 
-	//check_onfire();
-	if (!(self.flags & FL_ONGROUND)) {
+	if (!(self.flags & FL_ONGROUND) && self.watertype != CONTENT_WATER) {
 
 		if (!self.droptime) {
 			self.droptime = time + 1;
