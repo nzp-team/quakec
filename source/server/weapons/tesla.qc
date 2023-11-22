@@ -226,6 +226,7 @@ void() tesla_arc = {
 void() W_FireTesla =
 {
     vector source;
+    entity tempe = spawn();
 
     makevectors(self.v_angle);
 	source = self.origin + self.view_ofs;
@@ -233,7 +234,6 @@ void() W_FireTesla =
 	source += v_right * (barrel_ofs.x/1000);
     source += v_up * (barrel_ofs.y/1000);
     source += v_forward * (barrel_ofs.z/1000);
-
 
 #ifdef FTE
 	self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
@@ -256,7 +256,7 @@ void() W_FireTesla =
 
         WriteByte(MSG_BROADCAST, SVC_TEMPENTITY);
         WriteByte(MSG_BROADCAST, TE_LIGHTNING2);
-        WriteEntity(MSG_BROADCAST, self);
+        WriteEntity(MSG_BROADCAST, tempe);
         WriteCoord(MSG_BROADCAST, source_x);
         WriteCoord(MSG_BROADCAST, source_y);
         WriteCoord(MSG_BROADCAST, source_z);
@@ -276,7 +276,7 @@ void() W_FireTesla =
 
         WriteByte(MSG_BROADCAST, SVC_TEMPENTITY);
         WriteByte(MSG_BROADCAST, TE_LIGHTNING1);
-        WriteEntity(MSG_BROADCAST, self);
+        WriteEntity(MSG_BROADCAST, tempe);
         WriteCoord(MSG_BROADCAST, source_x);
         WriteCoord(MSG_BROADCAST, source_y);
         WriteCoord(MSG_BROADCAST, source_z);
@@ -287,6 +287,8 @@ void() W_FireTesla =
 #endif // FTE
 
     }
+
+    remove(tempe);
 
 	self.tesla_n_kills = 0;
     
