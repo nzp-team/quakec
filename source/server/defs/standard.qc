@@ -271,6 +271,7 @@ void    ()                                                                      
 void    (entity who)                                                                            grenade_pulse       = #502;
 float   ()                                                                                      nzp_maxai           = #503;
 void    (entity who)                                                                            nzp_bettyprompt     = #504;
+void    (entity who, string name)                                                               nzp_setplayername   = #505;
 
 //
 // constants

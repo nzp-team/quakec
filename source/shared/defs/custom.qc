@@ -227,6 +227,7 @@ const float EVENT_CHATMESSAGE			= 45;
 #define STAT_PLAYERSTANCE 		65
 #define STAT_FACINGENEMY 		66
 #define STAT_MAXHEALTH 			67
+#define STAT_PLAYERNAME 		68
 
 .float playernum;
 

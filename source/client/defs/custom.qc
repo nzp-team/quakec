@@ -97,6 +97,7 @@ float stext;
 float scrollopacity;
 float scrollheight;
 
+float nameprint_time;
 float HUD_Change_time; 
 float Hitmark_time;
 float crosshair_spread_time;

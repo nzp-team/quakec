@@ -254,6 +254,7 @@ void() SUB_Null2 = {};
 
 #define     VEC_VIEW_OFS  '0 0 32'
 
+.string name;
 vector	trace_plane_normal;
 
 //

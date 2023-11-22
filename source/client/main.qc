@@ -246,6 +246,7 @@ noref void() CSQC_WorldLoaded =
 
 	Achievement_Init();
 	Init_Particles();
+	nameprint_time = time + 12;
 
 	huddir = "gfx/hud/";
 };

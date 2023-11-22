@@ -321,6 +321,7 @@ void() worldspawn =
 	clientstat(STAT_FACINGENEMY, EV_FLOAT, facingenemy);
 	clientstat(STAT_VIEWZOOM, EV_FLOAT, viewzoom);
 	clientstat(STAT_MAXHEALTH, EV_FLOAT, max_health);
+	clientstat(STAT_PLAYERNAME, EV_STRING, name);
 
 #endif // FTE
 

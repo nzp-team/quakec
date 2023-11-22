@@ -341,6 +341,22 @@ void(float width, float height) HUD_Points =
 	}
 }
 
+/************************
+*    HUD_CharacterName  *
+************************/
+
+void(float width, float height) HUD_CharacterName =
+{
+	float x = 100 + GetUltraWideOffset();
+	float alpha = 1;
+
+	if (nameprint_time - 1 < time) {
+		alpha = (nameprint_time - time);
+	}
+
+	drawstring([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], getstats(STAT_PLAYERNAME), [12, 12], [1, 1, 1], alpha, 0);
+}
+
 /*******************
 *    HUD_Grenades  *
 *******************/
@@ -1642,6 +1658,9 @@ void(float width, float height) HUD_Draw =
 
             if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "")
 			    HUD_AmmoString();
+
+			if (nameprint_time > time)
+				HUD_CharacterName(width, height);
 
 			if (bettyprompt_time > time)
 				HUD_BouncingBetty(width, height);

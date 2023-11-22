@@ -478,6 +478,13 @@ void() PlayerPostThink =
 	if(self.isspec)
 		return;
 
+#ifndef FTE
+
+	if (time < 5 && self.name != "")
+		nzp_setplayername(self, self.name);
+
+#endif // FTE
+
 	//landsound
 	if((self.oldvelocity_z < -212) && (self.flags & FL_ONGROUND))
 	{
@@ -721,6 +728,9 @@ void() Player_PickSpawnPoint =
 		if (found_player_here == false)
 			found_viable_spawn = true;
 	}
+
+	// Give them their name
+	self.name = spawn_point.name;
 
 	// Set their location
 	self.origin = spawn_point.origin + '0 0 1';
