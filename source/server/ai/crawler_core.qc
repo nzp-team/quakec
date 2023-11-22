@@ -1,9 +1,9 @@
 /*
 	server/ai/crawler_core.qc
 
-	crawler things
+	Crawler AI Type
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2023 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -27,11 +27,15 @@
 
 //========================= Crawling ===========================
 void() zombie_crawl1;
+void() zombie_fastcrawl1;
 void() crawlerify1;
 
 void() Crawler_Walk_Setup
 {
-	zombie_crawl1();
+	if (self.walktype == 1)
+		zombie_crawl1();
+	else
+		zombie_fastcrawl1();
 }
 
 
@@ -50,21 +54,30 @@ void() crawler_footstep
 }
 
 //14-28
-void()	zombie_crawl1		=[	0,		zombie_crawl2	] 	{Zombie_Walk(2.955);SetZombieHitBox(CRAWLER_BBOX);/*if(freeze_time < time)*/ self.frame = 14;Zombie_Think();};
-void()	zombie_crawl2		=[	1,		zombie_crawl3	] 	{Zombie_Walk(3.841); self.frame = 15;Zombie_Think();};
-void()	zombie_crawl3		=[	2,		zombie_crawl4	] 	{Zombie_Walk(0.886); self.frame = 16;Zombie_Think();};
-void()	zombie_crawl4		=[	3,		zombie_crawl5	] 	{Zombie_Walk(1.871); self.frame = 17;Zombie_Think();};
-void()	zombie_crawl5		=[	4,		zombie_crawl6	] 	{Zombie_Walk(3.25); self.frame = 18;Zombie_Think();};
-void()	zombie_crawl6		=[	5,		zombie_crawl7	] 	{Zombie_Walk(1.314); self.frame = 19;Zombie_Think();};
-void()	zombie_crawl7		=[	6,		zombie_crawl8	] 	{Zombie_Walk(0.908); self.frame = 20;Zombie_Think();crawler_footstep();};//footstep
-void()	zombie_crawl8		=[	7,		zombie_crawl9	] 	{Zombie_Walk(0.776); self.frame = 21;Zombie_Think();};
-void()	zombie_crawl9		=[	8,		zombie_crawl10	] 	{Zombie_Walk(0.698); self.frame = 22;Zombie_Think();};
-void()	zombie_crawl10		=[	9,		zombie_crawl11	] 	{Zombie_Walk(0.641); self.frame = 23;Zombie_Think();};
-void()	zombie_crawl11		=[	10,		zombie_crawl12	] 	{Zombie_Walk(0.588); self.frame = 24;Zombie_Think();};
-void()	zombie_crawl12		=[	11,		zombie_crawl13	] 	{Zombie_Walk(0.295); self.frame = 25;Zombie_Think();};
-void()	zombie_crawl13		=[	12,		zombie_crawl14	] 	{Zombie_Walk(1.182); self.frame = 26;Zombie_Think();};
-void()	zombie_crawl14		=[	13,		zombie_crawl15	] 	{Zombie_Walk(0.492); self.frame = 27;Zombie_Think();};
-void()	zombie_crawl15		=[	14,		Crawler_Walk_Setup	] 	{Zombie_Walk(2.856); self.frame = 28;Zombie_Think();crawler_footstep();};//footstep
+void()	zombie_crawl1		=[	0,		zombie_crawl2	] 	{Zombie_Walk((2.955*self.speed_penalty));SetZombieHitBox(CRAWLER_BBOX);self.frame = 14;Zombie_Think();};
+void()	zombie_crawl2		=[	1,		zombie_crawl3	] 	{Zombie_Walk((3.841*self.speed_penalty)); self.frame = 15;Zombie_Think();};
+void()	zombie_crawl3		=[	2,		zombie_crawl4	] 	{Zombie_Walk((0.886*self.speed_penalty)); self.frame = 16;Zombie_Think();};
+void()	zombie_crawl4		=[	3,		zombie_crawl5	] 	{Zombie_Walk((1.871*self.speed_penalty)); self.frame = 17;Zombie_Think();};
+void()	zombie_crawl5		=[	4,		zombie_crawl6	] 	{Zombie_Walk((3.25*self.speed_penalty)); self.frame = 18;Zombie_Think();};
+void()	zombie_crawl6		=[	5,		zombie_crawl7	] 	{Zombie_Walk((1.314*self.speed_penalty)); self.frame = 19;Zombie_Think();};
+void()	zombie_crawl7		=[	6,		zombie_crawl8	] 	{Zombie_Walk((0.908*self.speed_penalty)); self.frame = 20;Zombie_Think();crawler_footstep();};//footstep
+void()	zombie_crawl8		=[	7,		zombie_crawl9	] 	{Zombie_Walk((0.776*self.speed_penalty)); self.frame = 21;Zombie_Think();};
+void()	zombie_crawl9		=[	8,		zombie_crawl10	] 	{Zombie_Walk((0.698*self.speed_penalty)); self.frame = 22;Zombie_Think();};
+void()	zombie_crawl10		=[	9,		zombie_crawl11	] 	{Zombie_Walk((0.641*self.speed_penalty)); self.frame = 23;Zombie_Think();};
+void()	zombie_crawl11		=[	10,		zombie_crawl12	] 	{Zombie_Walk((0.588*self.speed_penalty)); self.frame = 24;Zombie_Think();};
+void()	zombie_crawl12		=[	11,		zombie_crawl13	] 	{Zombie_Walk((0.295*self.speed_penalty)); self.frame = 25;Zombie_Think();};
+void()	zombie_crawl13		=[	12,		zombie_crawl14	] 	{Zombie_Walk((1.182*self.speed_penalty)); self.frame = 26;Zombie_Think();};
+void()	zombie_crawl14		=[	13,		zombie_crawl15	] 	{Zombie_Walk((0.492*self.speed_penalty)); self.frame = 27;Zombie_Think();};
+void()	zombie_crawl15		=[	14,		Crawler_Walk_Setup	] 	{Zombie_Walk((2.856*self.speed_penalty)); self.frame = 28;Zombie_Think();crawler_footstep();};//footstep
+
+void()	zombie_fastcrawl1		=[	0,		zombie_fastcrawl2	] 	{Zombie_Walk((2.955*self.speed_penalty));SetZombieHitBox(CRAWLER_BBOX);self.frame = 14;Zombie_Think();};
+void()	zombie_fastcrawl2		=[	1,		zombie_fastcrawl3	] 	{Zombie_Walk((0.886*self.speed_penalty)); self.frame = 16;Zombie_Think();};
+void()	zombie_fastcrawl3		=[	2,		zombie_fastcrawl4	] 	{Zombie_Walk((3.25*self.speed_penalty)); self.frame = 18;Zombie_Think();};
+void()	zombie_fastcrawl4		=[	3,		zombie_fastcrawl5	] 	{Zombie_Walk((0.908*self.speed_penalty)); self.frame = 20;Zombie_Think();crawler_footstep();};//footstep
+void()	zombie_fastcrawl5		=[	4,		zombie_fastcrawl6	] 	{Zombie_Walk((0.698*self.speed_penalty)); self.frame = 22;Zombie_Think();};
+void()	zombie_fastcrawl6		=[	5,		zombie_fastcrawl7	] 	{Zombie_Walk((0.588*self.speed_penalty)); self.frame = 24;Zombie_Think();};
+void()	zombie_fastcrawl7		=[	6,		zombie_fastcrawl8	] 	{Zombie_Walk((1.182*self.speed_penalty)); self.frame = 26;Zombie_Think();};
+void()	zombie_fastcrawl8		=[	7,		Crawler_Walk_Setup	] 	{Zombie_Walk((2.856*self.speed_penalty)); self.frame = 28;Zombie_Think();crawler_footstep();};//footstep
 
 //====================== Zombie To Crawler =======================
 //0-4
@@ -255,6 +268,16 @@ void(entity who) makeCrawler =
 	
 	who.th_fall = crawler_fall1;
 	who.th_land = crawler_land1;
+
+	float multiplier = random();
+	if (multiplier < 0.33) {
+		who.speed_penalty = 1;
+	} else if (multiplier < 0.66) {
+		who.speed_penalty = 1.75;
+	} else {
+		who.speed_penalty = 3;
+		who.walktype = 2;
+	}
 	
 	//who.th_jump = zombie_jump1;
 	//who.th_grabledge = zombie_grabledge1;
@@ -296,7 +319,7 @@ void(entity who) makeCrawler =
 	}
 	who.crawling = 1;
 	
-	setsize(who,'-8 -8 -32','8 8 -15');
+	setsize(who,'-9 -9 -32','9 9 -10');
 	
 	local entity oself;
 	oself = self;
