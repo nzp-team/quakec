@@ -3700,6 +3700,7 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/tesla/clipoff.wav");
 			precache_sound("sounds/weapons/tesla/switchon.wav");
 			precache_sound("sounds/weapons/tesla/shoot.wav");
+			precache_sound("sounds/machines/elec_shock.wav");
 			break;
 		case W_BK:
 		case W_KRAUS:

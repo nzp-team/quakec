@@ -193,8 +193,11 @@ void() tesla_arc = {
         vector target_pos = best_ent.origin + tesla_arc_ofs_for_ent(best_ent);
 
 #ifdef FTE
+
         te_lightning1(self, source_pos, target_pos);
+
 #else
+
         WriteByte(MSG_BROADCAST, SVC_TEMPENTITY);
         WriteByte(MSG_BROADCAST, TE_LIGHTNING1);
         WriteEntity(MSG_BROADCAST, self);
@@ -204,7 +207,9 @@ void() tesla_arc = {
         WriteCoord(MSG_BROADCAST, target_pos.x);
         WriteCoord(MSG_BROADCAST, target_pos.y);
         WriteCoord(MSG_BROADCAST, target_pos.z);
+
 #endif // FTE
+
     }
     // No ent to arc to, tell arc parent to resume its search
     // else if(self.tesla_arc_parent != world) {
@@ -220,14 +225,14 @@ void() tesla_arc = {
 // Fire lightning out of the gun
 void() W_FireTesla =
 {
-	vector source;
+    vector source;
 
+    makevectors(self.v_angle);
 	source = self.origin + self.view_ofs;
-	makevectors(self.v_angle);
-    vector barrel_ofs = '5.560 -3 30';
-    source += v_right * barrel_ofs.x;
-    source += v_up * barrel_ofs.y;
-    source += v_forward * barrel_ofs.z;
+    vector barrel_ofs = GetWeaponFlash_Offset(self.weapon);
+	source += v_right * (barrel_ofs.x/1000);
+    source += v_up * (barrel_ofs.y/1000);
+    source += v_forward * (barrel_ofs.z/1000);
 
 
 #ifdef FTE
@@ -240,20 +245,48 @@ void() W_FireTesla =
 	self.dimension_hit = HITBOX_DIM_ZOMBIES;
 #endif // FTE
 
+    // Initial Lightning is Red when Pack-A-Punched
+    if (IsPapWeapon(self.weapon)) {
 
 #ifdef FTE
-	te_lightning1(world, source, trace_endpos);
+
+        te_lightning2(world, source, trace_endpos);
+
 #else
-	WriteByte(MSG_BROADCAST, SVC_TEMPENTITY);
-	WriteByte(MSG_BROADCAST, TE_LIGHTNING2);
-	WriteEntity(MSG_BROADCAST, self);
-	WriteCoord(MSG_BROADCAST, source_x);
-	WriteCoord(MSG_BROADCAST, source_y);
-	WriteCoord(MSG_BROADCAST, source_z);
-	WriteCoord(MSG_BROADCAST, trace_endpos_x);
-	WriteCoord(MSG_BROADCAST, trace_endpos_y);
-	WriteCoord(MSG_BROADCAST, trace_endpos_z);
+
+        WriteByte(MSG_BROADCAST, SVC_TEMPENTITY);
+        WriteByte(MSG_BROADCAST, TE_LIGHTNING2);
+        WriteEntity(MSG_BROADCAST, self);
+        WriteCoord(MSG_BROADCAST, source_x);
+        WriteCoord(MSG_BROADCAST, source_y);
+        WriteCoord(MSG_BROADCAST, source_z);
+        WriteCoord(MSG_BROADCAST, trace_endpos_x);
+        WriteCoord(MSG_BROADCAST, trace_endpos_y);
+        WriteCoord(MSG_BROADCAST, trace_endpos_z);
+
 #endif // FTE
+
+    } else {
+
+#ifdef FTE
+
+        te_lightning1(world, source, trace_endpos);
+
+#else
+
+        WriteByte(MSG_BROADCAST, SVC_TEMPENTITY);
+        WriteByte(MSG_BROADCAST, TE_LIGHTNING1);
+        WriteEntity(MSG_BROADCAST, self);
+        WriteCoord(MSG_BROADCAST, source_x);
+        WriteCoord(MSG_BROADCAST, source_y);
+        WriteCoord(MSG_BROADCAST, source_z);
+        WriteCoord(MSG_BROADCAST, trace_endpos_x);
+        WriteCoord(MSG_BROADCAST, trace_endpos_y);
+        WriteCoord(MSG_BROADCAST, trace_endpos_z);
+
+#endif // FTE
+
+    }
 
 	self.tesla_n_kills = 0;
     

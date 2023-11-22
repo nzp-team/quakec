@@ -130,12 +130,12 @@ void zapper_play () {
 
 #ifdef FTE
 
-		te_lightning2(self, self.origin, zents.origin);
+		te_lightning1(self, self.origin, zents.origin);
 
 #else
 
 		WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
-		WriteByte (MSG_BROADCAST, TE_LIGHTNING2);
+		WriteByte (MSG_BROADCAST, TE_LIGHTNING1);
 		WriteEntity (MSG_BROADCAST, self);
 		WriteCoord (MSG_BROADCAST, org_x);
 		WriteCoord (MSG_BROADCAST, org_y);
