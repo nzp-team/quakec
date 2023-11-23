@@ -1,7 +1,7 @@
 /*
 	server/entities/machines.qc
 
-	perks, pap, power
+	perks, power
 
 	Copyright (C) 2021-2023 NZ:P Team
 
@@ -27,7 +27,6 @@
 
 float backupWepSkin;
 float sound_perk_delay; 
-void() W_PutOutHack;
 void(entity person) W_HideCrosshair;
 
 //
@@ -1005,7 +1004,8 @@ void() Turn_Lights =
 	entity tempe = findfloat(world, requirespower, 1);
 	while (tempe)
 	{
-		Turn_PerkLight_On(tempe);
+		if (tempe.classname != "perk_pap")
+			Turn_PerkLight_On(tempe);
 		tempe = findfloat (tempe, requirespower, 1);
 	}
 
@@ -1078,6 +1078,16 @@ void() touch_power_Switch =
 				tempe = find (tempe, classname, "door_nzp");// trigger all paired doors
 			}
 		}
+
+		tempe = find(world, classname, "perk_pap");
+		while(tempe != world) {
+			entity tempe2 = self;
+			self = tempe;
+			PAP_TurnOn();
+			self = tempe2;
+			tempe = find(tempe, classname, "perk_pap");
+		}
+
 		Turn_Lights();
 		SUB_UseTargets();
 	}
@@ -1110,212 +1120,6 @@ void() power_switch =
 	self.touch = touch_power_Switch;
 
 	isPowerOn = false;
-}
-
-//
-// --------------------
-// Pack-a-Punch
-// --------------------
-//
-// cypress 19 OCT 2023 -- Changed storage from .owner to .usedent,
-// as .owner causes issues with entity relinking, subsequently breaking
-// PlayerIsLooking().
-//
-
-void removeinpap() {
-	//remove(self);
-};
-
-//Self = floating gun
-void velocity_reduce_output() {
-    makevectors(self.usedent.angles);
-	self.velocity = [0,0,0];
-	setorigin(self, self.usedent.origin + v_forward*25);
-
-    //start floating back into pap
-    self.velocity = v_forward*-1.5;
-}
-
-//Self = floating gun
-void velocity_reduce_output_in() {
-	self.velocity = [0,0,0];
-	setorigin(self, self.usedent.origin);
-}
-
-void() reset_pap =
-{
-	self.weapon = 0;
-	self.usedent = 0;
-
-
-	if (self.goaldummy) {
-		remove(self.goaldummy);
-		self.goaldummy = 0;
-	}
-
-
-	self.papState = 0;
-}
-
-//Self = pap
-void PapSendOut() {
-    makevectors(self.angles);
-	setorigin(self.goaldummy, self.origin);
-    self.goaldummy.velocity = v_forward*25;
-    
-    self.goaldummy.think = velocity_reduce_output;
-    self.goaldummy.nextthink = time + 1;
-
-	self.papState = 2;
-	self.nextthink = time + 15;
-    self.think = reset_pap;
-}
-void() W_PlayTakeOut;
-void PapUpgrade(entity pap, entity buyer) {
-   	entity tempe;
-   	string modelname; 
-
-	tempe = self;
-	self = buyer;
-	addmoney (self, -5000, 0);
-
-	//////////WepModel IN Floating test////////    
-
-	entity floatmodelin;
-
-	modelname = GetWeaponModel(self.weapon, 1);
-
-	floatmodelin = spawn ();
-
-
-	//model goes in
-	makevectors(pap.angles);
-	setorigin (floatmodelin, pap.origin + v_forward*25);
-	setmodel (floatmodelin, modelname);
-	setsize (floatmodelin, '0 0 0', '0 0 0');
-	floatmodelin.angles = pap.angles;
-	floatmodelin.angles_y = 90 + pap.angles_y;
-
-	floatmodelin.movetype = MOVETYPE_NOCLIP;
-	floatmodelin.solid = SOLID_NOT;
-
-	floatmodelin.usedent = pap;
-    floatmodelin.velocity = v_forward*-25;
-    
-    floatmodelin.think = velocity_reduce_output_in;
-    floatmodelin.nextthink = time + 1;
-
-	//model goes velocity_reduce_output
-    pap.usedent = self;
-	pap.goaldummy = floatmodelin;
-    pap.think = PapSendOut;
-    pap.nextthink = time + 3.5;
-
-
-	////////////////////////////////////////
-
-	self.fire_delay = self.reload_delay = 2.0 + time;
-	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NORM);
-
-	pap.weapon = self.weapon;
-
-	Weapon_RemoveWeapon(0);
-	W_HideCrosshair(self);
-	Set_W_Frame (0, 39, 2.0, 0, 0, W_PutOutHack, "models/machines/v_pap.mdl", true, S_BOTH);
-	self.weapon2model = "";
-	UpdateV2model(self.weapon2model, 0);
-
-#ifndef FTE
-
-	self.Weapon_Name = "";
-
-#endif // FTE
-
-	self = tempe;
-
-	self.papState = 1;
-	
-}
-
-void touch_pap() {
-  
-	if (other.classname != "player" || other.downed || !PlayerIsLooking(other, self)) {
-		return;
-	}
-
-	if (other.reload_delay > time || other.reload_delay2 > time || 
-	other.fire_delay > time || other.fire_delay2 > time)
-		return;
-    
-	if (self.requirespower == true && !isPowerOn) {
-		useprint (other, 8, 0, 0);
-		return;
-	}
-  
-	if (!self.papState) {
-		if (IsPapWeapon(other.weapon) == 1) {
-			return;
-		}
-		useprint (other, 12, 5000, 5);
-		if (other.points >= 5000 && other.button7 && other.weapon)
-		{
-			PapUpgrade(self, other);
-		
-		}
-		else if (other.button7 && other.weapon && !other.semiuse) {
-			other.semiuse = true;
-			centerprint (other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
-		}
-	} else if (self.papState == 2) {
-
-#ifndef FTE
-
-		other.Weapon_Name_Touch = GetWeaponName(EqualPapWeapon(self.weapon));
-
-#endif // FTE
-
-		useprint (other, 7, 0, EqualPapWeapon(self.weapon));
-
-		if (other.button7) {
- 			entity tempe = self;
- 			self = other;
-			Weapon_GiveWeapon(EqualPapWeapon(tempe.weapon), 0, 0);
-			self = tempe;
-			// because PaP broke itself
-			self.think = reset_pap;
-			self.nextthink = time + 0.1;
-		}
-	}
-}	
-
-void() perk_pap = 
-{ 
-	entity tempe; 
-
-	tempe = find (world, classname, "power_switch");// trigger all paired doors
-
-	self.solid = SOLID_TRIGGER;
-
-	if (tempe) {
-		self.requirespower = true;
-	} else {
-		self.requirespower = false;
-	}
-
-	// Only cache the dual wield pap weapons if we have pap..
-	precache_extra(W_BIATCH);
-	precache_extra(W_SNUFF);
-
-	precache_model ("models/machines/quake_scale/pap.mdl");
-	precache_model ("models/machines/v_pap.mdl");
-	precache_sound ("sounds/machines/papsound.wav");
-	precache_sound("sounds/weapons/papfire.wav");
-	setorigin(self, self.origin);
-	setmodel (self, "models/machines/quake_scale/pap.mdl");
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_pap";
-	self.touch = touch_pap;
 }
 
 // Sorta ugly function but whatever

@@ -26,6 +26,7 @@
 ../source/server/entities/func.qc
 ../source/server/entities/traps.qc
 ../source/server/entities/lights.qc
+../source/server/entities/pack_a_punch.qc
 ../source/server/entities/mystery_box.qc
 ../source/server/entities/doors.qc
 ../source/server/entities/window.qc
