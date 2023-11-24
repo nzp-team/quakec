@@ -163,17 +163,11 @@ void(entity who) teleport_entity =
             break;
     }
 
-    who.fire_delay = who.fire_delay2 = who.reload_delay = who.reload_delay2 = 3.0 + time;
+    who.fire_delay = who.fire_delay2 = who.reload_delay = who.reload_delay2 = 2.0 + time;
+	who.speed_penalty = 0.75;
+	who.speed_penalty_time = time + 2;
     who.zoom = 0;
-    who.weaponmodel = "";
-    who.weapon2model = ""; 
 	who.movetype = MOVETYPE_WALK;
-
-    // if (who.flags & FL_ONGROUND) {
-    //     who.flags = who.flags - FL_ONGROUND;
-    //     who.velocity = v_forward * 0;
-    // }
- 
     who.flags = who.flags & FL_ONGROUND;
 	who.velocity = '0 0 0';
 }
