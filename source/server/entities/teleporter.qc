@@ -142,6 +142,9 @@ void(entity who) teleport_entity =
 		setorigin(who, who.origin + '0 0 40');
 	}
 
+	// Prohibit taking fall damage
+	who.oldz = who.origin_z;
+
     switch(self.iszomb) {
         case 0:
             who.origin += '20 0 0';
@@ -166,12 +169,13 @@ void(entity who) teleport_entity =
     who.weapon2model = ""; 
 	who.movetype = MOVETYPE_WALK;
 
-    if (who.flags & FL_ONGROUND) {
-        who.flags = who.flags - FL_ONGROUND;
-        who.velocity = v_forward * 0;
-    }
+    // if (who.flags & FL_ONGROUND) {
+    //     who.flags = who.flags - FL_ONGROUND;
+    //     who.velocity = v_forward * 0;
+    // }
  
-    who.flags = who.flags - who.flags & FL_ONGROUND;
+    who.flags = who.flags & FL_ONGROUND;
+	who.velocity = '0 0 0';
 }
 
 void() teleport_entities =
