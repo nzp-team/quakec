@@ -63,6 +63,7 @@ void() place_fire =
 .float radioState;
 .float length;
 .string tune;
+#define SPAWNFLAG_RADIO_PLAYONCE 	1
 void() radioPlay =
 {
 	self.health = 1;
@@ -70,13 +71,15 @@ void() radioPlay =
 	if (self.radioState == 1) {
 		sound (self, CHAN_ITEM, self.tune, 1, ATTN_NORM);
 
+
+		if (!(self.spawnflags & SPAWNFLAG_RADIO_PLAYONCE))
 #ifndef FTE
 
-		self.nextthink = time + GetSoundLen(self.tune);
+			self.nextthink = time + GetSoundLen(self.tune);
 
 #else
 
-		self.nextthink = time + self.length;
+			self.nextthink = time + self.length;
 
 #endif // FTE
 
@@ -100,6 +103,9 @@ void() radio_hit =
 		self.radioState = 1;
 	else if (self.radioState == 1)
 		self.radioState = 0;
+
+	if (self.spawnflags & SPAWNFLAG_RADIO_PLAYONCE)
+		self.takedamage = DAMAGE_NO;
 }
 
 void() item_radio = 
