@@ -266,6 +266,22 @@ void() trigger_stuffcmd =
 	self.touch = trigger_stuffcmd_touch;
 }
 
+void() trigger_interact_touch =
+{
+	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
+		return;
+
+	if (other.button7) {
+		multi_trigger();
+	}
+}
+
+void() trigger_interact =
+{
+	InitTrigger();
+	self.touch = trigger_interact_touch;
+}
+
 /* ===================
    Custom Teddy Triggers
    ===================*/
