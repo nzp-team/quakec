@@ -17,7 +17,7 @@ Here is a brief explanation for each of the (sub)directories in this repository:
 While it's usually recommended to stay on the QuakeC version provided with your build of NZ:P, you may want to update it to the current development builds to test new features and changes. To do this, navigate to the [Releases](https://github.com/nzp-team/quakec/releases/tag/bleeding-edge) page and follow the instructions there for downloading and installing.
 
 ## Building (Beginner Friendly)
-There are no prerequisites or dependancies needed to build QuakeC other than a working Windows, MacOS, or Linux-based machine.
+There are no prerequisites or dependancies needed to build QuakeC other than a working Windows, macOS, or Linux-based machine.
 
 Before you can build the NZ:P QuakeC, you must either [download](https://github.com/nzp-team/quakec/archive/refs/heads/main.zip) this repository (easy) or [clone it](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) (for developers).
 
