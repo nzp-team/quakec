@@ -103,21 +103,21 @@ void() menu_back =
 
 void() menu_loadndu =
 {
-	loadscreen_timetrigger = cltime + 0.3;
+	loadscreen_timetrigger = cltime + 0.6;
 	loadscreen_mapname = "ndu";
 	loadscreen_maptitle = "Nacht der Untoten";
 };
 
 void() menu_loadwh =
 {
-	loadscreen_timetrigger = cltime + 0.3;
+	loadscreen_timetrigger = cltime + 0.6;
 	loadscreen_mapname = "warehouse";
 	loadscreen_maptitle = "Warehouse";
 };
 
 void() menu_loadch =
 {
-	loadscreen_timetrigger = cltime + 0.3;
+	loadscreen_timetrigger = cltime + 0.6;
 	loadscreen_mapname = "christmas_special";
 	loadscreen_maptitle = "Christmas Special";
 };
@@ -1677,7 +1677,7 @@ void() Draw_Extra_Customs =
 				localsound_enhanced("sounds/menu/navigate.wav", CHAN_SFX, 1);
 
 			if (customs_interact) {
-				loadscreen_timetrigger = cltime + 0.3;
+				loadscreen_timetrigger = cltime + 0.6;
 				loadscreen_mapname = custom_map_names[i];
 				loadscreen_maptitle = custom_maps[i + multiplier].map_name_pretty;
 			}
