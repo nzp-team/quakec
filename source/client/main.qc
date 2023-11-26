@@ -751,7 +751,7 @@ string() LoadScreen_GiveTip =
             return  "10/10/10 was a good day.";
             break;
         case 34:
-            return  "Also check out \"Halo Revamped\" for 3DS!";
+            return  "Also check out \"FreeCS\" by eukara!";
             break;
         case 35:
             return 	"CypressImplex, or \"Ivy\", is from the USA.";
@@ -787,7 +787,7 @@ string() LoadScreen_GiveTip =
 			return 	"\"Get rid of the 21% tip, it's an MLP reference.\"";
 			break;
 		case 46:
-			return 	"You're playing on a 3DS!";
+			return 	"You're playing on FTE!";
 			break;
 		case 47:
 			return 	"Don't leak the beta!";
@@ -817,7 +817,7 @@ string() LoadScreen_GiveTip =
 			return "no free rides. ass, grass, or cash!";
 			break;
 		case 56:
-			return "nzp-team.github.io/latest/game.html";
+			return "https://nzp.gay/";
 			break;
 		case 57:
 			return "im an mlg gamer girl so its pretty guaranteed";
@@ -871,7 +871,7 @@ string() LoadScreen_GiveTip =
 			return  "Play some Custom Maps!";
 			break;
 		case 74:
-			return  "Real OGs play on \"Old\" 3DS models!";
+			return  "Real OGs play on Win9X Machines!";
 			break;
 		case 75:
 			return  "Adding this tip improved framerate by 39%!";
