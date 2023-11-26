@@ -50,9 +50,6 @@ void() multi_trigger =
 		return;		// already been triggered
 	}
 
-	if (self.noise)
-		sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
-
 // don't trigger again until reset
 	self.takedamage = DAMAGE_NO;
 
@@ -67,11 +64,7 @@ void() multi_trigger =
 	}
 	else
 	{	
-		// we can't just remove(self) here, because this is a touch function
-		// called while C code is looping through area links...
-		self.touch = SUB_Null;
-		self.nextthink = time + 0.1;
-		self.think = SUB_Remove;
+		Ent_FakeRemove(self);
 	}
 };
 
@@ -272,6 +265,8 @@ void() trigger_interact_touch =
 		return;
 
 	if (other.button7) {
+		if (self.noise)
+			sound (other, CHAN_ITEM, self.noise, 1, ATTN_NORM);
 		multi_trigger();
 	}
 }
