@@ -30,11 +30,35 @@ float custom_map_pages;
 float last_active_custom_select;
 float active_custom_select;
 
+string temp_player_name;
+float editing_player_name;
+
+string temp_server_name;
+float editing_server_id;
+
+string temp_password;
+float editing_password;
 
 void() menu_single =
 {
 	in_menu = MENU_SINGLE;
 	time_in_menu = 0;
+	matchmake_enabled = false;
+	localcmd("sv_public 0\n");
+};
+
+void() menu_create =
+{
+	in_menu = MENU_CREATE;
+	time_in_menu = 0;
+};
+
+void() menu_matchmake =
+{
+	in_menu = MENU_SINGLE;
+	time_in_menu = 0;
+	matchmake_enabled = true;
+	localcmd("sv_public 2\n");
 };
 
 void() menu_restart =
@@ -59,6 +83,7 @@ void() menu_multi =
 {
 	in_menu = MENU_MULTI;
 	time_in_menu = 0;
+	temp_player_name = cvar_string("name");
 };
 
 void() menu_settings =
@@ -97,8 +122,14 @@ void() menu_back =
 		in_menu = MENU_PAUSE;
 	} else if (in_menu == MENU_CUSTOMS) {
 		in_menu = MENU_SINGLE;
+	} else if (in_menu == MENU_SINGLE && matchmake_enabled == true) {
+		in_menu = MENU_MULTI;
+	} else if (in_menu == MENU_CREATE || in_menu == MENU_JOIN) {
+		in_menu = MENU_MULTI;
 	} else
 		in_menu = MENU_MAIN;
+
+	editing_player_name = editing_server_id = editing_password = false;
 };
 
 void() menu_loadndu =
@@ -134,8 +165,8 @@ void() menu_loadkn =
 
 void() menu_join =
 {
-	setcursormode(TRUE, cvar_string("cl_cursor"), __NULL__, cvar("cl_cursor_scale"));
 	in_menu = MENU_JOIN;
+	time_in_menu = 0;
 };
 
 void() game_join =
@@ -754,148 +785,27 @@ void() setting_mastervol2 =
 	localcmd(strcat("seta volume ", ftos(vol)));
 }
 
-void() setting_chann1vol =
+void() setting_playername =
 {
-	float vol = cvar("snd_channel1volume");
-
-	vol += 0.1;
-
-	if (vol > 1)
-		vol = 1;
-
-	localcmd(strcat("seta snd_channel1volume ", ftos(vol)));
+	editing_player_name = !editing_player_name;
+	editing_server_id = editing_password = false;
 }
 
-void() setting_chann1vol2 =
+void() setting_serverid =
 {
-	float vol = cvar("snd_channel1volume");
-
-	vol -= 0.1;
-
-	if (vol < 0)
-		vol = 0;
-
-	localcmd(strcat("seta snd_channel1volume ", ftos(vol)));
+	editing_server_id = !editing_server_id;
+	editing_player_name = editing_password = false;
 }
 
-void() setting_chann2vol =
+void() setting_password =
 {
-	float vol = cvar("snd_channel2volume");
-
-	vol += 0.1;
-
-	if (vol > 1)
-		vol = 1;
-
-	localcmd(strcat("seta snd_channel2volume ", ftos(vol)));
+	editing_password = !editing_password;
+	editing_player_name = editing_server_id = false;
 }
 
-void() setting_chann2vol2 =
+void() setting_connect =
 {
-	float vol = cvar("snd_channel2volume");
-
-	vol -= 0.1;
-
-	if (vol < 0)
-		vol = 0;
-
-	localcmd(strcat("seta snd_channel2volume ", ftos(vol)));
-}
-
-void() setting_chann3vol =
-{
-	float vol = cvar("snd_channel3volume");
-
-	vol += 0.1;
-
-	if (vol > 1)
-		vol = 1;
-
-	localcmd(strcat("seta snd_channel3volume ", ftos(vol)));
-}
-
-void() setting_chann3vol2 =
-{
-	float vol = cvar("snd_channel3volume");
-
-	vol -= 0.1;
-
-	if (vol < 0)
-		vol = 0;
-
-	localcmd(strcat("seta snd_channel3volume ", ftos(vol)));
-}
-
-void() setting_chann4vol =
-{
-	float vol = cvar("snd_channel4volume");
-
-	vol += 0.1;
-
-	if (vol > 1)
-		vol = 1;
-
-	localcmd(strcat("seta snd_channel4volume ", ftos(vol)));
-}
-
-void() setting_chann4vol2 =
-{
-	float vol = cvar("snd_channel4volume");
-
-	vol -= 0.1;
-
-	if (vol < 0)
-		vol = 0;
-
-	localcmd(strcat("seta snd_channel4volume ", ftos(vol)));
-}
-
-void() setting_chann5vol =
-{
-	float vol = cvar("snd_channel5volume");
-
-	vol += 0.1;
-
-	if (vol > 1)
-		vol = 1;
-
-	localcmd(strcat("seta snd_channel5volume ", ftos(vol)));
-}
-
-void() setting_chann5vol2 =
-{
-	float vol = cvar("snd_channel5volume");
-
-	vol -= 0.1;
-
-	if (vol < 0)
-		vol = 0;
-
-	localcmd(strcat("seta snd_channel5volume ", ftos(vol)));
-}
-
-void() setting_chann6vol =
-{
-	float vol = cvar("snd_channel6volume");
-
-	vol += 0.1;
-
-	if (vol > 1)
-		vol = 1;
-
-	localcmd(strcat("seta snd_channel6volume ", ftos(vol)));
-}
-
-void() setting_chann6vol2 =
-{
-	float vol = cvar("snd_channel6volume");
-
-	vol -= 0.1;
-
-	if (vol < 0)
-		vol = 0;
-
-	localcmd(strcat("seta snd_channel6volume ", ftos(vol)));
+	localcmd(strcat("connect ", temp_server_name));
 }
 
 //rmb null
@@ -930,7 +840,7 @@ var struct
 {
 	// Main
 	{[6, 75], "Solo", -1, menu_single, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 0
-	{[6, 95], "Cooperative", -1, menu_multi, null, MENU_MAIN, 1, OPTION_WEB_AND_EXE}, // 1
+	{[6, 95], "Cooperative", -1, menu_multi, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 1
 	// ...
 	{[6, 125], "Settings", -1, menu_settings, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 2
 	{[6, 145], "Achievements", -1, menu_achievements, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 3
@@ -1003,9 +913,9 @@ var struct
 	{[6, -1], "Previous Page", -1, menu_custom_back, null, MENU_CUSTOMS + MENU_ACHIEVEMENTS, 1, OPTION_WEB_AND_EXE}, // 52
 
 	// Everything, pretty much
-	{[6, 0], "Back", -1, menu_back, null, MENU_SINGLE + MENU_MULTI + MENU_SETTINGS + MENU_ABOUT + 
+	{[6, 0], "Back", -1, menu_back, null, MENU_SINGLE + MENU_MULTI + MENU_JOIN + MENU_SETTINGS + MENU_ABOUT + 
 													 MENU_IGS + MENU_GSETTINGS + MENU_CSETTINGS + MENU_CUSTOMS +
-                                                     MENU_ACHIEVEMENTS + MENU_CONSETTINGS + MENU_AUDSETTINGS, 0, 
+                                                     MENU_ACHIEVEMENTS + MENU_CREATE + MENU_CONSETTINGS + MENU_AUDSETTINGS, 0, 
 													 OPTION_WEB_AND_EXE}, // 53
 
 	// Control Settings
@@ -1014,16 +924,24 @@ var struct
 
 	// Audio Settings
 	{[6, 75], "Master Volume", -1, setting_mastervol, setting_mastervol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 56
-	{[6, 95], "Music Volume", -1, setting_chann1vol, setting_chann1vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 57
-	{[6, 115], "SFX Volume", -1, setting_chann2vol, setting_chann2vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 58
-	{[6, 135], "Channel 3 Volume", -1, setting_chann3vol, setting_chann3vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 59
-	{[6, 155], "Channel 4 Volume", -1, setting_chann4vol, setting_chann4vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 60
-	{[6, 175], "Channel 5 Volume", -1, setting_chann5vol, setting_chann5vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE}, // 61
-	{[6, 195], "Channel 6 Volume", -1, setting_chann6vol, setting_chann6vol2, MENU_AUDSETTINGS, 0, OPTION_WEB_AND_EXE} // 62
+
+	// Co-Op
+	{[6, 75], "Player Name", -1, setting_playername, null, MENU_MULTI, 0, OPTION_WEB_AND_EXE}, // 57
+	{[6, 115], "Join Game", -1, menu_join, null, MENU_MULTI, 0, OPTION_WEB_AND_EXE}, // 58
+	{[6, 135], "Create Game", -1, menu_create, null, MENU_MULTI, 0, OPTION_WEB_AND_EXE}, // 59
+
+	// Join Game
+	{[6, 75], "Server Name/Room ID", -1, setting_serverid, null, MENU_JOIN, 0, OPTION_WEB_AND_EXE}, // 60
+	{[6, 95], "Server Password", -1, setting_password, null, MENU_JOIN, 0, OPTION_WEB_AND_EXE}, // 61
+	{[6, 115], "Connect to Server", -1, setting_connect, null, MENU_JOIN, 0, OPTION_WEB_AND_EXE}, // 62
+
+	// Create Game
+	{[6, 75], "Server Password", -1, setting_password, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 63
+	{[6, 95], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE} // 64
 };
 
 //REMEMBER TO UPDATE THIS CONST IF YOU ADD BUTTONS
-float BUTTONS_COUNT = 63;
+float BUTTONS_COUNT = 65;
 float lastActive;
 
 
@@ -1184,6 +1102,9 @@ void() Draw_Extra_Main =
 		case 0:
 			main_desc = "Take on the Hordes by yourself.";
 			break;
+		case 1:
+			main_desc = "Play NZ:P Cooperatively with up to four Players.";
+			break;
 		case 2:
 			main_desc = "Adjust your Settings to Optimize your Experience.";
 			break;
@@ -1226,6 +1147,65 @@ void() Draw_Extra_Main =
 		drawfill([cursor_pos_x - (strlen(advert_text) * 10) - 5, cursor_pos_y + 2], [strlen(advert_text) * 10, 10], [0, 0, 0], 0.90);
 		drawstring([cursor_pos_x - (strlen(advert_text) * 10) - 5, cursor_pos_y + 2], advert_text, [10, 10], [1, 1, 0], 1, 0);
 	}
+}
+
+void() Draw_Extra_Join =
+{
+	// Server ID
+	drawfill ([318, 73], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
+	drawstring([320, 75], temp_server_name, [14, 14], [1, 1, 1], 1, 0);
+
+	// Draw a cute little guy so user knows they're editing their name.
+	if (editing_server_id) {
+		drawstring([320 + (strlen(temp_server_name)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
+	}
+
+	// Password
+	// Generate a bunch of asterisks lol
+	string safe_password = "";
+	for(int i = 0; i < strlen(temp_password); i++) {
+		safe_password = sprintf("%s%s", safe_password, "*");
+	}
+	drawfill ([318, 93], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
+	drawstring([320, 95], safe_password, [14, 14], [1, 1, 1], 1, 0);
+
+	// Draw a cute little guy for password
+	if (editing_password) {
+		drawstring([320 + (strlen(temp_password)*14), 95], "_", [14, 14], [1, 1, 0], 1, 0);
+	}
+}
+
+void() Draw_Extra_Create =
+{
+	// Password
+	// Generate a bunch of asterisks lol
+	string safe_password = "";
+	for(int i = 0; i < strlen(temp_password); i++) {
+		safe_password = sprintf("%s%s", safe_password, "*");
+	}
+
+	drawfill ([318, 73], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
+	drawstring([320, 75], safe_password, [14, 14], [1, 1, 1], 1, 0);
+
+	// Draw a cute little guy for password
+	if (editing_password) {
+		drawstring([320 + (strlen(temp_password)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
+	}
+}
+
+void() Draw_Extra_Coop =
+{
+	// Player Name
+	drawfill ([318, 73], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
+	drawstring([320, 75], temp_player_name, [14, 14], [1, 1, 1], 1, 0);
+
+	// Draw a cute little guy so user knows they're editing their name.
+	if (editing_player_name) {
+		drawstring([320 + (strlen(temp_player_name)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
+	}
+
+	// Division lines
+	drawfill ([6, 100], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 }
 
 void() Draw_Extra_Solo =
@@ -1846,46 +1826,10 @@ void() Draw_Extra_ASettings =
 	// Master Volume
 	drawfill ([320, 75], [master_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
 
-	// Music Volume
-	drawfill ([320, 95], [chann1_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
-
-	// SFX Volume
-	drawfill ([320, 115], [chann2_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
-
-	// Channel 3 Volume
-	drawfill ([320, 135], [chann3_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
-
-	// Channel 4 Volume
-	drawfill ([320, 155], [chann4_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
-
-	// Channel 5 Volume
-	drawfill ([320, 175], [chann5_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
-
-	// Channel 6 Volume
-	drawfill ([320, 195], [chann6_volume/3*200, 14], [0.8, 0.8, 0.8], 1, 0);
-
 	// Descriptions
 	switch(lastActive) {
 		case 56:
 			aset_desc = "Adjusts the overall volume of the game.";
-			break;
-		case 57:
-			aset_desc = "Adjusts the volume of the music in the game.";
-			break;
-		case 58:
-			aset_desc = "Adjusts the volume of sound effects in the game.";
-			break;
-		case 59:
-			aset_desc = "Audio Level for Channel 3.";
-			break;
-		case 60:
-			aset_desc = "Audio Level for Channel 4.";
-			break;
-		case 61:
-			aset_desc = "Audio Level for Channel 5.";
-			break;
-		case 62:
-			aset_desc = "Audio Level for Channel 6.";
 			break;
 		default:
 			aset_desc = "";
@@ -1975,11 +1919,15 @@ void() Draw_Menu =
 			Draw_Extra_Main();
 			break;
 		case MENU_SINGLE:
-			title = "SOLO";
+			if (matchmake_enabled)
+				title = "CHOOSE MAP";
+			else
+				title = "SOLO";
 			Draw_Extra_Solo();
 			break;
 		case MENU_MULTI:
-			title = "COOP";
+			title = "COOPERATIVE";
+			Draw_Extra_Coop();
 			break;
 		case MENU_ABOUT:
 			title = "CREDITS";
@@ -2006,7 +1954,10 @@ void() Draw_Menu =
 			Draw_Extra_Restart();
 			break;
 		case MENU_CUSTOMS:
-			title = "CUSTOM MAPS";
+			if (matchmake_enabled)
+				title = "CHOOSE CUSTOM MAP";
+			else
+				title = "CUSTOM MAPS";
 			Draw_Extra_Customs();
 			break;
         case MENU_ACHIEVEMENTS:
@@ -2020,6 +1971,14 @@ void() Draw_Menu =
 		case MENU_AUDSETTINGS:
 			title = "AUDIO SETTINGS";
 			Draw_Extra_ASettings();
+			break;
+		case MENU_JOIN:
+			title = "JOIN GAME";
+			Draw_Extra_Join();
+			break;
+		case MENU_CREATE:
+			title = "CREATE GAME";
+			Draw_Extra_Create();
 			break;
 		default:
 			title = "Nazi Zombies: Portable";

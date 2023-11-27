@@ -1194,6 +1194,52 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 					}
 				}
 
+				if (in_menu == MENU_MULTI) {
+					// GO AWAY!
+					if (scanx == K_ENTER || scanx == K_ESCAPE) {
+						editing_player_name = editing_server_id = editing_password = false;
+						return FALSE;
+					}
+
+					if (editing_player_name == true) {
+						// Update the temp string.
+						temp_player_name = GetUserInput(temp_player_name, scanx, chary, 18);
+
+						// Always append.
+						cvar_set("name", temp_player_name);
+
+						// No, I don't want to read binds. Thanks.
+						return TRUE;
+					}
+				} else if (in_menu == MENU_CREATE || in_menu == MENU_JOIN) {
+					// GO AWAY!
+					if (scanx == K_ENTER || scanx == K_ESCAPE) {
+						editing_player_name = editing_server_id = editing_password = false;
+						return FALSE;
+					}
+
+					// Server IP
+					if (editing_server_id == true) {
+						// Update the temp string.
+						temp_server_name = GetUserInput(temp_server_name, scanx, chary, 18);
+
+						// No, I don't want to read binds. Thanks.
+						return TRUE;
+					}
+
+					// Password
+					if (editing_password == true) {
+						// Update the temp string.
+						temp_password = GetUserInput(temp_password, scanx, chary, 18);
+
+						// Always append.
+						cvar_set("password", temp_password);
+
+						// No, I don't want to read binds. Thanks.
+						return TRUE;
+					}
+				}
+
 				// Controller Menu Navigation
 				if (scanx == K_JOY2) {
 					GPActive[0] = TRUE;
