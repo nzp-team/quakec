@@ -1151,6 +1151,8 @@ void() Draw_Extra_Main =
 
 void() Draw_Extra_Join =
 {
+	string join_desc = "";
+
 	// Server ID
 	drawfill ([318, 73], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
 	drawstring([320, 75], temp_server_name, [14, 14], [1, 1, 1], 1, 0);
@@ -1173,10 +1175,31 @@ void() Draw_Extra_Join =
 	if (editing_password) {
 		drawstring([320 + (strlen(temp_password)*14), 95], "_", [14, 14], [1, 1, 0], 1, 0);
 	}
+
+	// Descriptions
+	switch(lastActive) {
+		case 60:
+			join_desc = "IP or ID for the Server (typically starts with /).";
+			break;
+		case 61:
+			join_desc = "Password for the Match set by the Host.";
+			break;
+		case 62:
+			join_desc = "Attempt to connect to Game.";
+			break;
+		default:
+			join_desc = "";
+			break;
+	}
+
+	// Draw desc
+	drawstring([6, g_height - 42, 0], join_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Create =
 {
+	string crea_desc = "";
+
 	// Password
 	// Generate a bunch of asterisks lol
 	string safe_password = "";
@@ -1191,10 +1214,28 @@ void() Draw_Extra_Create =
 	if (editing_password) {
 		drawstring([320 + (strlen(temp_password)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
 	}
+
+	// Descriptions
+	switch(lastActive) {
+		case 63:
+			crea_desc = "Enter a password to limit who can join.";
+			break;
+		case 64:
+			crea_desc = "Select a Map to start the Game.";
+			break;
+		default:
+			crea_desc = "";
+			break;
+	}
+
+	// Draw desc
+	drawstring([6, g_height - 42, 0], crea_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Coop =
 {
+	string coop_desc = "";
+
 	// Player Name
 	drawfill ([318, 73], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
 	drawstring([320, 75], temp_player_name, [14, 14], [1, 1, 1], 1, 0);
@@ -1206,6 +1247,25 @@ void() Draw_Extra_Coop =
 
 	// Division lines
 	drawfill ([6, 100], [270, 4], [0.5, 0.5, 0.5], 1, 0);
+
+	// Descriptions
+	switch(lastActive) {
+		case 57:
+			coop_desc = "Name that appears in-game and on the Scoreboard.";
+			break;
+		case 58:
+			coop_desc = "Join an in-progress Match.";
+			break;
+		case 59:
+			coop_desc = "Create a new Match for others to join.";
+			break;
+		default:
+			coop_desc = "";
+			break;
+	}
+
+	// Draw desc
+	drawstring([6, g_height - 42, 0], coop_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Solo =
