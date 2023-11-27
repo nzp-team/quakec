@@ -250,13 +250,15 @@ void() teleporter_link_touch =
 
 void() teleport_touch =
 {
+	entity tempe;
+
 	if (self.cooldown) {
 		useprint(other, 16, 0, 0);
 		return;
 	}
 
   	if (other.classname != "player" || self.activated)
-    	return;  
+		return;
   
   	if (!isPowerOn) {
      	useprint(other, 8, 0, 0);
@@ -295,8 +297,27 @@ void() teleport_touch =
                 people.tele_target = find(world, targetname, self.target);
                 people.movetype = MOVETYPE_NONE;
             }
-            people = people.chain;
+			people = people.chain;
         }
+		
+		entity zod = findradius(self.origin, self.stance);
+		while (zod != world)
+		{
+			if (zod.classname == "ai_zombie_head" || zod.classname == "ai_zombie_rarm"
+			|| zod.classname == "ai_zombie_larm") 
+			{
+				// If we're a limb, grab our body.
+				zod = zod.owner;
+			}
+			if (zod.classname == "ai_zombie" && !zod.electro_targeted) 
+			{
+				tempe = self;
+				self = zod;
+				Z_ElectroShock();
+				self = tempe;	
+			}
+			zod = zod.chain;
+		}
 
         if (!other.tele_target)
 			objerror("Couldn't find target!");
