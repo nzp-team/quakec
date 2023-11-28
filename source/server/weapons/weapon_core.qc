@@ -2271,10 +2271,16 @@ void () Weapon_Logic =
 	
 	if (self.button6 && !self.semiknife)
 	{ 
+
+		// Don't do this at all on FTE.
+#ifndef FTE
+
 		if (self.sprinting) {
 			dolphin_dive();
 			return;
 		}
+
+#endif // FTE
 
 		W_Knife();
 		self.semiknife = true;
