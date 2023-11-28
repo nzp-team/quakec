@@ -86,7 +86,7 @@ const float MENU_AUDSETTINGS 	= 16384;
 const float MENU_CREATE 		= 32768;
 
 float matchmake_enabled;
-
+float double_tap_version;
 
 float useprint_type;
 float useprint_weapon;

@@ -1055,12 +1055,20 @@ void(float width, float height) HUD_Perks =
 	if (cvar("vid_ultrawide_limiter"))
 		x += ULTRAWIDE_OFFSET;
 
+	// Double-Tap can have 2 icons depending on
+	// machine-specified version.
+	string double_tap_icon;
+	if (double_tap_version == 1) // damage buffed
+		double_tap_icon = "gfx/hud/double2.tga";
+	else // just rof
+		double_tap_icon = "gfx/hud/double.tga";
+
 	// Draw second column first -- these need to be
 	// overlayed below the first column.
 	for (float i = 4; i < 8; i++) {
 		if (perk_order[i]) {
 			if (perk_order[i] == P_JUG) {drawpic([x, y], "gfx/hud/jug.tga", [scale, scale], [1,1,1], 1);}
-			if (perk_order[i] == P_DOUBLE) {drawpic([x, y], "gfx/hud/double.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_DOUBLE) {drawpic([x, y], double_tap_icon, [scale, scale, 1], [1,1,1], 1);}
 			if (perk_order[i] == P_SPEED) {drawpic([x, y], "gfx/hud/speed.tga", [scale, scale, 1], [1,1,1], 1);}
 			if (perk_order[i] == P_REVIVE) {drawpic([x, y], "gfx/hud/revive.tga", [scale, scale, 1], [1,1,1], 1);}
 			if (perk_order[i] == P_FLOP) {drawpic([x, y], "gfx/hud/flopper.tga", [scale, scale, 1], [1,1,1], 1);}
@@ -1081,7 +1089,7 @@ void(float width, float height) HUD_Perks =
 	for (float i = 0; i < 4; i++) {
 		if (perk_order[i]) {
 			if (perk_order[i] == P_JUG) {drawpic([x, y], "gfx/hud/jug.tga", [scale, scale, 1], [1,1,1], 1);}
-			if (perk_order[i] == P_DOUBLE) {drawpic([x, y], "gfx/hud/double.tga", [scale, scale, 1], [1,1,1], 1);}
+			if (perk_order[i] == P_DOUBLE) {drawpic([x, y], double_tap_icon, [scale, scale, 1], [1,1,1], 1);}
 			if (perk_order[i] == P_SPEED) {drawpic([x, y], "gfx/hud/speed.tga", [scale, scale, 1], [1,1,1], 1);}
 			if (perk_order[i] == P_REVIVE) {drawpic([x, y], "gfx/hud/revive.tga", [scale, scale, 1], [1,1,1], 1);}
 			if (perk_order[i] == P_FLOP) {drawpic([x, y], "gfx/hud/flopper.tga", [scale, scale, 1], [1,1,1], 1);}
