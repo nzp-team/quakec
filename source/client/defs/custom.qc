@@ -67,22 +67,25 @@ vector v2model_avelocity;
 vector vmodel_muzzleoffset;
 vector v2model_muzzleoffset;
 
-const float MENU_NONE = 0;
-const float MENU_MAIN = 1;
-const float MENU_SINGLE = 2;
-const float MENU_MULTI = 4;
-const float MENU_SETTINGS = 8;
-const float MENU_ABOUT = 16;
-const float MENU_JOIN = 32;
-const float MENU_PAUSE = 64;
-const float MENU_IGS = 128;
-const float MENU_RES = 256;
-const float MENU_GSETTINGS = 512;
-const float MENU_CSETTINGS = 1024;
-const float MENU_CUSTOMS = 2048;
-const float MENU_ACHIEVEMENTS = 4096;
-const float MENU_CONSETTINGS = 8192;
-const float MENU_AUDSETTINGS = 16384;
+const float MENU_NONE 			= 0;
+const float MENU_MAIN 			= 1;
+const float MENU_SINGLE 		= 2;
+const float MENU_MULTI 			= 4;
+const float MENU_SETTINGS 		= 8;
+const float MENU_ABOUT 			= 16;
+const float MENU_JOIN 			= 32;
+const float MENU_PAUSE 			= 64;
+const float MENU_IGS 			= 128;
+const float MENU_RES 			= 256;
+const float MENU_GSETTINGS 		= 512;
+const float MENU_CSETTINGS 		= 1024;
+const float MENU_CUSTOMS 		= 2048;
+const float MENU_ACHIEVEMENTS	= 4096;
+const float MENU_CONSETTINGS 	= 8192;
+const float MENU_AUDSETTINGS 	= 16384;
+const float MENU_CREATE 		= 32768;
+
+float matchmake_enabled;
 
 
 float useprint_type;
