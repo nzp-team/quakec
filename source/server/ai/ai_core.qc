@@ -532,17 +532,58 @@ void(float dist) Window_Hop =
 	}
 }
 
+
+//
+// FTE's custom "tracemove" -- no way in hell I'm reimplementing SV_Move
+// in QuakeC. So this is just a really bad traceline hack. We can't even
+// use tracebox since that's limited by BSP hulls,
+//
+#ifdef FTE
+inline float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove =
+#else
+float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove_fake =
+#endif // FTE
+{
+	makevectors(forent.angles);
+
+	// Top left of the box
+	traceline(start + '0 0 32' + v_right * -18, end, nomonsters, forent);
+
+	// Results Check
+	if (trace_ent != forent && trace_endpos != end)
+		return 0;
+
+	// Top right of the box
+	traceline(start + '0 0 32' + v_right * 18, end, nomonsters, forent);
+
+	// Results Check
+	if (trace_ent != forent && trace_endpos != end)
+		return 0;
+
+	// Bottom left of the box
+	traceline(start - '0 0 24' + v_right * -18, end, nomonsters, forent);
+
+	// Results Check
+	if (trace_ent != forent && trace_endpos != end)
+		return 0;
+
+	// Bottom right of the box
+	traceline(start - '0 0 24' + v_right * 18, end, nomonsters, forent);
+
+	// Results Check
+	if (trace_ent != forent && trace_endpos != end)
+		return 0;
+
+	return 1;		
+}
+
 float() TryWalkToEnemy =
 {
-
-#ifdef FTE
 
 	// Early out hack for FTE -- if there's tons of z-diff, GTFO!
 	float z_axis_diff = fabs(self.origin_z - self.enemy.origin_z);
 	if (z_axis_diff >= 30)
 		return 0;
-
-#endif // FTE
 
 	// This has been a headache...
 	// TryWalkToEnemy is a system that attempts to ignore waypoints from a
@@ -554,7 +595,11 @@ float() TryWalkToEnemy =
 	// needs to be improvisation, and as a result there is disparity here.
 	// See the custom tracemove() function for details on that.
 	// -- cypress (28 Nov 2023)
+#ifdef FTE
 	float TraceResult = tracemove(self.origin, VEC_HULL_MIN, VEC_HULL_MAX, self.enemy.origin, TRUE, self);
+#else
+	float TraceResult = tracemove_fake(self.origin, VEC_HULL_MIN, VEC_HULL_MAX, self.enemy.origin, TRUE, self);
+#endif // FTE
 
 	if (TraceResult == 1) {
 		self.goalentity = self.enemy;
@@ -649,50 +694,6 @@ void() NextPathfindToEnemy {
 #endif // FTE
 
 }
-
-#ifdef FTE
-
-//
-// FTE's custom "tracemove" -- no way in hell I'm reimplementing SV_Move
-// in QuakeC. So this is just a really bad traceline hack. We can't even
-// use tracebox since that's limited by BSP hulls,
-//
-inline float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove
-{
-	makevectors(forent.angles);
-
-	// Top left of the box
-	traceline(start + '0 0 32' + v_right * -18, end, nomonsters, forent);
-
-	// Results Check
-	if (trace_ent != forent && trace_endpos != end)
-		return 0;
-
-	// Top right of the box
-	traceline(start + '0 0 32' + v_right * 18, end, nomonsters, forent);
-
-	// Results Check
-	if (trace_ent != forent && trace_endpos != end)
-		return 0;
-
-	// Bottom left of the box
-	traceline(start - '0 0 24' + v_right * -18, end, nomonsters, forent);
-
-	// Results Check
-	if (trace_ent != forent && trace_endpos != end)
-		return 0;
-
-	// Bottom right of the box
-	traceline(start - '0 0 24' + v_right * 18, end, nomonsters, forent);
-
-	// Results Check
-	if (trace_ent != forent && trace_endpos != end)
-		return 0;
-
-	return 1;		
-}
-
-#endif // FTE
 
 void(float dist) Inside_Walk = {
 	// Hellhounds should only change targets if current one is in Last Stand
