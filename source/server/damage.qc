@@ -158,10 +158,9 @@ void() rec_downed =
 	if (!self.beingrevived)
 		self.downedloop += 1;
 
-	bprint(PRINT_HIGH, strcat(ftos(self.downedloop), "\n"));
-
 	if (self.downedloop >= 30) {
 		DisableReviveIcon(self.electro_targeted);
+		revive_index--;
 		startspectate();
 		return;
 	}
