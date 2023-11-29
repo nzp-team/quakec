@@ -129,6 +129,13 @@ float(string params) Command_noclip =
 		return COMMAND_FAILURE;
 	}
 
+	if (self.model == "") {
+		setmodel(self, "models/player.mdl");
+		setsize(self, VEC_HULL_MIN, VEC_HULL_MAX);
+	} else {
+		setmodel(self, "");
+	}
+
 	client_parse_override = false;
 	return COMMAND_SUCCESS;
 } 

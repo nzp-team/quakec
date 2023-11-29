@@ -155,8 +155,12 @@ void() EndGameSetup =
 //    if they aren't dead, we keep looping until our OWN death (45 seconds, so 300 loops)
 void() rec_downed = 
 {
-	self.downedloop++;
-	if (self.downedloop >= 300) {
+	if (!self.beingrevived)
+		self.downedloop += 1;
+
+	bprint(PRINT_HIGH, strcat(ftos(self.downedloop), "\n"));
+
+	if (self.downedloop >= 30) {
 		DisableReviveIcon(self.electro_targeted);
 		startspectate();
 		return;
@@ -170,7 +174,7 @@ void() rec_downed =
 	}
 	
 	self.think = rec_downed;
-	self.nextthink = time + 0.1;
+	self.nextthink = time + 1;
 }
 
 float() push_away_zombies;

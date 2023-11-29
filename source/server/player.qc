@@ -410,7 +410,7 @@ void() PlayerPreThink =
 	}
 	if(self.isspec != 0 && !self.downed)
 	{
-		if(self.button0)
+		if(self.button0 && self.fire_delay < time)
 		{
 			self.aiment = find(self.aiment, classname, "player");
 			if(self.aiment != world)
@@ -427,6 +427,7 @@ void() PlayerPreThink =
 				sprint(self, PRINT_HIGH, "Freefly spectate\n");
 				self.movetype = MOVETYPE_FLY;
 			}
+			self.fire_delay = time + 0.25;
 		}
 		if(self.aiment != world)
 		{
