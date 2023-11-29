@@ -140,7 +140,11 @@ void() Dog_Think =
 	// Hellhounds begin to run whenever their target is in their line of sight.
 	// So perform a tracemove and see if it hits it
 	if (self.ads_release == 0) {
+#ifdef FTE
 		float result = tracemove(self.origin, VEC_HULL_MIN, VEC_HULL_MAX, self.enemy.origin, TRUE, self);
+#else
+		float result = tracemove_fake(self.origin, VEC_HULL_MIN, VEC_HULL_MAX, self.enemy.origin, TRUE, self);
+#endif // FTE
 		self.ads_release = result;
 	}
 
