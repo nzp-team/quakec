@@ -213,6 +213,7 @@ void() findboxspot =
 		setmodel(g, mystery_box_glow_model);
 		setorigin(g,newspot.origin);
 		g.angles = newspot.angles;
+		g.effects = EF_FULLBRIGHT;
 
 #ifdef FTE
 

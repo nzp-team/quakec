@@ -1073,7 +1073,7 @@ void(float side) W_Fire =
 	delay = getWeaponDelay(self.weapon, FIRE);
 
 	// Double Tap 2.0
-	if (self.perks & P_DOUBLE)
+	if (self.perks & P_DOUBLE && self.has_doubletap_damage_buff)
 		shotcount *= 2;
 
 	if (self.velocity)
@@ -2271,10 +2271,16 @@ void () Weapon_Logic =
 	
 	if (self.button6 && !self.semiknife)
 	{ 
+
+		// Don't do this at all on FTE.
+#ifndef FTE
+
 		if (self.sprinting) {
 			dolphin_dive();
 			return;
 		}
+
+#endif // FTE
 
 		W_Knife();
 		self.semiknife = true;

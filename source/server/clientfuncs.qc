@@ -634,6 +634,19 @@ void (float achievement_id, float progress_value, optional entity who) UpdateAch
 
 }
 
+#ifdef FTE
+
+void(entity who, float version) nzp_setdoubletapver =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_DOUBLETAPUPDATE);
+	WriteByte(MSG_MULTICAST, version);
+	msg_entity = who;
+	multicast('0 0 0', MULTICAST_ONE);
+};
+
+#endif // FTE
+
 // *****************************************
 // Unrelated to engine, but custom functions
 // *****************************************

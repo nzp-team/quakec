@@ -1476,6 +1476,9 @@ noref void() CSQC_Parse_Event =
 
 			UpdatePerks(newperks);
 			break;
+		case EVENT_DOUBLETAPUPDATE:
+			double_tap_version = readbyte();
+			break;
 		case EVENT_UPDATE:
 			float updatetype = readbyte();
 			float var_1 = readbyte();

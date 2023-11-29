@@ -514,6 +514,11 @@ void() PlayerPostThink =
 				case 1: self.frame = 115; break;
 				case 0: self.frame = 162; break;
 			}
+
+			// If we're downed force set the last stand idle frame as well
+			// so the player doesn't look like they're just prone.
+			if (self.downed)
+				self.frame = 37;
 		}
 	}
 	

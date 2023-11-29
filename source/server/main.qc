@@ -105,7 +105,30 @@ void() StartFrame =
 
 		if (ai_delay_time < time) {
 			Do_Zombie_AI ();
-			ai_delay_time = time + 0.04;
+
+			// This determines the delay between each AI's update sequence.
+			// It needs to be variable -- the more AI, the smaller this number
+			// should end up being, or else you'll have AI completely stall
+			// waiting for it's chance in the spotlight.
+			// -----
+
+#ifdef FTE
+
+			// On FTE, resources are available to make this super short (0.01s,
+			// meaning all 24 ai update 4 times a second).
+			ai_delay_time = time + 0.01;
+
+#else
+
+			// On other platforms, have this be 0.03 / ai factor / 12.
+			// This means that:
+			// AI Updates at ~30Hz with 12 Zombies
+			// AI Updates at ~45Hz with 18 Zombies
+			// AI Updates at ~60Hz with 24 Zombies
+			ai_delay_time = time + (0.03 / (nzp_maxai()/12));
+
+#endif // FTE
+
 		}
 	} else {
 		entity SpawnedIn;

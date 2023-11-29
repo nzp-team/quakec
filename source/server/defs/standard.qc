@@ -272,6 +272,7 @@ void    (entity who)                                                            
 float   ()                                                                                      nzp_maxai           = #503;
 void    (entity who)                                                                            nzp_bettyprompt     = #504;
 void    (entity who, string name)                                                               nzp_setplayername   = #505;
+void    (entity who, float version)                                                             nzp_setdoubletapver = #506;
 
 //
 // constants

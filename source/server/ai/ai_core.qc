@@ -532,28 +532,82 @@ void(float dist) Window_Hop =
 	}
 }
 
+
+//
+// FTE's custom "tracemove" -- no way in hell I'm reimplementing SV_Move
+// in QuakeC. So this is just a really bad traceline hack. We can't even
+// use tracebox since that's limited by BSP hulls,
+//
+#ifdef FTE
+inline float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove =
+#else
+float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove_fake =
+#endif // FTE
+{
+	makevectors(forent.angles);
+
+	// Top left of the box
+	traceline(start + '0 0 32' + v_right * -18, end, nomonsters, forent);
+
+	// Results Check
+	if (trace_ent != forent && trace_endpos != end)
+		return 0;
+
+	// Top right of the box
+	traceline(start + '0 0 32' + v_right * 18, end, nomonsters, forent);
+
+	// Results Check
+	if (trace_ent != forent && trace_endpos != end)
+		return 0;
+
+	// Bottom left of the box
+	traceline(start - '0 0 24' + v_right * -18, end, nomonsters, forent);
+
+	// Results Check
+	if (trace_ent != forent && trace_endpos != end)
+		return 0;
+
+	// Bottom right of the box
+	traceline(start - '0 0 24' + v_right * 18, end, nomonsters, forent);
+
+	// Results Check
+	if (trace_ent != forent && trace_endpos != end)
+		return 0;
+
+	return 1;		
+}
+
 float() TryWalkToEnemy =
 {
-	// TryWalkToEnemy attempts to see if a Zombie can ignore waypoints
-	// and just charge straight towards its enemy. Originally, this was
-	// pretty broken and limited. If it could draw a line from its origin
-	// to the player's, it'd walk right towards it. This was an issue if
-	// only the zombies's torso was exposed but not the head (meaning it
-	// could not fit in a walkable space). It now performs both a head
-	// trace and a foot trace. It also makes sure the Z (up/down) axis
-	// between the two entities are in close proximity to avoid neglecting
-	// staircases. -- cypress (30 Oct 2023)
-	float TraceResultHead, TraceResultFeet;
-	TraceResultHead = tracemove(self.origin + '0 0 32',VEC_HULL_MIN,VEC_HULL_MAX,self.enemy.origin,TRUE,self);
-	TraceResultFeet = tracemove(self.origin - '0 0 24',VEC_HULL_MIN,VEC_HULL_MAX,self.enemy.origin,TRUE,self);
+
+	// Early out hack for FTE -- if there's tons of z-diff, GTFO!
 	float z_axis_diff = fabs(self.origin_z - self.enemy.origin_z);
-	if(TraceResultHead == 1 && TraceResultFeet == 1 && z_axis_diff <= 30) {
+	if (z_axis_diff >= 30)
+		return 0;
+
+	// This has been a headache...
+	// TryWalkToEnemy is a system that attempts to ignore waypoints from a
+	// certain distance to simulate proper player-targeting. It does this
+	// using the custom builtin tracemove, which calls SV_Move to determine
+	// if it's possible for the enemy to walk directly to the target. This
+	// is problematic, however -- in that FTE does not feature this builtin
+	// since it's non-standard and was written by blubs. This means there
+	// needs to be improvisation, and as a result there is disparity here.
+	// See the custom tracemove() function for details on that.
+	// -- cypress (28 Nov 2023)
+#ifdef FTE
+	float TraceResult = tracemove(self.origin, VEC_HULL_MIN, VEC_HULL_MAX, self.enemy.origin, TRUE, self);
+#else
+	float TraceResult = tracemove_fake(self.origin, VEC_HULL_MIN, VEC_HULL_MAX, self.enemy.origin, TRUE, self);
+#endif // FTE
+
+	if (TraceResult == 1) {
 		self.goalentity = self.enemy;
 		self.chase_time = time + 7;
 		return 1;
-	} else {	
-		return 0;	
-	}		
+	} else {
+		return 0;
+	}
 };
 
 void() PathfindToEnemy =
@@ -640,22 +694,6 @@ void() NextPathfindToEnemy {
 #endif // FTE
 
 }
-
-#ifdef FTE
-
-inline float(vector start, vector min, vector max, vector end, float nomonsters, entity forent) tracemove
-{
-	//was tracebox
-	traceline(start,end,nomonsters,forent);
-	
-	if(trace_ent == forent || trace_endpos == end) {
-		return 1;
-	} else {	
-		return 0;	
-	}		
-}
-
-#endif // FTE
 
 void(float dist) Inside_Walk = {
 	// Hellhounds should only change targets if current one is in Last Stand

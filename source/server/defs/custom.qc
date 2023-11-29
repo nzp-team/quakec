@@ -73,6 +73,7 @@ float 	ach_tracker_spin;
 float global_trace_damage_multiplier;
 
 .float ads_release;
+.float has_doubletap_damage_buff;
 
 .vector oldvelocity;
 .float lastsound_time;
