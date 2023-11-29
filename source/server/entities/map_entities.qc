@@ -28,33 +28,17 @@
 string(float wep, float gorvmodel) GetWeaponModel;
 void() ReturnWeaponModel;
 
-void() flame_update = {	
-
-#ifndef FTE	
-
-	particle (self.origin, v_up, 111, 0);
-
-#else
-
-	te_flamejet(self.origin, v_up, 10);
-
-#endif // FTE
+void() flame_update = 
+{	
+	Effect_Fire(self.origin);
 
 	self.think = flame_update;
 	self.nextthink = time + random()+0.1;
 }
+
 void() place_fire =
 {
-
-#ifndef FTE
-
-	particle (self.origin, v_up*8, self.frame, 0);
-
-#else
-
-	te_flamejet(self.origin, v_up*8, 10);
-
-#endif // FTE
+	Effect_Fire(self.origin);
 
 	self.think = flame_update;
 	self.nextthink = time + random()+0.1;
