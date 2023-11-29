@@ -242,6 +242,8 @@ void() NewRound =
 
 		if (world.fog) {
 			localcmd(strcat("fog ", world.fog));
+		} else {
+			localcmd("fog 0 0 0 0 0\n");
 		}
 	}
 
