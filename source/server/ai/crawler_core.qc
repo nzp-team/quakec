@@ -290,7 +290,7 @@ void(entity who) makeCrawler =
 
 #ifndef FTE
 
-		updateLimb (who, 0, world);
+		updateLimb (who, 0, who.head);
 
 #endif // FTE
 
@@ -301,7 +301,7 @@ void(entity who) makeCrawler =
 
 #ifndef FTE
 
-		updateLimb (who, 1, world);
+		updateLimb (who, 1, who.larm);
 
 #endif // FTE
 
@@ -312,7 +312,7 @@ void(entity who) makeCrawler =
 
 #ifndef FTE
 
-		updateLimb (who, 2, world);
+		updateLimb (who, 2, who.rarm);
 
 #endif // FTE
 

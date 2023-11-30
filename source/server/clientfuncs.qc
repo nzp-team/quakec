@@ -647,6 +647,28 @@ void(entity who, float version) nzp_setdoubletapver =
 
 #endif // FTE
 
+void(vector org) Effect_Fire =
+{
+
+#ifndef FTE
+
+	particle (self.origin, v_up*8, 111, 0);
+
+#else
+
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_FLAME);
+	WriteCoord(MSG_MULTICAST, org_x);
+	WriteCoord(MSG_MULTICAST, org_y);
+	WriteCoord(MSG_MULTICAST, org_z);
+	multicast('0 0 0', MULTICAST_ALL);
+
+	//te_flamejet(self.origin, v_up*8, 10);
+
+#endif // FTE
+
+};
+
 // *****************************************
 // Unrelated to engine, but custom functions
 // *****************************************

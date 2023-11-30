@@ -60,6 +60,7 @@ const float EVENT_BETTYPROMPT 			= 43;
 const float EVENT_LIMBGIB				= 44;
 const float EVENT_CHATMESSAGE			= 45;
 const float EVENT_DOUBLETAPUPDATE 		= 46;
+const float EVENT_FLAME 				= 47;
 
 // Define our FTE platform
 #ifndef STANDARD

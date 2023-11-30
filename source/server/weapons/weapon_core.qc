@@ -594,8 +594,7 @@ void(vector where) spawn_gibs = {
 	WriteCoord(MSG_MULTICAST, where_x);
 	WriteCoord(MSG_MULTICAST, where_y);
 	WriteCoord(MSG_MULTICAST, where_z);
-	msg_entity = self;
-	multicast('0 0 0', MULTICAST_ONE);
+	multicast('0 0 0', MULTICAST_ALL);
 
 #endif // FTE
 

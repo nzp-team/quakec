@@ -33,16 +33,7 @@
 //
 void() Flame_LingerThink =
 {
-
-#ifdef FTE
-
-	te_flamejet(self.origin, v_up*8, 5);
-
-#else
-
-	particle (self.origin, v_up*8, 0, 0);
-
-#endif // FTE
+	Effect_Fire(self.origin);
 
 	if (self.ltime < time)
 		remove(self);

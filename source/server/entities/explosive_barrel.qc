@@ -54,17 +54,7 @@ void() Barrel_Think =
 {
     // Spawn the flame particles
     if (self.ltime > 10) {
-
-#ifndef FTE
-
-        particle (self.origin, v_up, 111, 0);
-
-#else
-
-        te_flamejet(self.origin + '0 0 45', v_up, 10);
-
-#endif // FTE
-
+        Effect_Fire(self.origin + '0 0 45');
         self.ltime = 0;
     }
     self.ltime++;

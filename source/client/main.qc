@@ -1403,6 +1403,17 @@ noref void() CSQC_Parse_Event =
 			if (cvar("nzp_particles"))
 				pointparticles(particleeffectnum("blood.blood_particle"), loc, '0 0 0', 1);
 			break;
+		case EVENT_FLAME:
+			vector floc;
+
+			floc_x = readcoord();
+            floc_y = readcoord();
+            floc_z = readcoord();
+			
+			if (cvar("nzp_particles")) {
+				pointparticles(particleeffectnum("flames.flame_particle"), floc, '0 0 0', 1);
+			}
+			break;
 		case EVENT_LIMBGIB:
 			vector gloc;
 
