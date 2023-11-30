@@ -847,10 +847,20 @@ void() Hellhound_AI =
 	Inside_Walk(0);
 }
 
-//This function ensures that only one zombie's ai is done at a time, brings down lag significantly
-void() Do_Zombie_AI = {
-	local entity z;
+//
+// Do_Zombie_AI()
+// Behaves differently based on platform -- in FTE,
+// all AI can afford to be executed at once. However,
+// on every other platform there is a timed delay in
+// place and only one zombie AI can be updated at a time.
+//
+void() Do_Zombie_AI = 
+{
+	entity z;
+	entity old_self;
 	
+#ifndef FTE
+
 	z = find(lastzombie,aistatus,"1");
 	if(z == world) {
 		z = find(world,aistatus,"1");
@@ -858,15 +868,38 @@ void() Do_Zombie_AI = {
 			return;//no zombies alive.
 		}
 	}
-	local entity oself;	
-	oself = self;
+
+	old_self = self;
 	self = z;
+
 	if(z.classname == "ai_zombie")
 		Zombie_AI();
 	else if (z.classname == "ai_dog")
 		Hellhound_AI();
-	self = oself;
+
+	self = old_self;
 	lastzombie = z;
+
+#else
+
+	z = find(world, aistatus, "1");
+
+	while(z != world) {
+		old_self = self;
+		self = z;
+
+		// Execute AI
+		if (z.classname == "ai_zombie")
+			Zombie_AI();
+		else if (z.classname == "ai_dog")
+			Hellhound_AI();
+
+		self = old_self;
+		z = find(z, aistatus, "1");
+	}
+
+#endif // FTE
+
 }
 
 #ifdef FTE

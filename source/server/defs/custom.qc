@@ -269,8 +269,13 @@ void Z_ElectroShock();
 .float death_timer; 								// A timer that will kill a Zombie when it expires.
 .float death_timer_activated; 						// To prevent Zombies just dying because of this..
 
+#ifndef FTE
+
+entity lastzombie;									// Used by non-FTE to update zombie AI one ent at a time.
+
+#endif // FTE
+
 .string aistatus;
-entity lastzombie;
 float zombie_spawn_delay; // time before spawning, in seconds.
 float zombie_spawn_timer; // the actual timer for spawn delay
 //Other AI definitions
