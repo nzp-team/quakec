@@ -129,7 +129,7 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 
 
 	if (s_wp == e_wp) {
-		return 2;
+		return s_wp;
 	}
 
 	SV_WP_ClearSet();
@@ -173,22 +173,28 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 			// keep 2 next steps with us
 			//print("Result\n");
 			//print(ftos(current), "\n");
-			while (waypoints[current].step != current)
-			{
-				j = i;
-				i = current;
-				current = waypoints[current].step;
+			while (waypoints[current].step != current) {
+				j = i; // 3rd waypoint along path
+				i = current; // 2nd waypoint along path
+				current = waypoints[current].step; // Start waypoint
 			}
 
 			// go to the furthest one on the path that we can actually see
-			
-			if (tracemove(waypoints[s_wp].org,VEC_HULL_MIN,VEC_HULL_MAX,waypoints[i].org,TRUE,z))
+			// If within a radius of 6 qu of the first waypoint along the path,
+			// Always return the 2nd waypoint along the path
+			float is_at_first_waypoint = vlen(z.origin - waypoints[s_wp].org) <= 6;
+
+
+
+			// Check if we can tracemove to the 3rd waypoint along the path
+			if (tracemove(z.origin,VEC_HULL_MIN,VEC_HULL_MAX,waypoints[i].org,TRUE,z))
 			{
 				//VectorCopy(waypoints[i].origin, res);
 				//print("Giving third wp ", ftos(i), "\n");
 				return i;
 			}
-			else if (tracemove(waypoints[s_wp].org,VEC_HULL_MIN,VEC_HULL_MAX,waypoints[j].org,TRUE,z))
+			// Check if we can tracemove to the 2nd waypoint along the path
+			else if (is_at_first_waypoint || tracemove(z.origin,VEC_HULL_MIN,VEC_HULL_MAX,waypoints[j].org,TRUE,z))
 			{
 				//VectorCopy(waypoints[j].origin, res);
 				//print("Giving second wp ", ftos(j), "\n");
@@ -207,6 +213,11 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 		for (j = 0; j < MAX_WAY_TARGETS; j++)
 		{
 			i = waypoints[current].target_id[j];
+			// Skip empty neighbor slots
+			if(i == -1) {
+				continue;
+			}
+
 			if (waypoints[i].set != SET_CLOSED && i != current && IsActive(i))
 			{
 				bestf = waypoints[current].g + HeuristicCostEstimate(i, current);
@@ -244,6 +255,11 @@ float Do_Pathfind(entity from, entity to) {
 
 	#ifndef PSP
 	for (i = 0; i < MAX_WAYPOINTS; i = i + 1) {
+		// Skip unused waypoint slots
+		if(waypoints[i].id < 0) {
+			continue;
+		}
+		
 		if (IsActive(i)) {
 			TraceResult = tracemove (from.origin, VEC_HULL_MIN, VEC_HULL_MAX, waypoints[i].org, TRUE ,from);
 			if (TraceResult) {
@@ -260,6 +276,11 @@ float Do_Pathfind(entity from, entity to) {
 	best_dist = 100000000;
 
 	for (i = 0; i < MAX_WAYPOINTS; i = i + 1) {
+		// Skip unused waypoint slots
+		if(waypoints[i].id < 0) {
+			continue;
+		}
+
 		if (IsActive(i)) {
 			TraceResult = tracemove (to.origin, VEC_HULL_MIN, VEC_HULL_MAX, waypoints[i].org, TRUE ,to);
 			if (TraceResult) {

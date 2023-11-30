@@ -179,6 +179,11 @@ void() precaches =
 	precache_model ("models/ai/zb%.mdl");
 	precache_model ("models/ai/zh^.mdl");
 
+	// For debugging zombie AI
+	if (cvar("developer")) {
+		precache_model ("models/way/normal_way.spr");
+	}
+
 	// zombie crawler
 	precache_model ("models/ai/zcfull.mdl");
 	precache_model ("models/ai/zbc%.mdl");

@@ -1474,6 +1474,11 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.classname = "freeZombieEntity";
 	zSpawn.aistatus = "0";
 	zSpawn.goaldummy = spawn();
+	if (cvar("developer")) {
+		setmodel(zSpawn.goaldummy, "models/way/normal_way.spr");
+	}
+
+
 	zSpawn.goaldummy.classname = "waypoint_target";
 	
 	zSpawn.head = spawn();

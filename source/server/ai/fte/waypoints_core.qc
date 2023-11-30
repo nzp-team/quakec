@@ -658,6 +658,11 @@ void() Load_Waypoints_Legacy
 		return;
 	}
 
+	// Clear all waypoints
+	for(float i = 0; i < MAX_WAYPOINTS; i++) {
+		waypoints[i].id = -1;
+	}
+
 	while (1)
 	{
 		// the first line is just a comment, ignore it
@@ -733,15 +738,46 @@ void() Load_Waypoints_Legacy
 				setmodel(new_way, "models/way/normal_way.spr");
 			}
 		}
+
+
+		// Initialize neighbor slots to load
+		waypoints[which].target_id[0] = -1;
+		waypoints[which].target_id[1] = -1;
+		waypoints[which].target_id[2] = -1;
+		waypoints[which].target_id[3] = -1;
+		waypoints[which].target_id[4] = -1;
+		waypoints[which].target_id[5] = -1;
+		waypoints[which].target_id[6] = -1;
+		waypoints[which].target_id[7] = -1;
+		// Initialize extra neighbor slots
+		waypoints[which].target_id[8] = -1;
+		waypoints[which].target_id[9] = -1;
 		
-		waypoints[which].target_id[0] = stof(trg);
-		waypoints[which].target_id[1] = stof(trg2);
-		waypoints[which].target_id[2] = stof(trg3);
-		waypoints[which].target_id[3] = stof(trg4);
-		waypoints[which].target_id[4] = stof(trg5);
-		waypoints[which].target_id[5] = stof(trg6);
-		waypoints[which].target_id[6] = stof(trg7);
-		waypoints[which].target_id[7] = stof(trg8);
+
+		if(trg != "") {
+			waypoints[which].target_id[0] = stof(trg);
+		}
+		if(trg2 != "") {
+			waypoints[which].target_id[1] = stof(trg2);
+		}
+		if(trg3 != "") {
+			waypoints[which].target_id[2] = stof(trg3);
+		}
+		if(trg4 != "") {
+			waypoints[which].target_id[3] = stof(trg4);
+		}
+		if(trg5 != "") {
+			waypoints[which].target_id[4] = stof(trg5);
+		}
+		if(trg6 != "") {
+			waypoints[which].target_id[5] = stof(trg6);
+		}
+		if(trg7 != "") {
+			waypoints[which].target_id[6] = stof(trg7);
+		}
+		if(trg8 != "") {
+			waypoints[which].target_id[7] = stof(trg8);
+		}
 
 		h = (fgets(file));
 		h = (fgets(file));
