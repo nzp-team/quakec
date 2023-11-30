@@ -103,8 +103,10 @@ void() door_hit_top =
 	if ((self.classname == "door_nzp_cost" || self.classname == "door_nzp" || self.classname == "door_open"))
 	{
 		//remove (self.owner.trigger_field); //moto - what does this do lol
-		if (!(self.spawnflags & 128))
+		if (!(self.spawnflags & 128)) {
 			setmodel(self, "");
+			self.solid = SOLID_NOT;
+		}
 
 		self.isopen = 1;
 		return;//so we dont have to reopen doors
@@ -497,6 +499,10 @@ void() LinkDoors =
 	
 			self = self.owner;
 
+			// This guards against spawning more than one
+			// trigger field upon restart.
+			if (self.owner.trigger_field)
+				return;
 			if (self.health)
 				return;
 			if (self.targetname && self.classname != "door_nzp_cost")
