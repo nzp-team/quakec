@@ -297,6 +297,15 @@ void() teleport_touch =
                 people.tele_target = find(world, targetname, self.target);
                 people.movetype = MOVETYPE_NONE;
             }
+			else if (people.classname == "ai_dog" && !people.electro_targeted) {
+				sound(self, CHAN_WEAPON, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+
+				tempe = self;
+				self = people;
+				self.electro_targeted = true;
+				self.th_die();
+				self = tempe;
+			}
 			else if (people.aistatus == "1" && !people.electro_targeted) 
 			{
 				tempe = self;
