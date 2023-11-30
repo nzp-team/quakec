@@ -250,13 +250,15 @@ void() teleporter_link_touch =
 
 void() teleport_touch =
 {
+	entity tempe;
+
 	if (self.cooldown) {
 		useprint(other, 16, 0, 0);
 		return;
 	}
 
   	if (other.classname != "player" || self.activated)
-    	return;  
+		return;
   
   	if (!isPowerOn) {
      	useprint(other, 8, 0, 0);
@@ -295,7 +297,23 @@ void() teleport_touch =
                 people.tele_target = find(world, targetname, self.target);
                 people.movetype = MOVETYPE_NONE;
             }
-            people = people.chain;
+			else if (people.classname == "ai_dog" && !people.electro_targeted) {
+				sound(self, CHAN_WEAPON, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+
+				tempe = self;
+				self = people;
+				self.electro_targeted = true;
+				self.th_die();
+				self = tempe;
+			}
+			else if (people.aistatus == "1" && !people.electro_targeted) 
+			{
+				tempe = self;
+				self = people;
+				Z_ElectroShock();
+				self = tempe;	
+			}
+			people = people.chain;
         }
 
         if (!other.tele_target)
