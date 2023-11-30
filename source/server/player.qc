@@ -449,16 +449,22 @@ void() PlayerPreThink =
 
 	// refuel/cool flamethrowers
 	if (self.ltime < time) {
-		if (self.weapons[0].weapon_magazine == 0 && !self.cooldown) {
+		// FIXME: Weapon hardcode definition.
+		float weapon_slot = Weapon_PlayerHasWeapon(self, W_M2, true);
+
+		if (!weapon_slot)
+			return;
+
+		weapon_slot--;
+		if (self.weapons[weapon_slot].weapon_magazine == 0 && !self.cooldown) {
 			self.cooldown = true;
 		}
 
-		if (self.cooldown && self.weapons[0].weapon_magazine > 20)
+		if (self.cooldown && self.weapons[weapon_slot].weapon_magazine > 20)
 			self.cooldown = false;
 		
-		if (GetFiretype(self.weapon) == FIRETYPE_FLAME && 
-		self.weapons[0].weapon_magazine < getWeaponMag(self.weapon)) {
-			self.weapons[0].weapon_magazine += 1;
+		if (self.weapons[weapon_slot].weapon_magazine < getWeaponMag(self.weapon)) {
+			self.weapons[weapon_slot].weapon_magazine += 1;
 		}
 
 		self.ltime = time + 0.1;
