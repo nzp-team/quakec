@@ -142,7 +142,14 @@ void() menu_loadndu =
 void() menu_loadwh =
 {
 	loadscreen_timetrigger = cltime + 0.6;
-	loadscreen_mapname = "warehouse";
+	loadscreen_mapname = "nzp_warehouse";
+	loadscreen_maptitle = "Warehouse (Classic)";
+};
+
+void() menu_loadwh2 =
+{
+	loadscreen_timetrigger = cltime + 0.6;
+	loadscreen_mapname = "nzp_warehouse2";
 	loadscreen_maptitle = "Warehouse";
 };
 
@@ -851,12 +858,13 @@ var struct
 
 	// Solo
 	{[6, 75], "Nacht der Untoten", -1, menu_loadndu, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 6
-	{[6, 95], "Kino der Toten", -1, menu_loadndu, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 7
-	{[6, 115], "Warehouse", -1, menu_loadwh, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 8
-	{[6, 135], "Wahnsinn", -1, menu_loadwh, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 9
-	{[6, 155], "Christmas Special", -1, menu_loadch, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 10
+	// ..
+	{[6, 105], "Warehouse", -1, menu_loadwh2, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 7
+	{[6, 125], "Warehouse (Classic)", -1, menu_loadwh, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 8
+	{[6, 145], "Wahnsinn", -1, menu_loadwh, null, MENU_SINGLE, 1, OPTION_WEB_AND_EXE}, // 9
+	{[6, 165], "Christmas Special", -1, menu_loadch, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 10
 	// ...
-	{[6, 185], "Custom Maps", -1, menu_customs, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 11
+	{[6, 195], "Custom Maps", -1, menu_customs, null, MENU_SINGLE, 0, OPTION_WEB_AND_EXE}, // 11
 
 	// Pause
 	{[6, 75], "Resume Carnage", -1, menu_resume, null, MENU_PAUSE, 0, OPTION_WEB_AND_EXE}, // 12
@@ -1281,7 +1289,8 @@ void() Draw_Extra_Solo =
 	string solo_img = "";
 
 	// Division lines
-	drawfill ([6, 175], [270, 4], [0.5, 0.5, 0.5], 1, 0);
+	drawfill ([6, 95], [270, 4], [0.5, 0.5, 0.5], 1, 0);
+	drawfill ([6, 185], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Map descriptions
 	switch(lastActive) {
@@ -1296,11 +1305,20 @@ void() Draw_Extra_Solo =
 			solo_desc8 = "to the overwhelming onslaught?";
 			solo_img = "gfx/menu/nacht_der_untoten.png";
 			break;
+		case 7:
+			solo_desc = "Four nameless marines find them-";
+			solo_desc2 = "selves at a forsaken warehouse,";
+			solo_desc3 = "or is it something more? Fight";
+			solo_desc4 = "your way to uncovering its sec-";
+			solo_desc5 = "rets, though you may not like";
+			solo_desc6 = "what you find..";
+			solo_img = "gfx/menu/nzp_warehouse2.png";
+			break;
 		case 8:
 			solo_desc = "Old Warehouse full of Zombies!";
 			solo_desc2 = "Fight your way to the Power";
 			solo_desc3 = "Switch through the Hordes!";
-			solo_img = "gfx/menu/warehouse.png";
+			solo_img = "gfx/menu/nzp_warehouse.png";
 			break;
 		case 10:
 			solo_desc = "No Santa this year. Though we're";
