@@ -55,10 +55,16 @@ void() ambient_use =
 		if (self.spawnflags & AMBIENT_SOUND_NOT_LOOPING) {
 			sound (self, CHAN_VOICE, self.message, 0, self.stance);
 		}
+
+#ifdef FTE
+
 		else {
 			sound (self, CHAN_VOICE, self.message, 0, self.stance);
 			ambientsound (self.origin, self.message, 0, self.stance);
 		}
+
+#endif // FTE
+
 		self.team = 1;
 	}
 
@@ -67,10 +73,7 @@ void() ambient_use =
 
 void () ambient_generic =
 {
-
-#ifdef FTE
-
-	local string link;
+	string link;
 
     // moto - FIXME: typically this is set to upper-case but only FTE has strtoupper(); assume lower-case!
     link = self.message;
@@ -113,13 +116,15 @@ void () ambient_generic =
 		
 	if (self.spawnflags & AMBIENT_SOUND_START_SILENT)
 		self.team = 1;
+
+#ifdef FTE
+
 	else
 		ambientsound(self.origin, self.message, self.health, self.stance);
-		
-	self.use = ambient_use;
 
 #endif // FTE
-
+		
+	self.use = ambient_use;
 };
 
 
