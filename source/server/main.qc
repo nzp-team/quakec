@@ -761,6 +761,15 @@ string(string asset) convert_old_asset_path =
 		case "models/machines/power_switch.mdl":
 			ret = "models/machines/quake_scale/power_switch.mdl";
 			break;
+		case "models/machines/hl_scale/packapunch/p_machine.mdl":
+			ret = "models/machines/hl_scale/pap/p_machine.mdl";
+			break;
+		case "models/machines/hl_scale/packapunch/p_roller.mdl":
+			ret = "models/machines/hl_scale/pap/p_roller.mdl";
+			break;
+		case "models/machines/hl_scale/packapunch/p_flag.mdl":
+			ret = "models/machines/hl_scale/pap/p_flag.mdl";
+			break;
 		default: 
 			ret = asset;
 			break;

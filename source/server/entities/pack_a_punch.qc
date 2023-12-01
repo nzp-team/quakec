@@ -358,7 +358,7 @@ void() perk_pap =
 	//
 	
 	// Model
-	if (!self.model || self.model == "models/machines/hl_scale/pap.mdl") {
+	if (!self.model || self.model == "models/machines/pap/pap.mdl") {
 		self.model = "models/machines/quake_scale/pap.mdl";
 	}
 
@@ -374,7 +374,7 @@ void() perk_pap =
 
     // Roller Model
     if (!self.weapon2model) {
-        self.weapon2model = "models/machines/hl_scale/packapunch/p_roller.mdl";
+        self.weapon2model = "models/machines/hl_scale/pap/p_roller.mdl";
     }
 
     // Roller Offset
@@ -384,7 +384,7 @@ void() perk_pap =
 
     // Flag Model
     if (!self.door_model_name) {
-        self.door_model_name = "models/machines/hl_scale/packapunch/p_flag.mdl";
+        self.door_model_name = "models/machines/hl_scale/pap/p_flag.mdl";
     }
 
     // Flag Offset
@@ -406,6 +406,10 @@ void() perk_pap =
 	if (!self.oldmodel) {
 		self.oldmodel = "sounds/machines/packapunch/upgrade.wav";
 	}
+
+	self.model = convert_old_asset_path(self.model);
+	self.weapon2model = convert_old_asset_path(self.weapon2model);
+	self.door_model_name = convert_old_asset_path(self.door_model_name);
 
     // Precaches
 	// FIXME: Don't hardcode weapon precaches here.
