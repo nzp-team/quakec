@@ -13,7 +13,7 @@ Available options:
 -O          - write to a different qc file
 */
 #pragma noref 1
-#pragma target FTE
+#pragma target fte_5768
 //#pragma flag enable logicops
 #pragma warning error Q101 /*too many parms*/
 #pragma warning error Q105 /*too few parms*/

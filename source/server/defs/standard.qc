@@ -353,12 +353,6 @@ void    (entity who, float version)                                             
 
 #define     VEC_ORIGIN                  '0 0 0'
 
-//Half Life 1 Hull Sizes ADDED BY BLUBS, COMMENTED ORIGINAL QUAKE BBOX SIZS OUT
-#define     VEC_HULL_MIN                '-16 -16 -32'
-#define     VEC_HULL_MAX                '16 16 40'
-#define     VEC_HULL2_MIN               '-32 -32 -24'
-#define     VEC_HULL2_MAX               '32 32 64'
-
 // protocol bytes
 #define     SVC_BAD                     0
 #define     SVC_NOP                     1

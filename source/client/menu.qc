@@ -425,24 +425,24 @@ void() settings_ro = {
 void() UpdateResolutions = {
 	switch(aspectratio) {
 		case 0:
-			active_swidth = screen_width_43[0];
-			active_sheight = screen_height_43[0];
+			active_swidth = screen_resolution_4x3[0].width;
+			active_sheight = screen_resolution_4x3[0].height;
 			break;
 		case 1:
-			active_swidth = screen_width_54[0];
-			active_sheight = screen_height_54[0];
+			active_swidth = screen_resolution_5x4[0].width;
+			active_sheight = screen_resolution_5x4[0].height;
 			break;
 		case 2:
-			active_swidth = screen_width_169[0];
-			active_sheight = screen_height_169[0];
+			active_swidth = screen_resolution_16x9[0].width;
+			active_sheight = screen_resolution_16x9[0].height;
 			break;
 		case 3:
-			active_swidth = screen_width_1610[0];
-			active_sheight = screen_height_1610[0];
+			active_swidth = screen_resolution_16x10[0].width;
+			active_sheight = screen_resolution_16x10[0].height;
 			break;
 		case 4:
-			active_swidth = screen_width_219[0];
-			active_sheight = screen_height_219[0];
+			active_swidth = screen_resolution_21x9[0].width;
+			active_sheight = screen_resolution_21x9[0].height;
 			break;
 	}
 }
@@ -484,97 +484,97 @@ void() settings_re = {
 
 	switch(aspectratio) {
 		case 0:
-			if (active_swidth == screen_width_43[MAX_43-1]) {
-				neww = screen_width_43[0];
-				newh = screen_height_43[0];
+			if (active_swidth == screen_resolution_4x3[screen_resolution_4x3.length - 1].width) {
+				neww = screen_resolution_4x3[0].width;
+				newh = screen_resolution_4x3[0].height;
 			} else {
-				for(float i = 0; i < MAX_43; i++) {
-					if (active_swidth == screen_width_43[i]) {
-						neww = screen_width_43[i+1];
-						newh = screen_height_43[i+1];
+				for (int i = 0; i < screen_resolution_4x3.length; i++) {
+					if (active_swidth == screen_resolution_4x3[i].width) {
+						neww = screen_resolution_4x3[i + 1].width;
+						newh = screen_resolution_4x3[i + 1].height;
 					}
 				}
 
 				// if still 0, different aspect ratio
 				if (neww == 0) {
-					neww = screen_width_43[0];
-					newh = screen_height_43[0];
+					neww = screen_resolution_4x3[0].width;
+					newh = screen_resolution_4x3[0].height;
 				}
 			}
 			break;
 		case 1:
-			if (active_swidth == screen_width_43[MAX_54-1]) {
-				neww = screen_width_54[0];
-				newh = screen_height_54[0];
+			if (active_swidth == screen_resolution_5x4[screen_resolution_5x4.length - 1].width) {
+				neww = screen_resolution_5x4[0].width;
+				newh = screen_resolution_5x4[0].height;
 			} else {
-				for(float i = 0; i < MAX_54; i++) {
-					if (active_swidth == screen_width_54[i]) {
-						neww = screen_width_54[i+1];
-						newh = screen_height_54[i+1];
+				for (int i = 0; i < screen_resolution_5x4.length; i++) {
+					if (active_swidth == screen_resolution_5x4[i].width) {
+						neww = screen_resolution_5x4[i + 1].width;
+						newh = screen_resolution_5x4[i + 1].height;
 					}
 				}
 
 				// if still 0, different aspect ratio
 				if (neww == 0) {
-					neww = screen_width_54[0];
-					newh = screen_height_54[0];
+					neww = screen_resolution_5x4[0].width;
+					newh = screen_resolution_5x4[0].height;
 				}
 			}
 			break;
 		case 2:
-			if (active_swidth == screen_width_169[MAX_169-1]) {
-				neww = screen_width_169[0];
-				newh = screen_height_169[0];
+			if (active_swidth == screen_resolution_16x9[screen_resolution_16x9.length - 1].width) {
+				neww = screen_resolution_16x9[0].width;
+				newh = screen_resolution_16x9[0].height;
 			} else {
-				for(float i = 0; i < MAX_169; i++) {
-					if (active_swidth == screen_width_169[i]) {
-						neww = screen_width_169[i+1];
-						newh = screen_height_169[i+1];
+				for (int i = 0; i < screen_resolution_16x9.length; i++) {
+					if (active_swidth == screen_resolution_16x9[i].width) {
+						neww = screen_resolution_16x9[i + 1].width;
+						newh = screen_resolution_16x9[i + 1].height;
 					}
 				}
 
 				// if still 0, different aspect ratio
 				if (neww == 0) {
-					neww = screen_width_169[0];
-					newh = screen_height_169[0];
+					neww = screen_resolution_16x9[0].width;
+					newh = screen_resolution_16x9[0].height;
 				}
 			}
 			break;
 		case 3:
-			if (active_swidth == screen_width_1610[MAX_1610-1]) {
-				neww = screen_width_1610[0];
-				newh = screen_height_1610[0];
+			if (active_swidth == screen_resolution_16x10[screen_resolution_16x10.length - 1].width) {
+				neww = screen_resolution_16x10[0].width;
+				newh = screen_resolution_16x10[0].height;
 			} else {
-				for(float i = 0; i < MAX_1610; i++) {
-					if (active_swidth == screen_width_1610[i]) {
-						neww = screen_width_1610[i+1];
-						newh = screen_height_1610[i+1];
+				for (int i = 0; i < screen_resolution_16x10.length; i++) {
+					if (active_swidth == screen_resolution_16x10[i].width) {
+						neww = screen_resolution_16x10[i + 1].width;
+						newh = screen_resolution_16x10[i + 1].height;
 					}
 				}
 
 				// if still 0, different aspect ratio
 				if (neww == 0) {
-					neww = screen_width_1610[0];
-					newh = screen_height_1610[0];
+					neww = screen_resolution_16x10[0].width;
+					newh = screen_resolution_16x10[0].height;
 				}
 			}
 			break;
 		case 4:
-			if (active_swidth == screen_width_219[MAX_219-1]) {
-				neww = screen_width_219[0];
-				newh = screen_height_219[0];
+			if (active_swidth == screen_resolution_21x9[screen_resolution_21x9.length - 1].width) {
+				neww = screen_resolution_21x9[0].width;
+				newh = screen_resolution_21x9[0].height;
 			} else {
-				for(float i = 0; i < MAX_219; i++) {
-					if (active_swidth == screen_width_219[i]) {
-						neww = screen_width_219[i+1];
-						newh = screen_height_219[i+1];
+				for (int i = 0; i < screen_resolution_21x9.length; i++) {
+					if (active_swidth == screen_resolution_21x9[i].width) {
+						neww = screen_resolution_21x9[i + 1].width;
+						newh = screen_resolution_21x9[i + 1].height;
 					}
 				}
 
 				// if still 0, different aspect ratio
 				if (neww == 0) {
-					neww = screen_width_219[0];
-					newh = screen_height_219[0];
+					neww = screen_resolution_21x9[0].width;
+					newh = screen_resolution_21x9[0].height;
 				}
 			}
 			break;

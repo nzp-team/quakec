@@ -67,6 +67,15 @@ const float EVENT_FLAME 				= 47;
 #define FTE
 #endif // STANDARD
 
+// Player Hull Sizes
+// 32x32x72
+#define PLAYER_MINS_STANDING 	'-16 -16 -32'
+#define PLAYER_MAXS_STANDING 	'16 16 40'
+
+// 32x32x36
+#define PLAYER_MINS_CROUCHING	'-16 -16 -32'
+#define PLAYER_MAXS_CROUCHING 	'16 16 4'
+
 // Weapon Firetype definitions
 #define FIRETYPE_FULLAUTO	0
 #define FIRETYPE_SEMIAUTO	1

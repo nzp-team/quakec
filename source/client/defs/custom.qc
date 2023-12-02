@@ -202,25 +202,10 @@ string buttonBind[MAX_BINDS];
 string tempBind[MAX_BINDS];
 
 // resolution
-#define MAX_43      3
-#define MAX_54      1
-#define MAX_1610    5
-#define MAX_169     10
-#define MAX_219     2
 float aspectratio;
 float fullscreenval;
 float active_swidth;
 float active_sheight;
-float screen_width_43[MAX_43];
-float screen_height_43[MAX_43];
-float screen_width_54[MAX_54];
-float screen_height_54[MAX_54];
-float screen_width_1610[MAX_1610];
-float screen_height_1610[MAX_1610];
-float screen_width_169[MAX_169];
-float screen_height_169[MAX_169];
-float screen_width_219[MAX_219];
-float screen_height_219[MAX_219];
 
 int 	platform_is_web;
 
@@ -260,3 +245,53 @@ float hide_viewmodel;
 vector playerOrigin;
 vector playerOriginOld;
 vector playerVelocity;
+
+//
+// Screen sizes, self-explanatory.
+//
+var struct screenres_s
+{
+	float width;
+	float height;
+};
+
+screenres_s screen_resolution_5x4[] =
+{
+	{1280, 1024}
+};
+
+screenres_s screen_resolution_4x3[] =
+{
+	{640, 480},
+	{800, 600},
+	{1024, 768}
+};
+
+screenres_s screen_resolution_16x9[] =
+{
+	{640, 360},
+	{1280, 720},
+	{1360, 768},
+	{1366, 768},
+	{1536, 864},
+	{1600, 900},
+	{1920, 1080},
+	{2048, 1152},
+	{2560, 1440},
+	{3840, 2160}
+};
+
+screenres_s screen_resolution_16x10[] =
+{
+	{1280, 800},
+	{1440, 900},
+	{1680, 1050},
+	{1920, 1200},
+	{2560, 1600}
+};
+
+screenres_s screen_resolution_21x9[] =
+{
+	{2560, 1080},
+	{3840, 1440}
+};

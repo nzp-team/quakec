@@ -15,7 +15,7 @@ echo "========================"
 echo "   compiling FTE SSQC   "
 echo "========================"
 echo ""
-./fteqcc-cli-lin -srcfile ../progs/fte-server.src
+./fteqcc-cli-lin -O2 -srcfile ../progs/fte-server.src
 echo ""
 echo "========================"
 echo "  compiling STANDARD QC "

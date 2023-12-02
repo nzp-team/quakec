@@ -557,14 +557,14 @@ float Player_SendEntity( entity ePVEnt, float flChanged ) {
     WriteCoord( MSG_ENTITY, self.origin_x ); // Position X
     WriteCoord( MSG_ENTITY, self.origin_y ); // Position Y
     WriteCoord( MSG_ENTITY, self.origin_z ); // Position Z
-    WriteCoord( MSG_ENTITY, self.angles_x ); // Angle X
-    WriteCoord( MSG_ENTITY, self.angles_y ); // Angle Y
-    WriteCoord( MSG_ENTITY, self.angles_z ); // Angle Z
+    WriteAngle( MSG_ENTITY, self.angles_x ); // Angle X
+    WriteAngle( MSG_ENTITY, self.angles_y ); // Angle Y
+    WriteAngle( MSG_ENTITY, self.angles_z ); // Angle Z
     WriteShort( MSG_ENTITY, self.velocity_x ); // Velocity X
     WriteShort( MSG_ENTITY, self.velocity_y ); // Velocity X
     WriteShort( MSG_ENTITY, self.velocity_z ); // Velocity X
-	WriteFloat( MSG_ENTITY, self.playernum ); // Player ID
-	WriteString( MSG_ENTITY, self.model ); // Player Model
+	WriteByte( MSG_ENTITY, self.playernum ); // Player ID
+	WriteShort( MSG_ENTITY, self.modelindex ); // Player Model
 	WriteByte( MSG_ENTITY, self.frame ); // Player's Frame
 	WriteShort( MSG_ENTITY, self.movetype ); // Player Movetype
     WriteFloat( MSG_ENTITY, self.flags ); // Flags, important for physics
