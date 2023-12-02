@@ -1081,7 +1081,7 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 				if (in_menu == MENU_MULTI) {
 					// GO AWAY!
 					if (scanx == K_ENTER || scanx == K_ESCAPE) {
-						editing_player_name = editing_server_id = editing_password = false;
+						editing_player_name = editing_server_id = editing_password = editing_hostname = false;
 						return FALSE;
 					}
 
@@ -1118,6 +1118,18 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 
 						// Always append.
 						cvar_set("password", temp_password);
+
+						// No, I don't want to read binds. Thanks.
+						return TRUE;
+					}
+
+					// Hostname
+					if (editing_hostname == true) {
+						// Update the temp string.
+						temp_hostname = GetUserInput(temp_hostname, scanx, chary, 18);
+
+						// Always append.
+						cvar_set("hostname", temp_hostname);
 
 						// No, I don't want to read binds. Thanks.
 						return TRUE;

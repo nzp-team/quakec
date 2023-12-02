@@ -39,6 +39,9 @@ float editing_server_id;
 string temp_password;
 float editing_password;
 
+string temp_hostname;
+float editing_hostname;
+
 void() menu_single =
 {
 	in_menu = MENU_SINGLE;
@@ -129,7 +132,7 @@ void() menu_back =
 	} else
 		in_menu = MENU_MAIN;
 
-	editing_player_name = editing_server_id = editing_password = false;
+	editing_player_name = editing_server_id = editing_password = editing_hostname = false;
 };
 
 void() menu_loadndu =
@@ -795,19 +798,25 @@ void() setting_mastervol2 =
 void() setting_playername =
 {
 	editing_player_name = !editing_player_name;
-	editing_server_id = editing_password = false;
+	editing_server_id = editing_password = editing_hostname = false;
 }
 
 void() setting_serverid =
 {
 	editing_server_id = !editing_server_id;
-	editing_player_name = editing_password = false;
+	editing_player_name = editing_password = editing_hostname = false;
 }
 
 void() setting_password =
 {
 	editing_password = !editing_password;
-	editing_player_name = editing_server_id = false;
+	editing_player_name = editing_server_id = editing_hostname = false;
+}
+
+void() setting_servername =
+{
+	editing_hostname = !editing_hostname;
+	editing_player_name = editing_server_id = editing_password = false;
 }
 
 void() setting_connect =
@@ -945,11 +954,12 @@ var struct
 
 	// Create Game
 	{[6, 75], "Server Password", -1, setting_password, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 63
-	{[6, 95], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE} // 64
+	{[6, 95], "Server Name", -1, setting_servername, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 64
+	{[6, 115], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE} // 65
 };
 
 //REMEMBER TO UPDATE THIS CONST IF YOU ADD BUTTONS
-float BUTTONS_COUNT = 65;
+float BUTTONS_COUNT = 66;
 float lastActive;
 
 
@@ -1220,7 +1230,16 @@ void() Draw_Extra_Create =
 
 	// Draw a cute little guy for password
 	if (editing_password) {
-		drawstring([320 + (strlen(temp_password)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
+		drawstring([320 + (strlen(temp_hostname)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
+	}
+
+	// hostname
+	drawfill ([318, 93], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
+	drawstring([320, 95], temp_hostname, [14, 14], [1, 1, 1], 1, 0);
+
+	// Draw a cute little guy for hostname
+	if (editing_hostname) {
+		drawstring([320 + (strlen(temp_hostname)*14), 95], "_", [14, 14], [1, 1, 0], 1, 0);
 	}
 
 	// Descriptions
@@ -1229,6 +1248,9 @@ void() Draw_Extra_Create =
 			crea_desc = "Enter a password to limit who can join.";
 			break;
 		case 64:
+			crea_desc = "Enter a name that will appear in the Server List.";
+			break;
+		case 65:
 			crea_desc = "Select a Map to start the Game.";
 			break;
 		default:
