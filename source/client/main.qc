@@ -79,6 +79,10 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 		platform_is_web = true;
 	else
 		platform_is_web = false;
+
+	if (platform_is_web) {
+		cvar_set("com_protocolname", "NZP-REBOOT-WEB");
+	}
 		
 	//print("CSQC Started\n");
 	dummy = spawn();
