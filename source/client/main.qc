@@ -558,8 +558,6 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.movetype = readshort();
 		self.flags = readfloat();
 		self.stance = readbyte();
-
-		self.scale = 1.4;
 			
 		setmodelindex(self, self.modelindex);
 		if (self.stance == 2)
@@ -567,8 +565,6 @@ noref void(float isnew) CSQC_Ent_Update =
 		else
 			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 
-
-		//setorigin(self, self.origin);
 	} else {
 		if(isnew)
 			addentity(self);
