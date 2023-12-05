@@ -253,7 +253,7 @@ float Do_Pathfind(entity from, entity to) {
 	dist = 0;
 	best_dist = 100000000;
 
-	#ifndef PSP
+	#ifdef FTE
 	for (i = 0; i < MAX_WAYPOINTS; i = i + 1) {
 		// Skip unused waypoint slots
 		if(waypoints[i].id < 0) {
@@ -343,7 +343,7 @@ void LoadWaypointData() {
     float i, s;
 	
 
-	#ifndef PSP 
+	#ifdef FTE
     for (i = 0; i < MAX_WAYPOINTS; i = i + 1) {
 		waypoint_ai way; 
 		
@@ -484,7 +484,7 @@ void LoadWaypointData() {
 
 	fclose(file);
 
-	#ifndef PSP
+	#ifdef FTE
 	CalcDistances();
 	#endif
 }
