@@ -134,12 +134,6 @@ void() W_AimIn =
 	} else if (self.zoom) {
 		return;
 	}
-		
-#ifndef FTE
-
-	self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
-
-#endif // FTE
 	
 	if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {

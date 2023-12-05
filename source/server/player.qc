@@ -845,6 +845,7 @@ void() PlayerSpawn =
 	self.Weapon_Name = GetWeaponName(self.weapon);
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 	self.Flash_Size = GetWeaponFlash_Size(self.weapon);
+	self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
 
 #endif // FTE
 
