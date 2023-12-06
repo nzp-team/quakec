@@ -1185,12 +1185,7 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 
 noref void() CSQC_Input_Frame =
 {
-	if(walk)
-	{
-		input_movevalues *= 0.5;
-	}
-
-	input_angles = getproperty(VF_ANGLES);
+	input_angles += gun_kick;
 }
 
 #define DEG2RAD(x)	(x * M_PI / 180.f)
