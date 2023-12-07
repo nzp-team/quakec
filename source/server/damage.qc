@@ -198,8 +198,10 @@ void() GetDown =
 
 	// Get rid of Mule Kick Weapon
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
-		if (self.weapons[i].is_mulekick_weapon == true)
+		if (self.weapons[i].is_mulekick_weapon == true) {
 			Weapon_RemoveWeapon(i);
+			Weapon_SetActiveInSlot(0, false);
+		}
 	}
 
 	// Calculate the loss in points, take away points from downed Player.
