@@ -444,7 +444,7 @@ void() PlayerPreThink =
 		// FIXME: Weapon hardcode definition.
 		float weapon_slot = Weapon_PlayerHasWeapon(self, W_M2, true);
 
-		if (!weapon_slot)
+		if (weapon_slot == 0)
 			return;
 
 		weapon_slot--;
@@ -455,7 +455,7 @@ void() PlayerPreThink =
 		if (self.cooldown && self.weapons[weapon_slot].weapon_magazine > 20)
 			self.cooldown = false;
 		
-		if (self.weapons[weapon_slot].weapon_magazine < getWeaponMag(self.weapon)) {
+		if (self.weapons[weapon_slot].weapon_magazine < getWeaponMag(self.weapons[weapon_slot].weapon_id)) {
 			self.weapons[weapon_slot].weapon_magazine += 1;
 		}
 
