@@ -696,7 +696,7 @@ float(float wep) getWeaponAmmo =
 		case W_COLT:
 			return 80;
 		case W_BIATCH:
-			return 80;
+			return 50;
 		case W_KAR:
 			return 50;
     	case W_ARMAGEDDON:
