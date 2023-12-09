@@ -395,7 +395,7 @@ void() item_barricade =
 
 		// Starting Health (-1 = start none, needs to be this way for compatibility)
 		if (!self.health || self.health > 6 || self.health < -1)
-			self.health = -1;
+			self.health = 6;
 
 		// Max Health
 		if (!self.health_delay || self.health_delay > 6 || self.health_delay < 0)
