@@ -149,8 +149,6 @@ void () func_rotating =
 // func_train
 // =================================
 
-.float dmg;
-
 void() train_next;
 void() func_train_find;
 

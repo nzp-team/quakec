@@ -355,3 +355,37 @@ void() trigger_once =
 
 	trigger_multiple();
 }
+
+//
+// Quake Triggers
+//
+
+void() hurt_on =
+{
+	self.solid = SOLID_TRIGGER;
+	self.nextthink = -1;
+};
+
+void() hurt_touch =
+{
+	//if (other.takedamage)
+	{
+		self.solid = SOLID_NOT;
+		DamageHandler(other, self, self.dmg, S_ZOMBIE);
+		self.think = hurt_on;
+		self.nextthink = time + 1;
+
+		if (self.message)
+			centerprint(other, strcat(self.message, "\n"));
+	}
+
+	return;
+};
+
+void() trigger_hurt =
+{
+	InitTrigger ();
+	self.touch = hurt_touch;
+	if (!self.dmg)
+		self.dmg = 5;
+};

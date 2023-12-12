@@ -258,6 +258,8 @@ void() SUB_Null2 = {};
 .string name;
 vector	trace_plane_normal;
 
+.float dmg;
+
 //
 // AI definitions
 // Used for global one-zombie-at-a-time type ai

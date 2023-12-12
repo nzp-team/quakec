@@ -47,7 +47,6 @@ float DOOR_POWER = 64;
 .float delay;
 .void() think1;
 .vector finaldest;
-.float dmg;
 .entity trigger_field;
 .float wait;
 .float speed;
