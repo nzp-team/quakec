@@ -48,6 +48,9 @@ void() menu_single =
 	time_in_menu = 0;
 	matchmake_enabled = false;
 	localcmd("sv_public 0\n");
+
+	if (platform_is_web)
+		localcmd("sv_listen_qw 0\n");
 };
 
 void() menu_create =
@@ -62,6 +65,9 @@ void() menu_matchmake =
 	time_in_menu = 0;
 	matchmake_enabled = true;
 	localcmd("sv_public 2\n");
+
+	if (platform_is_web)
+		localcmd("sv_listen_qw 1\n");
 };
 
 void() menu_restart =
