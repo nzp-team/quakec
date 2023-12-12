@@ -268,6 +268,7 @@ void Z_ElectroShock();
 .float electro_targeted; 							// Marks Zombie as waiting to die via Electro-Shock
 .float death_timer; 								// A timer that will kill a Zombie when it expires.
 .float death_timer_activated; 						// To prevent Zombies just dying because of this..
+.float is_attacking; 								// Returns true if Zombie is in the middle of an attack.
 
 #ifndef FTE
 

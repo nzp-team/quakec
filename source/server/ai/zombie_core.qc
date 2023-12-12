@@ -397,6 +397,7 @@ void(float which) SetZombieHitBox =
 	}
 };
 
+void() zombie_decide;
 void() Zombie_Think = //called every frame for zombies
 {
 	if (self.onfire) {
@@ -437,28 +438,14 @@ void() Zombie_Think = //called every frame for zombies
 		self.bleedingtime = time + 1;
 		DamageHandler (self, self.usedent, z_health * 0.2, S_HEADSHOT);
 	}
-}
 
-//////////////////////////////////////////////////////////////////////
-//37-51
-/*
-$frame walk1 walk2 walk3 walk4 walk5 walk6 walk7 walk8 walk9 walk10 walk11 walk12 walk13 walk14 walk15
-void()	zombie_walk1		=[	$walk1,		zombie_walk2	] 	{self.nextthink = time + 0.1;Zombie_Walk(3.95);*/		/*if(freeze_time < time)*/		/* self.frame = 37;};
-void()	zombie_walk2		=[	$walk2,		zombie_walk3	] 	{self.nextthink = time + 0.1;Zombie_Walk(1); self.frame = 38;};
-void()	zombie_walk3		=[	$walk3,		zombie_walk4	] 	{self.nextthink = time + 0.1;Zombie_Walk(9.472); self.frame = 39;};
-void()	zombie_walk4		=[	$walk4,		zombie_walk5	] 	{self.nextthink = time + 0.1;Zombie_Walk(5.046); self.frame = 40;};//FOOTSTEP
-void()	zombie_walk5		=[	$walk5,		zombie_walk6	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.425); self.frame = 41;};//
-void()	zombie_walk6		=[	$walk6,		zombie_walk7	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.299); self.frame = 42;};
-void()	zombie_walk7		=[	$walk7,		zombie_walk8	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.788); self.frame = 43;};
-void()	zombie_walk8		=[	$walk8,		zombie_walk9	] 	{self.nextthink = time + 0.1;Zombie_Walk(5.516); self.frame = 44;};//FOOTSTEP
-void()	zombie_walk9		=[	$walk9,		zombie_walk10	] 	{self.nextthink = time + 0.1;Zombie_Walk(2.191); self.frame = 45;};
-void()	zombie_walk10		=[	$walk10,		zombie_walk11	] 	{self.nextthink = time + 0.1;Zombie_Walk(5.845); self.frame = 46;};
-void()	zombie_walk11		=[	$walk11,		zombie_walk12	] 	{self.nextthink = time + 0.1;Zombie_Walk(7.42); self.frame = 47;};//FOOTSTEP
-void()	zombie_walk12		=[	$walk12,		zombie_walk13	] 	{self.nextthink = time + 0.1;Zombie_Walk(2.683); self.frame = 48;};
-void()	zombie_walk13		=[	$walk13,		zombie_walk14	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.001); self.frame = 49;};
-void()	zombie_walk14		=[	$walk14,		zombie_walk15	] 	{self.nextthink = time + 0.1;Zombie_Walk(5.845); self.frame = 50;};
-void()	zombie_walk15		=[	$walk15,		Zombie_Walk_Setup	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.793); self.frame = 51;};//FOOTSTEP
-*/
+	// If we're mid attack and our enemy has moved out of range
+	if (self.is_attacking && vlen(self.enemy.origin - self.origin) > 64) {
+		// Cancel the animation, start walking again to catch up.
+		self.is_attacking = false;
+		zombie_decide();
+	}
+}
 
 void() zombie_footstep
 {
@@ -780,8 +767,14 @@ void() zombie_attack_through_window =
 	}
 };
 //202-210
+
+//
+// Zombie Attacks
+//
+void() zombie_attack2;
+
 $frame zatkw1 zatkw2 zatkw3 zatkw4 zatkw5 zatkw6 zatkw7 zatkw8 zatkw9
-void() zombie_attack_through_w1		=[	$zatkw1,		zombie_attack_through_w2		]	{self.frame = 202;SetZombieHitBox(IDLE_BBOX);Zombie_Think();};//START
+void() zombie_attack_through_w1		=[	$zatkw1,		zombie_attack_through_w2		]	{self.is_attacking = true; self.frame = 202;SetZombieHitBox(IDLE_BBOX);Zombie_Think();};//START
 
 void() zombie_attack_through_w2		=[	$zatkw2,		zombie_attack_through_w3		]	{self.frame = 203;zombie_attack_through_window();Zombie_Think();};//SWINGING
 void() zombie_attack_through_w3		=[	$zatkw3,		zombie_attack_through_w4		]	{self.frame = 204;Zombie_Think();};//SWINGING
@@ -803,15 +796,50 @@ void() zombie_attack_through_w16		=[	$zatkw6,		zombie_attack_through_w17		]	{sel
 
 void() zombie_attack_through_w17		=[	$zatkw7,		zombie_attack_through_w18		]	{self.frame = 208;Zombie_Think();};//ENDING
 void() zombie_attack_through_w18		=[	$zatkw8,		zombie_attack_through_w19		]	{self.frame = 209;Zombie_Think();};//ENDING
-void() zombie_attack_through_w19		=[	$zatkw9,		zombie_decide		]	{self.frame = 210;Zombie_Think();};//ENDING
+void() zombie_attack_through_w19		=[	$zatkw9,		zombie_decide		]	{self.is_attacking = false; self.frame = 210;Zombie_Think();};//ENDING
 
+void() zm_swipe_right_slow	=[	1, 	zm_swipe_right_slow1	]	{self.is_attacking = true; self.frame = 102; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_right_slow1	=[	2, 	zm_swipe_right_slow2	]	{self.frame = 103; Zombie_Think(); };
+void() zm_swipe_right_slow2	=[	3, 	zm_swipe_right_slow3	]	{self.frame = 104; Zombie_Think(); };
+void() zm_swipe_right_slow3	=[	4, 	zm_swipe_right_slow4	]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
+void() zm_swipe_right_slow4	=[	5, 	zombie_decide			]	{self.is_attacking = false; self.frame = 106; Zombie_Think(); };
 
-//////////////////////////////////////////////////////////////////////ZOMBIE DELAY ATTACKS
-//zda = zombie delay attack
-void() zombie_attackA1;
-void() zombie_attackB1;
+void() zm_swipe_right_fast	=[	1, 	zm_swipe_right_fast1	]	{self.is_attacking = true; self.frame = 104; Zombie_Think(); };
+void() zm_swipe_right_fast1	=[	2, 	zm_swipe_right_fast2	]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
+void() zm_swipe_right_fast2	=[	3, 	zombie_decide			]	{self.is_attacking = false; self.frame = 106; Zombie_Think(); };
 
-void(float which)	zombie_attack_choose =
+void() zm_swipe_left_slow	=[	1, 	zm_swipe_left_slow1		]	{self.is_attacking = true; self.frame = 107; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_left_slow1	=[	2, 	zm_swipe_left_slow2		]	{self.frame = 108; Zombie_Think(); };
+void() zm_swipe_left_slow2	=[	3, 	zm_swipe_left_slow3		]	{self.frame = 109; Zombie_Think(); };
+void() zm_swipe_left_slow3	=[	4, 	zm_swipe_left_slow4		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
+void() zm_swipe_left_slow4	=[	5, 	zm_swipe_left_slow5		]	{self.frame = 111; Zombie_Think(); };
+void() zm_swipe_left_slow5	=[	6, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
+
+void() zm_swipe_left_fast	=[	1, 	zm_swipe_left_fast1		]	{self.is_attacking = true; self.frame = 109; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_left_fast1	=[	2, 	zm_swipe_left_fast2		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
+void() zm_swipe_left_fast2	=[	3, 	zm_swipe_left_fast3		]	{self.frame = 111; Zombie_Think(); };
+void() zm_swipe_left_fast3	=[	4, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
+
+void() zm_swipe_both_slow	=[	1, 	zm_swipe_both_slow1		]	{self.is_attacking = true; self.frame = 102; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_both_slow1	=[	2, 	zm_swipe_both_slow2		]	{self.frame = 103; Zombie_Think(); };
+void() zm_swipe_both_slow2	=[	3, 	zm_swipe_both_slow3		]	{self.frame = 104; Zombie_Think(); };
+void() zm_swipe_both_slow3	=[	4, 	zm_swipe_both_slow4		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
+void() zm_swipe_both_slow4	=[	5, 	zm_swipe_both_slow5		]	{self.frame = 106; Zombie_Think(); };
+void() zm_swipe_both_slow5	=[	6, 	zm_swipe_both_slow6		]	{self.frame = 107; Zombie_Think(); };
+void() zm_swipe_both_slow6	=[	7, 	zm_swipe_both_slow7		]	{self.frame = 108; Zombie_Think(); };
+void() zm_swipe_both_slow7	=[	8, 	zm_swipe_both_slow8		]	{self.frame = 109; Zombie_Think(); };
+void() zm_swipe_both_slow8	=[	9, 	zm_swipe_both_slow9		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
+void() zm_swipe_both_slow9	=[	10, zombie_decide			]	{self.is_attacking = false; self.frame = 111; Zombie_Think(); };
+
+void() zm_swipe_both_fast	=[	1, 	zm_swipe_both_fast1		]	{self.is_attacking = true; self.frame = 104; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_both_fast1	=[	2, 	zm_swipe_both_fast2		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
+void() zm_swipe_both_fast2	=[	3, 	zm_swipe_both_fast3		]	{self.frame = 106; Zombie_Think(); };
+void() zm_swipe_both_fast3	=[	4, 	zm_swipe_both_fast4		]	{self.frame = 109; Zombie_Think(); };
+void() zm_swipe_both_fast4	=[	5, 	zm_swipe_both_fast5		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
+void() zm_swipe_both_fast5	=[	6, 	zm_swipe_both_fast6		]	{self.frame = 111; Zombie_Think(); };
+void() zm_swipe_both_fast6	=[	7, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
+
+void(float which) zombie_attack_choose =
 {
 	
 	self.angles_y = vectoyaw(self.enemy.origin - self.origin);
@@ -825,23 +853,47 @@ void(float which)	zombie_attack_choose =
 	}
 	
 	play_sound_z(1);
-	//Don't attack with an arm you don't have, silly
-	if(!self.larm.deadflag)
-	{
-		zombie_attackA1();
-		return;
+
+	//
+	// choose what attack to play
+	//
+
+	// cypress -- we used to do a really cool thing here where
+	// zombies could only attack with an arm they had, but this
+	// became problematic for repetitive animations + it really
+	// made double-swiping stand out :( maybe one day we could
+	// have this back!
+
+	float attack_type = random();
+	float attack_is_slow = (random() < 0.5); // :^)
+
+	// Right Arm
+	if (attack_type < 0.33) {
+		// Slow
+		if (attack_is_slow)
+			zm_swipe_right_slow();
+		// Fast
+		else
+			zm_swipe_right_fast();
 	}
-	if(!self.rarm.deadflag)
-	{
-		zombie_attackB1();
-		return;
+	// Left Arm
+	else if (attack_type < 0.66) {
+		// Slow
+		if (attack_is_slow)
+			zm_swipe_left_slow();
+		// Fast
+		else
+			zm_swipe_left_fast();
 	}
-	
-	
-	if(random() < 0.5)
-		zombie_attackA1();
-	else
-		zombie_attackB1();
+	// Both (right, followed by left arm)
+	else {
+		// Slow
+		if (attack_is_slow)
+			zm_swipe_both_slow();
+		// Fast
+		else
+			zm_swipe_both_fast();
+	}
 };
 
 $frame zda1 zda2 zda3 zda4 zda5 zda6 zda7 zda8 zda9 zda10 zda11 zda12 zda13 zda14
@@ -858,29 +910,6 @@ void() zombie_zda9		=[	$zda10, 		zombie_zda10	]		{self.frame = 9;zombie_attack_c
 void() zombie_zda10		=[	$zda12, 		zombie_zda11	]		{self.frame = 10;zombie_attack_choose(0);Zombie_Think();};
 void() zombie_zda11		=[	$zda13, 		zombie_zda12	]		{self.frame = 11;zombie_attack_choose(0);Zombie_Think();};
 void() zombie_zda12		=[	$zda14, 		zombie_zda1	]		{self.frame = 12;zombie_attack_choose(1);Zombie_Think();};
-///////////////////////////////////////////////////////////////////// ZOMBIE ATTACK 1// Swipe with right arm
-//86 - 90
-void() zombie_attack2;
-
-$frame attack1 attack2 attack3 attack4 attack5
-
-void() zombie_attackA1		=[	$attack1,		zombie_attackA2	]	{self.frame = 102;SetZombieHitBox(BASE_BBOX);Zombie_Think();};
-void() zombie_attackA2		=[	$attack2,		zombie_attackA3	]	{self.frame = 103;Zombie_Think();};
-void() zombie_attackA3		=[	$attack3,		zombie_attackA4	]	{self.frame = 104;Zombie_Think();};
-void() zombie_attackA4		=[	$attack4,		zombie_attackA5	]	{zombie_attack2();self.frame = 105;Zombie_Think();};
-void() zombie_attackA5		=[	$attack5,		zombie_decide	]	{self.frame = 106;Zombie_Think();};
-
-///////////////////////////////////////////////////////////////////////// ZOMBIE ATTACK 2// Swipe with left arm
-//91-96
-$frame attackb1 attackb2 attackb3 attackb4 attackb5 attackb6
-
-void() zombie_attackB1		=[	$attackb1,		zombie_attackB2	]	{self.frame = 107;SetZombieHitBox(BASE_BBOX);Zombie_Think();};
-void() zombie_attackB2		=[	$attackb2,		zombie_attackB3	]	{self.frame = 108;Zombie_Think();};
-void() zombie_attackB3		=[	$attackb3,		zombie_attackB4	]	{self.frame = 109;Zombie_Think();};
-void() zombie_attackB4		=[	$attackb4,		zombie_attackB5	]	{zombie_attack2(); self.frame = 110;Zombie_Think();};
-void() zombie_attackB5		=[	$attackb5,		zombie_attackB6	]	{self.frame = 111;Zombie_Think();};
-void() zombie_attackB6		=[	$attackb6,		zombie_decide	]	{self.frame = 112;Zombie_Think();};
-
 
 void() zombie_attack =
 {
