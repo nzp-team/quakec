@@ -358,7 +358,7 @@ void() perk_pap =
 	//
 	
 	// Model
-	if (!self.model || self.model == "models/machines/pap/pap.mdl") {
+	if (!self.model || self.model == "models/machines/hl_scale/pap.mdl") {
 		self.model = "models/machines/quake_scale/pap.mdl";
 	}
 
