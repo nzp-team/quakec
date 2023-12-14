@@ -53,6 +53,21 @@ void() LS_Setup =
     lightstyle(10, "mmamammmmammamamaaamammma");                            // 10: Fluro
     lightstyle(11, "abcdefghijklmnopqrrqponmlkjihgfedcba");                 // 11: Slow Pulse (no black)                                                  // 64: Off.
 }
+//
+// L_Use()
+// Target function for lights
+//
+void() L_Use = 
+{
+	if (self.spawnflags & INACTIVE) {
+		lightstyle(self.style, "m");
+		self.spawnflags = self.spawnflags - INACTIVE;
+	}
+	else {
+		lightstyle(self.style, "a");
+		self.spawnflags = self.spawnflags + INACTIVE;
+	}
+}
 
 //
 // L_Setup()
@@ -63,7 +78,6 @@ void() L_Setup =
     // If it's not vanilla ZHLT, cut it off.
     if (self.style > 12)
        return;
-
     // Set the Light to be Off if the spawnflag is set.
     /*if ((self.spawnflags & LIGHT_SPAWNFLAG_STARTOFF)) {
         // Store the other value for later.
@@ -79,7 +93,15 @@ void() L_Setup =
 //
 
 void()  light               =           // Basic Light
-{   L_Setup();                                                              }
+{   
+	L_Setup();
+	
+	self.use = L_Use;
+	if (self.spawnflags & INACTIVE)
+		lightstyle(self.style, "a");
+	else
+		lightstyle(self.style, "m");
+}
 void()  light_fluoro        =           // Light with hum ambient
 {   L_Setup();                                                              }
 void()  light_environment   =           // Sun cast from Sky
