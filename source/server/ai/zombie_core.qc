@@ -397,6 +397,46 @@ void(float which) SetZombieHitBox =
 	}
 };
 
+//
+// Zombie_ProcessRespawn()
+// Logic called by Zombie_Think for checking
+// the last origin every second, for determining
+// if a zombie is "stuck" inside and needs to re-spawn.
+//
+void() Zombie_ProcessRespawn =
+{
+	// Check once every 3 seconds
+	if (self.respawn_timer < time && !self.outside) {
+		// Check if the Zombie has barely moved (16qu)
+		if (vlen(self.new_ofs - self.origin) <= 16) {
+			// Continue to iterate
+			self.respawn_iterator++;
+
+			// 30 seconds have passed -- assume properly stuck, respawn.
+			if (self.respawn_iterator >= 10) {
+				self.respawn_iterator = 0;
+
+				// Kill it.
+				self.th_die();
+
+				// This is a pseudo-hack that just tells the rounds core that we should
+				// spawn another.
+				Current_Zombies--;
+				Remaining_Zombies++;
+			}
+		} else {
+			// Set to zero -- Zombie is moving appropriately.
+			self.respawn_iterator = 0;
+		}
+
+		// Iterate another 3 seconds.
+		self.respawn_timer = time + 3;
+
+		// Update our last origin
+		self.new_ofs = self.origin;
+	}
+}
+
 void() zombie_decide;
 void() Zombie_Think = //called every frame for zombies
 {
@@ -424,6 +464,9 @@ void() Zombie_Think = //called every frame for zombies
 		}
 	}
 
+	Zombie_ProcessRespawn();
+
+	// Electro-Shock Death
 	if (self.death_timer < time && self.death_timer_activated == true) {
 		self.th_die();
 	}
@@ -1168,6 +1211,7 @@ void(entity ent) Zombie_Death_Cleanup = {
 	}
 	
 	ent.health = 0;
+	ent.respawn_iterator = 0;
 	Remaining_Zombies = Remaining_Zombies - 1;
 }
 

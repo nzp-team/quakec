@@ -395,6 +395,8 @@ float z_health;
 .float bleedingtime;
 .float time_to_die;
 
+.float respawn_timer;
+.float respawn_iterator;
 
 float crandom();
 
