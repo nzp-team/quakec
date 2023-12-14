@@ -1904,6 +1904,8 @@ void() CheckPlayer =
 				// Broadcast that they're being revived
 				BroadcastMessageToClient(ent, time + 2, 3, self.netname);
 
+				ent.speed_penalty = 0.01;
+				ent.speed_penalty_time = time + 100;
 				ent.beingrevived = true;
 				ent.firer = self;
 				
@@ -1927,6 +1929,7 @@ void() CheckPlayer =
 					W_TakeOut();
 					ent.invoke_revive = 1;
 					ent.beingrevived = false;
+					ent.speed_penalty_time = 0;
 					self.reviving = 0;
 					self.progress_bar = 0;
 					self.progress_bar_time = 0;
@@ -1942,6 +1945,7 @@ void() CheckPlayer =
 					DisableReviveIcon(ent.electro_targeted);
 				self.movetype = MOVETYPE_WALK;
 				ent.beingrevived = false;
+				ent.speed_penalty_time = 0;
 				ent.firer = world;
 				W_TakeOut();
 				self.progress_bar = 0;

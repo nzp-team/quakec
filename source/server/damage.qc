@@ -218,7 +218,6 @@ void() GetDown =
 	self.velocity = self.zoom = 0;
 	self.downed = true;
 	self.dive_delay = 0;
-	self.movetype = MOVETYPE_NONE;
 
 	float players_still_alive = PollPlayersAlive();
 
@@ -389,7 +388,6 @@ void () GetUp =
 		addmoney(self, self.requirespower, false);
 	}
 
-	self.movetype = MOVETYPE_WALK;
 	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk);
 };
 
