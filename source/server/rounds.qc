@@ -341,7 +341,12 @@ void() InitRounds =
 	totalpowerups = 0;
 	powerup_activate = 2000;
 	powerup_score_threshold = ((player_count + 1) * G_STARTPOINTS) + powerup_activate;
-	spawnAllZombEnts();
+
+	// cypress -- fix Soft_Restart spawning multiple 
+	// pairs of zombie spawn points.
+	if (!roundinit)
+		spawnAllZombEnts();
+	
 	round_changetime = time + 3.5;
 	rounds_change = 1;
 	roundinit = 1;
