@@ -96,11 +96,12 @@ void()  light               =           // Basic Light
 {   
 	L_Setup();
 	
-	self.use = L_Use;
 	if (self.spawnflags & INACTIVE)
 		lightstyle(self.style, "a");
 	else
 		lightstyle(self.style, "m");
+		
+	self.use = L_Use;
 }
 void()  light_fluoro        =           // Light with hum ambient
 {   L_Setup();                                                              }

@@ -1021,7 +1021,7 @@ void() Turn_Lights =
 			Turn_PerkLight_On(tempe);
 		tempe = findfloat (tempe, requirespower, 1);
 	}
-
+/*
 	// Light Styles
 	tempe = find(world, classname, "light");
 	while(tempe)
@@ -1029,13 +1029,14 @@ void() Turn_Lights =
 		if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTOFF) {
 			tempe.style = tempe.score;
 			LS_Setup();
-		}/* else if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTON) {
+		} else if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTON) {
 			tempe.style = 64;
 			lightstyle(tempe.style, "a");
-		}*/
+		}
 
 		tempe = find(tempe, classname, "light");
 	}
+*/
 } 
 
 //
