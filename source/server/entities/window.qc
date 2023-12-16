@@ -398,11 +398,12 @@ void() item_barricade =
 			self.health = 6;
 
 		// Max Health
-		if (!self.health_delay || self.health_delay > 6 || self.health_delay < 0)
+		if (!self.health_delay || self.health_delay > 6)
 			self.health_delay = 6;
 
 		// Restore health state if using compatibility hack
 		if (self.health == -1) self.health = 0;
+		if (self.health_delay == -1) self.health_delay = 0;
 
 		// cypress -- i was going to add a check if the start health was greater
 		// than max here, but i figured someone might want to make a weird ass
