@@ -193,7 +193,7 @@ void(vector where, float time_alive) SpawnSpark =
 // Called when the max amount of solo revives have been used.
 // Does a little animation and then 'teleports' away.
 //
-void() StopReviveAnimation =
+void() Perk_StopLeaveAnimation =
 {
 	self.velocity = 0;
 
@@ -206,7 +206,7 @@ void() StopReviveAnimation =
 	sound(self,CHAN_ITEM,"sounds/pu/drop.wav",1,ATTN_NONE); // Play a fitting sound
 }
 
-void() ReviveAnimation =
+void() Perk_MachineLeaveAnimation =
 {
 	if (self.score == 0)
 		self.angles_z += 6;
@@ -219,13 +219,13 @@ void() ReviveAnimation =
 		self.score = 0;
 
 	if(self.ltime < time) {
-		StopReviveAnimation();
+		Perk_StopLeaveAnimation();
 	} else {
 		self.nextthink = time + 0.05;
 	}
 }
 
-void() ReviveGoAwayForReal =
+void() Perk_MachineGoAwayForReal =
 {
 	makevectors(self.angles);
 	self.movetype = MOVETYPE_NOCLIP;
@@ -235,15 +235,15 @@ void() ReviveGoAwayForReal =
 
 	// Do our silly little animation for 6 seconds
 	self.ltime = time + 6;
-	self.think = ReviveAnimation;
+	self.think = Perk_MachineLeaveAnimation;
 	self.nextthink = time + 0.05;
 }
 
-void() ReviveGoAway =
+void() Perk_MachineGoAway =
 {
 	// First start a timer, we want to wait until the player finishes drinking
 	// before starting the animation.
-	self.think = ReviveGoAwayForReal;
+	self.think = Perk_MachineGoAwayForReal;
 	self.nextthink = time + 4;
 
 	// Save our original position to restore on restart
@@ -276,18 +276,24 @@ void() touch_perk =
 		return;
 	}
 
+	float perk_purchase_limit;
+
+	if (player_count >= 1)
+		perk_purchase_limit = self.perk_purchase_limit_coop;
+	else
+		perk_purchase_limit = self.perk_purchase_limit_solo;
+
 	// Back up weapon skin
 	backupWepSkin = other.weaponskin;
 
 	// Don't prompt if our hands or busy or we already have the perk
-	if (!(other.perks & self.style) && other.fire_delay < time && self.revivesoda < 3) {
+	if (!(other.perks & self.style) && other.fire_delay < time && self.perk_purchase_count < perk_purchase_limit) {
 		float price;
 
-		// Check if this is Quick Revive and we are playing in Co-Op,
-		// adjust price if so.
-		if (self.classname == "perk_revive" && player_count >= 1)
+		// Check if we're playing in Co-Op, adjust price if so.
+		if (player_count >= 1)
 			price = self.cost2;
-		// Nope, use normal cost.
+		// Nope, use normal/solo cost.
 		else
 			price = self.cost;
 
@@ -321,15 +327,13 @@ void() touch_perk =
 			other = self; // Set other to client
 			self = tempe; // Set self to machine
 
-			// Do Self-Revive checks
-			if (self.classname == "perk_revive" && !player_count) {
-				// Increment self-revive count
-				self.revivesoda++;
+			// Increment usage count
+			self.perk_purchase_count++;
 
-				if (self.revivesoda >= 3) {
-					ReviveGoAway();
-				}
-			}
+			// Time to disappear!
+			if (self.perk_purchase_count >= perk_purchase_limit)
+				Perk_MachineGoAway();
+
 			other.semiuse = true;
 		} else if (other.button7 && !other.semiuse) {
 			// We tried to use, but we don't have the cash..
@@ -384,8 +388,15 @@ void(entity who) Turn_PerkLight_On =
 //
 void() Perk_Jingle =
 {
-	// If Revive is gone, don't bother to check anymore
-	if (self.revivesoda >= 3)
+	float perk_purchase_limit;
+
+	if (player_count >= 1)
+		perk_purchase_limit = self.perk_purchase_limit_coop;
+	else
+		perk_purchase_limit = self.perk_purchase_limit_solo;
+
+	// If the Vending Machine is gone, don't bother to check anymore
+	if (self.perk_purchase_count >= perk_purchase_limit)
 		return;
 
 	local float jinglewaittime;
@@ -415,8 +426,11 @@ void() setup_perk =
 {
 	entity power = find(world, classname, "power_switch");
 
-	// Check for Revive before Power
-	if (self.classname == "perk_revive" && !player_count) {
+	self.requirespower = true;
+
+	// Start Perk-A-Cola without Power
+	if ((self.perk_requires_power_coop < 0 && player_count >= 1) || 
+	(self.perk_requires_power_solo < 0 && !player_count)) {
 		Turn_PerkLight_On(self);
 		self.requirespower = false;
 	} else {
@@ -433,24 +447,6 @@ void() setup_perk =
 	if (self.powerup_vo) {
 		self.think = Perk_Jingle;
 		self.nextthink = time + rint((random() * 30)) + 30;
-	}
-}
-
-//
-// Perk_UpdateQuickRevive()
-// Tallies whether to make Quick Revive
-// solo or co-op accessible.
-//
-void() Perk_UpdateQuickRevive =
-{
-	entity revives = find(world, classname, "perk_revive");
-
-	while(revives != world) {
-		Light_None(revives);
-		revives.think = setup_perk;
-		revives.nextthink = time + 0.1;
-
-		revives = find(revives, classname, "perk_revive");
 	}
 }
 
@@ -475,9 +471,13 @@ void() perk_revive =
 		self.model = "models/machines/quake_scale/quick_revive.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 500;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
 		self.cost2 = 1500;
 	}
 
@@ -504,6 +504,26 @@ void() perk_revive =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_CYANLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 3;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = -1;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -544,9 +564,14 @@ void() perk_flopper =
 		self.model = "models/machines/quake_scale/flopper.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 2000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -572,6 +597,26 @@ void() perk_flopper =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -610,9 +655,14 @@ void() perk_juggernog =
 		self.model = "models/machines/quake_scale/juggernog.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 2500;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -638,6 +688,26 @@ void() perk_juggernog =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_PINKLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -676,9 +746,14 @@ void() perk_staminup =
 		self.model = "models/machines/quake_scale/staminup.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 2000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -704,6 +779,26 @@ void() perk_staminup =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -742,9 +837,14 @@ void() perk_speed =
 		self.model = "models/machines/quake_scale/speed_cola.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 3000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -770,6 +870,26 @@ void() perk_speed =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_LIMELIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -808,9 +928,14 @@ void() perk_double =
 		self.model = "models/machines/quake_scale/double_tap.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 2000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -836,6 +961,26 @@ void() perk_double =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -874,10 +1019,14 @@ void() perk_deadshot =
 		self.model = "models/machines/quake_scale/deadshot.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 1500;
-		self.cost2 = 1000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -903,6 +1052,26 @@ void() perk_deadshot =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -943,9 +1112,14 @@ void() perk_mule =
 		self.model = "models/machines/quake_scale/mulekick.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 4000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -971,6 +1145,26 @@ void() perk_mule =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_LIMELIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity

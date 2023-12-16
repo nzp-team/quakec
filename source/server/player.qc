@@ -29,7 +29,6 @@
 
 void(entity e) Light_None;
 void() Spawns_Init;
-void() Perk_UpdateQuickRevive;
 void() SUB_UseTargets;
 void() rec_downed;
 
@@ -897,7 +896,7 @@ void() PutClientInServer =
 
 #endif // FTE
 
-	Perk_UpdateQuickRevive();
+	GameRestart_ResetPerkaColas();
 };
 
 //called when client disconnects from the server
@@ -914,7 +913,7 @@ void() ClientDisconnect =
 	self.nextthink = -1;
 	setmodel(self, "models/sprites/null.spr");
 
-	Perk_UpdateQuickRevive();
+	GameRestart_ResetPerkaColas();
 };
 
 

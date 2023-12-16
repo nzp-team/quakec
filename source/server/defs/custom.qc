@@ -417,7 +417,12 @@ float isPowerOn;
 .float isBuying; // naievil -- used for checking if a perk is being consumed, limits glitching
 .float perks;
 .float perk_delay;
-.float revivesoda;
+
+.float perk_purchase_count;
+.float perk_purchase_limit_solo;
+.float perk_purchase_limit_coop;
+.float perk_requires_power_solo;
+.float perk_requires_power_coop;
 
 // Mystery Box
 #define MAX_BOX_WEAPONS 		27
