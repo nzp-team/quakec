@@ -82,6 +82,22 @@ void() change_frame =
 	self.nextthink = time + 1;
 }
 
+#ifdef FTE
+
+void(void() spawnfunc) CheckSpawn =
+{
+  //do your own skill/deathmatch spawnflag checks here because the engine won't when this function exists
+  if (spawnfunc)
+    spawnfunc();
+  else
+  {
+    print(sprintf("no spawnfunc defined for %S\n", self.classname));
+    remove(self);
+  }
+};
+
+#endif // FTE
+
 #ifndef FTE
 
 void LoadWaypointData() = {};
