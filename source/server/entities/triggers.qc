@@ -356,9 +356,20 @@ void() trigger_once =
 	trigger_multiple();
 }
 
+void() trigger_atroundend =
+{
+	self.classname = "trigger_atroundend";
+	//self.use = multi_use;
+}
+
 //
 // Quake Triggers
 //
+
+// NZ:P START -- Spawnflags for not hurting clients and not hurting AI
+#define HURT_SPAWNFLAG_NOAI		1
+#define HURT_SPAWNFLAG_NOCLIENT	2
+// NZ:P END
 
 void() hurt_on =
 {
@@ -368,7 +379,8 @@ void() hurt_on =
 
 void() hurt_touch =
 {
-	//if (other.takedamage)
+	if ((other.classname == "player" && !(self.spawnflags & HURT_SPAWNFLAG_NOCLIENT)) ||
+	(other.aistatus == "1" && !(self.spawnflags & HURT_SPAWNFLAG_NOAI)))
 	{
 		self.solid = SOLID_NOT;
 		DamageHandler(other, self, self.dmg, S_ZOMBIE);

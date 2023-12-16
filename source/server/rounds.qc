@@ -24,7 +24,7 @@
 		Boston, MA  02111-1307, USA
 
 */
-
+void() SUB_UseTargets;
 float() spawn_a_dogA;
 void() zapper_cooldown;
 
@@ -164,6 +164,18 @@ void() EndRound =
 			players.ach_tracker_npnp = 0;
 			players = find(players, classname, "player");
 		}
+	}
+
+	// Fire off all trigger_atroundent ents
+	entity triggers = find(world, classname, "trigger_atroundend");
+	while(triggers != world) {
+		if (triggers.health == rounds) {
+			entity oldself = self;
+			self = triggers;
+			SUB_UseTargets();
+			self = oldself;
+		}
+		triggers = find(triggers, classname, "trigger_atroundend");
 	}
 }
 
