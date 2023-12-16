@@ -201,6 +201,7 @@ void() StopReviveAnimation =
 	SpawnSpark(self.origin, 0.65); // Spawn a Spark at the position
 	self.origin = self.oldvelocity; // Restore old position
 	Light_None(self); // Remove light effect
+	SUB_UseTargets();
 
 	sound(self,CHAN_ITEM,"sounds/pu/drop.wav",1,ATTN_NONE); // Play a fitting sound
 }
