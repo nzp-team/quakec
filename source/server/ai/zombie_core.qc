@@ -486,7 +486,11 @@ void() Zombie_Think = //called every frame for zombies
 	if (self.is_attacking && vlen(self.enemy.origin - self.origin) > 64) {
 		// Cancel the animation, start walking again to catch up.
 		self.is_attacking = false;
-		zombie_decide();
+
+		// zombie_decide() here used to call an idle loop if they were
+		// outside, lesson learned.
+		if (!self.outside)
+			self.th_walk();
 	}
 }
 
@@ -1085,6 +1089,12 @@ void() removeZombie =
 	setorigin(self,'0 0 0');
 	setorigin (self.goaldummy, '0 0 0');
 	
+	// cypress (20 dec 2023) -- added a nextthink() call here
+	// so the next server frame we'll have always run SUB_Null().
+	// there was some weird behavior here where a zombie's th_idle()
+	// call would carry forward interrupting the procedure for walking
+	// to a barricade.
+	self.nextthink = time + 0.05;
 	self.think = SUB_Null;
 	self.classname = "freeZombieEntity";
 	self.goalentity = world;
@@ -1104,7 +1114,7 @@ void() removeZombie =
 	self.owner = world;
 
 	self.spawnflags = 0;
-	
+	self.is_attacking = false;
 	
 	self.yaw_speed = 0;
 	
@@ -1731,6 +1741,13 @@ void(entity where) spawn_a_zombieB =
 	szombie.movetype = MOVETYPE_WALK;
 	setmodel(szombie, "models/ai/zb%.mdl");
 	szombie.hop_step = 0;
+
+	// cypress (20 dec 2023) -- see comment from removeZombie(),
+	// this is just a sanity check just in case someone decides
+	// to play around with a freeZombieEntity and breaks that check..
+	szombie.nextthink = time + 0.05;
+	szombie.think = SUB_Null;
+
 	szombie.gravity = 1.0;
 	
 	szombie.mins = '-8 -8 -32';//-16 16 -32
