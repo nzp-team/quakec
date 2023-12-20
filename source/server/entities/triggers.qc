@@ -28,6 +28,8 @@
 #define SPAWNFLAG_NOMESSAGE 	1
 #define SPAWNFLAG_NOTOUCH 		1
 
+void() Zombie_ReassignSpawnIDs;
+
 // the wait time has passed, so set back up for another activation
 void() multi_wait =
 {
@@ -218,6 +220,8 @@ void() trigger_activator_touch =
 				if (t.classname == "spawn_zombie_away")
 				{
 					t.classname = "spawn_zombie";
+					t.spawn_id = zombie_spawn_points;
+					zombie_spawn_points++;
 					/*if (cvar("developer"))
 						setmodel(t, "progs/ai/zfull.mdl");*/
 				}
@@ -225,6 +229,7 @@ void() trigger_activator_touch =
 			} 
 		}
 	}
+	Zombie_ReassignSpawnIDs();
 }
 
 void() trigger_activator =

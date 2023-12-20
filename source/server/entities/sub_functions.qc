@@ -171,6 +171,8 @@ void() SUB_UseTargets =
 				if (t.classname == "spawn_zombie_in")
 				{
 					t.classname = "spawn_zombie";
+					t.spawn_id = zombie_spawn_points;
+					zombie_spawn_points++;
 				}
 				if (t.classname == "waypoint_s")
 				{

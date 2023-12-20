@@ -302,6 +302,7 @@ void(vector pos) tesla_spark;
 .float onfire;
 .entity firer;
 float crawler_num;
+float zombie_spawn_points;
 //==== Reference Vars ====
 #define 	WWINDOW		1
 #define 	WBOX1 		2
@@ -344,6 +345,7 @@ entity lastspawn;									// last spawn point used by spawning code
 .entity goaldummy; 									// Used to store the origin of the zombies target
 .float goalway; 									// Used to store the origin of the zombies target
 .float walktype;									// decides animations and moving speeds for zombies
+.float spawn_id;									// assigned to spawn point ents, for grabbing one at random.
 .void() th_walk;
 //.void() th_run;
 .void() th_die;

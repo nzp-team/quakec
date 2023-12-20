@@ -1104,6 +1104,7 @@ void() removeZombie =
 
 	self.outside = TRUE;
 	self.hop_step = 0;
+	self.onfire = false;
 	self.calc_time = 0;
 	self.tries = 0;
 	self.takedamage = DAMAGE_NO;
@@ -1465,6 +1466,8 @@ void() spawn_zombie =
 		if (cvar("developer"))
 			setmodel(self, "models/ai/zfull.mdl");
 		self.classname = "spawn_zombie";
+		self.spawn_id = zombie_spawn_points;
+		zombie_spawn_points++;
 	}
 	
 	//self.think = zombie_spawn_think;
@@ -1493,6 +1496,39 @@ void() set_z_health =
 	}
 };
 
+//
+// Zombie_ReassignSpawnIDs()
+// To be called whenever we mess with a spawn point,
+// this makes sure that spawn_a_zombieA() can never
+// try to spawn a zombie at a point which index is
+// inactive.
+//
+void() Zombie_ReassignSpawnIDs =
+{
+	float num_spawns = zombie_spawn_points;
+
+	// First, clear the list.
+	zombie_spawn_points = 0;
+
+	while(num_spawns > -1) {
+		entity zombie_spawn = findfloat(world, spawn_id, num_spawns);
+		if (zombie_spawn) {
+			zombie_spawn.spawn_id = 0;
+		}
+		num_spawns--;
+		zombie_spawn = findfloat(world, spawn_id, num_spawns);
+	}
+
+	// Now do the re-assignment
+	entity zombie_spawns = find(world, classname, "spawn_zombie");
+	while(zombie_spawns) {
+		zombie_spawns.spawn_id = zombie_spawn_points;
+		zombie_spawn_points++;
+
+		zombie_spawns = find(zombie_spawns, classname, "spawn_zombie");
+	}
+}
+
 inline entity() getFreeZombieEnt =
 {
 	entity who;
@@ -1503,51 +1539,41 @@ inline entity() getFreeZombieEnt =
 
 float() spawn_a_zombieA =
 {
-	//dprint("Spawn_a_zombieA \n");
-	local float pcount;
-	local entity thing, szombie;
-	local float FAIL;
+	// cypress (20 dec 2023) -- rewrote this routine to be a little less
+	// needlessly bloaty/bogged down and be in greater parity.
 
-	//warn
-	pcount = 0;
-	
-	FAIL = false;
-	szombie = getFreeZombieEnt();
-	if(szombie == world || zombie_spawn_timer > time)
-	{
-		//bprint(PRINT_HIGH, "STOPPED AT A\n");
-		//dprint("No avaible zombie entity\n");
-		return 0;
+	// don't bother doing anything if it's not even time yet (avoids needless
+	// iteration over ent chain)
+	if (zombie_spawn_timer > time)
+		return false;
+
+	// look for a free entity
+	entity zombie_ent = getFreeZombieEnt();
+
+	// no free entity found, maximum are in play.
+	if (!zombie_ent)
+		return false;
+
+	// look for a random spawn point. note -- before there was a routine that
+	// prevented spawns from repeating one after the other before. i liked the
+	// evened out use of the playspace at the beginning of the game but this
+	// isn't standard CoD functionality and it has negative consequences with 
+	// larger areas.
+	entity zombie_spawn;
+	float zombie_spawn_id = rint((random() * (zombie_spawn_points - 1))); // starts at 0!
+
+	zombie_spawn = find(world, classname, "spawn_zombie");
+	while(zombie_spawn != world) {
+		if (zombie_spawn.spawn_id == zombie_spawn_id)
+			break;
+
+		zombie_spawn = find(zombie_spawn, classname, "spawn_zombie");
 	}
-	szombie.onfire = false;
-	lastspawn = find(lastspawn, classname, "spawn_zombie");
-	while (random() < 0.4)
-	{
-		lastspawn = find(lastspawn, classname, "spawn_zombie");
-	}
-	
-	while(lastspawn)
-	{
-		thing = findradius(lastspawn.origin, 60);
-		while (thing)
-		{
-			pcount = 0;
-			if (thing.classname == "ai_zombie")
-			{
-				pcount = 1;
-				break;
-			}
-			thing = thing.chain;
-		}
-		if (!pcount && random() < 0.6)
-		{
-			spawn_a_zombieB(lastspawn);
-			spawn_delay = time + delay_at_round;
-			return true;
-		}
-		lastspawn = find(lastspawn, classname, "spawn_zombie");
-	}
-	return 0; //no free locations fround
+
+	// prompt stage 2: the actual spawning of the zombie.
+	spawn_a_zombieB(zombie_spawn);
+	spawn_delay = time + delay_at_round;
+	return true;
 };
 
 void(float i) spawnSingleZombEnt =
