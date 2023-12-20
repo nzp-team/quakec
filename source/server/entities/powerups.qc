@@ -310,6 +310,9 @@ void() PU_NukeKill =
 	// play explosion effects
 	PU_NukeExplode(self.origin + '0 0 13');
 
+	// set them on fire
+	self.onfire = true;
+
 	// kill a target
 	self.th_die();
 

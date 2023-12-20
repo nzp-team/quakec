@@ -441,16 +441,7 @@ void() zombie_decide;
 void() Zombie_Think = //called every frame for zombies
 {
 	if (self.onfire) {
-
-#ifdef FTE
-
-		te_flamejet(self.origin, v_up*8, 10);
-
-#else
-
-		particle (self.origin, v_up*8, 0, 0);
-
-#endif // FTE
+		Effect_Fire(self.origin);
 
 		if (self.ltime < time && self.onfire){
 			DamageHandler(self, self.firer, 300, S_NORMAL);
@@ -1140,27 +1131,27 @@ void() removeZombie =
 ///////////////////////////////////////////////////////////////////// ZOMBIE DEATH 1
 //123-133
 $frame death1 death2 death3 death4 death5 death6 death7 death8 death9 death10 death11
-void()	zombie_deathA1		=[	$death1,		zombie_death2	] 	{self.frame = 123;};
+void()	zombie_deathA1		=[	$death1,		zombie_death2	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 123;};
 void()	zombie_death2		=[	$death2,		zombie_death3	] 	{self.frame = 124;};
 void()	zombie_death3		=[	$death3,		zombie_death4	] 	{self.frame = 125;};
-void()	zombie_death4		=[	$death4,		zombie_death5	] 	{self.frame = 126;};
+void()	zombie_death4		=[	$death4,		zombie_death5	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 126;};
 void()	zombie_death5		=[	$death5,		zombie_death6	] 	{self.frame = 127;};
 void()	zombie_death6		=[	$death6,		zombie_death7	] 	{self.frame = 128;};
-void()	zombie_death7		=[	$death7,		zombie_death8	] 	{self.frame = 129;};
+void()	zombie_death7		=[	$death7,		zombie_death8	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 129;};
 void()	zombie_death8		=[	$death8,		zombie_death9	] 	{self.frame = 130;};
 void()	zombie_death9		=[	$death9,		zombie_death10	] 	{self.frame = 131;};
 void()	zombie_death10		=[	$death10,		zombie_death11	] 	{self.frame = 132;zombie_footstep();};
-void()	zombie_death11		=[	$death11,		SUB_Null	] 	{self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie;  self.frame = 133;};
+void()	zombie_death11		=[	$death11,		SUB_Null	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie;  self.frame = 133;};
 
 //////////////////////////////////////////////////////////////////////////////////// ZOMBIE DEATH 2
 //134-138
 $frame deathB1 deathB2 deathB3 deathB4 deathB5
 
-void()	zombie_deathB1		=[	$deathB1,		zombie_deathB2	] 	{self.frame = 134;};
+void()	zombie_deathB1		=[	$deathB1,		zombie_deathB2	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 134;};
 void()	zombie_deathB2		=[	$deathB2,		zombie_deathB3	] 	{self.frame = 135;};
-void()	zombie_deathB3		=[	$deathB3,		zombie_deathB4	] 	{self.frame = 136;};
+void()	zombie_deathB3		=[	$deathB3,		zombie_deathB4	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 136;};
 void()	zombie_deathB4		=[	$deathB4,		zombie_deathB5	] 	{self.frame = 137;zombie_footstep();};
-void()	zombie_deathB5		=[	$deathB5,		SUB_Null		] 	{self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 138;};
+void()	zombie_deathB5		=[	$deathB5,		SUB_Null		] 	{if (self.onfire) {Effect_Fire(self.origin);} self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 138;};
 
 
 //////////////////////////////////////////////////////////////////////////////////// ZOMBIE DEATH 3
@@ -1168,16 +1159,16 @@ void()	zombie_deathB5		=[	$deathB5,		SUB_Null		] 	{self.iszomb = 0; self.nextthi
 
 $frame deathC1 deathC2 deathC3 deathC4 deathC5 deathC6 deathC7 deathC8 deathC9 deathC10
 
-void()	zombie_deathC1		=[	$deathC1,		zombie_deathC2	] 	{self.frame = 139;};
+void()	zombie_deathC1		=[	$deathC1,		zombie_deathC2	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 139;};
 void()	zombie_deathC2		=[	$deathC2,		zombie_deathC3	] 	{self.frame = 140;};
 void()	zombie_deathC3		=[	$deathC3,		zombie_deathC4	] 	{self.frame = 141;};
-void()	zombie_deathC4		=[	$deathC4,		zombie_deathC5	] 	{self.frame = 142;};
+void()	zombie_deathC4		=[	$deathC4,		zombie_deathC5	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 142;};
 void()	zombie_deathC5		=[	$deathC5,		zombie_deathC6	] 	{self.frame = 143;};
 void()	zombie_deathC6		=[	$deathC6,		zombie_deathC7	] 	{self.frame = 144;};
-void()	zombie_deathC7		=[	$deathC7,		zombie_deathC8	] 	{self.frame = 145;};
+void()	zombie_deathC7		=[	$deathC7,		zombie_deathC8	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 145;};
 void()	zombie_deathC8		=[	$deathC8,		zombie_deathC9	] 	{self.frame = 146;zombie_footstep();};
 void()	zombie_deathC9		=[	$deathC9,		zombie_deathC10	] 	{self.frame = 147;};
-void()	zombie_deathC10		=[	$deathC10,		SUB_Null		] 	{self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 148;};
+void()	zombie_deathC10		=[	$deathC10,		SUB_Null		] 	{if (self.onfire) {Effect_Fire(self.origin);} self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 148;};
 
 
 
