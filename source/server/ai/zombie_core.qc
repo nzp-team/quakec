@@ -1501,7 +1501,7 @@ void() Zombie_ReassignSpawnIDs =
 	// First, clear the list.
 	zombie_spawn_points = 0;
 
-	while(num_spawns > -1) {
+	while(num_spawns > 0) {
 		entity zombie_spawn = findfloat(world, spawn_id, num_spawns);
 		if (zombie_spawn) {
 			zombie_spawn.spawn_id = 0;
