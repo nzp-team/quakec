@@ -129,6 +129,7 @@ void(string perk_classname) GameRestart_TurnPerkOff =
 	while(tempe != world) {
 		setmodel(tempe, tempe.door_model_name);
 		setorigin(tempe, tempe.oldorigin);
+		setsize(tempe, VEC_HULL2_MIN, VEC_HULL2_MAX);
 
 		Light_None(tempe);
 
