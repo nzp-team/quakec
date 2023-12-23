@@ -1507,7 +1507,9 @@ void() Zombie_ReassignSpawnIDs =
 			zombie_spawn.spawn_id = 0;
 		}
 		num_spawns--;
-		zombie_spawn = findfloat(world, spawn_id, num_spawns);
+
+		if (num_spawns)
+			zombie_spawn = findfloat(world, spawn_id, num_spawns);
 	}
 
 	// Now do the re-assignment
