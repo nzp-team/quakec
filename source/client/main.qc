@@ -137,6 +137,8 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	// in-game stopwatch
 	autocvar(scr_serverstopwatch, 0);
 	stopwatch_sec = stopwatch_min = stopwatch_hr = 0;
+	stopwatch_round_sec = stopwatch_round_min = stopwatch_round_hr = 0;
+	stopwatch_round_starttime = time;
 
 	// retrieve custom maps
 	Customs_Get();
@@ -823,6 +825,21 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	if (stopwatch_min >= 60) {
 		stopwatch_hr += stopwatch_min/60;
 		stopwatch_min = 0;
+	}
+
+	if (stopwatch_round_isactive) {
+		stopwatch_round_sec = (time - stopwatch_round_starttime) - (stopwatch_round_min * 60 + (stopwatch_round_hr * 3600));
+
+		if (stopwatch_round_sec >= 60) {
+			stopwatch_round_min += stopwatch_round_sec/60;
+		}
+
+		if (stopwatch_round_min >= 60) {
+			stopwatch_round_hr += stopwatch_round_min/60;
+			stopwatch_round_min = 0;
+		}
+	} else {
+		stopwatch_round_starttime = time;
 	}
 
 	//autoadd entities received from servers for drawing	

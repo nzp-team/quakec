@@ -482,6 +482,7 @@ void(float width, float height) HUD_Rounds =
 	}
 	else if (rounds_change == 2)//this is the rounds icon moving from middle
 	{
+		stopwatch_round_isactive = true;
 		float round_center_y_offset = 0;
 		float round_center_x_offset = 0;
 				
@@ -497,6 +498,7 @@ void(float width, float height) HUD_Rounds =
 	}
 	else if (rounds_change == 3)//shift to white
 	{
+		stopwatch_round_isactive = false;
 		if (!color_shift_init)
 		{
 			color_shift[0] = 107;
@@ -774,6 +776,7 @@ void(float width, float height) HUD_Rounds =
 	}
 	else if (rounds_change == 7)//blink white while fading back
 	{
+		stopwatch_round_isactive = true;
 		if (!color_shift_init)
 		{
 			color_shift_end[0] = 107;
@@ -1640,6 +1643,26 @@ void(float width, float height) HUD_StopWatch =
 	drawstring([width - (strlen(stopwatch) * 12) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
 }
 
+void(float width, float height) HUD_RoundStopWatch =
+{
+	string sec, min, hr;
+	string stopwatch;
+
+	if (stopwatch_round_sec < 10) {
+		sec = strcat("0", substring(ftos(stopwatch_round_sec), 0, 3));
+	} else {
+		sec = substring(ftos(stopwatch_round_sec), 0, 4);
+	}
+
+	if (sec == "00") sec = "00.0";
+	if (stopwatch_round_min < 10) min = strcat("0", ftos(stopwatch_round_min)); else min = ftos(stopwatch_round_min);
+	if (stopwatch_round_hr < 10) hr = strcat("0", ftos(stopwatch_round_hr)); else hr = ftos(stopwatch_round_hr);
+
+	stopwatch = strcat(hr, ":", min, ":", sec);
+
+	drawstring([width - (strlen(stopwatch) * 12) - 2, 16], stopwatch, [12, 12], [1, 1, 1], 1, 0);
+}
+
 /*******************
 *     HUD Draw     *
 *******************/
@@ -1701,6 +1724,9 @@ void(float width, float height) HUD_Draw =
 
 			if (cvar("scr_serverstopwatch")) {
 				HUD_StopWatch(width, height);
+			}
+			if (cvar("scr_serverstopwatch") >= 2) {
+				HUD_RoundStopWatch(width, height);
 			}
 		} else {
 			HUD_Waypoint(width, height);

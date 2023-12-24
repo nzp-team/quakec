@@ -218,6 +218,13 @@ float 	stopwatch_sec;
 int 	stopwatch_min;
 int 	stopwatch_hr;
 
+// Same dealio, but for rounds
+float 	stopwatch_round_sec;
+int 	stopwatch_round_min;
+int 	stopwatch_round_hr;
+int 	stopwatch_round_isactive;
+float 	stopwatch_round_starttime;
+
 //controller buttons
 
 /*
