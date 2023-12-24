@@ -729,10 +729,17 @@ float(entity them, entity me) PlayerIsLooking =
 	vector source;
 	makevectors (them.v_angle);
 	source = them.origin + them.view_ofs;
-	traceline (source, source + v_forward*500, 0, them);
 
-	if (trace_ent == me)
+	// Standard 'are we facing' test..
+	traceline(source, source + v_forward*50, 0, them);
+
+	// We're inside of an object.. is it the target?
+	if (trace_startsolid) {
+		if (v_forward*normalize(me.origin - them.origin) > 0.7)
+			ret = true;
+	} else if (trace_ent == me) {
 		ret = true;
+	}
 
 	me.solid = old_solid;
 	setorigin(me, me.origin);
