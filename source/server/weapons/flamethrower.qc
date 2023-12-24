@@ -73,11 +73,13 @@ void() Flame_Touch =
 		|| other.classname == "ai_zombie_rarm") {
 			other.owner.onfire = true;
 			other.owner.ltime = time + 2;
+			other.owner.fire_timeout = time + 10;
 			addmoney(self.owner, 10, true);
 		} else if (other.classname == "ai_zombie" || other.classname == "ai_dog") {
 			other.onfire = true;
 			other.firer = self.owner;
 			other.ltime = time + 2;
+			other.fire_timeout = time + 10;
 			addmoney(self.owner, 10, true);
 		}
 	}

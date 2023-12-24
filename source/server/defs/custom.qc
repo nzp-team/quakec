@@ -259,6 +259,7 @@ void() SUB_Null2 = {};
 vector	trace_plane_normal;
 
 .float dmg;
+.float fire_timeout;
 
 //
 // AI definitions

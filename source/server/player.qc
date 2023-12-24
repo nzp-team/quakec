@@ -438,6 +438,14 @@ void() PlayerPreThink =
 
 	JumpCheck(0);
 
+	// Fire effect
+	if (self.onfire) {
+		Effect_Fire(self.origin);
+
+		if (self.fire_timeout < time)
+			self.onfire = false;
+	}
+
 	// refuel/cool flamethrowers
 	if (self.ltime < time) {
 		// FIXME: Weapon hardcode definition.
@@ -757,6 +765,9 @@ void() PlayerSpawn =
 	self.isspec = FALSE;
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
+
+	self.onfire = false;
+	self.fire_timeout = 0;
 
 	// We can only collide with zombies (and not their limbs)
 

@@ -447,11 +447,8 @@ void() Zombie_Think = //called every frame for zombies
 			DamageHandler(self, self.firer, 300, S_NORMAL);
 			self.ltime = time + 2;
 
-			self.spins++;
-			if (self.spins >= 5) {
-				self.spins = 0;
+			if (self.fire_timeout < time)
 				self.onfire = false;
-			}
 		}
 	}
 
@@ -1096,6 +1093,7 @@ void() removeZombie =
 	self.outside = TRUE;
 	self.hop_step = 0;
 	self.onfire = false;
+	self.fire_timeout = 0;
 	self.calc_time = 0;
 	self.tries = 0;
 	self.takedamage = DAMAGE_NO;

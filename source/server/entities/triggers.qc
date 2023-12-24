@@ -367,6 +367,29 @@ void() trigger_atroundend =
 	//self.use = multi_use;
 }
 
+#define SPAWNFLAG_TRIGGERFIRE_PLAYER 		1
+#define SPAWNFLAG_TRIGGERFIRE_NODAMAGE		2
+#define SPAWNFLAG_TRIGGERFIRE_HEALTHNERF	4
+
+void() trigger_setfire_touch =
+{
+	if (other.aistatus != "1" && (other.classname == "player" && !(self.spawnflags & SPAWNFLAG_TRIGGERFIRE_PLAYER)))
+		return;
+
+	other.onfire = true;
+	other.fire_timeout = time + self.fire_timeout;
+
+	if ((self.spawnflags & SPAWNFLAG_TRIGGERFIRE_NODAMAGE) && other.aistatus == "1")
+		other.ltime = time + 10000;
+}
+
+void() trigger_setfire =
+{
+	InitTrigger ();
+	self.spawnflags = 3;
+	self.touch = trigger_setfire_touch;
+}
+
 //
 // Quake Triggers
 //
