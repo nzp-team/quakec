@@ -256,7 +256,7 @@ void() GameRestart_RestoreFakeRemovals =
 		setsize(ent, ent.mins, ent.maxs);
 		setmodel(ent, ent.model);
 
-		ent = findfloat(ent, entity_removed, true);
+		ent = findfloat(world, entity_removed, true);
 	}
 }
 
@@ -282,7 +282,7 @@ void() GameRestart_OpenClosedDoors =
 		func_door_nzp();
 		self = temp_ent;
 
-		door = door.chain;
+		door = findfloat(world, isopen, true);
 	}
 }
 
