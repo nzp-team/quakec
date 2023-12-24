@@ -386,7 +386,6 @@ void() trigger_setfire_touch =
 void() trigger_setfire =
 {
 	InitTrigger ();
-	self.spawnflags = 3;
 	self.touch = trigger_setfire_touch;
 }
 
