@@ -109,9 +109,10 @@ float units, vector feet, vector head) Spawns_PerformCheck =
             head = start_org + '0 0 32';
             traceline (head, head + (dir * units), 0, spawn_points[SPAWN_PLR_1]);
 
-            // Spot is viable, both feet and head are in same boundary.
+            // Both feed and head are in the same boundary, one last step --
+            // is this ent partially or totally in the world?
             if (trace_ent.classname == which.classname) {
-                return true;
+                return Player_CanStandHere(which);
             }
         }
     }
