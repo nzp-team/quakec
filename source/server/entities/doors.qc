@@ -647,20 +647,20 @@ void() func_door_nzp =
 
 	self.blocked = door_blocked;
 	self.use = door_use;
-	
-	if (self.cost)
-	{
-		self.classname = "door_nzp_cost";
-		precache_sound("sounds/misc/ching.wav");
-		switch(self.sounds)
-		{
-			case 1: precache_sound("sounds/misc/wood_door.wav"); break;
-			case 2: precache_sound("sounds/misc/debris.wav"); break;
-			default: break;
-		}
+
+	if (!roundinit) {
+		if (self.cost) {
+			self.classname = "door_nzp_cost";
+			precache_sound("sounds/misc/ching.wav");
+			switch(self.sounds)
+			{
+				case 1: precache_sound("sounds/misc/wood_door.wav"); break;
+				case 2: precache_sound("sounds/misc/debris.wav"); break;
+				default: break;
+			}
+		} else
+			self.classname = "door_nzp";
 	}
-	else
-		self.classname = "door_nzp";
 	
 	if (!self.speed)
 		self.speed = 100;
