@@ -166,12 +166,12 @@ void (float animation_type, void(optional float t) end_function, float playback_
         case ANIM_TAKE_OUT:
             start_frame = GetFrame(self.weapon, TAKE_OUT_START);
             end_frame = GetFrame(self.weapon, TAKE_OUT_END);
-			duration = getWeaponDelay(self.weapon, TAKEOUT);
+			duration = playback_duration = getWeaponDelay(self.weapon, TAKEOUT);
             break;
         case ANIM_PUT_AWAY:
             start_frame = GetFrame(self.weapon, PUT_OUT_START);
             end_frame = GetFrame(self.weapon, PUT_OUT_END);
-			duration = getWeaponDelay(self.weapon, PUTOUT);
+			duration = playback_duration = getWeaponDelay(self.weapon, PUTOUT);
             break;
         case ANIM_FIRST_TAKE:
             start_frame = GetFrame(self.weapon, FIRST_TAKE_START);
