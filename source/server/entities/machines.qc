@@ -426,22 +426,21 @@ void() setup_perk =
 {
 	entity power = find(world, classname, "power_switch");
 
-	self.requirespower = true;
-
-	// Start Perk-A-Cola without Power
-	if ((self.perk_requires_power_coop < 0 && player_count >= 1) || 
-	(self.perk_requires_power_solo < 0 && !player_count)) {
-		Turn_PerkLight_On(self);
-		self.requirespower = false;
-	} else {
-		// Check for Power
-		if (power != world && !isPowerOn) {
+	// Check for Power
+	if (power != world && !isPowerOn) {
+		// Power Switch is present -- but does this machine have an override?
+		if ((self.perk_requires_power_coop < 0 && player_count >= 1) || 
+		(self.perk_requires_power_solo < 0 && !player_count))
+			self.requirespower = false;
+		else
 			self.requirespower = true;
-		} else {
-			// There's no Power Switch, so turn the rest On.
-			Turn_PerkLight_On(self);
-		}
+	} else {
+		self.requirespower = false;
 	}
+
+	// Turn on the Lights!
+	if (!self.requirespower)
+		Turn_PerkLight_On(self);
 
 	// Perk Jingle Timer
 	if (self.powerup_vo) {
