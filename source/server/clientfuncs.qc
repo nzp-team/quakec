@@ -26,6 +26,17 @@
 */
 string(string asset) convert_old_asset_path;
 
+void() NotifyGameEnd =
+{
+#ifdef FTE
+
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_ENDGAME);
+	multicast('0 0 0', MULTICAST_ALL);
+
+#endif // FTE
+}
+
 void SetUpdate(entity client, float type, float val1, float val2, float val3)
 {
 #ifdef FTE

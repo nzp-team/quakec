@@ -319,7 +319,7 @@ void(float width, float height) HUD_Points =
 		float player_number = getplayerkeyfloat(i, "viewentity");
 		entity client = findfloat(world, playernum, player_number);
 
-		if (client == world || client.movetype == MOVETYPE_TOSS)
+		if (client == world || client.movetype == MOVETYPE_BOUNCE)
 			continue;
 
 		switch(i) {
@@ -1398,7 +1398,7 @@ void() HUD_Scores =
 			float player_number = getplayerkeyfloat(i, "viewentity");
 			entity client = findfloat(world, playernum, player_number);
 
-			if (client == world || client.movetype == MOVETYPE_TOSS)
+			if (client == world || client.movetype == MOVETYPE_BOUNCE)
 				break;
 			
 			switch(i) {
@@ -1744,7 +1744,7 @@ void(float width, float height) HUD_Draw =
 	if (broadcast_time > time)
 		HUD_Broadcast();
 	
-	if (getstatf(STAT_HEALTH) <= 10 && getstatf(STAT_SPECTATING) && !find(world, classname, "ai_zombie"))
+	if (game_over)
 		HUD_Endgame();
 		
 	if (score_show)

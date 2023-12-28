@@ -848,13 +848,13 @@ void() PlayerSpawn =
 void() SpectatorSpawn =
 {
 	local entity spawnpoint;
-	spawnpoint = find(world, classname, "info_player_start");
+	spawnpoint = find(world, classname, "info_player_1_spawn");
 	
 	self.isspec = TRUE;
 	self.health = 420;
 	self.classname = "spectator";
-	self.solid = SOLID_NOT;
-	setmodel(self, "");
+	self.solid = SOLID_CORPSE;
+	setmodel(self, "models/sprites/null.spr");
 	self.movetype = MOVETYPE_FLY;
 	self.origin = spawnpoint.origin + [0,0,1];
 	self.fixangle = TRUE;
@@ -901,7 +901,7 @@ void() ClientDisconnect =
 	
 	self.classname = "disconnected";
 	self.solid = SOLID_NOT;
-	self.movetype = MOVETYPE_TOSS;
+	self.movetype = MOVETYPE_BOUNCE;
 	self.nextthink = -1;
 	setmodel(self, "models/sprites/null.spr");
 

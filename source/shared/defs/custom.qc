@@ -61,6 +61,7 @@ const float EVENT_LIMBGIB				= 44;
 const float EVENT_CHATMESSAGE			= 45;
 const float EVENT_DOUBLETAPUPDATE 		= 46;
 const float EVENT_FLAME 				= 47;
+const float EVENT_ENDGAME				= 48;
 
 // Define our FTE platform
 #ifndef STANDARD
@@ -241,6 +242,7 @@ const float EVENT_FLAME 				= 47;
 #define STAT_PLAYERNAME 		68
 
 .float playernum;
+float game_over;
 
 //
 // invert float takes in float value between 0 and 1, inverts position

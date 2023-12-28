@@ -63,7 +63,6 @@ void() EndGame =
 	self.origin = '0 0 0';
 	setorigin (self, self.origin);
 	self.velocity = '0 0 0';
-	sound (self, CHAN_AUTO, "sounds/music/end.wav", 1, ATTN_NORM);
 
 	oldself = self;
 	
@@ -81,7 +80,7 @@ void() EndGame =
 	}
 	
 	self.think = EndGame_FadePrompt;
-	self.nextthink = time + 33;
+	self.nextthink = time + 28;
 }
 
 // when dead and other players exist and are alive, throw user into spectate mode
@@ -99,8 +98,6 @@ void() startspectate =
 	
 	self.downedloop = 0;
 	self.beingrevived = false;
-	self.model = "";
-	setmodel(self, self.model);
 	self.health = 100;
 	self.weaponmodel = "";
 	self.weapon2model = "";
@@ -132,10 +129,9 @@ float() PollPlayersAlive =
 // Endgamesetup -- think function for setting up the death of everyone
 void() EndGameSetup =
 {
-	game_over = true;
 	self.health = 10;
 	self.think = EndGame;
-	self.nextthink = time + 5;
+	self.nextthink = time + 4;
 	self.weapon = 0;
 	self.currentammo = 0;
 	self.currentmag = 0;
@@ -144,6 +140,12 @@ void() EndGameSetup =
 	self.animend = SUB_Null;
 	self.perks = 0;
 	self.isspec = true;
+
+	if (!game_over) {
+		sound(self, CHAN_AUTO, "sounds/music/end.wav", 1, ATTN_NONE);
+		NotifyGameEnd();
+	}
+	game_over = true;
 	SetPerk(self, self.perks);
 	SwitchWeapon(0);	
 	addmoney(self, -self.points, 0);

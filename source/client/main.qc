@@ -563,7 +563,7 @@ noref void(float isnew) CSQC_Ent_Update =
 
 		RegisterPointChange(self.points - old_points, self.playernum);
 
-		if (self.movetype == MOVETYPE_TOSS)
+		if (self.movetype == MOVETYPE_BOUNCE)
 			self.solid = SOLID_NOT;
 		else
 			self.solid = SOLID_SLIDEBOX;
@@ -1384,7 +1384,9 @@ noref void() CSQC_Parse_Event =
 
 			useprint_time = time + 0.1;
 			break;
-			
+		case EVENT_ENDGAME:
+			game_over = true;
+			break;
 		case EVENT_NEWROUND:
 			rounds = readbyte();
 			HUD_Change_time = time + 6;
