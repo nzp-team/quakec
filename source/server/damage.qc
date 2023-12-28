@@ -140,6 +140,7 @@ void() EndGameSetup =
 	self.animend = SUB_Null;
 	self.perks = 0;
 	self.isspec = true;
+	self.movetype = MOVETYPE_TOSS;
 
 	if (!game_over) {
 		sound(self, CHAN_AUTO, "sounds/music/end.wav", 1, ATTN_NONE);
