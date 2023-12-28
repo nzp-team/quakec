@@ -730,7 +730,7 @@ void() Player_PickSpawnPoint =
 	self.angles = spawn_point.angles;
 
 	// Assign their starting weapon
-	Weapon_GiveWeapon(spawn_point.weapon, spawn_point.currentmag, spawn_point.currentammo);
+	Weapon_AssignWeapon(0, spawn_point.weapon, spawn_point.currentmag, spawn_point.currentammo);
 
 	// Activate anything the Spawn was targeting
 	entity tempe = self;
