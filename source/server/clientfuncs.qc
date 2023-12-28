@@ -264,35 +264,6 @@ void(float broadcast_time, float type, string str) BroadcastMessage =
 #endif // FTE
 }
 
-void(float playernum, float points, float am, float kills, string name, entity person) UpdatePlayerPoints =
-{
-#ifdef FTE
-
-	if (player_count == 0) {
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_POINTUPDATE);
-		WriteByte(MSG_MULTICAST, playernum);
-		WriteLong(MSG_MULTICAST, points);
-		WriteLong(MSG_MULTICAST, am);
-		WriteLong(MSG_MULTICAST, kills);
-		WriteString(MSG_MULTICAST, name);
-		msg_entity = person;
-		multicast('0 0 0', MULTICAST_ONE);
-	}
-	else {
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_POINTUPDATE);
-		WriteByte(MSG_MULTICAST, playernum);
-		WriteLong(MSG_MULTICAST, points);
-		WriteLong(MSG_MULTICAST, am);
-		WriteLong(MSG_MULTICAST, kills);
-		WriteString(MSG_MULTICAST, name);
-		multicast('0 0 0', MULTICAST_ALL);
-	}
-
-#endif // FTE
-}
-
 void(float count) UpdatePlayerCount = {
 #ifdef FTE
 	if (count == 0)
@@ -567,14 +538,10 @@ float Player_SendEntity( entity ePVEnt, float flChanged ) {
 	WriteShort( MSG_ENTITY, self.modelindex ); // Player Model
 	WriteByte( MSG_ENTITY, self.frame ); // Player's Frame
 	WriteShort( MSG_ENTITY, self.movetype ); // Player Movetype
-    WriteFloat( MSG_ENTITY, self.flags ); // Flags, important for physics
+    WriteShort( MSG_ENTITY, self.flags ); // Flags, important for physics
 	WriteByte( MSG_ENTITY, self.stance ); // Player Stance
-	// WriteCoord( MSG_ENTITY, self.mins_x ); // Min Size X
-	// WriteCoord( MSG_ENTITY, self.mins_y ); // Min Size Y
-	// WriteCoord( MSG_ENTITY, self.maxs_z ); // Max Size Z
-	// WriteCoord( MSG_ENTITY, self.maxs_x ); // Max Size X
-	// WriteCoord( MSG_ENTITY, self.maxs_y ); // Max Size Y
-	// WriteCoord( MSG_ENTITY, self.maxs_z ); // Max Size Z
+	WriteFloat( MSG_ENTITY, self.points ); // Player Score
+	WriteShort( MSG_ENTITY, self.kills ); // Player Kills
     return TRUE;
 }
 
@@ -715,8 +682,6 @@ void(entity person, float expamt, float doublepoint) addmoney =
 		total_powerup_points += expamt;
 
 	person.points += expamt;
-
-	UpdatePlayerPoints(person.playernum, person.points, expamt, person.kills, person.netname, person);
 };
 
 float(entity them, entity me) PlayerIsLooking =

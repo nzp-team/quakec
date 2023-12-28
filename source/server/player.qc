@@ -679,24 +679,6 @@ void() ClientConnect =
 	}	
 };
 
-void() PollPlayerPoints =
-{
-	float i, breakpoint;
-	entity pollent;
-	breakpoint = 0;
-	
-	for (i = 1; i <= 4 && !breakpoint; i++)
-	{
-		pollent = findfloat(world, playernum, i);
-		
-		if (pollent == world) {
-			breakpoint = 1;
-			break;
-		}
-		UpdatePlayerPoints(i, pollent.points, pollent.kills, 0, pollent.netname, pollent);
-	}
-}
-
 //
 // Player_PickSpawnPoint()
 // Picks a valid spawn point for the
@@ -839,7 +821,6 @@ void() PlayerSpawn =
 	
 #ifdef FTE
 
-	PollPlayerPoints();
 	UpdateV2model("", 0);
 	stuffcmd(self, "cl_gunx 8;cl_guny 16;cl_gunz 25\n");
 	SetRound(self, G_STARTROUND);

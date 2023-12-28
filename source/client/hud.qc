@@ -310,15 +310,18 @@ void(float pwidth, float width, float height, float playernum) PointUpdate =
 
 void(float width, float height) HUD_Points =
 {
-	float pointlength = 0, increm = 10, i = 0, pointwidth = 0, x = 0;
+	float pointlength = 0, increm = 10, pointwidth = 0, x = 0;
 	float backwidth = 0.8*width;
 	vector TEXTCOLOR = '0 0 0';
-	
-	for (i = 3; i >= 0; i = i - 1)
+
+	for (int i = 3; i >= 0; i = i - 1)
 	{
-		if (playerpoints[i] == -1)
+		float player_number = getplayerkeyfloat(i, "viewentity");
+		entity client = findfloat(world, playernum, player_number);
+
+		if (client == world || client.movetype == MOVETYPE_TOSS)
 			continue;
-			
+
 		switch(i) {
 			case 1: TEXTCOLOR = TEXT_LIGHTBLUE; break;
 			case 2: TEXTCOLOR = TEXT_ORANGE; break;
@@ -326,15 +329,15 @@ void(float width, float height) HUD_Points =
 			default: TEXTCOLOR = [1, 1, 1]; break;
 		}
 
-		pointwidth = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+		pointwidth = stringwidth(ftos(client.points), 0, [12, 12]);
 		x = (99 - pointwidth)/2 + GetUltraWideOffset();
 
 		if ((i + 1) == getstatf(STAT_PLAYERNUM)) {
 			drawpic([3 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
-			drawstring([x, g_height - 92 - (i * 25)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
+			drawstring([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		} else {
 			drawpic([-7 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback_condensed.tga", [96, 24], [1,1,1], 1);
-			drawstring([x - 9, g_height - 92 - (i * 25)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
+			drawstring([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		}
 
 		PointUpdate(x + 70, width, height, i + 1);
@@ -1392,7 +1395,10 @@ void() HUD_Scores =
 	
 		for (int i = 0; i < 4; i = i + 1)
 		{
-			if (playerpoints[i] == -1)
+			float player_number = getplayerkeyfloat(i, "viewentity");
+			entity client = findfloat(world, playernum, player_number);
+
+			if (client == world || client.movetype == MOVETYPE_TOSS)
 				break;
 			
 			switch(i) {
@@ -1419,17 +1425,18 @@ void() HUD_Scores =
 			}
 			
 			// Name
-			drawstring([g_width/2 - 245, 200 + (30 * i)], playernames[i], [12, 12], TEXTCOLOR, 1, 0); 
+			string player_name = getplayerkeyvalue(i, "name");
+			drawstring([g_width/2 - 245, 200 + (30 * i)], player_name, [12, 12], TEXTCOLOR, 1, 0); 
 
 			// Points
-			float point_width = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+			float point_width = stringwidth(ftos(client.points), 0, [12, 12]);
 			float point_x = ((g_width/2) - (point_width)/2) + 52;
-			drawstring([point_x, 200 + (30 * i)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0); 
+			drawstring([point_x, 200 + (30 * i)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0); 
 
 			// Kills
-			float kill_width = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+			float kill_width = stringwidth(ftos(client.points), 0, [12, 12]);
 			float kill_x = ((g_width/2) - (kill_width)/2) + 210;
-			drawstring([kill_x, 200 + (30 * i)], ftos(playerkills[i]), [12, 12], TEXTCOLOR, 1, 0); 
+			drawstring([kill_x, 200 + (30 * i)], ftos(client.kills), [12, 12], TEXTCOLOR, 1, 0); 
 		}
 	}
 }

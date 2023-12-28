@@ -195,10 +195,6 @@ noref void() CSQC_WorldLoaded =
 	setmodel(v2model,"");
 	mzlflash.renderflags = vmodel.renderflags;
 	mzlflash.origin = vmodel.origin + vmodel_muzzleoffset;
-	
-	playerpoints[1] = -1;
-	playerpoints[2] = -1;
-	playerpoints[3] = -1;
 
 	Achievement_Init();
 	Init_Particles();
@@ -544,6 +540,8 @@ noref void(float isnew) CSQC_Ent_Update =
 			self.drawmask = MASK_ENGINE;
 			setmodel(self, "models/player.mdl");
 		}
+
+		float old_points = self.points;
 			
 		self.origin_x = readcoord();
 		self.origin_y = readcoord();
@@ -558,8 +556,12 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.modelindex = readshort();
 		self.frame = readbyte();
 		self.movetype = readshort();
-		self.flags = readfloat();
+		self.flags = readshort();
 		self.stance = readbyte();
+		self.points = readfloat();	// FIXME: this should be made a short, but I know we use price of 1 for some test maps, so I can't do /10 *10 shenanigans.
+		self.kills = readshort();
+
+		RegisterPointChange(self.points - old_points, self.playernum);
 
 		if (self.movetype == MOVETYPE_TOSS)
 			self.solid = SOLID_NOT;
@@ -1457,20 +1459,20 @@ noref void() CSQC_Parse_Event =
 			revive_icons[reviveoff_id].draw = false;
 			active_revive_icons--;
 			break;
-		case EVENT_POINTUPDATE:
-			float playernum = readbyte();
-			float temppoints = readlong();
-			RegisterPointChange(readlong(), playernum);
-			float tempkills = readlong();
-			string tempname = readstring();
+		// case EVENT_POINTUPDATE:
+		// 	float playernum = readbyte();
+		// 	float temppoints = readlong();
+		// 	RegisterPointChange(readlong(), playernum);
+		// 	float tempkills = readlong();
+		// 	string tempname = readstring();
 			
-			switch(playernum) {
-				case 1: playerpoints[0] = temppoints; playerkills[0] = tempkills; playernames[0] = tempname; break;
-				case 2: playerpoints[1] = temppoints; playerkills[1] = tempkills; playernames[1] = tempname;  break;
-				case 3: playerpoints[2] = temppoints; playerkills[2] = tempkills; playernames[2] = tempname; break;
-				case 4: playerpoints[3] = temppoints; playerkills[3] = tempkills; playernames[3] = tempname; break;		
-			}
-			break;
+		// 	switch(playernum) {
+		// 		case 1: playerpoints[0] = temppoints; playerkills[0] = tempkills; playernames[0] = tempname; break;
+		// 		case 2: playerpoints[1] = temppoints; playerkills[1] = tempkills; playernames[1] = tempname;  break;
+		// 		case 3: playerpoints[2] = temppoints; playerkills[2] = tempkills; playernames[2] = tempname; break;
+		// 		case 4: playerpoints[3] = temppoints; playerkills[3] = tempkills; playernames[3] = tempname; break;		
+		// 	}
+		// 	break;
 		case EVENT_BLACKOUT:
 			fade_time = readbyte();
 			fade_type = readbyte();

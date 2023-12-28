@@ -132,10 +132,6 @@ float interpolating2;
 float rounds;
 float perks;
 float rounds_change;
-
-float playerpoints[4]; 			// player point holders, player 1 points are index 0, player 2 at 1...
-float playerkills[4];           // player kill holders, player 1 points are index 0, player 2 at 1...
-string playernames[4]; 			// player name holders, player 1 name at index 0, player 2 at 1...
 float player_count;
 float score_show;
 
@@ -173,6 +169,8 @@ float fade_time;
 float fade_type;
 
 .float stance;
+.float points;
+.float kills;
 
 float menu_initialized;
 
