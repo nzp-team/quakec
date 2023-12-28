@@ -907,6 +907,11 @@ void() ClientDisconnect =
 
 	GameRestart_ResetPerkaColas();
 
+	if (self.downed) {
+		DisableReviveIcon(self.electro_targeted);
+		revive_index--;
+	}
+
 #ifdef FTE
 
 	// Network everything
