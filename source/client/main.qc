@@ -560,6 +560,11 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.movetype = readshort();
 		self.flags = readfloat();
 		self.stance = readbyte();
+
+		if (self.movetype == MOVETYPE_TOSS)
+			self.solid = SOLID_NOT;
+		else
+			self.solid = SOLID_SLIDEBOX;
 			
 		setmodelindex(self, self.modelindex);
 		if (self.stance == 2)

@@ -925,6 +925,13 @@ void() ClientDisconnect =
 	setmodel(self, "models/sprites/null.spr");
 
 	GameRestart_ResetPerkaColas();
+
+#ifdef FTE
+
+	// Network everything
+	self.SendFlags = 1;
+
+#endif // FTE
 };
 
 
