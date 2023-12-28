@@ -1912,7 +1912,7 @@ void() CheckPlayer =
 				if (!self.progress_bar_percent) {
 					ChangeReviveIconState(ent.electro_targeted, 2);
 					self.movetype = MOVETYPE_TOSS;
-					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_BOTH);
+					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_RIGHT);
 					
 					if !(self.perks & P_REVIVE)
 						self.progress_bar_time = 4;
