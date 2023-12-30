@@ -269,7 +269,11 @@ void(entity which) Spawns_SetUpPoint =
 {
     which.solid = SOLID_BBOX;
     setsize(which, [-8, -8, -32], [8, 8, 40]);
-    Spawns_DropToFloor(which);
+
+    // NZ:P Beta was pretty relaxed when it came to spawn validity..
+    // so doing this causes breakage on maps like Ankunft.
+    if (map_compatibility_mode != MAP_COMPAT_BETA)
+        Spawns_DropToFloor(which);
 
     if (!which.weapon) {
         which.weapon = SPAWN_START_WEAPON;
