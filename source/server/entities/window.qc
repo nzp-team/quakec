@@ -428,5 +428,3 @@ void() item_barricade =
 	setorigin(self, self.origin);
 	spawn_boxes();
 };
-
-void() item_cover = {item_barricade();};

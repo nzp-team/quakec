@@ -569,11 +569,15 @@ noref void(float isnew) CSQC_Ent_Update =
 			self.solid = SOLID_SLIDEBOX;
 			
 		setmodelindex(self, self.modelindex);
-		if (self.stance == 2)
-			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-		else
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 
+		if (map_compatibility_mode != MAP_COMPAT_BETA) {
+			if (self.stance == 2)
+				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+			else
+				setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+		} else {
+			setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
+		}
 	} else {
 		if(isnew)
 			addentity(self);
@@ -1461,20 +1465,9 @@ noref void() CSQC_Parse_Event =
 			revive_icons[reviveoff_id].draw = false;
 			active_revive_icons--;
 			break;
-		// case EVENT_POINTUPDATE:
-		// 	float playernum = readbyte();
-		// 	float temppoints = readlong();
-		// 	RegisterPointChange(readlong(), playernum);
-		// 	float tempkills = readlong();
-		// 	string tempname = readstring();
-			
-		// 	switch(playernum) {
-		// 		case 1: playerpoints[0] = temppoints; playerkills[0] = tempkills; playernames[0] = tempname; break;
-		// 		case 2: playerpoints[1] = temppoints; playerkills[1] = tempkills; playernames[1] = tempname;  break;
-		// 		case 3: playerpoints[2] = temppoints; playerkills[2] = tempkills; playernames[2] = tempname; break;
-		// 		case 4: playerpoints[3] = temppoints; playerkills[3] = tempkills; playernames[3] = tempname; break;		
-		// 	}
-		// 	break;
+		case EVENT_MAPTYPE:
+			map_compatibility_mode = readbyte();
+			break;
 		case EVENT_BLACKOUT:
 			fade_time = readbyte();
 			fade_type = readbyte();

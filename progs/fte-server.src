@@ -50,3 +50,5 @@
 ../source/server/ai/zombie_core.qc
 ../source/server/ai/crawler_core.qc
 ../source/server/ai/dog_core.qc
+
+../source/server/utilities/map_compatibility.qc

@@ -67,6 +67,14 @@ void SetUpdate(entity client, float type, float val1, float val2, float val3)
 }
 
 #ifdef FTE
+void(float mode, entity to) ReportMapMode = {
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_MAPTYPE);
+	WriteByte(MSG_MULTICAST, mode);
+	msg_entity = to;
+	multicast('0 0 0', MULTICAST_ONE);
+}
+
 void(entity to, float type, float cost, float weapon) useprint = {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_USEPRINT);

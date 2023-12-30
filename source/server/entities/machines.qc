@@ -1436,33 +1436,3 @@ void() perk_random =
 		}
 	}
 }
-
-void() item_revive =
-{
-	perk_revive();
-	self.origin_z += 8;
-}
-
-void() item_juggernog =
-{
-	perk_juggernog();
-	self.origin_z += 8;
-}
-
-void() item_speed =
-{
-	perk_speed();
-	self.origin_z += 8;
-}
-
-void() item_douple =
-{
-	perk_double();
-	self.origin_z += 8;
-}
-
-void() item_flopper =
-{
-	perk_flopper();
-	self.origin_z += 8;
-}

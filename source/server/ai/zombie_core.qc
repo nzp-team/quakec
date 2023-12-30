@@ -1767,8 +1767,13 @@ void(entity where) spawn_a_zombieB =
 
 	szombie.gravity = 1.0;
 	
-	szombie.mins = '-8 -8 -32';//-16 16 -32
-	szombie.maxs = '8 8 30';//16 16 40
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		szombie.mins = '-8 -8 -24';//-16 16 -32
+		szombie.maxs = '8 8 30';//16 16 40
+	} else {
+		szombie.mins = '-8 -8 -32';//-16 16 -32
+		szombie.maxs = '8 8 30';//16 16 40
+	}
 	
 	setsize (szombie, szombie.mins, szombie.maxs);//-16,-16,-32,16,16,40
 		
@@ -1864,6 +1869,9 @@ void(entity where) spawn_a_zombieB =
 		szombie.skin = 3;
 
 	szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
+
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		szombie.head.scale = szombie.larm.scale = szombie.rarm.scale = szombie.scale = 0.68;
 
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;

@@ -633,6 +633,7 @@ string(string asset) convert_old_asset_path =
 			ret = "models/props/metal_chair.mdl";
 			break;
 		case "progs/props/sandbags.mdl":
+		case "progs/sandbags.mdl":
 			ret = "models/props/sandbags.mdl";
 			break;
 		case "progs/props/dentist_chair.mdl":
@@ -711,12 +712,15 @@ string(string asset) convert_old_asset_path =
 			ret = "models/props/bed.mdl";
 			break;
 		case "progs/gmodels/g_mp40.mdl":
+		case "progs/g_mp40.mdl":
 			ret = "models/weapons/mp40/g_mp40.mdl";
 			break;
 		case "progs/gmodels/g_thomp.mdl":
+		case "progs/g_thomp.mdl":
 			ret = "models/weapons/thomp/g_thomp.mdl";
 			break;
 		case "progs/gmodels/g_betty.mdl":
+		case "progs/g_betty.mdl":
 			ret = "models/weapons/grenade/g_betty.mdl";
 			break;
 		case "progs/gmodels/g_fg.mdl":
@@ -734,11 +738,19 @@ string(string asset) convert_old_asset_path =
 		case "progs/gmodels/g_bar.mdl":
 			ret = "models/weapons/bar/g_bar.mdl";
 			break;
+		case "progs/grenade.mdl":
 		case "progs/gmodels/g_grenade.mdl":
 			ret = "models/weapons/grenade/g_grenade.mdl";
 			break;
+		case "progs/g_gewehr.mdl":
 		case "progs/gmodels/g_gewehr.mdl":
 			ret = "models/weapons/gewehr/g_gewehr.mdl";
+			break;
+		case "progs/g_db.mdl":
+			ret = "models/weapons/db/g_db.mdl";
+			break;
+		case "progs/g_kar.mdl":
+			ret = "models/weapons/kar/g_kar.mdl";
 			break;
 		case "progs/gmodels/g_bowie.mdl":
 			ret = "models/weapons/knife/g_bowie.mdl";
@@ -747,9 +759,11 @@ string(string asset) convert_old_asset_path =
 			ret = "models/weapons/type/g_type.mdl";
 			break;
 		case "progs/gmodels/g_ppsh.mdl":
+		case "progs/g_ppsh.mdl":
 			ret = "models/weapons/ppsh/g_ppsh.mdl";
 			break;
 		case "progs/gmodels/g_stg.mdl":
+		case "progs/g_stg.mdl":
 			ret = "models/weapons/stg/g_stg.mdl";
 			break;
 		case "models/misc/lightning.spr":

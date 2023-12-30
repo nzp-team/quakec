@@ -322,7 +322,9 @@ void(float override) JumpCheck =
 					break;
 				default: break;
 			}
-			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+
+			if (map_compatibility_mode != MAP_COMPAT_BETA)
+				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 		}
 	} else
 		self.flags = self.flags | FL_JUMPRELEASED;
@@ -334,7 +336,12 @@ void() PlayerPreThink =
 	if (self.downed) {
 		self.maxspeed = 30;
 	} else {
-		self.maxspeed = 190;
+
+		if (map_compatibility_mode == MAP_COMPAT_BETA)
+			self.maxspeed = 150;
+		else
+			self.maxspeed = 190;
+
 		if (self.sprinting) {
 
 #ifdef FTE
@@ -783,8 +790,15 @@ void() PlayerSpawn =
 	Player_PickSpawnPoint();
 	
 	self.fixangle = true;
-	setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-	self.view_ofs = VEC_VIEW_OFS; // naievil -- set view_ofs to 32 to maintain half life (64) sizes
+
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		self.view_ofs = VIEW_OFS_QK;
+		setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
+	} else {
+		self.view_ofs = VIEW_OFS_HL;
+		setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+	}
+
 	self.stance = 2;
 	self.new_ofs_z = self.view_ofs_z;
 	self.oldz = self.origin_z;
@@ -830,6 +844,8 @@ void() PlayerSpawn =
 
 	if (G_WORLDTEXT)
 		WorldText(world.chaptertitle, world.location, world.date, world.person, self);
+
+	ReportMapMode(map_compatibility_mode, self);
 
 #else 
 

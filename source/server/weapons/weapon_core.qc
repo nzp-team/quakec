@@ -1535,7 +1535,9 @@ void() Change_Stance = {
 			self.new_ofs_z = self.view_ofs_z - PLAYER_CROUCH_HEIGHT;
 			self.stance = 1;
 			PAnim_Crouch();
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+
+			if (map_compatibility_mode != MAP_COMPAT_BETA)
+				setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 			break;
 		case 1:
 			// Prohibit Proning if Drinking a Perk-A-Cola
@@ -1543,7 +1545,9 @@ void() Change_Stance = {
 				self.stance = 2;
 				self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
 				PAnim_Stand();
-				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+
+				if (map_compatibility_mode != MAP_COMPAT_BETA)
+					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 			} 
 			// Stance flag isn't set, so go Prone.
 			else if (!self.stancereset) {
@@ -1557,7 +1561,9 @@ void() Change_Stance = {
 				self.stance = 2;
 				self.stancereset = 0;
 				PAnim_Stand();
-				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+
+				if (map_compatibility_mode != MAP_COMPAT_BETA)
+					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 			} 
 			// There's no room to stand, just prone again.
 			else {
@@ -1569,7 +1575,10 @@ void() Change_Stance = {
 		case 0:
 			self.new_ofs_z = self.view_ofs_z + PLAYER_PRONE_HEIGHT;
 			self.stance = self.stancereset = 1;
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+
+			if (map_compatibility_mode != MAP_COMPAT_BETA)
+				setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+
 			PAnim_UpCrouch();
 			break;
 		default: break;
@@ -1619,7 +1628,9 @@ void() dolphin_dive =		//naievil
 	self.oldz = self.origin_z;
 	self.new_ofs_z = self.view_ofs_z - (PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT);
 	self.stance = 0;
-	setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+
+	if (map_compatibility_mode != MAP_COMPAT_BETA)
+		setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 }
 
 
@@ -1658,12 +1669,16 @@ void () Impulse_Functions =
 				case 0:
 					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
 					self.stance = 2;
-					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+
+					if (map_compatibility_mode != MAP_COMPAT_BETA)
+						setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 					break;
 				case 1:
 					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
 					self.stance = 2;
-					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+
+					if (map_compatibility_mode != MAP_COMPAT_BETA)
+						setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 					break;
 				default: break;
 			}
