@@ -32,13 +32,15 @@ void() Spawns_Init;
 void() SUB_UseTargets;
 void() rec_downed;
 
-#define PLAYER_START_HEALTH			100
+#define PLAYER_START_HEALTH				100
 
-#define PLAYER_CROUCH_DIFFERENCE 	25
-#define PLAYER_PRONE_DIFFERENCE 	23
+#define PLAYER_CROUCH_DIFFERENCE_HL 	25
+#define PLAYER_PRONE_DIFFERENCE_HL 		23
+#define PLAYER_CROUCH_DIFFERENCE_QK 	15
+#define PLAYER_PRONE_DIFFERENCE_QK 		13
 
-#define PLAYER_ANIM_WALK 			1
-#define PLAYER_ANIM_SPRINT			2
+#define PLAYER_ANIM_WALK 				1
+#define PLAYER_ANIM_SPRINT				2
 
 //
 // Player 3rd Person Animations
@@ -302,29 +304,40 @@ void(entity who, float preferred_stance, float play_animation) Player_SetStance 
 			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 	}
 
+	// NZ:P Beta should change the stances by a different amount,
+	// to avoid looking like you're in the ground..
+	float height_diff_crouch, height_diff_prone;
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		height_diff_crouch = PLAYER_CROUCH_DIFFERENCE_QK;
+		height_diff_prone = PLAYER_PRONE_DIFFERENCE_QK;
+	} else {
+		height_diff_crouch = PLAYER_CROUCH_DIFFERENCE_HL;
+		height_diff_prone = PLAYER_PRONE_DIFFERENCE_HL;
+	}
+
 	// Prone while standing? Lower to crouch + prone height.
 	if (who.stance == PLAYER_STANCE_STAND && preferred_stance == PLAYER_STANCE_PRONE)
-		who.new_ofs_z = who.view_ofs_z - (PLAYER_CROUCH_DIFFERENCE + PLAYER_CROUCH_DIFFERENCE);
+		who.new_ofs_z = who.view_ofs_z - (height_diff_crouch + height_diff_prone);
 
 	// Prone while crouching? Lower to prone height.
 	else if (who.stance == PLAYER_STANCE_CROUCH && preferred_stance == PLAYER_STANCE_PRONE)
-		who.new_ofs_z = who.view_ofs_z - PLAYER_PRONE_DIFFERENCE;
+		who.new_ofs_z = who.view_ofs_z - height_diff_prone;
 
 	// Crouch while proning? Raise to crouch height/take away prone difference.
 	else if (who.stance == PLAYER_STANCE_PRONE && preferred_stance == PLAYER_STANCE_CROUCH)
-		who.new_ofs_z = who.view_ofs_z + PLAYER_PRONE_DIFFERENCE;
+		who.new_ofs_z = who.view_ofs_z + height_diff_prone;
 
 	// Crouch while standing? Lower to crouch height.
 	else if (who.stance == PLAYER_STANCE_STAND && preferred_stance == PLAYER_STANCE_CROUCH)
-		who.new_ofs_z = who.view_ofs_z - PLAYER_CROUCH_DIFFERENCE;
+		who.new_ofs_z = who.view_ofs_z - height_diff_crouch;
 
 	// Stand while crouching? Raise to stand height/take away crouch difference.
 	else if (who.stance == PLAYER_STANCE_CROUCH && preferred_stance == PLAYER_STANCE_STAND)
-		who.new_ofs_z = who.view_ofs_z + PLAYER_CROUCH_DIFFERENCE;
+		who.new_ofs_z = who.view_ofs_z + height_diff_crouch;
 
 	// Stand while proning? Raise to stand height/take away crouch + prone difference.
 	else if (who.stance == PLAYER_STANCE_PRONE && preferred_stance == PLAYER_STANCE_STAND)
-		who.new_ofs_z = who.view_ofs_z + (PLAYER_CROUCH_DIFFERENCE + PLAYER_CROUCH_DIFFERENCE);
+		who.new_ofs_z = who.view_ofs_z + (height_diff_crouch + height_diff_prone);
 
 	// Set the stance value
 	who.stance = preferred_stance;
