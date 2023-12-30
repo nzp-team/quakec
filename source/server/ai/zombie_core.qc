@@ -206,6 +206,13 @@ void(float what) play_sound_z =
 	}
 };
 
+void(__inout vector what, float howmuch) vector_scale_hack =
+{
+	what_x *= howmuch;
+	what_y *= howmuch;
+	what_z *= howmuch;
+}
+
 void(float which) SetZombieHitBox =
 {
 
@@ -213,152 +220,95 @@ void(float which) SetZombieHitBox =
 	
 	if(self.currentHitBoxSetup == which)
 		return;
+
+	//which = IDLE_BBOX;
 	
 	switch(which)
 	{
 		case EMPTY_BBOX:
-		{
-			/*setorigin(self.head,'0 0 0');
-			setsize (self.head, '0 0 0', '0 0 0');
-			
-			setorigin(self.larm, '0 0 0');
-			setsize (self.larm, '0 0 0','0 0 0');
-			
-			setorigin(self.rarm, '0 0 0');
-			setsize (self.rarm, '0 0 0','0 0 0');*/
-			
 			self.head.view_ofs = '0 0 0';
 			self.rarm.view_ofs = '0 0 0';
 			self.larm.view_ofs = '0 0 0';
-			
-			self.currentHitBoxSetup = EMPTY_BBOX;
-			return;
-		}
+			break;
 		case IDLE_BBOX: 
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '0 10 35';
-	
-			//setsize (self.larm, '-5 -5 -15', '5 5 15');
+		
 			self.larm.bbmins = '-5 -5 -15';
 			self.larm.bbmaxs  = '5 5 15';
 			self.larm.view_ofs = '-10 10 10';
-	
-			//setsize (self.rarm, '-5 -5 -15', '5 5 15');
+		
 			self.rarm.bbmins = '-5 -5 -15';
 			self.rarm.bbmaxs = '5 5 15';
 			self.rarm.view_ofs = '10 10 10';
-			
-			self.currentHitBoxSetup = IDLE_BBOX;
-			return;
-		}
+			break;
 		case WALK1_BBOX:
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '2 -3 35';
-			
-			//setsize (self.head, '-3 -8 30', '7 2 40');
-			//self.head.view_ofs = '0 0 0';
 
-			//setsize (self.larm, '-5 -7 -15', '5 7 15');
 			self.larm.bbmins = '-5 -7 -15';
 			self.larm.bbmaxs = '5 7 15';
 			self.larm.view_ofs = '-10 -4 15';
 
-			//setsize (self.rarm, '-5 -8 -11', '5 8 11');
 			self.rarm.bbmins = '-5 -8 -11';
 			self.rarm.bbmaxs = '5 8 11';
 			self.rarm.view_ofs = '10 11 11';
-			
-			self.currentHitBoxSetup = WALK1_BBOX;
-			return;
-		}
+			break;
 		case WALK2_BBOX:
-		{
-			//setsize (self.head, '-7 -5 -5', '7 5 5');
 			self.head.bbmins = '-7 -5 -5';
 			self.head.bbmaxs = '7 5 5';
 			self.head.view_ofs = '-11 6 36';
 
-			//setsize (self.larm, '-5 -6 -15', '5 6 15');
 			self.larm.bbmins = '-5 -6 -15';
 			self.larm.bbmaxs = '5 6 15';
 			self.larm.view_ofs = '-14 3 15';
 	
-			//setsize (self.rarm, '-5 -5 -11', '5 5 11');
 			self.rarm.bbmins = '-5 -5 -11';
 			self.rarm.bbmaxs = '5 5 11';
 			self.rarm.view_ofs = '4 13 11';
-			
-			self.currentHitBoxSetup = WALK2_BBOX;
-			return;
-		}
+			break;
 		case WALK3_BBOX:
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '-2 13 31';
 	
-			//setsize (self.larm, '-4 -6 -14', '4 6 14');
 			self.larm.bbmins = '-4 -6 -14';
 			self.larm.bbmaxs = '4 6 14';
 			self.larm.view_ofs = '-12 3 11';
 	
-			//setsize (self.rarm, '-5 -5 -11', '5 5 11');
 			self.rarm.bbmins = '-5 -5 -11';
 			self.rarm.bbmaxs = '5 5 11';
 			self.rarm.view_ofs = '14 6 12';
-			
-			self.currentHitBoxSetup = WALK3_BBOX;
-			return;
-		}
+			break;
 		case JOG_BBOX:
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '0 5 36';
 			
-			//setsize (self.larm, '-5 -13 -5', '5 13 5');
 			self.larm.bbmins = '-5 -13 -5';
 			self.larm.bbmaxs = '5 13 5';
 			self.larm.view_ofs = '-8 19 24';
 			
-			//setsize (self.rarm, '-5 -13 -5', '5 13 5');
 			self.rarm.bbmins = '-5 -13 -5';
 			self.rarm.bbmaxs = '5 13 5';
 			self.rarm.view_ofs = '10 19 24';
-			
-			self.currentHitBoxSetup = JOG_BBOX;
-			return;
-		}
+			break;
 		case RUN_BBOX:
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '3 17 32';
 	
-			//setsize (self.larm, '-4 -10 -9', '4 10 9');
 			self.larm.bbmins = '-4 -10 -9';
 			self.larm.bbmaxs = '4 10 9';
 			self.larm.view_ofs = '-12 28 18';
 			
-			//setsize (self.rarm, '-4 -13 -10', '4 13 10');
 			self.rarm.bbmins = '-4 -13 -10';
 			self.rarm.bbmaxs = '4 13 10';
 			self.rarm.view_ofs = '12 -2 19';
-			
-			self.currentHitBoxSetup = RUN_BBOX;
-			return;
-		}
+			break;
 		case CRAWLER_BBOX:
-		{
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '2 18 -14';
@@ -370,30 +320,36 @@ void(float which) SetZombieHitBox =
 			self.rarm.bbmins = '-4 -13 -10';
 			self.rarm.bbmaxs = '4 13 10';
 			self.rarm.view_ofs = '12 15 -25';
-			
-			self.currentHitBoxSetup = CRAWLER_BBOX;
-			return;
-		}
+			break;
 		default:  //also known as BASE_BBOX
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '0 0 35';
 			
-			//setsize (self.larm, '-5 -5 -15', '5 5 15');
 			self.larm.bbmins = '-5 -5 -15';
 			self.larm.bbmaxs = '5 5 15';
 			self.larm.view_ofs = '-10 0 5';
 			
-			//setsize (self.rarm, '-5 -5 -15', '5 5 15');
 			self.rarm.bbmins = '-5 -5 -15';
 			self.rarm.bbmaxs = '5 5 15';
 			self.rarm.view_ofs = '10 0 5';
-			
-			self.currentHitBoxSetup = BASE_BBOX;
-			return;
-		}
+			break;
+	}
+
+	self.currentHitBoxSetup = which;
+
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		vector_scale_hack(self.head.bbmins, self.head.scale);
+		vector_scale_hack(self.head.bbmaxs, self.head.scale);
+		vector_scale_hack(self.head.view_ofs, self.head.scale);
+
+		vector_scale_hack(self.larm.bbmins, self.larm.scale);
+		vector_scale_hack(self.larm.bbmaxs, self.larm.scale);
+		vector_scale_hack(self.larm.view_ofs, self.larm.scale);
+
+		vector_scale_hack(self.rarm.bbmins, self.rarm.scale);
+		vector_scale_hack(self.rarm.bbmaxs, self.rarm.scale);
+		vector_scale_hack(self.rarm.view_ofs, self.rarm.scale);
 	}
 };
 
@@ -1768,14 +1724,14 @@ void(entity where) spawn_a_zombieB =
 	szombie.gravity = 1.0;
 	
 	if (map_compatibility_mode == MAP_COMPAT_BETA) {
-		szombie.mins = '-8 -8 -24';//-16 16 -32
-		szombie.maxs = '8 8 30';//16 16 40
+		szombie.mins = '-6 -6 -24';
+		szombie.maxs = '6 6 22';
 	} else {
-		szombie.mins = '-8 -8 -32';//-16 16 -32
-		szombie.maxs = '8 8 30';//16 16 40
+		szombie.mins = '-8 -8 -32';
+		szombie.maxs = '8 8 30';
 	}
 	
-	setsize (szombie, szombie.mins, szombie.maxs);//-16,-16,-32,16,16,40
+	setsize (szombie, szombie.mins, szombie.maxs);
 		
 	
 	//====================================
@@ -1871,7 +1827,7 @@ void(entity where) spawn_a_zombieB =
 	szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
 
 	if (map_compatibility_mode == MAP_COMPAT_BETA)
-		szombie.head.scale = szombie.larm.scale = szombie.rarm.scale = szombie.scale = 0.68;
+		szombie.head.scale = szombie.larm.scale = szombie.rarm.scale = szombie.scale = 0.73;
 
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;
