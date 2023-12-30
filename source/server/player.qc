@@ -32,13 +32,13 @@ void() Spawns_Init;
 void() SUB_UseTargets;
 void() rec_downed;
 
-#define PLAYER_START_HEALTH		100
+#define PLAYER_START_HEALTH			100
 
-#define PLAYER_CROUCH_HEIGHT 	25
-#define PLAYER_PRONE_HEIGHT 	23
+#define PLAYER_CROUCH_DIFFERENCE 	25
+#define PLAYER_PRONE_DIFFERENCE 	23
 
-#define PLAYER_ANIM_WALK 		1
-#define PLAYER_ANIM_SPRINT		2
+#define PLAYER_ANIM_WALK 			1
+#define PLAYER_ANIM_SPRINT			2
 
 //
 // Player 3rd Person Animations
@@ -267,9 +267,82 @@ float(float dir) checkMovement =
 //
 float(entity who) Player_CanStandHere =
 {
-	tracebox(who.origin, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING, who.origin, true, who);
+	// There shouldn't be any real reason we'd care about this since beta maps don't support
+	// stance changing impacting the bbox, but still, consistency..
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		tracebox(who.origin, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE, who.origin, true, who);
+	else
+		tracebox(who.origin, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING, who.origin, true, who);
 
 	return !trace_startsolid;
+}
+
+//
+// Player_SetStance(who, preferred_stance, play_animation)
+// Lowers the camera height as needed, registers
+// preferred stance, plays animation, and sets 
+// bounding box (if applicable).
+//
+void(entity who, float preferred_stance, float play_animation) Player_SetStance =
+{
+	// Don't bother if we're already the desired stance, or if it wasn't valid
+	if (who.stance == preferred_stance || preferred_stance < 0 || preferred_stance > 2)
+		return;
+
+	// First check -- if we want to stand, only crouch if there
+	// is no space for it.
+	if (preferred_stance == PLAYER_STANCE_STAND && !Player_CanStandHere(who))
+		preferred_stance = PLAYER_STANCE_CROUCH;
+
+	// Set the bounding box
+	if (map_compatibility_mode != MAP_COMPAT_BETA) {
+		if (preferred_stance != PLAYER_STANCE_STAND)
+			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+		else
+			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+	}
+
+	// Prone while standing? Lower to crouch + prone height.
+	if (who.stance == PLAYER_STANCE_STAND && preferred_stance == PLAYER_STANCE_PRONE)
+		who.new_ofs_z = who.view_ofs_z - (PLAYER_CROUCH_DIFFERENCE + PLAYER_CROUCH_DIFFERENCE);
+
+	// Prone while crouching? Lower to prone height.
+	else if (who.stance == PLAYER_STANCE_CROUCH && preferred_stance == PLAYER_STANCE_PRONE)
+		who.new_ofs_z = who.view_ofs_z - PLAYER_PRONE_DIFFERENCE;
+
+	// Crouch while proning? Raise to crouch height/take away prone difference.
+	else if (who.stance == PLAYER_STANCE_PRONE && preferred_stance == PLAYER_STANCE_CROUCH)
+		who.new_ofs_z = who.view_ofs_z + PLAYER_PRONE_DIFFERENCE;
+
+	// Crouch while standing? Lower to crouch height.
+	else if (who.stance == PLAYER_STANCE_STAND && preferred_stance == PLAYER_STANCE_CROUCH)
+		who.new_ofs_z = who.view_ofs_z - PLAYER_CROUCH_DIFFERENCE;
+
+	// Stand while crouching? Raise to stand height/take away crouch difference.
+	else if (who.stance == PLAYER_STANCE_CROUCH && preferred_stance == PLAYER_STANCE_STAND)
+		who.new_ofs_z = who.view_ofs_z + PLAYER_CROUCH_DIFFERENCE;
+
+	// Stand while proning? Raise to stand height/take away crouch + prone difference.
+	else if (who.stance == PLAYER_STANCE_PRONE && preferred_stance == PLAYER_STANCE_STAND)
+		who.new_ofs_z = who.view_ofs_z + (PLAYER_CROUCH_DIFFERENCE + PLAYER_CROUCH_DIFFERENCE);
+
+	// Set the stance value
+	who.stance = preferred_stance;
+
+	// Animation playback
+	if (play_animation == true) {
+		entity tempe = self;
+		self = who;
+
+		switch(who.stance) {
+			case PLAYER_STANCE_STAND: PAnim_Stand(); break;
+			case PLAYER_STANCE_CROUCH: PAnim_Crouch(); break;
+			case PLAYER_STANCE_PRONE: PAnim_Prone(); break;
+			default: break;
+		}
+
+		self = tempe;
+	}
 }
 
 void() PlayerJump =
@@ -304,27 +377,14 @@ void(float override) JumpCheck =
 		if (self.downed)
 			return;
 			
-		if (self.stance == 2) {
+		if (self.stance == PLAYER_STANCE_STAND) {
       // naievil -- stop sprinting if we jump, which is a real mechanic from the game that we never implemented 
 		  if (self.sprinting) {
 			  W_SprintStop();
 		  }
 			PlayerJump();
-		} else if (self.view_ofs_z == self.new_ofs_z && (self.flags & FL_ONGROUND) && Player_CanStandHere(self)) {
-			switch(self.stance) {
-				case 0:
-					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
-					self.stance = 2;
-					break;
-				case 1:
-					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
-					self.stance = 2;
-					break;
-				default: break;
-			}
-
-			if (map_compatibility_mode != MAP_COMPAT_BETA)
-				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+		} else if (self.view_ofs_z == self.new_ofs_z && (self.flags & FL_ONGROUND)) {
+			Player_SetStance(self, PLAYER_STANCE_STAND, true);
 		}
 	} else
 		self.flags = self.flags | FL_JUMPRELEASED;
@@ -337,6 +397,7 @@ void() PlayerPreThink =
 		self.maxspeed = 30;
 	} else {
 
+		// Walk slower to account for NZ:P Beta Scaling.
 		if (map_compatibility_mode == MAP_COMPAT_BETA)
 			self.maxspeed = 150;
 		else
@@ -791,6 +852,7 @@ void() PlayerSpawn =
 	
 	self.fixangle = true;
 
+	// NZ:P Beta used Quake BSP 29, so set bounding box accordingly.
 	if (map_compatibility_mode == MAP_COMPAT_BETA) {
 		self.view_ofs = VIEW_OFS_QK;
 		setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);

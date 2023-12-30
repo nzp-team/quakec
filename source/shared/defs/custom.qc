@@ -82,6 +82,10 @@ const float EVENT_MAPTYPE				= 49;
 #define PLAYER_MINS_CROUCHING	'-16 -16 -32'
 #define PLAYER_MAXS_CROUCHING 	'16 16 4'
 
+#define PLAYER_STANCE_STAND		2
+#define PLAYER_STANCE_CROUCH	1
+#define PLAYER_STANCE_PRONE		0
+
 // map compatibility
 #define MAP_COMPAT_BETA     1
 float 	map_compatibility_mode;
