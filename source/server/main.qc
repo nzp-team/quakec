@@ -28,6 +28,7 @@
 
 void() LS_Setup;
 void() PU_Init;
+void() Compat_Init;
 void() SUB_Remove = {remove(self);}
 
 //called when starting server/loading the map
@@ -143,6 +144,7 @@ void() StartFrame =
 
 			updateDogRound();
 			InitRounds();
+			Compat_Init();
 		}
 	}
 }
