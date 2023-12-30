@@ -325,6 +325,7 @@ void CalcDistances() {
 			
 
 void creator_way_touch();
+void() Compat_TryLoadBetaWaypoints;
 void LoadWaypointData() { 
     float file, point;
 	string h;
@@ -336,7 +337,8 @@ void LoadWaypointData() {
 
 	if (file == -1)
 	{
-		dprint("Error: file not found \n");
+		dprint("LoadWaypointData: No .way file found, trying Beta format..\n");
+		Compat_TryLoadBetaWaypoints();
 		return;
 	}
 

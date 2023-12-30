@@ -27,6 +27,72 @@
 */
 
 //
+// NZ:P Beta Waypoints
+//
+
+//
+// Compat_TryLoadBetaWaypoints()
+// Called by FTE in LoadWaypointData(), if
+// it can't find a traditional .way file, it'll
+// look for an old one here.
+//
+void() Compat_TryLoadBetaWaypoints =
+{
+    float file;
+    file = fopen(mapname, FILE_READ);
+
+    if (file == -1) {
+        dprint("Compat_TryLoadBetaWaypoints: No Beta waypoint data found.\n");
+        return;
+    }
+
+    float loop;
+    string line;
+    loop = true;
+
+    vector orig;
+    float id;
+    float link1, link2, link3, link4;
+
+    while(loop) {
+        line = fgets(file);
+
+        if not (line) {
+            loop = false;
+            break;
+        }
+
+        orig = stov(line);
+        dprint(strcat("origin: ", line, "\n"));
+        line = fgets(file);
+        id = stof(line);
+        dprint(strcat("id: ", line, "\n"));
+        line = fgets(file);
+        dprint(strcat("link1: ", line, "\n"));
+        link1 = stof(line);
+        line = fgets(file);
+        dprint(strcat("link2: ", line, "\n"));
+        link2 = stof(line);
+        line = fgets(file);
+        dprint(strcat("link3: ", line, "\n"));
+        link3 = stof(line);
+        line = fgets(file);
+        dprint(strcat("link4: ", line, "\n"));
+        link4 = stof(line);
+        // ignore 'owner'
+        line = fgets(file);
+        line = fgets(file);
+        line = fgets(file);
+        line = fgets(file);
+        // end ignorance
+
+        Create_Waypoint(orig, id, "", ftos(link1), ftos(link2), ftos(link3), ftos(link4), "0", "0", "0", "0");
+    }
+
+    fclose(file);
+}
+
+//
 // NZ:P Beta Props
 //
 
