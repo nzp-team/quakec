@@ -337,8 +337,14 @@ void LoadWaypointData() {
 
 	if (file == -1)
 	{
+
+#ifdef FTE
+
 		dprint("LoadWaypointData: No .way file found, trying Beta format..\n");
 		Compat_TryLoadBetaWaypoints();
+
+#endif // FTE
+
 		return;
 	}
 

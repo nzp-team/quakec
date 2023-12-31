@@ -36,61 +36,100 @@
 // it can't find a traditional .way file, it'll
 // look for an old one here.
 //
+#ifdef FTE
 void() Compat_TryLoadBetaWaypoints =
 {
-    float file;
-    file = fopen(mapname, FILE_READ);
+    // NZ:P Beta Waypoint files are simple, but contain redundant and
+    // hard to understand data. As far as I can gather both by interpretation
+    // and by reading aging source code, the structure for waypoints are as
+    // follows:
+    // <origin> : Origin of waypoint entity, always comes before all else.
+    // <id>     : Starts at one, index/id of waypoint.
+    // <link1>  : First Waypoint link ID, of four. Zero refers to a non-link.
+    // <link2>  : Second Waypoint link ID, of four. Zero refers to a non-link.
+    // <link3>  : Third Waypoint link ID, of four. Zero refers to a non-link.
+    // <link1>  : Fourth Waypoint link ID, of four. Zero refers to a non-link.
+    // <owner1> : First marked "owner" ID, of four. Seems to only serve as a duplicate of links.
+    // <owner2> : Second marked "owner" ID, of four. Seems to only serve as a duplicate of links.
+    // <owner3> : Third marked "owner" ID, of four. Seems to only serve as a duplicate of links.
+    // <owner4> : Fourth marked "owner" ID, of four. Seems to only serve as a duplicate of links.
+    
+    // File path refers to just "mapname" (no extension), the source port at
+    // the time always defaulted this to data/mapname.
+    float file_handle;
+    file_handle = fopen(mapname, FILE_READ);
 
-    if (file == -1) {
+    if (file_handle == -1) {
         dprint("Compat_TryLoadBetaWaypoints: No Beta waypoint data found.\n");
         return;
     }
 
-    float loop;
-    string line;
-    loop = true;
+    float i;
 
-    vector orig;
-    float id;
-    float link1, link2, link3, link4;
+    // Clear all waypoints
+	for(i = 0; i < MAX_WAYPOINTS; i++) {
+		waypoints[i].id = -1;
 
-    while(loop) {
-        line = fgets(file);
+        for(float j = 0; j < 10; j++) {
+            waypoints[i].target_id[j] = -1;
+        }
+	}
 
-        if not (line) {
-            loop = false;
+    string  file_line;
+    vector  way_origin;
+    float   way_id;
+    float   way_targets[4];
+
+    while(1) {
+        file_line = fgets(file_handle);
+
+        // End of file.
+        if (!file_line)
             break;
+
+        way_origin = stov(file_line); // <origin>
+        file_line = fgets(file_handle);
+        way_id = stof(file_line); // <id>
+
+        // <link1> - <link4>, <owner1> - <owner4>
+        for(i = 0; i < 8; i++) {
+            file_line = fgets(file_handle);
+
+            if (i < 4) {
+                way_targets[i] = stof(file_line);
+            }
         }
 
-        orig = stov(line);
-        dprint(strcat("origin: ", line, "\n"));
-        line = fgets(file);
-        id = stof(line);
-        dprint(strcat("id: ", line, "\n"));
-        line = fgets(file);
-        dprint(strcat("link1: ", line, "\n"));
-        link1 = stof(line);
-        line = fgets(file);
-        dprint(strcat("link2: ", line, "\n"));
-        link2 = stof(line);
-        line = fgets(file);
-        dprint(strcat("link3: ", line, "\n"));
-        link3 = stof(line);
-        line = fgets(file);
-        dprint(strcat("link4: ", line, "\n"));
-        link4 = stof(line);
-        // ignore 'owner'
-        line = fgets(file);
-        line = fgets(file);
-        line = fgets(file);
-        line = fgets(file);
-        // end ignorance
+        // Fill our data structure.
+        waypoint_ai waypoint;
+		waypoint = waypoints[way_id];
 
-        Create_Waypoint(orig, id, "", ftos(link1), ftos(link2), ftos(link3), ftos(link4), "0", "0", "0", "0");
+		waypoints[way_id].id = way_id;
+		waypoints[way_id].org = way_origin;
+
+		if (waypoint_mode) {
+			entity new_way = spawn();
+			new_way.solid = SOLID_TRIGGER;
+			new_way.touch = creator_way_touch;
+			new_way.classname = "waypoint";
+			new_way.waynum = ftos(way_id);
+			new_way.targets[0] = ftos(way_targets[0]);
+			new_way.targets[1] = ftos(way_targets[1]);
+			new_way.targets[2] = ftos(way_targets[2]);
+			new_way.targets[3] = ftos(way_targets[3]);
+			setorigin(new_way, way_origin);
+			setmodel(new_way, "models/way/normal_way.spr");
+		}
+
+        for(i = 0; i < 4; i++) {
+            if (way_targets[i] > 0)
+                waypoints[way_id].target_id[i] = way_targets[i];
+        }
     }
 
-    fclose(file);
+    fclose(file_handle);
 }
+#endif // FTE
 
 //
 // NZ:P Beta Props
