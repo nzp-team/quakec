@@ -291,6 +291,30 @@ void() Compat_ConvertBetaBarricade =
 void() item_cover = {map_compatibility_mode = MAP_COMPAT_BETA; item_barricade(); Compat_ConvertBetaBarricade();};
 
 //
+// NZ:P Beta Power Switch
+//
+
+//
+// Compat_FixPowerSwitch
+// Power Switches had the same classname as they
+// do now, so we need to iterate over the world
+// and modify their scale and origin.
+//
+void() Compat_FixPowerSwitch =
+{
+    entity power_switches = find(world, classname, "power_switch");
+
+    while(power_switches != world) {
+        makevectors(power_switches.angles);
+        power_switches.scale = 0.88;
+        power_switches.origin += v_up*6;
+        power_switches.origin += v_forward*10;
+
+        power_switches = find(power_switches, classname, "power_switch");
+    }
+}
+
+//
 // NZ:P Beta Perk-A-Cola Machines
 //
 
@@ -350,4 +374,5 @@ void() Compat_Init =
 
     Compat_ConvertBetaWallWeapons();
     Compat_ConvertPropScaling();
+    Compat_FixPowerSwitch();
 }
