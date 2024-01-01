@@ -291,6 +291,40 @@ void() Compat_ConvertBetaBarricade =
 void() item_cover = {map_compatibility_mode = MAP_COMPAT_BETA; item_barricade(); Compat_ConvertBetaBarricade();};
 
 //
+// NZ:P Beta Mystery Box
+//
+
+//
+// Compat_FixMysteryBox
+// Fixes the Mystery Box scale, and removes glow from
+// all of the spawn points.
+//
+void() Compat_FixMysteryBox =
+{
+    entity mystery_box = find(world, classname, "mystery");
+
+    while(mystery_box != world) {
+        mystery_box.scale = 0.75;
+        mystery_box.spawnflags += MBOX_SPAWNFLAG_NOLIGHT;
+
+        if (mystery_box.goaldummy) {
+            MBOX_FreeEnt(mystery_box.goaldummy);
+            mystery_box.goaldummy = world;
+        }
+
+        mystery_box = find(mystery_box, classname, "mystery");
+    }
+
+    entity mystery_box_spots = find(world, classname, "mystery_box_tp_spot");
+
+    while(mystery_box_spots != world) {
+        mystery_box_spots.spawnflags += MBOX_SPAWNFLAG_NOLIGHT;
+
+        mystery_box_spots = find(mystery_box_spots, classname, "mystery_box_tp_spot");
+    }
+}
+
+//
 // NZ:P Beta Power Switch
 //
 
@@ -375,4 +409,5 @@ void() Compat_Init =
     Compat_ConvertBetaWallWeapons();
     Compat_ConvertPropScaling();
     Compat_FixPowerSwitch();
+    Compat_FixMysteryBox();
 }

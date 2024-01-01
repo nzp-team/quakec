@@ -101,6 +101,7 @@ void(entity ent) MBOX_FreeEnt =
 	ent.classname = "freeMboxEntity";
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
+	ent.scale = 1;
     ent.effects = 0;
 	ent.frame = 0;
 
@@ -237,6 +238,10 @@ void() findboxspot =
 	setmodel (newspot, mystery_box_model);
 	newspot.frame = 0;
 	setsize (newspot, VEC_HULL2_MIN, VEC_HULL2_MAX);
+
+	// Scale down for NZ:P Beta
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		newspot.scale = 0.75;
 }
 
 //
@@ -275,6 +280,10 @@ void() MBOX_FindNewSpot =
 	new_box.frame = 0;
 	setmodel(new_box, mystery_box_model);
 	setsize(new_box, VEC_HULL2_MIN, VEC_HULL2_MAX);
+
+	// Scale down for NZ:P Beta
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		new_box.scale = 0.75;
 
 	// Spawn the Box Glow if permitted
 	if (!(new_box.spawnflags & MBOX_SPAWNFLAG_NOLIGHT))
@@ -590,7 +599,14 @@ void() Create_Floating_Weapon =
 	gun.movetype = MOVETYPE_NOCLIP;
 	gun.solid = SOLID_NOT;
 	makevectors(self.angles);
-	gun.velocity = v_up*15;
+
+	// Float up less in NZ:P Beta, and scale down.
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		gun.velocity = v_up*10;
+		gun.scale = 0.75;
+	} else {
+		gun.velocity = v_up*15;
+	}
 	
 	gun.owner = self;
 	self.boxweapon = gun;
