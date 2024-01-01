@@ -1726,6 +1726,15 @@ void(entity where) spawn_a_zombieB =
 	if (map_compatibility_mode == MAP_COMPAT_BETA) {
 		szombie.mins = '-6 -6 -24';
 		szombie.maxs = '6 6 22';
+
+#ifdef FTE
+
+		// Need to force-set the hull for FTE or else Zombie setorigin()
+		// calls will fail in tight spaces.
+		szombie.hull = 1;
+
+#endif // FTE
+
 	} else {
 		szombie.mins = '-8 -8 -32';
 		szombie.maxs = '8 8 30';
