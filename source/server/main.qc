@@ -740,6 +740,18 @@ string(string asset) convert_old_asset_path =
 		case "progs/g_m1a1.mdl":
 			ret = "models/weapons/m1carbine/g_m1a1.mdl";
 			break;
+		case "progs/g_ray.mdl":
+			ret = "models/weapons/ray/g_ray.mdl";
+			break;
+		case "progs/g_tesla.mdl":
+			ret = "models/weapons/tesla/g_tesla.mdl";
+			break;
+		case "progs/g_mg.mdl":
+			ret = "models/weapons/mg/g_mg.mdl";
+			break;
+		case "progs/g_browning.mdl":
+			ret = "models/weapons/browning/g_browning.mdl";
+			break;
 		case "progs/gmodels/g_m1.mdl":
 			ret = "models/weapons/garand/g_m1.mdl";
 			break;

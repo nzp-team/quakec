@@ -393,6 +393,77 @@ void() item_douple = {map_compatibility_mode = MAP_COMPAT_BETA; Compat_RelocateB
 void() item_staminup = {map_compatibility_mode = MAP_COMPAT_BETA; Compat_RelocateBetaPerkMachine(COMPAT_RELOCAT_NORM); perk_staminup();};
 void() item_pap = {map_compatibility_mode = MAP_COMPAT_BETA; Compat_RelocateBetaPerkMachine(COMPAT_RELOCAT_PAP); perk_pap();};
 
+//
+// NZ:P Beta Triggers
+//
+
+#ifdef FTE
+
+//
+// Compat_TriggerCommandIsSafe()
+// Pass a trigger_command .message to this,
+// it's a whitelist that determines whether
+// or not we should let the map use this.
+//
+float(string msg) Compat_TriggerCommandIsSafe =
+{
+    // First check: Don't allow multiple commands, at all. So
+    // fail if there's a ';' anywhere.
+    for(float i = 0; i < strlen(msg) - 1; i++) {
+        if (substring(msg, i, i + 1) == ";")
+            return false;
+    }
+
+    // Allow playing audio and whatnot.
+    if (substring(msg, 0, 4) != "play")
+        return false;
+
+    return true;
+}
+
+void() touch_command =
+{
+    if (other.classname != "player" || self.electro_targeted)
+		return;
+
+	self.electro_targeted = true;
+
+    // Follow up with cl_insta because whoever wrote this way back
+    // forgot to perform a line break..
+    stuffcmd(other, strcat(self.message, "cl_insta\n"));
+}
+
+#endif // FTE
+
+//
+// trigger_command
+// Whoever was behind this was nasty...
+// on contact, this trigger runs a stuffcmd()
+// to the touching client. Obviously, this can't
+// fly.
+//
+void() trigger_command =
+{
+    map_compatibility_mode = MAP_COMPAT_BETA;
+
+#ifdef FTE
+
+    // If there's no message, or the message
+    // is invalid, remove this garbage.
+    if (!self.message || !Compat_TriggerCommandIsSafe(self.message)) {
+       return;
+    }
+
+    InitTrigger();
+	self.touch = touch_command;
+
+#else
+
+    remove(self);
+
+#endif // FTE
+
+}
 
 //
 // Compat_Init()
