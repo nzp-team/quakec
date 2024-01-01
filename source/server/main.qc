@@ -665,6 +665,15 @@ string(string asset) convert_old_asset_path =
 		case "progs/props/lamp_ndu45.mdl":
 			ret = "models/props/lamp_ndu45.mdl";
 			break;
+		case "progs/jeep.mdl":
+			ret = "models/props/jeep.mdl";
+			break;
+		case "progs/tree.mdl":
+			ret = "models/props/treeth.mdl";
+			break;
+		case "progs/treef.mdl":
+			ret = "models/props/tree_swamp.mdl";
+			break;
 		case "progs/props/barrel_m.mdl":
 			ret = "models/props/barrel_m.mdl";
 			break;
@@ -727,6 +736,9 @@ string(string asset) convert_old_asset_path =
 			break;
 		case "progs/gmodels/g_fg.mdl":
 			ret = "models/weapons/fg42/g_fg.mdl";
+			break;
+		case "progs/g_m1a1.mdl":
+			ret = "models/weapons/m1carbine/g_m1a1.mdl";
 			break;
 		case "progs/gmodels/g_m1.mdl":
 			ret = "models/weapons/garand/g_m1.mdl";
