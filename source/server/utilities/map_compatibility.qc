@@ -145,7 +145,28 @@ void(string model_path, float scale_factor) Compat_ConvertPropScale =
 
     while(props != world) {
         props.scale = scale_factor;
-        props = props = find(props, model, model_path);
+        props = find(props, model, model_path);
+    }
+}
+
+//
+// Compat_ConvertWorldModelScales()
+// Scales down every weapon world model in
+// mass.
+//
+void() Compat_ConvertWorldModelScales =
+{
+    entity props = find(world, classname, "place_model");
+
+    while(props != world) {
+        // We only check the first path, this *technically* makes
+        // a nasty assumption no one used the viewmodels ever..
+        // which I damn sure hope is true, for the sake of that guy's sanity..
+        if (substring(props.model, 0, 15) == "models/weapons/") {
+            props.scale = 0.75;
+        }
+
+        props = find(props, classname, "place_model");
     }
 }
 
@@ -157,7 +178,11 @@ void(string model_path, float scale_factor) Compat_ConvertPropScale =
 //
 void() Compat_ConvertPropScaling =
 {
+    // Manual Tweaking
     Compat_ConvertPropScale("models/props/sandbags.mdl", 0.88);
+
+    // Automatic
+    Compat_ConvertWorldModelScales();
 }
 
 //
