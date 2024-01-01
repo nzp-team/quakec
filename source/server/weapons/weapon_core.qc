@@ -1564,7 +1564,10 @@ void() Change_Stance = {
 
 void() dolphin_dive =		//naievil
 {    
-	if (self.stance != 2 || self.view_ofs_z != 32)
+	if (self.stance != 2)
+		return;
+	if ((map_compatibility_mode == MAP_COMPAT_BETA && self.view_ofs_z != VIEW_OFS_QK[2]) ||
+	(!map_compatibility_mode && self.view_ofs_z != VIEW_OFS_HL[2]))
 		return;
  	if (self.flags & FL_WATERJUMP)
 		return;
