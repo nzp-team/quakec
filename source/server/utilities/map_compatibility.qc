@@ -180,6 +180,7 @@ void() Compat_ConvertPropScaling =
 {
     // Manual Tweaking
     Compat_ConvertPropScale("models/props/sandbags.mdl", 0.88);
+    Compat_ConvertPropScale("models/props/lamp_oil.mdl", 0.75);
 
     // Automatic
     Compat_ConvertWorldModelScales();
@@ -284,7 +285,7 @@ void() Compat_ConvertBetaBarricade =
 	self.idlebox = self.box1 + (v_forward * -50);
     self.hop_spot = self.origin + v_forward * 50;
     self.hop_spot_x -= 5;
-	self.hop_spot_z -= 25;
+	self.hop_spot_z -= 20;
     self.scale = 0.75;
 }
 
