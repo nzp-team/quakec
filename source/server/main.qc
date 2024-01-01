@@ -719,6 +719,9 @@ string(string asset) convert_old_asset_path =
 		case "progs/props/treesl.mdl":
 			ret = "models/props/treesl.mdl";
 			break;
+		case "progs/lamp.mdl":
+			ret = "models/props/lamp_oil.mdl";
+			break;
 		case "progs/props/bed.mdl":
 			ret = "models/props/bed.mdl";
 			break;
@@ -734,6 +737,7 @@ string(string asset) convert_old_asset_path =
 		case "progs/g_betty.mdl":
 			ret = "models/weapons/grenade/g_betty.mdl";
 			break;
+		case "progs/g_fg.mdl":
 		case "progs/gmodels/g_fg.mdl":
 			ret = "models/weapons/fg42/g_fg.mdl";
 			break;
@@ -752,6 +756,7 @@ string(string asset) convert_old_asset_path =
 		case "progs/g_browning.mdl":
 			ret = "models/weapons/browning/g_browning.mdl";
 			break;
+		case "progs/g_m1.mdl":
 		case "progs/gmodels/g_m1.mdl":
 			ret = "models/weapons/garand/g_m1.mdl";
 			break;
@@ -778,8 +783,15 @@ string(string asset) convert_old_asset_path =
 		case "progs/g_kar.mdl":
 			ret = "models/weapons/kar/g_kar.mdl";
 			break;
+		case "progs/g_kars.mdl":
+			ret = "models/weapons/kar/g_kars.mdl";
+			break;
+		case "progs/g_bowie.mdl":
 		case "progs/gmodels/g_bowie.mdl":
 			ret = "models/weapons/knife/g_bowie.mdl";
+			break;
+		case "progs/g_mp5.mdl":
+			ret = "models/weapons/mp5k/g_mp5k.mdl";
 			break;
 		case "progs/gmodels/g_type.mdl":
 			ret = "models/weapons/type/g_type.mdl";
