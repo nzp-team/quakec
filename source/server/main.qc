@@ -609,6 +609,16 @@ string(string asset) convert_old_asset_path =
 		case "progs/props/kino_boxes4.mdl":
 			ret = "models/props/Kino_boxes4.mdl";
 			break;
+		case "progs/body_bag_flat.mdl":
+			ret = "models/props/bodybag_flat.mdl";
+			break;
+		case "progs/body_bag_head.mdl":
+			ret = "models/props/bodybag_head.mdl";
+			break;
+		case "progs/body_bag_back_wall.mdl":
+			ret = "models/props/bodybag_back_wall.mdl";
+			break;
+		case "progs/teddy.mdl":
 		case "progs/props/teddy.mdl":
 		case "progs/misc/teddy.mdl":
 			ret = "models/props/teddy.mdl";
@@ -753,6 +763,9 @@ string(string asset) convert_old_asset_path =
 		case "progs/g_mg.mdl":
 			ret = "models/weapons/mg/g_mg.mdl";
 			break;
+		case "progs/g_colt.mdl":
+			ret = "models/weapons/m1911/g_colt.mdl";
+			break;
 		case "progs/g_browning.mdl":
 			ret = "models/weapons/browning/g_browning.mdl";
 			break;
@@ -763,6 +776,7 @@ string(string asset) convert_old_asset_path =
 		case "progs/gmodels/g_sawnoff.mdl":
 			ret = "models/weapons/sawnoff/g_sawnoff.mdl";
 			break;
+		case "progs/g_trench.mdl":
 		case "progs/gmodels/g_trench.mdl":
 			ret = "models/weapons/trench/g_trench.mdl";
 			break;
