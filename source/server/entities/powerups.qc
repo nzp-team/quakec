@@ -754,6 +754,11 @@ void(vector where, float type) Spawn_Powerup =
 
 	setmodel(sparkle,"models/sprites/sprkle.spr");
 
+	// Scale down for NZ:P Beta
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		powerup.scale = sparkle.scale = 0.66;
+	}
+
 	sparkle.think = PU_SparkleThink;
 	sparkle.nextthink = time + 0.1;
 
