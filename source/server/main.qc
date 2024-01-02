@@ -781,6 +781,7 @@ string(string asset) convert_old_asset_path =
 		case "progs/gmodels/g_m1.mdl":
 			ret = "models/weapons/garand/g_m1.mdl";
 			break;
+		case "progs/g_sawn.mdl":
 		case "progs/gmodels/g_sawnoff.mdl":
 			ret = "models/weapons/sawnoff/g_sawnoff.mdl";
 			break;
