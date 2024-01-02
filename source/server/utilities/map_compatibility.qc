@@ -280,8 +280,8 @@ void() Compat_ConvertBetaBarricade =
     self.origin -= v_forward*2;
     setsize(self, '-30 -30 -10','30 30 10');
     self.box1 = self.origin + (v_forward * -50) + (v_up * -50);
-	self.box2 = self.box1 + (v_right * 50);	
-	self.box3 = self.box1 + (v_right * -50);
+	self.box2 = self.box1 + (v_right * 25);	
+	self.box3 = self.box1 + (v_right * -25);
 	self.idlebox = self.box1 + (v_forward * -50);
     self.hop_spot = self.origin + v_forward * 50;
     self.hop_spot_x -= 5;

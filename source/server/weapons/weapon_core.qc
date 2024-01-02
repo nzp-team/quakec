@@ -824,15 +824,15 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 			
 			self = oldself;
 			return;
-		} else if (hit_ent.classname == "door" || hit_ent.classname == "door_nzp") {
-			local entity old;
-			old = self;
+		} else if (hit_ent.solid == SOLID_BSP) {
+			oldself = self;
 			self = hit_ent;
 			self.health -= damage;
+			self.enemy = oldself;
 
 			if (self.health < 0)
-				door_use();
-			self = old;
+				self.th_die();
+			self = oldself;
 			return;
 		}
 		

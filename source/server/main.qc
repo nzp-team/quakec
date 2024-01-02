@@ -648,6 +648,7 @@ string(string asset) convert_old_asset_path =
 		case "progs/sandbags.mdl":
 			ret = "models/props/sandbags.mdl";
 			break;
+		case "progs/dentist_chair.mdl":
 		case "progs/props/dentist_chair.mdl":
 			ret = "models/props/dentist_chair.mdl";
 			break;
@@ -708,6 +709,13 @@ string(string asset) convert_old_asset_path =
 		case "progs/props/trash_con.mdl":
 			ret = "models/props/trash_con.mdl";
 			break;
+		case "progs/flame2.mdl":
+			ret = "models/props/flame.mdl";
+			break;
+		case "progs/toilet.mdl":
+			ret = "models/props/toilet.mdl";
+			break;
+		case "progs/fridge.mdl":
 		case "progs/props/fridge.mdl":
 			ret = "models/props/fridge.mdl";
 			break;
