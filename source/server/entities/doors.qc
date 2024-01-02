@@ -392,6 +392,13 @@ void() door_touch =
 		centerprint (other, self.owner.message);
 	}
 
+	// Since we've removed support for Quake keys (*.items),
+	// this additional check is needed to prevent standard
+	// func_door entities from activating on-touch if it's
+	// set to only be triggered.
+	if (self.classname == "door" && self.targetname)
+		return;
+
 	if (isPowerOn == FALSE)
 	{
 		if (self.owner.spawnflags & DOOR_POWER)
