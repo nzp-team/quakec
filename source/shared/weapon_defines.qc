@@ -1535,65 +1535,68 @@ vector GetWeaponADSPos(float wep) {
 
 	switch (wep) {
 		case W_COLT:
-			return [-2.99, 2.67, 0.92];
+			return [-2.99, 2.75, 0.92]; //ironsight is accurate, model rotation is not
 		case W_KAR:
 		case W_ARMAGEDDON:
-			return [-2.19, 2.67, 1.5];
+			return [-2.19, 2.76, 1.57];
 		case W_SPRING:
 		case W_PULVERIZER:
 			return [-2.19, 2.67, 1.6];
 		case W_THOMPSON:
 		case W_GIBS:
-			return [0.5, 3.03, 1.63];
+			return [0.5, 3.08, 1.76];
 		case W_357:
 		case W_KILLU:
-			return [-2.6, 4.10, 0.5];
+			return [-2.6, 4.16, 0.55];
 		case W_BAR:
 		case W_WIDOW:
-			return [2.7, 1.90, 1.27];
+			return [2.7, 2.0, 1.27]; //ironsight is accurate, model rotation is not
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			return [-4.6, 3.95, 1.68];
+			return [-4.6, 4.0, 1.68]; //ironsight is accurate, model rotation is not
 		case W_DB:
 		case W_BORE:
 		case W_SAWNOFF:
-			return [2.0, 2.9, 1.0];
+			return [2.0, 2.9, 1.51];
 		case W_FG:
 		case W_IMPELLER:
-			return [-6.5, 5.85, .88];
+			return [-6.5, 5.92, .88];
 		case W_GEWEHR:
 		case W_COMPRESSOR:
-			return [-0.2, 2.55, 2.63];
+			return [-0.2, 2.58, 2.6];
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
 			return [-2.19, 2.67, 0.42];
 		case W_M1:
 		case W_M1000:
-			return [-1.6, 3.80, 1.12];
+			return [-1.6, 3.86, 1.12];
 		case W_M1A1:
 		case W_WIDDER:
-			return [-3.0, 2.6, 1.6];
+			return [-3.0, 2.71, 1.55]; //ironsight is accurate, model rotation is not
 		case W_MP40:
 		case W_AFTERBURNER:
-			return [0.01, 5.65, 3.25];
+			return [0.01, 5.73, 3.29];
 		case W_MP5K:
 		case W_KOLLIDER:
-			return [-5.19, 5.15, 2.75];
+			return [-5.19, 5.24, 2.76];
+		case W_TYPE:
+		case W_SAMURAI:
+			return [0, 0.2, 0.36];
 		case W_MG:
 		case W_BARRACUDA:
-			return [-2.0, 3.35, 1.84];
+			return [-2.0, 3.38, 1.87]; //ironsight is accurate, model rotation is not
 		case W_PPSH:
 		case W_REAPER:
-			return [-2.0, 3.68, 1.5];
+			return [-2.0, 3.76, 1.49];
 		case W_PTRS:
 		case W_PENETRATOR:
 			return [-2.79, 3.6, 0.40];
 		case W_STG:
 		case W_SPATZ:
-			return [-9.79, 4.86, 1.54];
+			return [-9.79, 4.92, 1.54];
 		case W_TRENCH:
 		case W_GUT:
-			return [0, 2.80, 1.1];
+			return [0, 2.80, 1.25];
 		case W_M2:
 		case W_FIW:
 			return [6.0, 4.3, 1.02];
@@ -1602,7 +1605,7 @@ vector GetWeaponADSPos(float wep) {
 			return [-1.50, 6.25, 0.87];
 		case W_PANZER:
 		case W_LONGINUS:
-			return [-11.9, 3.85, 1.52];
+			return [-11.9, 3.85, 1.62];
 		default: 
 			return [0, 0, 0];
 	}
