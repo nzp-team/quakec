@@ -155,13 +155,14 @@ void() EndRound =
 		players = find(world, classname, "player");
 
 		while(players != world) {
-			if (players.ach_tracker_npnp == 0) {
-				GiveAchievement(5, players);
-			}
 			if (players.ach_tracker_abst == 0) {
 				GiveAchievement(8, players);
 			}
-			players.ach_tracker_npnp = 0;
+			if (rounds >= 16) {
+				if (players.ach_tracker_npnp == 0) {
+					GiveAchievement(5, players);
+				}
+			}
 			players = find(players, classname, "player");
 		}
 	}
