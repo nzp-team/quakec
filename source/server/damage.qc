@@ -247,6 +247,9 @@ void() GetDown =
 	self.currentmagbk = self.weapons[0].weapon_magazine;
 	self.currentmagbk2 = self.weapons[0].weapon_magazine_left;
 
+	//Reset the tracker for the achievement "No Perks? No Problem"
+	self.ach_tracker_npnp = 0;
+
 	// Reset Juggernog health
 	self.max_health = self.health = PLAYER_START_HEALTH;
 
