@@ -92,8 +92,8 @@ void () ambient_generic =
 	}
 	else {
 		// append sounds/ if absent
-		if (substring(self.message, 0, 7) != "sounds/")
-			self.message = strcat("sounds/", self.message);
+		//if (substring(self.message, 0, 7) != "sounds/")
+			//self.message = strcat("sounds/", self.message);
 			
         // always assume .wav extension..
 		precache_sound(self.message);
