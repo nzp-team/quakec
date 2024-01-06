@@ -91,12 +91,15 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
 	// hit_ent.classname = "wunder";
 
     if(arc_owner != world) {
-        arc_owner.tesla_n_kills += 1;
+	//Only add kills and money if a zombie was hit
+	if(hit_ent.classname == "ai_zombie") {
+        	arc_owner.tesla_n_kills += 1;
         
-        // 50 points for waffe kills
-        if(arc_owner.classname == "player") {
-            arc_owner.kills += 1;
-            addmoney(arc_owner, 50, true);
+		// 50 points for waffe kills
+		if(arc_owner.classname == "player") {
+            		arc_owner.kills += 1;
+            		addmoney(arc_owner, 50, true);
+		}
         }
     }
 
