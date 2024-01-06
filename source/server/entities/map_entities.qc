@@ -348,7 +348,7 @@ void() place_model =
 	self.classname = "place_model";
 	
 	// Grab an updated model path.
-	self.model = convert_old_asset_path(self.model);
+	self.model = Compat_ConvertOldAssetPath(self.model);
   
 	// Convert the VEC_HULL bounds to match mdlsz.
 	self.mdlsz = '64 64 88';

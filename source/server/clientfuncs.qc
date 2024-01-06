@@ -24,7 +24,6 @@
 		Boston, MA  02111-1307, USA
 
 */
-string(string asset) convert_old_asset_path;
 
 void() NotifyGameEnd =
 {
@@ -676,7 +675,7 @@ void(entity ent) Ent_FakeRemove =
 
 void(string modelname) Precache_Set = // Precache model, and set myself to it
 {
-	modelname = convert_old_asset_path(modelname);
+	modelname = Compat_ConvertOldAssetPath(modelname);
     precache_model(modelname);
     setmodel(self, modelname);
 };

@@ -128,7 +128,7 @@ void() Compat_TryLoadBetaWaypoints =
     }
 
     fclose(file_handle);
-}
+};
 #endif // FTE
 
 //
@@ -147,7 +147,7 @@ void(string model_path, float scale_factor) Compat_ConvertPropScale =
         props.scale = scale_factor;
         props = find(props, model, model_path);
     }
-}
+};
 
 //
 // Compat_ConvertWorldModelScales()
@@ -168,7 +168,7 @@ void() Compat_ConvertWorldModelScales =
 
         props = find(props, classname, "place_model");
     }
-}
+};
 
 //
 // Compat_ConvertPropScaling()
@@ -184,7 +184,7 @@ void() Compat_ConvertPropScaling =
 
     // Automatic
     Compat_ConvertWorldModelScales();
-}
+};
 
 //
 // NZ:P Beta Wall Weapons
@@ -262,7 +262,7 @@ void() Compat_ConvertBetaWallWeapons =
 
         weapons = find(weapons, classname, "buy_weapon");
     }
-}
+};
 
 //
 // NZ:P Beta Barricades
@@ -287,7 +287,7 @@ void() Compat_ConvertBetaBarricade =
     self.hop_spot_x -= 5;
 	self.hop_spot_z -= 20;
     self.scale = 0.75;
-}
+};
 
 void() item_cover = {map_compatibility_mode = MAP_COMPAT_BETA; item_barricade(); Compat_ConvertBetaBarricade();};
 
@@ -323,7 +323,7 @@ void() Compat_FixMysteryBox =
 
         mystery_box_spots = find(mystery_box_spots, classname, "mystery_box_tp_spot");
     }
-}
+};
 
 //
 // NZ:P Beta Power Switch
@@ -347,7 +347,7 @@ void() Compat_FixPowerSwitch =
 
         power_switches = find(power_switches, classname, "power_switch");
     }
-}
+};
 
 //
 // NZ:P Beta Perk-A-Cola Machines
@@ -384,7 +384,7 @@ void(float mode) Compat_RelocateBetaPerkMachine =
     }
 
     self.scale = 0.85;
-}
+};
 
 void() item_revive = {map_compatibility_mode = MAP_COMPAT_BETA; Compat_RelocateBetaPerkMachine(COMPAT_RELOCAT_NORM); perk_revive();};
 void() item_speed = {map_compatibility_mode = MAP_COMPAT_BETA; Compat_RelocateBetaPerkMachine(COMPAT_RELOCAT_SPEED); perk_speed();};
@@ -420,7 +420,7 @@ float(string msg) Compat_TriggerCommandIsSafe =
         return false;
 
     return true;
-}
+};
 
 void() touch_command =
 {
@@ -432,7 +432,7 @@ void() touch_command =
     // Follow up with cl_insta because whoever wrote this way back
     // forgot to perform a line break..
     stuffcmd(other, strcat(self.message, "cl_insta\n"));
-}
+};
 
 #endif // FTE
 
@@ -464,7 +464,47 @@ void() trigger_command =
 
 #endif // FTE
 
-}
+};
+
+//
+// General NZ:P Compatibility
+//
+
+//
+// Compat_ConvertOldAssetPath(path)
+// Takes in a path as a string, hashes it,
+// then performs a binary search to pick
+// a redirected (updated) path.
+//
+string(string path) Compat_ConvertOldAssetPath =
+{
+    string return_string = path;
+
+    // Generate a CRC16 IBM 3740 hash of the path
+    float input_hash = crc16(true, path);
+    float input_len = strlen(path); // Assists with hash collision detection.
+
+    // Perform the binary search to locate it
+    float bs_left = 0;
+    float bs_right = asset_conversion_table.length - 1;
+
+    while(bs_left <= bs_right) {
+        float bs_middle = (bs_left + bs_right) / 2;
+        bs_middle = bs_middle & ~0;
+
+        if (asset_conversion_table[bs_middle].old_path_crc == input_hash && asset_conversion_table[bs_middle].crc_strlen == input_len) {
+            return_string = asset_conversion_table[bs_middle].current_path;
+            break;
+        }
+
+        if (asset_conversion_table[bs_middle].old_path_crc < input_hash)
+            bs_left = bs_middle + 1;
+        else
+            bs_right = bs_middle - 1;
+    }
+
+    return return_string;
+};
 
 //
 // Compat_Init()
@@ -482,4 +522,4 @@ void() Compat_Init =
     Compat_ConvertPropScaling();
     Compat_FixPowerSwitch();
     Compat_FixMysteryBox();
-}
+};

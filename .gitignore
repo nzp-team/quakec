@@ -1,2 +1,3 @@
 build/*
+source/server/hash_table.qc
 bin/fteqcc.log

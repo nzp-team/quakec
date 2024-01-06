@@ -5,6 +5,7 @@
 ../source/shared/weapon_defines.qc
 ../source/server/defs/custom.qc
 ../source/server/clientfuncs.qc
+../source/server/hash_table.qc
 
 ../source/server/dummies.qc
 ../source/server/rounds.qc

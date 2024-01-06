@@ -407,9 +407,9 @@ void() perk_pap =
 		self.oldmodel = "sounds/machines/packapunch/upgrade.wav";
 	}
 
-	self.model = convert_old_asset_path(self.model);
-	self.weapon2model = convert_old_asset_path(self.weapon2model);
-	self.door_model_name = convert_old_asset_path(self.door_model_name);
+	self.model = Compat_ConvertOldAssetPath(self.model);
+	self.weapon2model = Compat_ConvertOldAssetPath(self.weapon2model);
+	self.door_model_name = Compat_ConvertOldAssetPath(self.door_model_name);
 
     // Precaches
 	// FIXME: Don't hardcode weapon precaches here.
