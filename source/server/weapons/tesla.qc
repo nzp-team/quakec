@@ -61,6 +61,9 @@ void(vector pos) tesla_spark = {
 void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float do_arc) tesla_damage = {
     // set lib models to null
 	// (if we remove them RelinkZombies will cry)
+    if (!hit_ent.th_diewunder)
+        return;
+
 	if (hit_ent.head)
 		setmodel(hit_ent.head, "");
 	if (hit_ent.larm)
@@ -75,9 +78,6 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
 	if (self.state == 1 || self.hop_step != 0) {
 		self.state = self.hop_step = 0;
 	}
-
-    // // change classname so it can't be re-targted
-	// hit_ent.classname = "wunder";
 
     if(arc_owner != world) {
         arc_owner.tesla_n_kills += 1;

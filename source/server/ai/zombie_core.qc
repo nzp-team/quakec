@@ -459,11 +459,6 @@ void() Zombie_Think = //called every frame for zombies
 		self.th_die();
 	}
 
-	if (self.classname == "wunder") {
-		self.th_diewunder();
-		return;
-	}
-
 	if (self.bleedingtime < time && !self.head.deadflag)
 	{
 		self.bleedingtime = time + 1;
@@ -953,7 +948,7 @@ void() zombie_attack =
     if(self.state == 1) // If the zombie is in this state (rising, or something else) they shouldn't be able to attack!
         return;
 
-	if (self.classname == "wunder" || self.electro_targeted == true)
+	if (self.electro_targeted == true)
 		return;
 
 	if(self.outside == TRUE)

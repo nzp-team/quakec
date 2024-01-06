@@ -610,9 +610,6 @@ void Parse_Damage () = // DO NOT TOUCH
 	while (ent) {
 		if (ent.classname != "radio" && ent.classname != "explosive_barrel") {
 
-			if (ent.classname == "wunder" || ent.classname == "wunder_limb")
-				return;
-
 			if (ent.classname == "ai_zombie_head")
 				head_hit = 1;
 			
@@ -803,7 +800,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 	vel = vel * 200;
 
 	if (hit_ent.takedamage) {
-		if (trace_fraction >= 1 || hit_ent.classname == "wunder") {
+		if (trace_fraction >= 1) {
 			return;
 		}
 		if(hit_ent.classname == "item_radio" || hit_ent.classname == "teddy_spawn")
