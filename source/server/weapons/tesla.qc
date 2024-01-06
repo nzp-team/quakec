@@ -68,6 +68,17 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
 	if (hit_ent.rarm)
 		setmodel(hit_ent.rarm, "");
 
+	if(hit_ent.classname == "item_radio" || hit_ent.classname == "teddy_spawn")
+	{
+		entity oldself;
+		oldself  = self;
+		self = hit_ent;
+		self.th_die();
+		self = oldself;
+		return;
+	}
+
+
     hit_ent.velocity.x = 0;
     hit_ent.velocity.y = 0;
 
