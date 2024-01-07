@@ -62,6 +62,7 @@ inline void(entity ent) PU_FreeEnt =
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
 	ent.frame = 0;
+	ent.scale = 1;
 	ent.effects = 0;
 };
 
@@ -753,6 +754,11 @@ void(vector where, float type) Spawn_Powerup =
 	setorigin(sparkle, sparkle.origin);
 
 	setmodel(sparkle,"models/sprites/sprkle.spr");
+
+	// Scale down for NZ:P Beta
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		powerup.scale = sparkle.scale = 0.66;
+	}
 
 	sparkle.think = PU_SparkleThink;
 	sparkle.nextthink = time + 0.1;

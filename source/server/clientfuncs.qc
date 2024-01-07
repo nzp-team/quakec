@@ -24,7 +24,6 @@
 		Boston, MA  02111-1307, USA
 
 */
-string(string asset) convert_old_asset_path;
 
 void() NotifyGameEnd =
 {
@@ -67,6 +66,14 @@ void SetUpdate(entity client, float type, float val1, float val2, float val3)
 }
 
 #ifdef FTE
+void(float mode, entity to) ReportMapMode = {
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, EVENT_MAPTYPE);
+	WriteByte(MSG_MULTICAST, mode);
+	msg_entity = to;
+	multicast('0 0 0', MULTICAST_ONE);
+}
+
 void(entity to, float type, float cost, float weapon) useprint = {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_USEPRINT);
@@ -668,7 +675,7 @@ void(entity ent) Ent_FakeRemove =
 
 void(string modelname) Precache_Set = // Precache model, and set myself to it
 {
-	modelname = convert_old_asset_path(modelname);
+	modelname = Compat_ConvertOldAssetPath(modelname);
     precache_model(modelname);
     setmodel(self, modelname);
 };

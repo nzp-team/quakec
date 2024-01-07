@@ -93,7 +93,7 @@ void() SUB_UseTargets =
 	//
 	// kill the killtagets
 	//
-	if (self.killtarget)
+	if (self.killtarget && self.killtarget != self.target)
 	{
 		t = world;
 		do

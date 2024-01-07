@@ -244,6 +244,8 @@ void Set_W_Frame (float startframe, float endframe, float duration, float funcca
 .void() animend;
 .void(optional float t) animend2;
 
+string(string path) Compat_ConvertOldAssetPath;
+
 //Null functions
 void() SUB_Null = {};
 void() SUB_Null2 = {};
@@ -253,7 +255,8 @@ void() SUB_Null2 = {};
 #define 	VEC_HULL2_MIN   	'-32 -32 -24'
 #define 	VEC_HULL2_MAX  		'32 32 64'
 
-#define     VEC_VIEW_OFS  '0 0 32'
+#define 	VIEW_OFS_HL 		'0 0 32'
+#define 	VIEW_OFS_QK			'0 0 22'
 
 .string name;
 vector	trace_plane_normal;

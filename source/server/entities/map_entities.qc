@@ -315,7 +315,7 @@ void() misc_model =
 
     // Make static (not animate) if not given a frame range, and not affected by gravity
     // also remains active if it has a targetname (so it can be killtargeted/toggled)
-    if (!self.last_frame && !(self.spawnflags & 1) && !(self.spawnflags & MISC_MODEL_SOLID) && !self.targetname)
+    if (!self.last_frame && !(self.spawnflags & 1) && !(self.spawnflags & MISC_MODEL_SOLID) && !self.targetname && self.classname != "place_model")
 		makestatic(self);
 
 	// if it as a custom animation range
@@ -334,7 +334,8 @@ void() misc_model =
 	else    
 		self.state = STATE_INVISIBLE;
 
-	misc_model_use();
+	if (self.classname != "place_model")
+		misc_model_use();
 };
 
 //
@@ -343,8 +344,10 @@ void() misc_model =
 //
 void() place_model =
 {  
+	self.classname = "place_model";
+	
 	// Grab an updated model path.
-	self.model = convert_old_asset_path(self.model);
+	self.model = Compat_ConvertOldAssetPath(self.model);
   
 	// Convert the VEC_HULL bounds to match mdlsz.
 	self.mdlsz = '64 64 88';

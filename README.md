@@ -21,6 +21,8 @@ There are no prerequisites or dependancies needed to build QuakeC other than a w
 
 Before you can build the NZ:P QuakeC, you must either [download](https://github.com/nzp-team/quakec/archive/refs/heads/main.zip) this repository (easy) or [clone it](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) (for developers).
 
+[Python](https://www.python.org/) 3.7 or above is required to execute additional required components for hash table generation. You can install the [required modules](https://raw.githubusercontent.com/nzp-team/QCHashTableGenerator/main/requirements.txt) with `pip -r requirements.txt` pointing to the provided file.
+
 To build, simply navigate to the `tools` directory and run the `qc-compiler-*` script for your platform. If unfamiliar with executing shell (`.sh`) scripts on Linux systems, give this [itsFOSS article](https://itsfoss.com/run-shell-script-linux/) a read.
 
 After having done this, a `build` directory will have been created, and inside of it will be more directories named after every platform. Copy the contents of the platform directories into your `nzp` game directory. (Example: For PSP, copy `progs.dat` and `progs.lno` from `standard/handheld` to `PSP/GAME/nzportable/nzp`).

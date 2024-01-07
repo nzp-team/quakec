@@ -138,7 +138,7 @@ void () WallWeapon_TouchTrigger =
 
 	float wcost;
 
-	if (other.classname != "player" || other.downed || other.isBuying || !PlayerIsLooking(other, self)) {
+	if (other.classname != "player" || other.downed || other.isBuying || (map_compatibility_mode != MAP_COMPAT_BETA && !PlayerIsLooking(other, self))) {
 		return;
 	}
 

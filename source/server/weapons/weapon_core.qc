@@ -821,15 +821,15 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 			
 			self = oldself;
 			return;
-		} else if (hit_ent.classname == "door" || hit_ent.classname == "door_nzp") {
-			local entity old;
-			old = self;
+		} else if (hit_ent.solid == SOLID_BSP) {
+			oldself = self;
 			self = hit_ent;
 			self.health -= damage;
+			self.enemy = oldself;
 
 			if (self.health < 0)
-				door_use();
-			self = old;
+				self.th_die();
+			self = oldself;
 			return;
 		}
 		
@@ -1528,46 +1528,31 @@ void() Change_Stance = {
 		return;
 
 	switch(self.stance) {
-		case 2: 
-			self.new_ofs_z = self.view_ofs_z - PLAYER_CROUCH_HEIGHT;
-			self.stance = 1;
-			PAnim_Crouch();
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+		case PLAYER_STANCE_STAND: 
+			Player_SetStance(self, PLAYER_STANCE_CROUCH, true);
 			break;
 		case 1:
-			// Prohibit Proning if Drinking a Perk-A-Cola
-			if (self.isBuying && Player_CanStandHere(self)) {
-				self.stance = 2;
-				self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
-				PAnim_Stand();
-				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+			// Prohibit Proning if Drinking a Perk-A-Cola, just stand.
+			if (self.isBuying) {
+				Player_SetStance(self, PLAYER_STANCE_STAND, true);
 			} 
 			// Stance flag isn't set, so go Prone.
 			else if (!self.stancereset) {
-				self.new_ofs_z = self.view_ofs_z - PLAYER_PRONE_HEIGHT;
-				self.stance = 0;
-				PAnim_Prone();
+				Player_SetStance(self, PLAYER_STANCE_PRONE, true);
 			} 
 			// Stance flag IS set, so stand if applicable.
 			else if (Player_CanStandHere(self)) {
-				self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
-				self.stance = 2;
-				self.stancereset = 0;
-				PAnim_Stand();
-				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+				Player_SetStance(self, PLAYER_STANCE_STAND, true);
+				self.stancereset = false;
 			} 
 			// There's no room to stand, just prone again.
 			else {
-				self.new_ofs_z = self.view_ofs_z - PLAYER_PRONE_HEIGHT;
-				self.stance = 0;
-				PAnim_Prone();
+				Player_SetStance(self, PLAYER_STANCE_PRONE, true);
 			}
 			break;
 		case 0:
-			self.new_ofs_z = self.view_ofs_z + PLAYER_PRONE_HEIGHT;
-			self.stance = self.stancereset = 1;
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
-			PAnim_UpCrouch();
+			Player_SetStance(self, PLAYER_STANCE_CROUCH, true);
+			self.stancereset = true;
 			break;
 		default: break;
 	}
@@ -1576,7 +1561,10 @@ void() Change_Stance = {
 
 void() dolphin_dive =		//naievil
 {    
-	if (self.stance != 2 || self.view_ofs_z != 32)
+	if (self.stance != 2)
+		return;
+	if ((map_compatibility_mode == MAP_COMPAT_BETA && self.view_ofs_z != VIEW_OFS_QK[2]) ||
+	(!map_compatibility_mode && self.view_ofs_z != VIEW_OFS_HL[2]))
 		return;
  	if (self.flags & FL_WATERJUMP)
 		return;
@@ -1614,9 +1602,7 @@ void() dolphin_dive =		//naievil
 	sound(self, CHAN_VOICE, "sounds/player/jump.wav", 1, 1);
 
 	self.oldz = self.origin_z;
-	self.new_ofs_z = self.view_ofs_z - (PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT);
-	self.stance = 0;
-	setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+	Player_SetStance(self, PLAYER_STANCE_PRONE, false);
 }
 
 
@@ -1651,19 +1637,8 @@ void () Impulse_Functions =
 
 			if (self.dive || self.downed || !Player_CanStandHere(self))
 				return;
-			switch(self.stance) {
-				case 0:
-					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
-					self.stance = 2;
-					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-					break;
-				case 1:
-					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
-					self.stance = 2;
-					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-					break;
-				default: break;
-			}
+
+			Player_SetStance(self, PLAYER_STANCE_STAND, false);
 			self.sprintflag = true;
 			W_SprintStart();
 			break;

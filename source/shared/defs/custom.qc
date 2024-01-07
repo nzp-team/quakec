@@ -62,6 +62,7 @@ const float EVENT_CHATMESSAGE			= 45;
 const float EVENT_DOUBLETAPUPDATE 		= 46;
 const float EVENT_FLAME 				= 47;
 const float EVENT_ENDGAME				= 48;
+const float EVENT_MAPTYPE				= 49;
 
 // Define our FTE platform
 #ifndef STANDARD
@@ -73,9 +74,21 @@ const float EVENT_ENDGAME				= 48;
 #define PLAYER_MINS_STANDING 	'-16 -16 -32'
 #define PLAYER_MAXS_STANDING 	'16 16 40'
 
+// 32x32x56
+#define PLAYER_MINS_QUAKE 		'-16 -16 -24'
+#define PLAYER_MAXS_QUAKE 		'16 16 32'
+
 // 32x32x36
 #define PLAYER_MINS_CROUCHING	'-16 -16 -32'
 #define PLAYER_MAXS_CROUCHING 	'16 16 4'
+
+#define PLAYER_STANCE_STAND		2
+#define PLAYER_STANCE_CROUCH	1
+#define PLAYER_STANCE_PRONE		0
+
+// map compatibility
+#define MAP_COMPAT_BETA     1
+float 	map_compatibility_mode;
 
 // Weapon Firetype definitions
 #define FIRETYPE_FULLAUTO	0

@@ -5,6 +5,7 @@
 ../source/shared/weapon_defines.qc
 ../source/server/defs/custom.qc
 ../source/server/clientfuncs.qc
+../source/server/hash_table.qc
 
 ../source/server/dummies.qc
 ../source/server/rounds.qc
@@ -50,3 +51,5 @@
 ../source/server/ai/zombie_core.qc
 ../source/server/ai/crawler_core.qc
 ../source/server/ai/dog_core.qc
+
+../source/server/utilities/map_compatibility.qc
