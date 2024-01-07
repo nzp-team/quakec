@@ -5,7 +5,7 @@
 	like PlayerPreThink and PlayerPostThink, also client specific 
 	stuff like PutClientInServer etc.
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License

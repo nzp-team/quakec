@@ -4,7 +4,7 @@
 	Various globals that are used in this FTEQW example are defined 
     here, they are not used by the engine itself.
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
