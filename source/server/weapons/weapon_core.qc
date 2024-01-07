@@ -1225,6 +1225,7 @@ void () W_Knife =
 	float	r, backupSkin;
 	vector	org;
 	float hit = false;
+	float applied_velocity;
 		
 	if (self.sprinting) {
 		W_SprintStop();
@@ -1295,7 +1296,7 @@ void () W_Knife =
 			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
 			self.knife_delay = time + 1.1;
 		}
-		self.velocity = v_forward * r * 6;
+		applied_velocity = v_forward * r * 6;
 		
 	}
 	else
@@ -1324,6 +1325,10 @@ void () W_Knife =
 	}
 	self.reload_delay2 = self.reload_delay = 0;
 	self.weaponskin = backupSkin;
+
+	// Prohibit any sort of melee lunge while not standing
+	if (self.stance != PLAYER_STANCE_STAND)
+		self.velocity = applied_velocity;
 	
 	LungeKnifeHit();
 
