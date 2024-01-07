@@ -420,6 +420,7 @@ float isPowerOn;
 .float isBuying; // naievil -- used for checking if a perk is being consumed, limits glitching
 .float perks;
 .float perk_delay;
+.float money_found; // Used for checking if the spare change infront of the perk machine has been found
 
 .float perk_purchase_count;
 .float perk_purchase_limit_solo;
