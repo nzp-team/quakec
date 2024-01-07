@@ -39,6 +39,23 @@ void() main =
 
 float ai_delay_time;
 
+//
+// Way_SetBrushEntNonSolid(ent_name)
+// FIXME: Move this elsewhere..
+// Wrapper for finding brush ents of classname
+// and making them non-solid. For use only
+// with Waypoint Mode.
+//
+void(string ent_name) Way_SetBrushEntNonSolid =
+{
+	entity ent = find(world, classname, ent_name);
+	while(ent != world) {
+		ent.solid = SOLID_NOT;
+		ent.touch = SUB_Null;
+		ent = find(ent, classname, ent_name);
+	}
+}
+
 //called for each frame that QC runs
 float zombie_cleaned_w;
 void() StartFrame =
@@ -51,14 +68,6 @@ void() StartFrame =
 			zent = find (world, classname, "ai_zombie");
 			while (zent)
 			{
-				/*
-				if (zent.head)
-					remove (zent.head);
-				if (zent.larm)
-					remove (zent.larm);
-				if (zent.rarm)
-					remove (zent.rarm);
-				*/
 				remove (zent);
 				zent = find (zent, classname, "ai_zombie");
 			}
@@ -73,28 +82,9 @@ void() StartFrame =
 					setmodel(zent, "models/way/normal_way.spr");
 				zent = find (zent, classname, "waypoint");
 			}
-			zent = find (world, classname, "door_nzp_cost");
-			while (zent)
-			{
-				zent.solid = SOLID_NOT;
-				zent.touch = SUB_Null;
-				zent = find (zent, classname, "door_nzp_cost");
-			}
-			zent = find (world, classname, "door_nzp");
-			while (zent)
-			{
-				zent.solid = SOLID_NOT;
-				zent.touch = SUB_Null;
-				zent.solid = SOLID_NOT;
-				zent = find (zent, classname, "door_nzp");
-			}
-			zent = find (world, classname, "window");
-			while (zent)
-			{
-				zent.solid = SOLID_NOT;
-				zent.touch = SUB_Null;
-				zent = find (zent, classname, "window");
-			}
+			Way_SetBrushEntNonSolid("door_nzp_cost");
+			Way_SetBrushEntNonSolid("door_nzp");
+			Way_SetBrushEntNonSolid("door");
 		}
 		return;
 	}

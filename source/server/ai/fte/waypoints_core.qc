@@ -862,40 +862,6 @@ void () Waypoint_Functions =
 
 void () Waypoint_Logic =
 {
-	if (!waypoint_mode) {
-		waypoint_mode = 1;
-		entity zent;
-	
-		zent = find (world, classname, "ai_zombie");
-		while (zent)
-		{
-			remove (zent);
-			zent = find (zent, classname, "ai_zombie");
-		}
-
-		zent = find (world, classname, "door_nzp_cost");
-		while (zent)
-		{
-			zent.solid = SOLID_NOT;
-			zent.touch = SUB_Null;
-			zent = find (zent, classname, "door_nzp_cost");
-		}
-		zent = find (world, classname, "door_nzp");
-		while (zent)
-		{
-			zent.solid = SOLID_NOT;
-			zent.touch = SUB_Null;
-			zent.solid = SOLID_NOT;
-			zent = find (zent, classname, "door_nzp");
-		}
-		zent = find (world, classname, "window");
-		while (zent)
-		{
-			zent.solid = SOLID_NOT;
-			zent.touch = SUB_Null;
-			zent = find (zent, classname, "window");
-		}
-		
-	}
+	waypoint_mode = true;
 	Waypoint_Functions();
 };
