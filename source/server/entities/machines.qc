@@ -263,12 +263,22 @@ void() Perk_MachineGoAway =
 //
 void() touch_perk =
 {  
-	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
+	if (other.classname != "player" || other.downed || other.isBuying == true)
 		return;
 
-	// Do this after the perk change check
-	if (other.stance == 0)
+	if (other.stance == 0) {
+		// When laying infront of the machine find "spare change"
+		if (!self.money_found) {
+			addmoney(other, 100, true);
+			sound(self, 1, "sounds/misc/ching.wav", 1, 1);
+			self.money_found = true;
+		}
 		return;
+	}
+
+	if (!PlayerIsLooking(other, self)) {
+		return;
+	}
 	  
 	// Power's off! Nothing to do here.
 	if (self.requirespower == true && !isPowerOn) {
@@ -447,6 +457,8 @@ void() setup_perk =
 		self.think = Perk_Jingle;
 		self.nextthink = time + rint((random() * 30)) + 30;
 	}
+
+	self.money_found = false;
 }
 
 //
