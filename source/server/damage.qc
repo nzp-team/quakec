@@ -190,6 +190,15 @@ void() GetDown =
 		GiveAchievement(9, self);
 	}
 
+	// Aim out to reset zoom values
+	W_AimOut();
+
+#ifdef FTE
+
+	self.viewzoom = 1;
+
+#endif // FTE
+
 	// Make any zombies inside of the player's bounding box leave
 	push_away_zombies();
 

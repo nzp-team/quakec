@@ -1225,7 +1225,7 @@ void () W_Knife =
 	float	r, backupSkin;
 	vector	org;
 	float hit = false;
-	float applied_velocity;
+	vector applied_velocity = '0 0 0';
 		
 	if (self.sprinting) {
 		W_SprintStop();
