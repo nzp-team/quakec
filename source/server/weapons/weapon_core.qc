@@ -1183,7 +1183,7 @@ void(float side) W_Fire =
 		self.fire_delay2 = getWeaponDelay(self.weapon, FIRE) + time;
 	}
 
-	if (IsPapWeapon(self.weapon)) {
+	if (IsPapWeapon(self.weapon) && !WepDef_DoesNotPlayUpgradedSound(self.weapon)) {
 		sound (self, 0, "sounds/weapons/papfire.wav", 1, ATTN_NORM);
 	}
 	

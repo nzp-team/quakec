@@ -4568,6 +4568,25 @@ float(float weapon) WepDef_DoesNotADS =
 }
 
 //
+// WepDef_DoesNotPlayUpgradedSound(weapon)
+// Returns true if the weapon should not play
+// the special Pack-A-Punch fire sound over
+// it's standard weapon fire.
+//
+float(float weapon) WepDef_DoesNotPlayUpgradedSound =
+{
+	switch(weapon) {
+		case W_DG3:
+		case W_PORTER:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
 // WepDef_OnlyOneAllowed(weapon)
 // Returns true if server is only allowed to distribute
 // this weapon to one player at a time (e.g., from Box).
