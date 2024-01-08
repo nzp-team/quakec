@@ -80,7 +80,7 @@ void(entity person, float slot, float ammo) Weapon_SetPlayerAmmoInSlot =
 };
 
 //
-// Weapon_PlayerHasWeapon(peron, comparison, include_pap)
+// Weapon_PlayerHasWeapon(person, comparison, include_pap)
 // Checks to see if the Player is holding a weapon in any
 // of their three slots. `include_pap` dictates whether to
 // consider Pack-A-Punch'd varients. Returns 1, 2, 3 depending
@@ -101,6 +101,25 @@ float(entity person, float comparison, float include_pap) Weapon_PlayerHasWeapon
 
 		// Now do the comparison
 		if (weapon_id == comparison)
+			return i + 1;
+	}
+
+	return 0;
+};
+
+//
+// Weapon_PlayerHasWeaponWithFiretype(person, comparison)
+// Similar check to Weapon_PlayerHasWeapon, but returns
+// an index to the first-found firetype instead.
+//
+float(entity person, float comparison) Weapon_PlayerHasWeaponWithFiretype =
+{
+	for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		// Storage.
+		float weapon_firetype = GetFiretype(person.weapons[i].weapon_id);
+
+		// Now do the comparison
+		if (weapon_firetype == comparison)
 			return i + 1;
 	}
 

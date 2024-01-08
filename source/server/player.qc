@@ -527,10 +527,9 @@ void() PlayerPreThink =
 			self.onfire = false;
 	}
 
-	// refuel/cool flamethrowers
+	// Flamethrower-based weapon cooldown/refuel process.
 	if (self.ltime < time) {
-		// FIXME: Weapon hardcode definition.
-		float weapon_slot = Weapon_PlayerHasWeapon(self, W_M2, true);
+		float weapon_slot = Weapon_PlayerHasWeaponWithFiretype(self, FIRETYPE_FLAME);
 
 		if (weapon_slot == 0)
 			return;
