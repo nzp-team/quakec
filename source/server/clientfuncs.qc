@@ -249,23 +249,33 @@ void(entity who, float broadcast_time, float type, string str) BroadcastMessageT
 #endif // FTE
 }
 
-// FIXME: basically a copy of CL_SendWeaponFire but for FTE
-void(entity who, float weapon) SendWeaponRecoil =
+void(entity who, float weapon) CL_SendWeaponFire =
 {
-#ifdef FTE
+	float recoil_return_time = getWeaponRecoilReturn(weapon);
+	vector weapon_recoil = GetWeaponRecoil(weapon);
 
-	vector Wep_Recoil;
-	Wep_Recoil = GetWeaponRecoil(weapon);
+	msg_entity = who;
+
+#ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_WEAPONRECOIL);
-	WriteCoord (MSG_MULTICAST, Wep_Recoil_x);
-	WriteCoord (MSG_MULTICAST, Wep_Recoil_y);
-	WriteCoord (MSG_MULTICAST, Wep_Recoil_z);
-	msg_entity = who;
+	WriteCoord (MSG_MULTICAST, weapon_recoil_x);
+	WriteCoord (MSG_MULTICAST, weapon_recoil_y);
+	WriteCoord (MSG_MULTICAST, weapon_recoil_z);
 	multicast('0 0 0', MULTICAST_ONE);
 
+#else
+
+	WriteByte(MSG_ONE, SVC_WEAPONFIRE);
+	WriteLong(MSG_ONE, recoil_return_time); // FIXME: A long for this is overkill.
+	WriteCoord(MSG_ONE, weapon_recoil_x);
+	WriteCoord(MSG_ONE, weapon_recoil_y);
+	WriteCoord(MSG_ONE, weapon_recoil_z);
+
 #endif // FTE
+
+	self.recoil_delay = 60/recoil_return_time + time;
 }
 
 void(float broadcast_time, float type, string str) BroadcastMessage =

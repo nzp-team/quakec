@@ -913,11 +913,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 	
 	src = self.origin + self.view_ofs;
 	
-#ifndef FTE
-
-	CL_SendWeaponFire();
-
-#endif // FTE
+	CL_SendWeaponFire(self, self.weapon);
 
 	while (count < shotcount)
 	{
@@ -1012,7 +1008,6 @@ void(float side) W_Fire =
 	string modelname = "";
 	string soundname;
 	float spread;
-	float is_moving;
 	float delay;
 
 	//Update the basic vectors
@@ -1068,12 +1063,7 @@ void(float side) W_Fire =
 	if (self.perks & P_DOUBLE && self.has_doubletap_damage_buff)
 		shotcount *= 2;
 
-	if (self.velocity)
-		is_moving = true;
-	else
-		is_moving = false;
-
-	spread = GetWeaponSpread(self.weapon, is_moving, self.stance);
+	spread = WepDef_WeaponSpread(self.weapon, self.stance);
 
 	if (self.perks & P_DEAD) {
 		spread *= 0.65;
@@ -1200,10 +1190,6 @@ void(float side) W_Fire =
 		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 
 	self.effects = self.effects | EF_MUZZLEFLASH;
-
-#else 
-
-	SendWeaponRecoil(self, self.weapon);
 
 #endif // FTE
 
@@ -1934,6 +1920,38 @@ void() CheckPlayer =
 
 }
 
+//
+// Wep_UpdateRecoilAndSpread()
+// Somewhat-intelligent serverside Weapon Recoil
+// update system that takes into account velocity
+// and how long the weapon has been fired.
+//
+void() Wep_UpdateRecoilAndSpread =
+{
+	// Moving? Our weapon spread should be the maximum.
+	if (self.velocity)
+		self.cur_spread = WepDef_WeaponMaxSpread(self.weapon, self.stance);
+
+	// Slowly increase our spread based on how long the weapon
+	// has been fired.
+	else if (self.recoil_delay > time && self.recoil_delay)
+    {
+        self.cur_spread = self.cur_spread + 10;
+		if (self.cur_spread >= WepDef_WeaponMaxSpread(self.weapon, self.stance))
+			self.cur_spread = WepDef_WeaponMaxSpread(self.weapon, self.stance);
+    }
+	// Diminish spread over time as recoil decreases.
+    else if (self.recoil_delay < time && self.recoil_delay)
+    {
+        self.cur_spread = self.cur_spread - 4;
+		if (self.cur_spread <= 0)
+		{
+			self.cur_spread = 0;
+			self.recoil_delay = 0;
+		}
+    }
+}
+
 void () Weapon_Logic =
 {
 	// HACK HACK: Don't let the frame updater take control of hold fire.
@@ -2250,6 +2268,7 @@ void () Weapon_Logic =
 	
 	CheckImpulses();
 	CheckPlayer();	
+	Wep_UpdateRecoilAndSpread();
 
 	// These are sent to clients in engine for stat
 	// reference.

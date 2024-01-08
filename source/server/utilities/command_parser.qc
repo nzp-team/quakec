@@ -301,3 +301,9 @@ void(string command_string) SV_ParseClientCommand =
 
 #endif // FTE
 };
+
+#ifndef FTE
+
+void() ParseClientCommand = {SV_ParseClientCommand(CMD_STRING);}
+
+#endif // FTE

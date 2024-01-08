@@ -51,11 +51,13 @@ float 	framecount;
 
 float music_override;
 
+.float	recoil_delay;
+.float 	cur_spread;
+
 #ifndef FTE
 
 void(string com) SV_ParseClientCommand;
 .float	gravity;
-.float	recoil_delay;
 .float 	mapversion;
 .float	ammo;
 .float 	frags;

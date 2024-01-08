@@ -2,8 +2,8 @@
 
 ../source/server/defs/fte.qc
 ../source/shared/defs/custom.qc
-../source/shared/weapon_defines.qc
 ../source/server/defs/custom.qc
+../source/shared/weapon_defines.qc
 ../source/server/clientfuncs.qc
 ../source/server/hash_table.qc
 

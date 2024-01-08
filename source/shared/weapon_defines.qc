@@ -4046,17 +4046,6 @@ float(float wep) W_SpreadAffectedByADS =
 	}
 }
 
-float(float wep, float is_moving, float stance) GetWeaponSpread =
-{
-	float magic_number = 1.15;
-
-	if (!is_moving) {
-		return (CrossHairWeapon(wep, stance));
-	} else {
-		return (CrossHairMaxSpread(wep, stance)/2) * magic_number;
-	}
-}
-
 //
 // W_IsLowAmmo(weapon, value, mag_not_reserve)
 // Determine if the weapon is low on ammo on the Magazine
@@ -4518,6 +4507,38 @@ float(float wep) GetWeaponZoomAmount =
 
 	return 0;
 }
+
+//
+// WepDef_WeaponMaxSpread(weapon, stance)
+// Returns the maximum amount of Spread a Weapon
+// can output. This is based on data manipulation of
+// crosshair values.
+//
+float(float weapon, float stance) WepDef_WeaponMaxSpread =
+{
+	return CrossHairMaxSpread(weapon, stance)/2.5;
+}
+
+#ifndef CSQC
+
+//
+// WepDef_WeaponSpread(weapon, stance)
+// Returns the general amount of Spread a Weapon
+// can output. This is based on data manipulation of
+// crosshair values.
+//
+
+float(float weapon, float stance) WepDef_WeaponSpread =
+{
+	// Early out.
+	if (self.recoil_delay > time)
+		return WepDef_WeaponMaxSpread(weapon, stance);
+
+	// Increase spread over time.
+	return (CrossHairWeapon(weapon, stance)/2) + self.cur_spread;
+}
+
+#endif // CSQC
 
 //
 // WepDef_CalculateMeleeDamage(weapon, has_bowie)
