@@ -73,10 +73,7 @@ void() ambient_use =
 
 void () ambient_generic =
 {
-	string link;
-
-    // moto - FIXME: typically this is set to upper-case but only FTE has strtoupper(); assume lower-case!
-    link = self.message;
+	string link = strtolower(self.message);
 
 	if (link == "nolink") {
 		if (substring(self.message, 0, 1) == "*")
