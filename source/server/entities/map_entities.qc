@@ -125,8 +125,9 @@ void() teddy_spawn =
 	precache_model ("models/props/teddy.mdl");
 
 	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything
-	self.solid=SOLID_BBOX;
+	self.solid = SOLID_BBOX;
 	self.classname = "teddy_spawn";
+	self.noise = Compat_ConvertOldAssetPath(self.noise);
 	setmodel (self, "models/props/teddy.mdl");
 	setsize (self, '-8 -8 -4', '8 8 4');
 
@@ -134,11 +135,8 @@ void() teddy_spawn =
 	self.health = 0;
 	self.th_die = teddy_react;
 	
-	if (self.noise) {
-		// FIXME: make a convert_old_sound_path function like we do for models.
-		if (self.noise == "misc/buy.wav") self.noise = "sounds/misc/buy.wav";
+	if (self.noise)
 		precache_sound (self.noise);
-	}
 };
 
 /* ==================

@@ -109,3 +109,4 @@ models/machines/hl_scale/packapunch/p_machine.mdl,models/machines/hl_scale/pap/p
 models/machines/hl_scale/packapunch/p_roller.mdl,models/machines/hl_scale/pap/p_roller.mdl
 models/machines/hl_scale/packapunch/p_flag.mdl,models/machines/hl_scale/pap/p_flag.mdl
 progs/sprites/lamp_glow2.spr,models/sprites/lamp_glow2.spr
+misc/buy.wav,sounds/misc/buy.wav
