@@ -456,9 +456,11 @@ void(float side) W_Reload =
 			endanimfunc = W_AdvanceAnim;
 		}
 		else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
-			if (self.weapons[0].weapon_magazine == 0) {
-				self.NeedLoad = true;
-			}
+			// cypress -- world at war depicts the trench gun as needing to 
+			// pump after reload regardless of context, so i removed a reference
+			// that would only do it if the mag was empty. tradeoff: now we're
+			// pumping 2 shells away instead of 1 if not empty. oh well.
+			self.NeedLoad = true;
 			startframe = 14;
 			endframe = 17;
 			reloadcancelframe = 0;
@@ -514,7 +516,7 @@ void () W_LoadAmmo =
 		startframe = 4;
 		endframe = 14;
 		reloadcancelframe = 12;
-		delay = 1;
+		delay = 0.9;
 		endanimfunc = W_LoadAmmoDone;
 	}
 	else if (self.weapon == W_KAR || self.weapon == W_ARMAGEDDON || self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER || self.weapon == W_SPRING || self.weapon == W_PULVERIZER)
