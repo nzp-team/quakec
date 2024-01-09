@@ -420,11 +420,6 @@ void() PlayerPreThink =
 
 #ifdef FTE
 
-			if (self.viewzoom > 0.97)
-				self.viewzoom -= 0.015;
-			else if (self.viewzoom < 0.97)
-				self.viewzoom = 0.97;
-				
 			// viewbob when running 
 			self.punchangle_y = 0.6*sin(time*10);
 
@@ -435,11 +430,6 @@ void() PlayerPreThink =
 		} else if (!self.sprinting && !self.zoom) {
 
 #ifdef FTE
-
-			if (self.viewzoom < 1)
-				self.viewzoom += 0.015;
-			else 
-				self.viewzoom = 1;
 				
 			if (checkMovement(-1))
 				self.punchangle_x = 0.25*sin(time*15);	
@@ -514,7 +504,7 @@ void() PlayerPreThink =
 	if (cvar("waypoint_mode")) {
 		Waypoint_Logic();
 	} else {
-		Weapon_Logic();
+		WeaponCore_ClientLogic();
 	}
 
 	JumpCheck(0);

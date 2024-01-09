@@ -276,8 +276,8 @@ void() teleport_touch =
 		useprint(other, 15, self.cost, 0);
 	
 
-	if (other.button7 && !other.semiuse) {
-		other.semiuse = true;
+	if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+		other.semi_actions |= SEMIACTION_USE;
 		
 		if (other.points < self.cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);

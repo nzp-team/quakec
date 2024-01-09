@@ -292,7 +292,7 @@ void() touch_perk =
 		// sequence = perk ID in client
 		useprint(other, 9, price, self.sequence);
 
-		if (other.points >= price && other.button7 && !other.semiuse) {
+		if (other.points >= price && other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
 			addmoney(other, -price, 0);
 
 			// Play the sound of the bottle "vending"
@@ -329,12 +329,12 @@ void() touch_perk =
 			if (self.perk_purchase_count >= perk_purchase_limit)
 				Perk_MachineGoAway();
 
-			other.semiuse = true;
-		} else if (other.button7 && !other.semiuse) {
+			other.semi_actions |= SEMIACTION_USE;
+		} else if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
 			// We tried to use, but we don't have the cash..
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
-			other.semiuse = true;
+			other.semi_actions |= SEMIACTION_USE;
 		}
 	}
 }

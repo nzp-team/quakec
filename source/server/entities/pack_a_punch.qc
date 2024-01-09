@@ -279,8 +279,8 @@ void() PAP_Touch =
 			PAP_UpgradeWeapon(self, other);
 		} 
 		// They're broke! Notify.
-		else if (other.button7 && other.weapon && !other.semiuse) {
-			other.semiuse = true;
+		else if (other.button7 && other.weapon && !(other.semi_actions & SEMIACTION_USE)) {
+			other.semi_actions |= SEMIACTION_USE;
 			centerprint (other, STR_NOTENOUGHPOINTS);
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 		}

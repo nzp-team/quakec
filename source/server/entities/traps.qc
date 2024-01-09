@@ -239,11 +239,11 @@ void zapper_touch () {
 	if (self.state == 0) {
 		useprint (other, 11, self.cost, self.weapon);
 
-		if (!other.button7 || other.semiuse) {
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		if (other.points < self.cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);

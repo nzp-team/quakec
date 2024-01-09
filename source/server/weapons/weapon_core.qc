@@ -119,12 +119,14 @@ void() W_AimIn =
 	if (WepDef_DoesNotADS(self.weapon))
 		return;
 
+	if ((self.stance == PLAYER_STANCE_PRONE) && self.velocity)
+		return;
+
 	if (IsDualWeapon(self.weapon) ||
 		self.reload_delay > time ||
 		self.knife_delay > time ||
 		self.sprinting ||
-		self.new_anim_stop ||
-		self.semiknife == true) {		
+		self.new_anim_stop) {		
 		return;
 	}
 
@@ -134,15 +136,13 @@ void() W_AimIn =
 	} else if (self.zoom) {
 		return;
 	}
-	
-	if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
-	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-		SetUpdate(self, UT_ZOOM2, 0, 0, 0);
-		self.zoom = 2;
+
+	if (WepDef_HasSniperScore(self.weapon))
 		self.scopetime = time + 0.3;
-	} else {
-		self.zoom = 1;
-	}
+	
+	// Even if the weapon is scoped, we should still initialize
+	// the Zoom factor of one so it begins moving into position.
+	self.zoom = 1;
 }
 
 void() W_AimOut =
@@ -157,12 +157,13 @@ void() W_AimOut =
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 		ReturnWeaponModel();
 	}
-		
-#ifndef FTE
 
 	self.zoom = 0;
 
-#endif // FTE
+	// Always set ads_release to false, to avoid complicating
+	// actions where the player is forced to Aim Out with
+	// Toggled ADS.
+	self.ads_release = false;
 }
 
 void() W_SprintStop =
@@ -229,10 +230,13 @@ void() W_PutOutHack =
 void() W_PutOut =
 {
 	// We don't hold more than one weapon
-	if (self.weapons[1].weapon_id == 0 || self.downed)
+	if (self.weapons[1].weapon_id == 0 || self.downed ||
+	self.switch_delay > time)
 		return;
 
 	float duration = getWeaponDelay(self.weapon, PUTOUT);
+	self.switch_delay = duration + time;
+	self.semi_actions |= SEMIACTION_WEAPONSWAP;
 	
 	W_AimOut();
 	W_HideCrosshair(self);
@@ -249,6 +253,7 @@ void() W_TakeOut =
 	self.isBuying = false;
 
 	float duration = getWeaponDelay(self.weapon, TAKEOUT);
+	self.switch_delay = duration + time;
 
 	W_AimOut();
 	W_HideCrosshair(self);
@@ -977,7 +982,7 @@ void(float side) W_Fire =
 	if (GetFiretype(self.weapon) == FIRETYPE_FLAME && self.cooldown)
 		return;
 
-	if (self.semiswitch == true || self.dive)
+	if (self.switch_delay > time || self.dive)
 		return;
 
 	//First check that we can actualy fire
@@ -1081,11 +1086,11 @@ void(float side) W_Fire =
 	// Check if weapon is semi-automatic and if it is, if it's ready to be fired.
 	if (Weapon_IsSemiAutomatic(self.weapon)) {
 		if (side == S_RIGHT) {
-			if (self.semi) return;
-			self.semi = true;
+			if (self.semi_actions & SEMIACTION_FIRE_RIGHT) return;
+			self.semi_actions |= SEMIACTION_FIRE_RIGHT;
 		} else if (side == S_LEFT) {
-			if (self.semi2) return;
-			self.semi2 = true;
+			if (self.semi_actions & SEMIACTION_FIRE_LEFT) return;
+			self.semi_actions |= SEMIACTION_FIRE_LEFT;
 		}
 	}
 
@@ -1331,7 +1336,7 @@ void () W_Knife =
 
 void() switch_nade = 
 { 
-	if (self.downed || self.isBuying || !(self.grenades & 2) || self.seminade)
+	if (self.downed || self.isBuying || !(self.grenades & 2) || self.grenade_delay > time)
       return;
 
 	if (self.pri_grenade_state == 0)
@@ -1508,7 +1513,6 @@ void() W_Grenade =
 	self.primary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
 	self.grenade_delay = time + 5;
-    self.seminade = true;
 } 
 
 void(float wepnum) CheckButton = {
@@ -1616,8 +1620,10 @@ void () Impulse_Functions =
 #endif // FTE
 			break;
 		case 22:
-			addmoney(self, 10000, 0);
-			rounds += 4;
+			if (cheats_have_been_activated) {
+				addmoney(self, 10000, 0);
+				rounds += 4;
+			}
 			break;
 		case 23:
 
@@ -1642,6 +1648,9 @@ void () Impulse_Functions =
 		case 25:
 			switch_nade();
 			break;
+		case 26:
+			self.ads_release = !self.ads_release;
+			break;
 		case 33:
 			W_PrimeBetty();
 			break;
@@ -1658,11 +1667,6 @@ void () Impulse_Functions =
 		case 32:
 			self.sprintflag = 1;
 			break;
-		case 110:
-		case 111:
-			W_PutOut();
-			self.semiswitch = true;
-			break;	
 		case 100:
 			cvar_set("waypoint_mode", "1");
 			localcmd("restart\n");
@@ -1680,11 +1684,6 @@ void () Impulse_Functions =
 	
 	self.impulse = 0;
 };
-
-void() CheckImpulses =
-{
-	self.impulse = 0;
-}
 
 void(entity ent) CheckPowerups =
 {
@@ -1921,12 +1920,12 @@ void() CheckPlayer =
 }
 
 //
-// Wep_UpdateRecoilAndSpread()
+// WeaponCore_UpdateRecoilAndSpread()
 // Somewhat-intelligent serverside Weapon Recoil
 // update system that takes into account velocity
 // and how long the weapon has been fired.
 //
-void() Wep_UpdateRecoilAndSpread =
+void() WeaponCore_UpdateRecoilAndSpread =
 {
 	// Moving? Our weapon spread should be the maximum.
 	if (self.velocity)
@@ -1952,327 +1951,319 @@ void() Wep_UpdateRecoilAndSpread =
     }
 }
 
-void () Weapon_Logic =
+//
+// WeaponCore_UpdateViewModels()
+// Updates animation playback for View models,
+// if applicable.
+//
+void() WeaponCore_UpdateViewModels =
 {
-	// HACK HACK: Don't let the frame updater take control of hold fire.
-	if (self.weaponframe == GetFrame(self.weapon, FIRE_HOLD) && GetFrame(self.weapon, FIRE_HOLD) != 0 && self.weaponmodel == GetWeaponModel(self.weapon, 0)) {
+	// If the weapon has a "Hold Fire" frame (e.g., M2 Flamethrower)
+	// And it's actively firing, we shouldn't force an update.
+	float hold_fire_frame = GetFrame(self.weapon, FIRE_HOLD); // Avoid iterating through long switch twice.
+	if (self.weaponmodel == GetWeaponModel(self.weapon, false) && 
+	hold_fire_frame != 0 && self.weaponframe == hold_fire_frame)
+		return;
 
-	} else {
-		W_Frame_Update();
-		W2_Frame_Update();
+	// Checks passed -- update view model animations.
+	W_Frame_Update();
+	W2_Frame_Update();
+};
+
+//
+// WeaponCore_ResetHoldFireWeapons()
+// Allows for a "Hold Fire" weapon to reach its base
+// position again.
+//
+void() WeaponCore_ResetHoldFireWeapon =
+{
+	float hold_fire_frame = GetFrame(self.weapon, FIRE_HOLD); // Avoid iterating through long switch twice.
+	if (hold_fire_frame != 0 && self.weaponframe == hold_fire_frame && 
+	self.weaponmodel == GetWeaponModel(self.weapon, 0)) {
+		self.weaponframe = 0;
 	}
-	
-		
-	Impulse_Functions();
+};
 
-#ifndef FTE
-
-	// For non-FTE only to tell our engine to display the scope
+//
+// WeaponCore_UpdateSniperScope
+// If eligible, reports to the client via
+// the .zoom stat to draw the Sniper Scope
+// HUD graphic.
+//
+void() WeaponCore_UpdateSniperScope =
+{
 	if ((self.scopetime < time) && self.scopetime) {
 		self.scopetime = 0;
 		self.zoom = 2;
 		self.weapon2model = "";
 		self.weaponmodel = "";
 	}
+};
+
+//
+// WeaponCore_UpdateWeaponStats()
+// Specific weapon fields are used to network weapon
+// stats to the client, since arrays and structs
+// can't be used for this task. This is where we store
+// them for pass-off.
+//
+inline void() WeaponCore_UpdateWeaponStats =
+{
+	self.currentammo = self.weapons[0].weapon_reserve;			// Weapon Reserve Ammo
+	self.currentmag = self.weapons[0].weapon_magazine;			// Weapon Magazine
+	self.currentmag2 = self.weapons[0].weapon_magazine_left;	// Left-side Weapon Magazine
+};
+
+//
+// WeaponCore_FireButtonPressed()
+// Executed when WeaponCore_ClientLogic
+// detects that button0 has been pressed.
+//
+void() WeaponCore_FireButtonPressed =
+{
+	// With keyboard/mouse input, we want akimbo weapons to actually correspond
+	// to which click of the mouse you've provided, which is different behavior
+	// to single-hand weapons, where left click fires its right-side. (Hooray
+	// for ternaries!).
+#ifdef FTE
+
+	(IsDualWeapon(self.weapon)) ? W_Fire(S_LEFT) : W_Fire(S_RIGHT);
 
 #else
 
-	UpdatePunchangle(self);
+	// Always fire right-side elsewhere.
+	W_Fire(S_RIGHT);
 
 #endif // FTE
+};
 
-	// If the player is aiming down the sight while prone and moving,
-	// force them to stop
-	if (self.stance == 0 && self.velocity && self.zoom) {
-		W_AimOut();
-		self.zoom = 0;
-
+//
+// WeaponCore_FireButtonReleased()
+// Executed when WeaponCore_ClientLogic
+// detects that button0 has been released.
+//
+void() WeaponCore_FireButtonReleased =
+{
+	// Allow semi-automatic fire again -- see WeaponCore_FireButtonPressed() for platform discrepancy.
 #ifdef FTE
 
-		self.viewzoom = 1;
-		UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-		UpdateV2model(self.weapon2model, 0);
-
-#endif // FTE
-
-	}
-
-	//
-	// Force-ADS if toggled
-	//
-	if (cvar("cl_adsmode")) {
-		// Toggle ADS back and forth
-		if (self.ads_toggle == false) {
-			W_AimOut();
-			self.zoom = 0;
-
-#ifdef FTE
-
-			self.viewzoom = 1;
-			UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-			UpdateV2model(self.weapon2model, 0);
-
-#endif // FTE
-		} else if (self.reload_delay < time && self.reload_delay2 < time &&
-		self.knife_delay < time && self.grenade_delay < time) {
-			if (self.stance == 0 && self.velocity)
-				return;
-
-			W_AimIn();
-
-#ifdef FTE
-
-			if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-						if (self.scopetime >= time) {
-							self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-							self.zoom = 2;
-						}
-			} else {
-				self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-			}
-
-#endif // FTE
-
-			if (!self.zoom) {
-				if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-					SetUpdate(self, UT_ZOOM2, 0, 0, 0);
-					self.zoom = 2;
-					self.scopetime = time + 0.3;
-				} else {
-					self.zoom = 1;
-				}
-			}
-		}
-	}
-
-	//
-	// Fire Button Logic
-	// NOTE: Since the right weapon is the "normal" side there's some
-	// flip flop logic on FTE so that LMB will fire the left side instead.
-	//
-
-	// Right Trigger/LMB/etc.
-	if (self.button0) {
-
-#ifdef FTE
-
-		if (IsDualWeapon(self.weapon)) { W_Fire(S_LEFT); } else { W_Fire(S_RIGHT); }
+	(IsDualWeapon(self.weapon)) ? self.semi_actions &= ~SEMIACTION_FIRE_LEFT : self.semi_actions &= ~SEMIACTION_FIRE_RIGHT;
 
 #else
+
+	// Always allow right-side elsewhere.
+	self.semi_actions &= ~SEMIACTION_FIRE_RIGHT;
+
+#endif // FTE
+
+	// Make sure Hold-special weapons are allowed
+	// back to base-frame.
+	WeaponCore_ResetHoldFireWeapon();
+};
+
+//
+// WeaponCore_AimButtonPressed()
+// Executed when WeaponCore_ClientLogic
+// detects that button8 has been pressed.
+//
+void() WeaponCore_AimButtonPressed =
+{
+	// If we're holding an akimbo weapon, we actually want to
+	// fire our secondary as opposed to Aiming down the Sight.
+	if (IsDualWeapon(self.weapon)) {
+#ifdef FTE
 
 		W_Fire(S_RIGHT);
 
-#endif // FTE
-
-	} else {
-		// Check for release for semi automatic weapons.
-
-#ifdef FTE
-
-		if (IsDualWeapon(self.weapon)) { self.semi2 = false; } else { self.semi = false; }
-
-		// Hold fire weapons should get set back to base frame.
-		if (GetFrame(self.weapon, FIRE_HOLD) != 0 && self.weaponframe == GetFrame(self.weapon, FIRE_HOLD) &&
-		self.weaponmodel == GetWeaponModel(self.weapon, 0)) {
-			self.weaponframe = 0;
-		}
-
 #else
 
-		self.semi = false;
+		W_Fire(S_LEFT);
 
 #endif // FTE
 
+	} 
+	// Don't permit Aiming down the Sights if the client
+	// is moving and Prone.
+	else if (!self.ads_release) {
+		W_AimIn();
 	}
+};
 
-	// Left Trigger/RMB/etc.
-	if (self.button8) {
-		if (IsDualWeapon(self.weapon)) {
-
-#ifdef FTE
-
-			W_Fire(S_RIGHT);
-
-#else
-
-			W_Fire(S_LEFT);
-
-#endif // FTE
-
-		} else {
-			if (cvar("cl_adsmode")) {
-				if (self.ads_release == false)
-					return;
-
-				self.ads_toggle = !self.ads_toggle;
-				self.ads_release = false;
-			} else {
-				if (self.stance == 0 && self.velocity)
-					return;
-
-				W_AimIn();
-
-#ifdef FTE
-
-				if (self.zoom) {
-					if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-						if (self.scopetime >= time)
-							self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-					} else {
-						float zoom_factor = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-						float sigmoid_input = (self.viewzoom - zoom_factor) * 10; // multiply by 10 to adjust the steepness of the sigmoid
-						float sigmoid_output = 1 / (1 + exp(-sigmoid_input)); // apply the sigmoid function
-						float zoom_speed = 0.06 * (sigmoid_output + 0.5) * (frametime*40); // adjust the zoom speed based on the sigmoid output
-
-						if (self.viewzoom > zoom_factor) {
-							self.viewzoom -= zoom_speed;
-							if (self.viewzoom < zoom_factor)
-								self.viewzoom = zoom_factor;
-						} else {
-							self.viewzoom = zoom_factor;
-						}
-					}
-				}
-
-#endif // FTE
-
-			}
-		}
-	}
-	// AIM button is released
-	else if (!self.button8 && self.zoom) {
-		// So ADS toggle knows not to spam updates.
-		self.ads_release = true;
-
-		if (cvar("cl_adsmode") && self.ads_toggle == true)
-			return;
-
-#ifdef FTE
-
-		if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-			self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-			ReturnWeaponModel();
-			UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-			UpdateV2model(self.weapon2model, 0);
-			self.viewzoom = 1;
-			self.zoom = 0;
-			if (self.weapons[0].weapon_magazine == 0)
-				W_Reload(S_BOTH);
-		} else {
-			if (self.viewzoom == 0.75) {
-				W_AimOut();
-			} else {
-				float zoom_factor2 = 1 + (0.018 * GetWeaponZoomAmount(self.weapon)); // increase zoom factor
-				float sigmoid_input2 = (zoom_factor2 - self.viewzoom) * 10; // adjust sigmoid input
-				float sigmoid_output2 = 1 / (1 + exp(-sigmoid_input2)); // apply the sigmoid function
-				float zoom_speed2 = 0.06 * (sigmoid_output2 + 0.5) * (frametime * 80); // adjust the zoom speed based on the sigmoid output
-
-				if (self.viewzoom < zoom_factor2) {
-					self.viewzoom += zoom_speed2;
-					if (self.viewzoom > zoom_factor2)
-						self.viewzoom = zoom_factor2;
-				} else {
-					self.viewzoom = zoom_factor2;
-				}
-			}
-		}
-		
-		// Don't stop aiming until the camera is restored
-		if (self.viewzoom >= 1) {
-			self.viewzoom = 1;
-
-			if (self.zoom != 3)
-				self.zoom = 0;
-		}
-
-#else
-
+//
+// WeaponCore_AimButtonReleased()
+// Executed when WeaponCore_ClientLogic
+// detects that button8 has been released.
+//
+void() WeaponCore_AimButtonReleased =
+{
+	// Lower weapon if Aiming down the Sight.
+	if (!self.ads_release)
 		W_AimOut();
 
-#endif // FTE
-
-	} else {
-		
-		// So ADS toggle knows not to spam updates.
-		self.ads_release = true;
-
-		// Check for release for semi automatic weapons.
-		if (IsDualWeapon(self.weapon)) {
+	// Allow akimbo semi-automatic weapons to fire again.
+	if (IsDualWeapon(self.weapon)) {
 
 #ifdef FTE
 
-			self.semi = false;
+		self.semi_actions &= ~SEMIACTION_FIRE_RIGHT;
 
 #else
 
-			self.semi2 = false;
+		self.semi_actions &= ~SEMIACTION_FIRE_LEFT;
 
 #endif // FTE
+	}
+};
 
-		}
-	}
-	
-	if (!self.button7) {
-		self.semiuse = false;
-	}
-	
-	if (self.button4 && !self.semiswitch && self.weapon_count != 1 && !self.zoom)
-	{
-		W_PutOut();
-		self.semiswitch = true;
-	} else if (!self.button4 && self.semiswitch && self.impulse != 110 && self.impulse != 111) {
-		self.semiswitch = false;
-	}
-	
-	if (self.button3 && self.isBuying != true && self.seminade != true)
-	{
-        if (self.pri_grenade_state == 0)
-		    W_Grenade();
-        else
-            W_PrimeBetty();
-		self.seminade = true;
-	} else if (!self.button3 && self.seminade) {
-		self.seminade = false;
-	}
+//
+// WeaponCore_GrenadeButtonPressed()
+// Executed when WeaponCore_ClientLogic
+// detects that button3 has been pressed.
+//
+void() WeaponCore_GrenadeButtonPressed =
+{
+	// Leave if there is already a Grenade action
+	// being performed.
+	if (self.grenade_delay > time || (self.semi_actions & SEMIACTION_GRENADE))
+		return;
 
-	if (self.button5 && !self.semireload)
-	{
-		W_Reload(S_BOTH);
-		self.semireload = TRUE;
-	}
-	else if (!self.button5) {
-		self.semireload = FALSE;
-	}
-	
-	if (self.button6 && !self.semiknife)
-	{ 
+	if (self.pri_grenade_state == 0)
+		W_Grenade();
+    else
+        W_PrimeBetty();
 
-		// Don't do this at all on FTE.
+	self.semi_actions |= SEMIACTION_GRENADE;
+};
+
+//
+// WeaponCore_MeleeButtonPressed()
+// Executed when WeaponCore_ClientLogic
+// detects that button6 has been pressed.
+//
+void() WeaponCore_MeleeButtonPressed =
+{
+	// On platforms with limited control schemes, 
+	// performing a melee-action while sprinting
+	// triggers Dive-to-Prone.
 #ifndef FTE
 
-		if (self.sprinting) {
-			dolphin_dive();
-			return;
-		}
+	if (self.sprinting) {
+		dolphin_dive();
+		return;
+	}
 
 #endif // FTE
 
-		W_Knife();
-		self.semiknife = true;
-	}
-	else if (!self.button6)
-		self.semiknife = false;
-	
-	CheckImpulses();
-	CheckPlayer();	
-	Wep_UpdateRecoilAndSpread();
+	if (self.semi_actions & SEMIACTION_MELEE)
+		return;
 
-	// These are sent to clients in engine for stat
-	// reference.
-	self.currentammo = self.weapons[0].weapon_reserve;
-	self.currentmag = self.weapons[0].weapon_magazine;
-	self.currentmag2 = self.weapons[0].weapon_magazine_left;
-}
+	W_Knife();
+	self.semi_actions |= SEMIACTION_MELEE;
+};
+
+//
+// WeaponCore_ClientLogic()
+// Executes every frame on clients, dictates
+// weapon behaviors such as receiving inputs
+// or updating animation playback.
+//
+void() WeaponCore_ClientLogic =
+{
+	// Make sure information about our weapon stats
+	// are being networked to the client.
+	WeaponCore_UpdateWeaponStats();
+
+	// Viewmodel animation playback.
+	WeaponCore_UpdateViewModels();
+
+	// Dynamic Weapon Recoil and Spread adjustment.
+	WeaponCore_UpdateRecoilAndSpread();
+
+	// Register changes to client's .impulse
+	Impulse_Functions();
+
+	// Tells client to draw Sniper HUD element.
+	WeaponCore_UpdateSniperScope();
+
+	// Call to the client to do some update
+	// checks specific to them.
+	CheckPlayer();
+
+#ifdef FTE
+
+	// FTE-only: custom Punchangle Interpolation Implementation
+	FTE_InterpolatePunchAngle(self);
+
+	// FTE-only: update dynamic FOV
+	FTE_UpdateDynamicFOV(self);
+
+#endif // FTE
+
+	// If the client is Aiming down the Sight while prone and
+	// moving, force them to stop
+	if (self.stance == PLAYER_STANCE_PRONE && self.velocity && self.zoom) {
+		W_AimOut();
+	}
+
+	// Fire Button Pressed
+	if (self.button0) {
+		WeaponCore_FireButtonPressed();
+	}
+	// Fire Button Released
+	else {
+		WeaponCore_FireButtonReleased();
+	}
+
+	// If Client has ADS bound to impulse 26 (toggle),
+	// check if the flag is set and W_AimIn()
+	if (self.ads_release)
+		W_AimIn();
+	else
+		W_AimOut();
+
+	// ADS Button Pressed
+	if (self.button8) {
+		WeaponCore_AimButtonPressed();
+	}
+	// ADS Button Released
+	else {
+		WeaponCore_AimButtonReleased();
+	}
+
+	// Use Button Released
+	if (!self.button7) {
+		// Allow use to be triggered again.
+		self.semi_actions &= ~SEMIACTION_USE;
+	}
+
+	// Switch Button Pressed
+	if (self.button4) {
+		W_PutOut();
+	} else {
+		// Allow Switch to be pressed again.
+		self.semi_actions &= ~SEMIACTION_WEAPONSWAP;
+	}
+
+	// Grenade Button Pressed
+	if (self.button3) {
+		WeaponCore_GrenadeButtonPressed();
+	} else {
+		// Allow Grenade to be pressed again.
+		self.semi_actions &= ~SEMIACTION_GRENADE;
+	}
+
+	// Reload Button Pressed
+	if (self.button5) {
+		W_Reload(S_BOTH);
+	}
+
+	// Melee Button Pressed
+	if (self.button6) {
+		WeaponCore_MeleeButtonPressed();
+	} 
+	// Melee Button Released
+	else {
+		// Allow Melee to be pressed again
+		self.semi_actions &= ~SEMIACTION_MELEE;
+	}
+};

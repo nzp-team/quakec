@@ -155,7 +155,7 @@ void() W_SprintStop;
 //Weaponsystem defines
 void SwitchWeapon(float to);
 void GetUp();
-void Weapon_Logic();
+void WeaponCore_ClientLogic();
 void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float downed;
 .float fire_delay;
@@ -174,17 +174,22 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float currentmagbk;
 .float currentmagbk2;
 .float currentammobk;
-.float semi;
-.float semi2;
-.float semiuse;
-.float semiswitch;		// Weapon Swap Toggle
-.float seminade;		// Grenade Toggle
-.float semireload;
 .float NeedLoad;
 .string weapon2model;
 .float weapon2frame;
 .float reloadinterupted;
 .float hitcount;
+
+#define SEMIACTION_FIRE_RIGHT	1
+#define SEMIACTION_FIRE_LEFT 	2
+#define SEMIACTION_USE			4
+#define SEMIACTION_GRENADE		8
+#define SEMIACTION_MELEE		16
+#define SEMIACTION_WAYPOINT		32
+#define SEMIACTION_WEAPONSWAP	64
+
+// Semi-automatic actions (requires button release)
+.float semi_actions;
 
 #define MAX_PLAYER_WEAPONS 		3
 #define MULEKICK_WEAPON_SLOT	3
@@ -214,7 +219,6 @@ var struct guninventory_struct
 #define S_BOTH 2
 
 //Knife 
-.float semiknife;
 .float knife_delay;
 .float bowie;
 

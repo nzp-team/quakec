@@ -4509,6 +4509,26 @@ float(float wep) GetWeaponZoomAmount =
 }
 
 //
+// WepDef_HasSniperScore(weapon)
+// Returns true if the weapon should display the Scope
+// HUD element when Aiming down the Sights.
+//
+float(float weapon) WepDef_HasSniperScore =
+{
+	switch(weapon) {
+		case W_KAR_SCOPE:
+		case W_HEADCRACKER:
+		case W_PTRS:
+		case W_PENETRATOR:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
 // WepDef_WeaponMaxSpread(weapon, stance)
 // Returns the maximum amount of Spread a Weapon
 // can output. This is based on data manipulation of

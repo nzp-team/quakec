@@ -268,9 +268,9 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		}
 	}
 
-	if (other.button7 && !other.semiuse)
+	if (other.button7 && !(other.semi_actions & SEMIACTION_USE))
 	{
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		if (other.points >= self.cost)
 		{
 			door_fire();
@@ -296,7 +296,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 			{
 				centerprint (other, STR_NOTENOUGHPOINTS);
 				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
-				other.semiuse = 1;
+				other.semi_actions |= SEMIACTION_USE;
 			}
 		}
 	}

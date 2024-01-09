@@ -344,53 +344,97 @@ void(entity who) nzp_bettyprompt =
 
 #endif // FTE
 
-void(entity who) UpdatePunchangle =
-{
 #ifdef FTE
 
-	// naievil -- shit logic lol...but result looks clean as fuck...
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_PUNCHANGLE);
-	WriteCoord(MSG_MULTICAST, who.punchangle_x);
-	WriteCoord(MSG_MULTICAST, who.punchangle_y);
-	WriteCoord(MSG_MULTICAST, who.punchangle_z);
-	msg_entity = who;
-	multicast('0 0 0', MULTICAST_ONE);
+//
+// FTE_InterpolatePunchAngle(person)
+// Punch Angle interpolation from our native sourceports,
+// handled in SSQC for FTE.
+//
+void(entity person) FTE_InterpolatePunchAngle =
+{
+	vector last_punchangle = person.punchangle;
+	float lerp_factor = 0.9*frametime; // It's fine that this is server-dependent, since it's server-executed..
 
-	vector tempv = who.punchangle;
+	// Early-out: Let's not spam fabs calls if we have no punchangle.
+	if (person.punchangle_x == 0 && person.punchangle_y == 0)
+		return;
 
-	if (fabs(who.punchangle_x) > 0.01) {
-		if (who.punchangle_x >= 0.05*tempv_x)
-			who.punchangle_x -= 0.05*tempv_x;
-		else if (who.punchangle_x <= -0.05*tempv_x)
-			who.punchangle_x -= 0.05*tempv_x;
-		else
-			who.punchangle_x = 0;
-	} else
-		who.punchangle_x = 0;
+	// Begin interpolation.
+	for(int i = 0; i < 2; i++) {
+		float difference = last_punchangle[i] * lerp_factor;
 
-	if (fabs(who.punchangle_y) > 0.01) {
-		if (who.punchangle_y >= 0.05*tempv_y)
-			who.punchangle_y -= 0.05*tempv_y;
-		else if (who.punchangle_y <= -0.05*tempv_y)
-			who.punchangle_y -= 0.05*tempv_y;
-		else
-			who.punchangle_y = 0;
-	} else
-		who.punchangle_y = 0;
+		if (fabs(person.punchangle[i]) > 0.01) {
+			if (person.punchangle[i] >= difference)
+				person.punchangle[i] -= difference;
+			else if (person.punchangle[i] <= -difference)
+				person.punchangle[i] -= difference;
+			else
+				person.punchangle[i] = 0;
+		} else {
+			person.punchangle[i] = 0;
+		}
+	}
+};
 
-	if (fabs(who.punchangle_z) > 0.01) {
-		if (who.punchangle_z >= 0.05*tempv_z)
-			who.punchangle_z -= 0.05*tempv_z;
-		else if (who.punchangle_z <= -0.05*tempv_z)
-			who.punchangle_z -= 0.05*tempv_z;
-		else
-			who.punchangle_z = 0;
-	} else
-		who.punchangle_z = 0;
+//
+// FTE_UpdateDynamicFOV(person)
+// Context-sensitive adjustment of client's viewzoom
+// factor.
+//
+void(entity person) FTE_UpdateDynamicFOV =
+{
+	// Early-out if client is not zoomed in at all
+	// and viewzoom is correctly applied
+	if (!person.zoom && person.viewzoom == 1)
+	 	return;
+
+	// Calculate viewzoom FOV differential
+	float viewzoom_differential = 1 - (0.018*GetWeaponZoomAmount(person.weapon));
+	float has_scoped_weapon = WepDef_HasSniperScore(person.weapon);
+
+	// Sniper scope-in: Force-set as soon as the Scope draws
+	if (person.zoom == 2) {
+		person.viewzoom = viewzoom_differential;
+		return;
+	}
+	// Force-set viewzoom back to one if client is holding a scoped
+	// weapon and need their viewzoom adjusted.
+	else if (person.viewzoom != 1 && has_scoped_weapon) {
+		person.viewzoom = 1;
+		return;
+	} else if (has_scoped_weapon) {
+		return;
+	}
+
+	// Utilize a sigmoid curve to minimize motion sickness.
+	float sigmoid_input, sigmoid_output;
+	float viewzoom_adjustment_rate;
+
+	// If we're Aiming down the Sight and viewzoom has not reached it's end
+	if (person.zoom == 1 && person.viewzoom != viewzoom_differential) {
+		sigmoid_input = (person.viewzoom - viewzoom_differential) * 10;
+		sigmoid_output = 1 / (1 + exp(-sigmoid_input));
+		viewzoom_adjustment_rate = 0.06 * (sigmoid_output + 0.5) * (frametime*20);
+
+		if (person.viewzoom > viewzoom_differential) {
+			person.viewzoom -= viewzoom_adjustment_rate;
+			if (person.viewzoom < viewzoom_differential)
+				person.viewzoom = viewzoom_differential;
+		} else {
+			person.viewzoom = viewzoom_differential;
+		}
+	}
+	// If we're not Aiming down the Sight and viewzoom is not reset
+	else if (person.zoom != 1 && person.viewzoom != 1) {
+		// We can zoom out at a constant rate without consequence.
+		person.viewzoom += 0.85 * frametime;
+		if (person.viewzoom > 1)
+			person.viewzoom = 1;
+	}
+};
 
 #endif // FTE
-}
 
 #ifdef FTE
 void(string h, float h2, entity who) pushHUD = {

@@ -167,7 +167,7 @@ void () WallWeapon_TouchTrigger =
 
 			useprint(other, 3, wcost, wep);
 
-			if (!other.button7 || other.semiuse || other.isBuying) {
+			if (!other.button7 || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 				return;
 			}
 
@@ -181,7 +181,7 @@ void () WallWeapon_TouchTrigger =
 			if (ammo >= wall_ammo)
 				return;
 
-			other.semiuse = true;
+			other.semi_actions |= SEMIACTION_USE;
 
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
@@ -225,11 +225,11 @@ void () WallWeapon_TouchTrigger =
 
 			useprint(other, 3, wcost, other.weapon);
 
-			if (!other.button7 || other.semiuse || other.isBuying) {
+			if (!other.button7 || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 				return;
 			}
 
-			other.semiuse = true;
+			other.semi_actions |= SEMIACTION_USE;
 
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
@@ -262,7 +262,7 @@ void () WallWeapon_TouchTrigger =
 
 		useprint (other, 4, self.cost, self.weapon);
 
-		if (!other.button7 || other.semiuse)
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE))
 			return;
 		if (other.points < self.cost2)
 		{
@@ -288,7 +288,7 @@ void () WallWeapon_TouchTrigger =
 				self = oldent;
 			}
 		}
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		return;
 	}
 	else if (self.weapon == W_GRENADE)
@@ -297,7 +297,7 @@ void () WallWeapon_TouchTrigger =
 			useprint (other, 3, self.cost2, self.weapon);
 		else
 			return;
-		if (!other.button7 || other.semiuse)
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE))
 			return;
 		if (other.points < self.cost)
 		{
@@ -321,7 +321,7 @@ void () WallWeapon_TouchTrigger =
 				self = oldent;
 			}
 		}
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		return;
 	}
 	else if (self.weapon == W_BOWIE)
@@ -362,18 +362,16 @@ void () WallWeapon_TouchTrigger =
 		//centerprint(other, self.message);
       	useprint (other, 4, self.cost, self.weapon);
 
-		if (!other.button7 || other.semiuse) {
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 
-		other.semiuse = 1;
+		other.semi_actions |= SEMIACTION_USE;
 		if (other.points < self.cost) {
 			centerprint (other, STR_NOTENOUGHPOINTS);
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 			return;
 		}
-
-		other.semiuse = true;
 		other.ach_tracker_coll++;
 
 		sound(other, 0, "sounds/misc/ching.wav", 1, 1);

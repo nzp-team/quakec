@@ -680,9 +680,9 @@ void() MBOX_Touch =
 		useprint (other, 7, 0, self.boxweapon.weapon);
 	}
 	
-	if (other.button7 && !other.semiuse)
+	if (other.button7 && !(other.semi_actions & SEMIACTION_USE))
 	{
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		if (!self.boxstatus)
 		{
 			if (other.points >= mystery_box_cost)

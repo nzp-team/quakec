@@ -113,7 +113,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	fullscreenval = cvar("vid_fullscreen");
 
 	// cvars for custom settings
-	autocvar(cl_adsmode, 0);
 	autocvar(cl_cinematic, 0);
 	autocvar(nzp_particles, 1);
 	autocvar(nzp_decals, 1);
@@ -1426,9 +1425,6 @@ noref void() CSQC_Parse_Event =
 					if (Hitmark_time < time)
 						Hitmark_time = time + 0.2;
 					break;
-				case 4:
-					zoom_2_time = time + 0.05;
-					break;
 				case 5:
 					crosshair_spread_time = time + 70/getWeaponRecoilReturn(getstatf(STAT_ACTIVEWEAPON));
 					break;
@@ -1471,12 +1467,6 @@ noref void() CSQC_Parse_Event =
 		case EVENT_BLACKOUT:
 			fade_time = readbyte();
 			fade_type = readbyte();
-			break;
-		case EVENT_PUNCHANGLE:			
-			vector changetest;
-			changetest_x = readcoord();
-			changetest_y = readcoord();
-			changetest_z = readcoord();
 			break;
 		case EVENT_SCROLLTEXT:
 			scrolltext = readstring();

@@ -200,7 +200,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
             break;
     }
 
-	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + (duration - 0.1);
+	self.switch_delay = self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + (duration - 0.1);
 
     UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 	self.weapon2model = GetWeapon2Model(self.weapon);
@@ -264,7 +264,7 @@ void Weapon_SwapWeapons(float play_animation)
 		SwitchWeapon(self.weapon);
 		W_HideCrosshair(self);
 		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
-		
+
 #ifndef FTE
 
 		self.weaponskin = self.weapons[0].weapon_skin;

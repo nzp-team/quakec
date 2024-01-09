@@ -4,6 +4,7 @@
 ../source/shared/defs/custom.qc
 ../source/server/defs/custom.qc
 ../source/shared/weapon_defines.qc
+../source/server/utilities/math.qc
 ../source/server/clientfuncs.qc
 ../source/server/hash_table.qc
 
@@ -13,7 +14,6 @@
 ../source/server/utilities/weapon_utilities.qc
 ../source/server/utilities/game_restart.qc
 ../source/server/utilities/command_parser.qc
-../source/server/utilities/math.qc
 ../source/server/player.qc
 ../source/server/damage.qc
 

@@ -772,9 +772,14 @@ void() settings_sens2 = {
 
 void() settings_adsmode =
 {
-	float adsmode = cvar("cl_adsmode");
+	tokenize(findkeysforcommand("+button8"));
+	string button8_key = strtoupper(keynumtostring(stof(argv(0))));
 
-	localcmd(strcat("seta cl_adsmode ", ftos(!adsmode)));
+	// ADS Mode
+	if (button8_key == "MOUSE2")
+		localcmd("bind MOUSE2 \"impulse 26\"\n");
+	else
+		localcmd("bind MOUSE2 \"+button8\"\n");
 }
 
 void() setting_mastervol =
@@ -1442,8 +1447,11 @@ void() Draw_Extra_CSettings =
 	string cset_desc;
 	cset_desc = "";
 
+	tokenize(findkeysforcommand("+button8"));
+	string button8_key = strtoupper(keynumtostring(stof(argv(0))));
+
 	// ADS Mode
-	if (cvar("cl_adsmode") == 0)
+	if (button8_key == "MOUSE2")
 		drawstring([320, 75], "HOLD", [14, 14], [1, 1, 1], 1, 0);
 	else
 		drawstring([320, 75], "TOGGLE", [14, 14], [1, 1, 1], 1, 0);

@@ -173,6 +173,5 @@ void() W_PrimeBetty =
 
     // Subtract a betty from our inventory, set up delays, prevent use spam.
 	self.secondary_grenades -= 1;
-	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.seminade = true;
+	self.grenade_delay = self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
 }

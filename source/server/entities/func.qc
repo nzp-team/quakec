@@ -339,8 +339,8 @@ void() button_touch =
 			centerprint(other,ftos(self.cost));
 			centerprint(other,"]\n");
 
-			if (other.button7 && !other.semiuse) {
-				other.semiuse = true;
+			if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+				other.semi_actions |= SEMIACTION_USE;
 				if(other.points >= self.cost) {
 					self.enemy = other;
 					addmoney(other, 0 - self.cost, FALSE);
