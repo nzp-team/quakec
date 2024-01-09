@@ -1650,6 +1650,7 @@ void () Impulse_Functions =
 			break;
 		case 26:
 			self.ads_release = !self.ads_release;
+			self.has_ads_toggle = true;
 			break;
 		case 33:
 			W_PrimeBetty();
@@ -2086,6 +2087,7 @@ void() WeaponCore_AimButtonPressed =
 	// is moving and Prone.
 	else if (!self.ads_release) {
 		W_AimIn();
+		self.has_ads_toggle = false;
 	}
 };
 
@@ -2218,7 +2220,7 @@ void() WeaponCore_ClientLogic =
 	// check if the flag is set and W_AimIn()
 	if (self.ads_release)
 		W_AimIn();
-	else
+	else if (self.has_ads_toggle)
 		W_AimOut();
 
 	// ADS Button Pressed
