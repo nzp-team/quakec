@@ -197,22 +197,28 @@ float 	map_compatibility_mode;
 #define AIM_IN        		24	// Frame to snap to when in ADS (optional)
 #define AIM_FIRE_START      25	// Start of firing while ADS (optional)
 #define AIM_FIRE_END        26	// End of firing while ADS (optional)
+#define MELEE_NORMAL_START	27 	// Start of normal (non-lunged) melee frame, for melee weapons
+#define MELEE_NORMAL_END	28 	// End of normal (non-lunged) melee frame, for melee weapons
+#define MELEE_LUNGED_START	29 	// Start of lunged melee frame, for melee weapons
+#define MELEE_LUNGED_END	30 	// End of lunged melee frame, for melee weapons
 
 //Animation types
-#define RELOAD		1
-#define GRENADE		2
-#define FIRE		3
-#define SWITCHWEP	4
-#define KNIFE		5
-#define ZOOM		6
-#define SPRINT		7
-#define PERK		8
-#define KNIFE2		9
-#define REVIVE		10
-#define RELOAD_EMP 	11
-#define RELOAD_PAR 	12
-#define PUTOUT 		13
-#define TAKEOUT 	14
+#define RELOAD			1
+#define GRENADE			2
+#define FIRE			3
+#define SWITCHWEP		4
+#define KNIFE			5
+#define ZOOM			6
+#define SPRINT			7
+#define PERK			8
+#define KNIFE2			9
+#define REVIVE			10
+#define RELOAD_EMP 		11
+#define RELOAD_PAR 		12
+#define PUTOUT 			13
+#define TAKEOUT 		14
+#define MELEE_NORMAL	15
+#define MELEE_LUNGED 	16
 
 #define S_HEADSHOT	1
 #define S_KNIFE		2

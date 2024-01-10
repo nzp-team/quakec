@@ -1443,6 +1443,10 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.4;
 			else if (delaytype == TAKEOUT)
 				return 0.4;
+			else if (delaytype == MELEE_NORMAL)
+				return 0.4;
+			else if (delaytype == MELEE_LUNGED)
+				return 1.4;
 			break;
     }
 
@@ -2638,6 +2642,14 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 50;
 				case RELOAD_CANCEL:
 					return 41;
+				case MELEE_NORMAL_START:
+					return 8;
+				case MELEE_NORMAL_END:
+					return 13;
+				case MELEE_LUNGED_START:
+					return 14;
+				case MELEE_LUNGED_END:
+					return 24;
 			}
 			break;
 	}
@@ -4607,6 +4619,175 @@ float(float weapon) WepDef_DoesNotADS =
 
 	return false;
 }
+
+//
+// WepDef_GetWeaponMeleeRange(weapon)
+// Returns the range to be used when performing a trace
+// to dictate how far away an object has to be for
+// a Melee to perform successfully.
+//
+float(float weapon) WepDef_GetWeaponMeleeRange =
+{
+	switch(weapon) {
+		case W_BK:
+		case W_KRAUS:
+			return 96;
+		default:
+			return 88;
+	}
+
+	return 88;
+};
+
+// FIXME -- data-drive these.
+#define MELEE_BOWIE_FIRST_FRAME_NORMAL 	0
+#define MELEE_BOWIE_LAST_FRAME_NORMAL	3
+#define MELEE_BOWIE_FIRST_FRAME_LUNGED	4
+#define MELEE_BOWIE_LAST_FRAME_LUNGED	10
+#define MELEE_BOWIE_DURATION_NORMAL		0.65
+#define MELEE_BOWIE_DURATION_LUNGED		1.0
+#define MELEE_BOWIE_VIEWMODEL_PATH 		"models/weapons/knife/v_bowie.mdl"
+#define MELEE_KNIFE_FIRST_FRAME_NORMAL 	0
+#define MELEE_KNIFE_LAST_FRAME_NORMAL	3
+#define MELEE_KNIFE_FIRST_FRAME_LUNGED	4
+#define MELEE_KNIFE_LAST_FRAME_LUNGED	12
+#define MELEE_KNIFE_DURATION_NORMAL		0.45
+#define MELEE_KNIFE_DURATION_LUNGED		0.74
+#define MELEE_KNIFE_VIEWMODEL_PATH 		"models/weapons/knife/v_knife.mdl"
+
+//
+// WepDef_IsMeleeWeapon(weapon)
+// Returns true if the weapon provided has a melee-action
+//
+float(float weapon) WepDef_IsMeleeWeapon =
+{
+	switch(weapon) {
+		case W_BK:
+		case W_KRAUS:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
+// WepDef_GetMeleeModel(weapon, has_bowie)
+// Returns the viewmodel to play for Melee animations.
+//
+string(float weapon, float has_bowie) WepDef_GetMeleeModel =
+{
+	if (WepDef_IsMeleeWeapon(weapon)) {
+		return GetWeaponModel(weapon, false);
+	} else {
+		if (has_bowie)
+			return MELEE_BOWIE_VIEWMODEL_PATH;
+		else
+			return MELEE_KNIFE_VIEWMODEL_PATH;
+	}
+};
+
+//
+// WepDef_GetMeleeFirstFrame(weapon, did_lunge, has_bowie)
+// Returns the first frame of animation for Melee
+// relative to currently held weapon, if the attack
+// lunged or not, and if the Bowie Knife is in-hand.
+//
+float(float weapon, float did_lunge, float has_bowie) WepDef_GetMeleeFirstFrame =
+{
+	float return_value;
+	
+	if (did_lunge)
+		return_value = GetFrame(weapon, MELEE_LUNGED_START);
+	else
+		return_value = GetFrame(weapon, MELEE_NORMAL_START);
+
+	// We have a specific melee weapon.
+	if (return_value)
+		return return_value;
+
+	if (has_bowie) {
+		if (did_lunge)
+			return MELEE_BOWIE_FIRST_FRAME_LUNGED;
+		else
+			return MELEE_BOWIE_FIRST_FRAME_NORMAL;
+	} else {
+		if (did_lunge)
+			return MELEE_KNIFE_FIRST_FRAME_LUNGED;
+		else
+			return MELEE_KNIFE_FIRST_FRAME_NORMAL;
+	}
+
+	return 0;
+};
+
+//
+// WepDef_GetMeleeLastFrame(weapon, did_lunge, has_bowie)
+// Returns the final frame of animation for Melee
+// relative to currently held weapon, if the attack
+// lunged or not, and if the Bowie Knife is in-hand.
+//
+float(float weapon, float did_lunge, float has_bowie) WepDef_GetMeleeLastFrame =
+{
+	float return_value;
+	
+	if (did_lunge)
+		return_value = GetFrame(weapon, MELEE_LUNGED_END);
+	else
+		return_value = GetFrame(weapon, MELEE_NORMAL_END);
+
+	// We have a specific melee weapon.
+	if (return_value)
+		return return_value;
+
+	if (has_bowie) {
+		if (did_lunge)
+			return MELEE_BOWIE_LAST_FRAME_LUNGED;
+		else
+			return MELEE_BOWIE_LAST_FRAME_NORMAL;
+	} else {
+		if (did_lunge)
+			return MELEE_KNIFE_LAST_FRAME_LUNGED;
+		else
+			return MELEE_KNIFE_LAST_FRAME_NORMAL;
+	}
+
+	return 0;
+};
+
+//
+// WepDef_GetMeleeAnimDuration(weapon, did_lunge, has_bowie)
+// Returns the amount of time it should take for animation
+// playback of a Melee animation, given factors.
+//
+float(float weapon, float did_lunge, float has_bowie) WepDef_GetMeleeAnimDuration =
+{
+	float return_value;
+	
+	if (did_lunge)
+		return_value = getWeaponDelay(weapon, MELEE_LUNGED);
+	else
+		return_value = getWeaponDelay(weapon, MELEE_NORMAL);
+
+	// We have a specific melee weapon.
+	if (return_value)
+		return return_value;
+
+	if (has_bowie) {
+		if (did_lunge)
+			return MELEE_BOWIE_DURATION_LUNGED;
+		else
+			return MELEE_BOWIE_DURATION_NORMAL;
+	} else {
+		if (did_lunge)
+			return MELEE_KNIFE_DURATION_LUNGED;
+		else
+			return MELEE_KNIFE_DURATION_NORMAL;
+	}
+
+	return 0;
+};
 
 //
 // WepDef_DoesNotPlayUpgradedSound(weapon)

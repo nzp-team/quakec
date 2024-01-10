@@ -736,67 +736,6 @@ void Parse_Damage () = // DO NOT TOUCH
 	}
 }
 
-void() LungeKnifeHit =
-{		
-	vector	source,org;
-	float	f_damage;
-	entity	hit_ent;
-
-	makevectors (self.v_angle);
-	source = self.origin + self.view_ofs;
-
-	if (self.weapon == W_BK || self.weapon == W_KRAUS)
-		traceline (source, source + v_forward*80*1.2, 0, self); // naievil -- added some extra length
-	else
-		traceline (source, source + v_forward*74*1.2, 0, self); // naievil -- ^^
-	
-	org = trace_endpos - v_forward*3; // naievil -- changed to factor of 3 from 4
-	
-
-	if (trace_ent.takedamage)
-	{
-		if(trace_ent.classname == "item_radio" || trace_ent.classname == "teddy_spawn")
-		{
-			entity oldself;
-			oldself  = self;
-			self = trace_ent;
-			self.th_die();
-			self = oldself;
-			return;
-		}
-		sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
-		
-		// Calculate melee damage
-		f_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
-					
-		if (trace_ent.classname == "ai_zombie_head")
-		{
-			hit_ent = trace_ent.owner;
-		}
-		else if (trace_ent.classname == "ai_zombie_larm")
-		{
-			hit_ent = trace_ent.owner;
-		}
-		else if (trace_ent.classname == "ai_zombie_rarm")
-		{
-			hit_ent = trace_ent.owner;
-		}
-		else
-		{
-			hit_ent = trace_ent;
-		}
-		
-		if (hit_ent.takedamage)
-		{
-			org = source + (v_forward * 20);
-			SpawnBlood (org, org, 50);
-			//hit = 1;
-		}
-		
-		DamageHandler (hit_ent, self, f_damage, S_KNIFE);
-	}
-}
-
 void(float damage, vector dir, vector org, vector plane, entity hit_ent, float side) TraceAttack =
 {
 	vector  vel;
@@ -1200,135 +1139,125 @@ void(float side) W_Fire =
 
 }
 
+//
+// WeaponCore_Melee()
+// Performs the melee action, intelligent
+// against type of weaponry and lunge velocity
+// applied.
+//
 
-/******************************
-* W_Knife                     *
-******************************/
+#define WEAPONCORE_MELEE_LUNGEMIN	40	// Minimum amount of units away before lunge should be triggered.
 
-void () W_Knife =
+void() WeaponCore_Melee =
 {
-	if (time < self.knife_delay || self.new_anim_stop ||
-	  self.zoom || self.health == 10 || 
-	  (!(self.flags & FL_ONGROUND)))
+	// Do not trigger if we're Aiming down the Sight, or
+	// already melee-ing, or doing some other action.
+	if (self.knife_delay > time || self.new_anim_stop ||
+	self.new_anim2_stop || self.zoom || !(self.flags & FL_ONGROUND))
 		return;
 
-	vector	source;
-	entity	hit_ent = world;
-	//entity	oldself;
-	float	r, backupSkin;
-	vector	org;
-	float hit = false;
-	vector applied_velocity = '0 0 0';
-		
-	if (self.sprinting) {
-		W_SprintStop();
-	}
+	// Perform the third person animation if standing
+	if (self.stance == PLAYER_STANCE_STAND)
+		PAnim_Melee();
 
+	// Hide crosshair -- irrelevant during melee
 	W_HideCrosshair(self);
 
-	if (self.stance == 2)
-		PAnim_Melee();
-	
-	backupSkin = self.weaponskin;
-	self.weaponskin = 0;
-	sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife.wav", 1, ATTN_NORM);
-	makevectors (self.v_angle);
-	source = self.origin + self.view_ofs;
-	if (self.weapon == W_BK || self.weapon == W_KRAUS)
-		traceline (source, source + v_forward*80*1.2, 0, self);
-	else
-		traceline (source, source + v_forward*74*1.2, 0, self);
-	
-	org = trace_endpos - v_forward*4;
+	// Stop sprinting if we are
+	if (self.sprinting)
+		W_SprintStop();
 
-	r = fabs(vlen(source - org));
+	vector applied_velocity = '0 0 0'; // The lunge velocity we intend to apply to the player.
+	float melee_range = WepDef_GetWeaponMeleeRange(self.weapon); // Returns the range of the traceline to perform for hit detection.
+	float did_lunge = false;
 
-	if (trace_ent.takedamage)
-	{
-		if (trace_ent.classname == "ai_zombie_head")
-			hit_ent = trace_ent.owner;
-		else if (trace_ent.classname == "ai_zombie_larm")
-			hit_ent = trace_ent.owner;
-		else if (trace_ent.classname == "ai_zombie_rarm")
-			hit_ent = trace_ent.owner;
+	// Perform the traceline
+	makevectors(self.v_angle);
+	vector trace_source = self.origin + self.view_ofs;
+	traceline(trace_source, trace_source + v_forward * melee_range, 0, self);
+
+	// Target does not take damage -- no need to go any further
+	if (!trace_ent.takedamage && !(trace_ent.flags & FL_CLIENT)) {
+		// Hit a solid surface, so play hard melee sound.
+		if (trace_fraction < 1.0)
+			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);
+		// Dead air, swing!
 		else
-			hit_ent = trace_ent;
-		if (hit_ent.classname == "ai_zombie")
-			hit = true;
+			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife.wav", 1, ATTN_NORM);
+	} else {
+		// AI has a more involved routine than other entities
+		if (trace_ent.aistatus == "1") {
+			// Check if this is a Zombie limb, set to the body if so
+			if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
+				trace_ent = trace_ent.owner;
 
-		// if zombie has a head and it's instakill, gib for  a e s t h e t i c
-		if (hit_ent.head && instakill_finished >= time) {
-			spawn_gibs(hit_ent.head.origin);
-			setmodel(hit_ent.head, "");
+			// Additionally, if the Zombie has a head and Insta-Kill is active,
+			// remove its head.
+			if (trace_ent.head) {
+				spawn_gibs(trace_ent.head.origin);
+	 			setmodel(trace_ent.head, "");
+			}
+
+			// Play a flesh-y impact sound, spawn blood.
+			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
+ 			SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
+
+			// Calculate distance to use for the Lunge velocity
+			float lunge_factor = fabs(vlen(trace_source - (trace_endpos - v_forward*4)));
+
+			// Perform lunge, exclusive to AI.
+			if (lunge_factor > WEAPONCORE_MELEE_LUNGEMIN) {
+				did_lunge = true;
+				applied_velocity = v_forward * melee_range * 6;
+			}
+		} 
+		// Some other ent (player, button, etc.)
+		else {
+			// Never lunge in this circumstance.
+			did_lunge = false;
+
+			// Is this a player? Play the body hit sound and spawn blood, otherwise, solid swing.
+			if (trace_ent.flags & FL_CLIENT) {
+				sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
+				SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
+			} else {
+				sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);
+			}
 		}
-	}
-	else if (trace_fraction < 1.0)
-	{	// hit wall
-		sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);			
+
+		// Apply damage to the entity.
+		if (trace_ent.takedamage) {
+			float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
+			DamageHandler (trace_ent, self, melee_damage, S_KNIFE);
+		}
 	}
 
-	if (r > 40 && hit)//lunge
-	{
-		if (self.weapon == W_BK || self.weapon == W_KRAUS)
-		{
-			Set_W_Frame (14, 24, 1.4, 0, KNIFE, SUB_Null, "models/weapons/bk/v_bk.mdl", false, S_RIGHT);
-			self.fire_delay = time + 1.5;
-			self.knife_delay = time + 1.75;
-		}
-		else if (self.bowie)
-		{
-			Set_W_Frame (4, 10, 1.0, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
-			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
-			self.knife_delay = time + 1.3;
-		}
-		else
-		{
-			self.punchangle_x = -5;
-			self.punchangle_y = -10;
-			Set_W_Frame (4, 12, 0.74, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
-			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
-			self.knife_delay = time + 1.1;
-		}
-		applied_velocity = v_forward * r * 6;
-		
-	}
-	else
-	{
-		if (self.weapon == W_BK || self.weapon == W_KRAUS)//slash
-		{
-			Set_W_Frame (8, 13, 0, 0.4, KNIFE, SUB_Null, "models/weapons/bk/v_bk.mdl", false, S_RIGHT);
-			self.fire_delay = time + 0.5;
-			self.knife_delay = time + 0.8;
-		}
-		else if (self.bowie)
-		{
-			Set_W_Frame (0, 3, 0.65, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
-			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
-			self.knife_delay = time + 0.9;
-		}
-		else
-		{
-			self.punchangle_x = -5;
-			self.punchangle_y = -10;
-			//self.punchangle_z = 5;
-			Set_W_Frame (0, 3, 0.45, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
-			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
-			self.knife_delay = time + 0.8;
-		}
-	}
-	self.reload_delay2 = self.reload_delay = 0;
-	self.weaponskin = backupSkin;
+	// Grab animation stats for our melee weapon.
+	float start_frame = WepDef_GetMeleeFirstFrame(self.weapon, did_lunge, self.bowie);
+	float end_frame = WepDef_GetMeleeLastFrame(self.weapon, did_lunge, self.bowie);
+	float anim_duration = WepDef_GetMeleeAnimDuration(self.weapon, did_lunge, self.bowie);
+	string model_path = WepDef_GetMeleeModel(self.weapon, self.bowie);
 
-	// Prohibit any sort of melee lunge while not standing
-	if (self.stance != PLAYER_STANCE_STAND)
+	// Ensure we play the Take Out animation if the melee model is not our active weapon
+	void() end_func;
+	if (!WepDef_IsMeleeWeapon(self.weapon)) {
+		end_func = W_PlayTakeOut;
+		// Additionally, assume since it's separate model, that it uses one skin exclusively.
+		self.weaponskin = 0;
+	} else {
+		end_func = __NULL__;
+	}
+
+	// Apply camera punch, and begin playback.
+	self.punchangle_x = -5;
+	self.punchangle_y = -10;
+	Set_W_Frame (start_frame, end_frame, anim_duration, 0, KNIFE, end_func, model_path, false, S_RIGHT);
+	self.knife_delay = anim_duration + time;
+
+	// Now apply the lunge velocity, but only if we're Standing.
+	if (self.stance == PLAYER_STANCE_STAND)
 		self.velocity = applied_velocity;
-	
-	LungeKnifeHit();
-
-};
-
-
-
+}
 
 /******************************
 * W_Grenade                   *
@@ -2159,7 +2088,7 @@ void() WeaponCore_MeleeButtonPressed =
 	if (self.semi_actions & SEMIACTION_MELEE)
 		return;
 
-	W_Knife();
+	WeaponCore_Melee();
 	self.semi_actions |= SEMIACTION_MELEE;
 };
 

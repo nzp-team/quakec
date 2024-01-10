@@ -817,6 +817,7 @@ void() PlayerSpawn =
 	self.isspec = FALSE;
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
+	self.flags = FL_CLIENT;
 
 	self.onfire = false;
 	self.fire_timeout = 0;
