@@ -772,8 +772,8 @@ void() settings_sens2 = {
 
 void() settings_adsmode =
 {
-	tokenize(findkeysforcommand("+button8"));
-	string button8_key = strtoupper(keynumtostring(stof(argv(0))));
+	tokenize(findkeysforcommandex("+button8"));
+	string button8_key = strtoupper(argv(0));
 
 	// ADS Mode
 	if (button8_key == "MOUSE2")
@@ -1447,8 +1447,8 @@ void() Draw_Extra_CSettings =
 	string cset_desc;
 	cset_desc = "";
 
-	tokenize(findkeysforcommand("+button8"));
-	string button8_key = strtoupper(keynumtostring(stof(argv(0))));
+	tokenize(findkeysforcommandex("+button8"));
+	string button8_key = strtoupper(argv(0));
 
 	// ADS Mode
 	if (button8_key == "MOUSE2")
@@ -1665,10 +1665,10 @@ void() Draw_Extra_Controls =
 	buttoncon[0] = "";
 
 	for (int i = 0; i < MAX_BINDS; i += 1) {
-		tokenize(findkeysforcommand(buttonBind[i]));
+		tokenize(findkeysforcommandex(buttonBind[i]));
 
 		if (editBind[i] == FALSE)
-			buttoncon[i] = strtoupper(keynumtostring(stof(argv(0))));
+			buttoncon[i] = strtoupper(argv(0));
 		else
 			buttoncon[i] = binding;
 

@@ -1041,19 +1041,19 @@ noref float(string cmd) CSQC_ConsoleCommand =
 
 void(float scanx, float setval) Input_Movecheck = 
 {
-	tokenize(findkeysforcommand("+moveleft"));
+	tokenize(findkeysforcommandex("+moveleft"));
 	if (scanx == stof(argv(0)))
 		K_LEFTDOWN = setval;
 	
-	tokenize(findkeysforcommand("+moveright"));
+	tokenize(findkeysforcommandex("+moveright"));
 	if (scanx == stof(argv(0)))
 		K_RIGHTDOWN = setval;
 		
-	tokenize(findkeysforcommand("+forward"));
+	tokenize(findkeysforcommandex("+forward"));
 	if (scanx == stof(argv(0)))
 		K_FORWARDDOWN = setval;
 		
-	tokenize(findkeysforcommand("+back"));
+	tokenize(findkeysforcommandex("+back"));
 	if (scanx == stof(argv(0)))
 		K_BACKDOWN = setval;
 }
@@ -1066,8 +1066,8 @@ void(float button, string key) setToBind =
 
 	btn = buttonBind[button];
 
-	tokenize(findkeysforcommand(btn));
-	oldkey = keynumtostring(stof(argv(0)));
+	tokenize(findkeysforcommandex(btn));
+	oldkey = argv(0);
 
 	unbind = strcat("bind ", oldkey, " null\n");
 	fullbind = strcat("bind ", key, " \"", btn, "\"\n");

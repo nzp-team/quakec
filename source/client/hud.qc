@@ -937,8 +937,8 @@ void(float width, float height) HUD_Useprint =
 	usespace = "";
 	usecost = "";
 		
-	tokenize(findkeysforcommand("+button7"));
-	usebutton = strtoupper(keynumtostring(stof(argv(0))));
+	tokenize(findkeysforcommandex("+button7"));
+	usebutton = strtoupper(argv(0));
 
 	for(float i = 0; i < strlen(usebutton); i++) {
 		usespace = strcat(usespace, " ");
@@ -1130,8 +1130,8 @@ void(float width, float height) HUD_BouncingBetty =
 	string betty_space;
 	string activate_string, activate_string2;
 
-	tokenize(findkeysforcommand("impulse 33"));
-	betty_key = strtoupper(keynumtostring(stof(argv(0))));
+	tokenize(findkeysforcommandex("impulse 33"));
+	betty_key = strtoupper(argv(0));
 
 	betty_space = "";
 	for(float i = 0; i < strlen(betty_key); i++) {
@@ -1556,8 +1556,8 @@ string(float index) GetButtonString =
 	else if (index == 101)
 		return "RMOUSE";
 
-	tokenize(findkeysforcommand(buttonBind[index]));
-	string temps = strtoupper(keynumtostring(stof(argv(0))));
+	tokenize(findkeysforcommandex(buttonBind[index]));
+	string temps = strtoupper(argv(0));
 
 	return temps;
 }
