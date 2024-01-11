@@ -614,6 +614,7 @@ float Player_SendEntity( entity ePVEnt, float flChanged ) {
 	WriteByte( MSG_ENTITY, self.stance ); // Player Stance
 	WriteFloat( MSG_ENTITY, self.points ); // Player Score
 	WriteShort( MSG_ENTITY, self.kills ); // Player Kills
+	WriteByte( MSG_ENTITY, self.is_in_menu ); // Player is in a Menu State
     return TRUE;
 }
 

@@ -263,6 +263,10 @@ float 	map_compatibility_mode;
 .float playernum;
 float game_over;
 
+#ifdef FTE
+.float is_in_menu;
+#endif // FTE
+
 //
 // invert float takes in float value between 0 and 1, inverts position
 // eg: 0.1 returns 0.9, 0.34 returns 0.66

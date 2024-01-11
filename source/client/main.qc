@@ -559,6 +559,7 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.stance = readbyte();
 		self.points = readfloat();	// FIXME: this should be made a short, but I know we use price of 1 for some test maps, so I can't do /10 *10 shenanigans.
 		self.kills = readshort();
+		self.is_in_menu = readbyte();
 
 		RegisterPointChange(self.points - old_points, self.playernum);
 
@@ -990,11 +991,13 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	{
 		//in menu.qc
 		Draw_Menu();
+		setlocaluserinfo(0, "in_menu", "1");
 	}
 	else
 	{
 		HUD_Draw(g_width, g_height);
 		Chat_Draw();
+		setlocaluserinfo(0, "in_menu", "0");
 	}
 };
 
@@ -1041,19 +1044,19 @@ noref float(string cmd) CSQC_ConsoleCommand =
 
 void(float scanx, float setval) Input_Movecheck = 
 {
-	tokenize(findkeysforcommandex("+moveleft"));
+	tokenize(findkeysforcommand("+moveleft"));
 	if (scanx == stof(argv(0)))
 		K_LEFTDOWN = setval;
 	
-	tokenize(findkeysforcommandex("+moveright"));
+	tokenize(findkeysforcommand("+moveright"));
 	if (scanx == stof(argv(0)))
 		K_RIGHTDOWN = setval;
 		
-	tokenize(findkeysforcommandex("+forward"));
+	tokenize(findkeysforcommand("+forward"));
 	if (scanx == stof(argv(0)))
 		K_FORWARDDOWN = setval;
 		
-	tokenize(findkeysforcommandex("+back"));
+	tokenize(findkeysforcommand("+back"));
 	if (scanx == stof(argv(0)))
 		K_BACKDOWN = setval;
 }

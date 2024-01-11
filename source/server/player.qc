@@ -548,6 +548,13 @@ void() PlayerPostThink =
 
 	// Network everything
 	self.SendFlags = 1;
+	
+	// Obtain menu state from CSQC via infokeys.
+	self.is_in_menu = stof(infokey(self, "in_menu"));
+	if (self.is_in_menu != 1)
+		if (infokey(self, "chat") == "1")
+			self.is_in_menu = 2;
+	
 
 #endif // FTE
 
@@ -997,6 +1004,7 @@ void() ClientDisconnect =
 
 	// Network everything
 	self.SendFlags = 1;
+	self.is_in_menu = 0;
 
 #endif // FTE
 };

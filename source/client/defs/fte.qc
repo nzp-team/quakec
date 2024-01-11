@@ -2249,7 +2249,7 @@ string(string cvarname) cvar_description = #518; /*
 
 float(optional float timetype) gettime = #519;
 DEP string(float keynum) keynumtostring_omgwtf = #520;
-__deprecated("Does not support modifiers") string(string command, optional float bindmap) findkeysforcommand = #521; /*
+string(string command, optional float bindmap) findkeysforcommand = #521; /*
 		Returns a list of keycodes that perform the given console command in a format that can only be parsed via tokenize (NOT tokenize_console). This only and always returns two values - if only one key is actually bound, -1 will be returned. The bindmap argument is listed for compatibility with dp-specific defs, but is ignored in FTE. */
 
 string(string command, optional float bindmap) findkeysforcommandex = #0:findkeysforcommandex; /*

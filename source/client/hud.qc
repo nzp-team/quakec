@@ -1585,6 +1585,18 @@ void(float width, float height) HUD_PlayerNames =
 		float player_number = getplayerkeyfloat(i, "viewentity");
 
 		string text = getplayerkeyvalue(i, "name");
+		entity client = findfloat(world, playernum, player_number);
+
+		if (client == world || client.movetype == MOVETYPE_BOUNCE)
+			continue;
+
+		// Append "[CHAT] " to the player name if the user is in message mode
+		if (client.is_in_menu == 2)
+			text = strcat("[CHAT] ", text);
+		// Similarly, append "[PAUSED] " to the player name if the user is paused
+		else if (client.is_in_menu == 1)
+			text = strcat("[PAUSED] ", text);
+
 		entity plr = findfloat(world, playernum, player_number);
 		vector player_origin = plr.origin + '0 0 48';
 		vector screen_position = project(player_origin);
