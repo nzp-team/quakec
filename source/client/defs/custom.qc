@@ -44,28 +44,14 @@ string loadscreen_mapname;
 string loadscreen_maptitle;
 string loadscreen_tip;
 
-entity player;
-entity vmodel;
-entity v2model;
-entity mzlflash;
-entity dummy;
-
 float weapon;
 
 float tracercounter;
 .float rate;
 .vector targetpos;
 
-vector vmodel_targetpos;
-vector v2model_targetpos;
-vector vmodel_currentpos;
-vector v2model_currentpos;
-vector vmodel_velocity;
-vector v2model_velocity;
-vector vmodel_avelocity;
-vector v2model_avelocity;
-vector vmodel_muzzleoffset;
-vector v2model_muzzleoffset;
+entity cl_viewent;
+entity cl_viewent2;
 
 const float MENU_NONE 			= 0;
 const float MENU_MAIN 			= 1;

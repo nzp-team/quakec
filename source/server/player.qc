@@ -890,8 +890,6 @@ void() PlayerSpawn =
 	self.weaponmodel = GetWeaponModel(self.weapon, 0);// Give weapon model
 	self.weapon2model = GetWeapon2Model(self.weapon);
 
-	SwitchWeapon(self.weapon);
-
 	self.stamina = 3;
 	self.reviving = 0;
 	self.perks = G_PERKS;
@@ -907,8 +905,6 @@ void() PlayerSpawn =
 	
 #ifdef FTE
 
-	UpdateV2model("", 0);
-	stuffcmd(self, "cl_gunx 8;cl_guny 16;cl_gunz 25\n");
 	SetRound(self, G_STARTROUND);
 	self.viewzoom = 1;
 	self.SendEntity = Player_SendEntity;

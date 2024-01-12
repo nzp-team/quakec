@@ -231,7 +231,6 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 	W_HideCrosshair(self);
 	Set_W_Frame (0, 39, 2.0, 0, 0, W_PutOutHack, "models/machines/v_pap.mdl", true, S_BOTH);
 	self.weapon2model = "";
-	UpdateV2model(self.weapon2model, 0);
 
 #ifndef FTE
 

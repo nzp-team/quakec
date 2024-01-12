@@ -150,50 +150,6 @@ void SetPerk(entity client, float to)
 #endif // FTE
 }
 
-void(float to) SwitchWeapon =
-{
-#ifdef FTE
-
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_WEAPONCHANGE);
-	WriteByte(MSG_MULTICAST, to);
-	msg_entity = self;
-	multicast('0 0 0', MULTICAST_ONE);
-
-	// hotfix for weapon2models not reseting
-	self.weapon2model = GetWeapon2Model(to);
-
-#endif // FTE
-}
-
-void(string to, float skin) UpdateVmodel =
-{
-#ifdef FTE
-
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_UPDATEVMODEL);
-	WriteString(MSG_MULTICAST, to);
-	WriteByte(MSG_MULTICAST, skin);
-	msg_entity = self;
-	multicast('0 0 0', MULTICAST_ONE);
-
-#endif // FTE
-}
-
-void(string to, float skin) UpdateV2model =
-{
-#ifdef FTE
-
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_UPDATEV2MODEL);
-	WriteString(MSG_MULTICAST, to);
-	WriteByte(MSG_MULTICAST, skin);
-	msg_entity = self;
-	multicast('0 0 0', MULTICAST_ONE);
-
-#endif // FTE
-}
-
 void(float index, float state) ChangeReviveIconState =
 {
 #ifdef FTE

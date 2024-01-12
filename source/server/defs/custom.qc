@@ -154,7 +154,6 @@ void() W_SprintStop;
 .float hunt_count; // How many Hellhounds are hunting a client
 
 //Weaponsystem defines
-void SwitchWeapon(float to);
 void GetUp();
 void WeaponCore_ClientLogic();
 void (float shotcount, float sprd, float Damage, float side) FireTrace;
@@ -180,6 +179,12 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float weapon2frame;
 .float reloadinterupted;
 .float hitcount;
+
+#ifdef FTE
+
+.float weapon2modelindex;
+
+#endif // FTE
 
 #define SEMIACTION_FIRE_RIGHT	1
 #define SEMIACTION_FIRE_LEFT 	2

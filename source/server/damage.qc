@@ -103,9 +103,6 @@ void() startspectate =
 	self.weapon2model = "";
 	self.downed = 0;
 	self.frame = 0;
-
-	UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-	UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 	
 	SpectatorSpawn();
 }
@@ -148,7 +145,6 @@ void() EndGameSetup =
 	}
 	game_over = true;
 	SetPerk(self, self.perks);
-	SwitchWeapon(0);	
 	addmoney(self, -self.points, 0);
 	addmoney(self, self.score, 0);	
     return;
@@ -333,7 +329,6 @@ void() GetDown =
 
 	// Play Switch Animation
 	self.weaponmodel = GetWeaponModel(self.weapon, 0);
-	SwitchWeapon(self.weapon);
 	
 	float startframe = GetFrame(self.weapon,TAKE_OUT_START);
 	float endframe = GetFrame(self.weapon,TAKE_OUT_END);

@@ -674,7 +674,7 @@ void() PathfindToEnemy =
 
 #ifdef FTE
 
-		bprint(PRINT_HIGH, "FirstPathfind Failure\n");
+		//bprint(PRINT_HIGH, "FirstPathfind Failure\n");
 
 #endif // FTE
 

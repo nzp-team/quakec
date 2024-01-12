@@ -87,11 +87,7 @@ void() ReturnWeaponModel =
 		self.weapon2model = GetLeftWeaponModel(self.weapon);
 	} else if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER) {
 		self.weapon2model = "models/weapons/kar/v_karscope.mdl";
-		UpdateV2model(self.weapon2model, 0);
 	}
-
-	UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-	UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
 	// Always try to reload after any action.
 	if (self.weapons[0].weapon_magazine == 0 && self.weapons[0].weapon_reserve != 0)
@@ -1242,8 +1238,6 @@ void() WeaponCore_Melee =
 	void() end_func;
 	if (!WepDef_IsMeleeWeapon(self.weapon)) {
 		end_func = W_PlayTakeOut;
-		// Additionally, assume since it's separate model, that it uses one skin exclusively.
-		self.weaponskin = 0;
 	} else {
 		end_func = __NULL__;
 	}
@@ -1942,6 +1936,14 @@ inline void() WeaponCore_UpdateWeaponStats =
 	self.currentammo = self.weapons[0].weapon_reserve;			// Weapon Reserve Ammo
 	self.currentmag = self.weapons[0].weapon_magazine;			// Weapon Magazine
 	self.currentmag2 = self.weapons[0].weapon_magazine_left;	// Left-side Weapon Magazine
+
+	// FTE-specific - update weapon2modelindex to simplify protocol
+	// and data exchange.
+#ifdef FTE
+
+	self.weapon2modelindex = getmodelindex(self.weapon2model);
+
+#endif // FTE
 };
 
 //

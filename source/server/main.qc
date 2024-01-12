@@ -326,7 +326,8 @@ void() worldspawn =
 	clientstat(STAT_CURRENTMAG2, EV_FLOAT, weapons[0].weapon_magazine_left);
 	clientstat(STAT_POINTS, EV_FLOAT, points);
 	clientstat(STAT_WEAPON2FRAME, EV_FLOAT, weapon2frame);
-	clientstat(STAT_WEAPON2MODEL, EV_STRING, weapon2model);
+	clientstat(STAT_WEAPON2MODELI, EV_FLOAT, weapon2modelindex);
+	clientstat(STAT_WEAPONSKIN, EV_FLOAT, weaponskin);
 	clientstat(STAT_GRENADES, EV_FLOAT, primary_grenades);
 	clientstat(STAT_SECGRENADES, EV_FLOAT, secondary_grenades);
 	clientstat(STAT_PROGRESSBAR, EV_FLOAT, progress_bar_percent);

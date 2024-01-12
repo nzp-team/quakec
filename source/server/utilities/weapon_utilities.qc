@@ -201,10 +201,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
     }
 
 	self.switch_delay = self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + (duration - 0.1);
-
-    UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
 	self.weapon2model = GetWeapon2Model(self.weapon);
-    UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
     W_AimOut();
     Set_W_Frame(start_frame, end_frame, playback_duration, 0, 0, end_function, GetWeaponModel(self.weapon, 0), false, S_BOTH);
@@ -261,13 +258,14 @@ void Weapon_SwapWeapons(float play_animation)
 		// Properly update the weapon ID
 		self.weapon = self.weapons[0].weapon_id;
 
-		SwitchWeapon(self.weapon);
 		W_HideCrosshair(self);
 		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
 
-#ifndef FTE
 
 		self.weaponskin = self.weapons[0].weapon_skin;
+
+#ifndef FTE
+
 		self.weapon2skin = self.weapons[0].weapon_skin;
 		self.Weapon_Name = GetWeaponName(self.weapon);
 		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
@@ -293,16 +291,15 @@ void Weapon_SetActiveInSlot(float slot, float play_first_raise)
 	// Properly update the weapon ID
 	self.weapon = self.weapons[0].weapon_id;
 
-	SwitchWeapon(self.weapon);
-
 	if (GetFrame(self.weapon, FIRST_TAKE_START) != 0 && play_first_raise == true)
 		Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, ReturnWeaponModel, 0);
 	else
 		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
-		
-#ifndef FTE
 
 	self.weaponskin = self.weapons[0].weapon_skin;
+
+#ifndef FTE
+
 	self.weapon2skin = self.weapons[0].weapon_skin;
 	self.Weapon_Name = GetWeaponName(self.weapon);
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);

@@ -10,4 +10,5 @@
 ../source/client/hud.qc
 ../source/client/chat.qc
 ../source/client/user_input.qc
+../source/client/view_model.qc
 ../source/client/main.qc

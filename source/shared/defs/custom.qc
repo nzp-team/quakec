@@ -28,41 +28,37 @@
 #define true    1
 #define false   0
 
-const float EVENT_WEAPONCHANGE 			= 9;
-const float EVENT_PISTOLFIRE 			= 10;
-const float EVENT_USEPRINT 				= 11;
-const float EVENT_NEWROUND 				= 12;
-const float EVENT_SETROUND 				= 13;
-const float EVENT_UPDATEVMODEL 			= 20;
-const float EVENT_UPDATEV2MODEL 		= 21;
-const float EVENT_PERK	 				= 22;
-const float EVENT_UPDATE 				= 23;
-const float EVENT_BROADCAST 			= 24;
-const float EVENT_POINTUPDATE 			= 25;
-const float EVENT_BLACKOUT 				= 26;
-//const float EVENT_PUNCHANGLE 			= 27;
-const float EVENT_SCROLLTEXT 			= 28;
-const float EVENT_WORLDDATA 			= 29;
-const float EVENT_ACHIEVEMENT 			= 30;
-const float EVENT_PLAYERUPDATE 			= 31;
-const float EVENT_WEAPONUPDATE 			= 32;
-const float EVENT_HUDUPDATE 			= 33;
-const float EVENT_EXPLOSION 			= 34;
-const float EVENT_BLOOD 				= 35;
-const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
-const float EVENT_REVIVEON 				= 37;
-const float EVENT_REVIVEOFF 			= 38;
-const float EVENT_REVIVECHANGE 			= 39;
-const float EVENT_WEAPONRECOIL 			= 40;
-const float EVENT_SONGPLAY 				= 41;
-const float EVENT_GRENADEPULSE 			= 42;
-const float EVENT_BETTYPROMPT 			= 43;
-const float EVENT_LIMBGIB				= 44;
-const float EVENT_CHATMESSAGE			= 45;
-const float EVENT_DOUBLETAPUPDATE 		= 46;
-const float EVENT_FLAME 				= 47;
-const float EVENT_ENDGAME				= 48;
-const float EVENT_MAPTYPE				= 49;
+#define EVENT_PISTOLFIRE 				10
+#define EVENT_USEPRINT 					11
+#define EVENT_NEWROUND 					12
+#define EVENT_SETROUND 					13
+#define EVENT_PERK	 					22
+#define EVENT_UPDATE 					23
+#define EVENT_BROADCAST 				24
+#define EVENT_POINTUPDATE 				25
+#define EVENT_BLACKOUT 					26
+#define EVENT_SCROLLTEXT 				28
+#define EVENT_WORLDDATA 				29
+#define EVENT_ACHIEVEMENT 				30
+#define EVENT_PLAYERUPDATE 				31
+#define EVENT_WEAPONUPDATE 				32
+#define EVENT_HUDUPDATE 				33
+#define EVENT_EXPLOSION 				34
+#define EVENT_BLOOD 					35
+#define EVENT_ACHIEVEMENTPROGRESS 		36
+#define EVENT_REVIVEON 					37
+#define EVENT_REVIVEOFF 				38
+#define EVENT_REVIVECHANGE 				39
+#define EVENT_WEAPONRECOIL 				40
+#define EVENT_SONGPLAY 					41
+#define EVENT_GRENADEPULSE 				42
+#define EVENT_BETTYPROMPT 				43
+#define EVENT_LIMBGIB					44
+#define EVENT_CHATMESSAGE				45
+#define EVENT_DOUBLETAPUPDATE 			46
+#define EVENT_FLAME 					47
+#define EVENT_ENDGAME					48
+#define EVENT_MAPTYPE					49
 
 // Define our FTE platform
 #ifndef STANDARD
@@ -244,7 +240,7 @@ float 	map_compatibility_mode;
 #define STAT_CURRENTMAG2        51
 #define STAT_POINTS             52
 #define STAT_WEAPON2FRAME       53
-#define STAT_WEAPON2MODEL       54
+#define STAT_WEAPON2MODELI      54
 #define STAT_GRENADES   	    55
 #define STAT_SECGRENADES    	56
 #define STAT_PROGRESSBAR   	    57
@@ -259,6 +255,7 @@ float 	map_compatibility_mode;
 #define STAT_FACINGENEMY 		66
 #define STAT_MAXHEALTH 			67
 #define STAT_PLAYERNAME 		68
+#define STAT_WEAPONSKIN 		69
 
 .float playernum;
 float game_over;

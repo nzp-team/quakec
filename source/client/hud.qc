@@ -1706,7 +1706,7 @@ void(float width, float height) HUD_Draw =
 			HUD_Progressbar(width, height);
 			HUD_Powerups();
 
-            if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "")
+            if (cl_viewent.modelindex != 0)
 			    HUD_AmmoString();
 
 			if (nameprint_time > time)
@@ -1719,7 +1719,7 @@ void(float width, float height) HUD_Draw =
 			{
                 HUD_Grenades(width, height);
 
-                if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "") {
+                if (cl_viewent.modelindex != 0) {
                     HUD_Ammo(width, height);
 				    HUD_Weaponstring(width, height);
                 }

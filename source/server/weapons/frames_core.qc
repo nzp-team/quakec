@@ -136,7 +136,6 @@ void () W_Frame_Update =
 		}
 		else if (self.weaponmodel == "progs/VModels/v_knife.mdl" || self.weaponmodel == "models/machines/v_perk.mdl") {
 			self.weapon2model = "";
-			UpdateV2model(self.weapon2model, 0);
 		}
 
 		if (self.callfuncat)
@@ -237,24 +236,15 @@ void Set_W_Frame (float startframe, float endframe, float duration, float funcca
 	if ((startframe != endframe) && !(self.zoom == 2)) { // naievil -- latter used for checkhold 
 		if (side == S_LEFT) {
 			self.weapon2model = set_model;
-			UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 		} else {
 			self.weaponmodel = set_model;
-			
-			if (set_model != "models/machines/v_perk.mdl")
-				UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-			else	
-				UpdateVmodel(self.weaponmodel, self.weaponskin);
 
 			if (model_should_hide_weapon2(set_model) == true) {
 				self.weapon2model = "";
-				UpdateV2model(self.weapon2model, 0);
 			} else if (self.weapon == W_KAR_SCOPE) {	
 				self.weapon2model = "models/weapons/kar/v_karscope.mdl";
-				UpdateV2model(self.weapon2model, 0);
 			} else if (IsDualWeapon(self.weapon)) {	
 				self.weapon2model = GetLeftWeaponModel(self.weapon); 
-				UpdateV2model(self.weapon2model, 0);
 			}
 		}
 	}

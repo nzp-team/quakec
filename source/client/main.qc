@@ -85,7 +85,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	}
 		
 	//print("CSQC Started\n");
-	dummy = spawn();
 	if(serverkey("constate") == "disconnected")
 		ToggleMenu();
 	//bgpos = 0;
@@ -117,6 +116,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(nzp_particles, 1);
 	autocvar(nzp_decals, 1);
 	autocvar(vid_ultrawide_limiter, 0);
+	autocvar(cl_bobside, 0.02);
 
 	// per-channel volume
 	autocvar(snd_channel1volume, 1);
@@ -173,28 +173,6 @@ void() Init_Particles =
 
 noref void() CSQC_WorldLoaded =
 {
-	//precache_model("models/weapons/mg/mzl.iqm");
-	//precache_model("models/blood.iqm");
-	
-	if(!player)
-		player = findfloat(world, entnum, player_localnum);
-	if(!vmodel)
-		vmodel = spawn();
-	if(!v2model)
-		v2model = spawn();
-	if(!mzlflash)
-		mzlflash = spawn();
-		
-	v2model.renderflags = vmodel.renderflags = RF_VIEWMODEL;
-	v2model.origin = vmodel.origin = '24 -12 -18';
-	v2model_targetpos = v2model_currentpos = v2model.origin = vmodel_targetpos = vmodel_currentpos = vmodel.origin;
-	v2model_velocity = vmodel_velocity = '0 0 0';
-	//v2model_muzzleoffset = vmodel_muzzleoffset = '48 -1 2';
-	setmodel(vmodel,"");
-	setmodel(v2model,"");
-	mzlflash.renderflags = vmodel.renderflags;
-	mzlflash.origin = vmodel.origin + vmodel_muzzleoffset;
-
 	Achievement_Init();
 	Init_Particles();
 	nameprint_time = time + 12;
@@ -213,252 +191,6 @@ float weapon_bob_factor_z_coef;
 vector dampening_factor;
 float vaccel;
 float vzaccel;
-void() Update_Vmodel =
-{
-	local vector offset, adsoffset;
-	local vector dir;
-    local float ads;
-
-	if (cvar("r_drawviewmodel") == FALSE || hide_viewmodel == true) {
-		vmodel.origin = '-10000 -10000 -10000';
-		return;
-	}
-
-//
-// View Bobbing Factors.
-//
-
-	// PAUSED, NO BOB
-	if (serverkey(SERVERKEY_PAUSESTATE) == "1") {
-		weapon_bob_factor = '0 0 0';
-		dampening_factor = weapon_bob_factor;
-		weapon_bob_factor_z_coef = 0;
-	}
-	// ADS
-	else if (getstatf(STAT_WEAPONZOOM) && getstatf(STAT_WEAPONZOOM) != 3) {
-		weapon_bob_factor = '0 0 0';
-		dampening_factor = weapon_bob_factor;
-		weapon_bob_factor_z_coef = 0;
-	} 
-	// SPRINT
-	else if (getstatf(STAT_WEAPONZOOM) == 3) {
-		weapon_bob_factor_x = 2;
-		weapon_bob_factor_y = 8;
-		weapon_bob_factor_z = 12;
-		weapon_bob_factor_z_coef = 1;
-		
-		dampening_factor_x = sin(cltime*weapon_bob_factor_x);
-		dampening_factor_y = 9*cos(cltime*weapon_bob_factor_y);
-		dampening_factor_z = 0.1*sin(cltime*weapon_bob_factor_z);
-	}
-	// WALK
-	else if (K_FORWARDDOWN || K_BACKDOWN || K_LEFTDOWN || K_RIGHTDOWN && !getstatf(STAT_WEAPONZOOM)) {
-		weapon_bob_factor_x = 8;
-		weapon_bob_factor_y = 8;
-		weapon_bob_factor_z = 13.4;
-		weapon_bob_factor_z_coef = 0.2;
-		
-		dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
-		dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
-		dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
-	}
-	// STILL
-	else if (!getstatf(STAT_WEAPONZOOM)) {
-
-		// HACK HACK
-		if (weapon_bob_factor_z == 12) {
-			weapon_bob_factor_x = 8;
-			weapon_bob_factor_y = 8;
-			weapon_bob_factor_z = 13.4;
-			weapon_bob_factor_z_coef = 0.2;
-			
-			dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
-			dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
-			dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
-		}
-
-		// Naievil -- stupid ass calcs...
-		// Basically we have a dampening factor per offset and we have to decrease it back down to zero
-		// Problem is that we may be going in postive OR negative direction? 
-		// Better solution: use fabs() lol 
-		if (dampening_factor_x > 0 && sin(time*weapon_bob_factor_x) > 0) {
-			if ((dampening_factor_x - 0.00000068* sin(time*weapon_bob_factor_x)) < 0)
-				dampening_factor_x -= (0.00000068 - dampening_factor_x*sin(time*weapon_bob_factor_x));
-			else 
-				dampening_factor_x -= 0.00000068* sin(time*weapon_bob_factor_x);
-				
-		} else if (dampening_factor_x < 0 && sin(time*weapon_bob_factor_x) < 0) {
-			if ((dampening_factor_x + 0.00000068* sin(time*weapon_bob_factor_x)) > 0)
-				dampening_factor_x += (0.00000068 - dampening_factor_x*sin(time*weapon_bob_factor_x));
-			else 
-				dampening_factor_x += 0.00000068* sin(time*weapon_bob_factor_x);
-		} else {
-			weapon_bob_factor_x = 1.2;
-		}
-					
-		if (weapon_bob_factor_x - 0.00000068 < 1.2)
-			weapon_bob_factor_x = 1.2;
-		else 
-			weapon_bob_factor_x -= 0.00000068;
-	
-		
-		if (dampening_factor_y > 0 && cos(time*weapon_bob_factor_y) > 0) {
-			if ((dampening_factor_y - 0.00000065* cos(time*weapon_bob_factor_y)) < 0)
-				dampening_factor_y -= (0.00000065 - dampening_factor_y*cos(time*weapon_bob_factor_y));
-			else 
-				dampening_factor_y -= 0.00000065* cos(time*weapon_bob_factor_y);		
-				
-		} else if (dampening_factor_y < 0 && cos(time*weapon_bob_factor_y) < 0) {
-			if ((dampening_factor_y + 0.00000065* cos(time*weapon_bob_factor_y)) > 0)
-				dampening_factor_y += (0.00000065 - dampening_factor_y*cos(time*weapon_bob_factor_y));
-			else 
-				dampening_factor_y += 0.00000065* cos(time*weapon_bob_factor_y);		
-		} else {
-			weapon_bob_factor_y = 1.5;
-		}
-		
-		
-		if (weapon_bob_factor_y - 0.00000065 < 1.5)
-			weapon_bob_factor_y = 1.5;
-		else 
-			weapon_bob_factor_y -= 0.00000065;	
-		
-		if (dampening_factor_z > 0 && sin(time*weapon_bob_factor_z) > 0) {
-			if ((dampening_factor_z - 0.00000123* sin(time*weapon_bob_factor_z)) < 0)
-				dampening_factor_z -= (0.00000123 - dampening_factor_z*sin(time*weapon_bob_factor_z));
-			else 
-				dampening_factor_z -= 0.00000123* sin(time*weapon_bob_factor_z);	
-				
-		} else if (dampening_factor_z <= 0 && sin(time*weapon_bob_factor_z) < 0) {
-			if ((dampening_factor_z + 0.00000123* sin(time*weapon_bob_factor_z)) > 0)
-				dampening_factor_z += (0.00000123 - dampening_factor_z*sin(time*weapon_bob_factor_z));
-			else 
-				dampening_factor_z += 0.00000123* sin(time*weapon_bob_factor_z);
-		} else  {
-			weapon_bob_factor_z = 1.1;
-		}
-		
-		if (weapon_bob_factor_z - 0.00000123 < 1.1)
-			weapon_bob_factor_z = 1.1;
-		else 
-			weapon_bob_factor_z -= 0.00000123;	
-		
-		if (weapon_bob_factor_z_coef <= 0.1)
-			weapon_bob_factor_z_coef = 0.1;
-		else 
-			weapon_bob_factor_z_coef -= 0.0000001*sin(time*weapon_bob_factor_z);
-	}
-			
-	offset_x = 0.2 * (sin(cltime * weapon_bob_factor_x) + dampening_factor_x);
-	offset_y = 0.2 * (cos(cltime * weapon_bob_factor_y) + dampening_factor_y);
-	offset_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*cltime + 0.5) + dampening_factor_z);
-	
-	vector tempv; 
-	tempv_x = 0.2 * (sin(cltime * weapon_bob_factor_x));
-	tempv_y = 0.2 * (cos(cltime * weapon_bob_factor_y));
-	tempv_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*cltime + 0.5));
-		
-	dir = vmodel_targetpos - vmodel_currentpos;
-	if(vlen(dir) < (0.15 * 128 * frametime))
-		vmodel_currentpos = vmodel_targetpos;
-	else
-		vmodel_currentpos += (dir * 0.15 * 128) * frametime;
-	
-
-	if(vlen(vmodel.angles) < (0.1 * 128 * frametime))
-		vmodel.angles = '0 0 0';
-	else
-		vmodel.angles += (-vmodel.angles * 0.2 * 128) * frametime;
-
-	vmodel_currentpos += (vmodel_velocity * 128) * frametime;
-	vmodel_velocity *= 1 - frametime * 30;
-	
-	vmodel.angles += (vmodel_avelocity * 128) * frametime;
-	vmodel_avelocity *= 1 - frametime * 30;
-	
-	adsoffset = GetWeaponADSPos(weapon);
-
-    ads = getstatf(STAT_WEAPONZOOM); //get the zoomtoggle value 
-    if(ads == 1 || ads == 2 && serverkey(SERVERKEY_PAUSESTATE) == "0")
-    {
-        vmodel_currentpos += (adsoffset * 0.15 * 128) * frametime;
-        vmodel.origin = vmodel_currentpos + adsoffset;
-    }
-    else
-    {
-        switch(getstatf(STAT_PLAYERSTANCE)) {
-			case 2:
-				break;
-			case 1:
-				vmodel_currentpos = '0 0.6 -0.3';
-				break;
-			case 0:
-				vmodel_currentpos = '1.5 0.6 -0.3';
-				break;
-			default: break;
-		}
-		vmodel.origin = vmodel_currentpos + offset;
-
-		vmodel.origin_y += vaccel;
-		vmodel.origin_z += vzaccel;
-
-		if (in_menu != MENU_NONE)
-			return;
-
-		if (K_LEFTDOWN) {
-			vaccel -= 0.01;
-			if (vaccel < -0.8) 
-				vaccel = -0.8;
-		} else if (K_RIGHTDOWN) {
-			vaccel += 0.01;
-			if (vaccel > 0.8)
-				vaccel = 0.8;
-		} else if (vaccel != 0) {
-			if (vaccel > 0)
-				vaccel -= 0.01;
-			else
-				vaccel += 0.01;
-		}
-
-		//black ops -0.01 till -0.6 (looks better)
-		if (K_BACKDOWN || K_FORWARDDOWN) {
-			if (ads == 3) {
-				vzaccel -= 0.1;
-
-				if (vzaccel < -1.2)
-					vzaccel = -1.2;
-			} else {
-				vzaccel -= 0.01;
-
-				if (vzaccel < -0.6)
-					vzaccel = -0.6;
-			}
-			
-		} else if (vzaccel != 0) {
-			if (vzaccel > 0)
-				vzaccel -= 0.02;
-			else
-				vzaccel += 0.02;
-		}
-
-    }
-
-
-	if(weapon == 1)
-	{
-		if(mzlflash.scale < 1)
-			mzlflash.scale += (10 * random()) * frametime;
-	}
-	else if(weapon == 2)
-	{
-		if(mzlflash.scale < 1.5)
-			mzlflash.scale += (20 * random()) * frametime;
-	}
-	mzlflash.origin = vmodel.origin + vmodel_muzzleoffset;
-	mzlflash.alpha -= (0.15 * 100) * frametime;
-	if(mzlflash.alpha < 0.1)
-		mzlflash.alpha = 0.01;
-}
 
 float Player_PreDraw() =
 {
@@ -804,6 +536,33 @@ noref void(float width, float height, float notmenu) CSQC_UpdateViewLoading =
 
 #define SCALE_CONSTANT 		8
 
+//MOVEME
+float(float a) angledelta =
+{
+	a = anglemod(a);
+	if (a > 180)
+		a -= 360;
+	return a;
+}
+
+//MOVEME
+float delta_pitch, delta_yaw;
+vector sniper_sway;
+// Sways the camera while scoped in.
+void() Camera_SniperSway =
+{
+	if (getstatf(STAT_WEAPONZOOM) != 2) {
+		sniper_sway = '0 0 0';
+		return;
+	}
+
+	delta_pitch = (cos(cltime/0.7) + cos(cltime) + sin(cltime/1.1)) * 0.5;
+	delta_yaw = (sin(cltime/0.4) + cos(cltime/0.56) + sin(cltime)) * 0.5;
+
+	sniper_sway[0] = angledelta(delta_pitch);
+	sniper_sway[1] = angledelta(delta_yaw);
+};
+
 // CALLED EVERY CLIENT RENDER FRAME
 float pap_flash_alternate;
 noref void(float width, float height, float menushown) CSQC_UpdateView =
@@ -859,123 +618,18 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setproperty(VF_ORIGIN, playerOrigin + [ 0, 0, getstatf(STAT_VIEWHEIGHT)]);
 	//setproperty(VF_ANGLES, view_angles);
 
-	//do viewmodel manipulation, purely cosmetic stuff
-	if(vmodel)
-	{
-		Update_Vmodel();
-		local vector vorg;
-		local vector vang;
-		vorg = getviewprop(VF_ORIGIN);
-		vang = getviewprop(VF_ANGLES);
-		//vmodel.origin += vorg;
-		//vmodel.angles += vang;
-		addentity(vmodel);
-		addentity(v2model);
-		//vmodel.origin -= vorg;
-		//vmodel.angles -= vang;
-		//addentity(vmodel);
-		float weaponframe, weapon2frame;
-		weaponframe = getstatf(STAT_WEAPONFRAME);
-
-		float duration = getstatf(STAT_WEAPONDURATION);
-
-		if (!duration) {
-			duration = 0.1;
-		}
-		
-		if (curweaponframe != weaponframe) {
-			interpolating = TRUE;
-			vmodel.lerpfrac = 0;
-			oldweaponframe = curweaponframe;
-			curweaponframe = weaponframe;
-		}
-		
-		if (interpolating == TRUE) {
-			vmodel.lerpfrac += frametime * (1/duration);
-
-			if (vmodel.lerpfrac >= 1.0) {
-				oldweaponframe = curweaponframe;
-				vmodel.lerpfrac = 0;
-				interpolating = FALSE;	
-			}
-			
-		}
-		vmodel.frame = oldweaponframe;
-		vmodel.frame2 = curweaponframe;
-
-		if (IsDualWeapon(getstatf(STAT_ACTIVEWEAPON))) {
-			float duration2 = getstatf(STAT_WEAPON2DURATION);
-			if (!duration2) {
-				duration2 = 0.1;
-			}
-			weapon2frame = getstatf(STAT_WEAPON2FRAME);
-			if (curweapon2frame != weapon2frame) {
-				interpolating2 = TRUE;
-				v2model.lerpfrac = 0;
-				oldweapon2frame = curweapon2frame;
-				curweapon2frame = weapon2frame;
-			}
-			
-			if (interpolating2 == TRUE) {
-				v2model.lerpfrac += frametime * (1/duration2);
-
-				if (v2model.lerpfrac >= 1.0) {
-					oldweapon2frame = curweapon2frame;
-					v2model.lerpfrac = 0;
-					interpolating2 = FALSE;	
-				}
-				
-			}
-
-			v2model.frame = oldweapon2frame;
-			v2model.frame2 = curweapon2frame;
-
-		} else {
-			//v2model.frame = getstatf(STAT_WEAPON2FRAME);
-			v2model.lerpfrac = vmodel.lerpfrac;
-			v2model.frame = oldweaponframe;
-			v2model.frame2 = curweaponframe;
-		}
-		v2model.angles = vmodel.angles;
-		v2model.origin = vmodel.origin;
-		if(mzlflash.alpha > 0.09)
-		{
-			makevectors(view_angles);
-			local vector offset = vmodel.origin + vmodel_muzzleoffset;
-			local vector muzzlepos;
-			muzzlepos = getviewprop(VF_ORIGIN);
-			muzzlepos += v_forward * offset_x;
-			muzzlepos -= v_right * offset_y;
-			muzzlepos += v_up * (offset_z + 6);
-
-			if (cvar("r_drawviewmodel")) {
-				if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON))) {
-					if (pap_flash_alternate)
-						dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0.7 0 0' * mzlflash.alpha);
-					else
-						dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0 0 0.7' * mzlflash.alpha);
-
-					pap_flash_alternate = !pap_flash_alternate;
-				}	
-				else
-					dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '1.2 0.7 0.2' * mzlflash.alpha);
-
-				addentity(mzlflash);
-			}
-		}
-	}
-	
-	//deltalisten makes engine call the "add_outline" func for each entity with the set model every frame
-	/*deltalisten("models/mg_ammo.iqm", add_outline, 0);
-	deltalisten("models/weapons/mg/mg.iqm", add_outline, 0);
-	deltalisten("models/weapons/pistol/pistol.iqm", add_outline, 0);*/
-	//deltalisten("models/humanoid_simplerig.iqm", add_outline, 0);
+	// Draw the client's viewmodels.
+	ViewModel_Draw();
 	
 	DropRecoilKick();
+	Camera_SniperSway();
 
 	camang[0] += gun_kick[0];
 	camang[1] += gun_kick[1];
 	camang[2] += gun_kick[2];
+	camang[0] += sniper_sway[0];
+	camang[1] += sniper_sway[1];
+	camang[2] += sniper_sway[2];
 
 	setviewprop(VF_ANGLES, camang);
 
@@ -1216,6 +870,7 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 noref void() CSQC_Input_Frame =
 {
 	input_angles += gun_kick;
+	input_angles += sniper_sway;
 }
 
 #define DEG2RAD(x)	(x * M_PI / 180.f)
@@ -1239,46 +894,49 @@ noref void() CSQC_Parse_Event =
 			
 			traceent = readentitynum();
 
-			if(entnum == player_localentnum)
+			// Muzzleflash Logic
+			if (entnum == player_localentnum && getstatf(STAT_WEAPONZOOM) != 2)
 			{
 				// originally was view_angles, but thats only what is reported
 				// to the server, weapon kick is NOT reported, so offset continued
 				// to grow.
 				getinputstate(servercommandframe);
 				makevectors(input_angles);
-				local vector offset = vmodel.origin + vmodel_muzzleoffset;
-				local vector muzzlepos, muzzle_offset;
-				muzzlepos = getviewprop(VF_ORIGIN);
-				
-				muzzle_offset = GetWeaponFlash_Offset(getstatf(STAT_ACTIVEWEAPON))/1000;
 
-				// Firing from the left? Use the other position instead
+				vector muzzleflash_offset;
+				vector muzzleflash_position = getviewprop(VF_ORIGIN);
+
+				// If firing the left side of a dual-wield weapon, use the left side muzzleflash offset.
                 if (side == 0 && IsDualWeapon(getstatf(STAT_ACTIVEWEAPON)))
-					muzzle_offset = WepDef_GetLeftFlashOffset(getstatf(STAT_ACTIVEWEAPON))/1000;
+					muzzleflash_offset = WepDef_GetLeftFlashOffset(getstatf(STAT_ACTIVEWEAPON))/1000;
+				// Otherwise, use the standard offset.
+				else
+					muzzleflash_offset = GetWeaponFlash_Offset(getstatf(STAT_ACTIVEWEAPON))/1000;
 
-				// ADS offset
+				// Move to match ADS position if Zoomed in.
 				if(getstatf(STAT_WEAPONZOOM) == 1) {  
-					muzzle_offset += GetWeaponADSOfs_PSP(weapon)/1000;
+					muzzleflash_offset += GetWeaponADSOfs_PSP(getstatf(STAT_ACTIVEWEAPON))/1000;
 				}
 				
-				muzzlepos += v_forward * muzzle_offset_z;
-				muzzlepos += v_right * muzzle_offset_x;
-				muzzlepos += v_up * muzzle_offset_y;			
-				mzlflash.alpha = 1;
-
-				// Scale the muzzleflash to meet viewmodel FOV
-				// FTE doesnt support vector scaling :(
-				// float afov = cvar("fov");
-				// float vfov = cvar("r_viewmodel_default_fov");
-				// float ascale = 1.0 / tan(DEG2RAD(afov/2.0)) * vfov / 90.0;
-				// mzlflash.scale = ascale;
+				muzzleflash_position += v_forward * muzzleflash_offset_z;
+				muzzleflash_position += v_right * muzzleflash_offset_x;
+				muzzleflash_position += v_up * muzzleflash_offset_y;			
 
 				if (cvar("nzp_particles") && cvar("r_drawviewmodel")) {
 					float index = rint(random() * 2);
-					if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON)))				
-						pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", ftos(index))), muzzlepos, norm*24, 1);
-					else
-						pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", ftos(index))), muzzlepos, norm*24, 1);
+					// Display Muzzleflash Particle and Dynamic Light
+					if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON))) {			
+						pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", ftos(index))), muzzleflash_position, norm*24, 1);
+
+						// Pack-A-Punched Weapons can display either a Blue or Red light
+						if (random() > 0.5)
+							dynamiclight_add(muzzleflash_position, 256, '0.7 0 0');
+						else
+							dynamiclight_add(muzzleflash_position, 256, '0 0 0.7');
+					} else {
+						pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", ftos(index))), muzzleflash_position, norm*24, 1);
+						dynamiclight_add(muzzleflash_position, 256, '1.2 0.7 0.2');
+					}
 				}
 			}
 
@@ -1349,39 +1007,6 @@ noref void() CSQC_Parse_Event =
 			int player_id = readbyte();
 			string message = readstring();
 			Chat_Register(sender, player_id, message);
-			break;
-		case EVENT_WEAPONCHANGE:
-			local float to;
-			to = readbyte();
-			setmodel(vmodel,GetWeaponModel(to, FALSE));
-
-			if (to == W_KAR_SCOPE && vmodel.model == "models/weapons/kar/v_kar.mdl") {
-				setmodel(v2model,"models/weapons/kar/v_karscope.mdl");
-			} else {
-				setmodel(v2model,"");
-			}
-
-			v2model.origin = vmodel.origin = '0 0 0';
-			v2model.angles = vmodel.angles = '-60 0 0';
-			v2model_currentpos = vmodel_currentpos = vmodel.origin + '0 0 -24';
-			v2model_targetpos = vmodel_targetpos = vmodel.origin;
-			v2model_muzzleoffset = vmodel_muzzleoffset = '12 0 1';
-			weapon = to;
-			
-			HUD_Change_time = time + 6;
-			break;
-		case EVENT_UPDATEVMODEL:
-			local string new;
-			local float skin2;
-			new = readstring();
-			setmodel(vmodel,new);
-			vmodel.skin = readbyte();
-			break;
-		case EVENT_UPDATEV2MODEL:
-			local string new2;
-			new2 = readstring();
-			setmodel(v2model,new2);
-			v2model.skin = readbyte();
 			break;
 		case EVENT_USEPRINT:
 			useprint_type = readbyte();
