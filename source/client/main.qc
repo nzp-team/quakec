@@ -1016,38 +1016,5 @@ noref void() CSQC_Parse_Event =
 		case EVENT_BETTYPROMPT:
 			bettyprompt_time = time + 4;
 			break;
-		case EVENT_WEAPONUPDATE:
-			float wepnum = readbyte();
-			string wepname = readstring();
-			string wvmodel = readstring();
-			float mag = readbyte();
-			float reserve = readbyte();
-			vector cads = stov(readstring());
-			float cmin = readbyte();
-			float cmax = readbyte();
-			vector flash = stov(readstring());
-			float flashsize = readbyte();
-			string v2 = readstring();
-			float isd = readbyte();
-			/*W_CUSTOMNAME[wepnum] = wepname;
-			W_CVMODEL[wepnum] = wvmodel;
-			W_CMAG[wepnum] = mag;
-			W_CRESERVE[wepnum] = reserve;
-			W_CCROSSMIN[wepnum] = cmin;
-			W_CCROSSMAX[wepnum] = cmax;
-			W_CADS[wepnum] = cads;
-			W_CFLASHSIZE[wepnum] = flashsize;
-			W_CVMODEL2[wepnum] = v2;
-			W_CDUAL[wepnum] = isd;*/
-			break;
-		case EVENT_HUDUPDATE:
-			/*string temps;
-			float tempf;
-			G_HUD = readstring();
-			G_HUDHOR = readbyte();
-
-			if (G_HUD != "")
-				huddir = strcat("gfx/hud/", G_HUD, "/");*/
-			break;
 	}
 }

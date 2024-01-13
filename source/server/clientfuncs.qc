@@ -416,58 +416,6 @@ void(entity person) FTE_UpdateDynamicFOV =
 #endif // FTE
 
 #ifdef FTE
-void(string h, float h2, entity who) pushHUD = {
-	if (player_count == 0) {
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_HUDUPDATE);
-		WriteString(MSG_MULTICAST, h);
-		WriteByte(MSG_MULTICAST, h2);
-		msg_entity = who;
-		multicast('0 0 0', MULTICAST_ONE);
-	} else {
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_WEAPONUPDATE);
-		WriteString(MSG_MULTICAST, h);
-		WriteByte(MSG_MULTICAST, h2);
-		multicast('0 0 0', MULTICAST_ALL);
-	}
-}
-
-void (float wepnum, string wepname, string wvmodel, float mag, float reserve, string ads, float min, float max, string flash, float flashsize, string v2, float isd, entity who) sendCustomWeapon = {
-	if (player_count == 0) {
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_WEAPONUPDATE);
-		WriteByte(MSG_MULTICAST, wepnum);
-		WriteString(MSG_MULTICAST, wepname);
-		WriteString(MSG_MULTICAST, wvmodel);
-		WriteByte(MSG_MULTICAST, mag);
-		WriteByte(MSG_MULTICAST, reserve);
-		WriteString(MSG_MULTICAST, ads);
-		WriteByte(MSG_MULTICAST, min);
-		WriteByte(MSG_MULTICAST, max);
-		WriteString(MSG_MULTICAST, flash);
-		WriteByte(MSG_MULTICAST, flashsize);
-		WriteString(MSG_MULTICAST, v2);
-		WriteByte(MSG_MULTICAST, isd);
-		msg_entity = who;
-		multicast('0 0 0', MULTICAST_ONE);
-	} else {
-		WriteByte(MSG_ALL, SVC_CGAMEPACKET);
-		WriteByte(MSG_ALL, EVENT_WEAPONUPDATE);
-		WriteByte(MSG_ALL, wepnum);
-		WriteString(MSG_ALL, wepname);
-		WriteString(MSG_ALL, wvmodel);
-		WriteByte(MSG_ALL, mag);
-		WriteByte(MSG_ALL, reserve);
-		WriteString(MSG_ALL, ads);
-		WriteByte(MSG_ALL, min);
-		WriteByte(MSG_ALL, max);
-		WriteString(MSG_ALL, flash);
-		WriteByte(MSG_ALL, flashsize);
-		WriteString(MSG_ALL, v2);
-		WriteByte(MSG_ALL, isd);
-	}
-}
 
 void(string msg, entity who) ScrollText = {
 	if (player_count == 0) {
