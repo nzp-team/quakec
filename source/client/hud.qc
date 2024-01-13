@@ -1690,9 +1690,6 @@ void(float width, float height) HUD_Draw =
 {
 	if (cvar("cl_cinematic"))
 		return;
-
-	HUD_Achievements(width, height);
-
 	
 	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 1) && !score_show)
 	{
@@ -1761,6 +1758,8 @@ void(float width, float height) HUD_Draw =
 		
 	if (score_show)
 		HUD_Scores();
+
+	HUD_Achievements(width, height);
 		
 	if (fade_time > time)
 		HUD_Fade();
