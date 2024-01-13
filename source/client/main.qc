@@ -153,28 +153,10 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	}
 };
 
-//
-// Init_Particles()
-// Spawns a dummy particle for each effect
-// so it loads. (FIXME - is there a better
-// way?)
-//
-void() Init_Particles =
-{
-	for(int i = 0; i < 3; i++) {
-		pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", itos(i))), '0 0 0', '0 0 0', 0);
-		pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", itos(i))), '0 0 0', '0 0 0', 0);
-	}					
-	pointparticles(particleeffectnum("weapons.impact"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("weapons.impact_decal"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("weapons.explode"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("blood.blood_particle"), '0 0 0', '0 0 0', 0);
-}
-
 noref void() CSQC_WorldLoaded =
 {
 	Achievement_Init();
-	Init_Particles();
+	Particles_Init();
 	nameprint_time = time + 12;
 
 	huddir = "gfx/hud/";
@@ -877,80 +859,18 @@ noref void() CSQC_Input_Frame =
 
 noref void() CSQC_Parse_Event =
 {
-	local float first = readbyte();
+	float event_type = readbyte();
 
-	switch (first) {
-		case EVENT_PISTOLFIRE:			
-			local float entnum, traceent, side;
-			local vector pos, norm;
-			entnum = readentitynum();
-			side = readfloat();
-			pos_x = readcoord();
-			pos_y = readcoord();
-			pos_z = readcoord();
-			norm_x = readcoord();
-			norm_y = readcoord();
-			norm_z = readcoord();
-			
-			traceent = readentitynum();
-
-			// Muzzleflash Logic
-			if (entnum == player_localentnum && getstatf(STAT_WEAPONZOOM) != 2)
-			{
-				// originally was view_angles, but thats only what is reported
-				// to the server, weapon kick is NOT reported, so offset continued
-				// to grow.
-				getinputstate(servercommandframe);
-				makevectors(input_angles);
-
-				vector muzzleflash_offset;
-				vector muzzleflash_position = getviewprop(VF_ORIGIN);
-
-				// If firing the left side of a dual-wield weapon, use the left side muzzleflash offset.
-                if (side == 0 && IsDualWeapon(getstatf(STAT_ACTIVEWEAPON)))
-					muzzleflash_offset = WepDef_GetLeftFlashOffset(getstatf(STAT_ACTIVEWEAPON))/1000;
-				// Otherwise, use the standard offset.
-				else
-					muzzleflash_offset = GetWeaponFlash_Offset(getstatf(STAT_ACTIVEWEAPON))/1000;
-
-				// Move to match ADS position if Zoomed in.
-				if(getstatf(STAT_WEAPONZOOM) == 1) {  
-					muzzleflash_offset += GetWeaponADSOfs_PSP(getstatf(STAT_ACTIVEWEAPON))/1000;
-				}
-				
-				muzzleflash_position += v_forward * muzzleflash_offset_z;
-				muzzleflash_position += v_right * muzzleflash_offset_x;
-				muzzleflash_position += v_up * muzzleflash_offset_y;			
-
-				if (cvar("nzp_particles") && cvar("r_drawviewmodel")) {
-					float index = rint(random() * 2);
-					// Display Muzzleflash Particle and Dynamic Light
-					if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON))) {			
-						pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", ftos(index))), muzzleflash_position, norm*24, 1);
-
-						// Pack-A-Punched Weapons can display either a Blue or Red light
-						if (random() > 0.5)
-							dynamiclight_add(muzzleflash_position, 256, '0.7 0 0');
-						else
-							dynamiclight_add(muzzleflash_position, 256, '0 0 0.7');
-					} else {
-						pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", ftos(index))), muzzleflash_position, norm*24, 1);
-						dynamiclight_add(muzzleflash_position, 256, '1.2 0.7 0.2');
-					}
-				}
-			}
-
-			if (GetFiretype(getstatf(STAT_ACTIVEWEAPON)) == FIRETYPE_GRENADE)
-				return;
-			
-			if(traceent == 0)
-			{
-				if (cvar("nzp_particles"))
-					pointparticles(particleeffectnum("weapons.impact"), pos, norm*24, 1);
-
-				if (cvar("nzp_decals"))
-					pointparticles(particleeffectnum("weapons.impact_decal"), pos, '0 0 0', 1);
-			}
+	switch (event_type) {
+		case CSQC_EVENT_PARTICLE:
+			float particle_type = readbyte();
+			float part_pos_x = readcoord();
+			float part_pos_y = readcoord();
+			float part_pos_z = readcoord();
+			float part_optional = readbyte();
+			float part_entity = readentitynum();
+			vector particle_pos = [part_pos_x, part_pos_y, part_pos_z];
+			Particles_RunParticle(particle_type, particle_pos, part_optional, part_entity);
 			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
@@ -959,48 +879,6 @@ noref void() CSQC_Parse_Event =
             rec_z = readcoord()/5;
 
 			gun_kick += rec;
-			break;
-		case EVENT_EXPLOSION:
-            local vector org;
-            org_x = readcoord();
-            org_y = readcoord();
-            org_z = readcoord();
-
-			if (cvar("nzp_decals"))
-            	pointparticles(particleeffectnum("weapons.explode"), org, '0 0 0', 1);
-            break;
-		case EVENT_BLOOD:
-			vector loc;
-
-			loc_x = readcoord();
-            loc_y = readcoord();
-            loc_z = readcoord();
-			
-			if (cvar("nzp_particles"))
-				pointparticles(particleeffectnum("blood.blood_particle"), loc, '0 0 0', 1);
-			break;
-		case EVENT_FLAME:
-			vector floc;
-
-			floc_x = readcoord();
-            floc_y = readcoord();
-            floc_z = readcoord();
-			
-			if (cvar("nzp_particles")) {
-				pointparticles(particleeffectnum("flames.flame_particle"), floc, '0 0 0', 1);
-			}
-			break;
-		case EVENT_LIMBGIB:
-			vector gloc;
-
-			gloc_x = readcoord();
-            gloc_y = readcoord();
-            gloc_z = readcoord();
-			
-			if (cvar("nzp_particles")) {
-				pointparticles(particleeffectnum("blood.blood_particle"), gloc, '0 0 0', 1);
-				pointparticles(particleeffectnum("blood.gibs"), gloc, '0 0 0', 1);
-			}
 			break;
 		case EVENT_CHATMESSAGE:
 			int sender = readbyte();

@@ -560,13 +560,7 @@ void(vector org, vector vel, float damage) SpawnBlood =
   
 #ifdef FTE
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_BLOOD);
-	WriteCoord(MSG_MULTICAST, org_x);
-	WriteCoord(MSG_MULTICAST, org_y);
-	WriteCoord(MSG_MULTICAST, org_z);
-	msg_entity = self;
-	multicast('0 0 0', MULTICAST_ONE);
+	FTE_RunParticleEffect(world, CSQC_PART_BLOODIMPACT, org, 0, world);
 
 #else
 
@@ -586,12 +580,7 @@ void(vector where) spawn_gibs = {
 
 #else
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_LIMBGIB);
-	WriteCoord(MSG_MULTICAST, where_x);
-	WriteCoord(MSG_MULTICAST, where_y);
-	WriteCoord(MSG_MULTICAST, where_z);
-	multicast('0 0 0', MULTICAST_ALL);
+	FTE_RunParticleEffect(world, CSQC_PART_ZOMBIEGIB, where, 0, world);
 
 #endif // FTE
 
@@ -824,18 +813,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 	
 #ifdef FTE
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_PISTOLFIRE);
-	WriteEntity(MSG_MULTICAST, self);
-    WriteFloat(MSG_MULTICAST, side);
-	WriteCoord(MSG_MULTICAST, org_x);
-	WriteCoord(MSG_MULTICAST, org_y);
-	WriteCoord(MSG_MULTICAST, org_z);
-	WriteCoord(MSG_MULTICAST, plane_x);
-	WriteCoord(MSG_MULTICAST, plane_y);
-	WriteCoord(MSG_MULTICAST, plane_z);
-	WriteEntity(MSG_MULTICAST, hit_ent);
-	multicast(trace_endpos, MULTICAST_PHS);
+	FTE_RunParticleEffect(self, CSQC_PART_MUZZLEFLASH, org, side, hit_ent);
 
 #endif // FTE
 	

@@ -28,37 +28,51 @@
 #define true    1
 #define false   0
 
-#define EVENT_PISTOLFIRE 				10
+//
+// CSQC Particle Types
+//
+#define CSQC_PART_MUZZLEFLASH			0 	// View Entity Muzzleflashes.
+#define CSQC_PART_EXPLOSION 			1	// Explosion effect.
+#define CSQC_PART_BLOODIMPACT			2 	// Blood Impact effect.
+#define CSQC_PART_ZOMBIEGIB				3	// Zombie Gib effect.
+#define CSQC_PART_FIRE					4 	// Fire/flame effect.
+
+//
+// CSQC Event Types
+//
+#define CSQC_EVENT_PARTICLE				10	// <byte> particle_type
+											// <coord> pos_x
+											// <coord> pos_y
+											// <coord> pos_z
+											// <byte> optional_field
+											// <entity> optional_entity
+
 #define EVENT_USEPRINT 					11
 #define EVENT_NEWROUND 					12
 #define EVENT_SETROUND 					13
-#define EVENT_PERK	 					22
-#define EVENT_UPDATE 					23
-#define EVENT_BROADCAST 				24
-#define EVENT_POINTUPDATE 				25
-#define EVENT_BLACKOUT 					26
-#define EVENT_SCROLLTEXT 				28
-#define EVENT_WORLDDATA 				29
-#define EVENT_ACHIEVEMENT 				30
-#define EVENT_PLAYERUPDATE 				31
-#define EVENT_WEAPONUPDATE 				32
-#define EVENT_HUDUPDATE 				33
-#define EVENT_EXPLOSION 				34
-#define EVENT_BLOOD 					35
-#define EVENT_ACHIEVEMENTPROGRESS 		36
-#define EVENT_REVIVEON 					37
-#define EVENT_REVIVEOFF 				38
-#define EVENT_REVIVECHANGE 				39
-#define EVENT_WEAPONRECOIL 				40
-#define EVENT_SONGPLAY 					41
-#define EVENT_GRENADEPULSE 				42
-#define EVENT_BETTYPROMPT 				43
-#define EVENT_LIMBGIB					44
-#define EVENT_CHATMESSAGE				45
-#define EVENT_DOUBLETAPUPDATE 			46
-#define EVENT_FLAME 					47
-#define EVENT_ENDGAME					48
-#define EVENT_MAPTYPE					49
+#define EVENT_PERK	 					14
+#define EVENT_UPDATE 					15
+#define EVENT_BROADCAST 				16
+#define EVENT_POINTUPDATE 				17
+#define EVENT_BLACKOUT 					18
+#define EVENT_SCROLLTEXT 				19
+#define EVENT_WORLDDATA 				20
+#define EVENT_ACHIEVEMENT 				21
+#define EVENT_PLAYERUPDATE 				22
+#define EVENT_WEAPONUPDATE 				23
+#define EVENT_HUDUPDATE 				24
+#define EVENT_ACHIEVEMENTPROGRESS 		25
+#define EVENT_REVIVEON 					26
+#define EVENT_REVIVEOFF 				27
+#define EVENT_REVIVECHANGE 				28
+#define EVENT_WEAPONRECOIL 				29
+#define EVENT_SONGPLAY 					30
+#define EVENT_GRENADEPULSE 				31
+#define EVENT_BETTYPROMPT 				32
+#define EVENT_CHATMESSAGE				33
+#define EVENT_DOUBLETAPUPDATE 			34
+#define EVENT_ENDGAME					35
+#define EVENT_MAPTYPE					36
 
 // Define our FTE platform
 #ifndef STANDARD

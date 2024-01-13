@@ -25,6 +25,34 @@
 
 */
 
+#ifdef FTE
+
+//
+// FTE_RunParticleEffect(target, particle_type, position, optional_field, optional_entity)
+// Fires a CSQC_EVENT_PARTICLE to clients specified (or
+// world for global).
+//
+void(entity target, float particle_type, vector position, float optional_field, entity optional_entity) FTE_RunParticleEffect =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_PARTICLE);
+	WriteByte(MSG_MULTICAST, particle_type);
+	WriteCoord(MSG_MULTICAST, position_x);
+	WriteCoord(MSG_MULTICAST, position_y);
+	WriteCoord(MSG_MULTICAST, position_z);
+	WriteByte(MSG_MULTICAST, optional_field);
+	WriteEntity(MSG_MULTICAST, optional_entity);
+
+	if (target != world) {
+		msg_entity = target;
+		multicast(position, MULTICAST_ONE);
+	} else {
+		multicast(position, MULTICAST_ALL);
+	}
+};
+
+#endif // FTE
+
 void() NotifyGameEnd =
 {
 #ifdef FTE
@@ -104,12 +132,7 @@ void(vector org) CallExplosion = {
 
 #else
 
-    WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_EXPLOSION);
-	WriteCoord(MSG_MULTICAST, org_x);
-	WriteCoord(MSG_MULTICAST, org_y);
-	WriteCoord(MSG_MULTICAST, org_z);
-	multicast('0 0 0', MULTICAST_ALL);
+	FTE_RunParticleEffect(world, CSQC_PART_EXPLOSION, org, 0, world);
 
 #endif // FTE
 }
@@ -652,14 +675,7 @@ void(vector org) Effect_Fire =
 
 #else
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_FLAME);
-	WriteCoord(MSG_MULTICAST, org_x);
-	WriteCoord(MSG_MULTICAST, org_y);
-	WriteCoord(MSG_MULTICAST, org_z);
-	multicast('0 0 0', MULTICAST_ALL);
-
-	//te_flamejet(self.origin, v_up*8, 10);
+	FTE_RunParticleEffect(world, CSQC_PART_FIRE, org, 0, world);
 
 #endif // FTE
 
