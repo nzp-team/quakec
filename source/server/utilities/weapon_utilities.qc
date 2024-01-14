@@ -270,7 +270,7 @@ void Weapon_SwapWeapons(float play_animation)
 		self.Weapon_Name = GetWeaponName(self.weapon);
 		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 		self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-		self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
+		self.ADS_Offset = GetWeaponADSOfs(self.weapon);
 
 #endif // FTE
 
@@ -304,7 +304,7 @@ void Weapon_SetActiveInSlot(float slot, float play_first_raise)
 	self.Weapon_Name = GetWeaponName(self.weapon);
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 	self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-	self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
+	self.ADS_Offset = GetWeaponADSOfs(self.weapon);
 
 #endif // FTE
 

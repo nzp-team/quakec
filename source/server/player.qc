@@ -561,12 +561,8 @@ void() PlayerPostThink =
 	if(self.isspec)
 		return;
 
-#ifndef FTE
-
 	if (time < 5 && self.name != "")
 		nzp_setplayername(self, self.name);
-
-#endif // FTE
 
 	//landsound
 	if((self.oldvelocity_z < -212) && (self.flags & FL_ONGROUND))
@@ -893,7 +889,6 @@ void() PlayerSpawn =
 	self.stamina = 3;
 	self.reviving = 0;
 	self.perks = G_PERKS;
-	SetPerk(self, self.perks);
 
 	if (rounds < 1 && player_count == 0) {
 		sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
@@ -905,7 +900,6 @@ void() PlayerSpawn =
 	
 #ifdef FTE
 
-	SetRound(self, G_STARTROUND);
 	self.viewzoom = 1;
 	self.SendEntity = Player_SendEntity;
 	self.weapon_animduration = getWeaponDelay(self.weapon, FIRE);
@@ -920,7 +914,7 @@ void() PlayerSpawn =
 	self.Weapon_Name = GetWeaponName(self.weapon);
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 	self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-	self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
+	self.ADS_Offset = GetWeaponADSOfs(self.weapon);
 
 #endif // FTE
 

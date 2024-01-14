@@ -61,7 +61,7 @@ void() Particles_MuzzleflashCallback =
 
 	// Move to match ADS position if Zoomed in.
 	if(getstatf(STAT_WEAPONZOOM) == 1) {  
-		muzzleflash_offset += GetWeaponADSOfs_PSP(getstatf(STAT_ACTIVEWEAPON))/1000;
+		muzzleflash_offset += GetWeaponADSOfs(getstatf(STAT_ACTIVEWEAPON))/1000;
 	}
 				
 	muzzleflash_position += v_forward * muzzleflash_offset_z;

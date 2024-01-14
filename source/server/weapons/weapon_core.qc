@@ -1751,8 +1751,16 @@ void() CheckPlayer =
 				if (ent.beingrevived == true && ent.firer != self)
 					return;
 
-				// Broadcast that they're being revived
-				BroadcastMessageToClient(ent, time + 2, 3, self.netname);
+
+				#ifdef FTE
+
+				// FTE-Specific: Broadcast to the player they're being revived.
+				FTE_BroadcastMessage(ent, CSQC_BROADCAST_BEINGREVIVED, 2, self.playernum);
+
+				// FTE-Specific: Broadcast to client that they are reviving the downed player.
+				FTE_BroadcastMessage(self, CSQC_BROADCAST_REVIVINGPLAYER, 2, ent.playernum);
+
+				#endif // FTE
 
 				ent.speed_penalty = 0.01;
 				ent.speed_penalty_time = time + 100;
@@ -1786,6 +1794,16 @@ void() CheckPlayer =
 					self.progress_bar_percent = 0;
 					self.revived = 0;
 					addmoney(self, ent.requirespower, false);
+
+
+					#ifdef FTE
+
+					// FTE-Specific: End Broadcast Messages on both ends
+					FTE_BroadcastMessage(ent, CSQC_BROADCAST_NONE, 0, self.playernum);
+					FTE_BroadcastMessage(self, CSQC_BROADCAST_NONE, 0, ent.playernum);
+
+					#endif // FTE
+
 				}
 			}
 			else if (self.downed || (!self.button7 && self.reviving) || (self.reviving && self.active_door != ent) || ent.classname == "disconnected") {
@@ -1803,6 +1821,15 @@ void() CheckPlayer =
 				self.progress_bar_percent = 0;
 				self.revived = 0;
 				self.reviving = 0;
+
+				#ifdef FTE
+
+				// FTE-Specific: End Broadcast Messages on both ends
+				FTE_BroadcastMessage(ent, CSQC_BROADCAST_NONE, 0, self.playernum);
+				FTE_BroadcastMessage(self, CSQC_BROADCAST_NONE, 0, ent.playernum);
+
+				#endif // FTE
+
 			}
 		}
 		else if(ent.classname == "player" && ent != self && !ent.downed) // small player push 

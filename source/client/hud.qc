@@ -357,7 +357,7 @@ void(float width, float height) HUD_CharacterName =
 		alpha = (nameprint_time - time);
 	}
 
-	drawstring([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], getstats(STAT_PLAYERNAME), [12, 12], [1, 1, 1], alpha, 0);
+	drawstring([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], character_name, [12, 12], [1, 1, 1], alpha, 0);
 }
 
 /*******************
@@ -1047,11 +1047,57 @@ void(float width, float height) HUD_Useprint =
 
 int perk_order[9];
 int current_perk_order;
+
+void() UpdatePerks = 
+{
+	float new_perks = getstatf(STAT_PERKS);
+
+	if (perks == new_perks)
+		return;
+
+	float s;
+
+	// avoids out of bounds err - moto
+	if (new_perks == 0)
+		current_perk_order = 0;
+
+	for(float i = 1; i < 129; i *= 2) {
+		if (new_perks & i && !(perks & i)) {
+			perk_order[current_perk_order] = i;
+			current_perk_order += 1;
+		}
+	}
+
+	for(float i = 1; i < 129; i *= 2) {
+		if (perks & i && !(new_perks & i)) 
+		{
+			for(s = 0; s < 8; s++) 
+			{
+				if (perk_order[s] == i) 
+				{
+					perk_order[s] = 0;
+					while (perk_order[s+1]) 
+					{
+						perk_order[s] = perk_order[s+1];
+						perk_order[s+1] = 0;
+					}
+					break;
+				}
+			}
+		}
+	}
+	
+	perks = new_perks;
+}
+
 	
 void(float width, float height) HUD_Perks =
 {
 	float scale;
 	float x, y;
+
+	// Update Perk Order.
+	UpdatePerks();
 	
 	scale = 32;
 
@@ -1364,15 +1410,27 @@ void() HUD_Powerups =
 	}
 }
 
-void() HUD_Broadcast = {
-
+void() HUD_Broadcast = 
+{
 	string broadcast_msg = "";
-	float health = getstatf(STAT_HEALTH);
+	string broadcast_name = getplayerkeyvalue(broadcast_num - 1, "name");
 	
 	switch(broadcast_type) {
-		case 2: broadcast_msg = strcat(broadcast_string, " needs to be revived"); break;
-		case 3: broadcast_msg = strcat(broadcast_string, " is reviving you"); break;
-		default: break;
+		case CSQC_BROADCAST_PLAYERDOWNED:
+			broadcast_msg = strcat(broadcast_name, " needs to be revived");
+			break;
+		case CSQC_BROADCAST_BEINGREVIVED:
+			broadcast_msg = strcat(broadcast_name, " is reviving you");
+			break;
+		case CSQC_BROADCAST_REVIVINGPLAYER:
+			broadcast_msg = strcat("Reviving ", broadcast_name);
+			break;
+		case CSQC_BROADCAST_NONE:
+			broadcast_msg = "";
+			break;
+		default:
+			broadcast_msg = "Bad broadcast.";
+			break;
 	}
 
 	float print_width = stringwidth (broadcast_msg, 0, [0.015*g_width, 0.015*g_width, 0]);
@@ -1380,7 +1438,7 @@ void() HUD_Broadcast = {
 
 	if (broadcast_msg != "")
 		drawstring([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
-}
+};
 
 void() HUD_Scores =
 {
@@ -1763,40 +1821,4 @@ void(float width, float height) HUD_Draw =
 		
 	if (fade_time > time)
 		HUD_Fade();
-}
-
-void UpdatePerks(float newperks) {
-	float s;
-
-	// avoids out of bounds err - moto
-	if (newperks == 0)
-		current_perk_order = 0;
-
-	for(float i = 1; i < 129; i *= 2) {
-		if (newperks & i && !(perks & i)) {
-			perk_order[current_perk_order] = i;
-			current_perk_order += 1;
-		}
-	}
-
-	for(float i = 1; i < 129; i *= 2) {
-		if (perks & i && !(newperks & i)) 
-		{
-			for(s = 0; s < 8; s++) 
-			{
-				if (perk_order[s] == i) 
-				{
-					perk_order[s] = 0;
-					while (perk_order[s+1]) 
-					{
-						perk_order[s] = perk_order[s+1];
-						perk_order[s+1] = 0;
-					}
-					break;
-				}
-			}
-		}
-	}
-	
-	perks = newperks;
 }

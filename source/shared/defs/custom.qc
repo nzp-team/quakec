@@ -38,6 +38,14 @@
 #define CSQC_PART_FIRE					4 	// Fire/flame effect.
 
 //
+// CSQC Broadcast Messages
+//
+#define CSQC_BROADCAST_NONE				0 	// ""
+#define CSQC_BROADCAST_PLAYERDOWNED		1	// "$ needs to be revived"
+#define CSQC_BROADCAST_BEINGREVIVED		2	// "$ is reviving you"
+#define CSQC_BROADCAST_REVIVINGPLAYER	3	// "Reviving $"
+
+//
 // CSQC Event Types
 //
 #define CSQC_EVENT_PARTICLE				10	// <byte> particle_type
@@ -47,24 +55,32 @@
 											// <byte> optional_field
 											// <entity> optional_entity
 
-#define EVENT_USEPRINT 					11
-#define EVENT_NEWROUND 					12
-#define EVENT_SETROUND 					13
-#define EVENT_PERK	 					14
-#define EVENT_UPDATE 					15
-#define EVENT_BROADCAST 				16
-#define EVENT_POINTUPDATE 				17
-#define EVENT_BLACKOUT 					18
-#define EVENT_SCROLLTEXT 				19
+#define CSQC_EVENT_USEPRINT				11	// <byte> useprint_type
+											// <short> useprint_cost
+											// <byte> useprint_weapon
+
+#define CSQC_EVENT_ROUNDCHANGE			12	// <byte> round
+
+#define CSQC_EVENT_BROADCASTMESSAGE		13	// <byte> broadcast_message_type
+											// <byte> broadcast_time
+											// <byte> player_number
+
+#define CSQC_EVENT_MAXAMMOTEXT			14	// NO DATA.
+
+#define CSQC_EVENT_MUSICSTREAM			15	// <string> track_name
+
+#define CSQC_EVENT_GIVEACHIEVEMENT		16 	// <byte> achievement_index
+
+#define CSQC_EVENT_PLAYERNAME			17 	// <string> player_name
+
+#define EVENT_UPDATE 					18
+#define EVENT_BLACKOUT 					19
 #define EVENT_WORLDDATA 				20
-#define EVENT_ACHIEVEMENT 				21
 #define EVENT_PLAYERUPDATE 				22
-#define EVENT_ACHIEVEMENTPROGRESS 		23
 #define EVENT_REVIVEON 					24
 #define EVENT_REVIVEOFF 				25
 #define EVENT_REVIVECHANGE 				26
 #define EVENT_WEAPONRECOIL 				27
-#define EVENT_SONGPLAY 					28
 #define EVENT_GRENADEPULSE 				29
 #define EVENT_BETTYPROMPT 				30
 #define EVENT_CHATMESSAGE				31
@@ -266,8 +282,8 @@ float 	map_compatibility_mode;
 #define STAT_PLAYERSTANCE 		65
 #define STAT_FACINGENEMY 		66
 #define STAT_MAXHEALTH 			67
-#define STAT_PLAYERNAME 		68
-#define STAT_WEAPONSKIN 		69
+#define STAT_WEAPONSKIN 		68
+#define STAT_PERKS				69
 
 .float playernum;
 float game_over;

@@ -104,7 +104,7 @@ void(float mode, entity to) ReportMapMode = {
 
 void(entity to, float type, float cost, float weapon) useprint = {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_USEPRINT);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_USEPRINT);
 	WriteByte(MSG_MULTICAST, type);
 	WriteShort(MSG_MULTICAST, cost);
 	WriteByte(MSG_MULTICAST, weapon);
@@ -115,7 +115,7 @@ void(entity to, float type, float cost, float weapon) useprint = {
 void(string track_name) songegg =
 {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_SONGPLAY);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_MUSICSTREAM);
 	WriteString(MSG_MULTICAST, track_name);
 	multicast('0 0 0', MULTICAST_ALL);
 };
@@ -137,41 +137,23 @@ void(vector org) CallExplosion = {
 #endif // FTE
 }
 
-void NotifyNewRound(float to) {
 #ifdef FTE
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_NEWROUND);
-	WriteByte(MSG_MULTICAST, to);
-	multicast('0 0 0', MULTICAST_ALL);
-
-#endif // FTE
-}
-
-void SetRound(entity client, float to) {
-#ifdef FTE
-
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_SETROUND);
-	WriteByte(MSG_MULTICAST, to);
-	msg_entity = client;
-	multicast('0 0 0', MULTICAST_ONE);
-
-#endif // FTE
-}
-
-void SetPerk(entity client, float to)
+//
+// FTE_IncrementRound()
+// Alerts all clients of new value for Rounds.
+// -- RELIABLE --
+//
+void(float round) FTE_IncrementRound =
 {
-#ifdef FTE
-
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_PERK);
-	WriteLong(MSG_MULTICAST, to);
-	msg_entity = client;
-	multicast('0 0 0', MULTICAST_ONE);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_ROUNDCHANGE);
+	WriteByte(MSG_MULTICAST, round);
+	multicast('0 0 0', MULTICAST_ALL_R);
+};
+
 
 #endif // FTE
-}
 
 void(float index, float state) ChangeReviveIconState =
 {
@@ -213,21 +195,6 @@ void(float index) DisableReviveIcon =
 #endif // FTE
 }
 
-void(entity who, float broadcast_time, float type, string str) BroadcastMessageToClient =
-{
-#ifdef FTE
-
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
-	WriteByte(MSG_MULTICAST, broadcast_time);
-	WriteByte(MSG_MULTICAST, type);
-	WriteString(MSG_MULTICAST, str);
-	msg_entity = who;
-	multicast('0 0 0', MULTICAST_ONE);
-
-#endif // FTE
-}
-
 void(entity who, float weapon) CL_SendWeaponFire =
 {
 	float recoil_return_time = getWeaponRecoilReturn(weapon);
@@ -257,19 +224,31 @@ void(entity who, float weapon) CL_SendWeaponFire =
 	self.recoil_delay = 60/recoil_return_time + time;
 }
 
-void(float broadcast_time, float type, string str) BroadcastMessage =
-{
 #ifdef FTE
 
+//
+// FTE_BroadcastMessage(target, broadcast_type, broadcast_type, player_id)
+// Sends a CSQC Event to display text on the screen for the
+// desired clients. Use 'world' to send to everyone.
+// -- RELIABLE --
+//
+void(entity target, float broadcast_type, float broadcast_time, float player_id) FTE_BroadcastMessage =
+{
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_BROADCAST);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_BROADCASTMESSAGE);
+	WriteByte(MSG_MULTICAST, broadcast_type);
 	WriteByte(MSG_MULTICAST, broadcast_time);
-	WriteByte(MSG_MULTICAST, type);
-	WriteString(MSG_MULTICAST, str);
-	multicast('0 0 0', MULTICAST_ALL);
+	WriteByte(MSG_MULTICAST, player_id);
+
+	if (target != world) {
+		msg_entity = target;
+		multicast('0 0 0', MULTICAST_ONE_R);
+	} else {
+		multicast('0 0 0', MULTICAST_ALL_R);
+	}
+};
 
 #endif // FTE
-}
 
 void(float count) UpdatePlayerCount = {
 #ifdef FTE
@@ -417,20 +396,29 @@ void(entity person) FTE_UpdateDynamicFOV =
 
 #ifdef FTE
 
-void(string msg, entity who) ScrollText = {
-	if (player_count == 0) {
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_SCROLLTEXT);
-		WriteString(MSG_MULTICAST, msg);
-		msg_entity = who;
-		multicast('0 0 0', MULTICAST_ONE);
-	} else {
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_SCROLLTEXT);
-		WriteString(MSG_MULTICAST, msg);
-		multicast('0 0 0', MULTICAST_ALL);
-	}
-}
+//
+// nzp_maxammo()
+// FTE equivalent of nzp_maxammo builtin.
+//
+void() nzp_maxammo =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_MAXAMMOTEXT);
+	multicast('0 0 0', MULTICAST_ALL);
+};
+
+//
+// nzp_setplayername(target, player_name)
+// FTE equivalent of nzp_setplayername builtin.
+//
+void(entity target, string player_name) nzp_setplayername =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_PLAYERNAME);
+	WriteString(MSG_MULTICAST, player_name);
+	msg_entity = target;
+	multicast('0 0 0', MULTICAST_ONE);
+};
 
 void(string chaptertitle, string location, string date, string person, entity who) WorldText = {
 	if (player_count == 0) {
@@ -475,7 +463,7 @@ void (float achievement_id, optional entity who) GiveAchievement =
 #else
 
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENT);
+		WriteByte(MSG_MULTICAST, CSQC_EVENT_GIVEACHIEVEMENT);
 		WriteByte(MSG_MULTICAST, achievement_id);
 		msg_entity = who;
 		multicast('0 0 0', MULTICAST_ONE);
@@ -496,7 +484,7 @@ void (float achievement_id, optional entity who) GiveAchievement =
 #else
 
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENT);
+		WriteByte(MSG_MULTICAST, CSQC_EVENT_GIVEACHIEVEMENT);
 		WriteByte(MSG_MULTICAST, achievement_id);
 		multicast('0 0 0', MULTICAST_ALL);
 
@@ -544,64 +532,6 @@ float Player_SendEntity( entity ePVEnt, float flChanged ) {
 	WriteByte( MSG_ENTITY, self.is_in_menu ); // Player is in a Menu State
     return TRUE;
 }
-
-#endif // FTE
-
-void (float achievement_id, float progress_value, optional entity who) UpdateAchievementProgress =
-{
-
-#ifndef FTE
-
-	// temp
-	if (achievement_id > 4)
-		return;
-
-#endif // FTE
-
-	// this is a progress update specific to an individual
-	if ((who && who != world) || player_count == 0) {
-		if (player_count == 0) who = find(world, classname, "player");
-
-#ifndef FTE
-
-		//achievement_progress(who, achievement_id, progress_value);
-
-#else
-
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENTPROGRESS);
-		WriteByte(MSG_MULTICAST, achievement_id);
-		WriteFloat(MSG_MULTICAST, progress_value);
-		msg_entity = who;
-		multicast('0 0 0', MULTICAST_ONE);
-
-#endif // FTE
-
-	} else {
-
-#ifndef FTE
-
-		entity players;
-		players = find(world, classname, "player");
-		while(players != world) {
-			//achievement_progress(players, achievement_id, progress_value);
-			players = find(players, classname, "player");
-		}
-
-#else
-
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, EVENT_ACHIEVEMENTPROGRESS);
-		WriteByte(MSG_MULTICAST, achievement_id);
-		WriteFloat(MSG_MULTICAST, progress_value);
-		multicast('0 0 0', MULTICAST_ALL);
-
-#endif // FTE
-	}
-
-}
-
-#ifdef FTE
 
 void(entity who, float version) nzp_setdoubletapver =
 {

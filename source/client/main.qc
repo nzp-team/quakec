@@ -157,7 +157,7 @@ noref void() CSQC_WorldLoaded =
 {
 	Achievement_Init();
 	Particles_Init();
-	nameprint_time = time + 12;
+	nameprint_time = time + 8;
 
 	huddir = "gfx/hud/";
 };
@@ -872,6 +872,41 @@ noref void() CSQC_Parse_Event =
 			vector particle_pos = [part_pos_x, part_pos_y, part_pos_z];
 			Particles_RunParticle(particle_type, particle_pos, part_optional, part_entity);
 			break;
+		case CSQC_EVENT_USEPRINT:
+			useprint_type = readbyte();
+			useprint_cost = readshort();
+			useprint_weapon = readbyte();
+			useprint_time = time + 0.1;
+			break;
+		case CSQC_EVENT_ROUNDCHANGE:
+			rounds = readbyte();
+			HUD_Change_time = time + 6;
+			break;
+		case CSQC_EVENT_BROADCASTMESSAGE:
+			broadcast_type = readbyte();
+			broadcast_time = time + readbyte();
+			broadcast_num = readbyte();
+			break;
+		case CSQC_EVENT_MAXAMMOTEXT:
+			scrolltext = "MAX AMMO!";
+			stext = true;
+			break;
+		case CSQC_EVENT_MUSICSTREAM:
+			string track_name = readstring();
+			localsound_enhanced(strcat("tracks/", track_name, ".ogg"), CHAN_MUSIC, 1);
+			break;
+		case CSQC_EVENT_GIVEACHIEVEMENT:
+			float achievement_id = readbyte();
+
+			// Don't unlock an existing achievement or any if on emscripten.
+			if (achievements[achievement_id].unlocked || platform_is_web)
+				return;
+
+			Achievement_Unlock(achievement_id);
+			break;
+		case CSQC_EVENT_PLAYERNAME:
+			character_name = readstring();
+			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
             rec_x = readcoord()/5;
@@ -886,29 +921,8 @@ noref void() CSQC_Parse_Event =
 			string message = readstring();
 			Chat_Register(sender, player_id, message);
 			break;
-		case EVENT_USEPRINT:
-			useprint_type = readbyte();
-			useprint_cost = readshort();
-			useprint_weapon = readbyte();
-
-			useprint_time = time + 0.1;
-			break;
 		case EVENT_ENDGAME:
 			game_over = true;
-			break;
-		case EVENT_NEWROUND:
-			rounds = readbyte();
-			HUD_Change_time = time + 6;
-			break;
-		case EVENT_SETROUND:
-			rounds = readbyte();
-			break;
-		case EVENT_PERK:
-			float newperks;
-			
-			newperks = readlong();
-
-			UpdatePerks(newperks);
 			break;
 		case EVENT_DOUBLETAPUPDATE:
 			double_tap_version = readbyte();
@@ -937,11 +951,6 @@ noref void() CSQC_Parse_Event =
 				default: 
 					break;
 			}
-			break;
-		case EVENT_BROADCAST:
-			broadcast_time = readbyte();
-			broadcast_type = readbyte();
-			broadcast_string = readstring();
 			break;
 		case EVENT_REVIVECHANGE:
 			float revivechange_id = readbyte();
@@ -974,10 +983,6 @@ noref void() CSQC_Parse_Event =
 			fade_time = readbyte();
 			fade_type = readbyte();
 			break;
-		case EVENT_SCROLLTEXT:
-			scrolltext = readstring();
-			stext = TRUE;
-			break;
 		case EVENT_WORLDDATA:
 			chaptertitle = readstring();
 			location = readstring();
@@ -986,26 +991,6 @@ noref void() CSQC_Parse_Event =
 
 			if (chaptertitle == "")
 				chaptertitle = "'Nazi Zombies'";
-			break;
-		case EVENT_SONGPLAY:
-			string track_name = readstring();
-			localsound_enhanced(strcat("tracks/", track_name, ".ogg"), CHAN_MUSIC, 1);
-			break;
-		case EVENT_ACHIEVEMENT:
-			float ach = readbyte();
-
-			if (achievements[ach].unlocked == true)
-				return;
-			Achievement_Unlock(ach);
-			break;
-		case EVENT_ACHIEVEMENTPROGRESS:
-			float id = readbyte();
-			float pg = readfloat();
-
-			if (achievements[id].unlocked == true)
-				return;
-			
-			Achievement_UpdateProgress(id, pg);
 			break;
 		case EVENT_PLAYERUPDATE:
 			player_count = readbyte();

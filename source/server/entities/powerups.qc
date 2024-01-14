@@ -558,16 +558,7 @@ void() PU_MaxAmmo =
 		}
 
 		// MAX AMMO! text
-
-#ifdef FTE
-
-		ScrollText("MAX AMMO!", players);
-
-#else
-
 		nzp_maxammo();
-
-#endif // FTE
 
 		players = find(players, classname, "player");
 	}

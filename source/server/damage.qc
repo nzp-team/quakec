@@ -144,7 +144,6 @@ void() EndGameSetup =
 		NotifyGameEnd();
 	}
 	game_over = true;
-	SetPerk(self, self.perks);
 	addmoney(self, -self.points, 0);
 	addmoney(self, self.score, 0);	
     return;
@@ -216,8 +215,12 @@ void() GetDown =
 	addmoney(self, point_difference * -1, false);
 	self.requirespower = point_difference;
 
-	// Broadcast that the player has downed.
-	BroadcastMessage(time + 3, 2, self.netname);
+#ifdef FTE
+
+	// FTE-Specific: Broadcast that the player has downed to everyone.
+	FTE_BroadcastMessage(world, CSQC_BROADCAST_PLAYERDOWNED, 3, self.playernum);
+
+#endif // FTE
 
 	// Reset state
 	self.velocity = self.zoom = 0;
@@ -238,11 +241,19 @@ void() GetDown =
 		self.progress_bar = 10 + time;     
 		self.progress_bar_time = 10;
 		self.progress_bar_percent = 1;
+
+#ifdef FTE
+
+		// FTE-Specific: Broadcast to the player they're reviving themselves.
+		FTE_BroadcastMessage(self, CSQC_BROADCAST_REVIVINGPLAYER, 3, self.playernum);
+
+#endif // FTE
+
+
 	}
 
 	// Take away weapons and Perks
 	self.perks = 0;
-	SetPerk(self, self.perks);
 
 	self.weaponbk = self.weapon;
 	self.currentammobk = self.weapons[0].weapon_reserve;

@@ -234,7 +234,7 @@ vector() ViewModel_GetADSPosition =
     if (client_zoom == 1 || client_zoom == 2) {
         // These are ordered differently in QuakeC because ??
         // right, up, forward
-        vector temp_adsofs = GetWeaponADSOfs_PSP(getstatf(STAT_ACTIVEWEAPON));
+        vector temp_adsofs = GetWeaponADSOfs(getstatf(STAT_ACTIVEWEAPON));
 
         // Translate to proper order, and re-gain precision.
         ads_offset[0] = temp_adsofs[2]/1000;

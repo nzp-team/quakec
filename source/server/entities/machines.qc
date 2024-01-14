@@ -119,8 +119,6 @@ void GivePerk(optional float p) {
 	self.perk_delay = self.fire_delay;
 
 	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
-
-	SetPerk(self, self.perks);
 }
 
 //

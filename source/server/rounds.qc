@@ -213,7 +213,13 @@ void() NewRound =
 
 	rounds = rounds + 1;
 
-	NotifyNewRound(rounds);
+#ifdef FTE
+
+	// FTE-Specific - alert CSQC of the round increment for HUD display
+	FTE_IncrementRound(rounds);
+
+#endif // FTE
+
 	tempe = find(world, classname, "player");
 	while (tempe)
 	{

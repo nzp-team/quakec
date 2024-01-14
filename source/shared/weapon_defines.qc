@@ -1543,7 +1543,7 @@ Weapon PSP ADS Declarations
 // x: left/right
 // y: up/down
 // z: forward/back
-vector GetWeaponADSOfs_PSP(float wep) = 
+vector GetWeaponADSOfs(float wep) = 
 {
 		
 	switch(wep)
