@@ -38,7 +38,7 @@ void() EndGame_Restart =
 // Fade to black function, creates another think for restart
 void() EndGame_FadePrompt =
 {
-	PromptLevelChange(time + 6, 2, self);
+	nzp_screenflash(self, SCREENFLASH_COLOR_BLACK, 6, SCREENFLASH_FADE_IN);
 
 #ifdef FTE
 

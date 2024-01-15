@@ -1520,29 +1520,46 @@ void() HUD_Endgame = {
 	HUD_Scores();
 }
 
-float oldfade_alpha;
-void() HUD_Fade = 
+//
+// HUD_Screenflash()
+// Screen fade in and out behaviors.
+//
+void() HUD_Screenflash = 
 {  
-	float alpha;
-	
-	if (fade_type == 1) {
-		alpha = cos(fade_time - time);
-			if (oldfade_alpha > 0.95)
-			alpha = 1;
-			
-			alpha = invertfloat(alpha);
-						
-		drawfill ([0, 0, 0], [g_width, g_height, 0], [0, 0, 0], alpha, 0);	// background
-		oldfade_alpha = alpha;
+	vector color = '0 0 0';
+	float flash_alpha = 0;
+
+	// Obtain the flash color
+	switch(screenflash_color) {
+		case SCREENFLASH_COLOR_BLACK: color = '0 0 0'; break;
+		case SCREENFLASH_COLOR_WHITE: color = '1 1 1'; break;
+		default: color = '1 0 0'; break;
 	}
-	else if (fade_type == 2) {
-		alpha = sin(((fade_time - time) * 2));
-		if (oldfade_alpha > 0.95)
-			alpha = 1;
-				
-		drawfill ([0, 0, 0], [g_width, g_height, 0], [0, 0, 0], alpha, 0);	// background
-		oldfade_alpha = alpha;
+
+	float percentage_complete = screenflash_worktime / (screenflash_duration - screenflash_starttime);
+
+	// Fade Out
+	if (screenflash_type == SCREENFLASH_FADE_OUT) {
+		flash_alpha = invertfloat(percentage_complete);
 	}
+	// Fade In
+	else if (screenflash_type == SCREENFLASH_FADE_IN) {
+		flash_alpha = percentage_complete;
+	}
+	// Fade In + Fade Out
+	else {
+		// Fade In
+		if (percentage_complete < 0.5) {
+			flash_alpha = percentage_complete;
+		} 
+		// Fade Out
+		else {
+			flash_alpha = invertfloat(percentage_complete);
+		}
+	}
+
+	screenflash_worktime += frametime;
+	drawfill ([0, 0], [g_width, g_height, 0], color, flash_alpha, 0);
 }
 
 void(float width, float height) HUD_ScrollText = {
@@ -1819,6 +1836,6 @@ void(float width, float height) HUD_Draw =
 
 	HUD_Achievements(width, height);
 		
-	if (fade_time > time)
-		HUD_Fade();
+	if (screenflash_duration > time)
+		HUD_Screenflash();
 }

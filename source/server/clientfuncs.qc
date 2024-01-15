@@ -248,6 +248,26 @@ void(entity target, float broadcast_type, float broadcast_time, float player_id)
 	}
 };
 
+//
+// nzp_screenflash(target, color, duration, type)
+// FTE equivalent of nzp_screenflash builtin.
+//
+void(entity target, float color, float duration, float type) nzp_screenflash =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_SCREENFLASH);
+	WriteByte(MSG_MULTICAST, color);
+	WriteByte(MSG_MULTICAST, duration);
+	WriteByte(MSG_MULTICAST, type);
+
+	if (target != world) {
+		msg_entity = target;
+		multicast('0 0 0', MULTICAST_ONE);
+	} else {
+		multicast('0 0 0', MULTICAST_ALL);
+	}
+};
+
 #endif // FTE
 
 void(float count) UpdatePlayerCount = {
@@ -260,20 +280,6 @@ void(float count) UpdatePlayerCount = {
 		WriteByte(MSG_MULTICAST, count);
 		multicast('0 0 0', MULTICAST_ALL);
 	}
-
-#endif // FTE
-}
-
-void(float newtime, float newtype, entity change) PromptLevelChange =
-{
-#ifdef FTE
-
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_BLACKOUT);
-	WriteByte(MSG_MULTICAST, newtime);
-	WriteByte(MSG_MULTICAST, newtype);
-	msg_entity = change;
-	multicast('0 0 0', MULTICAST_ONE);
 
 #endif // FTE
 }

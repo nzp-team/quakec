@@ -73,20 +73,37 @@
 
 #define CSQC_EVENT_PLAYERNAME			17 	// <string> player_name
 
-#define EVENT_UPDATE 					18
-#define EVENT_BLACKOUT 					19
-#define EVENT_WORLDDATA 				20
+#define CSQC_EVENT_SCREENFLASH			18 	// <byte> screenflash_color
+											// <byte> screenflash_duration
+											// <byte> screenflash_type
+
+#define EVENT_UPDATE 					19
+#define EVENT_BLACKOUT 					20
+#define EVENT_WORLDDATA 				21
 #define EVENT_PLAYERUPDATE 				22
-#define EVENT_REVIVEON 					24
-#define EVENT_REVIVEOFF 				25
-#define EVENT_REVIVECHANGE 				26
-#define EVENT_WEAPONRECOIL 				27
-#define EVENT_GRENADEPULSE 				29
-#define EVENT_BETTYPROMPT 				30
-#define EVENT_CHATMESSAGE				31
-#define EVENT_DOUBLETAPUPDATE 			32
-#define EVENT_ENDGAME					33
-#define EVENT_MAPTYPE					34
+#define EVENT_REVIVEON 					23
+#define EVENT_REVIVEOFF 				24
+#define EVENT_REVIVECHANGE 				25
+#define EVENT_WEAPONRECOIL 				26
+#define EVENT_GRENADEPULSE 				27
+#define EVENT_BETTYPROMPT 				28
+#define EVENT_CHATMESSAGE				29
+#define EVENT_DOUBLETAPUPDATE 			30
+#define EVENT_ENDGAME					31
+#define EVENT_MAPTYPE					32
+
+//
+// Types of screen-flashes, global.
+//
+
+// Colors
+#define SCREENFLASH_COLOR_WHITE			0
+#define SCREENFLASH_COLOR_BLACK			1
+
+// Types
+#define SCREENFLASH_FADE_INANDOUT		0
+#define SCREENFLASH_FADE_IN 			1
+#define SCREENFLASH_FADE_OUT 			2
 
 // Define our FTE platform
 #ifndef STANDARD
@@ -296,9 +313,10 @@ float game_over;
 // invert float takes in float value between 0 and 1, inverts position
 // eg: 0.1 returns 0.9, 0.34 returns 0.66
 float invertfloat(float input) {
-	
-	if (input <= 0 || input >= 1)
-		return input; 					// out of boundaries 
-	
-	return (1 - input);	
+    if (input < 0)
+        return 0; // adjust to lower boundary
+    else if (input > 1)
+        return 1; // adjust to upper boundary
+    else
+        return (1 - input);
 }

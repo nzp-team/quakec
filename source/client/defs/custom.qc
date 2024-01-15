@@ -154,8 +154,11 @@ vector TEXT_ORANGE    = [(235/255), (189/255), 0];
 vector TEXT_GREEN     = [0, (230/255), (34/255)];
 vector TEXT_RED       = [1, 0, 0];
 
-float fade_time;
-float fade_type;
+float screenflash_type;
+float screenflash_color;
+float screenflash_duration;
+float screenflash_worktime;
+float screenflash_starttime;
 
 .float stance;
 .float points;

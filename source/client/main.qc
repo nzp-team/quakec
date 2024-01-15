@@ -625,7 +625,11 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	}
 	if(in_menu)
 	{
-		//in menu.qc
+		// sorta-nasty hack: flashes should still draw if we're
+		// drawing the menu.
+		if (screenflash_duration > time)
+			HUD_Screenflash();
+
 		Draw_Menu();
 		setlocaluserinfo(0, "in_menu", "1");
 	}
@@ -907,6 +911,13 @@ noref void() CSQC_Parse_Event =
 		case CSQC_EVENT_PLAYERNAME:
 			character_name = readstring();
 			break;
+		case CSQC_EVENT_SCREENFLASH:
+			screenflash_color = readbyte();
+			screenflash_duration = time + readbyte();
+			screenflash_type = readbyte();
+			screenflash_worktime = 0;
+			screenflash_starttime = time;
+			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
             rec_x = readcoord()/5;
@@ -978,10 +989,6 @@ noref void() CSQC_Parse_Event =
 			break;
 		case EVENT_MAPTYPE:
 			map_compatibility_mode = readbyte();
-			break;
-		case EVENT_BLACKOUT:
-			fade_time = readbyte();
-			fade_type = readbyte();
 			break;
 		case EVENT_WORLDDATA:
 			chaptertitle = readstring();

@@ -39,6 +39,7 @@ void() main =
 }
 
 float ai_delay_time;
+float time_before_gamestart;
 
 //
 // Way_SetBrushEntNonSolid(ent_name)
@@ -90,6 +91,10 @@ void() StartFrame =
 		return;
 	}
 
+	// Start completely blacked out
+	//if (time < 5)
+		
+
 
 	if (roundinit) {
 		Round_Core();
@@ -122,19 +127,32 @@ void() StartFrame =
 
 		}
 	} else {
-		entity SpawnedIn;
-		SpawnedIn = find(world, classname, "player");
+		if (!time_before_gamestart) {
+			entity SpawnedIn;
+			SpawnedIn = find(world, classname, "player");
 
-		if (SpawnedIn) {
-			entity getdog = find(world, classname, "spawn_dog");
-			if (getdog)
-				gotdog = 1;
-			else
-				gotdog = 0;
-
+			if (SpawnedIn) {
+				Compat_Init();
+				time_before_gamestart = time + 3;
+			}
+			return;
+		} else if (time_before_gamestart < time) {
 			updateDogRound();
 			InitRounds();
-			Compat_Init();
+			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
+			sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
+
+			entity players = find(world, classname, "player");
+			
+			while(players != world) {
+				if (players.name != "")
+					nzp_setplayername(players, players.name);
+
+				players = find(players, classname, "player");
+			}
+
+		} else {
+			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 90, SCREENFLASH_FADE_OUT);
 		}
 	}
 }

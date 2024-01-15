@@ -561,9 +561,6 @@ void() PlayerPostThink =
 	if(self.isspec)
 		return;
 
-	if (time < 5 && self.name != "")
-		nzp_setplayername(self, self.name);
-
 	//landsound
 	if((self.oldvelocity_z < -212) && (self.flags & FL_ONGROUND))
 	{
@@ -890,12 +887,6 @@ void() PlayerSpawn =
 	self.reviving = 0;
 	self.perks = G_PERKS;
 
-	if (rounds < 1 && player_count == 0) {
-		sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
-		sound(self, CHAN_ITEM, "sounds/rounds/nround.wav", 0.75, ATTN_NONE);
-	}
-
-	PromptLevelChange(self.nextthink + 3, 1, self);	
 	UpdatePlayerCount(player_count);
 	
 #ifdef FTE
@@ -921,6 +912,11 @@ void() PlayerSpawn =
 	if (G_STARTROUND != 1) {
 		rounds = G_STARTROUND - 1;
 	}
+
+	// Make sure players joining after game start are still allowed
+	// to see their name.
+	if (time >= 5 && self.name != "")
+		nzp_setplayername(self, self.name);
 };
 
 void() SpectatorSpawn =
