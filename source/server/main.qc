@@ -132,12 +132,17 @@ void() StartFrame =
 			SpawnedIn = find(world, classname, "player");
 
 			if (SpawnedIn) {
+				entity hellhound = find(world, classname, "spawn_dog");
+
+				if (hellhound != world)
+					gotdog = true;
+
 				Compat_Init();
+				updateDogRound();
 				time_before_gamestart = time + 3;
 			}
 			return;
 		} else if (time_before_gamestart < time) {
-			updateDogRound();
 			InitRounds();
 			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
 			sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
