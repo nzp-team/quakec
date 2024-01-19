@@ -126,6 +126,10 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(snd_channel5volume, 1);
 	autocvar(snd_channel6volume, 1);
 
+	// FTE is overriding cl_bobup values.. so be evil
+	// and force it to 0.02.
+	cvar_set("cl_bobup", "0.02");
+
 	// force nearest filtering for hud elements to avoid blur
 	cvar_set("gl_texturemode2d", "gl_nearest");
 	cvar_set("r_font_linear", "0");
