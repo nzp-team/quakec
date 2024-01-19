@@ -143,6 +143,14 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	stopwatch_round_sec = stopwatch_round_min = stopwatch_round_hr = 0;
 	stopwatch_round_starttime = time;
 
+	// FTE via emscripten (for the fault of the browser?) bugs out
+	// when using mousewheel. So as a hack, just unbind the mouse
+	// wheel. :/
+	if (platform_is_web) {
+		localcmd("unbind MWHEELUP; unbind MWHEELDOWN\n");
+		localcmd("bind 1 +button4; bind 2 +button4\n");
+	}
+
 	// retrieve custom maps
 	Customs_Get();
 
