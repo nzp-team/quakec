@@ -511,7 +511,11 @@ void() LinkDoors =
 				return;
 			if (self.health)
 				return;
-			if (self.targetname && self.classname != "door_nzp_cost")
+
+			// Only disable trigger spawn fields if this is a vanilla Quake door with a targetname
+			// AND its without a wayTarget. Implies the door isnt really a "door" and like a bonus
+			// or something, since if its a proper door you will want waypoint entry..
+			if (self.targetname && self.classname != "door_nzp_cost" && !self.wayTarget)
 				return;
 
 			self.owner.trigger_field = spawn_field(cmins, cmaxs);
