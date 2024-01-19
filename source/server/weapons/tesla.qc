@@ -79,7 +79,7 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
 		self.state = self.hop_step = 0;
 	}
 
-    if(arc_owner != world && arc_owner.aistatus == "1") {
+    if(arc_owner != world && hit_ent.aistatus == "1") {
         arc_owner.tesla_n_kills += 1;
         
         // 50 points for waffe kills
