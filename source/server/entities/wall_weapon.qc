@@ -327,7 +327,7 @@ void () WallWeapon_TouchTrigger =
 	else if (self.weapon == W_BOWIE)
 	{
 		if (!other.bowie) {
-			useprint(other, 3, self.cost2, self.weapon);
+			useprint(other, 4, self.cost2, self.weapon);
 			if (other.button7)
 			{
 				if (other.points < self.cost2) {
