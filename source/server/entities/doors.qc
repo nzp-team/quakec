@@ -333,9 +333,7 @@ void() door_use =
 void() door_trigger_touch =
 {
 	if(other.classname != "player")
-	{
 		return;
-	}
 
 	if(cvar("waypoint_mode"))
 	{
@@ -348,6 +346,9 @@ void() door_trigger_touch =
 		}
 		return;
 	}
+
+	if (self.owner.targetname && self.owner.classname != "door_nzp_cost")
+		return;
 	
 	if (other.health <= 20)
 		return;
@@ -398,6 +399,8 @@ void() door_touch =
 	// set to only be triggered.
 	if (self.classname == "door" && self.targetname)
 		return;
+
+	bprint(PRINT_HIGH, "hello..!\n");
 
 	if (isPowerOn == FALSE)
 	{
