@@ -295,7 +295,7 @@ void() ViewModel_Draw =
     ViewModel_Animate(cl_viewent2);
 
     // Have the View Model "lag behind" the camera a bit.
-    cl_viewent.angles = ViewModel_CalcSlack();
+    cl_viewent.angles = cl_viewent2.angles = ViewModel_CalcSlack();
 
     // Send the viewents to engine for drawing.
     addentity(cl_viewent);
