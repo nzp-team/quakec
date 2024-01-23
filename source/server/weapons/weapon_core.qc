@@ -1062,8 +1062,16 @@ void(float side) W_Fire =
 	if (self.downed == true)
 		self.teslacount++;
 
+	// Cypress -- sources suggest Double Tap decreases fire rate
+	// by 33% (meaning 66%), but testing has concluded it is instead
+	// a rate of 23%, or 77% of it's original rate. There could be
+	// quite a few reasons for this discrepancy, framerate-tied
+	// weapon firing being one of them (the same reason why in
+	// World at War, the PPSh-41 is completely unaffected by
+	// Double Tap), but technically this IS the correct-and
+	// -reproducible factor due to whatever went wrong there.
 	if (self.perks & P_DOUBLE) {
-		delay *= 0.66;
+		delay *= 0.77;
 	}
 
 	// Players shouldn't be allowed to move while firing and prone.
@@ -1085,10 +1093,10 @@ void(float side) W_Fire =
 
 	if (side == S_RIGHT) {
 		self.weapons[0].weapon_magazine = self.weapons[0].weapon_magazine - 1;
-		self.fire_delay = getWeaponDelay(self.weapon, FIRE) + time;
+		self.fire_delay = delay + time;
 	} else {
 		self.weapons[0].weapon_magazine_left = self.weapons[0].weapon_magazine_left - 1;
-		self.fire_delay2 = getWeaponDelay(self.weapon, FIRE) + time;
+		self.fire_delay2 = delay + time;
 	}
 
 	if (IsPapWeapon(self.weapon) && !WepDef_DoesNotPlayUpgradedSound(self.weapon)) {
