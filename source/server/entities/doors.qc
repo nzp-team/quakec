@@ -332,7 +332,7 @@ void() door_use =
 
 void() door_trigger_touch =
 {
-	if(other.classname != "player")
+	if(other.classname != "player" || other.downed)
 		return;
 
 	if(cvar("waypoint_mode"))
@@ -399,8 +399,6 @@ void() door_touch =
 	// set to only be triggered.
 	if (self.classname == "door" && self.targetname)
 		return;
-
-	bprint(PRINT_HIGH, "hello..!\n");
 
 	if (isPowerOn == FALSE)
 	{
