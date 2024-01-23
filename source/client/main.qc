@@ -545,7 +545,7 @@ vector sniper_sway;
 // Sways the camera while scoped in.
 void() Camera_SniperSway =
 {
-	if (getstatf(STAT_WEAPONZOOM) != 2) {
+	if (getstatf(STAT_WEAPONZOOM) != 2 || (getstatf(STAT_PERKS) & P_DEAD)) {
 		sniper_sway = '0 0 0';
 		return;
 	}
