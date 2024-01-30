@@ -156,6 +156,9 @@ void() W_AimOut =
 
 	self.zoom = 0;
 
+	// Update sniper zoom-out time instantly
+	self.scopetime = 0;
+
 	// Always set ads_release to false, to avoid complicating
 	// actions where the player is forced to Aim Out with
 	// Toggled ADS.
