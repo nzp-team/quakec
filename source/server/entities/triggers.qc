@@ -364,6 +364,42 @@ void() trigger_setfire =
 }
 
 //
+// trigger_awardpoints
+// Awards touching client Score on contact.
+//
+#define SPAWNFLAG_TRIGGERSCORE_REQUIRESTAND		1
+#define SPAWNFLAG_TRIGGERSCORE_REQUIRECROUCH	2
+#define SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE		4
+#define SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS	8
+
+void() trigger_awardpoints_touch =
+{
+	if (other.classname != "player" || other.downed)
+		return;
+
+	if (other.stance != PLAYER_STANCE_STAND && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIRESTAND))
+		return;
+	if (other.stance != PLAYER_STANCE_CROUCH && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIRECROUCH))
+		return;
+	if (other.stance != PLAYER_STANCE_PRONE && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE))
+		return;
+
+	addmoney(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
+
+	if (self.aistatus != "")
+		sound(self, 0, self.aistatus, 1, 1);
+}
+
+void() trigger_awardpoints =
+{
+	InitTrigger ();
+	self.touch = trigger_awardpoints_touch;
+
+	if (self.aistatus != "")
+		precache_sound(self.aistatus);
+}
+
+//
 // Quake Triggers
 //
 
