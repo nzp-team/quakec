@@ -539,13 +539,36 @@ void () W_LoadAmmo =
 	}
 }
 
-void () CheckReload = 
+//
+// WeaponCore_CheckForReload()
+// Determines if weapon should automatically
+// reload after firing, or if weapon is empty
+// and needs swapped out.
+//
+void() WeaponCore_CheckForReload =
 {
-	if (!self.weapons[0].weapon_magazine_left && IsDualWeapon(self.weapon)) {
+	// Save some array lookup time -- copy into temporary structs.
+	float wep_cur_mag = self.weapons[0].weapon_magazine;
+	float wep_cur_mag2 = self.weapons[0].weapon_magazine_left;
+	float wep_cur_res = self.weapons[0].weapon_reserve;
+	float wep_nex_mag = self.weapons[1].weapon_magazine;
+	float wep_nex_mag2 = self.weapons[1].weapon_magazine_left;
+	float wep_nex_res = self.weapons[1].weapon_reserve;
+
+	// Check if left weapon needs reloaded
+	if (!wep_cur_mag2 && IsDualWeapon(self.weapon)) {
 		W_Reload(S_LEFT);
 	}
-	if (!self.weapons[0].weapon_magazine && self.weapons[0].weapon_reserve) {
+
+	// Check if right weapon needs reloaded
+	if (!wep_cur_mag && wep_cur_res) {
 		W_Reload(S_RIGHT);
+	}
+
+	// Check if a weapon swap is necessary
+	if (!wep_cur_mag && !wep_cur_res && !wep_cur_mag2 &&
+	(wep_nex_mag || wep_nex_mag2 || wep_nex_res)) {
+		W_PutOut();
 	}
 }
 
@@ -1085,7 +1108,7 @@ void(float side) W_Fire =
 		Set_W_Frame (startframe, endframe, delay, 0, FIRE, W_LoadAmmo, modelname, FALSE, side);
 		self.NeedLoad = true;
 	} else {
-		Set_W_Frame (startframe, endframe, delay, 0, FIRE, CheckReload, modelname, FALSE, side);
+		Set_W_Frame (startframe, endframe, delay, 0, FIRE, WeaponCore_CheckForReload, modelname, FALSE, side);
 	}
 
 
