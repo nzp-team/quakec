@@ -36,7 +36,7 @@ void() ToggleMenu =
 			in_menu = MENU_PAUSE;
 			time_in_menu = 0;
 			local float i;
-			for(i = 0; i < BUTTONS_COUNT; i++)
+			for(i = 0; i < buttons.length; i++)
 			{
 				buttons[i].active = 1;
 			}

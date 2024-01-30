@@ -770,6 +770,14 @@ void() settings_sens2 = {
 	localcmd(strcat("seta sensitivity ", ftos(sens)));
 }
 
+void() setting_invert =
+{
+	if (cvar("m_pitch") == 0.022)
+		localcmd("m_pitch -0.022\n");
+	else
+		localcmd("m_pitch 0.022\n");
+};
+
 void() settings_adsmode =
 {
 	tokenize(findkeysforcommandex("+button8"));
@@ -966,11 +974,12 @@ var struct
 	// Create Game
 	{[6, 75], "Server Password", -1, setting_password, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 63
 	{[6, 95], "Server Name", -1, setting_servername, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 64
-	{[6, 115], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE} // 65
+	{[6, 115], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 65
+
+	// Control Settings (cont.)
+	{[6, 115], "Invert Mouse", -1, setting_invert, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE} // 66
 };
 
-//REMEMBER TO UPDATE THIS CONST IF YOU ADD BUTTONS
-float BUTTONS_COUNT = 66;
 float lastActive;
 
 
@@ -1104,7 +1113,7 @@ void(float index, float type) Button_Click =
 void(float type) Menu_Click =
 {
 	float i;
-	for(i = 0; i < BUTTONS_COUNT; i++)
+	for(i = 0; i < buttons.length; i++)
 	{
 		Button_Click(i, type);
 	}
@@ -1459,6 +1468,11 @@ void() Draw_Extra_CSettings =
 	// Look Sensitivity
 	drawstring([320, 95], ftos(cvar("sensitivity")), [14, 14], [1, 1, 1], 1, 0);
 
+	// Mouse Inversion
+	if (cvar("m_pitch") == 0.022)
+		drawstring([320, 115], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+	else
+		drawstring([320, 115], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
 
 	// Descriptions
 	switch(lastActive) {
@@ -1467,6 +1481,9 @@ void() Draw_Extra_CSettings =
 			break;
 		case 55:
 			cset_desc = "Change Look Sensitivity to adjust responsiveness.";
+			break;
+		case 66:
+			cset_desc = "Invert Mouse Input on the Y Axis.";
 			break;
 		default:
 			cset_desc = "";
@@ -2103,7 +2120,7 @@ void() Draw_Menu =
 	//Update buttons
 	local float i;
 
-	for(i = 0; i < BUTTONS_COUNT; i++)
+	for(i = 0; i < buttons.length; i++)
 	{
 		Update_Button(i);
 	}
