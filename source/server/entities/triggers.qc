@@ -386,8 +386,8 @@ void() trigger_awardpoints_touch =
 
 	addmoney(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
 
-	if (self.aistatus != "")
-		sound(self, 0, self.aistatus, 1, 1);
+	if (self.noise != "")
+		sound(self, 0, self.noise, 1, 1);
 }
 
 void() trigger_awardpoints =
@@ -395,8 +395,8 @@ void() trigger_awardpoints =
 	InitTrigger ();
 	self.touch = trigger_awardpoints_touch;
 
-	if (self.aistatus != "")
-		precache_sound(self.aistatus);
+	if (self.noise != "")
+		precache_sound(self.noise);
 }
 
 //
