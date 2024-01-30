@@ -639,6 +639,10 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					final_damage /= radius;
 					final_damage *= 60;
 				}
+
+				// inflicting damage from an explosive introduces a delay before
+				// player can sprint again.
+				ent.sprint_delay = time + 3;
 			}
 			// shake the camera on impact
 			vector distance;
