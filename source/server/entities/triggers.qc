@@ -374,7 +374,7 @@ void() trigger_setfire =
 
 void() trigger_awardpoints_touch =
 {
-	if (other.classname != "player" || other.downed)
+	if (other.classname != "player" || other.downed || !self.health)
 		return;
 
 	if (other.stance != PLAYER_STANCE_STAND && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIRESTAND))
@@ -388,12 +388,15 @@ void() trigger_awardpoints_touch =
 
 	if (self.noise != "")
 		sound(self, 0, self.noise, 1, 1);
+
+	self.health = 0;
 }
 
 void() trigger_awardpoints =
 {
 	InitTrigger ();
 	self.touch = trigger_awardpoints_touch;
+	self.health = 1;
 
 	if (self.noise != "")
 		precache_sound(self.noise);
