@@ -215,7 +215,7 @@ void zapper_start(string zapper) {
 			self = tempe;
 		} else if (zents.classname == "zapper_node" && zents.target) {
 			zents.think = zapper_play;
-			zents.nextthink = time + 0.1;
+			zents.nextthink = time + 0.65;
 		}
 		zents = find(zents, zappername, zapper);
 	}
