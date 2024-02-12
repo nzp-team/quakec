@@ -973,7 +973,7 @@ float(float wep, float penetration_times) getWeaponPenetration =
 		case W_BORE:
 		case W_SAWNOFF:
 		case W_SNUFF:
-			if (penetration_times >= 1)
+			if (penetration_times >= 3)
 				return 0;
 			return 0.5;
 		case W_FG:
@@ -1036,7 +1036,7 @@ float(float wep, float penetration_times) getWeaponPenetration =
 			return 0.8;
 		case W_TRENCH:
 		case W_GUT:
-			if (penetration_times >= 1)
+			if (penetration_times >= 3)
 				return 0;
 			return 0.7;
 		case W_TYPE:
