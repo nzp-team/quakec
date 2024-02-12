@@ -814,16 +814,16 @@ void() zm_swipe_both_slow4	=[	5, 	zm_swipe_both_slow5		]	{self.frame = 106; Zomb
 void() zm_swipe_both_slow5	=[	6, 	zm_swipe_both_slow6		]	{self.frame = 107; Zombie_Think(); };
 void() zm_swipe_both_slow6	=[	7, 	zm_swipe_both_slow7		]	{self.frame = 108; Zombie_Think(); };
 void() zm_swipe_both_slow7	=[	8, 	zm_swipe_both_slow8		]	{self.frame = 109; Zombie_Think(); };
-void() zm_swipe_both_slow8	=[	9, 	zm_swipe_both_slow9		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
-void() zm_swipe_both_slow9	=[	10, zombie_decide			]	{self.is_attacking = false; self.frame = 111; Zombie_Think(); };
+void() zm_swipe_both_slow8	=[	9, 	zm_swipe_both_slow9		]	{self.frame = 110; Zombie_Think(); };
+void() zm_swipe_both_slow9	=[	10, zombie_decide			]	{zombie_attack2(); self.is_attacking = false; self.frame = 111; Zombie_Think(); };
 
 void() zm_swipe_both_fast	=[	1, 	zm_swipe_both_fast1		]	{self.is_attacking = true; self.frame = 104; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
 void() zm_swipe_both_fast1	=[	2, 	zm_swipe_both_fast2		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
 void() zm_swipe_both_fast2	=[	3, 	zm_swipe_both_fast3		]	{self.frame = 106; Zombie_Think(); };
 void() zm_swipe_both_fast3	=[	4, 	zm_swipe_both_fast4		]	{self.frame = 109; Zombie_Think(); };
-void() zm_swipe_both_fast4	=[	5, 	zm_swipe_both_fast5		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
+void() zm_swipe_both_fast4	=[	5, 	zm_swipe_both_fast5		]	{self.frame = 110; Zombie_Think(); };
 void() zm_swipe_both_fast5	=[	6, 	zm_swipe_both_fast6		]	{self.frame = 111; Zombie_Think(); };
-void() zm_swipe_both_fast6	=[	7, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
+void() zm_swipe_both_fast6	=[	7, 	zombie_decide			]	{zombie_attack2(); self.is_attacking = false; self.frame = 112; Zombie_Think(); };
 
 void(float which) zombie_attack_choose =
 {
