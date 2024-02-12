@@ -1322,110 +1322,122 @@ void() power_switch =
 	isPowerOn = false;
 }
 
-// Sorta ugly function but whatever
-void() perk_random =
+//
+// Random Perk-A-Cola
+//
+
+#define SPAWNFLAG_PERKRANDOM_QUICKREVIVE 	1
+#define SPAWNFLAG_PERKRANDOM_JUGGERNOG		2
+#define SPAWNFLAG_PERKRANDOM_SPEEDCOLA		4
+#define SPAWNFLAG_PERKRANDOM_DOUBLETAP		8
+#define SPAWNFLAG_PERKRANDOM_PHDFLOPPER		16
+#define SPAWNFLAG_PERKRANDOM_STAMINUP		32
+#define SPAWNFLAG_PERKRANDOM_DEADSHOT		64
+#define SPAWNFLAG_PERKRANDOM_MULEKICK		128
+
+float perk_random_placed; // bitfield to track what perk_random ents have placed.
+
+//
+// Perk_RandomAssign(perk_classname, spawnfunc)
+// Transforms perk_random into the designated entity passed.
+// If the entity already exists in the world, it will
+// instead teleport it at the desired location.
+//
+void(string perk_classname, void() spawnfunc) Perk_RandomAssign =
+{
+	entity machine = find(world, classname, perk_classname);
+
+	// Machine does not already exist, so spawn a new one
+	// with default parameters.
+	if (!machine) {
+		self.spawnflags = 0; // reset spawnflags, for default lights.
+		spawnfunc();
+	}
+	// The machine is in the world, so move it here instead.
+	else {
+		setorigin(machine, self.origin);
+	}
+}
+
+//
+// Perk_RandomDecide()
+// Called by perk_random, will conduct the process of
+// deciding what Perk-A-Cola machine it will become.
+//
+void() Perk_RandomDecide =
 {
 	float i;
-	float foundperk;
-	
-	// remove perks from our selection if they already exist
-	// ugly ugly
-	if ((find(world,classname,"perk_revive") && (self.spawnflags & 1))) {
-		self.spawnflags -= self.spawnflags & 1;
-	}
-	if ((find(world,classname,"perk_juggernog") && (self.spawnflags & 2))) {
-		self.spawnflags -= self.spawnflags & 2;
-	}
-	if ((find(world,classname,"perk_speed") && (self.spawnflags & 4))) {
-		self.spawnflags -= self.spawnflags & 4;
-	}
-	if ((find(world,classname,"perk_double") && (self.spawnflags & 8))) {
-		self.spawnflags -= self.spawnflags & 8;
-	}
-	if ((find(world,classname,"perk_flopper") && (self.spawnflags & 16))) {
-		self.spawnflags -= self.spawnflags & 16;
-	}
-	if ((find(world,classname,"perk_staminup") && (self.spawnflags & 32))) {
-		self.spawnflags -= self.spawnflags & 32;
-	}
-	if ((find(world,classname,"perk_deadshot") && (self.spawnflags & 64))) {
-		self.spawnflags -= self.spawnflags & 64;
-	}
-	if ((find(world,classname,"perk_mule") && (self.spawnflags & 128))) {
-		self.spawnflags -= self.spawnflags & 128;
+
+	// If a perk_random entity has already placed down a Perk-A-Cola
+	// given it's respective spawnflag, remove it from the ent selection.
+	for(i = 1; i < 256; i *= 2) {
+		if ((perk_random_placed & i) && (self.spawnflags & 1))
+			self.spawnflags -= self.spawnflags & i;
 	}
 
-	// obj error because there are no possible perks for us to obtain
-	if (self.spawnflags == 0) {
+	// Choose which of the eight machines we want to become, if permitted.
+	while (true) {
+		i = random();
+		// Quick Revive
+		if (i < (1/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_QUICKREVIVE)) {
+			Perk_RandomAssign("perk_revive", perk_revive);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_QUICKREVIVE;
+			break;
+		}
+		// Jugger-Nog 
+		else if (i < (2/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_JUGGERNOG)) {
+			Perk_RandomAssign("perk_juggernog", perk_juggernog);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_JUGGERNOG;
+			break;
+		}
+		// Speed Cola
+		else if (i < (3/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_SPEEDCOLA)) {
+			Perk_RandomAssign("perk_speed", perk_speed);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_SPEEDCOLA;
+			break;
+		}
+		// Double Tap
+		else if (i < (4/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_DOUBLETAP)) {
+			Perk_RandomAssign("perk_double", perk_double);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_DOUBLETAP;
+			break;
+		}
+		// PhD Flopper
+		else if (i < (5/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_PHDFLOPPER)) {
+			Perk_RandomAssign("perk_flopper", perk_flopper);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_PHDFLOPPER;
+			break;
+		}
+		// Stamin-Up
+		else if (i < (6/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_STAMINUP)) {
+			Perk_RandomAssign("perk_staminup", perk_staminup);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_STAMINUP;
+			break;
+		}
+		// Deadshot Daiquiri
+		else if (i < (7/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_DEADSHOT)) {
+			Perk_RandomAssign("perk_deadshot", perk_deadshot);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_DEADSHOT;
+			break;
+		}
+		// Mule Kick
+		else if (i < 1 && (self.spawnflags & SPAWNFLAG_PERKRANDOM_MULEKICK)) {
+			Perk_RandomAssign("perk_mule", perk_mule);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_MULEKICK;
+			break;
+		}
+	}
+};
+
+void() perk_random =
+{
+	// Quit out because there are no Perk-A-Cola machines for us to choose between.
+	if (!self.spawnflags) {
 		objerror("No available Perks to choose from!");
 	}
 
-	foundperk = false;
-	while (foundperk == false) {
-		i = random();
-		// Quick Revive
-		if (i < (1/8) && (self.spawnflags & 1)) {
-			if !(find(world, classname, "perk_revive")) {
-				self.spawnflags = 8;
-				perk_revive();
-				foundperk = true;
-			}
-		}
-		// Jugger-Nog 
-		else if (i < (2/8) && (self.spawnflags & 2)) {
-			if !(find(world, classname, "perk_juggernog")) {
-				self.spawnflags = 2;
-				perk_juggernog();
-				foundperk = true;
-			}
-		}
-		// Speed Cola
-		else if (i < (3/8) && (self.spawnflags & 4)) {
-			if !(find(world, classname, "perk_speed")) {
-				self.spawnflags = 4;
-				perk_speed();
-				foundperk = true;
-			}
-		}
-		// Double Tap
-		else if (i < (4/8) && (self.spawnflags & 8)) {
-			if !(find(world, classname, "perk_double")) {
-				self.spawnflags = 16;
-				perk_double();
-				foundperk = true;
-			}
-		}
-		// PhD Flopper
-		else if (i < (5/8) && (self.spawnflags & 16)) {
-			if !(find(world, classname, "perk_flopper")) {
-				self.spawnflags = 16;
-				perk_flopper();
-				foundperk = true;
-			}
-		}
-		// Stamin-Up
-		else if (i < (6/8) && (self.spawnflags & 32)) {
-			if !(find(world, classname, "perk_staminup")) {
-				self.spawnflags = 16;
-				perk_staminup();
-				foundperk = true;
-			}
-		}
-		// Deadshot Daiquiri
-		else if (i < (7/8) && (self.spawnflags & 64)) {
-			if (!find(world, classname, "perk_deadshot")) {
-				self.spawnflags = 16;
-				perk_deadshot();
-				foundperk = true;
-			}
-		}
-		// Mule Kick
-		else if (i < 1 && (self.spawnflags & 128)) {
-			if (!find(world, classname, "perk_mule")) {
-				self.spawnflags = 4;
-				perk_mule();
-				foundperk = true;
-			}
-		}
-	}
-}
+	// We can't transform right away, because we need to assert that
+	// all other entities are loaded in the world.
+	self.think = Perk_RandomDecide;
+	self.nextthink = time + 0.2;
+};
