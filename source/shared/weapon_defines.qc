@@ -792,7 +792,7 @@ float(float wep) getWeaponAmmo =
 		case W_TESLA:
 			return 15;
 		case W_DG3:
-			return 32;
+			return 30;
 		case W_BK:
 			return 4;
 		case W_KRAUS:
