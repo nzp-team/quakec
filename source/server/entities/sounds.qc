@@ -134,6 +134,8 @@ void() ambient_bgm =
 	self.spawnflags = 1;
 	// sound to loop
 	self.message = self.noise2;
+	// backwards compatibility
+	if (!self.message) self.message = "sounds/ambience/amb_loop.wav";
 	// call ambient_generic()
 	ambient_generic();
 }
