@@ -3,7 +3,7 @@
 
 	zombie things
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -206,6 +206,13 @@ void(float what) play_sound_z =
 	}
 };
 
+void(__inout vector what, float howmuch) vector_scale_hack =
+{
+	what_x *= howmuch;
+	what_y *= howmuch;
+	what_z *= howmuch;
+}
+
 void(float which) SetZombieHitBox =
 {
 
@@ -213,152 +220,95 @@ void(float which) SetZombieHitBox =
 	
 	if(self.currentHitBoxSetup == which)
 		return;
+
+	//which = IDLE_BBOX;
 	
 	switch(which)
 	{
 		case EMPTY_BBOX:
-		{
-			/*setorigin(self.head,'0 0 0');
-			setsize (self.head, '0 0 0', '0 0 0');
-			
-			setorigin(self.larm, '0 0 0');
-			setsize (self.larm, '0 0 0','0 0 0');
-			
-			setorigin(self.rarm, '0 0 0');
-			setsize (self.rarm, '0 0 0','0 0 0');*/
-			
 			self.head.view_ofs = '0 0 0';
 			self.rarm.view_ofs = '0 0 0';
 			self.larm.view_ofs = '0 0 0';
-			
-			self.currentHitBoxSetup = EMPTY_BBOX;
-			return;
-		}
+			break;
 		case IDLE_BBOX: 
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '0 10 35';
-	
-			//setsize (self.larm, '-5 -5 -15', '5 5 15');
+		
 			self.larm.bbmins = '-5 -5 -15';
 			self.larm.bbmaxs  = '5 5 15';
 			self.larm.view_ofs = '-10 10 10';
-	
-			//setsize (self.rarm, '-5 -5 -15', '5 5 15');
+		
 			self.rarm.bbmins = '-5 -5 -15';
 			self.rarm.bbmaxs = '5 5 15';
 			self.rarm.view_ofs = '10 10 10';
-			
-			self.currentHitBoxSetup = IDLE_BBOX;
-			return;
-		}
+			break;
 		case WALK1_BBOX:
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '2 -3 35';
-			
-			//setsize (self.head, '-3 -8 30', '7 2 40');
-			//self.head.view_ofs = '0 0 0';
 
-			//setsize (self.larm, '-5 -7 -15', '5 7 15');
 			self.larm.bbmins = '-5 -7 -15';
 			self.larm.bbmaxs = '5 7 15';
 			self.larm.view_ofs = '-10 -4 15';
 
-			//setsize (self.rarm, '-5 -8 -11', '5 8 11');
 			self.rarm.bbmins = '-5 -8 -11';
 			self.rarm.bbmaxs = '5 8 11';
 			self.rarm.view_ofs = '10 11 11';
-			
-			self.currentHitBoxSetup = WALK1_BBOX;
-			return;
-		}
+			break;
 		case WALK2_BBOX:
-		{
-			//setsize (self.head, '-7 -5 -5', '7 5 5');
 			self.head.bbmins = '-7 -5 -5';
 			self.head.bbmaxs = '7 5 5';
 			self.head.view_ofs = '-11 6 36';
 
-			//setsize (self.larm, '-5 -6 -15', '5 6 15');
 			self.larm.bbmins = '-5 -6 -15';
 			self.larm.bbmaxs = '5 6 15';
 			self.larm.view_ofs = '-14 3 15';
 	
-			//setsize (self.rarm, '-5 -5 -11', '5 5 11');
 			self.rarm.bbmins = '-5 -5 -11';
 			self.rarm.bbmaxs = '5 5 11';
 			self.rarm.view_ofs = '4 13 11';
-			
-			self.currentHitBoxSetup = WALK2_BBOX;
-			return;
-		}
+			break;
 		case WALK3_BBOX:
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '-2 13 31';
 	
-			//setsize (self.larm, '-4 -6 -14', '4 6 14');
 			self.larm.bbmins = '-4 -6 -14';
 			self.larm.bbmaxs = '4 6 14';
 			self.larm.view_ofs = '-12 3 11';
 	
-			//setsize (self.rarm, '-5 -5 -11', '5 5 11');
 			self.rarm.bbmins = '-5 -5 -11';
 			self.rarm.bbmaxs = '5 5 11';
 			self.rarm.view_ofs = '14 6 12';
-			
-			self.currentHitBoxSetup = WALK3_BBOX;
-			return;
-		}
+			break;
 		case JOG_BBOX:
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '0 5 36';
 			
-			//setsize (self.larm, '-5 -13 -5', '5 13 5');
 			self.larm.bbmins = '-5 -13 -5';
 			self.larm.bbmaxs = '5 13 5';
 			self.larm.view_ofs = '-8 19 24';
 			
-			//setsize (self.rarm, '-5 -13 -5', '5 13 5');
 			self.rarm.bbmins = '-5 -13 -5';
 			self.rarm.bbmaxs = '5 13 5';
 			self.rarm.view_ofs = '10 19 24';
-			
-			self.currentHitBoxSetup = JOG_BBOX;
-			return;
-		}
+			break;
 		case RUN_BBOX:
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '3 17 32';
 	
-			//setsize (self.larm, '-4 -10 -9', '4 10 9');
 			self.larm.bbmins = '-4 -10 -9';
 			self.larm.bbmaxs = '4 10 9';
 			self.larm.view_ofs = '-12 28 18';
 			
-			//setsize (self.rarm, '-4 -13 -10', '4 13 10');
 			self.rarm.bbmins = '-4 -13 -10';
 			self.rarm.bbmaxs = '4 13 10';
 			self.rarm.view_ofs = '12 -2 19';
-			
-			self.currentHitBoxSetup = RUN_BBOX;
-			return;
-		}
+			break;
 		case CRAWLER_BBOX:
-		{
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '2 18 -14';
@@ -370,66 +320,99 @@ void(float which) SetZombieHitBox =
 			self.rarm.bbmins = '-4 -13 -10';
 			self.rarm.bbmaxs = '4 13 10';
 			self.rarm.view_ofs = '12 15 -25';
-			
-			self.currentHitBoxSetup = CRAWLER_BBOX;
-			return;
-		}
+			break;
 		default:  //also known as BASE_BBOX
-		{
-			//setsize (self.head, '-5 -5 -5', '5 5 5');
 			self.head.bbmins = '-5 -5 -5';
 			self.head.bbmaxs = '5 5 5';
 			self.head.view_ofs = '0 0 35';
 			
-			//setsize (self.larm, '-5 -5 -15', '5 5 15');
 			self.larm.bbmins = '-5 -5 -15';
 			self.larm.bbmaxs = '5 5 15';
 			self.larm.view_ofs = '-10 0 5';
 			
-			//setsize (self.rarm, '-5 -5 -15', '5 5 15');
 			self.rarm.bbmins = '-5 -5 -15';
 			self.rarm.bbmaxs = '5 5 15';
 			self.rarm.view_ofs = '10 0 5';
-			
-			self.currentHitBoxSetup = BASE_BBOX;
-			return;
-		}
+			break;
+	}
+
+	self.currentHitBoxSetup = which;
+
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		vector_scale_hack(self.head.bbmins, self.head.scale);
+		vector_scale_hack(self.head.bbmaxs, self.head.scale);
+		vector_scale_hack(self.head.view_ofs, self.head.scale);
+
+		vector_scale_hack(self.larm.bbmins, self.larm.scale);
+		vector_scale_hack(self.larm.bbmaxs, self.larm.scale);
+		vector_scale_hack(self.larm.view_ofs, self.larm.scale);
+
+		vector_scale_hack(self.rarm.bbmins, self.rarm.scale);
+		vector_scale_hack(self.rarm.bbmaxs, self.rarm.scale);
+		vector_scale_hack(self.rarm.view_ofs, self.rarm.scale);
 	}
 };
 
+//
+// Zombie_ProcessRespawn()
+// Logic called by Zombie_Think for checking
+// the last origin every second, for determining
+// if a zombie is "stuck" inside and needs to re-spawn.
+//
+void() Zombie_ProcessRespawn =
+{
+	// Check once every 3 seconds
+	if (self.respawn_timer < time && !self.outside) {
+		// Check if the Zombie has barely moved (16qu)
+		if (vlen(self.new_ofs - self.origin) <= 16) {
+			// Continue to iterate
+			self.respawn_iterator++;
+
+			// 30 seconds have passed -- assume properly stuck, respawn.
+			if (self.respawn_iterator >= 10) {
+				self.respawn_iterator = 0;
+
+				// Kill it.
+				self.th_die();
+
+				// This is a pseudo-hack that just tells the rounds core that we should
+				// spawn another.
+				Current_Zombies--;
+				Remaining_Zombies++;
+			}
+		} else {
+			// Set to zero -- Zombie is moving appropriately.
+			self.respawn_iterator = 0;
+		}
+
+		// Iterate another 3 seconds.
+		self.respawn_timer = time + 3;
+
+		// Update our last origin
+		self.new_ofs = self.origin;
+	}
+}
+
+void() zombie_decide;
 void() Zombie_Think = //called every frame for zombies
 {
 	if (self.onfire) {
-
-#ifdef FTE
-
-		te_flamejet(self.origin, v_up*8, 10);
-
-#else
-
-		particle (self.origin, v_up*8, 0, 0);
-
-#endif // FTE
+		Effect_Fire(self.origin);
 
 		if (self.ltime < time && self.onfire){
 			DamageHandler(self, self.firer, 300, S_NORMAL);
 			self.ltime = time + 2;
 
-			self.spins++;
-			if (self.spins >= 5) {
-				self.spins = 0;
+			if (self.fire_timeout < time)
 				self.onfire = false;
-			}
 		}
 	}
 
+	Zombie_ProcessRespawn();
+
+	// Electro-Shock Death
 	if (self.death_timer < time && self.death_timer_activated == true) {
 		self.th_die();
-	}
-
-	if (self.classname == "wunder") {
-		self.th_diewunder();
-		return;
 	}
 
 	if (self.bleedingtime < time && !self.head.deadflag)
@@ -437,28 +420,18 @@ void() Zombie_Think = //called every frame for zombies
 		self.bleedingtime = time + 1;
 		DamageHandler (self, self.usedent, z_health * 0.2, S_HEADSHOT);
 	}
-}
 
-//////////////////////////////////////////////////////////////////////
-//37-51
-/*
-$frame walk1 walk2 walk3 walk4 walk5 walk6 walk7 walk8 walk9 walk10 walk11 walk12 walk13 walk14 walk15
-void()	zombie_walk1		=[	$walk1,		zombie_walk2	] 	{self.nextthink = time + 0.1;Zombie_Walk(3.95);*/		/*if(freeze_time < time)*/		/* self.frame = 37;};
-void()	zombie_walk2		=[	$walk2,		zombie_walk3	] 	{self.nextthink = time + 0.1;Zombie_Walk(1); self.frame = 38;};
-void()	zombie_walk3		=[	$walk3,		zombie_walk4	] 	{self.nextthink = time + 0.1;Zombie_Walk(9.472); self.frame = 39;};
-void()	zombie_walk4		=[	$walk4,		zombie_walk5	] 	{self.nextthink = time + 0.1;Zombie_Walk(5.046); self.frame = 40;};//FOOTSTEP
-void()	zombie_walk5		=[	$walk5,		zombie_walk6	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.425); self.frame = 41;};//
-void()	zombie_walk6		=[	$walk6,		zombie_walk7	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.299); self.frame = 42;};
-void()	zombie_walk7		=[	$walk7,		zombie_walk8	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.788); self.frame = 43;};
-void()	zombie_walk8		=[	$walk8,		zombie_walk9	] 	{self.nextthink = time + 0.1;Zombie_Walk(5.516); self.frame = 44;};//FOOTSTEP
-void()	zombie_walk9		=[	$walk9,		zombie_walk10	] 	{self.nextthink = time + 0.1;Zombie_Walk(2.191); self.frame = 45;};
-void()	zombie_walk10		=[	$walk10,		zombie_walk11	] 	{self.nextthink = time + 0.1;Zombie_Walk(5.845); self.frame = 46;};
-void()	zombie_walk11		=[	$walk11,		zombie_walk12	] 	{self.nextthink = time + 0.1;Zombie_Walk(7.42); self.frame = 47;};//FOOTSTEP
-void()	zombie_walk12		=[	$walk12,		zombie_walk13	] 	{self.nextthink = time + 0.1;Zombie_Walk(2.683); self.frame = 48;};
-void()	zombie_walk13		=[	$walk13,		zombie_walk14	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.001); self.frame = 49;};
-void()	zombie_walk14		=[	$walk14,		zombie_walk15	] 	{self.nextthink = time + 0.1;Zombie_Walk(5.845); self.frame = 50;};
-void()	zombie_walk15		=[	$walk15,		Zombie_Walk_Setup	] 	{self.nextthink = time + 0.1;Zombie_Walk(6.793); self.frame = 51;};//FOOTSTEP
-*/
+	// If we're mid attack and our enemy has moved out of range
+	if (self.is_attacking && vlen(self.enemy.origin - self.origin) > 64) {
+		// Cancel the animation, start walking again to catch up.
+		self.is_attacking = false;
+
+		// zombie_decide() here used to call an idle loop if they were
+		// outside, lesson learned.
+		if (!self.outside)
+			self.th_walk();
+	}
+}
 
 void() zombie_footstep
 {
@@ -780,8 +753,14 @@ void() zombie_attack_through_window =
 	}
 };
 //202-210
+
+//
+// Zombie Attacks
+//
+void() zombie_attack2;
+
 $frame zatkw1 zatkw2 zatkw3 zatkw4 zatkw5 zatkw6 zatkw7 zatkw8 zatkw9
-void() zombie_attack_through_w1		=[	$zatkw1,		zombie_attack_through_w2		]	{self.frame = 202;SetZombieHitBox(IDLE_BBOX);Zombie_Think();};//START
+void() zombie_attack_through_w1		=[	$zatkw1,		zombie_attack_through_w2		]	{self.is_attacking = true; self.frame = 202;SetZombieHitBox(IDLE_BBOX);Zombie_Think();};//START
 
 void() zombie_attack_through_w2		=[	$zatkw2,		zombie_attack_through_w3		]	{self.frame = 203;zombie_attack_through_window();Zombie_Think();};//SWINGING
 void() zombie_attack_through_w3		=[	$zatkw3,		zombie_attack_through_w4		]	{self.frame = 204;Zombie_Think();};//SWINGING
@@ -803,15 +782,50 @@ void() zombie_attack_through_w16		=[	$zatkw6,		zombie_attack_through_w17		]	{sel
 
 void() zombie_attack_through_w17		=[	$zatkw7,		zombie_attack_through_w18		]	{self.frame = 208;Zombie_Think();};//ENDING
 void() zombie_attack_through_w18		=[	$zatkw8,		zombie_attack_through_w19		]	{self.frame = 209;Zombie_Think();};//ENDING
-void() zombie_attack_through_w19		=[	$zatkw9,		zombie_decide		]	{self.frame = 210;Zombie_Think();};//ENDING
+void() zombie_attack_through_w19		=[	$zatkw9,		zombie_decide		]	{self.is_attacking = false; self.frame = 210;Zombie_Think();};//ENDING
 
+void() zm_swipe_right_slow	=[	1, 	zm_swipe_right_slow1	]	{self.is_attacking = true; self.frame = 102; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_right_slow1	=[	2, 	zm_swipe_right_slow2	]	{self.frame = 103; Zombie_Think(); };
+void() zm_swipe_right_slow2	=[	3, 	zm_swipe_right_slow3	]	{self.frame = 104; Zombie_Think(); };
+void() zm_swipe_right_slow3	=[	4, 	zm_swipe_right_slow4	]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
+void() zm_swipe_right_slow4	=[	5, 	zombie_decide			]	{self.is_attacking = false; self.frame = 106; Zombie_Think(); };
 
-//////////////////////////////////////////////////////////////////////ZOMBIE DELAY ATTACKS
-//zda = zombie delay attack
-void() zombie_attackA1;
-void() zombie_attackB1;
+void() zm_swipe_right_fast	=[	1, 	zm_swipe_right_fast1	]	{self.is_attacking = true; self.frame = 104; Zombie_Think(); };
+void() zm_swipe_right_fast1	=[	2, 	zm_swipe_right_fast2	]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
+void() zm_swipe_right_fast2	=[	3, 	zombie_decide			]	{self.is_attacking = false; self.frame = 106; Zombie_Think(); };
 
-void(float which)	zombie_attack_choose =
+void() zm_swipe_left_slow	=[	1, 	zm_swipe_left_slow1		]	{self.is_attacking = true; self.frame = 107; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_left_slow1	=[	2, 	zm_swipe_left_slow2		]	{self.frame = 108; Zombie_Think(); };
+void() zm_swipe_left_slow2	=[	3, 	zm_swipe_left_slow3		]	{self.frame = 109; Zombie_Think(); };
+void() zm_swipe_left_slow3	=[	4, 	zm_swipe_left_slow4		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
+void() zm_swipe_left_slow4	=[	5, 	zm_swipe_left_slow5		]	{self.frame = 111; Zombie_Think(); };
+void() zm_swipe_left_slow5	=[	6, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
+
+void() zm_swipe_left_fast	=[	1, 	zm_swipe_left_fast1		]	{self.is_attacking = true; self.frame = 109; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_left_fast1	=[	2, 	zm_swipe_left_fast2		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
+void() zm_swipe_left_fast2	=[	3, 	zm_swipe_left_fast3		]	{self.frame = 111; Zombie_Think(); };
+void() zm_swipe_left_fast3	=[	4, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
+
+void() zm_swipe_both_slow	=[	1, 	zm_swipe_both_slow1		]	{self.is_attacking = true; self.frame = 102; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_both_slow1	=[	2, 	zm_swipe_both_slow2		]	{self.frame = 103; Zombie_Think(); };
+void() zm_swipe_both_slow2	=[	3, 	zm_swipe_both_slow3		]	{self.frame = 104; Zombie_Think(); };
+void() zm_swipe_both_slow3	=[	4, 	zm_swipe_both_slow4		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
+void() zm_swipe_both_slow4	=[	5, 	zm_swipe_both_slow5		]	{self.frame = 106; Zombie_Think(); };
+void() zm_swipe_both_slow5	=[	6, 	zm_swipe_both_slow6		]	{self.frame = 107; Zombie_Think(); };
+void() zm_swipe_both_slow6	=[	7, 	zm_swipe_both_slow7		]	{self.frame = 108; Zombie_Think(); };
+void() zm_swipe_both_slow7	=[	8, 	zm_swipe_both_slow8		]	{self.frame = 109; Zombie_Think(); };
+void() zm_swipe_both_slow8	=[	9, 	zm_swipe_both_slow9		]	{self.frame = 110; Zombie_Think(); };
+void() zm_swipe_both_slow9	=[	10, zombie_decide			]	{zombie_attack2(); self.is_attacking = false; self.frame = 111; Zombie_Think(); };
+
+void() zm_swipe_both_fast	=[	1, 	zm_swipe_both_fast1		]	{self.is_attacking = true; self.frame = 104; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_both_fast1	=[	2, 	zm_swipe_both_fast2		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
+void() zm_swipe_both_fast2	=[	3, 	zm_swipe_both_fast3		]	{self.frame = 106; Zombie_Think(); };
+void() zm_swipe_both_fast3	=[	4, 	zm_swipe_both_fast4		]	{self.frame = 109; Zombie_Think(); };
+void() zm_swipe_both_fast4	=[	5, 	zm_swipe_both_fast5		]	{self.frame = 110; Zombie_Think(); };
+void() zm_swipe_both_fast5	=[	6, 	zm_swipe_both_fast6		]	{self.frame = 111; Zombie_Think(); };
+void() zm_swipe_both_fast6	=[	7, 	zombie_decide			]	{zombie_attack2(); self.is_attacking = false; self.frame = 112; Zombie_Think(); };
+
+void(float which) zombie_attack_choose =
 {
 	
 	self.angles_y = vectoyaw(self.enemy.origin - self.origin);
@@ -825,23 +839,47 @@ void(float which)	zombie_attack_choose =
 	}
 	
 	play_sound_z(1);
-	//Don't attack with an arm you don't have, silly
-	if(!self.larm.deadflag)
-	{
-		zombie_attackA1();
-		return;
+
+	//
+	// choose what attack to play
+	//
+
+	// cypress -- we used to do a really cool thing here where
+	// zombies could only attack with an arm they had, but this
+	// became problematic for repetitive animations + it really
+	// made double-swiping stand out :( maybe one day we could
+	// have this back!
+
+	float attack_type = random();
+	float attack_is_slow = (random() < 0.5); // :^)
+
+	// Right Arm
+	if (attack_type < 0.33) {
+		// Slow
+		if (attack_is_slow)
+			zm_swipe_right_slow();
+		// Fast
+		else
+			zm_swipe_right_fast();
 	}
-	if(!self.rarm.deadflag)
-	{
-		zombie_attackB1();
-		return;
+	// Left Arm
+	else if (attack_type < 0.66) {
+		// Slow
+		if (attack_is_slow)
+			zm_swipe_left_slow();
+		// Fast
+		else
+			zm_swipe_left_fast();
 	}
-	
-	
-	if(random() < 0.5)
-		zombie_attackA1();
-	else
-		zombie_attackB1();
+	// Both (right, followed by left arm)
+	else {
+		// Slow
+		if (attack_is_slow)
+			zm_swipe_both_slow();
+		// Fast
+		else
+			zm_swipe_both_fast();
+	}
 };
 
 $frame zda1 zda2 zda3 zda4 zda5 zda6 zda7 zda8 zda9 zda10 zda11 zda12 zda13 zda14
@@ -858,29 +896,6 @@ void() zombie_zda9		=[	$zda10, 		zombie_zda10	]		{self.frame = 9;zombie_attack_c
 void() zombie_zda10		=[	$zda12, 		zombie_zda11	]		{self.frame = 10;zombie_attack_choose(0);Zombie_Think();};
 void() zombie_zda11		=[	$zda13, 		zombie_zda12	]		{self.frame = 11;zombie_attack_choose(0);Zombie_Think();};
 void() zombie_zda12		=[	$zda14, 		zombie_zda1	]		{self.frame = 12;zombie_attack_choose(1);Zombie_Think();};
-///////////////////////////////////////////////////////////////////// ZOMBIE ATTACK 1// Swipe with right arm
-//86 - 90
-void() zombie_attack2;
-
-$frame attack1 attack2 attack3 attack4 attack5
-
-void() zombie_attackA1		=[	$attack1,		zombie_attackA2	]	{self.frame = 102;SetZombieHitBox(BASE_BBOX);Zombie_Think();};
-void() zombie_attackA2		=[	$attack2,		zombie_attackA3	]	{self.frame = 103;Zombie_Think();};
-void() zombie_attackA3		=[	$attack3,		zombie_attackA4	]	{self.frame = 104;Zombie_Think();};
-void() zombie_attackA4		=[	$attack4,		zombie_attackA5	]	{zombie_attack2();self.frame = 105;Zombie_Think();};
-void() zombie_attackA5		=[	$attack5,		zombie_decide	]	{self.frame = 106;Zombie_Think();};
-
-///////////////////////////////////////////////////////////////////////// ZOMBIE ATTACK 2// Swipe with left arm
-//91-96
-$frame attackb1 attackb2 attackb3 attackb4 attackb5 attackb6
-
-void() zombie_attackB1		=[	$attackb1,		zombie_attackB2	]	{self.frame = 107;SetZombieHitBox(BASE_BBOX);Zombie_Think();};
-void() zombie_attackB2		=[	$attackb2,		zombie_attackB3	]	{self.frame = 108;Zombie_Think();};
-void() zombie_attackB3		=[	$attackb3,		zombie_attackB4	]	{self.frame = 109;Zombie_Think();};
-void() zombie_attackB4		=[	$attackb4,		zombie_attackB5	]	{zombie_attack2(); self.frame = 110;Zombie_Think();};
-void() zombie_attackB5		=[	$attackb5,		zombie_attackB6	]	{self.frame = 111;Zombie_Think();};
-void() zombie_attackB6		=[	$attackb6,		zombie_decide	]	{self.frame = 112;Zombie_Think();};
-
 
 void() zombie_attack =
 {
@@ -889,7 +904,7 @@ void() zombie_attack =
     if(self.state == 1) // If the zombie is in this state (rising, or something else) they shouldn't be able to attack!
         return;
 
-	if (self.classname == "wunder" || self.electro_targeted == true)
+	if (self.electro_targeted == true)
 		return;
 
 	if(self.outside == TRUE)
@@ -1013,6 +1028,12 @@ void() removeZombie =
 	setorigin(self,'0 0 0');
 	setorigin (self.goaldummy, '0 0 0');
 	
+	// cypress (20 dec 2023) -- added a nextthink() call here
+	// so the next server frame we'll have always run SUB_Null().
+	// there was some weird behavior here where a zombie's th_idle()
+	// call would carry forward interrupting the procedure for walking
+	// to a barricade.
+	self.nextthink = time + 0.05;
 	self.think = SUB_Null;
 	self.classname = "freeZombieEntity";
 	self.goalentity = world;
@@ -1022,6 +1043,8 @@ void() removeZombie =
 
 	self.outside = TRUE;
 	self.hop_step = 0;
+	self.onfire = false;
+	self.fire_timeout = 0;
 	self.calc_time = 0;
 	self.tries = 0;
 	self.takedamage = DAMAGE_NO;
@@ -1032,7 +1055,7 @@ void() removeZombie =
 	self.owner = world;
 
 	self.spawnflags = 0;
-	
+	self.is_attacking = false;
 	
 	self.yaw_speed = 0;
 	
@@ -1057,27 +1080,27 @@ void() removeZombie =
 ///////////////////////////////////////////////////////////////////// ZOMBIE DEATH 1
 //123-133
 $frame death1 death2 death3 death4 death5 death6 death7 death8 death9 death10 death11
-void()	zombie_deathA1		=[	$death1,		zombie_death2	] 	{self.frame = 123;};
+void()	zombie_deathA1		=[	$death1,		zombie_death2	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 123;};
 void()	zombie_death2		=[	$death2,		zombie_death3	] 	{self.frame = 124;};
 void()	zombie_death3		=[	$death3,		zombie_death4	] 	{self.frame = 125;};
-void()	zombie_death4		=[	$death4,		zombie_death5	] 	{self.frame = 126;};
+void()	zombie_death4		=[	$death4,		zombie_death5	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 126;};
 void()	zombie_death5		=[	$death5,		zombie_death6	] 	{self.frame = 127;};
 void()	zombie_death6		=[	$death6,		zombie_death7	] 	{self.frame = 128;};
-void()	zombie_death7		=[	$death7,		zombie_death8	] 	{self.frame = 129;};
+void()	zombie_death7		=[	$death7,		zombie_death8	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 129;};
 void()	zombie_death8		=[	$death8,		zombie_death9	] 	{self.frame = 130;};
 void()	zombie_death9		=[	$death9,		zombie_death10	] 	{self.frame = 131;};
 void()	zombie_death10		=[	$death10,		zombie_death11	] 	{self.frame = 132;zombie_footstep();};
-void()	zombie_death11		=[	$death11,		SUB_Null	] 	{self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie;  self.frame = 133;};
+void()	zombie_death11		=[	$death11,		SUB_Null	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie;  self.frame = 133;};
 
 //////////////////////////////////////////////////////////////////////////////////// ZOMBIE DEATH 2
 //134-138
 $frame deathB1 deathB2 deathB3 deathB4 deathB5
 
-void()	zombie_deathB1		=[	$deathB1,		zombie_deathB2	] 	{self.frame = 134;};
+void()	zombie_deathB1		=[	$deathB1,		zombie_deathB2	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 134;};
 void()	zombie_deathB2		=[	$deathB2,		zombie_deathB3	] 	{self.frame = 135;};
-void()	zombie_deathB3		=[	$deathB3,		zombie_deathB4	] 	{self.frame = 136;};
+void()	zombie_deathB3		=[	$deathB3,		zombie_deathB4	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 136;};
 void()	zombie_deathB4		=[	$deathB4,		zombie_deathB5	] 	{self.frame = 137;zombie_footstep();};
-void()	zombie_deathB5		=[	$deathB5,		SUB_Null		] 	{self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 138;};
+void()	zombie_deathB5		=[	$deathB5,		SUB_Null		] 	{if (self.onfire) {Effect_Fire(self.origin);} self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 138;};
 
 
 //////////////////////////////////////////////////////////////////////////////////// ZOMBIE DEATH 3
@@ -1085,16 +1108,16 @@ void()	zombie_deathB5		=[	$deathB5,		SUB_Null		] 	{self.iszomb = 0; self.nextthi
 
 $frame deathC1 deathC2 deathC3 deathC4 deathC5 deathC6 deathC7 deathC8 deathC9 deathC10
 
-void()	zombie_deathC1		=[	$deathC1,		zombie_deathC2	] 	{self.frame = 139;};
+void()	zombie_deathC1		=[	$deathC1,		zombie_deathC2	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 139;};
 void()	zombie_deathC2		=[	$deathC2,		zombie_deathC3	] 	{self.frame = 140;};
 void()	zombie_deathC3		=[	$deathC3,		zombie_deathC4	] 	{self.frame = 141;};
-void()	zombie_deathC4		=[	$deathC4,		zombie_deathC5	] 	{self.frame = 142;};
+void()	zombie_deathC4		=[	$deathC4,		zombie_deathC5	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 142;};
 void()	zombie_deathC5		=[	$deathC5,		zombie_deathC6	] 	{self.frame = 143;};
 void()	zombie_deathC6		=[	$deathC6,		zombie_deathC7	] 	{self.frame = 144;};
-void()	zombie_deathC7		=[	$deathC7,		zombie_deathC8	] 	{self.frame = 145;};
+void()	zombie_deathC7		=[	$deathC7,		zombie_deathC8	] 	{if (self.onfire) {Effect_Fire(self.origin);} self.frame = 145;};
 void()	zombie_deathC8		=[	$deathC8,		zombie_deathC9	] 	{self.frame = 146;zombie_footstep();};
 void()	zombie_deathC9		=[	$deathC9,		zombie_deathC10	] 	{self.frame = 147;};
-void()	zombie_deathC10		=[	$deathC10,		SUB_Null		] 	{self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 148;};
+void()	zombie_deathC10		=[	$deathC10,		SUB_Null		] 	{if (self.onfire) {Effect_Fire(self.origin);} self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie; self.frame = 148;};
 
 
 
@@ -1139,6 +1162,7 @@ void(entity ent) Zombie_Death_Cleanup = {
 	}
 	
 	ent.health = 0;
+	ent.respawn_iterator = 0;
 	Remaining_Zombies = Remaining_Zombies - 1;
 }
 
@@ -1382,6 +1406,8 @@ void() spawn_zombie =
 		if (cvar("developer"))
 			setmodel(self, "models/ai/zfull.mdl");
 		self.classname = "spawn_zombie";
+		self.spawn_id = zombie_spawn_points;
+		zombie_spawn_points++;
 	}
 	
 	//self.think = zombie_spawn_think;
@@ -1410,6 +1436,41 @@ void() set_z_health =
 	}
 };
 
+//
+// Zombie_ReassignSpawnIDs()
+// To be called whenever we mess with a spawn point,
+// this makes sure that spawn_a_zombieA() can never
+// try to spawn a zombie at a point which index is
+// inactive.
+//
+void() Zombie_ReassignSpawnIDs =
+{
+	float num_spawns = zombie_spawn_points;
+
+	// First, clear the list.
+	zombie_spawn_points = 0;
+
+	while(num_spawns > 0) {
+		entity zombie_spawn = findfloat(world, spawn_id, num_spawns);
+		if (zombie_spawn) {
+			zombie_spawn.spawn_id = 0;
+		}
+		num_spawns--;
+
+		if (num_spawns)
+			zombie_spawn = findfloat(world, spawn_id, num_spawns);
+	}
+
+	// Now do the re-assignment
+	entity zombie_spawns = find(world, classname, "spawn_zombie");
+	while(zombie_spawns) {
+		zombie_spawns.spawn_id = zombie_spawn_points;
+		zombie_spawn_points++;
+
+		zombie_spawns = find(zombie_spawns, classname, "spawn_zombie");
+	}
+}
+
 inline entity() getFreeZombieEnt =
 {
 	entity who;
@@ -1420,51 +1481,41 @@ inline entity() getFreeZombieEnt =
 
 float() spawn_a_zombieA =
 {
-	//dprint("Spawn_a_zombieA \n");
-	local float pcount;
-	local entity thing, szombie;
-	local float FAIL;
+	// cypress (20 dec 2023) -- rewrote this routine to be a little less
+	// needlessly bloaty/bogged down and be in greater parity.
 
-	//warn
-	pcount = 0;
-	
-	FAIL = false;
-	szombie = getFreeZombieEnt();
-	if(szombie == world || zombie_spawn_timer > time)
-	{
-		//bprint(PRINT_HIGH, "STOPPED AT A\n");
-		//dprint("No avaible zombie entity\n");
-		return 0;
+	// don't bother doing anything if it's not even time yet (avoids needless
+	// iteration over ent chain)
+	if (zombie_spawn_timer > time)
+		return false;
+
+	// look for a free entity
+	entity zombie_ent = getFreeZombieEnt();
+
+	// no free entity found, maximum are in play.
+	if (!zombie_ent)
+		return false;
+
+	// look for a random spawn point. note -- before there was a routine that
+	// prevented spawns from repeating one after the other before. i liked the
+	// evened out use of the playspace at the beginning of the game but this
+	// isn't standard CoD functionality and it has negative consequences with 
+	// larger areas.
+	entity zombie_spawn;
+	float zombie_spawn_id = rint((random() * (zombie_spawn_points - 1))); // starts at 0!
+
+	zombie_spawn = find(world, classname, "spawn_zombie");
+	while(zombie_spawn != world) {
+		if (zombie_spawn.spawn_id == zombie_spawn_id)
+			break;
+
+		zombie_spawn = find(zombie_spawn, classname, "spawn_zombie");
 	}
-	szombie.onfire = false;
-	lastspawn = find(lastspawn, classname, "spawn_zombie");
-	while (random() < 0.4)
-	{
-		lastspawn = find(lastspawn, classname, "spawn_zombie");
-	}
-	
-	while(lastspawn)
-	{
-		thing = findradius(lastspawn.origin, 60);
-		while (thing)
-		{
-			pcount = 0;
-			if (thing.classname == "ai_zombie")
-			{
-				pcount = 1;
-				break;
-			}
-			thing = thing.chain;
-		}
-		if (!pcount && random() < 0.6)
-		{
-			spawn_a_zombieB(lastspawn);
-			spawn_delay = time + delay_at_round;
-			return true;
-		}
-		lastspawn = find(lastspawn, classname, "spawn_zombie");
-	}
-	return 0; //no free locations fround
+
+	// prompt stage 2: the actual spawning of the zombie.
+	spawn_a_zombieB(zombie_spawn);
+	spawn_delay = time + delay_at_round;
+	return true;
 };
 
 void(float i) spawnSingleZombEnt =
@@ -1658,12 +1709,33 @@ void(entity where) spawn_a_zombieB =
 	szombie.movetype = MOVETYPE_WALK;
 	setmodel(szombie, "models/ai/zb%.mdl");
 	szombie.hop_step = 0;
+
+	// cypress (20 dec 2023) -- see comment from removeZombie(),
+	// this is just a sanity check just in case someone decides
+	// to play around with a freeZombieEntity and breaks that check..
+	szombie.nextthink = time + 0.05;
+	szombie.think = SUB_Null;
+
 	szombie.gravity = 1.0;
 	
-	szombie.mins = '-8 -8 -32';//-16 16 -32
-	szombie.maxs = '8 8 30';//16 16 40
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		szombie.mins = '-6 -6 -24';
+		szombie.maxs = '6 6 22';
+
+#ifdef FTE
+
+		// Need to force-set the hull for FTE or else Zombie setorigin()
+		// calls will fail in tight spaces.
+		szombie.hull = 1;
+
+#endif // FTE
+
+	} else {
+		szombie.mins = '-8 -8 -32';
+		szombie.maxs = '8 8 30';
+	}
 	
-	setsize (szombie, szombie.mins, szombie.maxs);//-16,-16,-32,16,16,40
+	setsize (szombie, szombie.mins, szombie.maxs);
 		
 	
 	//====================================
@@ -1757,6 +1829,9 @@ void(entity where) spawn_a_zombieB =
 		szombie.skin = 3;
 
 	szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
+
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		szombie.head.scale = szombie.larm.scale = szombie.rarm.scale = szombie.scale = 0.73;
 
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;

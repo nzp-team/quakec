@@ -3,7 +3,7 @@
 
 	Sound Entities for Maps
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -73,10 +73,7 @@ void() ambient_use =
 
 void () ambient_generic =
 {
-	string link;
-
-    // moto - FIXME: typically this is set to upper-case but only FTE has strtoupper(); assume lower-case!
-    link = self.message;
+	string link = strtolower(self.message);
 
 	if (link == "nolink") {
 		if (substring(self.message, 0, 1) == "*")
@@ -92,8 +89,8 @@ void () ambient_generic =
 	}
 	else {
 		// append sounds/ if absent
-		if (substring(self.message, 0, 7) != "sounds/")
-			self.message = strcat("sounds/", self.message);
+		//if (substring(self.message, 0, 7) != "sounds/")
+			//self.message = strcat("sounds/", self.message);
 			
         // always assume .wav extension..
 		precache_sound(self.message);
@@ -137,6 +134,8 @@ void() ambient_bgm =
 	self.spawnflags = 1;
 	// sound to loop
 	self.message = self.noise2;
+	// backwards compatibility
+	if (!self.message) self.message = "sounds/ambience/amb_loop.wav";
 	// call ambient_generic()
 	ambient_generic();
 }

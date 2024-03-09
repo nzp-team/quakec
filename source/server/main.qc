@@ -4,7 +4,7 @@
 	mostly functions that will be called from the engine and are
 	expected to exist
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@
 
 void() LS_Setup;
 void() PU_Init;
+void() Compat_Init;
 void() SUB_Remove = {remove(self);}
 
 //called when starting server/loading the map
@@ -38,6 +39,24 @@ void() main =
 }
 
 float ai_delay_time;
+float time_before_gamestart;
+
+//
+// Way_SetBrushEntNonSolid(ent_name)
+// FIXME: Move this elsewhere..
+// Wrapper for finding brush ents of classname
+// and making them non-solid. For use only
+// with Waypoint Mode.
+//
+void(string ent_name) Way_SetBrushEntNonSolid =
+{
+	entity ent = find(world, classname, ent_name);
+	while(ent != world) {
+		ent.solid = SOLID_NOT;
+		ent.touch = SUB_Null;
+		ent = find(ent, classname, ent_name);
+	}
+}
 
 //called for each frame that QC runs
 float zombie_cleaned_w;
@@ -51,14 +70,6 @@ void() StartFrame =
 			zent = find (world, classname, "ai_zombie");
 			while (zent)
 			{
-				/*
-				if (zent.head)
-					remove (zent.head);
-				if (zent.larm)
-					remove (zent.larm);
-				if (zent.rarm)
-					remove (zent.rarm);
-				*/
 				remove (zent);
 				zent = find (zent, classname, "ai_zombie");
 			}
@@ -73,31 +84,16 @@ void() StartFrame =
 					setmodel(zent, "models/way/normal_way.spr");
 				zent = find (zent, classname, "waypoint");
 			}
-			zent = find (world, classname, "door_nzp_cost");
-			while (zent)
-			{
-				zent.solid = SOLID_NOT;
-				zent.touch = SUB_Null;
-				zent = find (zent, classname, "door_nzp_cost");
-			}
-			zent = find (world, classname, "door_nzp");
-			while (zent)
-			{
-				zent.solid = SOLID_NOT;
-				zent.touch = SUB_Null;
-				zent.solid = SOLID_NOT;
-				zent = find (zent, classname, "door_nzp");
-			}
-			zent = find (world, classname, "window");
-			while (zent)
-			{
-				zent.solid = SOLID_NOT;
-				zent.touch = SUB_Null;
-				zent = find (zent, classname, "window");
-			}
+			Way_SetBrushEntNonSolid("door_nzp_cost");
+			Way_SetBrushEntNonSolid("door_nzp");
+			Way_SetBrushEntNonSolid("door");
 		}
 		return;
 	}
+
+	// Start completely blacked out
+	//if (time < 5)
+		
 
 
 	if (roundinit) {
@@ -131,18 +127,37 @@ void() StartFrame =
 
 		}
 	} else {
-		entity SpawnedIn;
-		SpawnedIn = find(world, classname, "player");
+		if (!time_before_gamestart) {
+			entity SpawnedIn;
+			SpawnedIn = find(world, classname, "player");
 
-		if (SpawnedIn) {
-			entity getdog = find(world, classname, "spawn_dog");
-			if (getdog)
-				gotdog = 1;
-			else
-				gotdog = 0;
+			if (SpawnedIn) {
+				entity hellhound = find(world, classname, "spawn_dog");
 
-			updateDogRound();
+				if (hellhound != world)
+					gotdog = true;
+
+				Compat_Init();
+				updateDogRound();
+				time_before_gamestart = time + 3;
+			}
+			return;
+		} else if (time_before_gamestart < time) {
 			InitRounds();
+			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
+			sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
+
+			entity players = find(world, classname, "player");
+			
+			while(players != world) {
+				if (players.name != "")
+					nzp_setplayername(players, players.name);
+
+				players = find(players, classname, "player");
+			}
+
+		} else {
+			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 90, SCREENFLASH_FADE_OUT);
 		}
 	}
 }
@@ -334,7 +349,8 @@ void() worldspawn =
 	clientstat(STAT_CURRENTMAG2, EV_FLOAT, weapons[0].weapon_magazine_left);
 	clientstat(STAT_POINTS, EV_FLOAT, points);
 	clientstat(STAT_WEAPON2FRAME, EV_FLOAT, weapon2frame);
-	clientstat(STAT_WEAPON2MODEL, EV_STRING, weapon2model);
+	clientstat(STAT_WEAPON2MODELI, EV_FLOAT, weapon2modelindex);
+	clientstat(STAT_WEAPONSKIN, EV_FLOAT, weaponskin);
 	clientstat(STAT_GRENADES, EV_FLOAT, primary_grenades);
 	clientstat(STAT_SECGRENADES, EV_FLOAT, secondary_grenades);
 	clientstat(STAT_PROGRESSBAR, EV_FLOAT, progress_bar_percent);
@@ -349,7 +365,7 @@ void() worldspawn =
 	clientstat(STAT_FACINGENEMY, EV_FLOAT, facingenemy);
 	clientstat(STAT_VIEWZOOM, EV_FLOAT, viewzoom);
 	clientstat(STAT_MAXHEALTH, EV_FLOAT, max_health);
-	clientstat(STAT_PLAYERNAME, EV_STRING, name);
+	clientstat(STAT_PERKS, EV_FLOAT, perks);
 
 #endif // FTE
 
@@ -537,244 +553,4 @@ void() EndFrame =
 	if (cheats_have_been_activated == false && cvar("sv_cheats") == 1) {
 		cheats_have_been_activated = true;
 	}
-};
-
-//
-// convert_old_asset_path(asset)
-// a large switch statement to convert asset paths made for
-// older versions of nzp to the new standard
-//
-string(string asset) convert_old_asset_path =
-{
-	string lowered_asset = strzone(strtolower(asset));
-	string ret = "";
-
-	switch(lowered_asset) {
-		case "progs/player.mdl":
-			ret = "models/player.mdl";
-			break;
-		case "progs/ai/zal(.mdl":
-			ret = "models/ai/zal(.mdl";
-			break;
-		case "models/machines/quick_revive.mdl":
-			ret = "models/machines/quake_scale/quick_revive.mdl";
-			break;
-		case "models/machines/juggernog.mdl":
-			ret = "models/machines/quake_scale/juggernog.mdl";
-			break;
-		case "models/machines/speed_cola.mdl":
-			ret = "models/machines/quake_scale/speed_cola.mdl";
-			break;
-		case "progs/misc/double_tap.mdl":
-		case "models/machines/double_tap.mdl":
-			ret = "models/machines/quake_scale/double_tap.mdl";
-			break;
-		case "progs/misc/flopper.mdl":
-		case "models/machines/flopper.mdl":
-			ret = "models/machines/quake_scale/flopper.mdl";
-			break;
-		case "models/machines/staminup.mdl":
-			ret = "models/machines/quake_scale/staminup.mdl";
-			break;
-		case "models/machines/deadshot.mdl":
-			ret = "models/machines/quake_scale/deadshot.mdl";
-			break;
-		case "models/machines/mulekick.mdl":
-			ret = "models/machines/quake_scale/mulekick.mdl";
-			break;
-		case "progs/misc/pap.mdl":
-		case "models/machines/pap.mdl":
-			ret = "models/machines/quake_scale/pap.mdl";
-			break;
-		case "progs/sprites/lamp_glow.spr":
-			ret = "models/sprites/lamp_glow.spr";
-			break;
-		case "progs/sprites/lamp_glow2.spr":
-			// HACK HACK -- old maps that used this sprite were working with
-			// a broken offset, fix it.
-			self.origin_z -= 32;
-			ret = "models/sprites/lamp_glow2.spr";
-			break;
-		case "progs/sprites/lamp_glow3.spr":
-			ret = "models/sprites/lamp_glow.spr";
-			break;
-		case "progs/props/kino_boxes2.mdl":
-			ret = "models/props/Kino_boxes2.mdl";
-			break;
-		case "progs/props/kino_boxes3.mdl":
-			ret = "models/props/Kino_boxes3.mdl";
-			break;
-		case "progs/props/kino_boxes4.mdl":
-			ret = "models/props/Kino_boxes4.mdl";
-			break;
-		case "progs/props/teddy.mdl":
-		case "progs/misc/teddy.mdl":
-			ret = "models/props/teddy.mdl";
-			break;
-		case "progs/props/kino_box.mdl":
-			ret = "models/props/Kino_box.mdl";
-			break;
-		case "progs/props/table_dinner.mdl":
-			ret = "models/props/table_dinner.mdl";
-			break;
-		case "progs/props/table_sq.mdl":
-			ret = "models/props/table_sq.mdl";
-			break;
-		case "progs/props/rebar.mdl":
-			ret = "models/props/rebar.mdl";
-			break;
-		case "progs/props/kino_table.mdl":
-			ret = "models/props/Kino_table.mdl";
-			break;
-		case "progs/props/kino_couch.mdl":
-			ret = "models/props/kino_couch.mdl";
-			break;
-		case "progs/props/metal_chair.mdl":
-			ret = "models/props/metal_chair.mdl";
-			break;
-		case "progs/props/sandbags.mdl":
-			ret = "models/props/sandbags.mdl";
-			break;
-		case "progs/props/dentist_chair.mdl":
-			ret = "models/props/dentist_chair.mdl";
-			break;
-		case "progs/props/bath.mdl":
-			ret = "models/props/bath.mdl";
-			break;
-		case "progs/props/shelf.mdl":
-			ret = "models/props/shelf.mdl";
-			break;
-		case "progs/props/dummy.mdl":
-			ret = "models/props/dummy.mdl";
-			break;
-		case "progs/props/stand.mdl":
-			ret = "models/props/stand.mdl";
-			break;
-		case "progs/props/radio.mdl":
-			ret = "models/props/radio.mdl";
-			break;
-		case "progs/props/radiator.mdl":
-			ret = "models/props/radiator.mdl";
-			break;
-		case "progs/props/lamp_ndu.mdl":
-			ret = "models/props/lamp_ndu.mdl";
-			break;
-		case "progs/props/lamp_ndu45.mdl":
-			ret = "models/props/lamp_ndu45.mdl";
-			break;
-		case "progs/props/barrel_m.mdl":
-			ret = "models/props/barrel_m.mdl";
-			break;
-		case "progs/props/lamp_oil.mdl":
-			ret = "models/props/lamp_oil.mdl";
-			break;
-		case "progs/props/piano.mdl":
-			ret = "models/props/piano.mdl";
-			break;
-		case "progs/props/pisuar.mdl":
-			ret = "models/props/pisuar.mdl";
-			break;
-		case "progs/props/teleporter.mdl":
-			ret = "models/props/teleporter.mdl";
-			break;
-		case "progs/props/chandelier.mdl":
-			ret = "models/props/chandelier.mdl";
-			break;
-		case "progs/props/vanity_table.mdl":
-			ret = "models/props/vanity_table.mdl";
-			break;
-		case "progs/props/trash_con.mdl":
-			ret = "models/props/trash_con.mdl";
-			break;
-		case "progs/props/fridge.mdl":
-			ret = "models/props/fridge.mdl";
-			break;
-		case "progs/props/kino_chairset.mdl":
-			ret = "models/props/kino_chairset.mdl";
-			break;
-		case "progs/props/kino_lounge.mdl":
-			ret = "models/props/Kino_lounge.mdl";
-			break;
-		case "progs/props/kino_stageprop.mdl":
-			ret = "models/props/kino_stageprop.mdl";
-			break;
-		case "progs/props/mainframe_pad.mdl":
-			ret = "models/props/mainframe_pad.mdl";
-			break;
-		case "progs/props/tree_ch.mdl":
-			ret = "models/props/tree_ch.mdl";
-			break;
-		case "progs/props/treesl.mdl":
-			ret = "models/props/treesl.mdl";
-			break;
-		case "progs/props/bed.mdl":
-			ret = "models/props/bed.mdl";
-			break;
-		case "progs/gmodels/g_mp40.mdl":
-			ret = "models/weapons/mp40/g_mp40.mdl";
-			break;
-		case "progs/gmodels/g_thomp.mdl":
-			ret = "models/weapons/thomp/g_thomp.mdl";
-			break;
-		case "progs/gmodels/g_betty.mdl":
-			ret = "models/weapons/grenade/g_betty.mdl";
-			break;
-		case "progs/gmodels/g_fg.mdl":
-			ret = "models/weapons/fg42/g_fg.mdl";
-			break;
-		case "progs/gmodels/g_m1.mdl":
-			ret = "models/weapons/garand/g_m1.mdl";
-			break;
-		case "progs/gmodels/g_sawnoff.mdl":
-			ret = "models/weapons/sawnoff/g_sawnoff.mdl";
-			break;
-		case "progs/gmodels/g_trench.mdl":
-			ret = "models/weapons/trench/g_trench.mdl";
-			break;
-		case "progs/gmodels/g_bar.mdl":
-			ret = "models/weapons/bar/g_bar.mdl";
-			break;
-		case "progs/gmodels/g_grenade.mdl":
-			ret = "models/weapons/grenade/g_grenade.mdl";
-			break;
-		case "progs/gmodels/g_gewehr.mdl":
-			ret = "models/weapons/gewehr/g_gewehr.mdl";
-			break;
-		case "progs/gmodels/g_bowie.mdl":
-			ret = "models/weapons/knife/g_bowie.mdl";
-			break;
-		case "progs/gmodels/g_type.mdl":
-			ret = "models/weapons/type/g_type.mdl";
-			break;
-		case "progs/gmodels/g_ppsh.mdl":
-			ret = "models/weapons/ppsh/g_ppsh.mdl";
-			break;
-		case "progs/gmodels/g_stg.mdl":
-			ret = "models/weapons/stg/g_stg.mdl";
-			break;
-		case "models/misc/lightning.spr":
-			ret = "models/sprites/lightning.spr";
-			break;
-		case "models/derped/wall_lamp.mdl":
-			ret = "models/props/lamp_wall.mdl";
-			break;
-		case "models/machines/power_switch.mdl":
-			ret = "models/machines/quake_scale/power_switch.mdl";
-			break;
-		case "models/machines/hl_scale/packapunch/p_machine.mdl":
-			ret = "models/machines/hl_scale/pap/p_machine.mdl";
-			break;
-		case "models/machines/hl_scale/packapunch/p_roller.mdl":
-			ret = "models/machines/hl_scale/pap/p_roller.mdl";
-			break;
-		case "models/machines/hl_scale/packapunch/p_flag.mdl":
-			ret = "models/machines/hl_scale/pap/p_flag.mdl";
-			break;
-		default: 
-			ret = asset;
-			break;
-	}
-
-	strunzone(lowered_asset);
-	return ret;
 };

@@ -3,7 +3,7 @@
 
 	entity/server utility subroutines
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -93,7 +93,7 @@ void() SUB_UseTargets =
 	//
 	// kill the killtagets
 	//
-	if (self.killtarget)
+	if (self.killtarget && self.killtarget != self.target)
 	{
 		t = world;
 		do
@@ -171,6 +171,8 @@ void() SUB_UseTargets =
 				if (t.classname == "spawn_zombie_in")
 				{
 					t.classname = "spawn_zombie";
+					t.spawn_id = zombie_spawn_points;
+					zombie_spawn_points++;
 				}
 				if (t.classname == "waypoint_s")
 				{

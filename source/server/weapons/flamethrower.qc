@@ -4,7 +4,7 @@
 	Core logic for the Ray Gun special weapon.
 	Modified from Unofficial Patch implementation.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -73,11 +73,13 @@ void() Flame_Touch =
 		|| other.classname == "ai_zombie_rarm") {
 			other.owner.onfire = true;
 			other.owner.ltime = time + 2;
+			other.owner.fire_timeout = time + 10;
 			addmoney(self.owner, 10, true);
 		} else if (other.classname == "ai_zombie" || other.classname == "ai_dog") {
 			other.onfire = true;
 			other.firer = self.owner;
 			other.ltime = time + 2;
+			other.fire_timeout = time + 10;
 			addmoney(self.owner, 10, true);
 		}
 	}

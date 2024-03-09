@@ -3,7 +3,7 @@
 
 	Source file for func_* map entities.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -148,8 +148,6 @@ void () func_rotating =
 // =================================
 // func_train
 // =================================
-
-.float dmg;
 
 void() train_next;
 void() func_train_find;
@@ -341,8 +339,8 @@ void() button_touch =
 			centerprint(other,ftos(self.cost));
 			centerprint(other,"]\n");
 
-			if (other.button7 && !other.semiuse) {
-				other.semiuse = true;
+			if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+				other.semi_actions |= SEMIACTION_USE;
 				if(other.points >= self.cost) {
 					self.enemy = other;
 					addmoney(other, 0 - self.cost, FALSE);

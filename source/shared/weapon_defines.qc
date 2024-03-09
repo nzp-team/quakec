@@ -3,7 +3,7 @@
 
 	all weapon stats are stored here
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -696,7 +696,7 @@ float(float wep) getWeaponAmmo =
 		case W_COLT:
 			return 80;
 		case W_BIATCH:
-			return 80;
+			return 50;
 		case W_KAR:
 			return 50;
     	case W_ARMAGEDDON:
@@ -792,7 +792,7 @@ float(float wep) getWeaponAmmo =
 		case W_TESLA:
 			return 15;
 		case W_DG3:
-			return 32;
+			return 30;
 		case W_BK:
 			return 4;
 		case W_KRAUS:
@@ -973,7 +973,7 @@ float(float wep, float penetration_times) getWeaponPenetration =
 		case W_BORE:
 		case W_SAWNOFF:
 		case W_SNUFF:
-			if (penetration_times >= 1)
+			if (penetration_times >= 3)
 				return 0;
 			return 0.5;
 		case W_FG:
@@ -1036,7 +1036,7 @@ float(float wep, float penetration_times) getWeaponPenetration =
 			return 0.8;
 		case W_TRENCH:
 		case W_GUT:
-			if (penetration_times >= 1)
+			if (penetration_times >= 3)
 				return 0;
 			return 0.7;
 		case W_TYPE:
@@ -1443,6 +1443,10 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 0.4;
 			else if (delaytype == TAKEOUT)
 				return 0.4;
+			else if (delaytype == MELEE_NORMAL)
+				return 0.4;
+			else if (delaytype == MELEE_LUNGED)
+				return 1.4;
 			break;
     }
 
@@ -1530,83 +1534,6 @@ float GetWeaponWalkSpeed(float perks, float weapon)
 
 	return speed_multiplier;
 }
-// forward/back,right/left,down/up
-vector GetWeaponADSPos(float wep) {
-
-	switch (wep) {
-		case W_COLT:
-			return [-2.99, 2.67, 0.92];
-		case W_KAR:
-		case W_ARMAGEDDON:
-			return [-2.19, 2.67, 1.5];
-		case W_SPRING:
-		case W_PULVERIZER:
-			return [-2.19, 2.67, 1.6];
-		case W_THOMPSON:
-		case W_GIBS:
-			return [0.5, 3.03, 1.63];
-		case W_357:
-		case W_KILLU:
-			return [-2.6, 4.10, 0.5];
-		case W_BAR:
-		case W_WIDOW:
-			return [2.7, 1.90, 1.27];
-		case W_BROWNING:
-		case W_ACCELERATOR:
-			return [-4.6, 3.95, 1.68];
-		case W_DB:
-		case W_BORE:
-		case W_SAWNOFF:
-			return [2.0, 2.9, 1.0];
-		case W_FG:
-		case W_IMPELLER:
-			return [-6.5, 5.85, .88];
-		case W_GEWEHR:
-		case W_COMPRESSOR:
-			return [-0.2, 2.55, 2.63];
-		case W_KAR_SCOPE:
-		case W_HEADCRACKER:
-			return [-2.19, 2.67, 0.42];
-		case W_M1:
-		case W_M1000:
-			return [-1.6, 3.80, 1.12];
-		case W_M1A1:
-		case W_WIDDER:
-			return [-3.0, 2.6, 1.6];
-		case W_MP40:
-		case W_AFTERBURNER:
-			return [0.01, 5.65, 3.25];
-		case W_MP5K:
-		case W_KOLLIDER:
-			return [-5.19, 5.15, 2.75];
-		case W_MG:
-		case W_BARRACUDA:
-			return [-2.0, 3.35, 1.84];
-		case W_PPSH:
-		case W_REAPER:
-			return [-2.0, 3.68, 1.5];
-		case W_PTRS:
-		case W_PENETRATOR:
-			return [-2.79, 3.6, 0.40];
-		case W_STG:
-		case W_SPATZ:
-			return [-9.79, 4.86, 1.54];
-		case W_TRENCH:
-		case W_GUT:
-			return [0, 2.80, 1.1];
-		case W_M2:
-		case W_FIW:
-			return [6.0, 4.3, 1.02];
-		case W_RAY:
-		case W_PORTER:
-			return [-1.50, 6.25, 0.87];
-		case W_PANZER:
-		case W_LONGINUS:
-			return [-11.9, 3.85, 1.52];
-		default: 
-			return [0, 0, 0];
-	}
-}
 
 /*
 ===========================
@@ -1616,7 +1543,7 @@ Weapon PSP ADS Declarations
 // x: left/right
 // y: up/down
 // z: forward/back
-vector GetWeaponADSOfs_PSP(float wep) = 
+vector GetWeaponADSOfs(float wep) = 
 {
 		
 	switch(wep)
@@ -2635,6 +2562,14 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 50;
 				case RELOAD_CANCEL:
 					return 41;
+				case MELEE_NORMAL_START:
+					return 8;
+				case MELEE_NORMAL_END:
+					return 13;
+				case MELEE_LUNGED_START:
+					return 14;
+				case MELEE_LUNGED_END:
+					return 24;
 			}
 			break;
 	}
@@ -4043,17 +3978,6 @@ float(float wep) W_SpreadAffectedByADS =
 	}
 }
 
-float(float wep, float is_moving, float stance) GetWeaponSpread =
-{
-	float magic_number = 1.15;
-
-	if (!is_moving) {
-		return (CrossHairWeapon(wep, stance));
-	} else {
-		return (CrossHairMaxSpread(wep, stance)/2) * magic_number;
-	}
-}
-
 //
 // W_IsLowAmmo(weapon, value, mag_not_reserve)
 // Determine if the weapon is low on ammo on the Magazine
@@ -4517,6 +4441,58 @@ float(float wep) GetWeaponZoomAmount =
 }
 
 //
+// WepDef_HasSniperScore(weapon)
+// Returns true if the weapon should display the Scope
+// HUD element when Aiming down the Sights.
+//
+float(float weapon) WepDef_HasSniperScore =
+{
+	switch(weapon) {
+		case W_KAR_SCOPE:
+		case W_HEADCRACKER:
+		case W_PTRS:
+		case W_PENETRATOR:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
+// WepDef_WeaponMaxSpread(weapon, stance)
+// Returns the maximum amount of Spread a Weapon
+// can output. This is based on data manipulation of
+// crosshair values.
+//
+float(float weapon, float stance) WepDef_WeaponMaxSpread =
+{
+	return CrossHairMaxSpread(weapon, stance)/2.5;
+}
+
+#ifndef CSQC
+
+//
+// WepDef_WeaponSpread(weapon, stance)
+// Returns the general amount of Spread a Weapon
+// can output. This is based on data manipulation of
+// crosshair values.
+//
+
+float(float weapon, float stance) WepDef_WeaponSpread =
+{
+	// Early out.
+	if (self.recoil_delay > time)
+		return WepDef_WeaponMaxSpread(weapon, stance);
+
+	// Increase spread over time.
+	return (CrossHairWeapon(weapon, stance)/2) + self.cur_spread;
+}
+
+#endif // CSQC
+
+//
 // WepDef_CalculateMeleeDamage(weapon, has_bowie)
 // Returns the amount of melee damage the Player can
 // do given their weapon and Bowie Knife status.
@@ -4556,6 +4532,194 @@ float(float weapon) WepDef_DoesNotADS =
 		case W_DG3:
 		case W_BK:
 		case W_KRAUS:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
+// WepDef_GetWeaponMeleeRange(weapon)
+// Returns the range to be used when performing a trace
+// to dictate how far away an object has to be for
+// a Melee to perform successfully.
+//
+float(float weapon) WepDef_GetWeaponMeleeRange =
+{
+	switch(weapon) {
+		case W_BK:
+		case W_KRAUS:
+			return 96;
+		default:
+			return 88;
+	}
+
+	return 88;
+};
+
+// FIXME -- data-drive these.
+#define MELEE_BOWIE_FIRST_FRAME_NORMAL 	0
+#define MELEE_BOWIE_LAST_FRAME_NORMAL	3
+#define MELEE_BOWIE_FIRST_FRAME_LUNGED	4
+#define MELEE_BOWIE_LAST_FRAME_LUNGED	10
+#define MELEE_BOWIE_DURATION_NORMAL		0.65
+#define MELEE_BOWIE_DURATION_LUNGED		1.0
+#define MELEE_BOWIE_VIEWMODEL_PATH 		"models/weapons/knife/v_bowie.mdl"
+#define MELEE_KNIFE_FIRST_FRAME_NORMAL 	0
+#define MELEE_KNIFE_LAST_FRAME_NORMAL	3
+#define MELEE_KNIFE_FIRST_FRAME_LUNGED	4
+#define MELEE_KNIFE_LAST_FRAME_LUNGED	12
+#define MELEE_KNIFE_DURATION_NORMAL		0.45
+#define MELEE_KNIFE_DURATION_LUNGED		0.74
+#define MELEE_KNIFE_VIEWMODEL_PATH 		"models/weapons/knife/v_knife.mdl"
+
+//
+// WepDef_IsMeleeWeapon(weapon)
+// Returns true if the weapon provided has a melee-action
+//
+float(float weapon) WepDef_IsMeleeWeapon =
+{
+	switch(weapon) {
+		case W_BK:
+		case W_KRAUS:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
+// WepDef_GetMeleeModel(weapon, has_bowie)
+// Returns the viewmodel to play for Melee animations.
+//
+string(float weapon, float has_bowie) WepDef_GetMeleeModel =
+{
+	if (WepDef_IsMeleeWeapon(weapon)) {
+		return GetWeaponModel(weapon, false);
+	} else {
+		if (has_bowie)
+			return MELEE_BOWIE_VIEWMODEL_PATH;
+		else
+			return MELEE_KNIFE_VIEWMODEL_PATH;
+	}
+};
+
+//
+// WepDef_GetMeleeFirstFrame(weapon, did_lunge, has_bowie)
+// Returns the first frame of animation for Melee
+// relative to currently held weapon, if the attack
+// lunged or not, and if the Bowie Knife is in-hand.
+//
+float(float weapon, float did_lunge, float has_bowie) WepDef_GetMeleeFirstFrame =
+{
+	float return_value;
+	
+	if (did_lunge)
+		return_value = GetFrame(weapon, MELEE_LUNGED_START);
+	else
+		return_value = GetFrame(weapon, MELEE_NORMAL_START);
+
+	// We have a specific melee weapon.
+	if (return_value)
+		return return_value;
+
+	if (has_bowie) {
+		if (did_lunge)
+			return MELEE_BOWIE_FIRST_FRAME_LUNGED;
+		else
+			return MELEE_BOWIE_FIRST_FRAME_NORMAL;
+	} else {
+		if (did_lunge)
+			return MELEE_KNIFE_FIRST_FRAME_LUNGED;
+		else
+			return MELEE_KNIFE_FIRST_FRAME_NORMAL;
+	}
+
+	return 0;
+};
+
+//
+// WepDef_GetMeleeLastFrame(weapon, did_lunge, has_bowie)
+// Returns the final frame of animation for Melee
+// relative to currently held weapon, if the attack
+// lunged or not, and if the Bowie Knife is in-hand.
+//
+float(float weapon, float did_lunge, float has_bowie) WepDef_GetMeleeLastFrame =
+{
+	float return_value;
+	
+	if (did_lunge)
+		return_value = GetFrame(weapon, MELEE_LUNGED_END);
+	else
+		return_value = GetFrame(weapon, MELEE_NORMAL_END);
+
+	// We have a specific melee weapon.
+	if (return_value)
+		return return_value;
+
+	if (has_bowie) {
+		if (did_lunge)
+			return MELEE_BOWIE_LAST_FRAME_LUNGED;
+		else
+			return MELEE_BOWIE_LAST_FRAME_NORMAL;
+	} else {
+		if (did_lunge)
+			return MELEE_KNIFE_LAST_FRAME_LUNGED;
+		else
+			return MELEE_KNIFE_LAST_FRAME_NORMAL;
+	}
+
+	return 0;
+};
+
+//
+// WepDef_GetMeleeAnimDuration(weapon, did_lunge, has_bowie)
+// Returns the amount of time it should take for animation
+// playback of a Melee animation, given factors.
+//
+float(float weapon, float did_lunge, float has_bowie) WepDef_GetMeleeAnimDuration =
+{
+	float return_value;
+	
+	if (did_lunge)
+		return_value = getWeaponDelay(weapon, MELEE_LUNGED);
+	else
+		return_value = getWeaponDelay(weapon, MELEE_NORMAL);
+
+	// We have a specific melee weapon.
+	if (return_value)
+		return return_value;
+
+	if (has_bowie) {
+		if (did_lunge)
+			return MELEE_BOWIE_DURATION_LUNGED;
+		else
+			return MELEE_BOWIE_DURATION_NORMAL;
+	} else {
+		if (did_lunge)
+			return MELEE_KNIFE_DURATION_LUNGED;
+		else
+			return MELEE_KNIFE_DURATION_NORMAL;
+	}
+
+	return 0;
+};
+
+//
+// WepDef_DoesNotPlayUpgradedSound(weapon)
+// Returns true if the weapon should not play
+// the special Pack-A-Punch fire sound over
+// it's standard weapon fire.
+//
+float(float weapon) WepDef_DoesNotPlayUpgradedSound =
+{
+	switch(weapon) {
+		case W_DG3:
+		case W_PORTER:
 			return true;
 		default:
 			return false;

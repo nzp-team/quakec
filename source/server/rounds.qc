@@ -3,7 +3,7 @@
 
 	wave logic
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 		Boston, MA  02111-1307, USA
 
 */
-
+void() SUB_UseTargets;
 float() spawn_a_dogA;
 void() zapper_cooldown;
 
@@ -155,15 +155,28 @@ void() EndRound =
 		players = find(world, classname, "player");
 
 		while(players != world) {
-			if (players.ach_tracker_npnp == 0) {
-				GiveAchievement(5, players);
-			}
 			if (players.ach_tracker_abst == 0) {
 				GiveAchievement(8, players);
 			}
-			players.ach_tracker_npnp = 0;
+			if (rounds >= 16) {
+				if (players.ach_tracker_npnp == 0) {
+					GiveAchievement(5, players);
+				}
+			}
 			players = find(players, classname, "player");
 		}
+	}
+
+	// Fire off all trigger_atroundent ents
+	entity triggers = find(world, classname, "trigger_atroundend");
+	while(triggers != world) {
+		if (triggers.health == rounds) {
+			entity oldself = self;
+			self = triggers;
+			SUB_UseTargets();
+			self = oldself;
+		}
+		triggers = find(triggers, classname, "trigger_atroundend");
 	}
 }
 
@@ -200,7 +213,13 @@ void() NewRound =
 
 	rounds = rounds + 1;
 
-	NotifyNewRound(rounds);
+#ifdef FTE
+
+	// FTE-Specific - alert CSQC of the round increment for HUD display
+	FTE_IncrementRound(rounds);
+
+#endif // FTE
+
 	tempe = find(world, classname, "player");
 	while (tempe)
 	{
@@ -341,7 +360,12 @@ void() InitRounds =
 	totalpowerups = 0;
 	powerup_activate = 2000;
 	powerup_score_threshold = ((player_count + 1) * G_STARTPOINTS) + powerup_activate;
-	spawnAllZombEnts();
+
+	// cypress -- fix Soft_Restart spawning multiple 
+	// pairs of zombie spawn points.
+	if (!roundinit)
+		spawnAllZombEnts();
+	
 	round_changetime = time + 3.5;
 	rounds_change = 1;
 	roundinit = 1;

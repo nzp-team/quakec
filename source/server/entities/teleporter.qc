@@ -3,7 +3,7 @@
 
 	all logic for teleporters of every form.
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -276,8 +276,8 @@ void() teleport_touch =
 		useprint(other, 15, self.cost, 0);
 	
 
-	if (other.button7 && !other.semiuse) {
-		other.semiuse = true;
+	if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+		other.semi_actions |= SEMIACTION_USE;
 		
 		if (other.points < self.cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);

@@ -3,7 +3,7 @@
 
 	Power-Up Spawn and Use Logic
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -38,7 +38,6 @@ var struct powerup_struct
 {
 	float 	id;
 	float 	occupied;
-	float	flash_screen;
 	string	model_path;
 	string 	voiceover_path;
 	void()	function;
@@ -62,6 +61,7 @@ inline void(entity ent) PU_FreeEnt =
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
 	ent.frame = 0;
+	ent.scale = 1;
 	ent.effects = 0;
 };
 
@@ -84,7 +84,7 @@ entity() PU_GetFreeEnt =
 // PU_AddToStruct(id, model_path, voiceover_path)
 // Adds the Power-Up and info to the powerup struct
 //
-void(float id, float flash_screen, string model_path, string voiceover_path, void() function, float() requirement_function) 
+void(float id, string model_path, string voiceover_path, void() function, float() requirement_function) 
 PU_AddToStruct =
 {
 	if (id > MAX_POWERUPS - 1)
@@ -97,7 +97,6 @@ PU_AddToStruct =
 	// Populate the Struct at Index
 	powerup_array[powerup_count].id = id;
 	powerup_array[powerup_count].occupied = true;
-	powerup_array[powerup_count].flash_screen = flash_screen;
 	powerup_array[powerup_count].model_path = model_path;
 	powerup_array[powerup_count].voiceover_path = voiceover_path;
 	powerup_array[powerup_count].function = function;
@@ -172,22 +171,6 @@ float() PU_GetNextPowerUp =
 	}
 
 	return id;
-};
-
-//
-// PU_ShouldFlashScreen(id)
-// Returns flash_screen from Power-Up struct.
-//
-float(float id) PU_ShouldFlashScreen =
-{
-	if (id == -1)
-		return false;
-
-	for(float i = 0; i < MAX_POWERUPS - 1; i++) {
-		if (powerup_array[i].id == id)
-			return powerup_array[i].flash_screen;
-	}
-	return false;
 };
 
 //
@@ -310,6 +293,9 @@ void() PU_NukeKill =
 	// play explosion effects
 	PU_NukeExplode(self.origin + '0 0 13');
 
+	// set them on fire
+	self.onfire = true;
+
 	// kill a target
 	self.th_die();
 
@@ -335,6 +321,9 @@ void() PU_NukeKill =
 //
 void() PU_Nuke =
 {
+	// Flash the screen white
+	nzp_screenflash(world, SCREENFLASH_COLOR_WHITE, 1, SCREENFLASH_FADE_INANDOUT);
+
 	// if there's already one active, just increment the point multiplier
 	if (nuke_powerup_active == true) {
 		nuke_powerups_activated++;
@@ -554,16 +543,7 @@ void() PU_MaxAmmo =
 		}
 
 		// MAX AMMO! text
-
-#ifdef FTE
-
-		ScrollText("MAX AMMO!", players);
-
-#else
-
 		nzp_maxammo();
-
-#endif // FTE
 
 		players = find(players, classname, "player");
 	}
@@ -594,15 +574,15 @@ void() PU_Init =
 	}
 
 	// Just add all of them for now
-	PU_AddToStruct(PU_NUKE, 		true,	"models/pu/nuke!.mdl",		"sounds/pu/kaboom.wav",			PU_Nuke,			
+	PU_AddToStruct(PU_NUKE, 		"models/pu/nuke!.mdl",		"sounds/pu/kaboom.wav",			PU_Nuke,			
 					PU_NullRequirement		);
-	PU_AddToStruct(PU_INSTAKILL, 	false,	"models/pu/instakill!.mdl",	"sounds/pu/insta_kill.wav", 	PU_InstaKill,	
+	PU_AddToStruct(PU_INSTAKILL, 	"models/pu/instakill!.mdl",	"sounds/pu/insta_kill.wav", 	PU_InstaKill,	
 					PU_NullRequirement		);
-	PU_AddToStruct(PU_DOUBLEPTS, 	false,	"models/pu/x2!.mdl",		"sounds/pu/double_points.wav",	PU_DoublePoints,	
+	PU_AddToStruct(PU_DOUBLEPTS, 	"models/pu/x2!.mdl",		"sounds/pu/double_points.wav",	PU_DoublePoints,	
 					PU_NullRequirement		);
-	PU_AddToStruct(PU_CARPENTER,	false,	"models/pu/carpenter!.mdl",	"sounds/pu/carpenter.wav",		PU_Carpenter,	
+	PU_AddToStruct(PU_CARPENTER,	"models/pu/carpenter!.mdl",	"sounds/pu/carpenter.wav",		PU_Carpenter,	
 					PU_CarpenterRequirement	);
-	PU_AddToStruct(PU_MAXAMMO,		false,	"models/pu/maxammo!.mdl",	"sounds/pu/maxammo.wav", 		PU_MaxAmmo,		
+	PU_AddToStruct(PU_MAXAMMO,		"models/pu/maxammo!.mdl",	"sounds/pu/maxammo.wav", 		PU_MaxAmmo,		
 					PU_NullRequirement		);
 
 	// Nuke requires an extra Precache
@@ -683,10 +663,6 @@ void() PU_Touch =
 		Light_None(self);
 		self.touch = SUB_Null;
 
-		// Flash the Screen if permitted
-		if (PU_ShouldFlashScreen(self.walktype) == true)
-			stuffcmd(other, "bf\n");
-
 		// Run Power-Up function
 		PU_LogicFunction(self.walktype);
 	}
@@ -750,6 +726,11 @@ void(vector where, float type) Spawn_Powerup =
 	setorigin(sparkle, sparkle.origin);
 
 	setmodel(sparkle,"models/sprites/sprkle.spr");
+
+	// Scale down for NZ:P Beta
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		powerup.scale = sparkle.scale = 0.66;
+	}
 
 	sparkle.think = PU_SparkleThink;
 	sparkle.nextthink = time + 0.1;

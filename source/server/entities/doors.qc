@@ -12,7 +12,7 @@
 	Door.enemy chains from the master door through all doors linked 
 	in the chain.
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -47,7 +47,6 @@ float DOOR_POWER = 64;
 .float delay;
 .void() think1;
 .vector finaldest;
-.float dmg;
 .entity trigger_field;
 .float wait;
 .float speed;
@@ -269,9 +268,9 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		}
 	}
 
-	if (other.button7 && !other.semiuse)
+	if (other.button7 && !(other.semi_actions & SEMIACTION_USE))
 	{
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		if (other.points >= self.cost)
 		{
 			door_fire();
@@ -297,7 +296,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 			{
 				centerprint (other, STR_NOTENOUGHPOINTS);
 				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
-				other.semiuse = 1;
+				other.semi_actions |= SEMIACTION_USE;
 			}
 		}
 	}
@@ -333,10 +332,8 @@ void() door_use =
 
 void() door_trigger_touch =
 {
-	if(other.classname != "player")
-	{
+	if(other.classname != "player" || other.downed)
 		return;
-	}
 
 	if(cvar("waypoint_mode"))
 	{
@@ -349,6 +346,9 @@ void() door_trigger_touch =
 		}
 		return;
 	}
+
+	if (self.owner.targetname && self.owner.classname != "door_nzp_cost")
+		return;
 	
 	if (other.health <= 20)
 		return;
@@ -392,6 +392,13 @@ void() door_touch =
 	{
 		centerprint (other, self.owner.message);
 	}
+
+	// Since we've removed support for Quake keys (*.items),
+	// this additional check is needed to prevent standard
+	// func_door entities from activating on-touch if it's
+	// set to only be triggered.
+	if (self.classname == "door" && self.targetname)
+		return;
 
 	if (isPowerOn == FALSE)
 	{
@@ -505,7 +512,11 @@ void() LinkDoors =
 				return;
 			if (self.health)
 				return;
-			if (self.targetname && self.classname != "door_nzp_cost")
+
+			// Only disable trigger spawn fields if this is a vanilla Quake door with a targetname
+			// AND its without a wayTarget. Implies the door isnt really a "door" and like a bonus
+			// or something, since if its a proper door you will want waypoint entry..
+			if (self.targetname && self.classname != "door_nzp_cost" && !self.wayTarget)
 				return;
 
 			self.owner.trigger_field = spawn_field(cmins, cmaxs);
@@ -648,20 +659,20 @@ void() func_door_nzp =
 
 	self.blocked = door_blocked;
 	self.use = door_use;
-	
-	if (self.cost)
-	{
-		self.classname = "door_nzp_cost";
-		precache_sound("sounds/misc/ching.wav");
-		switch(self.sounds)
-		{
-			case 1: precache_sound("sounds/misc/wood_door.wav"); break;
-			case 2: precache_sound("sounds/misc/debris.wav"); break;
-			default: break;
-		}
+
+	if (!roundinit) {
+		if (self.cost) {
+			self.classname = "door_nzp_cost";
+			precache_sound("sounds/misc/ching.wav");
+			switch(self.sounds)
+			{
+				case 1: precache_sound("sounds/misc/wood_door.wav"); break;
+				case 2: precache_sound("sounds/misc/debris.wav"); break;
+				default: break;
+			}
+		} else
+			self.classname = "door_nzp";
 	}
-	else
-		self.classname = "door_nzp";
 	
 	if (!self.speed)
 		self.speed = 100;

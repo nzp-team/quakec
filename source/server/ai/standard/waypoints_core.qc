@@ -3,7 +3,7 @@
 
 	non-pc waypoint impulsing
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -57,49 +57,48 @@ void () Waypoint_Functions =
 			break;
 	}
 	
-	if(self.button8 && !self.semi)
+	if(self.button8 && !(self.semi_actions & SEMIACTION_WAYPOINT))
 	{
-		self.semi = true;
+		self.semi_actions |= SEMIACTION_WAYPOINT;
 		Dual_Link_Waypoints();
 		waypoint_action = waypoint_action + 1;
 	}
-	if (self.button0 && !self.semi)
+	if (self.button0 && !(self.semi_actions & SEMIACTION_WAYPOINT))
 	{
+		self.semi_actions |= SEMIACTION_WAYPOINT;
 		Create_New_Waypoint();
 		waypoint_action = waypoint_action + 1;
-		self.semi = true;
 	}
 	
-	if (self.button7 && !self.semiuse)
+	if (self.button7 && !(self.semi_actions & SEMIACTION_WAYPOINT))
 	{
+		self.semi_actions |= SEMIACTION_WAYPOINT;
 		Select_Waypoint();
 		waypoint_action = waypoint_action + 1;
-		self.semiuse = true;
 	}
 	
-	if(self.button4 && !self.semiuse)
+	if(self.button4 && !(self.semi_actions & SEMIACTION_WAYPOINT))
 	{
-		self.semiuse = true;
+		self.semi_actions |= SEMIACTION_WAYPOINT;
 		waypoint_action = waypoint_action + 1;
 		Move_Waypoint();
 	}
-	if(self.button6 && !self.semiuse)
+	if(self.button6 && !(self.semi_actions & SEMIACTION_WAYPOINT))
 	{
+		self.semi_actions |= SEMIACTION_WAYPOINT;
 		Remove_Waypoint ();
 		waypoint_action = waypoint_action + 1;
-		self.semiuse = true;
 	}
-	if(self.button5 && !self.semiuse)
+	if(self.button5 && !(self.semi_actions & SEMIACTION_WAYPOINT))
 	{
+		self.semi_actions |= SEMIACTION_WAYPOINT;
 		Make_Special_Waypoint();
 		waypoint_action = waypoint_action + 1;
-		self.semiuse = true;
 	}
 	
 	if(!self.button0 && !self.button7 && !self.button4 && !self.button5 && !self.button6 && !self.button8)
 	{
-		self.semiuse = false;
-		self.semi = false;
+		self.semi_actions &= ~SEMIACTION_WAYPOINT;
 	}
 	
 	self.impulse = 0;

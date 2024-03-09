@@ -3,7 +3,7 @@
 
 	Pack-A-Punch Entity Logic
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -231,7 +231,6 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 	W_HideCrosshair(self);
 	Set_W_Frame (0, 39, 2.0, 0, 0, W_PutOutHack, "models/machines/v_pap.mdl", true, S_BOTH);
 	self.weapon2model = "";
-	UpdateV2model(self.weapon2model, 0);
 
 #ifndef FTE
 
@@ -279,8 +278,8 @@ void() PAP_Touch =
 			PAP_UpgradeWeapon(self, other);
 		} 
 		// They're broke! Notify.
-		else if (other.button7 && other.weapon && !other.semiuse) {
-			other.semiuse = true;
+		else if (other.button7 && other.weapon && !(other.semi_actions & SEMIACTION_USE)) {
+			other.semi_actions |= SEMIACTION_USE;
 			centerprint (other, STR_NOTENOUGHPOINTS);
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
 		}
@@ -358,7 +357,7 @@ void() perk_pap =
 	//
 	
 	// Model
-	if (!self.model || self.model == "models/machines/pap/pap.mdl") {
+	if (!self.model || self.model == "models/machines/hl_scale/pap.mdl") {
 		self.model = "models/machines/quake_scale/pap.mdl";
 	}
 
@@ -407,9 +406,9 @@ void() perk_pap =
 		self.oldmodel = "sounds/machines/packapunch/upgrade.wav";
 	}
 
-	self.model = convert_old_asset_path(self.model);
-	self.weapon2model = convert_old_asset_path(self.weapon2model);
-	self.door_model_name = convert_old_asset_path(self.door_model_name);
+	self.model = Compat_ConvertOldAssetPath(self.model);
+	self.weapon2model = Compat_ConvertOldAssetPath(self.weapon2model);
+	self.door_model_name = Compat_ConvertOldAssetPath(self.door_model_name);
 
     // Precaches
 	// FIXME: Don't hardcode weapon precaches here.

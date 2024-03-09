@@ -3,7 +3,7 @@
 
 	perks, power
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -119,8 +119,6 @@ void GivePerk(optional float p) {
 	self.perk_delay = self.fire_delay;
 
 	Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
-
-	SetPerk(self, self.perks);
 }
 
 //
@@ -135,15 +133,7 @@ void DrinkPerk() {
 	// NOTE: If you add perks, you will either need to append
 	// the MDL with a tool like QuArK or add an edge-case
 	// after this instruction to have a valid skin.
-	self.weaponskin = machine.sequence - 1;
-
-	self.isBuying = true;
-	
-	if (self.sprinting) {
-		self.sprinting = 0;
-		self.zoom = 0;
-	}
-		
+	self.weaponskin = machine.sequence - 1;	
 
 	self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	
@@ -193,7 +183,7 @@ void(vector where, float time_alive) SpawnSpark =
 // Called when the max amount of solo revives have been used.
 // Does a little animation and then 'teleports' away.
 //
-void() StopReviveAnimation =
+void() Perk_StopLeaveAnimation =
 {
 	self.velocity = 0;
 
@@ -201,11 +191,12 @@ void() StopReviveAnimation =
 	SpawnSpark(self.origin, 0.65); // Spawn a Spark at the position
 	self.origin = self.oldvelocity; // Restore old position
 	Light_None(self); // Remove light effect
+	SUB_UseTargets();
 
 	sound(self,CHAN_ITEM,"sounds/pu/drop.wav",1,ATTN_NONE); // Play a fitting sound
 }
 
-void() ReviveAnimation =
+void() Perk_MachineLeaveAnimation =
 {
 	if (self.score == 0)
 		self.angles_z += 6;
@@ -218,13 +209,13 @@ void() ReviveAnimation =
 		self.score = 0;
 
 	if(self.ltime < time) {
-		StopReviveAnimation();
+		Perk_StopLeaveAnimation();
 	} else {
 		self.nextthink = time + 0.05;
 	}
 }
 
-void() ReviveGoAwayForReal =
+void() Perk_MachineGoAwayForReal =
 {
 	makevectors(self.angles);
 	self.movetype = MOVETYPE_NOCLIP;
@@ -234,15 +225,15 @@ void() ReviveGoAwayForReal =
 
 	// Do our silly little animation for 6 seconds
 	self.ltime = time + 6;
-	self.think = ReviveAnimation;
+	self.think = Perk_MachineLeaveAnimation;
 	self.nextthink = time + 0.05;
 }
 
-void() ReviveGoAway =
+void() Perk_MachineGoAway =
 {
 	// First start a timer, we want to wait until the player finishes drinking
 	// before starting the animation.
-	self.think = ReviveGoAwayForReal;
+	self.think = Perk_MachineGoAwayForReal;
 	self.nextthink = time + 4;
 
 	// Save our original position to restore on restart
@@ -275,25 +266,31 @@ void() touch_perk =
 		return;
 	}
 
+	float perk_purchase_limit;
+
+	if (player_count >= 1)
+		perk_purchase_limit = self.perk_purchase_limit_coop;
+	else
+		perk_purchase_limit = self.perk_purchase_limit_solo;
+
 	// Back up weapon skin
 	backupWepSkin = other.weaponskin;
 
 	// Don't prompt if our hands or busy or we already have the perk
-	if (!(other.perks & self.style) && other.fire_delay < time && self.revivesoda < 3) {
+	if (!(other.perks & self.style) && other.fire_delay < time && self.perk_purchase_count < perk_purchase_limit) {
 		float price;
 
-		// Check if this is Quick Revive and we are playing in Co-Op,
-		// adjust price if so.
-		if (self.classname == "perk_revive" && player_count >= 1)
+		// Check if we're playing in Co-Op, adjust price if so.
+		if (player_count >= 1)
 			price = self.cost2;
-		// Nope, use normal cost.
+		// Nope, use normal/solo cost.
 		else
 			price = self.cost;
 
 		// sequence = perk ID in client
 		useprint(other, 9, price, self.sequence);
 
-		if (other.points >= price && other.button7 && !other.semiuse) {
+		if (other.points >= price && other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
 			addmoney(other, -price, 0);
 
 			// Play the sound of the bottle "vending"
@@ -316,25 +313,26 @@ void() touch_perk =
 			entity tempe = self; // Set machine to tempe
 			self = other; // Set self to client
 			self.usedent = tempe; // Set usedent to machine
+			self.isBuying = true; // To avoid canceling the animation from triggering
+			self.sprinting = false;
+			self.zoom = 0;
 			Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, DrinkPerk, getWeaponDelay(self.weapon, PUTOUT));
 			other = self; // Set other to client
 			self = tempe; // Set self to machine
 
-			// Do Self-Revive checks
-			if (self.classname == "perk_revive" && !player_count) {
-				// Increment self-revive count
-				self.revivesoda++;
+			// Increment usage count
+			self.perk_purchase_count++;
 
-				if (self.revivesoda >= 3) {
-					ReviveGoAway();
-				}
-			}
-			other.semiuse = true;
-		} else if (other.button7 && !other.semiuse) {
+			// Time to disappear!
+			if (self.perk_purchase_count >= perk_purchase_limit)
+				Perk_MachineGoAway();
+
+			other.semi_actions |= SEMIACTION_USE;
+		} else if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
 			// We tried to use, but we don't have the cash..
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
-			other.semiuse = true;
+			other.semi_actions |= SEMIACTION_USE;
 		}
 	}
 }
@@ -383,8 +381,15 @@ void(entity who) Turn_PerkLight_On =
 //
 void() Perk_Jingle =
 {
-	// If Revive is gone, don't bother to check anymore
-	if (self.revivesoda >= 3)
+	float perk_purchase_limit;
+
+	if (player_count >= 1)
+		perk_purchase_limit = self.perk_purchase_limit_coop;
+	else
+		perk_purchase_limit = self.perk_purchase_limit_solo;
+
+	// If the Vending Machine is gone, don't bother to check anymore
+	if (self.perk_purchase_count >= perk_purchase_limit)
 		return;
 
 	local float jinglewaittime;
@@ -414,42 +419,26 @@ void() setup_perk =
 {
 	entity power = find(world, classname, "power_switch");
 
-	// Check for Revive before Power
-	if (self.classname == "perk_revive" && !player_count) {
-		Turn_PerkLight_On(self);
-		self.requirespower = false;
-	} else {
-		// Check for Power
-		if (power != world && !isPowerOn) {
+	// Check for Power
+	if (power != world && !isPowerOn) {
+		// Power Switch is present -- but does this machine have an override?
+		if ((self.perk_requires_power_coop < 0 && player_count >= 1) || 
+		(self.perk_requires_power_solo < 0 && !player_count))
+			self.requirespower = false;
+		else
 			self.requirespower = true;
-		} else {
-			// There's no Power Switch, so turn the rest On.
-			Turn_PerkLight_On(self);
-		}
+	} else {
+		self.requirespower = false;
 	}
+
+	// Turn on the Lights!
+	if (!self.requirespower)
+		Turn_PerkLight_On(self);
 
 	// Perk Jingle Timer
 	if (self.powerup_vo) {
 		self.think = Perk_Jingle;
 		self.nextthink = time + rint((random() * 30)) + 30;
-	}
-}
-
-//
-// Perk_UpdateQuickRevive()
-// Tallies whether to make Quick Revive
-// solo or co-op accessible.
-//
-void() Perk_UpdateQuickRevive =
-{
-	entity revives = find(world, classname, "perk_revive");
-
-	while(revives != world) {
-		Light_None(revives);
-		revives.think = setup_perk;
-		revives.nextthink = time + 0.1;
-
-		revives = find(revives, classname, "perk_revive");
 	}
 }
 
@@ -474,9 +463,13 @@ void() perk_revive =
 		self.model = "models/machines/quake_scale/quick_revive.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 500;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
 		self.cost2 = 1500;
 	}
 
@@ -503,6 +496,26 @@ void() perk_revive =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_CYANLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 3;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = -1;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -543,9 +556,14 @@ void() perk_flopper =
 		self.model = "models/machines/quake_scale/flopper.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 2000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -571,6 +589,26 @@ void() perk_flopper =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -609,9 +647,14 @@ void() perk_juggernog =
 		self.model = "models/machines/quake_scale/juggernog.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 2500;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -637,6 +680,26 @@ void() perk_juggernog =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_PINKLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -675,9 +738,14 @@ void() perk_staminup =
 		self.model = "models/machines/quake_scale/staminup.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 2000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -703,6 +771,26 @@ void() perk_staminup =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -741,9 +829,14 @@ void() perk_speed =
 		self.model = "models/machines/quake_scale/speed_cola.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 3000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -769,6 +862,26 @@ void() perk_speed =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_LIMELIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -807,9 +920,14 @@ void() perk_double =
 		self.model = "models/machines/quake_scale/double_tap.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 2000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -835,6 +953,26 @@ void() perk_double =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -873,10 +1011,14 @@ void() perk_deadshot =
 		self.model = "models/machines/quake_scale/deadshot.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 1500;
-		self.cost2 = 1000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -902,6 +1044,26 @@ void() perk_deadshot =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -942,9 +1104,14 @@ void() perk_mule =
 		self.model = "models/machines/quake_scale/mulekick.mdl";
 	}
 
-	// Perk Cost
+	// Perk Cost (Solo)
 	if (!self.cost) {
 		self.cost = 4000;
+	}
+
+	// Perk Cost (Co-Op)
+	if (!self.cost2) {
+		self.cost2 = self.cost;
 	}
 
 	// Player Trigger Sound
@@ -970,6 +1137,26 @@ void() perk_mule =
 	// Light Effect
 	if (!self.spawnflags) {
 		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_LIMELIGHT;
+	}
+
+	// Perk Purchase Limit (Solo)
+	if (!self.perk_purchase_limit_solo) {
+		self.perk_purchase_limit_solo = 1000;
+	}
+
+	// Perk Purchase Limit (Co-Op)
+	if (!self.perk_purchase_limit_coop) {
+		self.perk_purchase_limit_coop = 1000;
+	}
+
+	// Perk Requires Power (Solo)
+	if (!self.perk_requires_power_solo) {
+		self.perk_requires_power_solo = true;
+	}
+
+	// Perk Requires Power (Co-Op)
+	if (!self.perk_requires_power_coop) {
+		self.perk_requires_power_coop = true;
 	}
 
 	// Set up the Perk Entity
@@ -1136,140 +1323,122 @@ void() power_switch =
 	isPowerOn = false;
 }
 
-// Sorta ugly function but whatever
-void() perk_random =
+//
+// Random Perk-A-Cola
+//
+
+#define SPAWNFLAG_PERKRANDOM_QUICKREVIVE 	1
+#define SPAWNFLAG_PERKRANDOM_JUGGERNOG		2
+#define SPAWNFLAG_PERKRANDOM_SPEEDCOLA		4
+#define SPAWNFLAG_PERKRANDOM_DOUBLETAP		8
+#define SPAWNFLAG_PERKRANDOM_PHDFLOPPER		16
+#define SPAWNFLAG_PERKRANDOM_STAMINUP		32
+#define SPAWNFLAG_PERKRANDOM_DEADSHOT		64
+#define SPAWNFLAG_PERKRANDOM_MULEKICK		128
+
+float perk_random_placed; // bitfield to track what perk_random ents have placed.
+
+//
+// Perk_RandomAssign(perk_classname, spawnfunc)
+// Transforms perk_random into the designated entity passed.
+// If the entity already exists in the world, it will
+// instead teleport it at the desired location.
+//
+void(string perk_classname, void() spawnfunc) Perk_RandomAssign =
+{
+	entity machine = find(world, classname, perk_classname);
+
+	// Machine does not already exist, so spawn a new one
+	// with default parameters.
+	if (!machine) {
+		self.spawnflags = 0; // reset spawnflags, for default lights.
+		spawnfunc();
+	}
+	// The machine is in the world, so move it here instead.
+	else {
+		setorigin(machine, self.origin);
+	}
+}
+
+//
+// Perk_RandomDecide()
+// Called by perk_random, will conduct the process of
+// deciding what Perk-A-Cola machine it will become.
+//
+void() Perk_RandomDecide =
 {
 	float i;
-	float foundperk;
-	
-	// remove perks from our selection if they already exist
-	// ugly ugly
-	if ((find(world,classname,"perk_revive") && (self.spawnflags & 1))) {
-		self.spawnflags -= self.spawnflags & 1;
-	}
-	if ((find(world,classname,"perk_juggernog") && (self.spawnflags & 2))) {
-		self.spawnflags -= self.spawnflags & 2;
-	}
-	if ((find(world,classname,"perk_speed") && (self.spawnflags & 4))) {
-		self.spawnflags -= self.spawnflags & 4;
-	}
-	if ((find(world,classname,"perk_double") && (self.spawnflags & 8))) {
-		self.spawnflags -= self.spawnflags & 8;
-	}
-	if ((find(world,classname,"perk_flopper") && (self.spawnflags & 16))) {
-		self.spawnflags -= self.spawnflags & 16;
-	}
-	if ((find(world,classname,"perk_staminup") && (self.spawnflags & 32))) {
-		self.spawnflags -= self.spawnflags & 32;
-	}
-	if ((find(world,classname,"perk_deadshot") && (self.spawnflags & 64))) {
-		self.spawnflags -= self.spawnflags & 64;
-	}
-	if ((find(world,classname,"perk_mule") && (self.spawnflags & 128))) {
-		self.spawnflags -= self.spawnflags & 128;
+
+	// If a perk_random entity has already placed down a Perk-A-Cola
+	// given it's respective spawnflag, remove it from the ent selection.
+	for(i = 1; i < 256; i *= 2) {
+		if ((perk_random_placed & i) && (self.spawnflags & 1))
+			self.spawnflags -= self.spawnflags & i;
 	}
 
-	// obj error because there are no possible perks for us to obtain
-	if (self.spawnflags == 0) {
+	// Choose which of the eight machines we want to become, if permitted.
+	while (true) {
+		i = random();
+		// Quick Revive
+		if (i < (1/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_QUICKREVIVE)) {
+			Perk_RandomAssign("perk_revive", perk_revive);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_QUICKREVIVE;
+			break;
+		}
+		// Jugger-Nog 
+		else if (i < (2/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_JUGGERNOG)) {
+			Perk_RandomAssign("perk_juggernog", perk_juggernog);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_JUGGERNOG;
+			break;
+		}
+		// Speed Cola
+		else if (i < (3/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_SPEEDCOLA)) {
+			Perk_RandomAssign("perk_speed", perk_speed);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_SPEEDCOLA;
+			break;
+		}
+		// Double Tap
+		else if (i < (4/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_DOUBLETAP)) {
+			Perk_RandomAssign("perk_double", perk_double);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_DOUBLETAP;
+			break;
+		}
+		// PhD Flopper
+		else if (i < (5/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_PHDFLOPPER)) {
+			Perk_RandomAssign("perk_flopper", perk_flopper);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_PHDFLOPPER;
+			break;
+		}
+		// Stamin-Up
+		else if (i < (6/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_STAMINUP)) {
+			Perk_RandomAssign("perk_staminup", perk_staminup);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_STAMINUP;
+			break;
+		}
+		// Deadshot Daiquiri
+		else if (i < (7/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_DEADSHOT)) {
+			Perk_RandomAssign("perk_deadshot", perk_deadshot);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_DEADSHOT;
+			break;
+		}
+		// Mule Kick
+		else if (i < 1 && (self.spawnflags & SPAWNFLAG_PERKRANDOM_MULEKICK)) {
+			Perk_RandomAssign("perk_mule", perk_mule);
+			perk_random_placed += SPAWNFLAG_PERKRANDOM_MULEKICK;
+			break;
+		}
+	}
+};
+
+void() perk_random =
+{
+	// Quit out because there are no Perk-A-Cola machines for us to choose between.
+	if (!self.spawnflags) {
 		objerror("No available Perks to choose from!");
 	}
 
-	foundperk = false;
-	while (foundperk == false) {
-		i = random();
-		// Quick Revive
-		if (i < (1/8) && (self.spawnflags & 1)) {
-			if !(find(world, classname, "perk_revive")) {
-				self.spawnflags = 8;
-				perk_revive();
-				foundperk = true;
-			}
-		}
-		// Jugger-Nog 
-		else if (i < (2/8) && (self.spawnflags & 2)) {
-			if !(find(world, classname, "perk_juggernog")) {
-				self.spawnflags = 2;
-				perk_juggernog();
-				foundperk = true;
-			}
-		}
-		// Speed Cola
-		else if (i < (3/8) && (self.spawnflags & 4)) {
-			if !(find(world, classname, "perk_speed")) {
-				self.spawnflags = 4;
-				perk_speed();
-				foundperk = true;
-			}
-		}
-		// Double Tap
-		else if (i < (4/8) && (self.spawnflags & 8)) {
-			if !(find(world, classname, "perk_double")) {
-				self.spawnflags = 16;
-				perk_double();
-				foundperk = true;
-			}
-		}
-		// PhD Flopper
-		else if (i < (5/8) && (self.spawnflags & 16)) {
-			if !(find(world, classname, "perk_flopper")) {
-				self.spawnflags = 16;
-				perk_flopper();
-				foundperk = true;
-			}
-		}
-		// Stamin-Up
-		else if (i < (6/8) && (self.spawnflags & 32)) {
-			if !(find(world, classname, "perk_staminup")) {
-				self.spawnflags = 16;
-				perk_staminup();
-				foundperk = true;
-			}
-		}
-		// Deadshot Daiquiri
-		else if (i < (7/8) && (self.spawnflags & 64)) {
-			if (!find(world, classname, "perk_deadshot")) {
-				self.spawnflags = 16;
-				perk_deadshot();
-				foundperk = true;
-			}
-		}
-		// Mule Kick
-		else if (i < 1 && (self.spawnflags & 128)) {
-			if (!find(world, classname, "perk_mule")) {
-				self.spawnflags = 4;
-				perk_mule();
-				foundperk = true;
-			}
-		}
-	}
-}
-
-void() item_revive =
-{
-	perk_revive();
-	self.origin_z += 8;
-}
-
-void() item_juggernog =
-{
-	perk_juggernog();
-	self.origin_z += 8;
-}
-
-void() item_speed =
-{
-	perk_speed();
-	self.origin_z += 8;
-}
-
-void() item_douple =
-{
-	perk_double();
-	self.origin_z += 8;
-}
-
-void() item_flopper =
-{
-	perk_flopper();
-	self.origin_z += 8;
-}
+	// We can't transform right away, because we need to assert that
+	// all other entities are loaded in the world.
+	self.think = Perk_RandomDecide;
+	self.nextthink = time + 0.2;
+};

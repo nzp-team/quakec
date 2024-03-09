@@ -154,7 +154,7 @@ void            end_sys_globals;						// flag for structure dumping
 .float          currentmag2;
 .float          maxspeed;
 .float     		facingenemy;
-//.float        scale;
+.float          scale;
 void            end_sys_fields; 						// flag for structure dumping
 // End. Lines below this MAY be altered, to some extent
 
@@ -266,6 +266,7 @@ string(float num)                                                               
 // 2001-11-15 DarkPlaces general builtin functions by Lord Havoc  end
 // DP_QC_STRING_CASE_FUNCTIONS
 string  (string s)                                                                              strtolower          = #480;
+float   (float caseinsensitive, string s)                                                       crc16               = #494;
 void    (string trackname)                                                                    	songegg             = #500;
 void    ()                                                                                   	nzp_maxammo         = #501;
 void    (entity who)                                                                            grenade_pulse       = #502;
@@ -273,7 +274,7 @@ float   ()                                                                      
 void    (entity who)                                                                            nzp_bettyprompt     = #504;
 void    (entity who, string name)                                                               nzp_setplayername   = #505;
 void    (entity who, float version)                                                             nzp_setdoubletapver = #506;
-
+void    (entity who, float color, float duration, float type)                                   nzp_screenflash     = #507;
 //
 // constants
 //

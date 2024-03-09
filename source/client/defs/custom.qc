@@ -4,7 +4,7 @@
 	Various globals that are used in this FTEQW example are defined 
     here, they are not used by the engine itself.
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -44,28 +44,14 @@ string loadscreen_mapname;
 string loadscreen_maptitle;
 string loadscreen_tip;
 
-entity player;
-entity vmodel;
-entity v2model;
-entity mzlflash;
-entity dummy;
-
 float weapon;
 
 float tracercounter;
 .float rate;
 .vector targetpos;
 
-vector vmodel_targetpos;
-vector v2model_targetpos;
-vector vmodel_currentpos;
-vector v2model_currentpos;
-vector vmodel_velocity;
-vector v2model_velocity;
-vector vmodel_avelocity;
-vector v2model_avelocity;
-vector vmodel_muzzleoffset;
-vector v2model_muzzleoffset;
+entity cl_viewent;
+entity cl_viewent2;
 
 const float MENU_NONE 			= 0;
 const float MENU_MAIN 			= 1;
@@ -106,9 +92,12 @@ float Hitmark_time;
 float crosshair_spread_time;
 float crosshair_pulse_grenade;
 float zoom_2_time;
+
 float broadcast_time;
 float broadcast_type;
-string broadcast_string;
+float broadcast_num;
+
+string character_name;
 
 var struct revive_s {
 	float draw;
@@ -132,10 +121,6 @@ float interpolating2;
 float rounds;
 float perks;
 float rounds_change;
-
-float playerpoints[4]; 			// player point holders, player 1 points are index 0, player 2 at 1...
-float playerkills[4];           // player kill holders, player 1 points are index 0, player 2 at 1...
-string playernames[4]; 			// player name holders, player 1 name at index 0, player 2 at 1...
 float player_count;
 float score_show;
 
@@ -169,10 +154,15 @@ vector TEXT_ORANGE    = [(235/255), (189/255), 0];
 vector TEXT_GREEN     = [0, (230/255), (34/255)];
 vector TEXT_RED       = [1, 0, 0];
 
-float fade_time;
-float fade_type;
+float screenflash_type;
+float screenflash_color;
+float screenflash_duration;
+float screenflash_worktime;
+float screenflash_starttime;
 
 .float stance;
+.float points;
+.float kills;
 
 float menu_initialized;
 
@@ -217,6 +207,13 @@ int 	platform_is_web;
 float 	stopwatch_sec;
 int 	stopwatch_min;
 int 	stopwatch_hr;
+
+// Same dealio, but for rounds
+float 	stopwatch_round_sec;
+int 	stopwatch_round_min;
+int 	stopwatch_round_hr;
+int 	stopwatch_round_isactive;
+float 	stopwatch_round_starttime;
 
 //controller buttons
 

@@ -4,7 +4,7 @@
 	used for any sort of down, hit, etc that the player or entity 
 	experiences
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@ void() EndGame_Restart =
 // Fade to black function, creates another think for restart
 void() EndGame_FadePrompt =
 {
-	PromptLevelChange(time + 6, 2, self);
+	nzp_screenflash(self, SCREENFLASH_COLOR_BLACK, 6, SCREENFLASH_FADE_IN);
 
 #ifdef FTE
 
@@ -63,7 +63,6 @@ void() EndGame =
 	self.origin = '0 0 0';
 	setorigin (self, self.origin);
 	self.velocity = '0 0 0';
-	sound (self, CHAN_AUTO, "sounds/music/end.wav", 1, ATTN_NORM);
 
 	oldself = self;
 	
@@ -81,7 +80,7 @@ void() EndGame =
 	}
 	
 	self.think = EndGame_FadePrompt;
-	self.nextthink = time + 33;
+	self.nextthink = time + 28;
 }
 
 // when dead and other players exist and are alive, throw user into spectate mode
@@ -99,16 +98,11 @@ void() startspectate =
 	
 	self.downedloop = 0;
 	self.beingrevived = false;
-	self.model = "";
-	setmodel(self, self.model);
 	self.health = 100;
 	self.weaponmodel = "";
 	self.weapon2model = "";
 	self.downed = 0;
 	self.frame = 0;
-
-	UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-	UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 	
 	SpectatorSpawn();
 }
@@ -132,10 +126,9 @@ float() PollPlayersAlive =
 // Endgamesetup -- think function for setting up the death of everyone
 void() EndGameSetup =
 {
-	game_over = true;
 	self.health = 10;
 	self.think = EndGame;
-	self.nextthink = time + 5;
+	self.nextthink = time + 4;
 	self.weapon = 0;
 	self.currentammo = 0;
 	self.currentmag = 0;
@@ -144,8 +137,13 @@ void() EndGameSetup =
 	self.animend = SUB_Null;
 	self.perks = 0;
 	self.isspec = true;
-	SetPerk(self, self.perks);
-	SwitchWeapon(0);	
+	self.movetype = MOVETYPE_TOSS;
+
+	if (!game_over) {
+		sound(self, CHAN_AUTO, "sounds/music/end.wav", 1, ATTN_NONE);
+		NotifyGameEnd();
+	}
+	game_over = true;
 	addmoney(self, -self.points, 0);
 	addmoney(self, self.score, 0);	
     return;
@@ -187,19 +185,27 @@ void() GetDown =
 		GiveAchievement(9, self);
 	}
 
+	// Aim out to reset zoom values
+	W_AimOut();
+
+#ifdef FTE
+
+	self.viewzoom = 1;
+
+#endif // FTE
+
 	// Make any zombies inside of the player's bounding box leave
 	push_away_zombies();
 
 	// Force the player to prone.
-	if (self.stance == 2) self.new_ofs_z = self.view_ofs_z - (PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT);
-	if (self.stance == 1) self.new_ofs_z = self.view_ofs_z - PLAYER_CROUCH_HEIGHT;
-	self.stance = 0;
-	setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+	Player_SetStance(self, PLAYER_STANCE_PRONE, false);
 
 	// Get rid of Mule Kick Weapon
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
-		if (self.weapons[i].is_mulekick_weapon == true)
+		if (self.weapons[i].is_mulekick_weapon == true) {
 			Weapon_RemoveWeapon(i);
+			Weapon_SetActiveInSlot(0, false);
+		}
 	}
 
 	// Calculate the loss in points, take away points from downed Player.
@@ -209,14 +215,17 @@ void() GetDown =
 	addmoney(self, point_difference * -1, false);
 	self.requirespower = point_difference;
 
-	// Broadcast that the player has downed.
-	BroadcastMessage(time + 3, 2, self.netname);
+#ifdef FTE
+
+	// FTE-Specific: Broadcast that the player has downed to everyone.
+	FTE_BroadcastMessage(world, CSQC_BROADCAST_PLAYERDOWNED, 3, self.playernum);
+
+#endif // FTE
 
 	// Reset state
 	self.velocity = self.zoom = 0;
 	self.downed = true;
 	self.dive_delay = 0;
-	self.movetype = MOVETYPE_NONE;
 
 	float players_still_alive = PollPlayersAlive();
 
@@ -232,16 +241,27 @@ void() GetDown =
 		self.progress_bar = 10 + time;     
 		self.progress_bar_time = 10;
 		self.progress_bar_percent = 1;
+
+#ifdef FTE
+
+		// FTE-Specific: Broadcast to the player they're reviving themselves.
+		FTE_BroadcastMessage(self, CSQC_BROADCAST_REVIVINGPLAYER, 3, self.playernum);
+
+#endif // FTE
+
+
 	}
 
 	// Take away weapons and Perks
 	self.perks = 0;
-	SetPerk(self, self.perks);
 
 	self.weaponbk = self.weapon;
 	self.currentammobk = self.weapons[0].weapon_reserve;
 	self.currentmagbk = self.weapons[0].weapon_magazine;
 	self.currentmagbk2 = self.weapons[0].weapon_magazine_left;
+
+	//Reset the tracker for the achievement "No Perks? No Problem"
+	self.ach_tracker_npnp = 0;
 
 	// Reset Juggernog health
 	self.max_health = self.health = PLAYER_START_HEALTH;
@@ -320,7 +340,6 @@ void() GetDown =
 
 	// Play Switch Animation
 	self.weaponmodel = GetWeaponModel(self.weapon, 0);
-	SwitchWeapon(self.weapon);
 	
 	float startframe = GetFrame(self.weapon,TAKE_OUT_START);
 	float endframe = GetFrame(self.weapon,TAKE_OUT_END);
@@ -328,7 +347,7 @@ void() GetDown =
 
 	// Spawn Revive Sprite in Co-Op
 	if (player_count) {
-		EnableReviveIcon(revive_index, self.origin + VEC_VIEW_OFS);
+		EnableReviveIcon(revive_index, self.origin + VIEW_OFS_HL);
 		self.electro_targeted = revive_index;
 		revive_index++;
 	}
@@ -342,18 +361,11 @@ void () GetUp =
 	// Play Getting Up Animation
 	PAnim_GetUp();
 
-	// Player is able to get up from here
-	if (Player_CanStandHere(self)) {
-		self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
-		self.stance = 2;
-		setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-	}
-	// They can't, so make them crouch instead
-	else {
-		self.new_ofs_z = self.view_ofs_z + PLAYER_PRONE_HEIGHT;
-		self.stance = 1;
-		PAnim_CrouchWalk7(); // bad hack so they dont just end up fucking standing in a wall.
-	}
+	Player_SetStance(self, PLAYER_STANCE_STAND, false);
+
+	// Bad hack: if we're crouching, just play some dummy crouchwalk frames.
+	if (self.stance == PLAYER_STANCE_CROUCH)
+		PAnim_CrouchWalk7();
 	
 	self.health = 100;
 	self.downedloop = 0;		// used for death timing vs endgame
@@ -387,7 +399,6 @@ void () GetUp =
 		addmoney(self, self.requirespower, false);
 	}
 
-	self.movetype = MOVETYPE_WALK;
 	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk);
 };
 
@@ -628,6 +639,10 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					final_damage /= radius;
 					final_damage *= 60;
 				}
+
+				// inflicting damage from an explosive introduces a delay before
+				// player can sprint again.
+				ent.sprint_delay = time + 3;
 			}
 			// shake the camera on impact
 			vector distance;

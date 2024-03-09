@@ -3,7 +3,7 @@
 
 	put custom server-only globals and fields here
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -51,11 +51,13 @@ float 	framecount;
 
 float music_override;
 
+.float	recoil_delay;
+.float 	cur_spread;
+
 #ifndef FTE
 
 void(string com) SV_ParseClientCommand;
 .float	gravity;
-.float	recoil_delay;
 .float 	mapversion;
 .float	ammo;
 .float 	frags;
@@ -72,6 +74,7 @@ float 	ach_tracker_spin;
 
 float global_trace_damage_multiplier;
 
+.float has_ads_toggle;
 .float ads_release;
 .float has_doubletap_damage_buff;
 
@@ -151,9 +154,8 @@ void() W_SprintStop;
 .float hunt_count; // How many Hellhounds are hunting a client
 
 //Weaponsystem defines
-void SwitchWeapon(float to);
 void GetUp();
-void Weapon_Logic();
+void WeaponCore_ClientLogic();
 void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float downed;
 .float fire_delay;
@@ -172,17 +174,28 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float currentmagbk;
 .float currentmagbk2;
 .float currentammobk;
-.float semi;
-.float semi2;
-.float semiuse;
-.float semiswitch;		// Weapon Swap Toggle
-.float seminade;		// Grenade Toggle
-.float semireload;
 .float NeedLoad;
 .string weapon2model;
 .float weapon2frame;
 .float reloadinterupted;
 .float hitcount;
+
+#ifdef FTE
+
+.float weapon2modelindex;
+
+#endif // FTE
+
+#define SEMIACTION_FIRE_RIGHT	1
+#define SEMIACTION_FIRE_LEFT 	2
+#define SEMIACTION_USE			4
+#define SEMIACTION_GRENADE		8
+#define SEMIACTION_MELEE		16
+#define SEMIACTION_WAYPOINT		32
+#define SEMIACTION_WEAPONSWAP	64
+
+// Semi-automatic actions (requires button release)
+.float semi_actions;
 
 #define MAX_PLAYER_WEAPONS 		3
 #define MULEKICK_WEAPON_SLOT	3
@@ -212,7 +225,6 @@ var struct guninventory_struct
 #define S_BOTH 2
 
 //Knife 
-.float semiknife;
 .float knife_delay;
 .float bowie;
 
@@ -244,6 +256,8 @@ void Set_W_Frame (float startframe, float endframe, float duration, float funcca
 .void() animend;
 .void(optional float t) animend2;
 
+string(string path) Compat_ConvertOldAssetPath;
+
 //Null functions
 void() SUB_Null = {};
 void() SUB_Null2 = {};
@@ -253,10 +267,14 @@ void() SUB_Null2 = {};
 #define 	VEC_HULL2_MIN   	'-32 -32 -24'
 #define 	VEC_HULL2_MAX  		'32 32 64'
 
-#define     VEC_VIEW_OFS  '0 0 32'
+#define 	VIEW_OFS_HL 		'0 0 32'
+#define 	VIEW_OFS_QK			'0 0 22'
 
 .string name;
 vector	trace_plane_normal;
+
+.float dmg;
+.float fire_timeout;
 
 //
 // AI definitions
@@ -268,6 +286,7 @@ void Z_ElectroShock();
 .float electro_targeted; 							// Marks Zombie as waiting to die via Electro-Shock
 .float death_timer; 								// A timer that will kill a Zombie when it expires.
 .float death_timer_activated; 						// To prevent Zombies just dying because of this..
+.float is_attacking; 								// Returns true if Zombie is in the middle of an attack.
 
 #ifndef FTE
 
@@ -299,6 +318,7 @@ void(vector pos) tesla_spark;
 .float onfire;
 .entity firer;
 float crawler_num;
+float zombie_spawn_points;
 //==== Reference Vars ====
 #define 	WWINDOW		1
 #define 	WBOX1 		2
@@ -341,6 +361,7 @@ entity lastspawn;									// last spawn point used by spawning code
 .entity goaldummy; 									// Used to store the origin of the zombies target
 .float goalway; 									// Used to store the origin of the zombies target
 .float walktype;									// decides animations and moving speeds for zombies
+.float spawn_id;									// assigned to spawn point ents, for grabbing one at random.
 .void() th_walk;
 //.void() th_run;
 .void() th_die;
@@ -392,6 +413,8 @@ float z_health;
 .float bleedingtime;
 .float time_to_die;
 
+.float respawn_timer;
+.float respawn_iterator;
 
 float crandom();
 
@@ -412,7 +435,12 @@ float isPowerOn;
 .float isBuying; // naievil -- used for checking if a perk is being consumed, limits glitching
 .float perks;
 .float perk_delay;
-.float revivesoda;
+
+.float perk_purchase_count;
+.float perk_purchase_limit_solo;
+.float perk_purchase_limit_coop;
+.float perk_requires_power_solo;
+.float perk_requires_power_coop;
 
 // Mystery Box
 #define MAX_BOX_WEAPONS 		27
@@ -471,7 +499,6 @@ float Remaining_Zombies;
 float Delay_Time;
 float spawn_time;
 float round_changetime;
-float game_over;
 float blink_return;
 float delay_at_round;
 float spawn_delay;

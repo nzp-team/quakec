@@ -3,7 +3,7 @@
 
 	generic waypoint pathfinding
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -325,6 +325,7 @@ void CalcDistances() {
 			
 
 void creator_way_touch();
+void() Compat_TryLoadBetaWaypoints;
 void LoadWaypointData() { 
     float file, point;
 	string h;
@@ -336,7 +337,14 @@ void LoadWaypointData() {
 
 	if (file == -1)
 	{
-		dprint("Error: file not found \n");
+
+#ifdef FTE
+
+		dprint("LoadWaypointData: No .way file found, trying Beta format..\n");
+		Compat_TryLoadBetaWaypoints();
+
+#endif // FTE
+
 		return;
 	}
 

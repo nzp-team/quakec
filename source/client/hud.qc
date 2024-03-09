@@ -3,7 +3,7 @@
 
 	HUD Drawing Code
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -310,15 +310,18 @@ void(float pwidth, float width, float height, float playernum) PointUpdate =
 
 void(float width, float height) HUD_Points =
 {
-	float pointlength = 0, increm = 10, i = 0, pointwidth = 0, x = 0;
+	float pointlength = 0, increm = 10, pointwidth = 0, x = 0;
 	float backwidth = 0.8*width;
 	vector TEXTCOLOR = '0 0 0';
-	
-	for (i = 3; i >= 0; i = i - 1)
+
+	for (int i = 3; i >= 0; i = i - 1)
 	{
-		if (playerpoints[i] == -1)
+		float player_number = getplayerkeyfloat(i, "viewentity");
+		entity client = findfloat(world, playernum, player_number);
+
+		if (client == world || client.movetype == MOVETYPE_BOUNCE)
 			continue;
-			
+
 		switch(i) {
 			case 1: TEXTCOLOR = TEXT_LIGHTBLUE; break;
 			case 2: TEXTCOLOR = TEXT_ORANGE; break;
@@ -326,15 +329,15 @@ void(float width, float height) HUD_Points =
 			default: TEXTCOLOR = [1, 1, 1]; break;
 		}
 
-		pointwidth = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+		pointwidth = stringwidth(ftos(client.points), 0, [12, 12]);
 		x = (99 - pointwidth)/2 + GetUltraWideOffset();
 
 		if ((i + 1) == getstatf(STAT_PLAYERNUM)) {
 			drawpic([3 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
-			drawstring([x, g_height - 92 - (i * 25)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
+			drawstring([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		} else {
 			drawpic([-7 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback_condensed.tga", [96, 24], [1,1,1], 1);
-			drawstring([x - 9, g_height - 92 - (i * 25)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0);
+			drawstring([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		}
 
 		PointUpdate(x + 70, width, height, i + 1);
@@ -354,7 +357,7 @@ void(float width, float height) HUD_CharacterName =
 		alpha = (nameprint_time - time);
 	}
 
-	drawstring([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], getstats(STAT_PLAYERNAME), [12, 12], [1, 1, 1], alpha, 0);
+	drawstring([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], character_name, [12, 12], [1, 1, 1], alpha, 0);
 }
 
 /*******************
@@ -482,6 +485,7 @@ void(float width, float height) HUD_Rounds =
 	}
 	else if (rounds_change == 2)//this is the rounds icon moving from middle
 	{
+		stopwatch_round_isactive = true;
 		float round_center_y_offset = 0;
 		float round_center_x_offset = 0;
 				
@@ -497,6 +501,7 @@ void(float width, float height) HUD_Rounds =
 	}
 	else if (rounds_change == 3)//shift to white
 	{
+		stopwatch_round_isactive = false;
 		if (!color_shift_init)
 		{
 			color_shift[0] = 107;
@@ -774,6 +779,7 @@ void(float width, float height) HUD_Rounds =
 	}
 	else if (rounds_change == 7)//blink white while fading back
 	{
+		stopwatch_round_isactive = true;
 		if (!color_shift_init)
 		{
 			color_shift_end[0] = 107;
@@ -931,8 +937,8 @@ void(float width, float height) HUD_Useprint =
 	usespace = "";
 	usecost = "";
 		
-	tokenize(findkeysforcommand("+button7"));
-	usebutton = strtoupper(keynumtostring(stof(argv(0))));
+	tokenize(findkeysforcommandex("+button7"));
+	usebutton = strtoupper(argv(0));
 
 	for(float i = 0; i < strlen(usebutton); i++) {
 		usespace = strcat(usespace, " ");
@@ -1041,11 +1047,57 @@ void(float width, float height) HUD_Useprint =
 
 int perk_order[9];
 int current_perk_order;
+
+void() UpdatePerks = 
+{
+	float new_perks = getstatf(STAT_PERKS);
+
+	if (perks == new_perks)
+		return;
+
+	float s;
+
+	// avoids out of bounds err - moto
+	if (new_perks == 0)
+		current_perk_order = 0;
+
+	for(float i = 1; i < 129; i *= 2) {
+		if (new_perks & i && !(perks & i)) {
+			perk_order[current_perk_order] = i;
+			current_perk_order += 1;
+		}
+	}
+
+	for(float i = 1; i < 129; i *= 2) {
+		if (perks & i && !(new_perks & i)) 
+		{
+			for(s = 0; s < 8; s++) 
+			{
+				if (perk_order[s] == i) 
+				{
+					perk_order[s] = 0;
+					while (perk_order[s+1]) 
+					{
+						perk_order[s] = perk_order[s+1];
+						perk_order[s+1] = 0;
+					}
+					break;
+				}
+			}
+		}
+	}
+	
+	perks = new_perks;
+}
+
 	
 void(float width, float height) HUD_Perks =
 {
 	float scale;
 	float x, y;
+
+	// Update Perk Order.
+	UpdatePerks();
 	
 	scale = 32;
 
@@ -1124,8 +1176,8 @@ void(float width, float height) HUD_BouncingBetty =
 	string betty_space;
 	string activate_string, activate_string2;
 
-	tokenize(findkeysforcommand("impulse 33"));
-	betty_key = strtoupper(keynumtostring(stof(argv(0))));
+	tokenize(findkeysforcommandex("impulse 33"));
+	betty_key = strtoupper(argv(0));
 
 	betty_space = "";
 	for(float i = 0; i < strlen(betty_key); i++) {
@@ -1358,15 +1410,27 @@ void() HUD_Powerups =
 	}
 }
 
-void() HUD_Broadcast = {
-
+void() HUD_Broadcast = 
+{
 	string broadcast_msg = "";
-	float health = getstatf(STAT_HEALTH);
+	string broadcast_name = getplayerkeyvalue(broadcast_num - 1, "name");
 	
 	switch(broadcast_type) {
-		case 2: broadcast_msg = strcat(broadcast_string, " needs to be revived"); break;
-		case 3: broadcast_msg = strcat(broadcast_string, " is reviving you"); break;
-		default: break;
+		case CSQC_BROADCAST_PLAYERDOWNED:
+			broadcast_msg = strcat(broadcast_name, " needs to be revived");
+			break;
+		case CSQC_BROADCAST_BEINGREVIVED:
+			broadcast_msg = strcat(broadcast_name, " is reviving you");
+			break;
+		case CSQC_BROADCAST_REVIVINGPLAYER:
+			broadcast_msg = strcat("Reviving ", broadcast_name);
+			break;
+		case CSQC_BROADCAST_NONE:
+			broadcast_msg = "";
+			break;
+		default:
+			broadcast_msg = "Bad broadcast.";
+			break;
 	}
 
 	float print_width = stringwidth (broadcast_msg, 0, [0.015*g_width, 0.015*g_width, 0]);
@@ -1374,7 +1438,7 @@ void() HUD_Broadcast = {
 
 	if (broadcast_msg != "")
 		drawstring([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
-}
+};
 
 void() HUD_Scores =
 {
@@ -1389,7 +1453,10 @@ void() HUD_Scores =
 	
 		for (int i = 0; i < 4; i = i + 1)
 		{
-			if (playerpoints[i] == -1)
+			float player_number = getplayerkeyfloat(i, "viewentity");
+			entity client = findfloat(world, playernum, player_number);
+
+			if (client == world || client.movetype == MOVETYPE_BOUNCE)
 				break;
 			
 			switch(i) {
@@ -1416,17 +1483,18 @@ void() HUD_Scores =
 			}
 			
 			// Name
-			drawstring([g_width/2 - 245, 200 + (30 * i)], playernames[i], [12, 12], TEXTCOLOR, 1, 0); 
+			string player_name = getplayerkeyvalue(i, "name");
+			drawstring([g_width/2 - 245, 200 + (30 * i)], player_name, [12, 12], TEXTCOLOR, 1, 0); 
 
 			// Points
-			float point_width = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+			float point_width = stringwidth(ftos(client.points), 0, [12, 12]);
 			float point_x = ((g_width/2) - (point_width)/2) + 52;
-			drawstring([point_x, 200 + (30 * i)], ftos(playerpoints[i]), [12, 12], TEXTCOLOR, 1, 0); 
+			drawstring([point_x, 200 + (30 * i)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0); 
 
 			// Kills
-			float kill_width = stringwidth(ftos(playerpoints[i]), 0, [12, 12]);
+			float kill_width = stringwidth(ftos(client.points), 0, [12, 12]);
 			float kill_x = ((g_width/2) - (kill_width)/2) + 210;
-			drawstring([kill_x, 200 + (30 * i)], ftos(playerkills[i]), [12, 12], TEXTCOLOR, 1, 0); 
+			drawstring([kill_x, 200 + (30 * i)], ftos(client.kills), [12, 12], TEXTCOLOR, 1, 0); 
 		}
 	}
 }
@@ -1452,29 +1520,46 @@ void() HUD_Endgame = {
 	HUD_Scores();
 }
 
-float oldfade_alpha;
-void() HUD_Fade = 
+//
+// HUD_Screenflash()
+// Screen fade in and out behaviors.
+//
+void() HUD_Screenflash = 
 {  
-	float alpha;
-	
-	if (fade_type == 1) {
-		alpha = cos(fade_time - time);
-			if (oldfade_alpha > 0.95)
-			alpha = 1;
-			
-			alpha = invertfloat(alpha);
-						
-		drawfill ([0, 0, 0], [g_width, g_height, 0], [0, 0, 0], alpha, 0);	// background
-		oldfade_alpha = alpha;
+	vector color = '0 0 0';
+	float flash_alpha = 0;
+
+	// Obtain the flash color
+	switch(screenflash_color) {
+		case SCREENFLASH_COLOR_BLACK: color = '0 0 0'; break;
+		case SCREENFLASH_COLOR_WHITE: color = '1 1 1'; break;
+		default: color = '1 0 0'; break;
 	}
-	else if (fade_type == 2) {
-		alpha = sin(((fade_time - time) * 2));
-		if (oldfade_alpha > 0.95)
-			alpha = 1;
-				
-		drawfill ([0, 0, 0], [g_width, g_height, 0], [0, 0, 0], alpha, 0);	// background
-		oldfade_alpha = alpha;
+
+	float percentage_complete = screenflash_worktime / (screenflash_duration - screenflash_starttime);
+
+	// Fade Out
+	if (screenflash_type == SCREENFLASH_FADE_OUT) {
+		flash_alpha = invertfloat(percentage_complete);
 	}
+	// Fade In
+	else if (screenflash_type == SCREENFLASH_FADE_IN) {
+		flash_alpha = percentage_complete;
+	}
+	// Fade In + Fade Out
+	else {
+		// Fade In
+		if (percentage_complete < 0.5) {
+			flash_alpha = percentage_complete;
+		} 
+		// Fade Out
+		else {
+			flash_alpha = invertfloat(percentage_complete);
+		}
+	}
+
+	screenflash_worktime += frametime;
+	drawfill ([0, 0], [g_width, g_height, 0], color, flash_alpha, 0);
 }
 
 void(float width, float height) HUD_ScrollText = {
@@ -1546,8 +1631,8 @@ string(float index) GetButtonString =
 	else if (index == 101)
 		return "RMOUSE";
 
-	tokenize(findkeysforcommand(buttonBind[index]));
-	string temps = strtoupper(keynumtostring(stof(argv(0))));
+	tokenize(findkeysforcommandex(buttonBind[index]));
+	string temps = strtoupper(argv(0));
 
 	return temps;
 }
@@ -1575,6 +1660,18 @@ void(float width, float height) HUD_PlayerNames =
 		float player_number = getplayerkeyfloat(i, "viewentity");
 
 		string text = getplayerkeyvalue(i, "name");
+		entity client = findfloat(world, playernum, player_number);
+
+		if (client == world || client.movetype == MOVETYPE_BOUNCE)
+			continue;
+
+		// Append "[CHAT] " to the player name if the user is in message mode
+		if (client.is_in_menu == 2)
+			text = strcat("[CHAT] ", text);
+		// Similarly, append "[PAUSED] " to the player name if the user is paused
+		else if (client.is_in_menu == 1)
+			text = strcat("[PAUSED] ", text);
+
 		entity plr = findfloat(world, playernum, player_number);
 		vector player_origin = plr.origin + '0 0 48';
 		vector screen_position = project(player_origin);
@@ -1640,6 +1737,26 @@ void(float width, float height) HUD_StopWatch =
 	drawstring([width - (strlen(stopwatch) * 12) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
 }
 
+void(float width, float height) HUD_RoundStopWatch =
+{
+	string sec, min, hr;
+	string stopwatch;
+
+	if (stopwatch_round_sec < 10) {
+		sec = strcat("0", substring(ftos(stopwatch_round_sec), 0, 3));
+	} else {
+		sec = substring(ftos(stopwatch_round_sec), 0, 4);
+	}
+
+	if (sec == "00") sec = "00.0";
+	if (stopwatch_round_min < 10) min = strcat("0", ftos(stopwatch_round_min)); else min = ftos(stopwatch_round_min);
+	if (stopwatch_round_hr < 10) hr = strcat("0", ftos(stopwatch_round_hr)); else hr = ftos(stopwatch_round_hr);
+
+	stopwatch = strcat(hr, ":", min, ":", sec);
+
+	drawstring([width - (strlen(stopwatch) * 12) - 2, 16], stopwatch, [12, 12], [1, 1, 1], 1, 0);
+}
+
 /*******************
 *     HUD Draw     *
 *******************/
@@ -1648,9 +1765,6 @@ void(float width, float height) HUD_Draw =
 {
 	if (cvar("cl_cinematic"))
 		return;
-
-	HUD_Achievements(width, height);
-
 	
 	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 1) && !score_show)
 	{
@@ -1664,7 +1778,7 @@ void(float width, float height) HUD_Draw =
 			HUD_Progressbar(width, height);
 			HUD_Powerups();
 
-            if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "")
+            if (cl_viewent.modelindex != 0)
 			    HUD_AmmoString();
 
 			if (nameprint_time > time)
@@ -1677,7 +1791,7 @@ void(float width, float height) HUD_Draw =
 			{
                 HUD_Grenades(width, height);
 
-                if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "") {
+                if (cl_viewent.modelindex != 0) {
                     HUD_Ammo(width, height);
 				    HUD_Weaponstring(width, height);
                 }
@@ -1702,6 +1816,9 @@ void(float width, float height) HUD_Draw =
 			if (cvar("scr_serverstopwatch")) {
 				HUD_StopWatch(width, height);
 			}
+			if (cvar("scr_serverstopwatch") >= 2) {
+				HUD_RoundStopWatch(width, height);
+			}
 		} else {
 			HUD_Waypoint(width, height);
 		}
@@ -1711,48 +1828,14 @@ void(float width, float height) HUD_Draw =
 	if (broadcast_time > time)
 		HUD_Broadcast();
 	
-	if (getstatf(STAT_HEALTH) <= 10 && getstatf(STAT_SPECTATING) && !find(world, classname, "ai_zombie"))
+	if (game_over)
 		HUD_Endgame();
 		
 	if (score_show)
 		HUD_Scores();
+
+	HUD_Achievements(width, height);
 		
-	if (fade_time > time)
-		HUD_Fade();
-}
-
-void UpdatePerks(float newperks) {
-	float s;
-
-	// avoids out of bounds err - moto
-	if (newperks == 0)
-		current_perk_order = 0;
-
-	for(float i = 1; i < 129; i *= 2) {
-		if (newperks & i && !(perks & i)) {
-			perk_order[current_perk_order] = i;
-			current_perk_order += 1;
-		}
-	}
-
-	for(float i = 1; i < 129; i *= 2) {
-		if (perks & i && !(newperks & i)) 
-		{
-			for(s = 0; s < 8; s++) 
-			{
-				if (perk_order[s] == i) 
-				{
-					perk_order[s] = 0;
-					while (perk_order[s+1]) 
-					{
-						perk_order[s] = perk_order[s+1];
-						perk_order[s+1] = 0;
-					}
-					break;
-				}
-			}
-		}
-	}
-	
-	perks = newperks;
+	if (screenflash_duration > time)
+		HUD_Screenflash();
 }

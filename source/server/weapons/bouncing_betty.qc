@@ -3,7 +3,7 @@
 
 	Core logic for the "Bouncing Betty" grenade.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -173,6 +173,5 @@ void() W_PrimeBetty =
 
     // Subtract a betty from our inventory, set up delays, prevent use spam.
 	self.secondary_grenades -= 1;
-	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.seminade = true;
+	self.grenade_delay = self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
 }

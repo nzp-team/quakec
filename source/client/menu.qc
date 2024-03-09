@@ -3,7 +3,7 @@
 
 	menu stuff (very ugly)
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -48,6 +48,9 @@ void() menu_single =
 	time_in_menu = 0;
 	matchmake_enabled = false;
 	localcmd("sv_public 0\n");
+
+	if (platform_is_web)
+		localcmd("sv_listen_qw 0\n");
 };
 
 void() menu_create =
@@ -62,6 +65,9 @@ void() menu_matchmake =
 	time_in_menu = 0;
 	matchmake_enabled = true;
 	localcmd("sv_public 2\n");
+
+	if (platform_is_web)
+		localcmd("sv_listen_qw 1\n");
 };
 
 void() menu_restart =
@@ -764,11 +770,24 @@ void() settings_sens2 = {
 	localcmd(strcat("seta sensitivity ", ftos(sens)));
 }
 
+void() setting_invert =
+{
+	if (cvar("m_pitch") == 0.022)
+		localcmd("m_pitch -0.022\n");
+	else
+		localcmd("m_pitch 0.022\n");
+};
+
 void() settings_adsmode =
 {
-	float adsmode = cvar("cl_adsmode");
+	tokenize(findkeysforcommandex("+button8"));
+	string button8_key = strtoupper(argv(0));
 
-	localcmd(strcat("seta cl_adsmode ", ftos(!adsmode)));
+	// ADS Mode
+	if (button8_key == "MOUSE2")
+		localcmd("bind MOUSE2 \"impulse 26\"\n");
+	else
+		localcmd("bind MOUSE2 \"+button8\"\n");
 }
 
 void() setting_mastervol =
@@ -955,11 +974,12 @@ var struct
 	// Create Game
 	{[6, 75], "Server Password", -1, setting_password, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 63
 	{[6, 95], "Server Name", -1, setting_servername, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 64
-	{[6, 115], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE} // 65
+	{[6, 115], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 65
+
+	// Control Settings (cont.)
+	{[6, 115], "Invert Mouse", -1, setting_invert, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE} // 66
 };
 
-//REMEMBER TO UPDATE THIS CONST IF YOU ADD BUTTONS
-float BUTTONS_COUNT = 66;
 float lastActive;
 
 
@@ -1093,7 +1113,7 @@ void(float index, float type) Button_Click =
 void(float type) Menu_Click =
 {
 	float i;
-	for(i = 0; i < BUTTONS_COUNT; i++)
+	for(i = 0; i < buttons.length; i++)
 	{
 		Button_Click(i, type);
 	}
@@ -1436,8 +1456,11 @@ void() Draw_Extra_CSettings =
 	string cset_desc;
 	cset_desc = "";
 
+	tokenize(findkeysforcommandex("+button8"));
+	string button8_key = strtoupper(argv(0));
+
 	// ADS Mode
-	if (cvar("cl_adsmode") == 0)
+	if (button8_key == "MOUSE2")
 		drawstring([320, 75], "HOLD", [14, 14], [1, 1, 1], 1, 0);
 	else
 		drawstring([320, 75], "TOGGLE", [14, 14], [1, 1, 1], 1, 0);
@@ -1445,6 +1468,11 @@ void() Draw_Extra_CSettings =
 	// Look Sensitivity
 	drawstring([320, 95], ftos(cvar("sensitivity")), [14, 14], [1, 1, 1], 1, 0);
 
+	// Mouse Inversion
+	if (cvar("m_pitch") == 0.022)
+		drawstring([320, 115], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+	else
+		drawstring([320, 115], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
 
 	// Descriptions
 	switch(lastActive) {
@@ -1453,6 +1481,9 @@ void() Draw_Extra_CSettings =
 			break;
 		case 55:
 			cset_desc = "Change Look Sensitivity to adjust responsiveness.";
+			break;
+		case 66:
+			cset_desc = "Invert Mouse Input on the Y Axis.";
 			break;
 		default:
 			cset_desc = "";
@@ -1651,10 +1682,10 @@ void() Draw_Extra_Controls =
 	buttoncon[0] = "";
 
 	for (int i = 0; i < MAX_BINDS; i += 1) {
-		tokenize(findkeysforcommand(buttonBind[i]));
+		tokenize(findkeysforcommandex(buttonBind[i]));
 
 		if (editBind[i] == FALSE)
-			buttoncon[i] = strtoupper(keynumtostring(stof(argv(0))));
+			buttoncon[i] = strtoupper(argv(0));
 		else
 			buttoncon[i] = binding;
 
@@ -2089,7 +2120,7 @@ void() Draw_Menu =
 	//Update buttons
 	local float i;
 
-	for(i = 0; i < BUTTONS_COUNT; i++)
+	for(i = 0; i < buttons.length; i++)
 	{
 		Update_Button(i);
 	}

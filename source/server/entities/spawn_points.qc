@@ -3,7 +3,7 @@
 
 	Code for Player Spawn points.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -109,9 +109,10 @@ float units, vector feet, vector head) Spawns_PerformCheck =
             head = start_org + '0 0 32';
             traceline (head, head + (dir * units), 0, spawn_points[SPAWN_PLR_1]);
 
-            // Spot is viable, both feet and head are in same boundary.
+            // Both feed and head are in the same boundary, one last step --
+            // is this ent partially or totally in the world?
             if (trace_ent.classname == which.classname) {
-                return true;
+                return Player_CanStandHere(which);
             }
         }
     }
@@ -268,7 +269,11 @@ void(entity which) Spawns_SetUpPoint =
 {
     which.solid = SOLID_BBOX;
     setsize(which, [-8, -8, -32], [8, 8, 40]);
-    Spawns_DropToFloor(which);
+
+    // NZ:P Beta was pretty relaxed when it came to spawn validity..
+    // so doing this causes breakage on maps like Ankunft.
+    if (map_compatibility_mode != MAP_COMPAT_BETA)
+        Spawns_DropToFloor(which);
 
     if (!which.weapon) {
         which.weapon = SPAWN_START_WEAPON;

@@ -3,7 +3,7 @@
 
 	weapon logic
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -87,11 +87,7 @@ void() ReturnWeaponModel =
 		self.weapon2model = GetLeftWeaponModel(self.weapon);
 	} else if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER) {
 		self.weapon2model = "models/weapons/kar/v_karscope.mdl";
-		UpdateV2model(self.weapon2model, 0);
 	}
-
-	UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-	UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
 	// Always try to reload after any action.
 	if (self.weapons[0].weapon_magazine == 0 && self.weapons[0].weapon_reserve != 0)
@@ -119,12 +115,14 @@ void() W_AimIn =
 	if (WepDef_DoesNotADS(self.weapon))
 		return;
 
+	if ((self.stance == PLAYER_STANCE_PRONE) && self.velocity)
+		return;
+
 	if (IsDualWeapon(self.weapon) ||
 		self.reload_delay > time ||
 		self.knife_delay > time ||
 		self.sprinting ||
-		self.new_anim_stop ||
-		self.semiknife == true) {		
+		self.new_anim_stop) {		
 		return;
 	}
 
@@ -134,21 +132,13 @@ void() W_AimIn =
 	} else if (self.zoom) {
 		return;
 	}
-		
-#ifndef FTE
 
-	self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
-
-#endif // FTE
-	
-	if (self.weapon == W_KAR_SCOPE || self.weapon == W_PTRS ||
-	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-		SetUpdate(self, UT_ZOOM2, 0, 0, 0);
-		self.zoom = 2;
+	if (WepDef_HasSniperScore(self.weapon))
 		self.scopetime = time + 0.3;
-	} else {
-		self.zoom = 1;
-	}
+	
+	// Even if the weapon is scoped, we should still initialize
+	// the Zoom factor of one so it begins moving into position.
+	self.zoom = 1;
 }
 
 void() W_AimOut =
@@ -163,12 +153,16 @@ void() W_AimOut =
 	    self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
 		ReturnWeaponModel();
 	}
-		
-#ifndef FTE
 
 	self.zoom = 0;
 
-#endif // FTE
+	// Update sniper zoom-out time instantly
+	self.scopetime = 0;
+
+	// Always set ads_release to false, to avoid complicating
+	// actions where the player is forced to Aim Out with
+	// Toggled ADS.
+	self.ads_release = false;
 }
 
 void() W_SprintStop =
@@ -235,10 +229,13 @@ void() W_PutOutHack =
 void() W_PutOut =
 {
 	// We don't hold more than one weapon
-	if (self.weapons[1].weapon_id == 0 || self.downed)
+	if (self.weapons[1].weapon_id == 0 || self.downed ||
+	self.switch_delay > time)
 		return;
 
 	float duration = getWeaponDelay(self.weapon, PUTOUT);
+	self.switch_delay = duration + time;
+	self.semi_actions |= SEMIACTION_WEAPONSWAP;
 	
 	W_AimOut();
 	W_HideCrosshair(self);
@@ -255,6 +252,7 @@ void() W_TakeOut =
 	self.isBuying = false;
 
 	float duration = getWeaponDelay(self.weapon, TAKEOUT);
+	self.switch_delay = duration + time;
 
 	W_AimOut();
 	W_HideCrosshair(self);
@@ -462,9 +460,11 @@ void(float side) W_Reload =
 			endanimfunc = W_AdvanceAnim;
 		}
 		else if (self.weapon == W_TRENCH || self.weapon == W_GUT) {
-			if (self.weapons[0].weapon_magazine == 0) {
-				self.NeedLoad = true;
-			}
+			// cypress -- world at war depicts the trench gun as needing to 
+			// pump after reload regardless of context, so i removed a reference
+			// that would only do it if the mag was empty. tradeoff: now we're
+			// pumping 2 shells away instead of 1 if not empty. oh well.
+			self.NeedLoad = true;
 			startframe = 14;
 			endframe = 17;
 			reloadcancelframe = 0;
@@ -520,7 +520,7 @@ void () W_LoadAmmo =
 		startframe = 4;
 		endframe = 14;
 		reloadcancelframe = 12;
-		delay = 1;
+		delay = 0.9;
 		endanimfunc = W_LoadAmmoDone;
 	}
 	else if (self.weapon == W_KAR || self.weapon == W_ARMAGEDDON || self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER || self.weapon == W_SPRING || self.weapon == W_PULVERIZER)
@@ -542,13 +542,36 @@ void () W_LoadAmmo =
 	}
 }
 
-void () CheckReload = 
+//
+// WeaponCore_CheckForReload()
+// Determines if weapon should automatically
+// reload after firing, or if weapon is empty
+// and needs swapped out.
+//
+void() WeaponCore_CheckForReload =
 {
-	if (!self.weapons[0].weapon_magazine_left && IsDualWeapon(self.weapon)) {
+	// Save some array lookup time -- copy into temporary structs.
+	float wep_cur_mag = self.weapons[0].weapon_magazine;
+	float wep_cur_mag2 = self.weapons[0].weapon_magazine_left;
+	float wep_cur_res = self.weapons[0].weapon_reserve;
+	float wep_nex_mag = self.weapons[1].weapon_magazine;
+	float wep_nex_mag2 = self.weapons[1].weapon_magazine_left;
+	float wep_nex_res = self.weapons[1].weapon_reserve;
+
+	// Check if left weapon needs reloaded
+	if (!wep_cur_mag2 && IsDualWeapon(self.weapon)) {
 		W_Reload(S_LEFT);
 	}
-	if (!self.weapons[0].weapon_magazine && self.weapons[0].weapon_reserve) {
+
+	// Check if right weapon needs reloaded
+	if (!wep_cur_mag && wep_cur_res) {
 		W_Reload(S_RIGHT);
+	}
+
+	// Check if a weapon swap is necessary
+	if (!wep_cur_mag && !wep_cur_res && !wep_cur_mag2 &&
+	(wep_nex_mag || wep_nex_mag2 || wep_nex_res)) {
+		W_PutOut();
 	}
 }
 
@@ -563,13 +586,7 @@ void(vector org, vector vel, float damage) SpawnBlood =
   
 #ifdef FTE
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_BLOOD);
-	WriteCoord(MSG_MULTICAST, org_x);
-	WriteCoord(MSG_MULTICAST, org_y);
-	WriteCoord(MSG_MULTICAST, org_z);
-	msg_entity = self;
-	multicast('0 0 0', MULTICAST_ONE);
+	FTE_RunParticleEffect(world, CSQC_PART_BLOODIMPACT, org, 0, world);
 
 #else
 
@@ -589,12 +606,7 @@ void(vector where) spawn_gibs = {
 
 #else
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_LIMBGIB);
-	WriteCoord(MSG_MULTICAST, where_x);
-	WriteCoord(MSG_MULTICAST, where_y);
-	WriteCoord(MSG_MULTICAST, where_z);
-	multicast('0 0 0', MULTICAST_ALL);
+	FTE_RunParticleEffect(world, CSQC_PART_ZOMBIEGIB, where, 0, world);
 
 #endif // FTE
 
@@ -615,9 +627,6 @@ void Parse_Damage () = // DO NOT TOUCH
 
 	while (ent) {
 		if (ent.classname != "radio" && ent.classname != "explosive_barrel") {
-
-			if (ent.classname == "wunder" || ent.classname == "wunder_limb")
-				return;
 
 			if (ent.classname == "ai_zombie_head")
 				head_hit = 1;
@@ -738,67 +747,6 @@ void Parse_Damage () = // DO NOT TOUCH
 	}
 }
 
-void() LungeKnifeHit =
-{		
-	vector	source,org;
-	float	f_damage;
-	entity	hit_ent;
-
-	makevectors (self.v_angle);
-	source = self.origin + self.view_ofs;
-
-	if (self.weapon == W_BK || self.weapon == W_KRAUS)
-		traceline (source, source + v_forward*80*1.2, 0, self); // naievil -- added some extra length
-	else
-		traceline (source, source + v_forward*74*1.2, 0, self); // naievil -- ^^
-	
-	org = trace_endpos - v_forward*3; // naievil -- changed to factor of 3 from 4
-	
-
-	if (trace_ent.takedamage)
-	{
-		if(trace_ent.classname == "item_radio" || trace_ent.classname == "teddy_spawn")
-		{
-			entity oldself;
-			oldself  = self;
-			self = trace_ent;
-			self.th_die();
-			self = oldself;
-			return;
-		}
-		sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
-		
-		// Calculate melee damage
-		f_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
-					
-		if (trace_ent.classname == "ai_zombie_head")
-		{
-			hit_ent = trace_ent.owner;
-		}
-		else if (trace_ent.classname == "ai_zombie_larm")
-		{
-			hit_ent = trace_ent.owner;
-		}
-		else if (trace_ent.classname == "ai_zombie_rarm")
-		{
-			hit_ent = trace_ent.owner;
-		}
-		else
-		{
-			hit_ent = trace_ent;
-		}
-		
-		if (hit_ent.takedamage)
-		{
-			org = source + (v_forward * 20);
-			SpawnBlood (org, org, 50);
-			//hit = 1;
-		}
-		
-		DamageHandler (hit_ent, self, f_damage, S_KNIFE);
-	}
-}
-
 void(float damage, vector dir, vector org, vector plane, entity hit_ent, float side) TraceAttack =
 {
 	vector  vel;
@@ -809,7 +757,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 	vel = vel * 200;
 
 	if (hit_ent.takedamage) {
-		if (trace_fraction >= 1 || hit_ent.classname == "wunder") {
+		if (trace_fraction >= 1) {
 			return;
 		}
 		if(hit_ent.classname == "item_radio" || hit_ent.classname == "teddy_spawn")
@@ -830,15 +778,15 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 			
 			self = oldself;
 			return;
-		} else if (hit_ent.classname == "door" || hit_ent.classname == "door_nzp") {
-			local entity old;
-			old = self;
+		} else if (hit_ent.solid == SOLID_BSP) {
+			oldself = self;
 			self = hit_ent;
 			self.health -= damage;
+			self.enemy = oldself;
 
 			if (self.health < 0)
-				door_use();
-			self = old;
+				self.th_die();
+			self = oldself;
 			return;
 		}
 		
@@ -891,18 +839,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 	
 #ifdef FTE
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_PISTOLFIRE);
-	WriteEntity(MSG_MULTICAST, self);
-    WriteFloat(MSG_MULTICAST, side);
-	WriteCoord(MSG_MULTICAST, org_x);
-	WriteCoord(MSG_MULTICAST, org_y);
-	WriteCoord(MSG_MULTICAST, org_z);
-	WriteCoord(MSG_MULTICAST, plane_x);
-	WriteCoord(MSG_MULTICAST, plane_y);
-	WriteCoord(MSG_MULTICAST, plane_z);
-	WriteEntity(MSG_MULTICAST, hit_ent);
-	multicast(trace_endpos, MULTICAST_PHS);
+	FTE_RunParticleEffect(self, CSQC_PART_MUZZLEFLASH, org, side, hit_ent);
 
 #endif // FTE
 	
@@ -920,11 +857,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 	
 	src = self.origin + self.view_ofs;
 	
-#ifndef FTE
-
-	CL_SendWeaponFire();
-
-#endif // FTE
+	CL_SendWeaponFire(self, self.weapon);
 
 	while (count < shotcount)
 	{
@@ -988,7 +921,7 @@ void(float side) W_Fire =
 	if (GetFiretype(self.weapon) == FIRETYPE_FLAME && self.cooldown)
 		return;
 
-	if (self.semiswitch == true || self.dive)
+	if (self.switch_delay > time || self.dive)
 		return;
 
 	//First check that we can actualy fire
@@ -1019,7 +952,6 @@ void(float side) W_Fire =
 	string modelname = "";
 	string soundname;
 	float spread;
-	float is_moving;
 	float delay;
 
 	//Update the basic vectors
@@ -1075,12 +1007,7 @@ void(float side) W_Fire =
 	if (self.perks & P_DOUBLE && self.has_doubletap_damage_buff)
 		shotcount *= 2;
 
-	if (self.velocity)
-		is_moving = true;
-	else
-		is_moving = false;
-
-	spread = GetWeaponSpread(self.weapon, is_moving, self.stance);
+	spread = WepDef_WeaponSpread(self.weapon, self.stance);
 
 	if (self.perks & P_DEAD) {
 		spread *= 0.65;
@@ -1098,11 +1025,11 @@ void(float side) W_Fire =
 	// Check if weapon is semi-automatic and if it is, if it's ready to be fired.
 	if (Weapon_IsSemiAutomatic(self.weapon)) {
 		if (side == S_RIGHT) {
-			if (self.semi) return;
-			self.semi = true;
+			if (self.semi_actions & SEMIACTION_FIRE_RIGHT) return;
+			self.semi_actions |= SEMIACTION_FIRE_RIGHT;
 		} else if (side == S_LEFT) {
-			if (self.semi2) return;
-			self.semi2 = true;
+			if (self.semi_actions & SEMIACTION_FIRE_LEFT) return;
+			self.semi_actions |= SEMIACTION_FIRE_LEFT;
 		}
 	}
 
@@ -1161,8 +1088,16 @@ void(float side) W_Fire =
 	if (self.downed == true)
 		self.teslacount++;
 
+	// Cypress -- sources suggest Double Tap decreases fire rate
+	// by 33% (meaning 66%), but testing has concluded it is instead
+	// a rate of 23%, or 77% of it's original rate. There could be
+	// quite a few reasons for this discrepancy, framerate-tied
+	// weapon firing being one of them (the same reason why in
+	// World at War, the PPSh-41 is completely unaffected by
+	// Double Tap), but technically this IS the correct-and
+	// -reproducible factor due to whatever went wrong there.
 	if (self.perks & P_DOUBLE) {
-		delay *= 0.66;
+		delay *= 0.77;
 	}
 
 	// Players shouldn't be allowed to move while firing and prone.
@@ -1176,7 +1111,7 @@ void(float side) W_Fire =
 		Set_W_Frame (startframe, endframe, delay, 0, FIRE, W_LoadAmmo, modelname, FALSE, side);
 		self.NeedLoad = true;
 	} else {
-		Set_W_Frame (startframe, endframe, delay, 0, FIRE, CheckReload, modelname, FALSE, side);
+		Set_W_Frame (startframe, endframe, delay, 0, FIRE, WeaponCore_CheckForReload, modelname, FALSE, side);
 	}
 
 
@@ -1184,13 +1119,13 @@ void(float side) W_Fire =
 
 	if (side == S_RIGHT) {
 		self.weapons[0].weapon_magazine = self.weapons[0].weapon_magazine - 1;
-		self.fire_delay = getWeaponDelay(self.weapon, FIRE) + time;
+		self.fire_delay = delay + time;
 	} else {
 		self.weapons[0].weapon_magazine_left = self.weapons[0].weapon_magazine_left - 1;
-		self.fire_delay2 = getWeaponDelay(self.weapon, FIRE) + time;
+		self.fire_delay2 = delay + time;
 	}
 
-	if (IsPapWeapon(self.weapon)) {
+	if (IsPapWeapon(self.weapon) && !WepDef_DoesNotPlayUpgradedSound(self.weapon)) {
 		sound (self, 0, "sounds/weapons/papfire.wav", 1, ATTN_NORM);
 	}
 	
@@ -1208,138 +1143,127 @@ void(float side) W_Fire =
 
 	self.effects = self.effects | EF_MUZZLEFLASH;
 
-#else 
-
-	SendWeaponRecoil(self, self.weapon);
-
 #endif // FTE
 
 }
 
+//
+// WeaponCore_Melee()
+// Performs the melee action, intelligent
+// against type of weaponry and lunge velocity
+// applied.
+//
 
-/******************************
-* W_Knife                     *
-******************************/
+#define WEAPONCORE_MELEE_LUNGEMIN	40	// Minimum amount of units away before lunge should be triggered.
 
-void () W_Knife =
+void() WeaponCore_Melee =
 {
-	if (time < self.knife_delay || self.new_anim_stop ||
-	  self.zoom || self.health == 10 || 
-	  (!(self.flags & FL_ONGROUND)))
+	// Do not trigger if we're Aiming down the Sight, or
+	// already melee-ing, or doing some other action.
+	if (self.knife_delay > time || self.new_anim_stop ||
+	self.new_anim2_stop || self.zoom || !(self.flags & FL_ONGROUND))
 		return;
 
-	vector	source;
-	entity	hit_ent = world;
-	//entity	oldself;
-	float	r, backupSkin;
-	vector	org;
-	float hit = false;
-		
-	if (self.sprinting) {
-		W_SprintStop();
-	}
+	// Perform the third person animation if standing
+	if (self.stance == PLAYER_STANCE_STAND)
+		PAnim_Melee();
 
+	// Hide crosshair -- irrelevant during melee
 	W_HideCrosshair(self);
 
-	if (self.stance == 2)
-		PAnim_Melee();
-	
-	backupSkin = self.weaponskin;
-	self.weaponskin = 0;
-	sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife.wav", 1, ATTN_NORM);
-	makevectors (self.v_angle);
-	source = self.origin + self.view_ofs;
-	if (self.weapon == W_BK || self.weapon == W_KRAUS)
-		traceline (source, source + v_forward*80*1.2, 0, self);
-	else
-		traceline (source, source + v_forward*74*1.2, 0, self);
-	
-	org = trace_endpos - v_forward*4;
+	// Stop sprinting if we are
+	if (self.sprinting)
+		W_SprintStop();
 
-	r = fabs(vlen(source - org));
+	vector applied_velocity = '0 0 0'; // The lunge velocity we intend to apply to the player.
+	float melee_range = WepDef_GetWeaponMeleeRange(self.weapon); // Returns the range of the traceline to perform for hit detection.
+	float did_lunge = false;
 
-	if (trace_ent.takedamage)
-	{
-		if (trace_ent.classname == "ai_zombie_head")
-			hit_ent = trace_ent.owner;
-		else if (trace_ent.classname == "ai_zombie_larm")
-			hit_ent = trace_ent.owner;
-		else if (trace_ent.classname == "ai_zombie_rarm")
-			hit_ent = trace_ent.owner;
+	// Perform the traceline
+	makevectors(self.v_angle);
+	vector trace_source = self.origin + self.view_ofs;
+	traceline(trace_source, trace_source + v_forward * melee_range, 0, self);
+
+	// Target does not take damage -- no need to go any further
+	if (!trace_ent.takedamage && !(trace_ent.flags & FL_CLIENT)) {
+		// Hit a solid surface, so play hard melee sound.
+		if (trace_fraction < 1.0)
+			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);
+		// Dead air, swing!
 		else
-			hit_ent = trace_ent;
-		if (hit_ent.classname == "ai_zombie")
-			hit = true;
+			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife.wav", 1, ATTN_NORM);
+	} else {
+		// AI has a more involved routine than other entities
+		if (trace_ent.aistatus == "1") {
+			// Check if this is a Zombie limb, set to the body if so
+			if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
+				trace_ent = trace_ent.owner;
 
-		// if zombie has a head and it's instakill, gib for  a e s t h e t i c
-		if (hit_ent.head && instakill_finished >= time) {
-			spawn_gibs(hit_ent.head.origin);
-			setmodel(hit_ent.head, "");
+			// Additionally, if the Zombie has a head and Insta-Kill is active,
+			// remove its head.
+			if (trace_ent.head) {
+				spawn_gibs(trace_ent.head.origin);
+	 			setmodel(trace_ent.head, "");
+			}
+
+			// Play a flesh-y impact sound, spawn blood.
+			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
+ 			SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
+
+			// Calculate distance to use for the Lunge velocity
+			float lunge_factor = fabs(vlen(trace_source - (trace_endpos - v_forward*4)));
+
+			// Perform lunge, exclusive to AI.
+			if (lunge_factor > WEAPONCORE_MELEE_LUNGEMIN) {
+				did_lunge = true;
+				applied_velocity = v_forward * melee_range * 6;
+			}
+		} 
+		// Some other ent (player, button, etc.)
+		else {
+			// Never lunge in this circumstance.
+			did_lunge = false;
+
+			// Is this a player? Play the body hit sound and spawn blood, otherwise, solid swing.
+			if (trace_ent.flags & FL_CLIENT) {
+				sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
+				SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
+			} else {
+				sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);
+			}
+		}
+
+		// Apply damage to the entity.
+		if (trace_ent.takedamage) {
+			float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
+			DamageHandler (trace_ent, self, melee_damage, S_KNIFE);
 		}
 	}
-	else if (trace_fraction < 1.0)
-	{	// hit wall
-		sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);			
+
+	// Grab animation stats for our melee weapon.
+	float start_frame = WepDef_GetMeleeFirstFrame(self.weapon, did_lunge, self.bowie);
+	float end_frame = WepDef_GetMeleeLastFrame(self.weapon, did_lunge, self.bowie);
+	float anim_duration = WepDef_GetMeleeAnimDuration(self.weapon, did_lunge, self.bowie);
+	string model_path = WepDef_GetMeleeModel(self.weapon, self.bowie);
+
+	// Ensure we play the Take Out animation if the melee model is not our active weapon
+	void() end_func;
+	if (!WepDef_IsMeleeWeapon(self.weapon)) {
+		end_func = W_PlayTakeOut;
+	} else {
+		end_func = __NULL__;
 	}
 
-	if (r > 40 && hit)//lunge
-	{
-		if (self.weapon == W_BK || self.weapon == W_KRAUS)
-		{
-			Set_W_Frame (14, 24, 1.4, 0, KNIFE, SUB_Null, "models/weapons/bk/v_bk.mdl", false, S_RIGHT);
-			self.fire_delay = time + 1.5;
-			self.knife_delay = time + 1.75;
-		}
-		else if (self.bowie)
-		{
-			Set_W_Frame (4, 10, 1.0, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
-			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
-			self.knife_delay = time + 1.3;
-		}
-		else
-		{
-			self.punchangle_x = -5;
-			self.punchangle_y = -10;
-			Set_W_Frame (4, 12, 0.74, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
-			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.8;
-			self.knife_delay = time + 1.1;
-		}
-		self.velocity = v_forward * r * 6;
-		
-	}
-	else
-	{
-		if (self.weapon == W_BK || self.weapon == W_KRAUS)//slash
-		{
-			Set_W_Frame (8, 13, 0, 0.4, KNIFE, SUB_Null, "models/weapons/bk/v_bk.mdl", false, S_RIGHT);
-			self.fire_delay = time + 0.5;
-			self.knife_delay = time + 0.8;
-		}
-		else if (self.bowie)
-		{
-			Set_W_Frame (0, 3, 0.65, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_RIGHT);
-			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
-			self.knife_delay = time + 0.9;
-		}
-		else
-		{
-			self.punchangle_x = -5;
-			self.punchangle_y = -10;
-			//self.punchangle_z = 5;
-			Set_W_Frame (0, 3, 0.45, 0, KNIFE, W_PlayTakeOut, "models/weapons/knife/v_knife.mdl", false, S_RIGHT);
-			self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
-			self.knife_delay = time + 0.8;
-		}
-	}
-	self.reload_delay2 = self.reload_delay = 0;
-	self.weaponskin = backupSkin;
-	
-	LungeKnifeHit();
+	// Apply camera punch, and begin playback.
+	self.punchangle_x = -5;
+	self.punchangle_y = -10;
+	Set_W_Frame (start_frame, end_frame, anim_duration, 0, KNIFE, end_func, model_path, false, S_RIGHT);
+	self.knife_delay = anim_duration + time;
 
-};
-
-
-
+	// Now apply the lunge velocity, but only if we're Standing.
+	if (self.stance == PLAYER_STANCE_STAND)
+		self.velocity = applied_velocity;
+}
 
 /******************************
 * W_Grenade                   *
@@ -1347,7 +1271,7 @@ void () W_Knife =
 
 void() switch_nade = 
 { 
-	if (self.downed || self.isBuying || !(self.grenades & 2) || self.seminade)
+	if (self.downed || self.isBuying || !(self.grenades & 2) || self.grenade_delay > time)
       return;
 
 	if (self.pri_grenade_state == 0)
@@ -1524,7 +1448,6 @@ void() W_Grenade =
 	self.primary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
 	self.grenade_delay = time + 5;
-    self.seminade = true;
 } 
 
 void(float wepnum) CheckButton = {
@@ -1537,46 +1460,31 @@ void() Change_Stance = {
 		return;
 
 	switch(self.stance) {
-		case 2: 
-			self.new_ofs_z = self.view_ofs_z - PLAYER_CROUCH_HEIGHT;
-			self.stance = 1;
-			PAnim_Crouch();
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+		case PLAYER_STANCE_STAND: 
+			Player_SetStance(self, PLAYER_STANCE_CROUCH, true);
 			break;
 		case 1:
-			// Prohibit Proning if Drinking a Perk-A-Cola
-			if (self.isBuying && Player_CanStandHere(self)) {
-				self.stance = 2;
-				self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
-				PAnim_Stand();
-				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+			// Prohibit Proning if Drinking a Perk-A-Cola, just stand.
+			if (self.isBuying) {
+				Player_SetStance(self, PLAYER_STANCE_STAND, true);
 			} 
 			// Stance flag isn't set, so go Prone.
 			else if (!self.stancereset) {
-				self.new_ofs_z = self.view_ofs_z - PLAYER_PRONE_HEIGHT;
-				self.stance = 0;
-				PAnim_Prone();
+				Player_SetStance(self, PLAYER_STANCE_PRONE, true);
 			} 
 			// Stance flag IS set, so stand if applicable.
 			else if (Player_CanStandHere(self)) {
-				self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
-				self.stance = 2;
-				self.stancereset = 0;
-				PAnim_Stand();
-				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+				Player_SetStance(self, PLAYER_STANCE_STAND, true);
+				self.stancereset = false;
 			} 
 			// There's no room to stand, just prone again.
 			else {
-				self.new_ofs_z = self.view_ofs_z - PLAYER_PRONE_HEIGHT;
-				self.stance = 0;
-				PAnim_Prone();
+				Player_SetStance(self, PLAYER_STANCE_PRONE, true);
 			}
 			break;
 		case 0:
-			self.new_ofs_z = self.view_ofs_z + PLAYER_PRONE_HEIGHT;
-			self.stance = self.stancereset = 1;
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
-			PAnim_UpCrouch();
+			Player_SetStance(self, PLAYER_STANCE_CROUCH, true);
+			self.stancereset = true;
 			break;
 		default: break;
 	}
@@ -1585,7 +1493,10 @@ void() Change_Stance = {
 
 void() dolphin_dive =		//naievil
 {    
-	if (self.stance != 2 || self.view_ofs_z != 32)
+	if (self.stance != 2)
+		return;
+	if ((map_compatibility_mode == MAP_COMPAT_BETA && self.view_ofs_z != VIEW_OFS_QK[2]) ||
+	(!map_compatibility_mode && self.view_ofs_z != VIEW_OFS_HL[2]))
 		return;
  	if (self.flags & FL_WATERJUMP)
 		return;
@@ -1623,9 +1534,7 @@ void() dolphin_dive =		//naievil
 	sound(self, CHAN_VOICE, "sounds/player/jump.wav", 1, 1);
 
 	self.oldz = self.origin_z;
-	self.new_ofs_z = self.view_ofs_z - (PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT);
-	self.stance = 0;
-	setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+	Player_SetStance(self, PLAYER_STANCE_PRONE, false);
 }
 
 
@@ -1646,8 +1555,10 @@ void () Impulse_Functions =
 #endif // FTE
 			break;
 		case 22:
-			addmoney(self, 10000, 0);
-			rounds += 4;
+			if (cheats_have_been_activated) {
+				addmoney(self, 10000, 0);
+				rounds += 4;
+			}
 			break;
 		case 23:
 
@@ -1660,19 +1571,8 @@ void () Impulse_Functions =
 
 			if (self.dive || self.downed || !Player_CanStandHere(self))
 				return;
-			switch(self.stance) {
-				case 0:
-					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
-					self.stance = 2;
-					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-					break;
-				case 1:
-					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
-					self.stance = 2;
-					setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-					break;
-				default: break;
-			}
+
+			Player_SetStance(self, PLAYER_STANCE_STAND, false);
 			self.sprintflag = true;
 			W_SprintStart();
 			break;
@@ -1682,6 +1582,10 @@ void () Impulse_Functions =
 			break;
 		case 25:
 			switch_nade();
+			break;
+		case 26:
+			self.ads_release = !self.ads_release;
+			self.has_ads_toggle = true;
 			break;
 		case 33:
 			W_PrimeBetty();
@@ -1699,29 +1603,8 @@ void () Impulse_Functions =
 		case 32:
 			self.sprintflag = 1;
 			break;
-		case 110:
-		case 111:
-			W_PutOut();
-			self.semiswitch = true;
-			break;	
 		case 100:
 			cvar_set("waypoint_mode", "1");
-			
-			local entity d;
-			d = find(world,classname,"door_nzp_cost");
-			while(d != world)
-			{
-				d.classname = "door_nzp";
-				d = find(d,classname,"door_nzp_cost");
-			}
-			d = find(world,classname,"door_open");
-			while(d != world)
-			{
-				d.classname = "door_nzp";
-				d = find(d,classname,"door_open");
-			}
-			
-			waypoint_mode = 1;
 			localcmd("restart\n");
 			break;
 		default:
@@ -1737,11 +1620,6 @@ void () Impulse_Functions =
 	
 	self.impulse = 0;
 };
-
-void() CheckImpulses =
-{
-	self.impulse = 0;
-}
 
 void(entity ent) CheckPowerups =
 {
@@ -1907,16 +1785,26 @@ void() CheckPlayer =
 				if (ent.beingrevived == true && ent.firer != self)
 					return;
 
-				// Broadcast that they're being revived
-				BroadcastMessageToClient(ent, time + 2, 3, self.netname);
 
+				#ifdef FTE
+
+				// FTE-Specific: Broadcast to the player they're being revived.
+				FTE_BroadcastMessage(ent, CSQC_BROADCAST_BEINGREVIVED, 2, self.playernum);
+
+				// FTE-Specific: Broadcast to client that they are reviving the downed player.
+				FTE_BroadcastMessage(self, CSQC_BROADCAST_REVIVINGPLAYER, 2, ent.playernum);
+
+				#endif // FTE
+
+				ent.speed_penalty = 0.01;
+				ent.speed_penalty_time = time + 100;
 				ent.beingrevived = true;
 				ent.firer = self;
 				
 				if (!self.progress_bar_percent) {
 					ChangeReviveIconState(ent.electro_targeted, 2);
 					self.movetype = MOVETYPE_TOSS;
-					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_BOTH);
+					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_RIGHT);
 					
 					if !(self.perks & P_REVIVE)
 						self.progress_bar_time = 4;
@@ -1933,12 +1821,23 @@ void() CheckPlayer =
 					W_TakeOut();
 					ent.invoke_revive = 1;
 					ent.beingrevived = false;
+					ent.speed_penalty_time = 0;
 					self.reviving = 0;
 					self.progress_bar = 0;
 					self.progress_bar_time = 0;
 					self.progress_bar_percent = 0;
 					self.revived = 0;
 					addmoney(self, ent.requirespower, false);
+
+
+					#ifdef FTE
+
+					// FTE-Specific: End Broadcast Messages on both ends
+					FTE_BroadcastMessage(ent, CSQC_BROADCAST_NONE, 0, self.playernum);
+					FTE_BroadcastMessage(self, CSQC_BROADCAST_NONE, 0, ent.playernum);
+
+					#endif // FTE
+
 				}
 			}
 			else if (self.downed || (!self.button7 && self.reviving) || (self.reviving && self.active_door != ent) || ent.classname == "disconnected") {
@@ -1948,6 +1847,7 @@ void() CheckPlayer =
 					DisableReviveIcon(ent.electro_targeted);
 				self.movetype = MOVETYPE_WALK;
 				ent.beingrevived = false;
+				ent.speed_penalty_time = 0;
 				ent.firer = world;
 				W_TakeOut();
 				self.progress_bar = 0;
@@ -1955,6 +1855,15 @@ void() CheckPlayer =
 				self.progress_bar_percent = 0;
 				self.revived = 0;
 				self.reviving = 0;
+
+				#ifdef FTE
+
+				// FTE-Specific: End Broadcast Messages on both ends
+				FTE_BroadcastMessage(ent, CSQC_BROADCAST_NONE, 0, self.playernum);
+				FTE_BroadcastMessage(self, CSQC_BROADCAST_NONE, 0, ent.playernum);
+
+				#endif // FTE
+
 			}
 		}
 		else if(ent.classname == "player" && ent != self && !ent.downed) // small player push 
@@ -1973,326 +1882,360 @@ void() CheckPlayer =
 
 }
 
-void () Weapon_Logic =
+//
+// WeaponCore_UpdateRecoilAndSpread()
+// Somewhat-intelligent serverside Weapon Recoil
+// update system that takes into account velocity
+// and how long the weapon has been fired.
+//
+void() WeaponCore_UpdateRecoilAndSpread =
 {
-	// HACK HACK: Don't let the frame updater take control of hold fire.
-	if (self.weaponframe == GetFrame(self.weapon, FIRE_HOLD) && GetFrame(self.weapon, FIRE_HOLD) != 0 && self.weaponmodel == GetWeaponModel(self.weapon, 0)) {
+	// Moving? Our weapon spread should be the maximum.
+	if (self.velocity)
+		self.cur_spread = WepDef_WeaponMaxSpread(self.weapon, self.stance);
 
-	} else {
-		W_Frame_Update();
-		W2_Frame_Update();
+	// Slowly increase our spread based on how long the weapon
+	// has been fired.
+	else if (self.recoil_delay > time && self.recoil_delay)
+    {
+        self.cur_spread = self.cur_spread + 10;
+		if (self.cur_spread >= WepDef_WeaponMaxSpread(self.weapon, self.stance))
+			self.cur_spread = WepDef_WeaponMaxSpread(self.weapon, self.stance);
+    }
+	// Diminish spread over time as recoil decreases.
+    else if (self.recoil_delay < time && self.recoil_delay)
+    {
+        self.cur_spread = self.cur_spread - 4;
+		if (self.cur_spread <= 0)
+		{
+			self.cur_spread = 0;
+			self.recoil_delay = 0;
+		}
+    }
+}
+
+//
+// WeaponCore_UpdateViewModels()
+// Updates animation playback for View models,
+// if applicable.
+//
+void() WeaponCore_UpdateViewModels =
+{
+	// If the weapon has a "Hold Fire" frame (e.g., M2 Flamethrower)
+	// And it's actively firing, we shouldn't force an update.
+	float hold_fire_frame = GetFrame(self.weapon, FIRE_HOLD); // Avoid iterating through long switch twice.
+	if (self.weaponmodel == GetWeaponModel(self.weapon, false) && 
+	hold_fire_frame != 0 && self.weaponframe == hold_fire_frame)
+		return;
+
+	// Checks passed -- update view model animations.
+	W_Frame_Update();
+	W2_Frame_Update();
+};
+
+//
+// WeaponCore_ResetHoldFireWeapons()
+// Allows for a "Hold Fire" weapon to reach its base
+// position again.
+//
+void() WeaponCore_ResetHoldFireWeapon =
+{
+	float hold_fire_frame = GetFrame(self.weapon, FIRE_HOLD); // Avoid iterating through long switch twice.
+	if (hold_fire_frame != 0 && self.weaponframe == hold_fire_frame && 
+	self.weaponmodel == GetWeaponModel(self.weapon, 0)) {
+		self.weaponframe = 0;
 	}
-	
-		
-	Impulse_Functions();
+};
 
-#ifndef FTE
-
-	// For non-FTE only to tell our engine to display the scope
+//
+// WeaponCore_UpdateSniperScope
+// If eligible, reports to the client via
+// the .zoom stat to draw the Sniper Scope
+// HUD graphic.
+//
+void() WeaponCore_UpdateSniperScope =
+{
 	if ((self.scopetime < time) && self.scopetime) {
 		self.scopetime = 0;
 		self.zoom = 2;
 		self.weapon2model = "";
 		self.weaponmodel = "";
 	}
+};
+
+//
+// WeaponCore_UpdateWeaponStats()
+// Specific weapon fields are used to network weapon
+// stats to the client, since arrays and structs
+// can't be used for this task. This is where we store
+// them for pass-off.
+//
+inline void() WeaponCore_UpdateWeaponStats =
+{
+	self.currentammo = self.weapons[0].weapon_reserve;			// Weapon Reserve Ammo
+	self.currentmag = self.weapons[0].weapon_magazine;			// Weapon Magazine
+	self.currentmag2 = self.weapons[0].weapon_magazine_left;	// Left-side Weapon Magazine
+
+	// FTE-specific - update weapon2modelindex to simplify protocol
+	// and data exchange.
+#ifdef FTE
+
+	self.weapon2modelindex = getmodelindex(self.weapon2model);
+
+#endif // FTE
+};
+
+//
+// WeaponCore_FireButtonPressed()
+// Executed when WeaponCore_ClientLogic
+// detects that button0 has been pressed.
+//
+void() WeaponCore_FireButtonPressed =
+{
+	// With keyboard/mouse input, we want akimbo weapons to actually correspond
+	// to which click of the mouse you've provided, which is different behavior
+	// to single-hand weapons, where left click fires its right-side. (Hooray
+	// for ternaries!).
+#ifdef FTE
+
+	(IsDualWeapon(self.weapon)) ? W_Fire(S_LEFT) : W_Fire(S_RIGHT);
 
 #else
 
-	UpdatePunchangle(self);
+	// Always fire right-side elsewhere.
+	W_Fire(S_RIGHT);
 
 #endif // FTE
+};
 
-	// If the player is aiming down the sight while prone and moving,
-	// force them to stop
-	if (self.stance == 0 && self.velocity && self.zoom) {
-		W_AimOut();
-		self.zoom = 0;
-
+//
+// WeaponCore_FireButtonReleased()
+// Executed when WeaponCore_ClientLogic
+// detects that button0 has been released.
+//
+void() WeaponCore_FireButtonReleased =
+{
+	// Allow semi-automatic fire again -- see WeaponCore_FireButtonPressed() for platform discrepancy.
 #ifdef FTE
 
-		self.viewzoom = 1;
-		UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-		UpdateV2model(self.weapon2model, 0);
-
-#endif // FTE
-
-	}
-
-	//
-	// Force-ADS if toggled
-	//
-	if (cvar("cl_adsmode")) {
-		// Toggle ADS back and forth
-		if (self.ads_toggle == false) {
-			W_AimOut();
-			self.zoom = 0;
-
-#ifdef FTE
-
-			self.viewzoom = 1;
-			UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-			UpdateV2model(self.weapon2model, 0);
-
-#endif // FTE
-		} else if (self.reload_delay < time && self.reload_delay2 < time &&
-		self.knife_delay < time && self.grenade_delay < time) {
-			if (self.stance == 0 && self.velocity)
-				return;
-
-			W_AimIn();
-
-#ifdef FTE
-
-			if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-						if (self.scopetime >= time) {
-							self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-							self.zoom = 2;
-						}
-			} else {
-				self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-			}
-
-#endif // FTE
-
-			if (!self.zoom) {
-				if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-					SetUpdate(self, UT_ZOOM2, 0, 0, 0);
-					self.zoom = 2;
-					self.scopetime = time + 0.3;
-				} else {
-					self.zoom = 1;
-				}
-			}
-		}
-	}
-
-	//
-	// Fire Button Logic
-	// NOTE: Since the right weapon is the "normal" side there's some
-	// flip flop logic on FTE so that LMB will fire the left side instead.
-	//
-
-	// Right Trigger/LMB/etc.
-	if (self.button0) {
-
-#ifdef FTE
-
-		if (IsDualWeapon(self.weapon)) { W_Fire(S_LEFT); } else { W_Fire(S_RIGHT); }
+	(IsDualWeapon(self.weapon)) ? self.semi_actions &= ~SEMIACTION_FIRE_LEFT : self.semi_actions &= ~SEMIACTION_FIRE_RIGHT;
 
 #else
+
+	// Always allow right-side elsewhere.
+	self.semi_actions &= ~SEMIACTION_FIRE_RIGHT;
+
+#endif // FTE
+
+	// Make sure Hold-special weapons are allowed
+	// back to base-frame.
+	WeaponCore_ResetHoldFireWeapon();
+};
+
+//
+// WeaponCore_AimButtonPressed()
+// Executed when WeaponCore_ClientLogic
+// detects that button8 has been pressed.
+//
+void() WeaponCore_AimButtonPressed =
+{
+	// If we're holding an akimbo weapon, we actually want to
+	// fire our secondary as opposed to Aiming down the Sight.
+	if (IsDualWeapon(self.weapon)) {
+#ifdef FTE
 
 		W_Fire(S_RIGHT);
 
-#endif // FTE
-
-	} else {
-		// Check for release for semi automatic weapons.
-
-#ifdef FTE
-
-		if (IsDualWeapon(self.weapon)) { self.semi2 = false; } else { self.semi = false; }
-
-		// Hold fire weapons should get set back to base frame.
-		if (GetFrame(self.weapon, FIRE_HOLD) != 0 && self.weaponframe == GetFrame(self.weapon, FIRE_HOLD) &&
-		self.weaponmodel == GetWeaponModel(self.weapon, 0)) {
-			self.weaponframe = 0;
-		}
-
 #else
 
-		self.semi = false;
+		W_Fire(S_LEFT);
 
 #endif // FTE
 
+	} 
+	// Don't permit Aiming down the Sights if the client
+	// is moving and Prone.
+	else if (!self.ads_release) {
+		W_AimIn();
+		self.has_ads_toggle = false;
 	}
+};
 
-	// Left Trigger/RMB/etc.
-	if (self.button8) {
-		if (IsDualWeapon(self.weapon)) {
-
-#ifdef FTE
-
-			W_Fire(S_RIGHT);
-
-#else
-
-			W_Fire(S_LEFT);
-
-#endif // FTE
-
-		} else {
-			if (cvar("cl_adsmode")) {
-				if (self.ads_release == false)
-					return;
-
-				self.ads_toggle = !self.ads_toggle;
-				self.ads_release = false;
-			} else {
-				if (self.stance == 0 && self.velocity)
-					return;
-
-				W_AimIn();
-
-#ifdef FTE
-
-				if (self.zoom) {
-					if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-					self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-						if (self.scopetime >= time)
-							self.viewzoom = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-					} else {
-						float zoom_factor = 1 - (0.018*GetWeaponZoomAmount(self.weapon));
-						float sigmoid_input = (self.viewzoom - zoom_factor) * 10; // multiply by 10 to adjust the steepness of the sigmoid
-						float sigmoid_output = 1 / (1 + exp(-sigmoid_input)); // apply the sigmoid function
-						float zoom_speed = 0.06 * (sigmoid_output + 0.5) * (frametime*40); // adjust the zoom speed based on the sigmoid output
-
-						if (self.viewzoom > zoom_factor) {
-							self.viewzoom -= zoom_speed;
-							if (self.viewzoom < zoom_factor)
-								self.viewzoom = zoom_factor;
-						} else {
-							self.viewzoom = zoom_factor;
-						}
-					}
-				}
-
-#endif // FTE
-
-			}
-		}
-	}
-	// AIM button is released
-	else if (!self.button8 && self.zoom) {
-		// So ADS toggle knows not to spam updates.
-		self.ads_release = true;
-
-		if (cvar("cl_adsmode") && self.ads_toggle == true)
-			return;
-
-#ifdef FTE
-
-		if (self.weapon == W_KAR_SCOPE   || self.weapon == W_PTRS ||
-			self.weapon == W_HEADCRACKER || self.weapon == W_PENETRATOR) {
-			ReturnWeaponModel();
-			UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-			UpdateV2model(self.weapon2model, 0);
-			self.viewzoom = 1;
-			self.zoom = 0;
-			if (self.weapons[0].weapon_magazine == 0)
-				W_Reload(S_BOTH);
-		} else {
-			if (self.viewzoom == 0.75) {
-				W_AimOut();
-			} else {
-				float zoom_factor2 = 1 + (0.018 * GetWeaponZoomAmount(self.weapon)); // increase zoom factor
-				float sigmoid_input2 = (zoom_factor2 - self.viewzoom) * 10; // adjust sigmoid input
-				float sigmoid_output2 = 1 / (1 + exp(-sigmoid_input2)); // apply the sigmoid function
-				float zoom_speed2 = 0.06 * (sigmoid_output2 + 0.5) * (frametime * 80); // adjust the zoom speed based on the sigmoid output
-
-				if (self.viewzoom < zoom_factor2) {
-					self.viewzoom += zoom_speed2;
-					if (self.viewzoom > zoom_factor2)
-						self.viewzoom = zoom_factor2;
-				} else {
-					self.viewzoom = zoom_factor2;
-				}
-			}
-		}
-		
-		// Don't stop aiming until the camera is restored
-		if (self.viewzoom >= 1) {
-			self.viewzoom = 1;
-
-			if (self.zoom != 3)
-				self.zoom = 0;
-		}
-
-#else
-
+//
+// WeaponCore_AimButtonReleased()
+// Executed when WeaponCore_ClientLogic
+// detects that button8 has been released.
+//
+void() WeaponCore_AimButtonReleased =
+{
+	// Lower weapon if Aiming down the Sight.
+	if (!self.ads_release)
 		W_AimOut();
 
-#endif // FTE
-
-	} else {
-		
-		// So ADS toggle knows not to spam updates.
-		self.ads_release = true;
-
-		// Check for release for semi automatic weapons.
-		if (IsDualWeapon(self.weapon)) {
+	// Allow akimbo semi-automatic weapons to fire again.
+	if (IsDualWeapon(self.weapon)) {
 
 #ifdef FTE
 
-			self.semi = false;
+		self.semi_actions &= ~SEMIACTION_FIRE_RIGHT;
 
 #else
 
-			self.semi2 = false;
+		self.semi_actions &= ~SEMIACTION_FIRE_LEFT;
 
 #endif // FTE
+	}
+};
 
-		}
-	}
-	
-	if (!self.button7) {
-		self.semiuse = false;
-	}
-	
-	if (self.button4 && !self.semiswitch && self.weapon_count != 1 && !self.zoom)
-	{
-		W_PutOut();
-		self.semiswitch = true;
-	} else if (!self.button4 && self.semiswitch && self.impulse != 110 && self.impulse != 111) {
-		self.semiswitch = false;
-	}
-	
-	if (self.button3 && self.isBuying != true && self.seminade != true)
-	{
-        if (self.pri_grenade_state == 0)
-		    W_Grenade();
-        else
-            W_PrimeBetty();
-		self.seminade = true;
-	} else if (!self.button3 && self.seminade) {
-		self.seminade = false;
-	}
+//
+// WeaponCore_GrenadeButtonPressed()
+// Executed when WeaponCore_ClientLogic
+// detects that button3 has been pressed.
+//
+void() WeaponCore_GrenadeButtonPressed =
+{
+	// Leave if there is already a Grenade action
+	// being performed.
+	if (self.grenade_delay > time || (self.semi_actions & SEMIACTION_GRENADE))
+		return;
 
-	if (self.button5 && !self.semireload)
-	{
-		W_Reload(S_BOTH);
-		self.semireload = TRUE;
-	}
-	else if (!self.button5) {
-		self.semireload = FALSE;
-	}
-	
-	if (self.button6 && !self.semiknife)
-	{ 
+	if (self.pri_grenade_state == 0)
+		W_Grenade();
+    else
+        W_PrimeBetty();
 
-		// Don't do this at all on FTE.
+	self.semi_actions |= SEMIACTION_GRENADE;
+};
+
+//
+// WeaponCore_MeleeButtonPressed()
+// Executed when WeaponCore_ClientLogic
+// detects that button6 has been pressed.
+//
+void() WeaponCore_MeleeButtonPressed =
+{
+	// On platforms with limited control schemes, 
+	// performing a melee-action while sprinting
+	// triggers Dive-to-Prone.
 #ifndef FTE
 
-		if (self.sprinting) {
-			dolphin_dive();
-			return;
-		}
+	if (self.sprinting) {
+		dolphin_dive();
+		return;
+	}
 
 #endif // FTE
 
-		W_Knife();
-		self.semiknife = true;
-	}
-	else if (!self.button6)
-		self.semiknife = false;
-	
-	CheckImpulses();
-	CheckPlayer();	
+	if (self.semi_actions & SEMIACTION_MELEE)
+		return;
 
-	// These are sent to clients in engine for stat
-	// reference.
-	self.currentammo = self.weapons[0].weapon_reserve;
-	self.currentmag = self.weapons[0].weapon_magazine;
-	self.currentmag2 = self.weapons[0].weapon_magazine_left;
-}
+	WeaponCore_Melee();
+	self.semi_actions |= SEMIACTION_MELEE;
+};
+
+//
+// WeaponCore_ClientLogic()
+// Executes every frame on clients, dictates
+// weapon behaviors such as receiving inputs
+// or updating animation playback.
+//
+void() WeaponCore_ClientLogic =
+{
+	// Make sure information about our weapon stats
+	// are being networked to the client.
+	WeaponCore_UpdateWeaponStats();
+
+	// Viewmodel animation playback.
+	WeaponCore_UpdateViewModels();
+
+	// Dynamic Weapon Recoil and Spread adjustment.
+	WeaponCore_UpdateRecoilAndSpread();
+
+	// Register changes to client's .impulse
+	Impulse_Functions();
+
+	// Tells client to draw Sniper HUD element.
+	WeaponCore_UpdateSniperScope();
+
+	// Call to the client to do some update
+	// checks specific to them.
+	CheckPlayer();
+
+#ifdef FTE
+
+	// FTE-only: custom Punchangle Interpolation Implementation
+	FTE_InterpolatePunchAngle(self);
+
+	// FTE-only: update dynamic FOV
+	FTE_UpdateDynamicFOV(self);
+
+#endif // FTE
+
+	// If the client is Aiming down the Sight while prone and
+	// moving, force them to stop
+	if (self.stance == PLAYER_STANCE_PRONE && self.velocity && self.zoom) {
+		W_AimOut();
+	}
+
+	// Fire Button Pressed
+	if (self.button0) {
+		WeaponCore_FireButtonPressed();
+	}
+	// Fire Button Released
+	else {
+		WeaponCore_FireButtonReleased();
+	}
+
+	// If Client has ADS bound to impulse 26 (toggle),
+	// check if the flag is set and W_AimIn()
+	if (self.ads_release)
+		W_AimIn();
+	else if (self.has_ads_toggle)
+		W_AimOut();
+
+	// ADS Button Pressed
+	if (self.button8) {
+		WeaponCore_AimButtonPressed();
+	}
+	// ADS Button Released
+	else {
+		WeaponCore_AimButtonReleased();
+	}
+
+	// Use Button Released
+	if (!self.button7) {
+		// Allow use to be triggered again.
+		self.semi_actions &= ~SEMIACTION_USE;
+	}
+
+	// Switch Button Pressed
+	if (self.button4) {
+		W_PutOut();
+	} else {
+		// Allow Switch to be pressed again.
+		self.semi_actions &= ~SEMIACTION_WEAPONSWAP;
+	}
+
+	// Grenade Button Pressed
+	if (self.button3) {
+		WeaponCore_GrenadeButtonPressed();
+	} else {
+		// Allow Grenade to be pressed again.
+		self.semi_actions &= ~SEMIACTION_GRENADE;
+	}
+
+	// Reload Button Pressed
+	if (self.button5) {
+		W_Reload(S_BOTH);
+	}
+
+	// Melee Button Pressed
+	if (self.button6) {
+		WeaponCore_MeleeButtonPressed();
+	} 
+	// Melee Button Released
+	else {
+		// Allow Melee to be pressed again
+		self.semi_actions &= ~SEMIACTION_MELEE;
+	}
+};

@@ -3,7 +3,7 @@
 
 	main csqc code
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -36,7 +36,7 @@ void() ToggleMenu =
 			in_menu = MENU_PAUSE;
 			time_in_menu = 0;
 			local float i;
-			for(i = 0; i < BUTTONS_COUNT; i++)
+			for(i = 0; i < buttons.length; i++)
 			{
 				buttons[i].active = 1;
 			}
@@ -85,7 +85,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	}
 		
 	//print("CSQC Started\n");
-	dummy = spawn();
 	if(serverkey("constate") == "disconnected")
 		ToggleMenu();
 	//bgpos = 0;
@@ -99,8 +98,8 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	buttonBind[4] = "impulse 10";
 	buttonBind[5] = "+sprint";
 	buttonBind[6] = "impulse 30";
-	buttonBind[7] = "impulse 110";
-	buttonBind[8] = "impulse 111";
+	buttonBind[7] = "+button4";
+	buttonBind[8] = "+button4";
 	buttonBind[9] = "+button7";
 	buttonBind[10] = "+button5";
 	buttonBind[11] = "+button6";
@@ -113,11 +112,11 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	fullscreenval = cvar("vid_fullscreen");
 
 	// cvars for custom settings
-	autocvar(cl_adsmode, 0);
 	autocvar(cl_cinematic, 0);
 	autocvar(nzp_particles, 1);
 	autocvar(nzp_decals, 1);
 	autocvar(vid_ultrawide_limiter, 0);
+	autocvar(cl_bobside, 0.02);
 
 	// per-channel volume
 	autocvar(snd_channel1volume, 1);
@@ -126,6 +125,10 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(snd_channel4volume, 1);
 	autocvar(snd_channel5volume, 1);
 	autocvar(snd_channel6volume, 1);
+
+	// FTE is overriding cl_bobup values.. so be evil
+	// and force it to 0.02.
+	cvar_set("cl_bobup", "0.02");
 
 	// force nearest filtering for hud elements to avoid blur
 	cvar_set("gl_texturemode2d", "gl_nearest");
@@ -137,6 +140,16 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	// in-game stopwatch
 	autocvar(scr_serverstopwatch, 0);
 	stopwatch_sec = stopwatch_min = stopwatch_hr = 0;
+	stopwatch_round_sec = stopwatch_round_min = stopwatch_round_hr = 0;
+	stopwatch_round_starttime = time;
+
+	// FTE via emscripten (for the fault of the browser?) bugs out
+	// when using mousewheel. So as a hack, just unbind the mouse
+	// wheel. :/
+	if (platform_is_web) {
+		localcmd("unbind MWHEELUP; unbind MWHEELDOWN\n");
+		localcmd("bind 1 +button4; bind 2 +button4\n");
+	}
 
 	// retrieve custom maps
 	Customs_Get();
@@ -152,55 +165,11 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	}
 };
 
-//
-// Init_Particles()
-// Spawns a dummy particle for each effect
-// so it loads. (FIXME - is there a better
-// way?)
-//
-void() Init_Particles =
-{
-	for(int i = 0; i < 3; i++) {
-		pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", itos(i))), '0 0 0', '0 0 0', 0);
-		pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", itos(i))), '0 0 0', '0 0 0', 0);
-	}					
-	pointparticles(particleeffectnum("weapons.impact"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("weapons.impact_decal"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("weapons.explode"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("blood.blood_particle"), '0 0 0', '0 0 0', 0);
-}
-
 noref void() CSQC_WorldLoaded =
 {
-	//precache_model("models/weapons/mg/mzl.iqm");
-	//precache_model("models/blood.iqm");
-	
-	if(!player)
-		player = findfloat(world, entnum, player_localnum);
-	if(!vmodel)
-		vmodel = spawn();
-	if(!v2model)
-		v2model = spawn();
-	if(!mzlflash)
-		mzlflash = spawn();
-		
-	v2model.renderflags = vmodel.renderflags = RF_VIEWMODEL;
-	v2model.origin = vmodel.origin = '24 -12 -18';
-	v2model_targetpos = v2model_currentpos = v2model.origin = vmodel_targetpos = vmodel_currentpos = vmodel.origin;
-	v2model_velocity = vmodel_velocity = '0 0 0';
-	//v2model_muzzleoffset = vmodel_muzzleoffset = '48 -1 2';
-	setmodel(vmodel,"");
-	setmodel(v2model,"");
-	mzlflash.renderflags = vmodel.renderflags;
-	mzlflash.origin = vmodel.origin + vmodel_muzzleoffset;
-	
-	playerpoints[1] = -1;
-	playerpoints[2] = -1;
-	playerpoints[3] = -1;
-
 	Achievement_Init();
-	Init_Particles();
-	nameprint_time = time + 12;
+	Particles_Init();
+	nameprint_time = time + 8;
 
 	huddir = "gfx/hud/";
 };
@@ -216,252 +185,6 @@ float weapon_bob_factor_z_coef;
 vector dampening_factor;
 float vaccel;
 float vzaccel;
-void() Update_Vmodel =
-{
-	local vector offset, adsoffset;
-	local vector dir;
-    local float ads;
-
-	if (cvar("r_drawviewmodel") == FALSE || hide_viewmodel == true) {
-		vmodel.origin = '-10000 -10000 -10000';
-		return;
-	}
-
-//
-// View Bobbing Factors.
-//
-
-	// PAUSED, NO BOB
-	if (serverkey(SERVERKEY_PAUSESTATE) == "1") {
-		weapon_bob_factor = '0 0 0';
-		dampening_factor = weapon_bob_factor;
-		weapon_bob_factor_z_coef = 0;
-	}
-	// ADS
-	else if (getstatf(STAT_WEAPONZOOM) && getstatf(STAT_WEAPONZOOM) != 3) {
-		weapon_bob_factor = '0 0 0';
-		dampening_factor = weapon_bob_factor;
-		weapon_bob_factor_z_coef = 0;
-	} 
-	// SPRINT
-	else if (getstatf(STAT_WEAPONZOOM) == 3) {
-		weapon_bob_factor_x = 2;
-		weapon_bob_factor_y = 8;
-		weapon_bob_factor_z = 12;
-		weapon_bob_factor_z_coef = 1;
-		
-		dampening_factor_x = sin(cltime*weapon_bob_factor_x);
-		dampening_factor_y = 9*cos(cltime*weapon_bob_factor_y);
-		dampening_factor_z = 0.1*sin(cltime*weapon_bob_factor_z);
-	}
-	// WALK
-	else if (K_FORWARDDOWN || K_BACKDOWN || K_LEFTDOWN || K_RIGHTDOWN && !getstatf(STAT_WEAPONZOOM)) {
-		weapon_bob_factor_x = 8;
-		weapon_bob_factor_y = 8;
-		weapon_bob_factor_z = 13.4;
-		weapon_bob_factor_z_coef = 0.2;
-		
-		dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
-		dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
-		dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
-	}
-	// STILL
-	else if (!getstatf(STAT_WEAPONZOOM)) {
-
-		// HACK HACK
-		if (weapon_bob_factor_z == 12) {
-			weapon_bob_factor_x = 8;
-			weapon_bob_factor_y = 8;
-			weapon_bob_factor_z = 13.4;
-			weapon_bob_factor_z_coef = 0.2;
-			
-			dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
-			dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
-			dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
-		}
-
-		// Naievil -- stupid ass calcs...
-		// Basically we have a dampening factor per offset and we have to decrease it back down to zero
-		// Problem is that we may be going in postive OR negative direction? 
-		// Better solution: use fabs() lol 
-		if (dampening_factor_x > 0 && sin(time*weapon_bob_factor_x) > 0) {
-			if ((dampening_factor_x - 0.00000068* sin(time*weapon_bob_factor_x)) < 0)
-				dampening_factor_x -= (0.00000068 - dampening_factor_x*sin(time*weapon_bob_factor_x));
-			else 
-				dampening_factor_x -= 0.00000068* sin(time*weapon_bob_factor_x);
-				
-		} else if (dampening_factor_x < 0 && sin(time*weapon_bob_factor_x) < 0) {
-			if ((dampening_factor_x + 0.00000068* sin(time*weapon_bob_factor_x)) > 0)
-				dampening_factor_x += (0.00000068 - dampening_factor_x*sin(time*weapon_bob_factor_x));
-			else 
-				dampening_factor_x += 0.00000068* sin(time*weapon_bob_factor_x);
-		} else {
-			weapon_bob_factor_x = 1.2;
-		}
-					
-		if (weapon_bob_factor_x - 0.00000068 < 1.2)
-			weapon_bob_factor_x = 1.2;
-		else 
-			weapon_bob_factor_x -= 0.00000068;
-	
-		
-		if (dampening_factor_y > 0 && cos(time*weapon_bob_factor_y) > 0) {
-			if ((dampening_factor_y - 0.00000065* cos(time*weapon_bob_factor_y)) < 0)
-				dampening_factor_y -= (0.00000065 - dampening_factor_y*cos(time*weapon_bob_factor_y));
-			else 
-				dampening_factor_y -= 0.00000065* cos(time*weapon_bob_factor_y);		
-				
-		} else if (dampening_factor_y < 0 && cos(time*weapon_bob_factor_y) < 0) {
-			if ((dampening_factor_y + 0.00000065* cos(time*weapon_bob_factor_y)) > 0)
-				dampening_factor_y += (0.00000065 - dampening_factor_y*cos(time*weapon_bob_factor_y));
-			else 
-				dampening_factor_y += 0.00000065* cos(time*weapon_bob_factor_y);		
-		} else {
-			weapon_bob_factor_y = 1.5;
-		}
-		
-		
-		if (weapon_bob_factor_y - 0.00000065 < 1.5)
-			weapon_bob_factor_y = 1.5;
-		else 
-			weapon_bob_factor_y -= 0.00000065;	
-		
-		if (dampening_factor_z > 0 && sin(time*weapon_bob_factor_z) > 0) {
-			if ((dampening_factor_z - 0.00000123* sin(time*weapon_bob_factor_z)) < 0)
-				dampening_factor_z -= (0.00000123 - dampening_factor_z*sin(time*weapon_bob_factor_z));
-			else 
-				dampening_factor_z -= 0.00000123* sin(time*weapon_bob_factor_z);	
-				
-		} else if (dampening_factor_z <= 0 && sin(time*weapon_bob_factor_z) < 0) {
-			if ((dampening_factor_z + 0.00000123* sin(time*weapon_bob_factor_z)) > 0)
-				dampening_factor_z += (0.00000123 - dampening_factor_z*sin(time*weapon_bob_factor_z));
-			else 
-				dampening_factor_z += 0.00000123* sin(time*weapon_bob_factor_z);
-		} else  {
-			weapon_bob_factor_z = 1.1;
-		}
-		
-		if (weapon_bob_factor_z - 0.00000123 < 1.1)
-			weapon_bob_factor_z = 1.1;
-		else 
-			weapon_bob_factor_z -= 0.00000123;	
-		
-		if (weapon_bob_factor_z_coef <= 0.1)
-			weapon_bob_factor_z_coef = 0.1;
-		else 
-			weapon_bob_factor_z_coef -= 0.0000001*sin(time*weapon_bob_factor_z);
-	}
-			
-	offset_x = 0.2 * (sin(cltime * weapon_bob_factor_x) + dampening_factor_x);
-	offset_y = 0.2 * (cos(cltime * weapon_bob_factor_y) + dampening_factor_y);
-	offset_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*cltime + 0.5) + dampening_factor_z);
-	
-	vector tempv; 
-	tempv_x = 0.2 * (sin(cltime * weapon_bob_factor_x));
-	tempv_y = 0.2 * (cos(cltime * weapon_bob_factor_y));
-	tempv_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*cltime + 0.5));
-		
-	dir = vmodel_targetpos - vmodel_currentpos;
-	if(vlen(dir) < (0.15 * 128 * frametime))
-		vmodel_currentpos = vmodel_targetpos;
-	else
-		vmodel_currentpos += (dir * 0.15 * 128) * frametime;
-	
-
-	if(vlen(vmodel.angles) < (0.1 * 128 * frametime))
-		vmodel.angles = '0 0 0';
-	else
-		vmodel.angles += (-vmodel.angles * 0.2 * 128) * frametime;
-
-	vmodel_currentpos += (vmodel_velocity * 128) * frametime;
-	vmodel_velocity *= 1 - frametime * 30;
-	
-	vmodel.angles += (vmodel_avelocity * 128) * frametime;
-	vmodel_avelocity *= 1 - frametime * 30;
-	
-	adsoffset = GetWeaponADSPos(weapon);
-
-    ads = getstatf(STAT_WEAPONZOOM); //get the zoomtoggle value 
-    if(ads == 1 || ads == 2 && serverkey(SERVERKEY_PAUSESTATE) == "0")
-    {
-        vmodel_currentpos += (adsoffset * 0.15 * 128) * frametime;
-        vmodel.origin = vmodel_currentpos + adsoffset;
-    }
-    else
-    {
-        switch(getstatf(STAT_PLAYERSTANCE)) {
-			case 2:
-				break;
-			case 1:
-				vmodel_currentpos = '0 0.6 -0.3';
-				break;
-			case 0:
-				vmodel_currentpos = '1.5 0.6 -0.3';
-				break;
-			default: break;
-		}
-		vmodel.origin = vmodel_currentpos + offset;
-
-		vmodel.origin_y += vaccel;
-		vmodel.origin_z += vzaccel;
-
-		if (in_menu != MENU_NONE)
-			return;
-
-		if (K_LEFTDOWN) {
-			vaccel -= 0.01;
-			if (vaccel < -0.8) 
-				vaccel = -0.8;
-		} else if (K_RIGHTDOWN) {
-			vaccel += 0.01;
-			if (vaccel > 0.8)
-				vaccel = 0.8;
-		} else if (vaccel != 0) {
-			if (vaccel > 0)
-				vaccel -= 0.01;
-			else
-				vaccel += 0.01;
-		}
-
-		//black ops -0.01 till -0.6 (looks better)
-		if (K_BACKDOWN || K_FORWARDDOWN) {
-			if (ads == 3) {
-				vzaccel -= 0.1;
-
-				if (vzaccel < -1.2)
-					vzaccel = -1.2;
-			} else {
-				vzaccel -= 0.01;
-
-				if (vzaccel < -0.6)
-					vzaccel = -0.6;
-			}
-			
-		} else if (vzaccel != 0) {
-			if (vzaccel > 0)
-				vzaccel -= 0.02;
-			else
-				vzaccel += 0.02;
-		}
-
-    }
-
-
-	if(weapon == 1)
-	{
-		if(mzlflash.scale < 1)
-			mzlflash.scale += (10 * random()) * frametime;
-	}
-	else if(weapon == 2)
-	{
-		if(mzlflash.scale < 1.5)
-			mzlflash.scale += (20 * random()) * frametime;
-	}
-	mzlflash.origin = vmodel.origin + vmodel_muzzleoffset;
-	mzlflash.alpha -= (0.15 * 100) * frametime;
-	if(mzlflash.alpha < 0.1)
-		mzlflash.alpha = 0.01;
-}
 
 float Player_PreDraw() =
 {
@@ -542,6 +265,8 @@ noref void(float isnew) CSQC_Ent_Update =
 			self.drawmask = MASK_ENGINE;
 			setmodel(self, "models/player.mdl");
 		}
+
+		float old_points = self.points;
 			
 		self.origin_x = readcoord();
 		self.origin_y = readcoord();
@@ -556,15 +281,29 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.modelindex = readshort();
 		self.frame = readbyte();
 		self.movetype = readshort();
-		self.flags = readfloat();
+		self.flags = readshort();
 		self.stance = readbyte();
+		self.points = readfloat();	// FIXME: this should be made a short, but I know we use price of 1 for some test maps, so I can't do /10 *10 shenanigans.
+		self.kills = readshort();
+		self.is_in_menu = readbyte();
+
+		RegisterPointChange(self.points - old_points, self.playernum);
+
+		if (self.movetype == MOVETYPE_BOUNCE)
+			self.solid = SOLID_NOT;
+		else
+			self.solid = SOLID_SLIDEBOX;
 			
 		setmodelindex(self, self.modelindex);
-		if (self.stance == 2)
-			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-		else
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 
+		if (map_compatibility_mode != MAP_COMPAT_BETA) {
+			if (self.stance == 2)
+				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+			else
+				setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+		} else {
+			setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
+		}
 	} else {
 		if(isnew)
 			addentity(self);
@@ -791,6 +530,33 @@ noref void(float width, float height, float notmenu) CSQC_UpdateViewLoading =
 
 #define SCALE_CONSTANT 		8
 
+//MOVEME
+float(float a) angledelta =
+{
+	a = anglemod(a);
+	if (a > 180)
+		a -= 360;
+	return a;
+}
+
+//MOVEME
+float delta_pitch, delta_yaw;
+vector sniper_sway;
+// Sways the camera while scoped in.
+void() Camera_SniperSway =
+{
+	if (getstatf(STAT_WEAPONZOOM) != 2 || (getstatf(STAT_PERKS) & P_DEAD)) {
+		sniper_sway = '0 0 0';
+		return;
+	}
+
+	delta_pitch = (cos(cltime/0.7) + cos(cltime) + sin(cltime/1.1)) * 0.5;
+	delta_yaw = (sin(cltime/0.4) + cos(cltime/0.56) + sin(cltime)) * 0.5;
+
+	sniper_sway[0] = angledelta(delta_pitch);
+	sniper_sway[1] = angledelta(delta_yaw);
+};
+
 // CALLED EVERY CLIENT RENDER FRAME
 float pap_flash_alternate;
 noref void(float width, float height, float menushown) CSQC_UpdateView =
@@ -825,129 +591,39 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 		stopwatch_min = 0;
 	}
 
+	if (stopwatch_round_isactive) {
+		stopwatch_round_sec = (time - stopwatch_round_starttime) - (stopwatch_round_min * 60 + (stopwatch_round_hr * 3600));
+
+		if (stopwatch_round_sec >= 60) {
+			stopwatch_round_min += stopwatch_round_sec/60;
+		}
+
+		if (stopwatch_round_min >= 60) {
+			stopwatch_round_hr += stopwatch_round_min/60;
+			stopwatch_round_min = 0;
+		}
+	} else {
+		stopwatch_round_starttime = time;
+	}
+
 	//autoadd entities received from servers for drawing	
 	addentities(MASK_ENGINE);
 
 	setproperty(VF_ORIGIN, playerOrigin + [ 0, 0, getstatf(STAT_VIEWHEIGHT)]);
 	//setproperty(VF_ANGLES, view_angles);
 
-	//do viewmodel manipulation, purely cosmetic stuff
-	if(vmodel)
-	{
-		Update_Vmodel();
-		local vector vorg;
-		local vector vang;
-		vorg = getviewprop(VF_ORIGIN);
-		vang = getviewprop(VF_ANGLES);
-		//vmodel.origin += vorg;
-		//vmodel.angles += vang;
-		addentity(vmodel);
-		addentity(v2model);
-		//vmodel.origin -= vorg;
-		//vmodel.angles -= vang;
-		//addentity(vmodel);
-		float weaponframe, weapon2frame;
-		weaponframe = getstatf(STAT_WEAPONFRAME);
-
-		float duration = getstatf(STAT_WEAPONDURATION);
-
-		if (!duration) {
-			duration = 0.1;
-		}
-		
-		if (curweaponframe != weaponframe) {
-			interpolating = TRUE;
-			vmodel.lerpfrac = 0;
-			oldweaponframe = curweaponframe;
-			curweaponframe = weaponframe;
-		}
-		
-		if (interpolating == TRUE) {
-			vmodel.lerpfrac += frametime * (1/duration);
-
-			if (vmodel.lerpfrac >= 1.0) {
-				oldweaponframe = curweaponframe;
-				vmodel.lerpfrac = 0;
-				interpolating = FALSE;	
-			}
-			
-		}
-		vmodel.frame = oldweaponframe;
-		vmodel.frame2 = curweaponframe;
-
-		if (IsDualWeapon(getstatf(STAT_ACTIVEWEAPON))) {
-			float duration2 = getstatf(STAT_WEAPON2DURATION);
-			if (!duration2) {
-				duration2 = 0.1;
-			}
-			weapon2frame = getstatf(STAT_WEAPON2FRAME);
-			if (curweapon2frame != weapon2frame) {
-				interpolating2 = TRUE;
-				v2model.lerpfrac = 0;
-				oldweapon2frame = curweapon2frame;
-				curweapon2frame = weapon2frame;
-			}
-			
-			if (interpolating2 == TRUE) {
-				v2model.lerpfrac += frametime * (1/duration2);
-
-				if (v2model.lerpfrac >= 1.0) {
-					oldweapon2frame = curweapon2frame;
-					v2model.lerpfrac = 0;
-					interpolating2 = FALSE;	
-				}
-				
-			}
-
-			v2model.frame = oldweapon2frame;
-			v2model.frame2 = curweapon2frame;
-
-		} else {
-			//v2model.frame = getstatf(STAT_WEAPON2FRAME);
-			v2model.lerpfrac = vmodel.lerpfrac;
-			v2model.frame = oldweaponframe;
-			v2model.frame2 = curweaponframe;
-		}
-		v2model.angles = vmodel.angles;
-		v2model.origin = vmodel.origin;
-		if(mzlflash.alpha > 0.09)
-		{
-			makevectors(view_angles);
-			local vector offset = vmodel.origin + vmodel_muzzleoffset;
-			local vector muzzlepos;
-			muzzlepos = getviewprop(VF_ORIGIN);
-			muzzlepos += v_forward * offset_x;
-			muzzlepos -= v_right * offset_y;
-			muzzlepos += v_up * (offset_z + 6);
-
-			if (cvar("r_drawviewmodel")) {
-				if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON))) {
-					if (pap_flash_alternate)
-						dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0.7 0 0' * mzlflash.alpha);
-					else
-						dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0 0 0.7' * mzlflash.alpha);
-
-					pap_flash_alternate = !pap_flash_alternate;
-				}	
-				else
-					dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '1.2 0.7 0.2' * mzlflash.alpha);
-
-				addentity(mzlflash);
-			}
-		}
-	}
-	
-	//deltalisten makes engine call the "add_outline" func for each entity with the set model every frame
-	/*deltalisten("models/mg_ammo.iqm", add_outline, 0);
-	deltalisten("models/weapons/mg/mg.iqm", add_outline, 0);
-	deltalisten("models/weapons/pistol/pistol.iqm", add_outline, 0);*/
-	//deltalisten("models/humanoid_simplerig.iqm", add_outline, 0);
+	// Draw the client's viewmodels.
+	ViewModel_Draw();
 	
 	DropRecoilKick();
+	Camera_SniperSway();
 
 	camang[0] += gun_kick[0];
 	camang[1] += gun_kick[1];
 	camang[2] += gun_kick[2];
+	camang[0] += sniper_sway[0];
+	camang[1] += sniper_sway[1];
+	camang[2] += sniper_sway[2];
 
 	setviewprop(VF_ANGLES, camang);
 
@@ -961,13 +637,19 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	}
 	if(in_menu)
 	{
-		//in menu.qc
+		// sorta-nasty hack: flashes should still draw if we're
+		// drawing the menu.
+		if (screenflash_duration > time)
+			HUD_Screenflash();
+
 		Draw_Menu();
+		setlocaluserinfo(0, "in_menu", "1");
 	}
 	else
 	{
 		HUD_Draw(g_width, g_height);
 		Chat_Draw();
+		setlocaluserinfo(0, "in_menu", "0");
 	}
 };
 
@@ -1039,8 +721,8 @@ void(float button, string key) setToBind =
 
 	btn = buttonBind[button];
 
-	tokenize(findkeysforcommand(btn));
-	oldkey = keynumtostring(stof(argv(0)));
+	tokenize(findkeysforcommandex(btn));
+	oldkey = argv(0);
 
 	unbind = strcat("bind ", oldkey, " null\n");
 	fullbind = strcat("bind ", key, " \"", btn, "\"\n");
@@ -1185,89 +867,68 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 
 noref void() CSQC_Input_Frame =
 {
-	if(walk)
-	{
-		input_movevalues *= 0.5;
-	}
-
-	input_angles = getproperty(VF_ANGLES);
+	input_angles += gun_kick;
+	input_angles += sniper_sway;
 }
 
 #define DEG2RAD(x)	(x * M_PI / 180.f)
 
 noref void() CSQC_Parse_Event =
 {
-	local float first = readbyte();
+	float event_type = readbyte();
 
-	switch (first) {
-		case EVENT_PISTOLFIRE:			
-			local float entnum, traceent, side;
-			local vector pos, norm;
-			entnum = readentitynum();
-			side = readfloat();
-			pos_x = readcoord();
-			pos_y = readcoord();
-			pos_z = readcoord();
-			norm_x = readcoord();
-			norm_y = readcoord();
-			norm_z = readcoord();
-			
-			traceent = readentitynum();
+	switch (event_type) {
+		case CSQC_EVENT_PARTICLE:
+			float particle_type = readbyte();
+			float part_pos_x = readcoord();
+			float part_pos_y = readcoord();
+			float part_pos_z = readcoord();
+			float part_optional = readbyte();
+			float part_entity = readentitynum();
+			vector particle_pos = [part_pos_x, part_pos_y, part_pos_z];
+			Particles_RunParticle(particle_type, particle_pos, part_optional, part_entity);
+			break;
+		case CSQC_EVENT_USEPRINT:
+			useprint_type = readbyte();
+			useprint_cost = readshort();
+			useprint_weapon = readbyte();
+			useprint_time = time + 0.1;
+			break;
+		case CSQC_EVENT_ROUNDCHANGE:
+			rounds = readbyte();
+			HUD_Change_time = time + 6;
+			break;
+		case CSQC_EVENT_BROADCASTMESSAGE:
+			broadcast_type = readbyte();
+			broadcast_time = time + readbyte();
+			broadcast_num = readbyte();
+			break;
+		case CSQC_EVENT_MAXAMMOTEXT:
+			scrolltext = "MAX AMMO!";
+			stext = true;
+			break;
+		case CSQC_EVENT_MUSICSTREAM:
+			string track_name = readstring();
+			localsound_enhanced(strcat("tracks/", track_name, ".ogg"), CHAN_MUSIC, 1);
+			break;
+		case CSQC_EVENT_GIVEACHIEVEMENT:
+			float achievement_id = readbyte();
 
-			if(entnum == player_localentnum)
-			{
-				// originally was view_angles, but thats only what is reported
-				// to the server, weapon kick is NOT reported, so offset continued
-				// to grow.
-				getinputstate(servercommandframe);
-				makevectors(input_angles);
-				local vector offset = vmodel.origin + vmodel_muzzleoffset;
-				local vector muzzlepos, muzzle_offset;
-				muzzlepos = getviewprop(VF_ORIGIN);
-				
-				muzzle_offset = GetWeaponFlash_Offset(getstatf(STAT_ACTIVEWEAPON))/1000;
-
-				// Firing from the left? Use the other position instead
-                if (side == 0 && IsDualWeapon(getstatf(STAT_ACTIVEWEAPON)))
-					muzzle_offset = WepDef_GetLeftFlashOffset(getstatf(STAT_ACTIVEWEAPON))/1000;
-
-				// ADS offset
-				if(getstatf(STAT_WEAPONZOOM) == 1) {  
-					muzzle_offset += GetWeaponADSOfs_PSP(weapon)/1000;
-				}
-				
-				muzzlepos += v_forward * muzzle_offset_z;
-				muzzlepos += v_right * muzzle_offset_x;
-				muzzlepos += v_up * muzzle_offset_y;			
-				mzlflash.alpha = 1;
-
-				// Scale the muzzleflash to meet viewmodel FOV
-				// FTE doesnt support vector scaling :(
-				// float afov = cvar("fov");
-				// float vfov = cvar("r_viewmodel_default_fov");
-				// float ascale = 1.0 / tan(DEG2RAD(afov/2.0)) * vfov / 90.0;
-				// mzlflash.scale = ascale;
-
-				if (cvar("nzp_particles") && cvar("r_drawviewmodel")) {
-					float index = rint(random() * 2);
-					if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON)))				
-						pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", ftos(index))), muzzlepos, norm*24, 1);
-					else
-						pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", ftos(index))), muzzlepos, norm*24, 1);
-				}
-			}
-
-			if (GetFiretype(getstatf(STAT_ACTIVEWEAPON)) == FIRETYPE_GRENADE)
+			// Don't unlock an existing achievement or any if on emscripten.
+			if (achievements[achievement_id].unlocked || platform_is_web)
 				return;
-			
-			if(traceent == 0)
-			{
-				if (cvar("nzp_particles"))
-					pointparticles(particleeffectnum("weapons.impact"), pos, norm*24, 1);
 
-				if (cvar("nzp_decals"))
-					pointparticles(particleeffectnum("weapons.impact_decal"), pos, '0 0 0', 1);
-			}
+			Achievement_Unlock(achievement_id);
+			break;
+		case CSQC_EVENT_PLAYERNAME:
+			character_name = readstring();
+			break;
+		case CSQC_EVENT_SCREENFLASH:
+			screenflash_color = readbyte();
+			screenflash_duration = time + readbyte();
+			screenflash_type = readbyte();
+			screenflash_worktime = 0;
+			screenflash_starttime = time;
 			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
@@ -1277,108 +938,14 @@ noref void() CSQC_Parse_Event =
 
 			gun_kick += rec;
 			break;
-		case EVENT_EXPLOSION:
-            local vector org;
-            org_x = readcoord();
-            org_y = readcoord();
-            org_z = readcoord();
-
-			if (cvar("nzp_decals"))
-            	pointparticles(particleeffectnum("weapons.explode"), org, '0 0 0', 1);
-            break;
-		case EVENT_BLOOD:
-			vector loc;
-
-			loc_x = readcoord();
-            loc_y = readcoord();
-            loc_z = readcoord();
-			
-			if (cvar("nzp_particles"))
-				pointparticles(particleeffectnum("blood.blood_particle"), loc, '0 0 0', 1);
-			break;
-		case EVENT_FLAME:
-			vector floc;
-
-			floc_x = readcoord();
-            floc_y = readcoord();
-            floc_z = readcoord();
-			
-			if (cvar("nzp_particles")) {
-				pointparticles(particleeffectnum("flames.flame_particle"), floc, '0 0 0', 1);
-			}
-			break;
-		case EVENT_LIMBGIB:
-			vector gloc;
-
-			gloc_x = readcoord();
-            gloc_y = readcoord();
-            gloc_z = readcoord();
-			
-			if (cvar("nzp_particles")) {
-				pointparticles(particleeffectnum("blood.blood_particle"), gloc, '0 0 0', 1);
-				pointparticles(particleeffectnum("blood.gibs"), gloc, '0 0 0', 1);
-			}
-			break;
 		case EVENT_CHATMESSAGE:
 			int sender = readbyte();
 			int player_id = readbyte();
 			string message = readstring();
 			Chat_Register(sender, player_id, message);
 			break;
-		case EVENT_WEAPONCHANGE:
-			local float to;
-			to = readbyte();
-			setmodel(vmodel,GetWeaponModel(to, FALSE));
-
-			if (to == W_KAR_SCOPE && vmodel.model == "models/weapons/kar/v_kar.mdl") {
-				setmodel(v2model,"models/weapons/kar/v_karscope.mdl");
-			} else {
-				setmodel(v2model,"");
-			}
-
-			v2model.origin = vmodel.origin = '0 0 0';
-			v2model.angles = vmodel.angles = '-60 0 0';
-			v2model_currentpos = vmodel_currentpos = vmodel.origin + '0 0 -24';
-			v2model_targetpos = vmodel_targetpos = vmodel.origin;
-			v2model_muzzleoffset = vmodel_muzzleoffset = '12 0 1';
-			weapon = to;
-			
-			HUD_Change_time = time + 6;
-			break;
-		case EVENT_UPDATEVMODEL:
-			local string new;
-			local float skin2;
-			new = readstring();
-			setmodel(vmodel,new);
-			vmodel.skin = readbyte();
-			break;
-		case EVENT_UPDATEV2MODEL:
-			local string new2;
-			new2 = readstring();
-			setmodel(v2model,new2);
-			v2model.skin = readbyte();
-			break;
-		case EVENT_USEPRINT:
-			useprint_type = readbyte();
-			useprint_cost = readshort();
-			useprint_weapon = readbyte();
-
-			useprint_time = time + 0.1;
-			break;
-			
-		case EVENT_NEWROUND:
-			rounds = readbyte();
-			HUD_Change_time = time + 6;
-			break;
-		case EVENT_SETROUND:
-			rounds = readbyte();
-			break;
-		case EVENT_PERK:
-			float newperks;
-			
-			newperks = readlong();
-
-			UpdatePerks(newperks);
+		case EVENT_ENDGAME:
+			game_over = true;
 			break;
 		case EVENT_DOUBLETAPUPDATE:
 			double_tap_version = readbyte();
@@ -1401,20 +968,12 @@ noref void() CSQC_Parse_Event =
 					if (Hitmark_time < time)
 						Hitmark_time = time + 0.2;
 					break;
-				case 4:
-					zoom_2_time = time + 0.05;
-					break;
 				case 5:
 					crosshair_spread_time = time + 70/getWeaponRecoilReturn(getstatf(STAT_ACTIVEWEAPON));
 					break;
 				default: 
 					break;
 			}
-			break;
-		case EVENT_BROADCAST:
-			broadcast_time = readbyte();
-			broadcast_type = readbyte();
-			broadcast_string = readstring();
 			break;
 		case EVENT_REVIVECHANGE:
 			float revivechange_id = readbyte();
@@ -1440,33 +999,8 @@ noref void() CSQC_Parse_Event =
 			revive_icons[reviveoff_id].draw = false;
 			active_revive_icons--;
 			break;
-		case EVENT_POINTUPDATE:
-			float playernum = readbyte();
-			float temppoints = readlong();
-			RegisterPointChange(readlong(), playernum);
-			float tempkills = readlong();
-			string tempname = readstring();
-			
-			switch(playernum) {
-				case 1: playerpoints[0] = temppoints; playerkills[0] = tempkills; playernames[0] = tempname; break;
-				case 2: playerpoints[1] = temppoints; playerkills[1] = tempkills; playernames[1] = tempname;  break;
-				case 3: playerpoints[2] = temppoints; playerkills[2] = tempkills; playernames[2] = tempname; break;
-				case 4: playerpoints[3] = temppoints; playerkills[3] = tempkills; playernames[3] = tempname; break;		
-			}
-			break;
-		case EVENT_BLACKOUT:
-			fade_time = readbyte();
-			fade_type = readbyte();
-			break;
-		case EVENT_PUNCHANGLE:			
-			vector changetest;
-			changetest_x = readcoord();
-			changetest_y = readcoord();
-			changetest_z = readcoord();
-			break;
-		case EVENT_SCROLLTEXT:
-			scrolltext = readstring();
-			stext = TRUE;
+		case EVENT_MAPTYPE:
+			map_compatibility_mode = readbyte();
 			break;
 		case EVENT_WORLDDATA:
 			chaptertitle = readstring();
@@ -1477,26 +1011,6 @@ noref void() CSQC_Parse_Event =
 			if (chaptertitle == "")
 				chaptertitle = "'Nazi Zombies'";
 			break;
-		case EVENT_SONGPLAY:
-			string track_name = readstring();
-			localsound_enhanced(strcat("tracks/", track_name, ".ogg"), CHAN_MUSIC, 1);
-			break;
-		case EVENT_ACHIEVEMENT:
-			float ach = readbyte();
-
-			if (achievements[ach].unlocked == true)
-				return;
-			Achievement_Unlock(ach);
-			break;
-		case EVENT_ACHIEVEMENTPROGRESS:
-			float id = readbyte();
-			float pg = readfloat();
-
-			if (achievements[id].unlocked == true)
-				return;
-			
-			Achievement_UpdateProgress(id, pg);
-			break;
 		case EVENT_PLAYERUPDATE:
 			player_count = readbyte();
 			break;
@@ -1505,39 +1019,6 @@ noref void() CSQC_Parse_Event =
 			break;
 		case EVENT_BETTYPROMPT:
 			bettyprompt_time = time + 4;
-			break;
-		case EVENT_WEAPONUPDATE:
-			float wepnum = readbyte();
-			string wepname = readstring();
-			string wvmodel = readstring();
-			float mag = readbyte();
-			float reserve = readbyte();
-			vector cads = stov(readstring());
-			float cmin = readbyte();
-			float cmax = readbyte();
-			vector flash = stov(readstring());
-			float flashsize = readbyte();
-			string v2 = readstring();
-			float isd = readbyte();
-			/*W_CUSTOMNAME[wepnum] = wepname;
-			W_CVMODEL[wepnum] = wvmodel;
-			W_CMAG[wepnum] = mag;
-			W_CRESERVE[wepnum] = reserve;
-			W_CCROSSMIN[wepnum] = cmin;
-			W_CCROSSMAX[wepnum] = cmax;
-			W_CADS[wepnum] = cads;
-			W_CFLASHSIZE[wepnum] = flashsize;
-			W_CVMODEL2[wepnum] = v2;
-			W_CDUAL[wepnum] = isd;*/
-			break;
-		case EVENT_HUDUPDATE:
-			/*string temps;
-			float tempf;
-			G_HUD = readstring();
-			G_HUDHOR = readbyte();
-
-			if (G_HUD != "")
-				huddir = strcat("gfx/hud/", G_HUD, "/");*/
 			break;
 	}
 }

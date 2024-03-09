@@ -4,7 +4,7 @@
 	Contains some wrapped or easy access functions to streamline weapon
     behaviors a bit.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -80,7 +80,7 @@ void(entity person, float slot, float ammo) Weapon_SetPlayerAmmoInSlot =
 };
 
 //
-// Weapon_PlayerHasWeapon(peron, comparison, include_pap)
+// Weapon_PlayerHasWeapon(person, comparison, include_pap)
 // Checks to see if the Player is holding a weapon in any
 // of their three slots. `include_pap` dictates whether to
 // consider Pack-A-Punch'd varients. Returns 1, 2, 3 depending
@@ -101,6 +101,25 @@ float(entity person, float comparison, float include_pap) Weapon_PlayerHasWeapon
 
 		// Now do the comparison
 		if (weapon_id == comparison)
+			return i + 1;
+	}
+
+	return 0;
+};
+
+//
+// Weapon_PlayerHasWeaponWithFiretype(person, comparison)
+// Similar check to Weapon_PlayerHasWeapon, but returns
+// an index to the first-found firetype instead.
+//
+float(entity person, float comparison) Weapon_PlayerHasWeaponWithFiretype =
+{
+	for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		// Storage.
+		float weapon_firetype = GetFiretype(person.weapons[i].weapon_id);
+
+		// Now do the comparison
+		if (weapon_firetype == comparison)
 			return i + 1;
 	}
 
@@ -166,12 +185,12 @@ void (float animation_type, void(optional float t) end_function, float playback_
         case ANIM_TAKE_OUT:
             start_frame = GetFrame(self.weapon, TAKE_OUT_START);
             end_frame = GetFrame(self.weapon, TAKE_OUT_END);
-			duration = getWeaponDelay(self.weapon, TAKEOUT);
+			duration = playback_duration = getWeaponDelay(self.weapon, TAKEOUT);
             break;
         case ANIM_PUT_AWAY:
             start_frame = GetFrame(self.weapon, PUT_OUT_START);
             end_frame = GetFrame(self.weapon, PUT_OUT_END);
-			duration = getWeaponDelay(self.weapon, PUTOUT);
+			duration = playback_duration = getWeaponDelay(self.weapon, PUTOUT);
             break;
         case ANIM_FIRST_TAKE:
             start_frame = GetFrame(self.weapon, FIRST_TAKE_START);
@@ -181,11 +200,8 @@ void (float animation_type, void(optional float t) end_function, float playback_
             break;
     }
 
-	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + duration;
-
-    UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
+	self.switch_delay = self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + (duration - 0.1);
 	self.weapon2model = GetWeapon2Model(self.weapon);
-    UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 
     W_AimOut();
     Set_W_Frame(start_frame, end_frame, playback_duration, 0, 0, end_function, GetWeaponModel(self.weapon, 0), false, S_BOTH);
@@ -242,17 +258,19 @@ void Weapon_SwapWeapons(float play_animation)
 		// Properly update the weapon ID
 		self.weapon = self.weapons[0].weapon_id;
 
-		SwitchWeapon(self.weapon);
 		W_HideCrosshair(self);
 		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
-		
-#ifndef FTE
+
 
 		self.weaponskin = self.weapons[0].weapon_skin;
+
+#ifndef FTE
+
 		self.weapon2skin = self.weapons[0].weapon_skin;
 		self.Weapon_Name = GetWeaponName(self.weapon);
 		self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 		self.Flash_Size = GetWeaponFlash_Size(self.weapon);
+		self.ADS_Offset = GetWeaponADSOfs(self.weapon);
 
 #endif // FTE
 
@@ -273,20 +291,20 @@ void Weapon_SetActiveInSlot(float slot, float play_first_raise)
 	// Properly update the weapon ID
 	self.weapon = self.weapons[0].weapon_id;
 
-	SwitchWeapon(self.weapon);
-
 	if (GetFrame(self.weapon, FIRST_TAKE_START) != 0 && play_first_raise == true)
 		Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, ReturnWeaponModel, 0);
 	else
 		Weapon_PlayViewModelAnimation(ANIM_TAKE_OUT, ReturnWeaponModel, 0);
-		
-#ifndef FTE
 
 	self.weaponskin = self.weapons[0].weapon_skin;
+
+#ifndef FTE
+
 	self.weapon2skin = self.weapons[0].weapon_skin;
 	self.Weapon_Name = GetWeaponName(self.weapon);
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 	self.Flash_Size = GetWeaponFlash_Size(self.weapon);
+	self.ADS_Offset = GetWeaponADSOfs(self.weapon);
 
 #endif // FTE
 

@@ -5,7 +5,7 @@
     commands, and a table storing command information. Modeled after
     pr_cmds.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -301,3 +301,9 @@ void(string command_string) SV_ParseClientCommand =
 
 #endif // FTE
 };
+
+#ifndef FTE
+
+void() ParseClientCommand = {SV_ParseClientCommand(CMD_STRING);}
+
+#endif // FTE

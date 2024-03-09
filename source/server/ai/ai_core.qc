@@ -3,7 +3,7 @@
 
 	ai stuff
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -58,12 +58,23 @@ void() path_corner =
 	setsize(self, '0 0 0 ', '0 0 0');
 };
 
-
-void removeZombie();
 void() Respawn = 
 {
+	// cypress (20 dec 2023) -- whoever wrote this originally wasn't considering
+	// many factors.. if a zombie respawns there's a chance it'll be in a 
+	// completely different playspace, where the initial window isn't visible
+	// at all, and removeZombie() does not clear that field (rightfully so).
+	// so i've replaced this with the same function i use to respawn zombies
+	// inside of the playable area, which calls self.th_die() and fibs to the
+	// zombie counter a little better, fixes that issue.
+
+	// Kill it.
+	self.th_die();
+
+	// This is a pseudo-hack that just tells the rounds core that we should
+	// spawn another.
 	Current_Zombies--;
-	removeZombie();
+	Remaining_Zombies++;
 };
 
 entity(entity blarg) find_new_enemy =
@@ -314,12 +325,20 @@ void(float dist) Window_Walk =
 			
 			//Assumption is that when the zombie is outside, we can always walk from one path_corner to the next in a straight line, any devation should be corrected by the mapper
 		}
-		
+
 		do_walk(dist);
 		
 		if(self.goalentity.classname == "window")
 		{
-			if(!self.goalentity.box1owner)
+			// cypress (17 dec 2023) -- fixed a nasty race condition here.
+			// essentially, if a new zombie spawns in fast enough after
+			// a zombie is currently/just finished hopping a spot, they will
+			// end up always taking box1owner (the hoppable zombie)'s place,
+			// regardless of whether or not there was someone else waiting.
+			// apparently this is an issue i've created rather recently,
+			// which does not make sense to me considering this is a pretty
+			// glaring oversight that's been here since 2014. not my whoops?
+			if(!self.goalentity.box1owner && !self.goalentity.box2owner && !self.goalentity.box3owner)
 			{
 				//self.used = WBOX1;
 				self.goalentity.box1owner = self;
@@ -327,7 +346,7 @@ void(float dist) Window_Walk =
 				self.hop_step = 3;
 				self.reload_delay = time + 30;
 			}
-			else 	if(!self.goalentity.box2owner)
+			else if(!self.goalentity.box2owner)
 			{
 				//self.used = WBOX2;
 				self.goalentity.box2owner = self;
@@ -335,7 +354,7 @@ void(float dist) Window_Walk =
 				self.hop_step = 3;
 				self.reload_delay = time + 30;
 			}
-			else 	if(!self.goalentity.box3owner)
+			else if(!self.goalentity.box3owner)
 			{
 				//self.used = WBOX3;
 				self.goalentity.box3owner = self;
@@ -369,7 +388,7 @@ void(float dist) Window_Walk =
 	}
 	else if(self.hop_step == 2)//we're at idle box, waiting for a window attack box to be free...
 	{
-		if(!self.goalentity.box1owner)
+		if(self.goalentity.box1owner == world)
 		{
 			//self.used = WBOX1;
 			self.goalentity.box1owner = self;
@@ -378,7 +397,7 @@ void(float dist) Window_Walk =
 			self.reload_delay = time + 30;
 			self.th_walk();
 		}
-		else if(!self.goalentity.box2owner)
+		else if(self.goalentity.box2owner == world)
 		{
 			//self.used = WBOX2;
 			self.goalentity.box2owner = self;
@@ -387,7 +406,7 @@ void(float dist) Window_Walk =
 			self.reload_delay = time + 30;
 			self.th_walk();
 		}
-		else if(!self.goalentity.box3owner)
+		else if(self.goalentity.box3owner == world)
 		{
 			//self.used = WBOX3;
 			self.goalentity.box3owner = self;
@@ -399,6 +418,27 @@ void(float dist) Window_Walk =
 	}
 	else if(self.hop_step == 3)//walking to window attack box
 	{
+		// sometimes, we've assigned a zombie a waiting-position
+		// while another zombie is actively hopping. this can cause
+		// a bit of gameplay slowdown since the zombie has to walk
+		// to that waiting position, then to the hop spot (approx 1sec),
+		// so let's do continuous checks here to see if box1 is free,
+		// and claim it if so, in order to smooth the path and claim
+		// that time. only do this if there isn't anyone else in the queue,
+		// though.
+		if (!self.goalentity.box1owner) {
+			// Claim it as ours mid-walk, if there isn't someone else waiting.
+			if ((self.goalentity.box2owner == self && !self.goalentity.box3owner) ||
+			(self.goalentity.box3owner == self && !self.goalentity.box2owner)) {
+				self.goalentity.box1owner = self;
+				self.goalorigin = self.goalentity.box1;
+
+				// Free up the spot we were walking to before.
+				if (self.goalentity.box2owner == self) self.goalentity.box2owner = world;
+				if (self.goalentity.box3owner == self) self.goalentity.box3owner = world;
+			}
+		}
+
 		if(nearby(self.goalorigin))
 		{
 			self.hop_step = 4;
@@ -430,7 +470,7 @@ void(float dist) Window_Walk =
 					self.chase_time = time + 0.75;
 				return;
 			} else if (self.goalentity.owner) {
-				self.chase_time = time + 0.15;
+				self.chase_time = time + 0.05;
 				return;
 			}
 		}
@@ -443,17 +483,6 @@ void(float dist) Window_Walk =
 		else return;
 	}
 };
-
-//
-// kind of a shoddy fix, but essentially what we do to fix
-// issues with zomb ents colliding with each other during hopping
-// is make sure we wait a bit longer before freeing the window for
-// another usage.
-//
-void() free_window =
-{
-	self.usedent = world;
-}
 
 void(float dist) Window_Hop =
 {
@@ -505,24 +534,15 @@ void(float dist) Window_Hop =
 			self.tries++;
 			self.chase_time = time + 0.2;
 			if(self.tries > 10) {
-				// wait enough time before freeing window, to give time for zomb to move.
-				if (!self.goalentity.owner) {
-					self.goalentity.think = free_window;
-					self.goalentity.nextthink = time + 0.5;
-				}
-				//self.goalentity.usedent = world;//free up the window if we've been waiting to hop
+				if (!self.goalentity.owner)
+					self.goalentity.usedent = world;//free up the window if we've been waiting to hop
 			}
 		}
 	}
 	
 	if(self.hop_step == 6) {
 		self.outside = FALSE;
-		//self.goalentity.usedent = world;//free up the window, we're done hopping it
-		//self.used = 0;
-		if (!self.goalentity.owner) {
-			self.goalentity.think = free_window;
-			self.goalentity.nextthink = time + 0.5;
-		}
+		self.goalentity.usedent = world;//free up the window, we're done hopping it
 		self.goalentity = world;
 		self.enemy = find_new_enemy(self);
 		//self.th_die();
@@ -654,7 +674,7 @@ void() PathfindToEnemy =
 
 #ifdef FTE
 
-		bprint(PRINT_HIGH, "FirstPathfind Failure\n");
+		//bprint(PRINT_HIGH, "FirstPathfind Failure\n");
 
 #endif // FTE
 

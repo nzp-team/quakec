@@ -4,7 +4,7 @@
 	A utility for re-starting the game without going through the
     server unload procedure.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -129,13 +129,14 @@ void(string perk_classname) GameRestart_TurnPerkOff =
 	while(tempe != world) {
 		setmodel(tempe, tempe.door_model_name);
 		setorigin(tempe, tempe.oldorigin);
+		setsize(tempe, VEC_HULL2_MIN, VEC_HULL2_MAX);
 
 		Light_None(tempe);
 
 		tempe.velocity = '0 0 0';
 		tempe.angles = tempe.finalangle;
 		tempe.touch = touch_perk;
-		tempe.revivesoda = 0;
+		tempe.perk_purchase_count = 0;
 
 		// Run our initial setup function
 		tempe.think = setup_perk;
@@ -255,7 +256,7 @@ void() GameRestart_RestoreFakeRemovals =
 		setsize(ent, ent.mins, ent.maxs);
 		setmodel(ent, ent.model);
 
-		ent = findfloat(ent, entity_removed, true);
+		ent = findfloat(world, entity_removed, true);
 	}
 }
 
@@ -281,7 +282,7 @@ void() GameRestart_OpenClosedDoors =
 		func_door_nzp();
 		self = temp_ent;
 
-		door = door.chain;
+		door = findfloat(world, isopen, true);
 	}
 }
 
@@ -369,4 +370,6 @@ void() Soft_Restart = {
 	InitRounds();
 	self.isspec = false;
 	PutClientInServer();
+
+	nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
 }

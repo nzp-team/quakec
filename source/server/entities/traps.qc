@@ -3,7 +3,7 @@
 
 	logic and entities pertaining to in-game traps
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -215,7 +215,7 @@ void zapper_start(string zapper) {
 			self = tempe;
 		} else if (zents.classname == "zapper_node" && zents.target) {
 			zents.think = zapper_play;
-			zents.nextthink = time + 0.1;
+			zents.nextthink = time + 0.65;
 		}
 		zents = find(zents, zappername, zapper);
 	}
@@ -239,11 +239,11 @@ void zapper_touch () {
 	if (self.state == 0) {
 		useprint (other, 11, self.cost, self.weapon);
 
-		if (!other.button7 || other.semiuse) {
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		if (other.points < self.cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);

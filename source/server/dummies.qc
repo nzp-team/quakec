@@ -3,7 +3,7 @@
 
 	generic (all platform) dummys
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -34,7 +34,6 @@ void() trigger_setskill         = {remove(self);};
 void() trigger_monsterjump      = {remove(self);};
 void() trigger_onlyregistered   = {remove(self);};
 void() trigger_push             = {remove(self);};
-void() trigger_hurt             = {remove(self);};
 // Player Starts
 void() info_player_start        = {};
 void() info_player_start2       = {};
@@ -59,12 +58,6 @@ void() info_end = {remove(self);};
 
 //// beta removal 
 void() monster_dog = {remove(self);};
-void() item_pap = {remove(self);};
-//void() item_juggernog = {remove(self);};
-//void() item_flopper = {remove(self);};
-//void() item_douple = {remove(self);};
-//void() item_speed = {remove(self);};
-//void() item_revive = {remove(self);};
 void() palm_tree_closed = {remove(self);};
 void() func_model = {remove(self);};
 void() wooden_crate = {remove(self);};
@@ -82,6 +75,22 @@ void() change_frame =
 	self.think = change_frame2;
 	self.nextthink = time + 1;
 }
+
+#ifdef FTE
+
+void(void() spawnfunc) CheckSpawn =
+{
+  //do your own skill/deathmatch spawnflag checks here because the engine won't when this function exists
+  if (spawnfunc)
+    spawnfunc();
+  else
+  {
+    print(sprintf("no spawnfunc defined for %S\n", self.classname));
+    remove(self);
+  }
+};
+
+#endif // FTE
 
 #ifndef FTE
 

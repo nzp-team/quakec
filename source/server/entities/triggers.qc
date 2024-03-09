@@ -3,7 +3,7 @@
 
 	Misc. Trigger functions
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -27,6 +27,8 @@
 
 #define SPAWNFLAG_NOMESSAGE 	1
 #define SPAWNFLAG_NOTOUCH 		1
+
+void() Zombie_ReassignSpawnIDs;
 
 // the wait time has passed, so set back up for another activation
 void() multi_wait =
@@ -218,6 +220,8 @@ void() trigger_activator_touch =
 				if (t.classname == "spawn_zombie_away")
 				{
 					t.classname = "spawn_zombie";
+					t.spawn_id = zombie_spawn_points;
+					zombie_spawn_points++;
 					/*if (cvar("developer"))
 						setmodel(t, "progs/ai/zfull.mdl");*/
 				}
@@ -225,38 +229,13 @@ void() trigger_activator_touch =
 			} 
 		}
 	}
+	Zombie_ReassignSpawnIDs();
 }
 
 void() trigger_activator =
 {
 	InitTrigger ();
 	self.touch = trigger_activator_touch;
-}
-
-#define SPAWNFLAG_TRIGGERCMD_NOPLAYER	1
-#define SPAWNFLAG_TRIGGERCMD_NOSPEC		2
-void() trigger_stuffcmd_touch =
-{
-	// First, lets make sure this is a client
-	if (other.classname != "player" && other.classname != "spectator")
-		return;
-
-	// Don't interact with players
-	if ((self.spawnflags & SPAWNFLAG_TRIGGERCMD_NOPLAYER) && other.classname == "player")
-		return;
-
-	// Don't interact with spectators
-	if ((self.spawnflags & SPAWNFLAG_TRIGGERCMD_NOSPEC) && other.classname == "spectator")
-		return;
-
-	// Run the command.
-	stuffcmd(other, strcat(self.message, "\n"));
-}
-
-void() trigger_stuffcmd =
-{
-	InitTrigger();
-	self.touch = trigger_stuffcmd_touch;
 }
 
 void() trigger_interact_touch =
@@ -355,3 +334,110 @@ void() trigger_once =
 
 	trigger_multiple();
 }
+
+void() trigger_atroundend =
+{
+	self.classname = "trigger_atroundend";
+	//self.use = multi_use;
+}
+
+#define SPAWNFLAG_TRIGGERFIRE_PLAYER 		1
+#define SPAWNFLAG_TRIGGERFIRE_NODAMAGE		2
+#define SPAWNFLAG_TRIGGERFIRE_HEALTHNERF	4
+
+void() trigger_setfire_touch =
+{
+	if (other.aistatus != "1" && (other.classname == "player" && !(self.spawnflags & SPAWNFLAG_TRIGGERFIRE_PLAYER)))
+		return;
+
+	other.onfire = true;
+	other.fire_timeout = time + self.fire_timeout;
+
+	if ((self.spawnflags & SPAWNFLAG_TRIGGERFIRE_NODAMAGE) && other.aistatus == "1")
+		other.ltime = time + 10000;
+}
+
+void() trigger_setfire =
+{
+	InitTrigger ();
+	self.touch = trigger_setfire_touch;
+}
+
+//
+// trigger_awardpoints
+// Awards touching client Score on contact.
+//
+#define SPAWNFLAG_TRIGGERSCORE_REQUIRESTAND		1
+#define SPAWNFLAG_TRIGGERSCORE_REQUIRECROUCH	2
+#define SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE		4
+#define SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS	8
+
+void() trigger_awardpoints_touch =
+{
+	if (other.classname != "player" || other.downed || !self.health)
+		return;
+
+	if (other.stance != PLAYER_STANCE_STAND && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIRESTAND))
+		return;
+	if (other.stance != PLAYER_STANCE_CROUCH && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIRECROUCH))
+		return;
+	if (other.stance != PLAYER_STANCE_PRONE && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE))
+		return;
+
+	addmoney(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
+
+	if (self.noise != "")
+		sound(self, 0, self.noise, 1, 1);
+
+	self.health = 0;
+}
+
+void() trigger_awardpoints =
+{
+	InitTrigger ();
+	self.touch = trigger_awardpoints_touch;
+	self.health = 1;
+
+	if (self.noise != "")
+		precache_sound(self.noise);
+}
+
+//
+// Quake Triggers
+//
+
+// NZ:P START -- Spawnflags for not hurting clients and not hurting AI
+#define HURT_SPAWNFLAG_NOAI		1
+#define HURT_SPAWNFLAG_NOCLIENT	2
+// NZ:P END
+
+void() hurt_on =
+{
+	self.solid = SOLID_TRIGGER;
+	self.nextthink = -1;
+};
+
+void() hurt_touch =
+{
+	if ((other.classname == "player" && !(self.spawnflags & HURT_SPAWNFLAG_NOCLIENT)) ||
+	(other.aistatus == "1" && !(self.spawnflags & HURT_SPAWNFLAG_NOAI)))
+	{
+		self.solid = SOLID_NOT;
+		DamageHandler(other, self, self.dmg, S_ZOMBIE);
+		self.think = hurt_on;
+		self.nextthink = time + 1;
+
+		if (self.message)
+			centerprint(other, strcat(self.message, "\n"));
+	}
+
+	return;
+};
+
+void() trigger_hurt =
+{
+	InitTrigger ();
+	self.touch = hurt_touch;
+	if (!self.dmg)
+		self.dmg = 5;
+};
