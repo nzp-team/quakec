@@ -1371,7 +1371,7 @@ void() Perk_RandomDecide =
 	// If a perk_random entity has already placed down a Perk-A-Cola
 	// given it's respective spawnflag, remove it from the ent selection.
 	for(i = 1; i < 256; i *= 2) {
-		if ((perk_random_placed & i) && (self.spawnflags & 1))
+		if ((perk_random_placed & i) && (self.spawnflags & i))
 			self.spawnflags -= self.spawnflags & i;
 	}
 
@@ -1436,8 +1436,12 @@ void() perk_random =
 		objerror("No available Perks to choose from!");
 	}
 
+	// Link this entity so that moving existing Perk-A-Cola machines
+	// receive a viable teleport location.
+	setorigin(self, self.origin);
+
 	// We can't transform right away, because we need to assert that
 	// all other entities are loaded in the world.
 	self.think = Perk_RandomDecide;
-	self.nextthink = time + 0.2;
+	self.nextthink = time + 5;
 };
