@@ -175,6 +175,7 @@ void() precaches =
 	precache_model ("models/sprites/sprkle.spr");
 	precache_model ("models/sprites/explosion.spr");
 	precache_model ("models/sprites/null.spr");
+	precache_model ("models/sprites/lightning.spr");
 
 	if (cvar("waypoint_mode")) {
 		precache_model ("models/way/current_way.spr");
@@ -212,6 +213,13 @@ void() precaches =
 	precache_model ("models/weapons/knife/v_knife.mdl");
 	precache_model ("models/weapons/grenade/v_grenade.mdl");
 	precache_model ("models/weapons/grenade/g_grenade.mdl");
+	precache_extra (W_BIATCH);
+
+	// perk machine defaults
+	//precache_model (PERK_QUICKREVIVE_DEFAULT_MODEL);
+	//precache_model (PERK_JUGGERNOG_DEFAULT_MODEL);
+	//precache_model (PERK_SPEEDCOLA_DEFAULT_MODEL);
+	//precache_model (PERK_)
 
 #ifdef FTE
 
@@ -245,6 +253,7 @@ void() precaches =
 	precache_sound("sounds/weapons/colt/magout.wav");
 	precache_sound("sounds/weapons/colt/shoot.wav");
 	precache_sound("sounds/weapons/colt/slide.wav");
+	precache_sound("sounds/weapons/papfire.wav");
 
 	// grenade
 	precache_sound("sounds/weapons/grenade/prime.wav");
@@ -270,6 +279,7 @@ void() precaches =
 	precache_sound ("sounds/pu/pickup.wav");
 	precache_sound ("sounds/pu/powerup.wav");
 	precache_sound ("sounds/pu/drop.wav");
+	precache_sound ("sounds/pu/byebye.wav");
 
 	// zombie walk
 	precache_sound ("sounds/zombie/w0.wav");
