@@ -770,6 +770,7 @@ void(string perk_classname, void() spawnfunc) Perk_RandomAssign =
 	// The machine is in the world, so move it here instead.
 	else {
 		setorigin(machine, self.origin);
+		machine.angles = self.angles;
 	}
 }
 
