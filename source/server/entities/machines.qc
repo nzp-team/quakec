@@ -51,6 +51,7 @@ void(entity person) W_HideCrosshair;
 #define PERK_SPAWNFLAG_DOUBLETAPV1	1024
 
 #define PERK_SPAWNFLAG_ALLOWPRONE	2048
+#define PERK_SPAWNFLAG_SILENTLEAVE	4096
 
 #define PERK_JUGGERNOG_HEALTH 		160
 
@@ -188,6 +189,8 @@ void(vector where, float time_alive) SpawnSpark =
 void() Perk_StopLeaveAnimation =
 {
 	self.velocity = 0;
+	self.think = SUB_Null;
+	self.nextthink = 0;
 
 	setmodel(self, ""); // We don't want to remove Revive in the event of a Soft_Restart..
 	SpawnSpark(self.origin, 0.65); // Spawn a Spark at the position
@@ -243,6 +246,10 @@ void() Perk_MachineGoAway =
 
 	// Same with angle
 	self.movement = self.angles;
+
+	// Skip the animation if silent leave is on
+	if (self.spawnflags & PERK_SPAWNFLAG_SILENTLEAVE)
+		Perk_StopLeaveAnimation();
 }
 
 //
