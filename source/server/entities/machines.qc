@@ -50,6 +50,8 @@ void(entity person) W_HideCrosshair;
 // Double-Tap Damage Boost
 #define PERK_SPAWNFLAG_DOUBLETAPV1	1024
 
+#define PERK_SPAWNFLAG_ALLOWPRONE	2048
+
 #define PERK_JUGGERNOG_HEALTH 		160
 
 //
@@ -256,8 +258,8 @@ void() touch_perk =
 	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
 		return;
 
-	// Do this after the perk change check
-	if (other.stance == 0)
+	// Typically not allowed to purchase Perk-A-Colas while prone.
+	if (other.stance == PLAYER_STANCE_PRONE && !(self.spawnflags & PERK_SPAWNFLAG_ALLOWPRONE))
 		return;
 	  
 	// Power's off! Nothing to do here.
@@ -319,6 +321,10 @@ void() touch_perk =
 			Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, DrinkPerk, getWeaponDelay(self.weapon, PUTOUT));
 			other = self; // Set other to client
 			self = tempe; // Set self to machine
+
+			// If the player is Prone, for them to Crouch
+			if (other.stance == PLAYER_STANCE_PRONE)
+				Player_SetStance(other, PLAYER_STANCE_CROUCH, true);
 
 			// Increment usage count
 			self.perk_purchase_count++;
