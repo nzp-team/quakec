@@ -1190,12 +1190,12 @@ void() Zombie_Death =
 		{
 			if (total_powerup_points >= powerup_score_threshold)
 			{
-				Spawn_Powerup(self.origin + '0 0 13', -1);
+				Spawn_Powerup(self.origin, -1);
 				powerup_activate *= 1.14;
 				powerup_score_threshold = total_powerup_points + powerup_activate;
 			}
 			else if (random () <= 0.02)
-				Spawn_Powerup(self.origin + '0 0 13', -1);
+				Spawn_Powerup(self.origin, -1);
 		}
 	}
 	

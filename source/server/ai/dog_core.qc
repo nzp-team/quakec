@@ -192,7 +192,7 @@ void() Dog_Death = {
 	}
 	
 	if(rounds == dogRound && Remaining_Zombies == 0) {
-		Spawn_Powerup(self.origin + '0 0 12', PU_MAXAMMO);
+		Spawn_Powerup(self.origin, PU_MAXAMMO);
 	}
 
 	if (self.onfire || self.electro_targeted) {
@@ -232,7 +232,7 @@ void() Dog_Death_Tesla = {
 	tesla_spark(self.origin);
 
 	if(rounds == dogRound && Remaining_Zombies == 0) {
-		Spawn_Powerup(self.origin + '0 0 12', PU_MAXAMMO);
+		Spawn_Powerup(self.origin, PU_MAXAMMO);
 	}
 
 	dog_die_wunder1();

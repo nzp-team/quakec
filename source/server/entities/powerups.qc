@@ -34,6 +34,9 @@
 #define PU_CARPENTER		3
 #define PU_MAXAMMO			4
 
+#define PU_OFFSET_QK		'0 0 13'
+#define PU_OFFSET_HL		'0 0 16'
+
 var struct powerup_struct
 {
 	float 	id;
@@ -701,6 +704,13 @@ void(vector where, float type) Spawn_Powerup =
 {
 	entity 	powerup;
 	entity	sparkle;
+
+	// Move the Power-Up up a little to be near the player's
+	// mid torso.
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		where += PU_OFFSET_QK;
+	else
+		where += PU_OFFSET_HL;
 
 	// Set Up Power-Up
 	powerup = PU_GetFreeEnt();
