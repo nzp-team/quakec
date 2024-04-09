@@ -972,7 +972,7 @@ var struct
 	{[6, 115], "Connect to Server", -1, setting_connect, null, MENU_JOIN, 0, OPTION_WEB_AND_EXE}, // 62
 
 	// Create Game
-	{[6, 75], "Server Password", -1, setting_password, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 63
+	{[6, 75], "Password (Optional)", -1, setting_password, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 63
 	{[6, 95], "Server Name", -1, setting_servername, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 64
 	{[6, 115], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 65
 
