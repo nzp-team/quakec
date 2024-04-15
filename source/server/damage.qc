@@ -426,16 +426,27 @@ void(entity attacker, float d_style) DieHandler =
 
     if (attacker.classname == "player") {
 		attacker.kills++;
-		if (d_style == S_HEADSHOT) {
-			addmoney(attacker, 100, true);
-			attacker.headshots++;
-		} else if (d_style == S_NORMAL) {
-            addmoney(attacker, 60, true);
-        }
-		else if (d_style == S_KNIFE){
-			addmoney(attacker, 130, true);
-		} else if (d_style == S_TESLA) {
-			addmoney(attacker, 50, true);
+
+		switch(d_style) {
+			case S_HEADSHOT:
+				addmoney(attacker, 100, true);
+				attacker.headshots++;
+				break;
+			case S_KNIFE:
+				addmoney(attacker, 130, true);
+				break;
+			case S_TESLA:
+				addmoney(attacker, 50, true);
+				break;
+			case S_FLAME:
+				addmoney(attacker, 50, true);
+
+				// override their death sound (FIXME: make a new sound..)
+				sound(self, CHAN_BODY, "sounds/pu/drop.wav", 1, ATTN_NORM);
+				break;
+			default:
+				addmoney(attacker, 60, true);
+				break;
 		}
     }
 }

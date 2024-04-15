@@ -400,7 +400,7 @@ void() Zombie_Think = //called every frame for zombies
 		Effect_Fire(self.origin);
 
 		if (self.ltime < time && self.onfire){
-			DamageHandler(self, self.firer, 300, S_NORMAL);
+			DamageHandler(self, self.firer, 300, S_FLAME);
 			self.ltime = time + 2;
 
 			if (self.fire_timeout < time)
