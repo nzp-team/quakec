@@ -1322,6 +1322,10 @@ void() NadeStraighten =
 };
 void() Velocity_reduce =
 {
+	// Do one (1) damage on monster contact, to kill when Insta-Kill is active.
+	if (other.flags & FL_MONSTER)
+		DamageHandler(other, self.owner, 1, S_NORMAL);
+
 	if (!other.solid || other.solid == SOLID_TRIGGER)
 		if (other != world)
 			return;
