@@ -1126,6 +1126,25 @@ void(entity ent) Zombie_Death_Cleanup = {
 	if(ent.aistatus == "0") {
 		return;
 	}
+
+	// Insta-Kill should always cause the head to gib on Zombie death.
+	if (ent.head && instakill_finished > time) {
+		makevectors(ent.head.owner.angles);
+ 		vector where = ent.origin + (ent.head.view_ofs_x * v_right) + (ent.head.view_ofs_y * v_forward) + (ent.head.view_ofs_z * v_up);
+ 		spawn_gibs(where);
+ 		ent.head.deadflag = false;
+		ent.head.solid = SOLID_NOT;
+		setmodel(ent.head, "");
+		ent.head.frame = 0;
+
+#ifndef FTE
+
+		updateLimb (ent, 0, world);
+
+#endif // FTE
+
+	} 
+
 	ent.aistatus = "0";
 	ent.solid = SOLID_NOT;
 	ent.movetype = MOVETYPE_NONE;

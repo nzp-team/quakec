@@ -649,7 +649,7 @@ void Parse_Damage () = // DO NOT TOUCH
 				// now. -- cypress (5 nov 2023)
 				if (Zombie_HeadCanGib(body_ent, self.weapon)) {
 					makevectors(body_ent.head.owner.angles);
- 					vector where = body_ent.head.owner.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
+ 					vector where = body_ent.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
  					spawn_gibs(where);
 
 					body_ent.head.deadflag = false;
@@ -1198,13 +1198,6 @@ void() WeaponCore_Melee =
 			// Check if this is a Zombie limb, set to the body if so
 			if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
 				trace_ent = trace_ent.owner;
-
-			// Additionally, if the Zombie has a head and Insta-Kill is active,
-			// remove its head.
-			if (trace_ent.head) {
-				spawn_gibs(trace_ent.head.origin);
-	 			setmodel(trace_ent.head, "");
-			}
 
 			// Play a flesh-y impact sound, spawn blood.
 			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
