@@ -272,6 +272,7 @@ void() precaches =
 	precache_sound("sounds/music/end.wav");
 
 	// purchasing
+	precache_sound("sounds/misc/ching.wav");
 	precache_sound("sounds/misc/buy.wav");
 	precache_sound("sounds/misc/denybuy.wav");
 

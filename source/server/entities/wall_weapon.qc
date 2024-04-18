@@ -445,6 +445,4 @@ void() buy_weapon =
 	self.nextthink = time + 0.2; 
 
 	ach_tracker_col2++;
-	
-	precache_sound("sounds/misc/ching.wav");
 };
