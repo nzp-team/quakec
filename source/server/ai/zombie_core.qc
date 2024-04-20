@@ -1531,6 +1531,11 @@ float() spawn_a_zombieA =
 		zombie_spawn = find(zombie_spawn, classname, "spawn_zombie");
 	}
 
+	if (zombie_spawn == world && cvar("developer")) {
+		bprint(PRINT_HIGH, "No active spawn point exists! Bailing!\n");
+		return false;
+	}
+
 	// prompt stage 2: the actual spawning of the zombie.
 	spawn_a_zombieB(zombie_spawn);
 	spawn_delay = time + delay_at_round;
