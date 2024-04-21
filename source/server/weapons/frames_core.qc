@@ -154,7 +154,7 @@ void () W_Frame_Update =
 		PlayWeaponSound(self.weapon, self.weapon_anim_type, FALSE, self.weaponframe);
 
 		// FIXME: We need a way to play sounds at specific frames for any viewmodel, not just weapons
-		if (self.weaponmodel == "models/weapons/grenade/v_betty.mdl" && self.weaponframe == 12)
+		if (self.weaponmodel == "models/weapons/grenade/v_betty.mdl" && self.weaponframe == 9)
 			sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);
 		return;
 	}
