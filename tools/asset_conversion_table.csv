@@ -51,7 +51,8 @@ progs/props/lamp_oil.mdl,models/props/lamp_oil.mdl
 progs/props/piano.mdl,models/props/piano.mdl
 progs/props/pisuar.mdl,models/props/pisuar.mdl
 progs/props/teleporter.mdl,models/props/teleporter.mdl
-progs/props/chandelier.mdl,models/props/chandelier.mdl
+progs/props/chandelier.mdl,models/props/chandelier$.mdl
+models/props/chandelier.mdl,models/props/chandelier$.mdl
 progs/props/vanity_table.mdl,models/props/vanity_table.mdl
 progs/props/trash_con.mdl,models/props/trash_con.mdl
 progs/flame2.mdl,models/props/flame.mdl
