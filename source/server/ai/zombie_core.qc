@@ -1531,8 +1531,9 @@ float() spawn_a_zombieA =
 		zombie_spawn = find(zombie_spawn, classname, "spawn_zombie");
 	}
 
-	if (zombie_spawn == world && cvar("developer")) {
-		bprint(PRINT_HIGH, "No active spawn point exists! Bailing!\n");
+	if (zombie_spawn == world) {
+		if (cvar("developer"))
+			bprint(PRINT_HIGH, "spawn_a_zombieA: No active spawn point exists! Bailing!\n");
 		return false;
 	}
 

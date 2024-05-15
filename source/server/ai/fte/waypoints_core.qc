@@ -842,7 +842,7 @@ void () Waypoint_Functions =
 		self.waypoint_delay = time + 1;
 	}
 
-	if (self.button4 && self.weapoiny_delay < time) {
+	if (self.button4 && self.waypoint_delay < time) {
 		Move_Waypoint();
 		self.waypoint_delay = time + 0.25;
 	}
