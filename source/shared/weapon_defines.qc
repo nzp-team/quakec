@@ -4720,6 +4720,7 @@ float(float weapon) WepDef_DoesNotPlayUpgradedSound =
 	switch(weapon) {
 		case W_DG3:
 		case W_PORTER:
+    case W_FIW:
 			return true;
 		default:
 			return false;
