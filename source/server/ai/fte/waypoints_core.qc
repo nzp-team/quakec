@@ -832,9 +832,6 @@ void () Waypoint_Functions =
 					Load_Waypoints();
 			}
 			break;
-		case 110:
-			Move_Waypoint();
-			break;
 	}
 	
 	self.impulse = 0;
@@ -843,6 +840,11 @@ void () Waypoint_Functions =
 	if (self.button0 && self.waypoint_delay < time) { 
 		Create_New_Waypoint(); 
 		self.waypoint_delay = time + 1;
+	}
+
+	if (self.button4 && self.weapoiny_delay < time) {
+		Move_Waypoint();
+		self.waypoint_delay = time + 0.25;
 	}
 
 	if (self.button7 && self.waypoint_delay < time) {
