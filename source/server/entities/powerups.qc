@@ -643,6 +643,9 @@ void() PU_Flash =
 
 #endif // FTE
 
+	// Re-set the size after relink.
+	setsize(self, '-8 -8 -16', '8 8 16');
+
 	// Too late, free the Power-Up
 	if (self.hitcount >= 40) {
         Light_None(self);
@@ -762,7 +765,7 @@ void(vector where, float type) Spawn_Powerup =
 	powerup.solid = SOLID_TRIGGER;
 	powerup.classname = "item_powerup";
 
-	setsize(powerup, VEC_HULL_MIN, VEC_HULL_MAX);
+	setsize(powerup, '-8 -8 -16', '8 8 16');
 	powerup.movetype = MOVETYPE_NONE;
 
     Light_Green(powerup);
