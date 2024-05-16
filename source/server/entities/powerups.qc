@@ -739,7 +739,13 @@ void(vector where, float type) Spawn_Powerup =
 
 	// Scale down for NZ:P Beta
 	if (map_compatibility_mode == MAP_COMPAT_BETA) {
-		powerup.scale = sparkle.scale = 0.66;
+		powerup.scale = 0.66;
+		sparkle.scale = 0.45;
+	} 
+	// The "normal" sized sparkle also needs scaled down
+	// to be less aggressive and more supplemental.
+	else {
+		sparkle.scale = 0.66;
 	}
 
 	sparkle.think = PU_SparkleThink;
