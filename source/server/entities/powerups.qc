@@ -66,6 +66,14 @@ inline void(entity ent) PU_FreeEnt =
 	ent.frame = 0;
 	ent.scale = 1;
 	ent.effects = 0;
+
+#ifdef FTE
+
+	ent.SendEntity = __NULL__;
+	ent.SendFlags = 0;
+
+#endif // FTE
+
 };
 
 //
@@ -627,6 +635,14 @@ void() PU_Flash =
 
 	self.hitcount++;
 
+#ifdef FTE
+
+	// Update the drawing of the Power-Up in CSQC to
+	// register the flash.
+	self.SendFlags = 1;
+
+#endif // FTE
+
 	// Too late, free the Power-Up
 	if (self.hitcount >= 40) {
         Light_None(self);
@@ -659,6 +675,14 @@ void() PU_Touch =
 		// Prepare for VO and destruction
 		self.think = PU_PlayVO;
 		self.nextthink = time + 1;
+
+#ifdef FTE
+
+		// Update the drawing of the Power-Up in CSQC to
+		// register the flash.
+		self.SendFlags = 1;
+
+#endif // FTE
 
 		// Free the Power-Up sparkle, slight cleanup
 		PU_FreeEnt(self.owner);
@@ -695,6 +719,23 @@ void() PU_SparkleThink =
 		self.calc_time = time + 2.998;
 	}
 };
+
+#ifdef FTE
+
+//
+// PU_SendEntity(ePVent, flChanged)
+// Sends ourself to CSQC for rendering.
+//
+float PU_SendEntity( entity ePVEnt, float flChanged ) {
+    WriteByte( MSG_ENTITY, 2 );
+    WriteCoord( MSG_ENTITY, self.origin_x ); // Position X
+    WriteCoord( MSG_ENTITY, self.origin_y ); // Position Y
+    WriteCoord( MSG_ENTITY, self.origin_z ); // Position Z
+	WriteShort( MSG_ENTITY, self.modelindex ); // Power-Up Model
+    return TRUE;
+};
+
+#endif // FTE
 
 //
 // Spawn_Powerup(where, type)
@@ -776,6 +817,15 @@ void(vector where, float type) Spawn_Powerup =
 
 	// Finally assign collision function
 	powerup.touch = PU_Touch;
+
+	// We draw the Power-Up in CSQC on FTE to employ our custom EF_ROTATE
+	// implementation.
+#ifdef FTE
+
+	powerup.SendEntity = PU_SendEntity;
+	powerup.SendFlags = 1;
+
+#endif // FTE
 
 	totalpowerups++;
 };

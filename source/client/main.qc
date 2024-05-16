@@ -186,6 +186,66 @@ vector dampening_factor;
 float vaccel;
 float vzaccel;
 
+// FIXME: Move Power-Up CSQC drawing to separate file :)
+float 	mdlflag_poweruprotate_duration;
+float 	mdlflag_poweruprotate_starttime;
+
+vector 	mdlflag_poweruprotate_startangles;
+vector 	mdlflag_poweruprotate_differenceangles;
+vector 	mdlflag_poweruprotate_currentangles;
+
+float 	last_puframetime;
+
+void() PU_UpdateAngles =
+{
+	// Don't update more than once per frame.
+	if (last_puframetime != frametime) {
+		// New cycle, dictate new rotation time and target angle. 
+		if (mdlflag_poweruprotate_duration <= time) {
+			mdlflag_poweruprotate_starttime = time;
+			mdlflag_poweruprotate_duration = time + (random() * 25 + 25)/10; // Take between 2.5 and 5 seconds.
+
+			mdlflag_poweruprotate_startangles[0] = mdlflag_poweruprotate_currentangles[0];
+			mdlflag_poweruprotate_startangles[1] = mdlflag_poweruprotate_currentangles[1];
+			mdlflag_poweruprotate_startangles[2] = mdlflag_poweruprotate_currentangles[2];
+
+			float target_pitch = (random() * 120) - 60;
+			float target_yaw = (random() * 240) + 60;
+			float target_roll = (random() * 90) - 45;
+
+			vector target_angles;
+			target_angles[0] = target_pitch;
+			target_angles[1] = target_yaw;
+			target_angles[2] = target_roll;
+
+			// Calculate the difference from our start to our target.
+			for(float i = 0; i < 2; i++) {
+				if (mdlflag_poweruprotate_currentangles[i] > target_angles[i])
+					mdlflag_poweruprotate_differenceangles[i] = (mdlflag_poweruprotate_currentangles[i] - target_angles[i]) * -1;
+				else
+					mdlflag_poweruprotate_differenceangles[i] = fabs(mdlflag_poweruprotate_currentangles[i] - target_angles[i]);
+			}
+		}
+
+		float percentage_complete = (time - mdlflag_poweruprotate_starttime) / (mdlflag_poweruprotate_duration - mdlflag_poweruprotate_starttime);
+
+		for(float j = 0; j < 2; j++) {
+			mdlflag_poweruprotate_currentangles[j] = mdlflag_poweruprotate_startangles[j] + (mdlflag_poweruprotate_differenceangles[j] * percentage_complete);
+		}
+
+		last_puframetime = frametime;
+	}
+};
+
+float() PU_PreDraw =
+{
+	PU_UpdateAngles();
+	self.angles = mdlflag_poweruprotate_currentangles;
+	addentity(self);
+
+	return PREDRAW_NEXT;
+};
+
 float Player_PreDraw() =
 {
 	self.lerpfrac -= frametime*10;
@@ -257,6 +317,7 @@ noref void(float isnew) CSQC_Ent_Update =
 {
 	float ent_type = readbyte();
 
+	// Player
 	if (ent_type == 1) {
 		if (isnew == TRUE) {
 			self.classname = "player";
@@ -304,7 +365,24 @@ noref void(float isnew) CSQC_Ent_Update =
 		} else {
 			setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
 		}
-	} else {
+	} 
+	// Power-Up
+	else if (ent_type == 2) {
+		if (isnew == TRUE) {
+			self.classname = "item_powerup";
+			self.solid = SOLID_NOT;
+			self.predraw = PU_PreDraw;
+			self.drawmask = MASK_ENGINE;
+		}
+
+		self.origin_x = readcoord();
+		self.origin_y = readcoord();
+		self.origin_z = readcoord();
+		self.modelindex = readshort();
+
+		setmodelindex(self, self.modelindex);
+	}
+	else {
 		if(isnew)
 			addentity(self);
 	}
