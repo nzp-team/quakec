@@ -1618,73 +1618,45 @@ void () Impulse_Functions =
 	self.impulse = 0;
 };
 
-void(entity ent) CheckPowerups =
+//
+// WeaponCore_PowerUpBlink(blink_delay, powerup_endtime)
+// Determines whether or not the Power-Up HUD icon should be
+// visible.
+// FIXME: This should be moved out of weapon_core, ideally.
+//
+float(__inout float blink_delay, float powerup_endtime) WeaponCore_PowerUpBlink =
 {
-	if (instakill_finished >= time)
-	{
-		if (instakill_finished < 4 + time)
-		{
-			if (insta_blink< time - 0.25)
-				insta_blink = time + 0.25;
+	// If the Power-Up is still active
+	if (powerup_endtime >= time) {
+		float should_be_visible = false;
+
+		// If there's less than five seconds remaining,
+		// blink every 0.2s.
+		if (powerup_endtime < time + 5) {
+			if (blink_delay < time - 0.2)
+				blink_delay = time + 0.2;
 		}
-		else if (instakill_finished < 7 + time)
-		{
-			if (insta_blink< time - 0.5)
-				insta_blink = time + 0.5;
+		// If there's less than 10 seconds remaining,
+		// blink every 0.4s.
+		else if (powerup_endtime < time + 10) {
+			if (blink_delay < time - 0.4)
+				blink_delay = time + 0.4;
 		}
-		else if (instakill_finished < 10 + time)
-		{
-			if (insta_blink< time - 1)
-				insta_blink = time + 1;
-		}
-		
-		if (insta_blink < time)
-			ent.insta_icon = true;
-		else 
-			ent.insta_icon = false;		
-	}
-	else if(instakill_finished)
-	{
-		instakill_finished = 0;
-		
-		ent.insta_icon = false;
-	}
-	
-	if (x2_finished > time)
-	{
-		if (x2_finished < 4 + time)
-		{
-			if (x2_blink< time - 0.25)
-				x2_blink = time + 0.25;
-		}
-		else if (x2_finished < 7 + time)
-		{
-			if (x2_blink< time - 0.5)
-				x2_blink = time + 0.5;
-		}
-		else if (x2_finished < 10 + time)
-		{
-			if (x2_blink< time - 1)
-				x2_blink = time + 1;
-		}
-		
-		if (x2_blink < time)
-			ent.x2_icon = true;
-		else 
-			ent.x2_icon = false;
-	}
-	else if(x2_finished)
-	{
-		x2_finished = 0;
-		
-		ent.x2_icon = false;
+
+		if (blink_delay < time)
+			return true;
 	}
 
-}
+	// End of the line, return false.
+	return false;
+};
 
 void() CheckPlayer = 
 {
-	CheckPowerups(self);
+	// Update Power-Up blinking
+	self.insta_icon = WeaponCore_PowerUpBlink(insta_blink, instakill_finished);
+	self.x2_icon = WeaponCore_PowerUpBlink(x2_blink, x2_finished);
+
 	CheckRevive(self);
 
 	if (!self.sprintflag && self.sprinting) {

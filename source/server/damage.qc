@@ -477,7 +477,7 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 				addmoney(attacker, 10, 1);
 		}
 
-		if (victim.health <= 0 || instakill_finished) {
+		if (victim.health <= 0 || instakill_finished > time) {
 			old_self = self;
 			self = victim;
 			DieHandler(attacker, d_style);
