@@ -34,8 +34,11 @@
 #define PU_CARPENTER		3
 #define PU_MAXAMMO			4
 
-#define PU_OFFSET_QK		'0 0 13'
-#define PU_OFFSET_HL		'0 0 16'
+#define PU_OFFSET_QK		'0 0 12'
+#define PU_OFFSET_HL		'0 0 14'
+
+#define PU_BBOX_MINS		'-2 -2 -16'
+#define PU_BBOX_MAXS		'2 2 16'
 
 var struct powerup_struct
 {
@@ -644,7 +647,7 @@ void() PU_Flash =
 #endif // FTE
 
 	// Re-set the size after relink.
-	setsize(self, '-8 -8 -16', '8 8 16');
+	setsize(self, PU_BBOX_MINS, PU_BBOX_MAXS);
 
 	// Too late, free the Power-Up
 	if (self.hitcount >= 40) {
@@ -662,6 +665,21 @@ void() PU_PlayVO =
 {
 	sound(self, CHAN_VOICE, self.powerup_vo, 1, ATTN_NONE);
 	PU_FreeEnt(self);
+};
+
+//
+// PU_SparkleShrink()
+// Called on Power-Up contact, makes the Sparkle shrink
+// until eventually disappearing.
+//
+void() PU_SparkleShrink =
+{
+	self.scale -= frametime;
+
+	if (self.scale <= 0)
+		PU_FreeEnt(self);
+	else
+		self.nextthink = time + 0.01;
 };
 
 //
@@ -687,8 +705,12 @@ void() PU_Touch =
 
 #endif // FTE
 
-		// Free the Power-Up sparkle, slight cleanup
-		PU_FreeEnt(self.owner);
+		// Prepare to shrink the Power-Up sparkle
+		self.owner.think = PU_SparkleShrink;
+		self.owner.nextthink = time + 0.01;
+		self.owner.scale = 1;
+
+		// slight cleaup
 		setmodel(self, "");
 		Light_None(self);
 		self.touch = SUB_Null;
@@ -765,7 +787,7 @@ void(vector where, float type) Spawn_Powerup =
 	powerup.solid = SOLID_TRIGGER;
 	powerup.classname = "item_powerup";
 
-	setsize(powerup, '-8 -8 -16', '8 8 16');
+	setsize(powerup, PU_BBOX_MINS, PU_BBOX_MAXS);
 	powerup.movetype = MOVETYPE_NONE;
 
     Light_Green(powerup);
