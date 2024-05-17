@@ -1184,6 +1184,10 @@ void() WeaponCore_Melee =
 	vector trace_source = self.origin + self.view_ofs;
 	traceline(trace_source, trace_source + v_forward * melee_range, 0, self);
 
+	// Check if this is a Zombie limb, set to the body if so
+	if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
+		trace_ent = trace_ent.owner;
+
 	// Target does not take damage -- no need to go any further
 	if (!trace_ent.takedamage && !(trace_ent.flags & FL_CLIENT)) {
 		// Hit a solid surface, so play hard melee sound.
@@ -1195,10 +1199,6 @@ void() WeaponCore_Melee =
 	} else {
 		// AI has a more involved routine than other entities
 		if (trace_ent.aistatus == "1") {
-			// Check if this is a Zombie limb, set to the body if so
-			if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
-				trace_ent = trace_ent.owner;
-
 			// Play a flesh-y impact sound, spawn blood.
 			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
  			SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
