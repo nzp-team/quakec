@@ -724,12 +724,23 @@ void Parse_Damage () = // DO NOT TOUCH
 				body_ent.rarm.hitamount = 0;
 			}
 
-			if (instakill_finished) {
+			if (instakill_finished > time) {
 				if(body_ent.head.deadflag) {
+					makevectors(body_ent.head.owner.angles);
+ 					where = body_ent.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
+ 					spawn_gibs(where);
+
 					body_ent.head.deadflag = false;
 					body_ent.head.solid = SOLID_NOT;
 					setmodel(body_ent.head,"");
 					body_ent.head.frame = 0;
+
+#ifndef FTE
+
+					updateLimb (body_ent.head.owner, 0, world);
+
+#endif // FTE
+
 				}
 			}
 			
