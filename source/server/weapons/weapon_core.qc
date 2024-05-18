@@ -1605,12 +1605,6 @@ void () Impulse_Functions =
 			else
 				Change_Stance();
 			break;
-		case 31:
-			self.sprintflag = 0;
-			break;
-		case 32:
-			self.sprintflag = 1;
-			break;
 		case 100:
 			cvar_set("waypoint_mode", "1");
 			localcmd("restart\n");
@@ -1670,8 +1664,19 @@ void() CheckPlayer =
 
 	CheckRevive(self);
 
-	if (!self.sprintflag && self.sprinting) {
-		W_SprintStop();
+	if (self.sprinting) {
+		// We should stop sprinting if we are falling, technically
+		// CoD continues the animation but applies a move speed
+		// penalty, however, that makes no sense! This also applies
+		// as a better implementation to stop sprinting while jumping.
+		if (fabs(self.velocity_z) >= 5)
+			W_SprintStop();
+		// Otherwise, also stop sprinting if we are moving at a base below
+		// predicted for our slowest possible weapon. This removes the need
+		// for an engine-side hack for toggle sprinting turning off when
+		// you're applying less pressure to the analog stick.
+		else if (vlen(self.velocity) <= 100)
+			W_SprintStop();
 	}
 
 	// FIXME - can't do frame independent stance changing.. ofs starts spazzing..
