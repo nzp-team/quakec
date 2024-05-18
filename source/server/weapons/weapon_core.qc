@@ -1675,7 +1675,7 @@ void() CheckPlayer =
 		// predicted for our slowest possible weapon. This removes the need
 		// for an engine-side hack for toggle sprinting turning off when
 		// you're applying less pressure to the analog stick.
-		else if (vlen(self.velocity) <= 100)
+		else if (vlen(self.velocity) <= 130)
 			W_SprintStop();
 	}
 

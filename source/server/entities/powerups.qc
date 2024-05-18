@@ -674,9 +674,18 @@ void() PU_PlayVO =
 //
 void() PU_SparkleShrink =
 {
+
+#ifdef FTE
+
 	self.scale -= frametime;
 
-	if (self.scale <= 0)
+#else
+
+	self.scale -= frametime*2.25;
+
+#endif // FTE
+
+	if (self.scale <= 0.02)
 		PU_FreeEnt(self);
 	else
 		self.nextthink = time + 0.01;
