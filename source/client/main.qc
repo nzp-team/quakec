@@ -982,8 +982,8 @@ noref void() CSQC_Parse_Event =
 			broadcast_num = readbyte();
 			break;
 		case CSQC_EVENT_MAXAMMOTEXT:
-			scrolltext = "MAX AMMO!";
-			stext = true;
+			hud_maxammo_endtime = time + 2;
+			hud_maxammo_starttime = time;
 			break;
 		case CSQC_EVENT_MUSICSTREAM:
 			string track_name = readstring();

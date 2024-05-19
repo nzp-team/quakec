@@ -81,10 +81,8 @@ float useprint_time;
 
 float bettyprompt_time;
 
-string scrolltext;
-float stext;
-float scrollopacity;
-float scrollheight;
+float hud_maxammo_endtime;
+float hud_maxammo_starttime;
 
 float nameprint_time;
 float HUD_Change_time; 
