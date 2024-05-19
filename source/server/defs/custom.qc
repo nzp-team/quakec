@@ -431,6 +431,16 @@ float crandom();
 .string door_model_name;
 
 //Perk and Power system
+
+#define PERK_QUICKREVIVE_DEFAULT_MODEL	"models/machines/quake_scale/quick_revive.mdl"
+#define PERK_JUGGERNOG_DEFAULT_MODEL	"models/machines/quake_scale/juggernog.mdl"
+#define PERK_SPEEDCOLA_DEFAULT_MODEL	"models/machines/quake_scale/speed_cola.mdl"
+#define PERK_DOUBLETAP_DEFAULT_MODEL	"models/machines/quake_scale/double_tap.mdl"
+#define PERK_PHDFLOPPER_DEFAULT_MODEL	"models/machines/quake_scale/flopper.mdl"
+#define PERK_STAMINUP_DEFAULT_MODEL		"models/machines/quake_scale/staminup.mdl"
+#define PERK_DEADSHOT_DEFAULT_MODEL		"models/machines/quake_scale/deadshot.mdl"
+#define PERK_MULEKICK_DEFAULT_MODEL		"models/machines/quake_scale/mulekick.mdl"
+
 float isPowerOn;
 .float isBuying; // naievil -- used for checking if a perk is being consumed, limits glitching
 .float perks;

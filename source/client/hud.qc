@@ -1562,19 +1562,47 @@ void() HUD_Screenflash =
 	drawfill ([0, 0], [g_width, g_height, 0], color, flash_alpha, 0);
 }
 
-void(float width, float height) HUD_ScrollText = {
-	float print_width = stringwidth (scrolltext, 0, [12, 12, 0]);
-	float x = (width - print_width)/2;
+//
+// HUD_MaxAmmo(width, height)
+// Displays the "Max Ammo!" text on the HUD.
+//
+void(float width, float height) HUD_MaxAmmo =
+{
+	string maxammo_string = "Max Ammo!";
 
-	drawstring([x, scrollheight*height, 0], scrolltext, [12, 12, 0], [1, 1, 1], scrollopacity, 0); //low
-	if (scrollheight > 0.70) {
-		scrollheight -= frametime/10;
-		if (scrollopacity > 0)
-			scrollopacity -= frametime;
-	} else {
-		stext = 0;
+	float start_y = 70;
+	float end_y = 55;
+	float diff_y = end_y - start_y;
+
+	float text_alpha = 1;
+
+	float string_width = stringwidth(maxammo_string, 0, [14, 14]);
+	float pos_x = (width - string_width)/2;
+	float pos_y;
+
+	float start_time, end_time;
+
+	// For the first 0.5s, stay still while we fade in
+	if (hud_maxammo_endtime > time + 1.5) {
+		start_time = hud_maxammo_starttime;
+		end_time = hud_maxammo_starttime + 0.5;
+
+		text_alpha = (time - start_time) / (end_time - start_time);
+		pos_y = start_y;
 	}
-}
+	// For the remaining 1.5s, fade out while we fly upwards.
+	else {
+		start_time = hud_maxammo_starttime + 0.5;
+		end_time = hud_maxammo_endtime;
+
+		float percent_time = (time - start_time) / (end_time - start_time);
+
+		pos_y = start_y + diff_y * percent_time;
+		text_alpha = 1 - percent_time;
+	}
+
+	drawstring([pos_x, pos_y, 0], maxammo_string, [14, 14], [1, 1, 1], text_alpha, 0);
+};
 
 float achievement_init;
 float achievement_ypos;
@@ -1803,12 +1831,8 @@ void(float width, float height) HUD_Draw =
 			if (Hitmark_time > time)
 				HUD_Hitmark();
 
-			if (stext) {
-				HUD_ScrollText(width, height);
-			} else {
-				scrollopacity = 1;
-				scrollheight = 0.80;
-			}
+			if (hud_maxammo_endtime > time)
+				HUD_MaxAmmo(width, height);
 
 			HUD_PlayerNames(width, height);
 			HUD_ReviveIcons(width, height);

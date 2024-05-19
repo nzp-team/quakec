@@ -144,20 +144,6 @@ void() trigger_activator_touch =
 	tempcount = 1;
 	tempstring = "";
 	t = world;
-	do
-	{
-		t = find (t, classname, "spawn_zombie");
-		if (!t)
-		{
-			breakthis = 1;
-		}
-		if (t.classname == "spawn_zombie")
-		{
-			t.classname = "spawn_zombie_away";
-			/*if (cvar("developer"))
-				setmodel(t, "progs/player.mdl");*/
-		}
-	} while (!breakthis);
 	
 	if (self.target2)
 		tempcount =+ 1;

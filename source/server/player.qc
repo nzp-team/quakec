@@ -391,10 +391,6 @@ void(float override) JumpCheck =
 			return;
 			
 		if (self.stance == PLAYER_STANCE_STAND) {
-      // naievil -- stop sprinting if we jump, which is a real mechanic from the game that we never implemented 
-		  if (self.sprinting) {
-			  W_SprintStop();
-		  }
 			PlayerJump();
 		} else if (self.view_ofs_z == self.new_ofs_z && (self.flags & FL_ONGROUND)) {
 			Player_SetStance(self, PLAYER_STANCE_STAND, true);

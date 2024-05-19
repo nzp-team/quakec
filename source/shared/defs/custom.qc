@@ -268,6 +268,7 @@ float 	map_compatibility_mode;
 #define S_EXPLOSIVE	5
 #define S_ZAPPER	6
 #define S_TESLA 	7
+#define S_FLAME		8
 
 //Perk types
 #define 	P_JUG		1

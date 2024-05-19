@@ -400,7 +400,7 @@ void() Zombie_Think = //called every frame for zombies
 		Effect_Fire(self.origin);
 
 		if (self.ltime < time && self.onfire){
-			DamageHandler(self, self.firer, 300, S_NORMAL);
+			DamageHandler(self, self.firer, 300, S_FLAME);
 			self.ltime = time + 2;
 
 			if (self.fire_timeout < time)
@@ -1126,6 +1126,25 @@ void(entity ent) Zombie_Death_Cleanup = {
 	if(ent.aistatus == "0") {
 		return;
 	}
+
+	// Insta-Kill should always cause the head to gib on Zombie death.
+	if (ent.head && instakill_finished > time) {
+		makevectors(ent.head.owner.angles);
+ 		vector where = ent.origin + (ent.head.view_ofs_x * v_right) + (ent.head.view_ofs_y * v_forward) + (ent.head.view_ofs_z * v_up);
+ 		spawn_gibs(where);
+ 		ent.head.deadflag = false;
+		ent.head.solid = SOLID_NOT;
+		setmodel(ent.head, "");
+		ent.head.frame = 0;
+
+#ifndef FTE
+
+		updateLimb (ent, 0, world);
+
+#endif // FTE
+
+	} 
+
 	ent.aistatus = "0";
 	ent.solid = SOLID_NOT;
 	ent.movetype = MOVETYPE_NONE;
@@ -1190,12 +1209,12 @@ void() Zombie_Death =
 		{
 			if (total_powerup_points >= powerup_score_threshold)
 			{
-				Spawn_Powerup(self.origin + '0 0 13', -1);
+				Spawn_Powerup(self.origin, -1);
 				powerup_activate *= 1.14;
 				powerup_score_threshold = total_powerup_points + powerup_activate;
 			}
 			else if (random () <= 0.02)
-				Spawn_Powerup(self.origin + '0 0 13', -1);
+				Spawn_Powerup(self.origin, -1);
 		}
 	}
 	
@@ -1510,6 +1529,12 @@ float() spawn_a_zombieA =
 			break;
 
 		zombie_spawn = find(zombie_spawn, classname, "spawn_zombie");
+	}
+
+	if (zombie_spawn == world) {
+		if (cvar("developer"))
+			bprint(PRINT_HIGH, "spawn_a_zombieA: No active spawn point exists! Bailing!\n");
+		return false;
 	}
 
 	// prompt stage 2: the actual spawning of the zombie.

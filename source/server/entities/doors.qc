@@ -663,7 +663,6 @@ void() func_door_nzp =
 	if (!roundinit) {
 		if (self.cost) {
 			self.classname = "door_nzp_cost";
-			precache_sound("sounds/misc/ching.wav");
 			switch(self.sounds)
 			{
 				case 1: precache_sound("sounds/misc/wood_door.wav"); break;

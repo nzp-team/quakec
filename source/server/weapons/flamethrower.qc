@@ -63,25 +63,38 @@ void(vector org, entity whodunit) Flame_Linger =
 //
 void() Flame_Touch =
 {
-	if (other == world) {
+	entity target = other;
+
+	// Flame hit a BSP object, so persist/linger to wait for a catch.
+	if (target == world) {
 		Flame_Linger(self.origin, self);
 		remove(self);
-	} else {
-		if (other.onfire || other.owner.onfire)
+	} 
+	// Some other entity
+	else {
+		// Only impact monsters (this also serves as a limb skip :D)
+		if (!(target.flags & FL_MONSTER))
 			return;
-		if (other.classname == "ai_zombie_head" || other.classname == "ai_zombie_larm" 
-		|| other.classname == "ai_zombie_rarm") {
-			other.owner.onfire = true;
-			other.owner.ltime = time + 2;
-			other.owner.fire_timeout = time + 10;
-			addmoney(self.owner, 10, true);
-		} else if (other.classname == "ai_zombie" || other.classname == "ai_dog") {
-			other.onfire = true;
-			other.firer = self.owner;
-			other.ltime = time + 2;
-			other.fire_timeout = time + 10;
-			addmoney(self.owner, 10, true);
+
+		// Guard this stuff behind first-light
+		if (!target.onfire) {
+			// They're ours
+			target.firer = self.owner;
+
+			// Initialize next-light (this is done to make sure we arent
+			// doing intense fire damage right away)
+			target.ltime = time + 2;
+
+			// Start the Fire Effect
+			Effect_Fire(target.origin);
+
+			// Only do 1 damage to trigger insta-kill damage.
+			DamageHandler(target, target.firer, 1, S_FLAME);
 		}
+
+		// Set the monster alight
+		target.onfire = true;
+		target.fire_timeout = time + 10;
 	}
 }
 

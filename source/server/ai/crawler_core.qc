@@ -169,7 +169,7 @@ void() crawler_death_wunder10		=[	40,		SUB_Null 		]	{tesla_arc(); self.iszomb = 
 
 //======================== Climb Over Barricade ====================
 //40-70
-void() crawler_climbBarricade1	=[	0,		crawler_climbBarricade2] 	{self.movetype = MOVETYPE_STEP;self.zoom = 1;self.frame = 40;Zombie_Think();};
+void() crawler_climbBarricade1	=[	0,		crawler_climbBarricade2] 	{self.movetype = MOVETYPE_STEP;self.zoom = 1;self.frame = 40;Zombie_Think();SetZombieHitBox(IDLE_BBOX);};
 void() crawler_climbBarricade2	=[	1,		crawler_climbBarricade3] 	{self.frame = 41;	moveforwardalittle(0);Zombie_Think();};
 void() crawler_climbBarricade3	=[	2,		crawler_climbBarricade4] 	{self.frame = 42;	moveforwardalittle(0);Zombie_Think();};
 void() crawler_climbBarricade4	=[	3,		crawler_climbBarricade5] 	{self.frame = 43;	moveforwardalittle(1);Zombie_Think();};
@@ -225,7 +225,7 @@ void() crawler_land10		=[	9,		Crawler_Walk_Setup] 	{self.frame=86;Zombie_Think()
 //======================== Crawler Rip Board =======================
 //103-126
 
-void() crawler_rip_board1		=[	0,		crawler_rip_board2] 	{SetZombieHitBox(CRAWLER_BBOX);self.frame=103;Zombie_Think();};
+void() crawler_rip_board1		=[	0,		crawler_rip_board2] 	{SetZombieHitBox(IDLE_BBOX);self.frame=103;Zombie_Think();};
 void() crawler_rip_board2		=[	1,		crawler_rip_board3] 	{self.frame=104;Zombie_Think();};
 void() crawler_rip_board3		=[	2,		crawler_rip_board4] 	{self.frame=105;Zombie_Think();};
 void() crawler_rip_board4		=[	3,		crawler_rip_board5] 	{self.frame=106;Zombie_Think();};

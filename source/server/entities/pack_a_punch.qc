@@ -412,7 +412,6 @@ void() perk_pap =
 
     // Precaches
 	// FIXME: Don't hardcode weapon precaches here.
-	precache_extra(W_BIATCH);
 	precache_extra(W_SNUFF);
 
 	precache_model (self.model);

@@ -139,7 +139,7 @@ void() Betty_CheckForRelease =
 		if(self.grenade_delay < time)
 			self.grenade_delay = time + 0.05;
 		self.isBuying = true;
-		Set_W_Frame (18, 23, 0.3, 5, GRENADE, Betty_Drop, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
+		Set_W_Frame (13, 19, 0.3, 5, GRENADE, Betty_Drop, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
 		sound (self, CHAN_WEAPON, "sounds/weapons/grenade/throw.wav", 1, ATTN_NORM);
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
 		self.throw_delay = time + 0.9;
@@ -147,7 +147,7 @@ void() Betty_CheckForRelease =
     // Keep holding it
 	else {    
 		self.isBuying = true;
-		Set_W_Frame (18, 18, 0, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
+		Set_W_Frame (13, 13, 0, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
 	}	
 }
 
@@ -169,7 +169,7 @@ void() W_PrimeBetty =
 	W_HideCrosshair(self);
 
     // Play the "prime" animation for the betty viewmodel.
-	Set_W_Frame (0, 18, 1, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
+	Set_W_Frame (0, 13, 1, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
 
     // Subtract a betty from our inventory, set up delays, prevent use spam.
 	self.secondary_grenades -= 1;

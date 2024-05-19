@@ -50,6 +50,9 @@ void(entity person) W_HideCrosshair;
 // Double-Tap Damage Boost
 #define PERK_SPAWNFLAG_DOUBLETAPV1	1024
 
+#define PERK_SPAWNFLAG_ALLOWPRONE	2048
+#define PERK_SPAWNFLAG_SILENTLEAVE	4096
+
 #define PERK_JUGGERNOG_HEALTH 		160
 
 //
@@ -186,6 +189,8 @@ void(vector where, float time_alive) SpawnSpark =
 void() Perk_StopLeaveAnimation =
 {
 	self.velocity = 0;
+	self.think = SUB_Null;
+	self.nextthink = 0;
 
 	setmodel(self, ""); // We don't want to remove Revive in the event of a Soft_Restart..
 	SpawnSpark(self.origin, 0.65); // Spawn a Spark at the position
@@ -241,6 +246,10 @@ void() Perk_MachineGoAway =
 
 	// Same with angle
 	self.movement = self.angles;
+
+	// Skip the animation if silent leave is on
+	if (self.spawnflags & PERK_SPAWNFLAG_SILENTLEAVE)
+		Perk_StopLeaveAnimation();
 }
 
 //
@@ -256,8 +265,8 @@ void() touch_perk =
 	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
 		return;
 
-	// Do this after the perk change check
-	if (other.stance == 0)
+	// Typically not allowed to purchase Perk-A-Colas while prone.
+	if (other.stance == PLAYER_STANCE_PRONE && !(self.spawnflags & PERK_SPAWNFLAG_ALLOWPRONE))
 		return;
 	  
 	// Power's off! Nothing to do here.
@@ -319,6 +328,10 @@ void() touch_perk =
 			Weapon_PlayViewModelAnimation(ANIM_PUT_AWAY, DrinkPerk, getWeaponDelay(self.weapon, PUTOUT));
 			other = self; // Set other to client
 			self = tempe; // Set self to machine
+
+			// If the player is Prone, for them to Crouch
+			if (other.stance == PLAYER_STANCE_PRONE)
+				Player_SetStance(other, PLAYER_STANCE_CROUCH, true);
 
 			// Increment usage count
 			self.perk_purchase_count++;
@@ -448,646 +461,144 @@ void() setup_perk =
 // --------------------
 //
 
-// Quick Revive
-void() perk_revive =
+//
+// Perk_InitMachine()
+// Wrapper to provide clean-up for
+// Perk-A-Cola Spawn functions.
+//
+void(string perk_classname,
+string default_model, float cost_solo, 
+float cost_coop, float light_spawnflag,
+float purchase_limit_solo, float purchase_limit_coop,
+float require_power_solo, float require_power_coop,
+float drink_skin, float perk_id) Perk_InitMachine =
 {
-	precache_sound ("sounds/pu/byebye.wav");
-	precache_model ("models/sprites/lightning.spr");
-
 	//
 	// Set Default Stats for Compatibility
 	//
-	
+
 	// Model
-	if (!self.model) {
-		self.model = "models/machines/quake_scale/quick_revive.mdl";
-	}
+	if (!self.model)
+		self.model = default_model;
 
 	// Perk Cost (Solo)
-	if (!self.cost) {
-		self.cost = 500;
-	}
+	if (!self.cost)
+		self.cost = cost_solo;
 
 	// Perk Cost (Co-Op)
-	if (!self.cost2) {
-		self.cost2 = 1500;
-	}
+	if (!self.cost2)
+		self.cost2 = cost_coop;
 
 	// Player Trigger Sound
-	if (!self.oldmodel) {
+	if (!self.oldmodel)
 		self.oldmodel = "sounds/machines/perk_drink.wav";
-	}
 
 	// View Model
-	if (!self.weapon2model) {
+	if (!self.weapon2model)
 		self.weapon2model = "models/machines/v_perk.mdl";
-	}
 
 	// View Model Start Frame
-	if (!self.weapon_animduration) {
+	if (!self.weapon_animduration)
 		self.weapon_animduration = 0;
-	}
 
 	// View Model End Frame
-	if (!self.weapon2_animduration) {
+	if (!self.weapon2_animduration)
 		self.weapon2_animduration = 31;
-	}
 
 	// Light Effect
-	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_CYANLIGHT;
-	}
+	if (!self.spawnflags)
+		self.spawnflags = self.spawnflags | light_spawnflag;
 
 	// Perk Purchase Limit (Solo)
-	if (!self.perk_purchase_limit_solo) {
-		self.perk_purchase_limit_solo = 3;
-	}
+	if (!self.perk_purchase_limit_solo)
+		self.perk_purchase_limit_solo = purchase_limit_solo;
 
 	// Perk Purchase Limit (Co-Op)
-	if (!self.perk_purchase_limit_coop) {
-		self.perk_purchase_limit_coop = 1000;
-	}
+	if (!self.perk_purchase_limit_coop)
+		self.perk_purchase_limit_coop = purchase_limit_coop;
 
 	// Perk Requires Power (Solo)
-	if (!self.perk_requires_power_solo) {
-		self.perk_requires_power_solo = -1;
-	}
+	if (!self.perk_requires_power_solo)
+		self.perk_requires_power_solo = require_power_solo;
 
 	// Perk Requires Power (Co-Op)
-	if (!self.perk_requires_power_coop) {
-		self.perk_requires_power_coop = true;
+	if (!self.perk_requires_power_coop)
+		self.perk_requires_power_coop = require_power_coop;
+
+	// Precache if spawned naturally by the world.
+	if (time < 2) {
+		precache_model(self.model);
+		precache_model(self.weapon2model);
+
+		precache_sound(self.oldmodel);
+		precache_sound("sounds/machines/vend.wav");
+		if (self.aistatus) { precache_sound(self.aistatus); }
+		if (self.powerup_vo) { precache_sound(self.powerup_vo); }
 	}
 
-	// Set up the Perk Entity
+	// General Machine Setup
 	self.solid = SOLID_TRIGGER;
-	precache_model(self.model);
-	precache_model(self.weapon2model);
-	precache_sound(self.oldmodel);
-	precache_sound("sounds/machines/vend.wav");
-	if (self.aistatus) { precache_sound(self.aistatus); }
-	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
-	precache_sound("sounds/weapons/papfire.wav");
-	precache_extra(W_BIATCH);
 	setorigin(self, self.origin);
+	setmodel(self, self.model);
+	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.oldorigin = self.origin;
 	self.finalangle = self.angles;
 	self.door_model_name = self.model;
-	setmodel(self, self.model);
-	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_revive";
+	self.classname = perk_classname;
 	self.touch = touch_perk;
 	self.think = setup_perk;
 	self.nextthink = time + 0.1;
+	self.sequence = drink_skin;
+	self.style = perk_id;
+};
 
-	// Drink Information
-	self.sequence = 1;
-	self.style = P_REVIVE;
+// Quick Revive
+void() perk_revive =
+{
+	Perk_InitMachine("perk_revive", PERK_QUICKREVIVE_DEFAULT_MODEL, 500, 1500,
+	PERK_SPAWNFLAG_CYANLIGHT, 3, 1000, -1, true, 1, P_REVIVE);
 };
 
 // PhD Flopper
 void() perk_flopper =
 {
-	//
-	// Set Default Stats for Compatibility
-	//
-	
-	// Model
-	if (!self.model) {
-		self.model = "models/machines/quake_scale/flopper.mdl";
-	}
-
-	// Perk Cost (Solo)
-	if (!self.cost) {
-		self.cost = 2000;
-	}
-
-	// Perk Cost (Co-Op)
-	if (!self.cost2) {
-		self.cost2 = self.cost;
-	}
-
-	// Player Trigger Sound
-	if (!self.oldmodel) {
-		self.oldmodel = "sounds/machines/perk_drink.wav";
-	}
-
-	// View Model
-	if (!self.weapon2model) {
-		self.weapon2model = "models/machines/v_perk.mdl";
-	}
-
-	// View Model Start Frame
-	if (!self.weapon_animduration) {
-		self.weapon_animduration = 0;
-	}
-
-	// View Model End Frame
-	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 31;
-	}
-
-	// Light Effect
-	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
-	}
-
-	// Perk Purchase Limit (Solo)
-	if (!self.perk_purchase_limit_solo) {
-		self.perk_purchase_limit_solo = 1000;
-	}
-
-	// Perk Purchase Limit (Co-Op)
-	if (!self.perk_purchase_limit_coop) {
-		self.perk_purchase_limit_coop = 1000;
-	}
-
-	// Perk Requires Power (Solo)
-	if (!self.perk_requires_power_solo) {
-		self.perk_requires_power_solo = true;
-	}
-
-	// Perk Requires Power (Co-Op)
-	if (!self.perk_requires_power_coop) {
-		self.perk_requires_power_coop = true;
-	}
-
-	// Set up the Perk Entity
-	self.solid = SOLID_TRIGGER;
-	precache_model(self.model);
-	precache_model(self.weapon2model);
-	precache_sound(self.oldmodel);
-	precache_sound("sounds/machines/vend.wav");
-	if (self.aistatus) { precache_sound(self.aistatus); }
-	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
-	setorigin(self, self.origin);
-	self.oldorigin = self.origin;
-	self.finalangle = self.angles;
-	self.door_model_name = self.model;
-	setmodel(self, self.model);
-	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_flopper";
-	self.touch = touch_perk;
-	self.think = setup_perk;
-	self.nextthink = time + 0.1;
-
-	// Drink Information
-	self.sequence = 6;
-	self.style = P_FLOP;
+	Perk_InitMachine("perk_flopper", PERK_PHDFLOPPER_DEFAULT_MODEL, 2000, 2000,
+	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 6, P_FLOP);
 };
 
 // Jugger-Nog
 void() perk_juggernog =
 {
-	//
-	// Set Default Stats for Compatibility
-	//
-	
-	// Model
-	if (!self.model) {
-		self.model = "models/machines/quake_scale/juggernog.mdl";
-	}
-
-	// Perk Cost (Solo)
-	if (!self.cost) {
-		self.cost = 2500;
-	}
-
-	// Perk Cost (Co-Op)
-	if (!self.cost2) {
-		self.cost2 = self.cost;
-	}
-
-	// Player Trigger Sound
-	if (!self.oldmodel) {
-		self.oldmodel = "sounds/machines/perk_drink.wav";
-	}
-
-	// View Model
-	if (!self.weapon2model) {
-		self.weapon2model = "models/machines/v_perk.mdl";
-	}
-
-	// View Model Start Frame
-	if (!self.weapon_animduration) {
-		self.weapon_animduration = 0;
-	}
-
-	// View Model End Frame
-	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 31;
-	}
-
-	// Light Effect
-	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_PINKLIGHT;
-	}
-
-	// Perk Purchase Limit (Solo)
-	if (!self.perk_purchase_limit_solo) {
-		self.perk_purchase_limit_solo = 1000;
-	}
-
-	// Perk Purchase Limit (Co-Op)
-	if (!self.perk_purchase_limit_coop) {
-		self.perk_purchase_limit_coop = 1000;
-	}
-
-	// Perk Requires Power (Solo)
-	if (!self.perk_requires_power_solo) {
-		self.perk_requires_power_solo = true;
-	}
-
-	// Perk Requires Power (Co-Op)
-	if (!self.perk_requires_power_coop) {
-		self.perk_requires_power_coop = true;
-	}
-
-	// Set up the Perk Entity
-	self.solid = SOLID_TRIGGER;
-	precache_model(self.model);
-	precache_model(self.weapon2model);
-	precache_sound(self.oldmodel);
-	precache_sound("sounds/machines/vend.wav");
-	if (self.aistatus) { precache_sound(self.aistatus); }
-	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
-	setorigin(self, self.origin);
-	self.oldorigin = self.origin;
-	self.finalangle = self.angles;
-	self.door_model_name = self.model;
-	setmodel(self, self.model);
-	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_juggernog";
-	self.touch = touch_perk;
-	self.think = setup_perk;
-	self.nextthink = time + 0.1;
-
-	// Drink Information
-	self.sequence = 2;
-	self.style = P_JUG;
+	Perk_InitMachine("perk_juggernog", PERK_JUGGERNOG_DEFAULT_MODEL, 2500, 2500,
+	PERK_SPAWNFLAG_PINKLIGHT, 1000, 1000, true, true, 2, P_JUG);
 };
 
 // Stamin-Up
 void() perk_staminup =
 {
-	//
-	// Set Default Stats for Compatibility
-	//
-	
-	// Model
-	if (!self.model) {
-		self.model = "models/machines/quake_scale/staminup.mdl";
-	}
-
-	// Perk Cost (Solo)
-	if (!self.cost) {
-		self.cost = 2000;
-	}
-
-	// Perk Cost (Co-Op)
-	if (!self.cost2) {
-		self.cost2 = self.cost;
-	}
-
-	// Player Trigger Sound
-	if (!self.oldmodel) {
-		self.oldmodel = "sounds/machines/perk_drink.wav";
-	}
-
-	// View Model
-	if (!self.weapon2model) {
-		self.weapon2model = "models/machines/v_perk.mdl";
-	}
-
-	// View Model Start Frame
-	if (!self.weapon_animduration) {
-		self.weapon_animduration = 0;
-	}
-
-	// View Model End Frame
-	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 31;
-	}
-
-	// Light Effect
-	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
-	}
-
-	// Perk Purchase Limit (Solo)
-	if (!self.perk_purchase_limit_solo) {
-		self.perk_purchase_limit_solo = 1000;
-	}
-
-	// Perk Purchase Limit (Co-Op)
-	if (!self.perk_purchase_limit_coop) {
-		self.perk_purchase_limit_coop = 1000;
-	}
-
-	// Perk Requires Power (Solo)
-	if (!self.perk_requires_power_solo) {
-		self.perk_requires_power_solo = true;
-	}
-
-	// Perk Requires Power (Co-Op)
-	if (!self.perk_requires_power_coop) {
-		self.perk_requires_power_coop = true;
-	}
-
-	// Set up the Perk Entity
-	self.solid = SOLID_TRIGGER;
-	precache_model(self.model);
-	precache_model(self.weapon2model);
-	precache_sound(self.oldmodel);
-	precache_sound("sounds/machines/vend.wav");
-	if (self.aistatus) { precache_sound(self.aistatus); }
-	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
-	setorigin(self, self.origin);
-	self.oldorigin = self.origin;
-	self.finalangle = self.angles;
-	self.door_model_name = self.model;
-	setmodel(self, self.model);
-	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_staminup";
-	self.touch = touch_perk;
-	self.think = setup_perk;
-	self.nextthink = time + 0.1;
-
-	// Drink Information
-	self.sequence = 5;
-	self.style = P_STAMIN;
+	Perk_InitMachine("perk_staminup", PERK_STAMINUP_DEFAULT_MODEL, 2000, 2000,
+	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 5, P_STAMIN);
 };
 
 // Speed Cola
 void() perk_speed =
 {
-	//
-	// Set Default Stats for Compatibility
-	//
-	
-	// Model
-	if (!self.model) {
-		self.model = "models/machines/quake_scale/speed_cola.mdl";
-	}
-
-	// Perk Cost (Solo)
-	if (!self.cost) {
-		self.cost = 3000;
-	}
-
-	// Perk Cost (Co-Op)
-	if (!self.cost2) {
-		self.cost2 = self.cost;
-	}
-
-	// Player Trigger Sound
-	if (!self.oldmodel) {
-		self.oldmodel = "sounds/machines/perk_drink.wav";
-	}
-
-	// View Model
-	if (!self.weapon2model) {
-		self.weapon2model = "models/machines/v_perk.mdl";
-	}
-
-	// View Model Start Frame
-	if (!self.weapon_animduration) {
-		self.weapon_animduration = 0;
-	}
-
-	// View Model End Frame
-	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 31;
-	}
-
-	// Light Effect
-	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_LIMELIGHT;
-	}
-
-	// Perk Purchase Limit (Solo)
-	if (!self.perk_purchase_limit_solo) {
-		self.perk_purchase_limit_solo = 1000;
-	}
-
-	// Perk Purchase Limit (Co-Op)
-	if (!self.perk_purchase_limit_coop) {
-		self.perk_purchase_limit_coop = 1000;
-	}
-
-	// Perk Requires Power (Solo)
-	if (!self.perk_requires_power_solo) {
-		self.perk_requires_power_solo = true;
-	}
-
-	// Perk Requires Power (Co-Op)
-	if (!self.perk_requires_power_coop) {
-		self.perk_requires_power_coop = true;
-	}
-
-	// Set up the Perk Entity
-	self.solid = SOLID_TRIGGER;
-	precache_model(self.model);
-	precache_model(self.weapon2model);
-	precache_sound(self.oldmodel);
-	precache_sound("sounds/machines/vend.wav");
-	if (self.aistatus) { precache_sound(self.aistatus); }
-	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
-	setorigin(self, self.origin);
-	self.oldorigin = self.origin;
-	self.finalangle = self.angles;
-	self.door_model_name = self.model;
-	setmodel(self, self.model);
-	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_speed";
-	self.touch = touch_perk;
-	self.think = setup_perk;
-	self.nextthink = time + 0.1;
-
-	// Drink Information
-	self.sequence = 3;
-	self.style = P_SPEED;
+	Perk_InitMachine("perk_speed", PERK_SPEEDCOLA_DEFAULT_MODEL, 3000, 3000,
+	PERK_SPAWNFLAG_LIMELIGHT, 1000, 1000, true, true, 3, P_SPEED);
 };
 
 // Double Tap Door Beer
 void() perk_double =
 {
-	//
-	// Set Default Stats for Compatibility
-	//
-	
-	// Model
-	if (!self.model) {
-		self.model = "models/machines/quake_scale/double_tap.mdl";
-	}
-
-	// Perk Cost (Solo)
-	if (!self.cost) {
-		self.cost = 2000;
-	}
-
-	// Perk Cost (Co-Op)
-	if (!self.cost2) {
-		self.cost2 = self.cost;
-	}
-
-	// Player Trigger Sound
-	if (!self.oldmodel) {
-		self.oldmodel = "sounds/machines/perk_drink.wav";
-	}
-
-	// View Model
-	if (!self.weapon2model) {
-		self.weapon2model = "models/machines/v_perk.mdl";
-	}
-
-	// View Model Start Frame
-	if (!self.weapon_animduration) {
-		self.weapon_animduration = 0;
-	}
-
-	// View Model End Frame
-	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 31;
-	}
-
-	// Light Effect
-	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
-	}
-
-	// Perk Purchase Limit (Solo)
-	if (!self.perk_purchase_limit_solo) {
-		self.perk_purchase_limit_solo = 1000;
-	}
-
-	// Perk Purchase Limit (Co-Op)
-	if (!self.perk_purchase_limit_coop) {
-		self.perk_purchase_limit_coop = 1000;
-	}
-
-	// Perk Requires Power (Solo)
-	if (!self.perk_requires_power_solo) {
-		self.perk_requires_power_solo = true;
-	}
-
-	// Perk Requires Power (Co-Op)
-	if (!self.perk_requires_power_coop) {
-		self.perk_requires_power_coop = true;
-	}
-
-	// Set up the Perk Entity
-	self.solid = SOLID_TRIGGER;
-	precache_model(self.model);
-	precache_model(self.weapon2model);
-	precache_sound(self.oldmodel);
-	precache_sound("sounds/machines/vend.wav");
-	if (self.aistatus) { precache_sound(self.aistatus); }
-	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
-	setorigin(self, self.origin);
-	self.oldorigin = self.origin;
-	self.finalangle = self.angles;
-	self.door_model_name = self.model;
-	setmodel(self, self.model);
-	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_double";
-	self.touch = touch_perk;
-	self.think = setup_perk;
-	self.nextthink = time + 0.1;
-
-	// Drink Information
-	self.sequence = 4;
-	self.style = P_DOUBLE;
+	Perk_InitMachine("perk_double", PERK_DOUBLETAP_DEFAULT_MODEL, 2000, 2000,
+	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 4, P_DOUBLE);
 };
 
 // Deadshot Daiquiri
 void() perk_deadshot =
 {
-	//
-	// Set Default Stats for Compatibility
-	//
-	
-	// Model
-	if (!self.model) {
-		self.model = "models/machines/quake_scale/deadshot.mdl";
-	}
-
-	// Perk Cost (Solo)
-	if (!self.cost) {
-		self.cost = 1500;
-	}
-
-	// Perk Cost (Co-Op)
-	if (!self.cost2) {
-		self.cost2 = self.cost;
-	}
-
-	// Player Trigger Sound
-	if (!self.oldmodel) {
-		self.oldmodel = "sounds/machines/perk_drink.wav";
-	}
-
-	// View Model
-	if (!self.weapon2model) {
-		self.weapon2model = "models/machines/v_perk.mdl";
-	}
-
-	// View Model Start Frame
-	if (!self.weapon_animduration) {
-		self.weapon_animduration = 0;
-	}
-
-	// View Model End Frame
-	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 31;
-	}
-
-	// Light Effect
-	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_YELLOWLIGHT;
-	}
-
-	// Perk Purchase Limit (Solo)
-	if (!self.perk_purchase_limit_solo) {
-		self.perk_purchase_limit_solo = 1000;
-	}
-
-	// Perk Purchase Limit (Co-Op)
-	if (!self.perk_purchase_limit_coop) {
-		self.perk_purchase_limit_coop = 1000;
-	}
-
-	// Perk Requires Power (Solo)
-	if (!self.perk_requires_power_solo) {
-		self.perk_requires_power_solo = true;
-	}
-
-	// Perk Requires Power (Co-Op)
-	if (!self.perk_requires_power_coop) {
-		self.perk_requires_power_coop = true;
-	}
-
-	// Set up the Perk Entity
-	self.solid = SOLID_TRIGGER;
-	precache_model(self.model);
-	precache_model(self.weapon2model);
-	precache_sound(self.oldmodel);
-	precache_sound("sounds/machines/vend.wav");
-	setorigin(self, self.origin);
-	self.oldorigin = self.origin;
-	self.finalangle = self.angles;
-	self.door_model_name = self.model;
-	if (self.aistatus) { precache_sound(self.aistatus); }
-	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
-	setmodel(self, self.model);
-	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_deadshot";
-	self.touch = touch_perk;
-	self.think = setup_perk;
-	self.nextthink = time + 0.1;
-
-	// Drink Information
-	self.sequence = 7;
-	self.style = P_DEAD;
+	Perk_InitMachine("perk_deadshot", PERK_DEADSHOT_DEFAULT_MODEL, 2000, 2000,
+	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 7, P_DEAD);
 };
 // naievil -- older maps compatability
 void() perk_dead = { perk_deadshot();}
@@ -1095,92 +606,8 @@ void() perk_dead = { perk_deadshot();}
 // Mule Kick
 void() perk_mule =
 {
-	//
-	// Set Default Stats for Compatibility
-	//
-	
-	// Model
-	if (!self.model) {
-		self.model = "models/machines/quake_scale/mulekick.mdl";
-	}
-
-	// Perk Cost (Solo)
-	if (!self.cost) {
-		self.cost = 4000;
-	}
-
-	// Perk Cost (Co-Op)
-	if (!self.cost2) {
-		self.cost2 = self.cost;
-	}
-
-	// Player Trigger Sound
-	if (!self.oldmodel) {
-		self.oldmodel = "sounds/machines/perk_drink.wav";
-	}
-
-	// View Model
-	if (!self.weapon2model) {
-		self.weapon2model = "models/machines/v_perk.mdl";
-	}
-
-	// View Model Start Frame
-	if (!self.weapon_animduration) {
-		self.weapon_animduration = 0;
-	}
-
-	// View Model End Frame
-	if (!self.weapon2_animduration) {
-		self.weapon2_animduration = 31;
-	}
-
-	// Light Effect
-	if (!self.spawnflags) {
-		self.spawnflags = self.spawnflags | PERK_SPAWNFLAG_LIMELIGHT;
-	}
-
-	// Perk Purchase Limit (Solo)
-	if (!self.perk_purchase_limit_solo) {
-		self.perk_purchase_limit_solo = 1000;
-	}
-
-	// Perk Purchase Limit (Co-Op)
-	if (!self.perk_purchase_limit_coop) {
-		self.perk_purchase_limit_coop = 1000;
-	}
-
-	// Perk Requires Power (Solo)
-	if (!self.perk_requires_power_solo) {
-		self.perk_requires_power_solo = true;
-	}
-
-	// Perk Requires Power (Co-Op)
-	if (!self.perk_requires_power_coop) {
-		self.perk_requires_power_coop = true;
-	}
-
-	// Set up the Perk Entity
-	self.solid = SOLID_TRIGGER;
-	precache_model(self.model);
-	precache_model(self.weapon2model);
-	precache_sound(self.oldmodel);
-	precache_sound("sounds/machines/vend.wav");
-	if (self.aistatus) { precache_sound(self.aistatus); }
-	if (self.powerup_vo) { precache_sound(self.powerup_vo); }
-	setorigin(self, self.origin);
-	self.oldorigin = self.origin;
-	self.finalangle = self.angles;
-	self.door_model_name = self.model;
-	setmodel(self, self.model);
-	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "perk_mule";
-	self.touch = touch_perk;
-	self.think = setup_perk;
-	self.nextthink = time + 0.1;
-
-	// Drink Information
-	self.sequence = 8;
-	self.style = P_MULE;
+	Perk_InitMachine("perk_deadshot", PERK_MULEKICK_DEFAULT_MODEL, 4000, 4000,
+	PERK_SPAWNFLAG_LIMELIGHT, 1000, 1000, true, true, 8, P_MULE);
 }
 
 //
@@ -1357,6 +784,7 @@ void(string perk_classname, void() spawnfunc) Perk_RandomAssign =
 	// The machine is in the world, so move it here instead.
 	else {
 		setorigin(machine, self.origin);
+		machine.angles = self.angles;
 	}
 }
 
@@ -1372,7 +800,7 @@ void() Perk_RandomDecide =
 	// If a perk_random entity has already placed down a Perk-A-Cola
 	// given it's respective spawnflag, remove it from the ent selection.
 	for(i = 1; i < 256; i *= 2) {
-		if ((perk_random_placed & i) && (self.spawnflags & 1))
+		if ((perk_random_placed & i) && (self.spawnflags & i))
 			self.spawnflags -= self.spawnflags & i;
 	}
 
@@ -1430,6 +858,26 @@ void() Perk_RandomDecide =
 	}
 };
 
+void() Perk_RandomPrecaches =
+{
+	if (self.spawnflags & SPAWNFLAG_PERKRANDOM_QUICKREVIVE)
+		precache_model(PERK_QUICKREVIVE_DEFAULT_MODEL);
+	if (self.spawnflags & SPAWNFLAG_PERKRANDOM_JUGGERNOG)
+		precache_model(PERK_JUGGERNOG_DEFAULT_MODEL);
+	if (self.spawnflags & SPAWNFLAG_PERKRANDOM_SPEEDCOLA)
+		precache_model(PERK_SPEEDCOLA_DEFAULT_MODEL);
+	if (self.spawnflags & SPAWNFLAG_PERKRANDOM_DOUBLETAP)
+		precache_model(PERK_DOUBLETAP_DEFAULT_MODEL);
+	if (self.spawnflags & SPAWNFLAG_PERKRANDOM_PHDFLOPPER)
+		precache_model(PERK_PHDFLOPPER_DEFAULT_MODEL);
+	if (self.spawnflags & SPAWNFLAG_PERKRANDOM_STAMINUP)
+		precache_model(PERK_STAMINUP_DEFAULT_MODEL);
+	if (self.spawnflags & SPAWNFLAG_PERKRANDOM_DEADSHOT)
+		precache_model(PERK_DEADSHOT_DEFAULT_MODEL);
+	if (self.spawnflags & SPAWNFLAG_PERKRANDOM_MULEKICK)
+		precache_model(PERK_MULEKICK_DEFAULT_MODEL);
+};
+
 void() perk_random =
 {
 	// Quit out because there are no Perk-A-Cola machines for us to choose between.
@@ -1437,8 +885,17 @@ void() perk_random =
 		objerror("No available Perks to choose from!");
 	}
 
+	// Perform default model precaches for 
+	// Perk-A-Colas in our spawnflags, in the event
+	// they are not already in the world (legacy mode).
+	Perk_RandomPrecaches();
+
+	// Link this entity so that moving existing Perk-A-Cola machines
+	// receive a viable teleport location.
+	setorigin(self, self.origin);
+
 	// We can't transform right away, because we need to assert that
 	// all other entities are loaded in the world.
 	self.think = Perk_RandomDecide;
-	self.nextthink = time + 0.2;
+	self.nextthink = time + 3;
 };

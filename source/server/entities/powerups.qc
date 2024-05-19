@@ -34,6 +34,12 @@
 #define PU_CARPENTER		3
 #define PU_MAXAMMO			4
 
+#define PU_OFFSET_QK		'0 0 12'
+#define PU_OFFSET_HL		'0 0 14'
+
+#define PU_BBOX_MINS		'-2 -2 -16'
+#define PU_BBOX_MAXS		'2 2 16'
+
 var struct powerup_struct
 {
 	float 	id;
@@ -63,6 +69,14 @@ inline void(entity ent) PU_FreeEnt =
 	ent.frame = 0;
 	ent.scale = 1;
 	ent.effects = 0;
+
+#ifdef FTE
+
+	ent.SendEntity = __NULL__;
+	ent.SendFlags = 0;
+
+#endif // FTE
+
 };
 
 //
@@ -624,6 +638,17 @@ void() PU_Flash =
 
 	self.hitcount++;
 
+#ifdef FTE
+
+	// Update the drawing of the Power-Up in CSQC to
+	// register the flash.
+	self.SendFlags = 1;
+
+#endif // FTE
+
+	// Re-set the size after relink.
+	setsize(self, PU_BBOX_MINS, PU_BBOX_MAXS);
+
 	// Too late, free the Power-Up
 	if (self.hitcount >= 40) {
         Light_None(self);
@@ -643,6 +668,30 @@ void() PU_PlayVO =
 };
 
 //
+// PU_SparkleShrink()
+// Called on Power-Up contact, makes the Sparkle shrink
+// until eventually disappearing.
+//
+void() PU_SparkleShrink =
+{
+
+#ifdef FTE
+
+	self.scale -= frametime;
+
+#else
+
+	self.scale -= frametime*2.25;
+
+#endif // FTE
+
+	if (self.scale <= 0.02)
+		PU_FreeEnt(self);
+	else
+		self.nextthink = time + 0.01;
+};
+
+//
 // PU_Touch()
 // Run assigned functions and prep for Deletion
 //
@@ -657,8 +706,20 @@ void() PU_Touch =
 		self.think = PU_PlayVO;
 		self.nextthink = time + 1;
 
-		// Free the Power-Up sparkle, slight cleanup
-		PU_FreeEnt(self.owner);
+#ifdef FTE
+
+		// Update the drawing of the Power-Up in CSQC to
+		// register the flash.
+		self.SendFlags = 1;
+
+#endif // FTE
+
+		// Prepare to shrink the Power-Up sparkle
+		self.owner.think = PU_SparkleShrink;
+		self.owner.nextthink = time + 0.01;
+		self.owner.scale = 1;
+
+		// slight cleaup
 		setmodel(self, "");
 		Light_None(self);
 		self.touch = SUB_Null;
@@ -693,6 +754,23 @@ void() PU_SparkleThink =
 	}
 };
 
+#ifdef FTE
+
+//
+// PU_SendEntity(ePVent, flChanged)
+// Sends ourself to CSQC for rendering.
+//
+float PU_SendEntity( entity ePVEnt, float flChanged ) {
+    WriteByte( MSG_ENTITY, 2 );
+    WriteCoord( MSG_ENTITY, self.origin_x ); // Position X
+    WriteCoord( MSG_ENTITY, self.origin_y ); // Position Y
+    WriteCoord( MSG_ENTITY, self.origin_z ); // Position Z
+	WriteShort( MSG_ENTITY, self.modelindex ); // Power-Up Model
+    return TRUE;
+};
+
+#endif // FTE
+
 //
 // Spawn_Powerup(where, type)
 // Power-Up spawning function. Use type to force what spawns.
@@ -701,6 +779,13 @@ void(vector where, float type) Spawn_Powerup =
 {
 	entity 	powerup;
 	entity	sparkle;
+
+	// Move the Power-Up up a little to be near the player's
+	// mid torso.
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		where += PU_OFFSET_QK;
+	else
+		where += PU_OFFSET_HL;
 
 	// Set Up Power-Up
 	powerup = PU_GetFreeEnt();
@@ -711,7 +796,7 @@ void(vector where, float type) Spawn_Powerup =
 	powerup.solid = SOLID_TRIGGER;
 	powerup.classname = "item_powerup";
 
-	setsize(powerup, VEC_HULL_MIN, VEC_HULL_MAX);
+	setsize(powerup, PU_BBOX_MINS, PU_BBOX_MAXS);
 	powerup.movetype = MOVETYPE_NONE;
 
     Light_Green(powerup);
@@ -729,7 +814,13 @@ void(vector where, float type) Spawn_Powerup =
 
 	// Scale down for NZ:P Beta
 	if (map_compatibility_mode == MAP_COMPAT_BETA) {
-		powerup.scale = sparkle.scale = 0.66;
+		powerup.scale = 0.66;
+		sparkle.scale = 0.45;
+	} 
+	// The "normal" sized sparkle also needs scaled down
+	// to be less aggressive and more supplemental.
+	else {
+		sparkle.scale = 0.66;
 	}
 
 	sparkle.think = PU_SparkleThink;
@@ -760,6 +851,15 @@ void(vector where, float type) Spawn_Powerup =
 
 	// Finally assign collision function
 	powerup.touch = PU_Touch;
+
+	// We draw the Power-Up in CSQC on FTE to employ our custom EF_ROTATE
+	// implementation.
+#ifdef FTE
+
+	powerup.SendEntity = PU_SendEntity;
+	powerup.SendFlags = 1;
+
+#endif // FTE
 
 	totalpowerups++;
 };

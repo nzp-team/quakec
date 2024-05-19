@@ -649,7 +649,7 @@ void Parse_Damage () = // DO NOT TOUCH
 				// now. -- cypress (5 nov 2023)
 				if (Zombie_HeadCanGib(body_ent, self.weapon)) {
 					makevectors(body_ent.head.owner.angles);
- 					vector where = body_ent.head.owner.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
+ 					vector where = body_ent.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
  					spawn_gibs(where);
 
 					body_ent.head.deadflag = false;
@@ -724,12 +724,23 @@ void Parse_Damage () = // DO NOT TOUCH
 				body_ent.rarm.hitamount = 0;
 			}
 
-			if (instakill_finished) {
+			if (instakill_finished > time) {
 				if(body_ent.head.deadflag) {
+					makevectors(body_ent.head.owner.angles);
+ 					where = body_ent.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
+ 					spawn_gibs(where);
+
 					body_ent.head.deadflag = false;
 					body_ent.head.solid = SOLID_NOT;
 					setmodel(body_ent.head,"");
 					body_ent.head.frame = 0;
+
+#ifndef FTE
+
+					updateLimb (body_ent.head.owner, 0, world);
+
+#endif // FTE
+
 				}
 			}
 			
@@ -1184,6 +1195,10 @@ void() WeaponCore_Melee =
 	vector trace_source = self.origin + self.view_ofs;
 	traceline(trace_source, trace_source + v_forward * melee_range, 0, self);
 
+	// Check if this is a Zombie limb, set to the body if so
+	if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
+		trace_ent = trace_ent.owner;
+
 	// Target does not take damage -- no need to go any further
 	if (!trace_ent.takedamage && !(trace_ent.flags & FL_CLIENT)) {
 		// Hit a solid surface, so play hard melee sound.
@@ -1195,17 +1210,6 @@ void() WeaponCore_Melee =
 	} else {
 		// AI has a more involved routine than other entities
 		if (trace_ent.aistatus == "1") {
-			// Check if this is a Zombie limb, set to the body if so
-			if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
-				trace_ent = trace_ent.owner;
-
-			// Additionally, if the Zombie has a head and Insta-Kill is active,
-			// remove its head.
-			if (trace_ent.head) {
-				spawn_gibs(trace_ent.head.origin);
-	 			setmodel(trace_ent.head, "");
-			}
-
 			// Play a flesh-y impact sound, spawn blood.
 			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
  			SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
@@ -1329,6 +1333,10 @@ void() NadeStraighten =
 };
 void() Velocity_reduce =
 {
+	// Do one (1) damage on monster contact, to kill when Insta-Kill is active.
+	if (other.flags & FL_MONSTER)
+		DamageHandler(other, self.owner, 1, S_NORMAL);
+
 	if (!other.solid || other.solid == SOLID_TRIGGER)
 		if (other != world)
 			return;
@@ -1597,12 +1605,6 @@ void () Impulse_Functions =
 			else
 				Change_Stance();
 			break;
-		case 31:
-			self.sprintflag = 0;
-			break;
-		case 32:
-			self.sprintflag = 1;
-			break;
 		case 100:
 			cvar_set("waypoint_mode", "1");
 			localcmd("restart\n");
@@ -1621,77 +1623,60 @@ void () Impulse_Functions =
 	self.impulse = 0;
 };
 
-void(entity ent) CheckPowerups =
+//
+// WeaponCore_PowerUpBlink(blink_delay, powerup_endtime)
+// Determines whether or not the Power-Up HUD icon should be
+// visible.
+// FIXME: This should be moved out of weapon_core, ideally.
+//
+float(__inout float blink_delay, float powerup_endtime) WeaponCore_PowerUpBlink =
 {
-	if (instakill_finished >= time)
-	{
-		if (instakill_finished < 4 + time)
-		{
-			if (insta_blink< time - 0.25)
-				insta_blink = time + 0.25;
+	// If the Power-Up is still active
+	if (powerup_endtime >= time) {
+		float should_be_visible = false;
+
+		// If there's less than five seconds remaining,
+		// blink every 0.2s.
+		if (powerup_endtime < time + 5) {
+			if (blink_delay < time - 0.2)
+				blink_delay = time + 0.2;
 		}
-		else if (instakill_finished < 7 + time)
-		{
-			if (insta_blink< time - 0.5)
-				insta_blink = time + 0.5;
+		// If there's less than 10 seconds remaining,
+		// blink every 0.4s.
+		else if (powerup_endtime < time + 10) {
+			if (blink_delay < time - 0.4)
+				blink_delay = time + 0.4;
 		}
-		else if (instakill_finished < 10 + time)
-		{
-			if (insta_blink< time - 1)
-				insta_blink = time + 1;
-		}
-		
-		if (insta_blink < time)
-			ent.insta_icon = true;
-		else 
-			ent.insta_icon = false;		
-	}
-	else if(instakill_finished)
-	{
-		instakill_finished = 0;
-		
-		ent.insta_icon = false;
-	}
-	
-	if (x2_finished > time)
-	{
-		if (x2_finished < 4 + time)
-		{
-			if (x2_blink< time - 0.25)
-				x2_blink = time + 0.25;
-		}
-		else if (x2_finished < 7 + time)
-		{
-			if (x2_blink< time - 0.5)
-				x2_blink = time + 0.5;
-		}
-		else if (x2_finished < 10 + time)
-		{
-			if (x2_blink< time - 1)
-				x2_blink = time + 1;
-		}
-		
-		if (x2_blink < time)
-			ent.x2_icon = true;
-		else 
-			ent.x2_icon = false;
-	}
-	else if(x2_finished)
-	{
-		x2_finished = 0;
-		
-		ent.x2_icon = false;
+
+		if (blink_delay < time)
+			return true;
 	}
 
-}
+	// End of the line, return false.
+	return false;
+};
 
 void() CheckPlayer = 
 {
-	CheckPowerups(self);
+	// Update Power-Up blinking
+	self.insta_icon = WeaponCore_PowerUpBlink(insta_blink, instakill_finished);
+	self.x2_icon = WeaponCore_PowerUpBlink(x2_blink, x2_finished);
+
 	CheckRevive(self);
 
-	if (!self.sprintflag && self.sprinting) {
-		W_SprintStop();
+	if (self.sprinting) {
+		// We should stop sprinting if we are falling, technically
+		// CoD continues the animation but applies a move speed
+		// penalty, however, that makes no sense! This also applies
+		// as a better implementation to stop sprinting while jumping.
+		if (fabs(self.velocity_z) >= 5)
+			W_SprintStop();
+		// Otherwise, also stop sprinting if we are moving at a base below
+		// predicted for our slowest possible weapon. This removes the need
+		// for an engine-side hack for toggle sprinting turning off when
+		// you're applying less pressure to the analog stick.
+		else if (vlen(self.velocity) <= 130)
+			W_SprintStop();
 	}
 
 	// FIXME - can't do frame independent stance changing.. ofs starts spazzing..
