@@ -1195,52 +1195,55 @@ void() WeaponCore_Melee =
 	vector trace_source = self.origin + self.view_ofs;
 	traceline(trace_source, trace_source + v_forward * melee_range, 0, self);
 
-	// Check if this is a Zombie limb, set to the body if so
-	if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
-		trace_ent = trace_ent.owner;
+	if (fabs(trace_endpos_z - trace_source_z) <= 15) {
+		// Check if this is a Zombie limb, set to the body if so
+		if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
+			trace_ent = trace_ent.owner;
 
-	// Target does not take damage -- no need to go any further
-	if (!trace_ent.takedamage && !(trace_ent.flags & FL_CLIENT)) {
-		// Hit a solid surface, so play hard melee sound.
-		if (trace_fraction < 1.0)
-			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);
-		// Dead air, swing!
-		else
-			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife.wav", 1, ATTN_NORM);
-	} else {
-		// AI has a more involved routine than other entities
-		if (trace_ent.aistatus == "1") {
-			// Play a flesh-y impact sound, spawn blood.
-			sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
- 			SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
-
-			// Calculate distance to use for the Lunge velocity
-			float lunge_factor = fabs(vlen(trace_source - (trace_endpos - v_forward*4)));
-
-			// Perform lunge, exclusive to AI.
-			if (lunge_factor > WEAPONCORE_MELEE_LUNGEMIN) {
-				did_lunge = true;
-				applied_velocity = v_forward * melee_range * 6;
-			}
-		} 
-		// Some other ent (player, button, etc.)
-		else {
-			// Never lunge in this circumstance.
-			did_lunge = false;
-
-			// Is this a player? Play the body hit sound and spawn blood, otherwise, solid swing.
-			if (trace_ent.flags & FL_CLIENT) {
-				sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
-				SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
-			} else {
+		// Target does not take damage -- no need to go any further
+		if (!trace_ent.takedamage && !(trace_ent.flags & FL_CLIENT)) {
+			// Hit a solid surface, so play hard melee sound.
+			if (trace_fraction < 1.0)
 				sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);
-			}
-		}
+			// Dead air, swing!
+			else
+				sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife.wav", 1, ATTN_NORM);
+		} else {
+			// AI has a more involved routine than other entities
+			if (trace_ent.aistatus == "1") {
+				// Play a flesh-y impact sound, spawn blood.
+				sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
+	 			SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
 
-		// Apply damage to the entity.
-		if (trace_ent.takedamage) {
-			float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
-			DamageHandler (trace_ent, self, melee_damage, S_KNIFE);
+				// Calculate distance to use for the Lunge velocity
+				float lunge_factor = vlen(trace_source - (trace_endpos - v_forward*4));
+
+				// Perform lunge, exclusive to AI.
+				if (lunge_factor > WEAPONCORE_MELEE_LUNGEMIN) {
+					did_lunge = true;
+					applied_velocity = v_forward * melee_range * 6;
+					applied_velocity_z = 0;
+				}
+			} 
+			// Some other ent (player, button, etc.)
+			else {
+				// Never lunge in this circumstance.
+				did_lunge = false;
+
+				// Is this a player? Play the body hit sound and spawn blood, otherwise, solid swing.
+				if (trace_ent.flags & FL_CLIENT) {
+					sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hitbod.wav", 1, ATTN_NORM);
+					SpawnBlood(trace_source + (v_forward * 20), trace_source + (v_forward * 20), 50);
+				} else {
+					sound (self, CHAN_WEAPON, "sounds/weapons/knife/knife_hit.wav", 1, ATTN_NORM);
+				}
+			}
+
+			// Apply damage to the entity.
+			if (trace_ent.takedamage) {
+				float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
+				DamageHandler (trace_ent, self, melee_damage, S_KNIFE);
+			}
 		}
 	}
 
