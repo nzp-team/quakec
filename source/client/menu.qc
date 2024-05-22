@@ -2007,9 +2007,15 @@ void() Draw_Menu =
 		return;
 	}
 
+	string menu_track_path;
+	if (platform_is_web)
+		menu_track_path = "tracks/tensioned_by_the_damned.wav";
+	else
+		menu_track_path = "tracks/tensioned_by_the_damned.ogg";
+
 	// main menu theme iterating
 	if (menu_initialized == false && in_menu == MENU_MAIN) {
-		localsound_enhanced("tracks/tensioned_by_the_damned.ogg", CHAN_MUSIC, 1);
+		localsound_enhanced(menu_track_path, CHAN_MUSIC, 1);
 		menu_sound_length = 490;
 		menu_sound_time = 0;
 		menu_initialized = true;
@@ -2017,7 +2023,7 @@ void() Draw_Menu =
 
 	// restart the track if it has ended
 	if (menu_initialized == true && (menu_sound_time >= menu_sound_length - 1)) {
-		localsound_enhanced("tracks/tensioned_by_the_damned.ogg", CHAN_MUSIC, 1);
+		localsound_enhanced(menu_track_path, CHAN_MUSIC, 1);
 		menu_sound_time = 0;
 	}
 
