@@ -56,6 +56,13 @@ void() ToggleMenu =
 	}
 }
 
+float(float isnew) SetZombieSkinning =
+{
+	self.drawmask = MASK_ENGINE;
+	setcustomskin(self, __NULL__, sprintf("replace \"\" \"models/ai/zfull.mdl_%d.pcx\"\n", self.skin));
+	return PREDRAW_NEXT;
+};
+
 noref void(float apiver, string enginename, float enginever) CSQC_Init =
 {
 	setwindowcaption("Nazi Zombies: Portable");
@@ -162,6 +169,11 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	if (file != -1) {
 		build_datetime = fgets(file);
 		fclose(file);
+	}
+
+	// Intercept every Zombie mesh to apply custom skinning
+	for(float i = 0; i < zombie_skins.length; i++) {
+		deltalisten(zombie_skins[i], SetZombieSkinning, 0);
 	}
 };
 
