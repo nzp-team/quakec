@@ -3,6 +3,7 @@
 #pragma target fte_5768
 #else
 #pragma progs_dat "../build/standard/progs.dat"
+#pragma flag disable fastarrays
 #endif
 
 #pragma warning disable Q208
