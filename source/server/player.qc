@@ -913,6 +913,8 @@ void() PlayerSpawn =
 	// to see their name.
 	if (time >= 5 && self.name != "")
 		nzp_setplayername(self, self.name);
+
+	Spawn_Powerup(self.origin + '64 64 0', 4);
 };
 
 void() SpectatorSpawn =

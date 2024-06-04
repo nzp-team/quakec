@@ -1,5 +1,5 @@
 /*
-	shared/defs/custom.qc
+	shared/shared_defs.qc
 
 	shared definitions
 

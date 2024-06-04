@@ -1,0 +1,73 @@
+#ifdef FTE
+#pragma progs_dat "../build/fte/qwprogs.dat"
+#pragma target fte_5768
+#else
+#pragma progs_dat "../build/standard/progs.dat"
+#endif
+
+#pragma warning disable Q208
+#pragma noref 1
+
+#pragma includedir "../source/server/"
+#pragma includedir "../source/shared/"
+
+#includelist
+#ifdef FTE
+defs/fte.qc
+#else
+defs/standard.qc
+#endif
+shared_defs.qc
+defs/custom.qc
+weapon_stats.qc
+utilities/math.qc
+clientfuncs.qc
+hash_table.qc
+dummies.qc
+rounds.qc
+main.qc
+utilities/weapon_utilities.qc
+utilities/game_restart.qc
+utilities/command_parser.qc
+player.qc
+damage.qc
+entities/sub_functions.qc
+entities/sounds.qc
+entities/triggers.qc
+entities/spawn_points.qc
+entities/explosive_barrel.qc
+entities/teleporter.qc
+entities/map_entities.qc
+entities/func.qc
+entities/traps.qc
+entities/lights.qc
+entities/pack_a_punch.qc
+entities/mystery_box.qc
+entities/doors.qc
+entities/window.qc
+entities/machines.qc
+entities/wall_weapon.qc
+weapons/frames_core.qc
+weapons/rocket_launcher.qc
+weapons/ray_gun.qc
+weapons/tesla.qc
+weapons/flamethrower.qc
+weapons/grenade_launcher.qc
+weapons/bouncing_betty.qc
+weapons/weapon_core.qc
+entities/powerups.qc
+#ifdef FTE
+ai/pathfind_code.qc
+#endif
+ai/ai_core.qc
+#ifdef FTE
+ai/fte/waypoints_core.qc
+#else
+ai/standard/waypoints_func.qc
+ai/standard/waypoints_core.qc
+#endif
+ai/zombie_core.qc
+ai/crawler_core.qc
+ai/dog_core.qc
+utilities/map_compatibility.qc
+#endlist
