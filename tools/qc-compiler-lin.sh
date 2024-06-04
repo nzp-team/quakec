@@ -15,8 +15,8 @@ cd bin/
 echo "Compiling FTE CSQC.."
 ./fteqcc-cli-lin -srcfile ../progs/csqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
 echo "Compiling FTE SSQC.."
-./fteqcc-cli-lin -O2 -DFTE -srcfile ../progs/ssqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
+./fteqcc-cli-lin -O3 -DFTE -srcfile ../progs/ssqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
 echo "Compiling Standard/Id SSQC.."
-./fteqcc-cli-lin -O2 -srcfile ../progs/ssqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
+./fteqcc-cli-lin -O3 -srcfile ../progs/ssqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
 
 echo "End of script."

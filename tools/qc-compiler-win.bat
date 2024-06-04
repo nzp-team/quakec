@@ -16,9 +16,9 @@ REM ****** build.. ******
 echo Compiling FTE CSQC..
 fteqcc-cli-win.exe -srcfile ../progs/csqc.src
 echo Compiling FTE SSQC..
-fteqcc-cli-win.exe -O2 -DFTE -srcfile ../progs/ssqc.src
+fteqcc-cli-win.exe -O3 -DFTE -srcfile ../progs/ssqc.src
 echo Compiling Standard/Id SSQC..
-fteqcc-cli-win.exe -O2 -srcfile ../progs/ssqc.src
+fteqcc-cli-win.exe -O3 -srcfile ../progs/ssqc.src
 
 echo End of script.
 pause
