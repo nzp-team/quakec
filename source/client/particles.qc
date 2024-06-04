@@ -68,10 +68,6 @@ void() Particles_MuzzleflashCallback =
 	muzzleflash_position += v_right * muzzleflash_offset_x;
 	muzzleflash_position += v_up * muzzleflash_offset_y;
 
-	//R_DrawPolygon("gfx/hud/revive.tga");			
-
-/*
-
 	float muzzleflash_type = rint(random() * 2); // Choose one of three Muzzleflash variances.
 
 	// Display Muzzleflash Particle and Dynamic Light
@@ -96,8 +92,6 @@ void() Particles_MuzzleflashCallback =
 		pointparticles(particleeffectnum("weapons.impact"), particle_position, '0 0 0', 1);
 		pointparticles(particleeffectnum("weapons.impact_decal"), particle_position, '0 0 0', 1);
 	}
-
-*/
 
 };
 
