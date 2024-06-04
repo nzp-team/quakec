@@ -1789,7 +1789,7 @@ void() CheckPlayer =
 				ent.beingrevived = true;
 				ent.firer = self;
 				
-				if (!self.progress_bar_percent) {
+				if (!self.reviving) {
 					ChangeReviveIconState(ent.electro_targeted, 2);
 					self.movetype = MOVETYPE_TOSS;
 					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_RIGHT);
