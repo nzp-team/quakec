@@ -26,7 +26,6 @@
 */
 
 // Triggers
-void() trigger_relay            = {remove(self);};
 void() trigger_changelevel      = {remove(self);};
 void() trigger_counter          = {remove(self);};
 void() trigger_secret           = {remove(self);};
