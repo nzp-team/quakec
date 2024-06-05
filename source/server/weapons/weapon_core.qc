@@ -1668,6 +1668,8 @@ void() CheckPlayer =
 	CheckRevive(self);
 
 	if (self.sprinting) {
+		makevectors(self.angles);
+
 		// We should stop sprinting if we are falling, technically
 		// CoD continues the animation but applies a move speed
 		// penalty, however, that makes no sense! This also applies
@@ -1679,6 +1681,11 @@ void() CheckPlayer =
 		// for an engine-side hack for toggle sprinting turning off when
 		// you're applying less pressure to the analog stick.
 		else if (vlen(self.velocity) <= 130 && self.sprint_delay <= time + 0.75)
+			W_SprintStop();
+		// Another sprinting caveat -- if we are moving a considerabe distance
+		// horizontally, much more than reasonable, it is very obviously impossible
+		// to actually sprint.
+		else if (fabs(self.velocity * v_right) >= fabs(self.velocity * v_forward) * 0.75)
 			W_SprintStop();
 	}
 
