@@ -287,7 +287,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 				default:
 					break;
 			}
-			addmoney(other, self.cost*-1, 0);
+			Player_RemoveScore(other, self.cost);
 			self.solid = SOLID_NOT;
 		}
 		else

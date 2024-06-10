@@ -343,7 +343,7 @@ void() button_touch =
 				other.semi_actions |= SEMIACTION_USE;
 				if(other.points >= self.cost) {
 					self.enemy = other;
-					addmoney(other, 0 - self.cost, FALSE);
+					Player_RemoveScore(other, self.cost);
 					button_fire();
 
 					return;
@@ -421,7 +421,7 @@ void() touch_ending =
 		if (other.points < self.cost)
 			return;
 
-		addmoney(other, -self.cost, 0);
+		Player_RemoveScore(other, self.cost);
 
 		entity tempe;
 		entity players = find(world, classname, "player");

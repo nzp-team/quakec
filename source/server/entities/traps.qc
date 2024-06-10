@@ -251,7 +251,7 @@ void zapper_touch () {
 		}
 
 		zapper_start(self.zappername);
-		addmoney(other, -1*self.cost, false);
+		Player_RemoveScore(other, self.cost);
 	}
 }
 

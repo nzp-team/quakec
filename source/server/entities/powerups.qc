@@ -250,7 +250,7 @@ void() PU_NukeFinalize =
 	players = find(world,classname,"player");
 	while(players)
 	{
-		addmoney(players, 400*nuke_powerups_activated, 1);
+		Player_AddScore(players, 400 * nuke_powerups_activated, true);
 		players = find(players,classname,"player");
 	}
 
@@ -390,7 +390,7 @@ void() PU_CarpenterFinalize =
 
 	// Reward Players with Points
 	while(players) {
-		addmoney(players, 200, 1);
+		Player_AddScore(players, 200, true);
 
 		players = find(players, classname, "player");
 	}

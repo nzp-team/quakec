@@ -1567,7 +1567,7 @@ void () Impulse_Functions =
 			break;
 		case 22:
 			if (cheats_have_been_activated) {
-				addmoney(self, 10000, 0);
+				Player_AddScore(self, 10000, true);
 				rounds += 4;
 			}
 			break;
@@ -1822,7 +1822,7 @@ void() CheckPlayer =
 					self.progress_bar_time = 0;
 					self.progress_bar_percent = 0;
 					self.revived = 0;
-					addmoney(self, ent.requirespower, false);
+					Player_AddScore(self, ent.requirespower, false);
 
 
 					#ifdef FTE
