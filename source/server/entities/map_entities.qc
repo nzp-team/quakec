@@ -94,8 +94,9 @@ void() radio_hit =
 
 void() item_radio = 
 {
-	if (!self.model)
-		self.model = "models/props/radio.mdl";
+	if (!self.model) self.model = "models/props/radio.mdl";
+	if (!self.mins) self.mins = '-8 -8 -4';
+	if (!self.maxs) self.maxs = '8 8 4';
 	
 	precache_model (self.model);
 	precache_sound ("sounds/misc/radio.wav");
@@ -111,7 +112,7 @@ void() item_radio =
 	self.solid=SOLID_BBOX;
 	self.classname = "item_radio";
 	setmodel (self, self.model);
-	setsize (self, '-8 -8 -4', '8 8 4');
+	setsize (self, self.mins, self.maxs);
 
 	self.takedamage = DAMAGE_YES;
 	self.health = 1;
