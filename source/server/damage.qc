@@ -451,7 +451,7 @@ void(entity attacker, float d_style) DieHandler =
 				break;
 		}
 
-		Player_AddScore(attacker, 50, true);
+		Player_AddScore(attacker, points_earned, true);
     }
 }
 
