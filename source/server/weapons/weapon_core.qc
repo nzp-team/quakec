@@ -1195,7 +1195,7 @@ void() WeaponCore_Melee =
 	vector trace_source = self.origin + self.view_ofs;
 	traceline(trace_source, trace_source + v_forward * melee_range, 0, self);
 
-	if (fabs(trace_endpos_z - trace_source_z) <= 15) {
+	if (trace_endpos_z - trace_source_z <= 15) {
 		// Check if this is a Zombie limb, set to the body if so
 		if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
 			trace_ent = trace_ent.owner;
