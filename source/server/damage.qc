@@ -144,8 +144,8 @@ void() EndGameSetup =
 		NotifyGameEnd();
 	}
 	game_over = true;
-	addmoney(self, -self.points, 0);
-	addmoney(self, self.score, 0);	
+	Player_RemoveScore(self, self.points);
+	Player_AddScore(self, self.score, false);
     return;
 }
 
@@ -212,7 +212,8 @@ void() GetDown =
 	float point_difference;
 	point_difference = self.points;
 	point_difference -= 10*rint((self.points*0.95)/10);
-	addmoney(self, point_difference * -1, false);
+	Player_RemoveScore(self, point_difference);
+
 	self.requirespower = point_difference;
 
 #ifdef FTE
@@ -396,7 +397,7 @@ void () GetUp =
 	self.teslacount = 0;
 
 	if (!player_count) {
-		addmoney(self, self.requirespower, false);
+		Player_AddScore(self, self.requirespower, false);
 	}
 
 	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk);
@@ -427,27 +428,30 @@ void(entity attacker, float d_style) DieHandler =
     if (attacker.classname == "player") {
 		attacker.kills++;
 
+		float points_earned = 0;
 		switch(d_style) {
 			case S_HEADSHOT:
-				addmoney(attacker, 100, true);
+				points_earned = 100;
 				attacker.headshots++;
 				break;
 			case S_KNIFE:
-				addmoney(attacker, 130, true);
+				points_earned = 130;
 				break;
 			case S_TESLA:
-				addmoney(attacker, 50, true);
+				points_earned = 50;
 				break;
 			case S_FLAME:
-				addmoney(attacker, 50, true);
+				points_earned = 50;
 
 				// override their death sound (FIXME: make a new sound..)
 				sound(self, CHAN_BODY, "sounds/pu/drop.wav", 1, ATTN_NORM);
 				break;
 			default:
-				addmoney(attacker, 60, true);
+				points_earned = 60;
 				break;
 		}
+
+		Player_AddScore(attacker, points_earned, true);
     }
 }
 
@@ -459,8 +463,8 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 	entity old_self;
 	if (victim.classname == "ai_zombie" || victim.classname == "ai_dog") {
 
-		if (attacker.classname == "player" && (victim.health - damage)> 0) {
-			addmoney(attacker, 10, 1);
+		if (attacker.classname == "player" && (victim.health - damage) > 0) {
+			Player_AddScore(attacker, 10, true);
         }
 
 		victim.health = victim.health - damage;
@@ -472,9 +476,9 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 			}
 				
 			if (victim.health <= 0)
-				addmoney(attacker, 60, 1);
+				Player_AddScore(attacker, 60, true);
 			else
-				addmoney(attacker, 10, 1);
+				Player_AddScore(attacker, 10, true);
 		}
 
 		if (victim.health <= 0 || instakill_finished > time) {
@@ -639,11 +643,11 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			
 				if (final_damage < other.health)
 				{
-					addmoney(self, 10, 0);
+					Player_AddScore(self, 10, false);
 				}
 				else if (final_damage > other.health)
 				{
-					addmoney(self, 60, 0);
+					Player_AddScore(self, 10, false);
 				}
 				else
 				{

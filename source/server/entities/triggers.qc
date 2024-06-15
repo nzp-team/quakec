@@ -321,6 +321,14 @@ void() trigger_once =
 	trigger_multiple();
 }
 
+/*QUAKED trigger_relay (.5 .5 .5) (-8 -8 -8) (8 8 8)
+This fixed size trigger cannot be touched, it can only be fired by other events.  It can contain killtargets, targets, delays, and messages.
+*/
+void() trigger_relay =
+{
+	self.use = SUB_UseTargets;
+};
+
 void() trigger_atroundend =
 {
 	self.classname = "trigger_atroundend";
@@ -370,7 +378,7 @@ void() trigger_awardpoints_touch =
 	if (other.stance != PLAYER_STANCE_PRONE && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE))
 		return;
 
-	addmoney(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
+	Player_AddScore(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
 
 	if (self.noise != "")
 		sound(self, 0, self.noise, 1, 1);

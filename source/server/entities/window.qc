@@ -62,7 +62,8 @@ void() Window_repaired =
 	if (maxreward > totalreward)
 	{
 		sound(self, 0,"sounds/misc/ching.wav", 1, ATTN_NORM);
-		addmoney(self.enemy, 10, 1);
+		Player_AddScore(self.enemy, 10, true);
+
 		totalreward = totalreward + 10;
 	}
 	screen_shake();

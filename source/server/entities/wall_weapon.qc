@@ -199,7 +199,7 @@ void () WallWeapon_TouchTrigger =
 			other.reload_delay = 0;
 
 			// Subtract the cost from player points.
-			addmoney(other, wcost*-1, 0);
+			Player_RemoveScore(other, wcost);
 
 			if (self.enemy) {
 				oldent = self;
@@ -244,7 +244,7 @@ void () WallWeapon_TouchTrigger =
 			other.reload_delay = 0;
 
 			// Subtract the cost from player points.
-			addmoney(other, wcost*-1, 0);
+			Player_RemoveScore(other, wcost);
 
 			if (self.enemy) {
 				oldent = self;
@@ -276,7 +276,7 @@ void () WallWeapon_TouchTrigger =
 			other.reload_delay = 0;
 			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 			//other.boughtweapon = true;
-			addmoney(other, 0 - self.cost2, FALSE);
+			Player_RemoveScore(other, self.cost2);
 			other.grenades = other.grenades | 2;
 			other.secondary_grenades = 2;
 			nzp_bettyprompt(other);
@@ -311,7 +311,7 @@ void () WallWeapon_TouchTrigger =
 			other.reload_delay = 0;
 			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 			//other.boughtweapon = true;
-			addmoney(other, 0 - self.cost, FALSE);
+			Player_RemoveScore(other, self.cost);
 			other.primary_grenades = 4;
 			if (self.enemy)
 			{
@@ -336,7 +336,7 @@ void () WallWeapon_TouchTrigger =
 					return;
 				} else {
 					W_HideCrosshair(other);
-					addmoney(other, -self.cost2, FALSE);
+					Player_RemoveScore(other, self.cost2);
 					sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 					other.ach_tracker_coll++;
 					if (self.enemy)
@@ -376,7 +376,7 @@ void () WallWeapon_TouchTrigger =
 
 		sound(other, 0, "sounds/misc/ching.wav", 1, 1);
 		other.reload_delay = 0;
-		addmoney(other, -1*self.cost, 0);
+		Player_RemoveScore(other, self.cost);
 		if (self.enemy) {
 			oldent = self;
 			self = self.enemy;

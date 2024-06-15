@@ -28,6 +28,7 @@
 */
 
 void(vector where, float type) Spawn_Powerup;
+void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore;
 
 // Whether the command prohibits client-sending.
 float client_parse_override;
@@ -84,7 +85,7 @@ float(string params) Command_addmoney =
     }
 
     // Assign points to the player.
-    addmoney(self, point_value, 0);
+    Player_ChangeScore(self, point_value, false);
 
     return COMMAND_SUCCESS;
 }

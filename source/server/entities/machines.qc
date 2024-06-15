@@ -300,7 +300,7 @@ void() touch_perk =
 		useprint(other, 9, price, self.sequence);
 
 		if (other.points >= price && other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
-			addmoney(other, -price, 0);
+			Player_RemoveScore(other, price);
 
 			// Play the sound of the bottle "vending"
 			sound(self, CHAN_ITEM,"sounds/machines/vend.wav", 1, 1);

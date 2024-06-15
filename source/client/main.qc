@@ -56,6 +56,13 @@ void() ToggleMenu =
 	}
 }
 
+float(float isnew) SetZombieSkinning =
+{
+	self.drawmask = MASK_ENGINE;
+	setcustomskin(self, __NULL__, sprintf("replace \"\" \"models/ai/zfull.mdl_%d.pcx\"\n", self.skin));
+	return PREDRAW_NEXT;
+};
+
 noref void(float apiver, string enginename, float enginever) CSQC_Init =
 {
 	setwindowcaption("Nazi Zombies: Portable");
@@ -96,7 +103,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	buttonBind[2] = "+moveleft";
 	buttonBind[3] = "+moveright";
 	buttonBind[4] = "impulse 10";
-	buttonBind[5] = "+sprint";
+	buttonBind[5] = "impulse 23";
 	buttonBind[6] = "impulse 30";
 	buttonBind[7] = "+button4";
 	buttonBind[8] = "+button4";
@@ -162,6 +169,11 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	if (file != -1) {
 		build_datetime = fgets(file);
 		fclose(file);
+	}
+
+	// Intercept every Zombie mesh to apply custom skinning
+	for(float i = 0; i < zombie_skins.length; i++) {
+		deltalisten(zombie_skins[i], SetZombieSkinning, 0);
 	}
 };
 
@@ -987,7 +999,13 @@ noref void() CSQC_Parse_Event =
 			break;
 		case CSQC_EVENT_MUSICSTREAM:
 			string track_name = readstring();
-			localsound_enhanced(strcat("tracks/", track_name, ".ogg"), CHAN_MUSIC, 1);
+			string track_extension;
+			if (platform_is_web)
+				track_extension = ".wav";
+			else
+				track_extension = ".ogg";
+
+			localsound_enhanced(strcat("tracks/", track_name, track_extension), CHAN_MUSIC, 1);
 			break;
 		case CSQC_EVENT_GIVEACHIEVEMENT:
 			float achievement_id = readbyte();

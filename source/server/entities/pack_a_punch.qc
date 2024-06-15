@@ -172,7 +172,8 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 
 	tempe = self;
 	self = buyer;
-	addmoney (self, -pap.cost, 0);
+
+	Player_RemoveScore(self, pap.cost);
 
 	// Spawn Upgrade Spark if permitted
     if (!(pap.spawnflags & PAP_SPAWNFLAG_NOSPARK))

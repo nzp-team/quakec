@@ -596,23 +596,6 @@ float() crandom =
 	return 2*(random() - 0.5);
 }
 
-void(entity person, float expamt, float doublepoint) addmoney =
-{
-	if (person.classname != "player" || person.downed)
-		return;
-
-	if (expamt > 0 && doublepoint == TRUE && x2_finished > time) {
-		expamt *= 2;
-		person.score += expamt;
-	}
-
-	// Combine the positive score with the powerup score tally
-	if (expamt > 0)
-		total_powerup_points += expamt;
-
-	person.points += expamt;
-};
-
 float(entity them, entity me) PlayerIsLooking =
 {
 	float ret = false;

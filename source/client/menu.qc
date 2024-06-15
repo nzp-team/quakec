@@ -878,7 +878,7 @@ var struct
 	{[6, 95], "Cooperative", -1, menu_multi, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 1
 	// ...
 	{[6, 125], "Settings", -1, menu_settings, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 2
-	{[6, 145], "Achievements", -1, menu_achievements, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 3
+	{[6, 145], "Achievements", -1, menu_achievements, null, MENU_MAIN, 0, OPTION_EXE_ONLY}, // 3
 	// ...
 	{[6, 175], "Credits", -1, menu_about, null, MENU_MAIN, 0, OPTION_WEB_AND_EXE}, // 4
 	// ...
@@ -977,7 +977,10 @@ var struct
 	{[6, 115], "Choose Map", -1, menu_matchmake, null, MENU_CREATE, 0, OPTION_WEB_AND_EXE}, // 65
 
 	// Control Settings (cont.)
-	{[6, 115], "Invert Mouse", -1, setting_invert, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE} // 66
+	{[6, 115], "Invert Mouse", -1, setting_invert, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 66
+
+	// Main menu (cont.)
+	{[6, 145], "Achievements (Not on Web)", -1, null, null, MENU_MAIN, 1, OPTION_WEB_ONLY}, // 3
 };
 
 float lastActive;
@@ -2007,9 +2010,15 @@ void() Draw_Menu =
 		return;
 	}
 
+	string menu_track_path;
+	if (platform_is_web)
+		menu_track_path = "tracks/tensioned_by_the_damned.wav";
+	else
+		menu_track_path = "tracks/tensioned_by_the_damned.ogg";
+
 	// main menu theme iterating
 	if (menu_initialized == false && in_menu == MENU_MAIN) {
-		localsound_enhanced("tracks/tensioned_by_the_damned.ogg", CHAN_MUSIC, 1);
+		localsound_enhanced(menu_track_path, CHAN_MUSIC, 1);
 		menu_sound_length = 490;
 		menu_sound_time = 0;
 		menu_initialized = true;
@@ -2017,7 +2026,7 @@ void() Draw_Menu =
 
 	// restart the track if it has ended
 	if (menu_initialized == true && (menu_sound_time >= menu_sound_length - 1)) {
-		localsound_enhanced("tracks/tensioned_by_the_damned.ogg", CHAN_MUSIC, 1);
+		localsound_enhanced(menu_track_path, CHAN_MUSIC, 1);
 		menu_sound_time = 0;
 	}
 

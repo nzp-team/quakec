@@ -85,7 +85,7 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
         // 50 points for waffe kills
         if(arc_owner.classname == "player") {
             arc_owner.kills += 1;
-            addmoney(arc_owner, 50, true);
+            Player_AddScore(arc_owner, 50, true);
         }
     }
 
