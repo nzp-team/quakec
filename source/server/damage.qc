@@ -455,9 +455,9 @@ void(entity attacker, float d_style) DieHandler =
     }
 }
 
-void(entity victim,entity attacker, float damage, float d_style) DamageHandler = {
+void(entity victim, entity attacker, float damage, float d_style) DamageHandler = {
 	// don't do any attacking during nuke delay
-	if (d_style == S_ZOMBIE && nuke_powerup_active > time)
+	if (d_style == S_NORMAL && nuke_powerup_active > time)
 		return;
 
 	entity old_self;
@@ -529,9 +529,9 @@ void(entity victim,entity attacker, float damage, float d_style) DamageHandler =
 
 		// Play pain noise if this isn't done by an electric barrier.
 		if (d_style != S_ZAPPER)
-			sound (self, CHAN_AUTO, "sounds/player/pain4.wav", 1, ATTN_NORM);
+			sound (victim, CHAN_AUTO, "sounds/player/pain4.wav", 1, ATTN_NORM);
 		else
-			sound (self, CHAN_AUTO, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+			sound (victim, CHAN_AUTO, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
 
 		if (victim.sprinting) {
 			old_self = self;
