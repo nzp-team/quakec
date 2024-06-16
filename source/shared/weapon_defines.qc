@@ -1537,7 +1537,7 @@ float GetWeaponWalkSpeed(float perks, float weapon)
 
 /*
 ===========================
-Weapon PSP ADS Declarations
+Weapon ADS Declarations
 ===========================
 */
 // x: left/right
@@ -1559,7 +1559,7 @@ vector GetWeaponADSOfs(float wep) =
 			return [-5295.9, 3206.9, -5000];
 		case W_KAR_SCOPE:
 		case W_HEADCRACKER:
-			return [-5286, 706.1, 0];
+			return [-5286, 706.1, -1500];
 		case W_THOMPSON:
 		case W_GIBS:
 			return [-6200.3, 3407.6, -800]; 
@@ -1617,7 +1617,7 @@ vector GetWeaponADSOfs(float wep) =
 			return [-8000, 3020, -6500];
 		case W_PTRS:
 		case W_PENETRATOR:
-			return [-7200, 906.9, 0];
+			return [-7200, 906.9, -6500];
 		case W_PANZER:
 		case W_LONGINUS:
 			return [-7679.2, 2900, -20000];

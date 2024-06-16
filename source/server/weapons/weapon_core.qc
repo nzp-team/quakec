@@ -143,7 +143,7 @@ void() W_AimIn =
 	}
 
 	if (WepDef_HasSniperScore(self.weapon))
-		self.scopetime = time + 0.3;
+		self.scopetime = time + 0.2;
 	
 	// Even if the weapon is scoped, we should still initialize
 	// the Zoom factor of one so it begins moving into position.
