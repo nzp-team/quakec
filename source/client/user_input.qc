@@ -40,10 +40,19 @@ string(string source, float spec_key, float key, float max_length) GetUserInput 
     if (strlen(source) >= max_length)
         return source;
 
-    // Key is out of range (thanks Nuclide)
-    if ((key < 32 || key > 125))
+    // Seriously bad HACKS incoming...
+    // The if statement is supposed to be checking "key" and not "spec_key"
+    // but... checking key doesn't play nice with SDL for some reason.
+    // This breaks any letter/symbol you need to press shift to type.
+    // This includes capital letters.
+    // TODO TODO TODO Fix this... or hope the new revamp fixes it.
+    //if ((key < 32 || key > 125))
+    //    return source
+    if ((spec_key < 32 || spec_key > 125))
         return source;
 
     // Append and send that shit out!
-    return sprintf("%s%s", source, chr2str(key));
+    // This is supposed to be appending "key"... but it isn't
+    // too bad!
+    return sprintf("%s%s", source, chr2str(spec_key));
 }
