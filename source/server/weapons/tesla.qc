@@ -85,7 +85,7 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
         // 50 points for waffe kills
         if(arc_owner.classname == "player") {
             arc_owner.kills += 1;
-            Player_AddScore(arc_owner, 50, true);
+            Player_AddScore(arc_owner, DMG_SCORE_TESLA, true);
         }
     }
 
@@ -332,10 +332,7 @@ void() W_FireTesla =
                 float damage = lerp(0, 75, lerp_frac);
                 // print("Giving player ",ftos(damage), " damage.\n");
 
-                if (other.perks & P_JUG)
-    				DamageHandler(ent, self, damage, S_ZAPPER);
-	    		else
-		    		DamageHandler(ent, self, damage, S_ZAPPER);
+                DamageHandler(ent, self, damage, DMG_TYPE_ELECTRICTRAP);
                 // ----------------------------------------
             }
 
