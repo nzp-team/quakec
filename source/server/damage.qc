@@ -457,7 +457,7 @@ void(entity attacker, float d_style) DieHandler =
 
 void(entity victim, entity attacker, float damage, float d_style) DamageHandler = {
 	// don't do any attacking during nuke delay
-	if (d_style == S_NORMAL && nuke_powerup_active > time)
+	if (d_style == S_ZOMBIE && nuke_powerup_active > time)
 		return;
 
 	entity old_self;
