@@ -82,7 +82,7 @@ void() door_go_up;
 
 void() door_blocked =
 {
-			DamageHandler (other, self, self.dmg, S_NORMAL); 
+			DamageHandler (other, self, self.dmg, DMG_TYPE_OTHER); 
 	
 // if a door has a negative wait, it would never come back if blocked,
 // so let it just squash the object to death real fast

@@ -752,13 +752,18 @@ void Parse_Damage () = // DO NOT TOUCH
 			}
 			
 			if (head_hit)
-				DamageHandler(body_ent,self, total_dmg, S_HEADSHOT);
-			else
-				DamageHandler(body_ent,self, total_dmg, S_NORMAL);
+				DamageHandler(body_ent,self, total_dmg, DMG_TYPE_HEADSHOT);
+			else {
+				if (body_ent.hit_region == HIT_REGION_TORSO_LOWER)
+					DamageHandler(body_ent,self, total_dmg, DMG_TYPE_LOWERTORSO);
+				else
+					DamageHandler(body_ent,self, total_dmg, DMG_TYPE_UPPERTORSO);
+			}
 			
 			if (body_ent != world) {
 				body_ent.washit = 0;
 				body_ent.hitamount = 0;
+				body_ent.hit_region = 0;
 			}
 		}
 		ent = findfloat (ent, washit, 1);
@@ -813,16 +818,22 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 		switch(hit_ent.classname) {
 			case "ai_zombie_head":
 				f_damage = damage*getWeaponMultiplier(self.weapon, HEAD_X);
+				hit_ent.hit_region = HIT_REGION_HEAD;
 				break;
 			case "ai_zombie_larm":
 			case "ai_zombie_rarm":
 				f_damage = damage*getWeaponMultiplier(self.weapon, LIMBS_X);
+				hit_ent.hit_region = HIT_REGION_ARM;
 				break;
 			case "ai_zombie":
-				if (trace_endpos_z < hit_ent.origin_z)
+				if (trace_endpos_z < hit_ent.origin_z) {
 					f_damage = damage*getWeaponMultiplier(self.weapon, LOWER_TORSO_X);
-				else
+					hit_ent.hit_region = HIT_REGION_TORSO_LOWER;
+				}
+				else {
 					f_damage = damage*getWeaponMultiplier(self.weapon, UPPER_TORSO_X);
+					hit_ent.hit_region = HIT_REGION_TORSO_UPPER;
+				}
 				break;
 			default:
 				f_damage = damage;
@@ -1248,7 +1259,7 @@ void() WeaponCore_Melee =
 			// Apply damage to the entity.
 			if (trace_ent.takedamage) {
 				float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
-				DamageHandler (trace_ent, self, melee_damage, S_KNIFE);
+				DamageHandler (trace_ent, self, melee_damage, DMG_TYPE_MELEE);
 			}
 		}
 	}
@@ -1344,7 +1355,7 @@ void() Velocity_reduce =
 {
 	// Do one (1) damage on monster contact, to kill when Insta-Kill is active.
 	if (other.flags & FL_MONSTER)
-		DamageHandler(other, self.owner, 1, S_NORMAL);
+		DamageHandler(other, self.owner, 1, DMG_TYPE_OTHER);
 
 	if (!other.solid || other.solid == SOLID_TRIGGER)
 		if (other != world)
@@ -1716,8 +1727,8 @@ void() CheckPlayer =
 		traceline(self.origin, self.origin + (v_up * -40), 0, self);
 
 		if (trace_ent.classname == "player") {
-			DamageHandler(self, trace_ent, 100000, S_NORMAL);
-			DamageHandler(trace_ent, self, 100000, S_NORMAL);
+			DamageHandler(self, trace_ent, 100000, DMG_TYPE_OTHER);
+			DamageHandler(trace_ent, self, 100000, DMG_TYPE_OTHER);
 		}
 	}
 	
@@ -1749,7 +1760,7 @@ void() CheckPlayer =
 
 			if (damage > 98) damage = 98;
 			
-			DamageHandler (self, other, damage, S_ZOMBIE);	
+			DamageHandler (self, other, damage, DMG_TYPE_OTHER);	
 
 			if (self.health <= 5)
 				GiveAchievement(7, self);	
