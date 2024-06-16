@@ -400,7 +400,7 @@ void() Zombie_Think = //called every frame for zombies
 		Effect_Fire(self.origin);
 
 		if (self.ltime < time && self.onfire){
-			DamageHandler(self, self.firer, 300, S_FLAME);
+			DamageHandler(self, self.firer, 300, DMG_TYPE_FLAMETHROWER);
 			self.ltime = time + 2;
 
 			if (self.fire_timeout < time)
@@ -418,7 +418,7 @@ void() Zombie_Think = //called every frame for zombies
 	if (self.bleedingtime < time && !self.head.deadflag)
 	{
 		self.bleedingtime = time + 1;
-		DamageHandler (self, self.usedent, z_health * 0.2, S_HEADSHOT);
+		DamageHandler (self, self.usedent, z_health * 0.2, DMG_TYPE_HEADSHOT);
 	}
 
 	// If we're mid attack and our enemy has moved out of range
@@ -634,9 +634,9 @@ void() zombie_attack2 =
 		if(vlen(self.enemy.origin - self.origin) < 64)
 		{
 			if (self.classname == "ai_dog")
-				DamageHandler (self.enemy, self, 40, S_ZOMBIE);
+				DamageHandler (self.enemy, self, 40, DMG_TYPE_ZOMBIESWIPE);
 			else
-				DamageHandler (self.enemy, self, 50, S_ZOMBIE);
+				DamageHandler (self.enemy, self, 50, DMG_TYPE_ZOMBIESWIPE);
 		}
 	}
 	else return;
@@ -747,7 +747,7 @@ void() zombie_attack_through_window =
 	{
 		if(who.classname == "player")
 		{
-			DamageHandler (who, self, ZOMBIE_DAMAGE_THROUGH_WINDOW, S_ZOMBIE);
+			DamageHandler (who, self, ZOMBIE_DAMAGE_THROUGH_WINDOW, DMG_TYPE_ZOMBIESWIPE);
 		}
 		who = who.chain;
 	}

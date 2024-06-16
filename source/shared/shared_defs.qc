@@ -261,14 +261,17 @@ float 	map_compatibility_mode;
 #define MELEE_NORMAL	15
 #define MELEE_LUNGED 	16
 
-#define S_HEADSHOT	1
-#define S_KNIFE		2
-#define S_NORMAL	3
-#define S_ZOMBIE	4
-#define S_EXPLOSIVE	5
-#define S_ZAPPER	6
-#define S_TESLA 	7
-#define S_FLAME		8
+#define DMG_TYPE_HEADSHOT		1  		// Player-inflicted: Headshot
+#define DMG_TYPE_MELEE			2  		// Player-inflicted: Melee
+#define DMG_TYPE_UPPERTORSO		3  		// Player-inflicted: Upper torso shot
+#define DMG_TYPE_LOWERTORSO		4   	// Player-inflicted: Lower torso shot
+#define DMG_TYPE_EXPLOSIVE		5       // Player-inflicted: Non-grenade explosive weapon
+#define DMG_TYPE_FLAMETHROWER	6  		// Player-inflicted: Flamethrower
+#define DMG_TYPE_GRENADE 		7  		// Player-inflicted: Grenade-based weapons (includes Ray Gun)
+#define DMG_TYPE_TESLA 			8   	// Player-inflicted: Wunderwaffe
+#define DMG_TYPE_ZOMBIESWIPE	9  		// Zombie-inflicted: Any attack on Player
+#define DMG_TYPE_ELECTRICTRAP	10 		// Trap-inflicted: Electric trap damage
+#define DMG_TYPE_OTHER 			11 		// For use with misc. damage infliction
 
 //Perk types
 #define 	P_JUG		1

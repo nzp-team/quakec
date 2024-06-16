@@ -394,7 +394,13 @@ float sounds_playing;
 //.float OrgStuckCount;
 .float crawling;
 
+#define HIT_REGION_HEAD 		1
+#define HIT_REGION_ARM 			2
+#define HIT_REGION_TORSO_LOWER 	3
+#define HIT_REGION_TORSO_UPPER	4
+
 .float washit;
+.float hit_region;
 .float hitamount;
 
 .float laststep;
