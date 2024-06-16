@@ -147,9 +147,9 @@ float K_LEFTDOWN, K_RIGHTDOWN, K_BACKDOWN, K_FORWARDDOWN;
 #define 	P_FLOP		16
 #define 	P_STAMIN	32
 
-vector TEXT_LIGHTBLUE = [(2/255), (118/255), (181/255)];
-vector TEXT_ORANGE    = [(235/255), (189/255), 0];
-vector TEXT_GREEN     = [0, (230/255), (34/255)];
+vector TEXT_LIGHTBLUE = [0, 0.46, 0.70];
+vector TEXT_ORANGE    = [0.92, 0.74, 0];
+vector TEXT_GREEN     = [0, 0.90, 0.13];
 vector TEXT_RED       = [1, 0, 0];
 
 float screenflash_type;

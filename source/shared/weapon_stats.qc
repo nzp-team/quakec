@@ -1,5 +1,5 @@
 /*
-	shared/weapon_defines.qc
+	shared/weapon_stats.qc
 
 	all weapon stats are stored here
 
