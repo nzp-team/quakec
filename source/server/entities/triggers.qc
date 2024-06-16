@@ -417,7 +417,7 @@ void() hurt_touch =
 	(other.aistatus == "1" && !(self.spawnflags & HURT_SPAWNFLAG_NOAI)))
 	{
 		self.solid = SOLID_NOT;
-		DamageHandler(other, self, self.dmg, S_ZOMBIE);
+		DamageHandler(other, self, self.dmg, S_NORMAL);
 		self.think = hurt_on;
 		self.nextthink = time + 1;
 
