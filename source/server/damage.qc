@@ -474,11 +474,6 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 				makeCrawler(victim);
 				GiveAchievement(3, attacker);
 			}
-				
-			if (victim.health <= 0)
-				Player_AddScore(attacker, 60, true);
-			else
-				Player_AddScore(attacker, 10, true);
 		}
 
 		if (victim.health <= 0 || instakill_finished > time) {
