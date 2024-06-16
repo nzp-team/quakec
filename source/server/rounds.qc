@@ -240,16 +240,18 @@ void() NewRound =
 		// Set everyone to full health.
 		tempe.health = tempe.max_health;
 
+		// Reset total repaired barricades for this round
+		tempe.barricade_reward = 0;
+
 		tempe = find(tempe, classname, "player");
 	}
 
 	set_z_health();
 
-	maxreward = 50 * rounds;
-	if (maxreward > 500)
-		maxreward = 500;
+	barricade_reward_maximum = 50 * rounds;
+	if (barricade_reward_maximum > 500)
+		barricade_reward_maximum = 500;
 
-	totalreward = 0;
 	Current_Zombies = 0;
 	spawn_delay = 0;
 	totalpowerups = 0;

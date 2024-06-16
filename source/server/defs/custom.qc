@@ -511,10 +511,11 @@ float round_changetime;
 float blink_return;
 float delay_at_round;
 float spawn_delay;
-float maxreward;
-float totalreward;
 float totalpowerups;
 float sounds_playing;
+
+float barricade_reward_maximum;
+.float barricade_reward;
 
 float rounds;
 float rounds_change;
