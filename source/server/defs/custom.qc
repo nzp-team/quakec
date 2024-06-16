@@ -97,7 +97,6 @@ entity local_client;
 .float points;
 .float cost;
 .float cost2;
-void(entity person, float expamt , float doublepoint) addmoney;
 
 //stats
 .float score;

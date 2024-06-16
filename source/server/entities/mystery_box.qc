@@ -437,7 +437,8 @@ void() MBOX_TeddyLeave =
 void() MBOX_PresentTeddy =
 {
 	// Return the Player's points.
-	addmoney(self.owner.owner, mystery_box_cost, 0);
+	Player_AddScore(self.owner.owner, mystery_box_cost, false);
+
 	// Broadcast the bad luck.
 	sound(self, CHAN_ITEM, "sounds/misc/buy.wav", 1, ATTN_NONE);
 	sound(self, 2, "sounds/misc/giggle.wav", 1, ATTN_NONE);
@@ -510,7 +511,6 @@ void() Float_Change =
 			return;
 		}
 		else {
-			addmoney(self.owner.owner, mystery_box_cost, 0);
 			self.model = "models/props/teddy.mdl";
 			setmodel(self, self.model);
 			self.angles_y = self.angles_y - 90;
@@ -688,7 +688,7 @@ void() MBOX_Touch =
 			if (other.points >= mystery_box_cost)
 			{					
 				sound (self, CHAN_ITEM, mystery_box_open_sound, 1, ATTN_NORM);
-				addmoney(other, -mystery_box_cost, FALSE);
+				Player_RemoveScore(other, mystery_box_cost);
 				self.boxstatus = 1;
 				self.owner = other;
 				MBOX_PlayOpenAnimation();

@@ -121,9 +121,18 @@ void() W_AimIn =
 	if (IsDualWeapon(self.weapon) ||
 		self.reload_delay > time ||
 		self.knife_delay > time ||
-		self.sprinting ||
 		self.new_anim_stop) {		
 		return;
+	}
+
+	if (self.sprinting) {
+		W_SprintStop();
+
+		// FIXME: When we eventually allow custom delay values
+		// for every weapon animation, this hardcoded frame
+		// timer can be removed.
+		float sprint_fire_delay = fabs(GetFrame(self.weapon, SPRINT_OUT_END) - GetFrame(self.weapon, SPRINT_OUT_START))/10;
+		self.fire_delay = self.fire_delay2 = time + sprint_fire_delay;
 	}
 
 	float ads_frame = GetFrame(self.weapon, AIM_IN);
@@ -134,7 +143,7 @@ void() W_AimIn =
 	}
 
 	if (WepDef_HasSniperScore(self.weapon))
-		self.scopetime = time + 0.3;
+		self.scopetime = time + 0.2;
 	
 	// Even if the weapon is scoped, we should still initialize
 	// the Zoom factor of one so it begins moving into position.
@@ -167,23 +176,21 @@ void() W_AimOut =
 
 void() W_SprintStop =
 {
-	if (self.sprinting)
-	{
-		self.sprint_stop_time = time;
-		self.sprint_duration = self.sprint_timer;
-	}
-
 	if (self.isBuying || !self.sprinting)
 		return;
 
 	Weapon_PlayViewModelAnimation(ANIM_SPRINT_STOP, ReturnWeaponModel, 0);
 
+	// Run Walk for a few frames to simulate an ease in velocity
+	PAnim_Walk6();
+
 	self.zoom = 0;
 	self.tp_anim_time = 0;
-	PAnim_Walk6(); // Run Walk for a few frames to simulate an ease in velocity
 	self.sprinting = 0;
 	self.into_sprint = 0;
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = 0;
+	self.sprint_stop_time = time;
+	self.sprint_duration = self.sprint_timer;
 }
 
 
@@ -1172,7 +1179,7 @@ void() WeaponCore_Melee =
 	// Do not trigger if we're Aiming down the Sight, or
 	// already melee-ing, or doing some other action.
 	if (self.knife_delay > time || self.new_anim_stop ||
-	self.new_anim2_stop || self.zoom || !(self.flags & FL_ONGROUND))
+	self.new_anim2_stop || self.zoom)
 		return;
 
 	// Perform the third person animation if standing
@@ -1183,8 +1190,7 @@ void() WeaponCore_Melee =
 	W_HideCrosshair(self);
 
 	// Stop sprinting if we are
-	if (self.sprinting)
-		W_SprintStop();
+	W_SprintStop();
 
 	vector applied_velocity = '0 0 0'; // The lunge velocity we intend to apply to the player.
 	float melee_range = WepDef_GetWeaponMeleeRange(self.weapon); // Returns the range of the traceline to perform for hit detection.
@@ -1195,7 +1201,7 @@ void() WeaponCore_Melee =
 	vector trace_source = self.origin + self.view_ofs;
 	traceline(trace_source, trace_source + v_forward * melee_range, 0, self);
 
-	if (fabs(trace_endpos_z - trace_source_z) <= 15) {
+	if (trace_endpos_z - trace_source_z <= 15) {
 		// Check if this is a Zombie limb, set to the body if so
 		if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
 			trace_ent = trace_ent.owner;
@@ -1268,7 +1274,7 @@ void() WeaponCore_Melee =
 	self.knife_delay = anim_duration + time;
 
 	// Now apply the lunge velocity, but only if we're Standing.
-	if (self.stance == PLAYER_STANCE_STAND)
+	if (self.stance == PLAYER_STANCE_STAND && did_lunge)
 		self.velocity = applied_velocity;
 }
 
@@ -1450,8 +1456,7 @@ void() W_Grenade =
 
 	// Prevent the Player from Sprinting and also avoid issues with
 	// the equipment being completely cancelled..
-	if (self.sprinting)
-		W_SprintStop();
+	W_SprintStop();
 
 	W_HideCrosshair(self);
 	Set_W_Frame (0, 2, 0.6, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
@@ -1567,7 +1572,7 @@ void () Impulse_Functions =
 			break;
 		case 22:
 			if (cheats_have_been_activated) {
-				addmoney(self, 10000, 0);
+				Player_AddScore(self, 10000, true);
 				rounds += 4;
 			}
 			break;
@@ -1668,6 +1673,8 @@ void() CheckPlayer =
 	CheckRevive(self);
 
 	if (self.sprinting) {
+		makevectors(self.angles);
+
 		// We should stop sprinting if we are falling, technically
 		// CoD continues the animation but applies a move speed
 		// penalty, however, that makes no sense! This also applies
@@ -1679,6 +1686,11 @@ void() CheckPlayer =
 		// for an engine-side hack for toggle sprinting turning off when
 		// you're applying less pressure to the analog stick.
 		else if (vlen(self.velocity) <= 130 && self.sprint_delay <= time + 0.75)
+			W_SprintStop();
+		// Another sprinting caveat -- if we are moving a considerabe distance
+		// horizontally, much more than reasonable, it is very obviously impossible
+		// to actually sprint.
+		else if (fabs(self.velocity * v_right) >= fabs(self.velocity * v_forward) * 0.75)
 			W_SprintStop();
 	}
 
@@ -1789,7 +1801,7 @@ void() CheckPlayer =
 				ent.beingrevived = true;
 				ent.firer = self;
 				
-				if (!self.progress_bar_percent) {
+				if (!self.reviving) {
 					ChangeReviveIconState(ent.electro_targeted, 2);
 					self.movetype = MOVETYPE_TOSS;
 					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_RIGHT);
@@ -1815,7 +1827,7 @@ void() CheckPlayer =
 					self.progress_bar_time = 0;
 					self.progress_bar_percent = 0;
 					self.revived = 0;
-					addmoney(self, ent.requirespower, false);
+					Player_AddScore(self, ent.requirespower, false);
 
 
 					#ifdef FTE
@@ -2116,6 +2128,15 @@ void() WeaponCore_MeleeButtonPressed =
 
 	if (self.semi_actions & SEMIACTION_MELEE)
 		return;
+
+#ifdef FTE
+
+	// On FTE, we should resort to standard CoD
+	// behavior where pressing melee should cancel
+	// sprinting.
+	W_SprintStop();
+
+#endif // FTE
 
 	WeaponCore_Melee();
 	self.semi_actions |= SEMIACTION_MELEE;

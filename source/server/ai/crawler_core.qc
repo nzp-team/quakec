@@ -150,7 +150,7 @@ void() crawler_da10		=[	9,		crawler_da1	] 	{crawler_attack_choose(0); self.frame
 //37-39
 void() crawler_die1		=[	0,		crawler_die2] 	{SetZombieHitBox(CRAWLER_BBOX);self.frame = 37;};
 void() crawler_die2		=[	1,		crawler_die3] 	{self.frame = 38;};
-void() crawler_die3		=[	2,		SUB_Null] 	{self.iszomb = 0; self.frame = 39;self.nextthink = time + 3;self.think = removeZombie; addmoney(other, 60, true); if (crawler_num > 0) {crawler_num = crawler_num - 1;}};
+void() crawler_die3		=[	2,		SUB_Null] 	{self.iszomb = 0; self.frame = 39;self.nextthink = time + 3;self.think = removeZombie; if (crawler_num > 0) {crawler_num = crawler_num - 1;}};
 
 //====================== Crawler Tesla Death ============================
 void() crawler_death_wunder1		=[	72,		crawler_death_wunder2	]	{tesla_arc(); play_sound_z(4); };

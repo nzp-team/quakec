@@ -261,6 +261,41 @@ float(float dir) checkMovement =
 	}
 }
 
+#define Player_RemoveScore(who, value)	Player_ChangeScore(who, -value, false)
+#define Player_AddScore(who, value, impacted_by_2x_points) Player_ChangeScore(who, value, impacted_by_2x_points)
+
+//
+// Player_ChangeScore(who, value, impacted_by_2x_points)
+// Appends the given value to the provided clients
+// current score, potentially multiplied if the
+// Double Points Power-Up is active.
+//
+void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore =
+{
+	// We shouldn't ever allow a player in Last Stand to have
+	// their score modified.
+	if (who.downed)
+		return;
+
+	// Multiply the value if it is to be impacted by Double
+	// Points
+	if (impacted_by_2x_points && x2_finished > time)
+		value *= 2;
+
+	// The value was positive, so we should do two things:
+	// 1. add this to our point threshold check for Power-Up
+	//    spawning.
+	// 2. add the value to our total score, which is displayed
+	//    at the end of the game to rank every player.
+	if (value > 0) {
+		who.score += value;
+		total_powerup_points += value;
+	}
+
+	// Append the value to our current score.
+	who.points += value;
+};
+
 //
 // Player_CanStandHere
 // Performs a tracebox and will return true
@@ -874,7 +909,7 @@ void() PlayerSpawn =
 	self.secondary_grenades = -1;		// shows that we both don't have betties AND shouldn't draw the image onscreen
 
 	if (!self.points)
-		addmoney(self, G_STARTPOINTS, 0);
+		Player_AddScore(self, G_STARTPOINTS, false);
 
 	self.weaponmodel = GetWeaponModel(self.weapon, 0);// Give weapon model
 	self.weapon2model = GetWeapon2Model(self.weapon);

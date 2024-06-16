@@ -285,7 +285,7 @@ void() teleport_touch =
 			return;
 		}
 
-		addmoney(other, -self.cost, 0);
+		Player_RemoveScore(other, self.cost);
 
 		SUB_UseTargets();
 

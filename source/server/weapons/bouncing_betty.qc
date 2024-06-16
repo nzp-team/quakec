@@ -163,8 +163,7 @@ void() W_PrimeBetty =
 
 	// Prevent the Player from Sprinting and also avoid issues with
 	// the equipment being completely cancelled..
-	if (self.sprinting)
-		W_SprintStop();
+	W_SprintStop();
 
 	W_HideCrosshair(self);
 
