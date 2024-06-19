@@ -26,6 +26,15 @@
 
 */
 
+// FTEQCC currently has an optimization bug with -fastarrays
+// that leads to corruption with the weapon list. Disable
+// if we're not on FTE.
+#ifndef FTE
+
+#pragma flag disable fastarrays
+
+#endif // FTE
+
 // TODO: Actually implement some of these..
 // Frame types, generalized.
 #define ANIM_FIRE                   0
@@ -431,6 +440,13 @@ void Weapon_FixUpList()
 		}
 	}
 };
+
+// Re-enable fast array optimization.
+#ifndef FTE
+
+#pragma flag enable fastarrays
+
+#endif // FTE
 
 void Weapon_RemoveWeapon(float slot)
 {
