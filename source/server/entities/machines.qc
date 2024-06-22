@@ -80,37 +80,11 @@ void GivePerk(optional float p) {
 	// No Perks? No Problem tracker
 	self.ach_tracker_npnp++;
 
-	switch(perk) {
-		case P_REVIVE:
-			self.perks = self.perks | 8;
-			break;
-		case P_FLOP:
-			self.perks = self.perks | 16;
-			break;
-		case P_JUG:
-			self.perks = self.perks | 1;
+	self.perks = self.perks | perk;
 
-			// Instant re-gen, set health to Jugg health.
-			self.health = self.max_health = PERK_JUGGERNOG_HEALTH;
-			break;
-		case P_STAMIN:
-			self.perks = self.perks | 32;
-			break;
-		case P_SPEED:
-			self.perks = self.perks | 4;
-			break;
-		case P_DOUBLE:
-			self.perks = self.perks | 2;
-			break;
-		case P_DEAD:
-			self.perks = self.perks | 64;
-			break;
-		case P_MULE:
-			self.perks = self.perks | 128;
-			break;
-		default:
-			break;
-	}
+	// Instant re-gen, set health to Jugg health.
+	if (perk & P_JUG)
+		self.health = self.max_health = PERK_JUGGERNOG_HEALTH;
 
 	if (self.perks == 255)
 		GiveAchievement(6, self);
