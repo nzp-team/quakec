@@ -1724,23 +1724,47 @@ void(float width, float height) HUD_PlayerNames =
 
 void(float width, float height) HUD_ReviveIcons =
 {
-	for (float i = 0; i < active_revive_icons; i++) {
-		if (revive_icons[i].draw == true) {
-			revive_icons[i].timer += frametime;
-			vector revive_origin;
-			revive_origin_x = revive_icons[i].org[0];
-			revive_origin_y = revive_icons[i].org[1];
-			revive_origin_z = revive_icons[i].org[2];
-			vector screen_position = project(revive_origin);
-			screen_position_x -= (32)/2;
+	for (float i = 3; i >= 0; i = i - 1) {
+		float player_index = i;
 
-			if (screen_position_z > 0) {
-				// being revived
-				if (revive_icons[i].state == 2)
-					drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1,1], 1);
-				else {
-					drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1 - (revive_icons[i].timer/30),0], 1);
-				}
+		// Don't render our own Icon.
+		if (player_index + 1 == getstatf(STAT_PLAYERNUM))
+			continue;
+
+		// Player is not in Last Stand.
+		if (revive_icons[player_index].state <= 0)
+			continue;
+
+		// Player is not being actively revived, so the
+		// Revive Icon should grow more and more red over time.
+		if (revive_icons[player_index].state == 1)
+			revive_icons[player_index].timer += frametime;
+		
+		float player_number = getplayerkeyfloat(i, "viewentity");
+
+		//string text = getplayerkeyvalue(i, "name");
+		entity client = findfloat(world, playernum, player_number);
+
+		// Client does not exist/is spectating.
+		if (client == world || client.movetype == MOVETYPE_BOUNCE)
+			continue;
+
+		entity plr = findfloat(world, playernum, player_number);
+		vector player_origin = plr.origin + '0 0 32';
+		vector screen_position = project(player_origin);
+		screen_position_x -= (32)/2;
+
+		if (player_origin == '0 0 32')
+			continue;
+
+		if (screen_position_z > 0) {
+			// Client is actively being revived, render white.
+			if (revive_icons[i].state == 2) {
+				drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1,1], 1);
+			} 
+			// Draw with a yellow->red hue.
+			else {
+				drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1 - (revive_icons[i].timer/30),0], 1);
 			}
 		}
 	}

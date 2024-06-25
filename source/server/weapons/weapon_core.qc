@@ -1340,8 +1340,9 @@ void() GrenadeExplode =
 	} else {
     	CallExplosion(self.origin);		
 	}
-	
-	SUB_Remove ();
+
+	if (self.classname != "player")
+		SUB_Remove();
 };
 
 void() NadeStraighten =
@@ -1768,129 +1769,6 @@ void() CheckPlayer =
 		
 		self.oldz = self.origin_z;		
 	}
-
-	//
-	// Revive Sequence
-	//
-#ifdef FTE
-
-	entity ent;
-	ent = findradius(self.origin, 70);
-		
-	while(ent)
-	{
-		if(ent.classname == "player" && ent != self && ent.downed)
-		{
-
-			// perform a trace to make sure they're always facing the revivee
-			vector source;
-			makevectors(self.angles);
-			source = self.origin - '0 0 12';
-			traceline(source, source + v_forward*50, 0, self);
-			self.active_door = trace_ent;
-
-			if (ent.beingrevived == false && self.active_door == ent && !self.downed)
-				useprint (self, 13, 0, 0);
-			
-			if (self.button7 && !ent.invoke_revive && self.active_door == ent && !self.downed) {
-				if (ent.beingrevived == true && ent.firer != self)
-					return;
-
-
-				#ifdef FTE
-
-				// FTE-Specific: Broadcast to the player they're being revived.
-				FTE_BroadcastMessage(ent, CSQC_BROADCAST_BEINGREVIVED, 2, self.playernum);
-
-				// FTE-Specific: Broadcast to client that they are reviving the downed player.
-				FTE_BroadcastMessage(self, CSQC_BROADCAST_REVIVINGPLAYER, 2, ent.playernum);
-
-				#endif // FTE
-
-				ent.speed_penalty = 0.01;
-				ent.speed_penalty_time = time + 100;
-				ent.beingrevived = true;
-				ent.firer = self;
-				
-				if (!self.reviving) {
-					ChangeReviveIconState(ent.electro_targeted, 2);
-					self.movetype = MOVETYPE_TOSS;
-					Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_RIGHT);
-					
-					if !(self.perks & P_REVIVE)
-						self.progress_bar_time = 4;
-					else
-						self.progress_bar_time = 2;
-					
-					self.progress_bar = self.progress_bar_time + time;     
-					self.progress_bar_percent = 1;
-					self.reviving = true;
-				}
-				
-				if (self.revived) {
-					self.movetype = MOVETYPE_WALK;
-					W_TakeOut();
-					ent.invoke_revive = 1;
-					ent.beingrevived = false;
-					ent.speed_penalty_time = 0;
-					self.reviving = 0;
-					self.progress_bar = 0;
-					self.progress_bar_time = 0;
-					self.progress_bar_percent = 0;
-					self.revived = 0;
-					Player_AddScore(self, ent.requirespower, false);
-
-
-					#ifdef FTE
-
-					// FTE-Specific: End Broadcast Messages on both ends
-					FTE_BroadcastMessage(ent, CSQC_BROADCAST_NONE, 0, self.playernum);
-					FTE_BroadcastMessage(self, CSQC_BROADCAST_NONE, 0, ent.playernum);
-
-					#endif // FTE
-
-				}
-			}
-			else if (self.downed || (!self.button7 && self.reviving) || (self.reviving && self.active_door != ent) || ent.classname == "disconnected") {
-				if (ent.classname != "disconnected")
-					ChangeReviveIconState(ent.electro_targeted, 1);
-				else
-					DisableReviveIcon(ent.electro_targeted);
-				self.movetype = MOVETYPE_WALK;
-				ent.beingrevived = false;
-				ent.speed_penalty_time = 0;
-				ent.firer = world;
-				W_TakeOut();
-				self.progress_bar = 0;
-				self.progress_bar_time = 0;
-				self.progress_bar_percent = 0;
-				self.revived = 0;
-				self.reviving = 0;
-
-				#ifdef FTE
-
-				// FTE-Specific: End Broadcast Messages on both ends
-				FTE_BroadcastMessage(ent, CSQC_BROADCAST_NONE, 0, self.playernum);
-				FTE_BroadcastMessage(self, CSQC_BROADCAST_NONE, 0, ent.playernum);
-
-				#endif // FTE
-
-			}
-		}
-		else if(ent.classname == "player" && ent != self && !ent.downed) // small player push 
-		{
-			vector push;
-			push =  ent.origin - self.origin;
-			push_z = 0;
-			push = normalize(push) * 0.5;
-			
-			ent.velocity += push;
-		}
-		ent = ent.chain;
-	}
-
-#endif // FTE
-
 }
 
 //
