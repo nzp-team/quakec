@@ -30,12 +30,13 @@ main.qc
 utilities/weapon_utilities.qc
 utilities/game_restart.qc
 utilities/command_parser.qc
-player.qc
+player/player_core.qc
 damage.qc
+player/spawn_points.qc
+player/last_stand.qc
 entities/sub_functions.qc
 entities/sounds.qc
 entities/triggers.qc
-entities/spawn_points.qc
 entities/explosive_barrel.qc
 entities/teleporter.qc
 entities/map_entities.qc

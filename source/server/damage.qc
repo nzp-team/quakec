@@ -26,6 +26,7 @@
 
 */
 void (float achievement_id, optional entity who) GiveAchievement;
+void(entity client) LastStand_Begin;
 
 #define DMG_SCORE_HEADSHOT		100 	// Death by Headshot
 #define DMG_SCORE_MELEE			130		// Death by Melee
@@ -158,213 +159,7 @@ void() EndGameSetup =
     return;
 }
 
-// rec_downed is used as a recursive loop where we consistently check to see if ALL players are downed
-//    if they aren't dead, we keep looping until our OWN death (45 seconds, so 300 loops)
-void() rec_downed = 
-{
-	if (!self.beingrevived)
-		self.downedloop += 1;
-
-	if (self.downedloop >= 30) {
-		DisableReviveIcon(self.electro_targeted);
-		revive_index--;
-		startspectate();
-		return;
-	}
-	
-	float gotalive = PollPlayersAlive();
-	
-	if (!gotalive && !self.progress_bar) {
-		EndGameSetup();
-		return;
-	}
-	
-	self.think = rec_downed;
-	self.nextthink = time + 1;
-}
-
 float() push_away_zombies;
-void() GetDown =
-{
-	// 'Pro Gamer Move' achievement.
-	if (rounds <= 1 && self.weapons[0].weapon_magazine == 0 && 
-	self.weapons[0].weapon_magazine_left == 0 && self.weapons[0].weapon_reserve == 0 && 
-	self.weapons[1].weapon_magazine == 0 && self.weapons[1].weapon_magazine_left == 0 && 
-	self.weapons[1].weapon_reserve == 0) {
-		GiveAchievement(9, self);
-	}
-
-	// Aim out to reset zoom values
-	W_AimOut();
-
-#ifdef FTE
-
-	self.viewzoom = 1;
-
-#endif // FTE
-
-	// Make any zombies inside of the player's bounding box leave
-	push_away_zombies();
-
-	// Force the player to prone.
-	Player_SetStance(self, PLAYER_STANCE_PRONE, false);
-
-	// Get rid of Mule Kick Weapon
-	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
-		if (self.weapons[i].is_mulekick_weapon == true) {
-			Weapon_RemoveWeapon(i);
-			Weapon_SetActiveInSlot(0, false);
-		}
-	}
-
-	// Calculate the loss in points, take away points from downed Player.
-	float point_difference;
-	point_difference = self.points;
-	point_difference -= 10*rint((self.points*0.95)/10);
-	Player_RemoveScore(self, point_difference);
-
-	self.requirespower = point_difference;
-
-#ifdef FTE
-
-	// FTE-Specific: Broadcast that the player has downed to everyone.
-	FTE_BroadcastMessage(world, CSQC_BROADCAST_PLAYERDOWNED, 3, self.playernum);
-
-#endif // FTE
-
-	// Reset state
-	self.velocity = self.zoom = 0;
-	self.downed = true;
-	self.dive_delay = 0;
-
-	float players_still_alive = PollPlayersAlive();
-
-	if ((player_count && !players_still_alive) || (!player_count && !(self.perks & P_REVIVE))) {
-		EndGameSetup();
-		return;
-	} else {
-		self.health = 19; 
-	}
-
-	// Initiate Self-Revive on Solo
-	if ((self.perks & P_REVIVE) && !player_count) {	
-		self.progress_bar = 10 + time;     
-		self.progress_bar_time = 10;
-		self.progress_bar_percent = 1;
-
-#ifdef FTE
-
-		// FTE-Specific: Broadcast to the player they're reviving themselves.
-		FTE_BroadcastMessage(self, CSQC_BROADCAST_REVIVINGPLAYER, 3, self.playernum);
-
-#endif // FTE
-
-
-	}
-
-	// Take away weapons and Perks
-	self.perks = 0;
-
-	self.weaponbk = self.weapon;
-	self.currentammobk = self.weapons[0].weapon_reserve;
-	self.currentmagbk = self.weapons[0].weapon_magazine;
-	self.currentmagbk2 = self.weapons[0].weapon_magazine_left;
-
-	//Reset the tracker for the achievement "No Perks? No Problem"
-	self.ach_tracker_npnp = 0;
-
-	// Reset Juggernog health
-	self.max_health = self.health = PLAYER_START_HEALTH;
-
-	if(Weapon_PlayerHasWeapon(self, W_BIATCH, false) || 
-	Weapon_PlayerHasWeapon(self, W_RAY, true) ||
-	Weapon_PlayerHasWeapon(self, W_357, true)) {
-		float weapon_slot;
-		float total_ammo;
-		total_ammo = 0;
-
-		weapon_slot = Weapon_PlayerHasWeapon(self, W_RAY, true);
-		if (weapon_slot == 0) weapon_slot = Weapon_PlayerHasWeapon(self, W_BIATCH, false);
-		if (weapon_slot == 0) weapon_slot = Weapon_PlayerHasWeapon(self, W_357, true);
-
-		switch(weapon_slot) {
-			case 1:
-				total_ammo = self.weapons[0].weapon_magazine + self.weapons[0].weapon_magazine_left + self.weapons[0].weapon_reserve;
-				break;
-			case 2:
-				total_ammo = self.weapons[1].weapon_magazine + self.weapons[1].weapon_magazine_left + self.weapons[1].weapon_reserve;
-				Weapon_SwapWeapons(true);
-				break;
-		}
-
-		self.weaponbk = self.weapon;
-		self.currentammobk = self.weapons[0].weapon_reserve;
-		self.currentmagbk = self.weapons[0].weapon_magazine;
-		self.currentmagbk2 = self.weapons[0].weapon_magazine_left;
-
-		// If it's greater than the mag size, we can fill the magazine.
-		if (total_ammo > getWeaponMag(self.weapon) || total_ammo == 0) {
-			self.weapons[0].weapon_magazine = getWeaponMag(self.weapon);
-
-			// subtract it from the total ammo
-			if (total_ammo != 0)
-				total_ammo -= self.weapons[0].weapon_magazine;
-		} else {
-			self.weapons[0].weapon_magazine = total_ammo;
-			total_ammo = 0;
-		}
-
-		// Check for dual wield mag too
-		if (IsDualWeapon(self.weapon)) {
-			if (total_ammo > getWeaponMag(self.weapon) || total_ammo == 0) {
-				self.weapons[0].weapon_magazine_left = getWeaponMag(self.weapon);
-
-				// subtract it from the total ammo
-				if (total_ammo != 0)
-					total_ammo -= self.weapons[0].weapon_magazine_left;
-			} else {
-				self.weapons[0].weapon_magazine_left = total_ammo;
-				total_ammo = 0;
-			}
-		}
-
-		// Ray Gun has a special case where we DON'T fill its reserve
-		if (self.weapon != W_RAY && self.weapon != W_PORTER) {
-			// Now see if the reserve ammo is more than max downed capacity
-			if (total_ammo > getWeaponMag(self.weapon)*2) {
-				self.weapons[0].weapon_reserve = getWeaponMag(self.weapon)*2;
-			} else {
-				// It's not so just fill it
-				self.weapons[0].weapon_reserve = total_ammo;
-			}
-		} else {
-			self.weapons[0].weapon_reserve = 0;
-		}
-	} else {
-		if (!player_count) {
-			Weapon_AssignWeapon(0, W_BIATCH, 6, 12);
-		} else {
-			Weapon_AssignWeapon(0, W_COLT, 8, 16);
-		}
-	}
-
-	// Play Switch Animation
-	self.weaponmodel = GetWeaponModel(self.weapon, 0);
-	
-	float startframe = GetFrame(self.weapon,TAKE_OUT_START);
-	float endframe = GetFrame(self.weapon,TAKE_OUT_END);
-	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, self.weaponmodel, false, S_BOTH);
-
-	// Spawn Revive Sprite in Co-Op
-	if (player_count) {
-		EnableReviveIcon(revive_index, self.origin + VIEW_OFS_HL);
-		self.electro_targeted = revive_index;
-		revive_index++;
-	}
-
-	// Play Last Stand Animation
-	PAnim_GetDown();
-}
 
 void () GetUp =
 {	
@@ -405,10 +200,6 @@ void () GetUp =
 	
 	self.teslacount = 0;
 
-	if (!player_count) {
-		Player_AddScore(self, self.requirespower, false);
-	}
-
 	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk);
 };
 
@@ -417,8 +208,7 @@ void(entity ent) CheckRevive =
 {
 	if (self.invoke_revive) {
 		GetUp();
-		DisableReviveIcon(self.electro_targeted);
-		revive_index--;
+		DisableReviveIcon(self.playernum);
 		self.invoke_revive = 0;
 		self.firer = world;
 	}
@@ -561,10 +351,7 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 		// Was 20 for.. some reason.
 		if (victim.health <= 1)
 		{
-			old_self = self;
-			self = victim;
-			GetDown();
-			self = old_self;
+			LastStand_Begin(victim);
 		}
 	}
 }

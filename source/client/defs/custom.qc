@@ -101,10 +101,7 @@ var struct revive_s {
 	float draw;
 	float timer;
 	float state;
-	float org[3];
-} revive_icons[4];
-
-float active_revive_icons;
+} revive_icons[4]; // MAX_CLIENTS
 
 float weaponframetime;
 float weapon2frametime;
