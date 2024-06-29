@@ -394,13 +394,7 @@ float sounds_playing;
 //.float OrgStuckCount;
 .float crawling;
 
-#define HIT_REGION_HEAD 		1
-#define HIT_REGION_ARM 			2
-#define HIT_REGION_TORSO_LOWER 	3
-#define HIT_REGION_TORSO_UPPER	4
-
 .float washit;
-.float hit_region;
 .float hitamount;
 
 .float laststep;
@@ -517,11 +511,10 @@ float round_changetime;
 float blink_return;
 float delay_at_round;
 float spawn_delay;
+float maxreward;
+float totalreward;
 float totalpowerups;
 float sounds_playing;
-
-float barricade_reward_maximum;
-.float barricade_reward;
 
 float rounds;
 float rounds_change;
@@ -626,6 +619,8 @@ float G_PERKPOWER;
 .float rendermode;
 .float renderamt;
 .vector rendercolor;
+
+float revive_index;
 
 #ifdef FTE
 .float last_solid;

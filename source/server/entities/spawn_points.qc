@@ -1,5 +1,5 @@
 /*
-	server/player/spawn_points.qc
+	server/entities/spawn_points.qc
 
 	Code for Player Spawn points.
 

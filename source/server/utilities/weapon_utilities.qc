@@ -441,16 +441,16 @@ void Weapon_FixUpList()
 	}
 };
 
-// Re-enable fast array optimization.
-#ifndef FTE
-
-#pragma flag enable fastarrays
-
-#endif // FTE
-
 void Weapon_RemoveWeapon(float slot)
 {
 	self.weapons[slot].is_mulekick_weapon = false;
 	Weapon_AssignWeapon(slot, 0, 0, 0);
 	Weapon_FixUpList();
 };
+
+// Re-enable fast array optimization.
+#ifndef FTE
+
+#pragma flag enable fastarrays
+
+#endif // FTE

@@ -1,0 +1,15 @@
+../../build/fte/csprogs.dat
+
+../source/client/defs/fte.qc
+../source/shared/defs/custom.qc
+../source/shared/sound_enhanced.qc
+../source/shared/weapon_defines.qc
+../source/client/defs/custom.qc
+../source/client/menu.qc
+../source/client/achievements.qc
+../source/client/hud.qc
+../source/client/chat.qc
+../source/client/user_input.qc
+../source/client/view_model.qc
+../source/client/particles.qc
+../source/client/main.qc

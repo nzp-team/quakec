@@ -89,7 +89,7 @@ void() Flame_Touch =
 			Effect_Fire(target.origin);
 
 			// Only do 1 damage to trigger insta-kill damage.
-			DamageHandler(target, target.firer, 1, DMG_TYPE_FLAMETHROWER);
+			DamageHandler(target, target.firer, 1, S_FLAME);
 		}
 
 		// Set the monster alight

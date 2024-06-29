@@ -106,7 +106,7 @@ void() PAP_Reset =
 {
 	self.weapon = 0;
 	self.usedent = 0;
-	self.host = world;
+
 
 	if (self.goaldummy) {
 		remove(self.goaldummy);
@@ -218,8 +218,6 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
     pap.usedent = self;
 	pap.goaldummy = floating_weapon;
 
-	pap.host = buyer;
-
 	// Upgrade Timer
     pap.think = PAP_SendWeaponOut;
     pap.nextthink = time + 3.5;
@@ -289,7 +287,7 @@ void() PAP_Touch =
 	} 
 
 	// Claiming upgraded Weapon
-	else if (self.papState == 2 && self.host == other) {
+	else if (self.papState == 2) {
 
 #ifndef FTE
 
