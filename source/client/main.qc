@@ -923,6 +923,71 @@ void(float button, string key) setToBind =
 
 noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent =
 {
+	if (evtype == IE_KEYDOWN) {
+		switch (scanx) {
+			case K_GP_A:
+			case K_GP_B:
+			case K_GP_X:
+			case K_GP_Y:
+			case K_GP_LSHOULDER:
+			case K_GP_RSHOULDER:
+			case K_GP_LTRIGGER:
+			case K_GP_RTRIGGER:
+			case K_GP_BACK:
+			case K_GP_START:
+			case K_GP_LTHUMB:
+			case K_GP_RTHUMB:
+			case K_GP_DPAD_UP:
+			case K_GP_DPAD_DOWN:
+			case K_GP_DPAD_LEFT:
+			case K_GP_DPAD_RIGHT:
+			case K_GP_LTHUMB_UP:
+			case K_GP_LTHUMB_DOWN:
+			case K_GP_LTHUMB_LEFT:
+			case K_GP_LTHUMB_RIGHT:
+			case K_GP_RTHUMB_UP:
+			case K_GP_RTHUMB_DOWN:
+			case K_GP_RTHUMB_LEFT:
+			case K_GP_RTHUMB_RIGHT:
+				if (!GPButtonHeldBeginTime[scanx-816])
+					GPButtonHeldBeginTime[scanx-816] = cltime;
+				break;
+
+		}
+	}
+
+	if (evtype == IE_KEYUP) {
+		switch (scanx) {
+			case K_GP_A:
+			case K_GP_B:
+			case K_GP_X:
+			case K_GP_Y:
+			case K_GP_LSHOULDER:
+			case K_GP_RSHOULDER:
+			case K_GP_LTRIGGER:
+			case K_GP_RTRIGGER:
+			case K_GP_BACK:
+			case K_GP_START:
+			case K_GP_LTHUMB:
+			case K_GP_RTHUMB:
+			case K_GP_DPAD_UP:
+			case K_GP_DPAD_DOWN:
+			case K_GP_DPAD_LEFT:
+			case K_GP_DPAD_RIGHT:
+			case K_GP_LTHUMB_UP:
+			case K_GP_LTHUMB_DOWN:
+			case K_GP_LTHUMB_LEFT:
+			case K_GP_LTHUMB_RIGHT:
+			case K_GP_RTHUMB_UP:
+			case K_GP_RTHUMB_DOWN:
+			case K_GP_RTHUMB_LEFT:
+			case K_GP_RTHUMB_RIGHT:
+				//print(sprintf("Key: %f Duration: %f\n", scanx, cltime-GPButtonHeldBeginTime[scanx-816]));
+				GPButtonHeldBeginTime[scanx-816] = 0;
+				break;
+
+		}
+	}
 	switch(evtype)
 	{
 		case IE_KEYDOWN:
@@ -1052,6 +1117,7 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 			cursor_pos_y = chary;
 			return FALSE;
 	}
+
 	return FALSE;
 };
 
