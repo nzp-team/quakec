@@ -61,8 +61,10 @@ void() LS_Setup =
 void() L_Setup =
 {
     // If it's not vanilla ZHLT, cut it off.
-    if (self.style > 12)
-       return;
+    if (self.style > 12 || !self.targetname) {
+        remove(self);
+        return;
+    }
 
     // Set the Light to be Off if the spawnflag is set.
     /*if ((self.spawnflags & LIGHT_SPAWNFLAG_STARTOFF)) {
