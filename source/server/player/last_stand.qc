@@ -188,7 +188,7 @@ void(entity client) LastStand_AssignWeapon =
 	
 	float startframe = GetFrame(self.weapon,TAKE_OUT_START);
 	float endframe = GetFrame(self.weapon,TAKE_OUT_END);
-	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, self.weaponmodel, false, S_BOTH);
+	Set_W_Frame (startframe, endframe, 0, 0, 0, SUB_Null, self.weaponmodel, false, S_BOTH, false);
 
     self = old_self;
 };
@@ -312,7 +312,7 @@ void(entity downed_client, entity revivee) LastStand_LinkRevivee =
 	// Initiate an animation for morphine.
 	entity old_self = self;
 	self = revivee;
-	Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_RIGHT);
+	Set_W_Frame (0, 21, 0, 0, SPRINT, SUB_Null, "models/weapons/morphine/v_morphine.mdl", false, S_RIGHT, true);
 	self = old_self;
 };
 

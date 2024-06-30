@@ -204,7 +204,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
 	self.weapon2model = GetWeapon2Model(self.weapon);
 
     W_AimOut();
-    Set_W_Frame(start_frame, end_frame, playback_duration, 0, 0, end_function, GetWeaponModel(self.weapon, 0), false, S_BOTH);
+    Set_W_Frame(start_frame, end_frame, playback_duration, 0, 0, end_function, GetWeaponModel(self.weapon, 0), false, S_BOTH, false);
 };
 
 //

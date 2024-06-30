@@ -116,7 +116,7 @@ void DrinkPerk() {
 	
 	self.knife_delay = self.reload_delay2 = self.fire_delay2 = self.fire_delay = self.reload_delay = 3 + time;	
 	W_HideCrosshair(self);	
-	Set_W_Frame (machine.weapon_animduration, machine.weapon2_animduration, 2.25, 0, PERK, GivePerk, machine.weapon2model, true, S_RIGHT);
+	Set_W_Frame (machine.weapon_animduration, machine.weapon2_animduration, 2.25, 0, PERK, GivePerk, machine.weapon2model, true, S_RIGHT, true);
 	sound(self, CHAN_ITEM, machine.oldmodel, 1, ATTN_NORM);
 
 	// Communicate to our engines that this client should display correct Double-Tap icon.

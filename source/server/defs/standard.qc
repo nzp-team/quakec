@@ -275,6 +275,8 @@ void    (entity who)                                                            
 void    (entity who, string name)                                                               nzp_setplayername   = #505;
 void    (entity who, float version)                                                             nzp_setdoubletapver = #506;
 void    (entity who, float color, float duration, float type)                                   nzp_screenflash     = #507;
+void    (entity who, float state)                                                               nzp_lockviewmodel   = #508;
+
 //
 // constants
 //
