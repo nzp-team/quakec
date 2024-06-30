@@ -80,6 +80,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	cvar_set("sv_cheats", ftos(1));
 	cvar_set("r_fb_models", ftos(0));
 	autocvar(r_viewmodel_default_fov, 70);
+	autocvar(cl_controllerglyphs, "xbox");
 
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
