@@ -619,6 +619,101 @@ noref void(float width, float height, float notmenu) CSQC_UpdateViewLoading =
 	drawstring([width/2 - (stringwidth("Loading...", 0, [14, 14])/2), height - 40, 0], "Loading...", [14, 14], [1, 1, 1], 1, 0);
 };
 
+//
+// Key_IsControllerGlyph(bind)
+// Returns TRUE if the string provided belongs to
+// a gamepad/controller.
+//
+float(string bind) Key_IsControllerGlyph =
+{
+	switch(bind) {
+		case "GP_A":
+		case "GP_B":
+		case "GP_X":
+		case "GP_Y":
+		case "GP_LSHOULDER":
+		case "GP_RSHOULDER":
+		case "GP_LTRIGGER":
+		case "GP_RTRIGGER":
+		case "GP_BACK":
+		case "GP_START":
+		case "GP_LTHUMB":
+		case "GP_RTHUMB":
+		case "GP_DPAD_UP":
+		case "GP_DPAD_DOWN":
+		case "GP_DPAD_LEFT":
+		case "GP_DPAD_RIGHT":
+			return true;
+	}
+
+	return false;
+};
+
+//
+// Key_DrawControllerGlyph(position, bind, scale)
+// Draws the associated glyph for the bind name from the
+// Glyph tilemap at the provided position, with the
+// provided scale.
+//
+void(vector position, string bind, vector scale) Key_DrawControllerGlyph =
+{
+	vector tilemap_position = [0, 0];
+
+	// The coordinates in 0-1 range of each button in the glyph tilemap.
+	switch(bind) {
+		case "GP_A":
+			tilemap_position = [0, 0];
+			break;
+		case "GP_B":
+			tilemap_position = [0.125, 0];
+			break;
+		case "GP_X":
+			tilemap_position = [0.250, 0];
+			break;
+		case "GP_Y":
+			tilemap_position = [0.375, 0];
+			break;
+		case "GP_LSHOULDER":
+			tilemap_position = [0.250, 0.125];
+			break;
+		case "GP_RSHOULDER":
+			tilemap_position = [0.375, 0.125];
+			break;
+		case "GP_LTRIGGER":
+			tilemap_position = [0.500, 0.125];
+			break;
+		case "GP_RTRIGGER":
+			tilemap_position = [0.625, 0.125];
+			break;
+		case "GP_BACK":
+			tilemap_position = [0.875, 0.125];
+			break;
+		case "GP_START":
+			tilemap_position = [0.750, 0.125];
+			break;
+		case "GP_LTHUMB":
+			tilemap_position = [0, 0.125];
+			break;
+		case "GP_RTHUMB":
+			tilemap_position = [0.125, 0.125];
+			break;
+		case "GP_DPAD_UP":
+			tilemap_position = [0.500, 0];
+			break;
+		case "GP_DPAD_DOWN":
+			tilemap_position = [0.625, 0];
+			break;
+		case "GP_DPAD_LEFT":
+			tilemap_position = [0.750, 0];
+			break;
+		case "GP_DPAD_RIGHT":
+			tilemap_position = [0.875, 0];
+			break;
+	}
+
+	drawsubpic([position_x, position_y], [scale_x, scale_y], sprintf("gfx/controller_glyphs/%s.tga", cvar_string("cl_controllerglyphs")), [tilemap_position_x, tilemap_position_y], [0.125, 0.125], [1, 1, 1], 1);
+};
+
 #define SCALE_CONSTANT 		8
 
 //MOVEME

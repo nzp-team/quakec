@@ -25,6 +25,9 @@
 
 */			
 
+float(string bind) Key_IsControllerGlyph;
+void(vector position, string bind, vector scale) Key_DrawControllerGlyph;
+
 // vid_ultrawide_limiter
 #define ULTRAWIDE_OFFSET 		250
 
@@ -940,8 +943,17 @@ void(float width, float height) HUD_Useprint =
 	tokenize(findkeysforcommandex("+button7"));
 	usebutton = strtoupper(argv(0));
 
-	for(float i = 0; i < strlen(usebutton); i++) {
-		usespace = strcat(usespace, " ");
+	// If this is a gamepad button, the space we want to reserve
+	// in the usestring should be a fixed width.
+	if (Key_IsControllerGlyph(usebutton)) {
+		usespace = " ";
+	} 
+	// Scale the space in the usestring for the bind according to
+	// the bind's name.
+	else {
+		for(float i = 0; i < strlen(usebutton); i++) {
+			usespace = strcat(usespace, " ");
+		}
 	}
 
 	switch (useprint_type) {
@@ -1034,10 +1046,14 @@ void(float width, float height) HUD_Useprint =
 		drawstring([x3, g_height/2 + 78, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
 	}
 
-	// Draw highlighted usebutton (or button icon in the future)
+	// Draw highlighted usebutton
 	if (substring(usestring, 0, 4) == "Hold") {
 		button_width = x + stringwidth ("Hold ", 0, [12, 12, 0]);
-		drawstring([button_width, g_height/2 + 65, 0], usebutton, [12, 12, 0], [1, 1, 0], 1, 0);
+
+		if (Key_IsControllerGlyph(usebutton))
+			Key_DrawControllerGlyph([button_width - 5, g_height/2 + 60], usebutton, [22, 22]);
+		else
+			drawstring([button_width, g_height/2 + 65, 0], usebutton, [12, 12, 0], [1, 1, 0], 1, 0);
 	}
 }
 
@@ -1173,15 +1189,23 @@ void(float width, float height) HUD_BouncingBetty =
 {
 	float top_x, bot_x, but_x;
 	string betty_key;
-	string betty_space;
+	string betty_space = "";
 	string activate_string, activate_string2;
 
 	tokenize(findkeysforcommandex("impulse 33"));
 	betty_key = strtoupper(argv(0));
 
-	betty_space = "";
-	for(float i = 0; i < strlen(betty_key); i++) {
-		betty_space = strcat(betty_space, " ");
+	// If this is a gamepad button, the space we want to reserve
+	// in the betty string should be a fixed width.
+	if (Key_IsControllerGlyph(betty_key)) {
+		betty_space = " ";
+	} 
+	// Scale the space in the betty string for the bind according to
+	// the bind's name.
+	else {
+		for(float i = 0; i < strlen(betty_key); i++) {
+			betty_space = strcat(betty_space, " ");
+		}
 	}
 
 	activate_string = strcat("Press ", betty_space, " to place a");
@@ -1195,7 +1219,11 @@ void(float width, float height) HUD_BouncingBetty =
 
 	// Draw the highlighted button
 	but_x = top_x + stringwidth("Press ", 0, [12, 12, 0]);
-	drawstring([but_x, g_height - 303], betty_key, [12, 12], [1, 1, 0], 1, 0); 
+
+	if (Key_IsControllerGlyph(betty_key))
+		Key_DrawControllerGlyph([but_x - 5, g_height - 308], betty_key, [22, 22]);
+	else
+		drawstring([but_x, g_height - 303], betty_key, [12, 12], [1, 1, 0], 1, 0); 
 }
 
 /*******************

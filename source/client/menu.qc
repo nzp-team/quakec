@@ -25,6 +25,9 @@
 
 */
 
+float(string bind) Key_IsControllerGlyph;
+void(vector position, string bind, vector scale) Key_DrawControllerGlyph;
+
 float current_custom_map_page;
 float custom_map_pages;
 float last_active_custom_select;
@@ -1744,7 +1747,10 @@ void() Draw_Extra_Controls =
 		if (buttoncon[i] == "01")
 			buttoncon[i] = "UNBOUND";
 
-		drawstring([320, 75+(20*i)], buttoncon[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+		if (Key_IsControllerGlyph(buttoncon[i]))
+			Key_DrawControllerGlyph([320, 75+(20*i)], buttoncon[i], [22, 22]);
+		else
+			drawstring([320, 75+(20*i)], buttoncon[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 	}
 }
 
