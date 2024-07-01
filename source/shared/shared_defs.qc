@@ -77,20 +77,24 @@
 											// <byte> screenflash_duration
 											// <byte> screenflash_type
 
-#define EVENT_UPDATE 					19
-#define EVENT_BLACKOUT 					20
-#define EVENT_WORLDDATA 				21
-#define EVENT_PLAYERUPDATE 				22
-#define EVENT_REVIVEON 					23
-#define EVENT_REVIVEOFF 				24
-#define EVENT_REVIVECHANGE 				25
-#define EVENT_WEAPONRECOIL 				26
-#define EVENT_GRENADEPULSE 				27
-#define EVENT_BETTYPROMPT 				28
-#define EVENT_CHATMESSAGE				29
-#define EVENT_DOUBLETAPUPDATE 			30
-#define EVENT_ENDGAME					31
-#define EVENT_MAPTYPE					32
+#define CSQC_EVENT_RUMBLE				19 	// <short> low_frequency
+											// <short> high_frequency
+											// <short> duration
+
+#define EVENT_UPDATE 					20
+#define EVENT_BLACKOUT 					21
+#define EVENT_WORLDDATA 				22
+#define EVENT_PLAYERUPDATE 				23
+#define EVENT_REVIVEON 					24
+#define EVENT_REVIVEOFF 				25
+#define EVENT_REVIVECHANGE 				26
+#define EVENT_WEAPONRECOIL 				27
+#define EVENT_GRENADEPULSE 				28
+#define EVENT_BETTYPROMPT 				29
+#define EVENT_CHATMESSAGE				30
+#define EVENT_DOUBLETAPUPDATE 			31
+#define EVENT_ENDGAME					32
+#define EVENT_MAPTYPE					33
 
 //
 // Types of screen-flashes, global.

@@ -114,7 +114,7 @@ void() PAnim_EnterDive3 =[	4,		PAnim_EnterDive4	] {self.frame = 206;}
 void() PAnim_EnterDive4 =[	5,		SUB_Null			] {self.frame = 207;}
 
 // Flop from Dive
-void() PAnim_Flop 		=[	1,		PAnim_Flop1			] {self.frame = 208; self.tp_anim_time = time + 1;}
+void() PAnim_Flop 		=[	1,		PAnim_Flop1			] {self.frame = 208; self.tp_anim_time = time + 1; nzp_rumble(self, 1000, 1200, 75);}
 void() PAnim_Flop1 		=[	2,		PAnim_Flop2			] {self.frame = 209;}
 void() PAnim_Flop2 		=[	3,		PAnim_Flop3			] {self.frame = 210;}
 void() PAnim_Flop3 		=[	4,		SUB_Null			] {self.frame = 211;}

@@ -1089,15 +1089,6 @@ void(float index) Update_Button =
 	}
 };
 
-float xd;
-void() Controller_UpdateButton =
-{
-	/*if (GPActive[0]) {
-
-	}*/
-	drawstring([0.025*g_width, 0.375*g_height, 0], ftos(GPActive[2]), [g_height * 0.020, g_height * 0.020, 1], [0.8,0.8,0.8], 1, 0);
-}
-
 float button_timer;
 void(float index, float type) Button_Click = 
 {
@@ -2188,9 +2179,4 @@ void() Draw_Menu =
 	{
 		Update_Button(i);
 	}
-
-	// TODO - Controller Support
-	/*if (cvar("in_xinput")) {
-		Controller_UpdateButton();
-	}*/
 };

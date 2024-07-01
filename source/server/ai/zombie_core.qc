@@ -637,6 +637,9 @@ void() zombie_attack2 =
 				DamageHandler (self.enemy, self, 40, DMG_TYPE_ZOMBIESWIPE);
 			else
 				DamageHandler (self.enemy, self, 50, DMG_TYPE_ZOMBIESWIPE);
+
+			// Getting hit by Zombies triggers a GamePad rumble.
+			nzp_rumble(self.enemy, 1000, 1200, 75);
 		}
 	}
 	else return;

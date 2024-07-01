@@ -124,6 +124,8 @@ void() Betty_Drop =
 	self.animend = W_PlayTakeOut;
 	self.callfuncat = 0;
 	self.isBuying = false;  
+
+	nzp_rumble(self, 1000, 1200, 75);
 }
 
 //

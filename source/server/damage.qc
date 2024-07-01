@@ -474,6 +474,9 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			while(distance_y > 10 || distance_y < -10) {
 				distance_y /= 2;
 			}
+
+			// Give a heavy rumble for feedback of being in explosion vicinity.
+			nzp_rumble(ent, 1400, 2000, 200);
 			
 			// apply
 			ent.punchangle_x = distance_x;
