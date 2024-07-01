@@ -81,6 +81,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	cvar_set("r_fb_models", ftos(0));
 	autocvar(r_viewmodel_default_fov, 70);
 	autocvar(cl_controllerglyphs, "xbox");
+	autocvar(in_rumbleenabled, 1);
 
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
@@ -1166,7 +1167,11 @@ noref void() CSQC_Parse_Event =
 			screenflash_starttime = time;
 			break;
 		case CSQC_EVENT_RUMBLE:
-			gp_rumble(last_input_deviceid, readshort(), readshort(), readshort());
+			float low_frequency = readshort();
+			float high_frequency = readshort();
+			float duration = readshort();
+			if (cvar("in_rumbleenabled"))
+				gp_rumble(last_input_deviceid, low_frequency, high_frequency, duration);
 			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
