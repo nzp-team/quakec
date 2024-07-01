@@ -237,7 +237,7 @@ var struct guninventory_struct
 .float throw_delay;
 
 //weapon frames
-void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side);
+void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side, float lock_viewmodel);
 .float weapon_animduration;
 .float weapon2_animduration;
 .float weapon_anim_type;

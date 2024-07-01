@@ -228,6 +228,7 @@ float 	stopwatch_round_starttime;
 
 */
 float GPActive[32];
+float GPButtonHeldBeginTime[24];
 
 string build_datetime;
 #define VERSION_STRING  "v1.0"

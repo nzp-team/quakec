@@ -25,6 +25,9 @@
 
 */
 
+float(string bind) Key_IsControllerGlyph;
+void(vector position, string bind, vector scale) Key_DrawControllerGlyph;
+
 float current_custom_map_page;
 float custom_map_pages;
 float last_active_custom_select;
@@ -843,6 +846,29 @@ void() setting_connect =
 	localcmd(strcat("connect ", temp_server_name));
 }
 
+void() setting_glyph =
+{
+	string current_glyph_brand = cvar_string("cl_controllerglyphs");
+	string new_glyph_brand = "";
+
+	switch(current_glyph_brand) {
+		case "xbox":
+			new_glyph_brand = "sony";
+			break;
+		case "sony":
+			new_glyph_brand = "nintendo";
+			break;
+		case "nintendo":
+			new_glyph_brand = "generic";
+			break;
+		default:
+			new_glyph_brand = "xbox";
+			break;
+	}
+
+	cvar_set("cl_controllerglyphs", new_glyph_brand);
+}
+
 //rmb null
 void() null = {
 	return;
@@ -978,6 +1004,7 @@ var struct
 
 	// Control Settings (cont.)
 	{[6, 115], "Invert Mouse", -1, setting_invert, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 66
+	{[6, 135], "Controller Glyphs", -1, setting_glyph, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 67
 
 	// Main menu (cont.)
 	{[6, 145], "Achievements (Not on Web)", -1, null, null, MENU_MAIN, 1, OPTION_WEB_ONLY}, // 3
@@ -1477,6 +1504,28 @@ void() Draw_Extra_CSettings =
 	else
 		drawstring([320, 115], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
 
+	// Controller Glyphs
+	string controller_glyph_brand = "Unknown";
+	switch(cvar_string("cl_controllerglyphs")) {
+		case "xbox":
+			controller_glyph_brand = "Microsoft";
+			break;
+		case "sony":
+			controller_glyph_brand = "Sony";
+			break;
+		case "nintendo":
+			controller_glyph_brand = "Nintendo";
+			break;
+		case "generic":
+			controller_glyph_brand = "Libre";
+			break;
+		default:
+			controller_glyph_brand = sprintf("User (\"%s\")", cvar_string("cl_controllerglyphs"));
+			break;
+	}
+	drawstring([320, 135], controller_glyph_brand, [14, 14], [1, 1, 1], 1, 0);
+	drawsubpic([325 + strlen(controller_glyph_brand)*14, 132], [80, 20], sprintf("gfx/controller_glyphs/%s.tga", cvar_string("cl_controllerglyphs")), [0, 0], [0.5, 0.125], [1, 1, 1], 1);
+
 	// Descriptions
 	switch(lastActive) {
 		case 54:
@@ -1487,6 +1536,9 @@ void() Draw_Extra_CSettings =
 			break;
 		case 66:
 			cset_desc = "Invert Mouse Input on the Y Axis.";
+			break;
+		case 67:
+			cset_desc = "Glyph Branding type to display for Controllers.";
 			break;
 		default:
 			cset_desc = "";
@@ -1695,7 +1747,10 @@ void() Draw_Extra_Controls =
 		if (buttoncon[i] == "01")
 			buttoncon[i] = "UNBOUND";
 
-		drawstring([320, 75+(20*i)], buttoncon[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+		if (Key_IsControllerGlyph(buttoncon[i]))
+			Key_DrawControllerGlyph([320, 75+(20*i)], buttoncon[i], [22, 22]);
+		else
+			drawstring([320, 75+(20*i)], buttoncon[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 	}
 }
 

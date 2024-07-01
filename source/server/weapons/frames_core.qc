@@ -43,7 +43,7 @@ void() ContinueRun =
 		modelname = GetWeaponModel(self.weapon, 0);
 	} else
 		modelname = "";
-	Set_W_Frame (startframe, endframe, 0, 0, SPRINT, ContinueRun, modelname, false, S_BOTH);
+	Set_W_Frame (startframe, endframe, 0, 0, SPRINT, ContinueRun, modelname, false, S_BOTH, false);
 }
 
 
@@ -192,7 +192,7 @@ float(string path) model_should_hide_weapon2 =
 	return false;
 }
 
-void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side) =
+void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side, float lock_viewmodel) =
 {
 	float math, reversed;
 
@@ -248,4 +248,14 @@ void Set_W_Frame (float startframe, float endframe, float duration, float funcca
 			}
 		}
 	}
+
+#ifndef FTE
+
+	// For source ports where the viewmodel is able to be manipulated based on the camera
+	// position, we explicitly communicate to those clients to prohibit that with
+	// lock_viewmodel whenever we are drinking a Perk-A-Cola, meleeing, etc.
+	nzp_lockviewmodel(self, lock_viewmodel);
+
+#endif // FTE
+
 }

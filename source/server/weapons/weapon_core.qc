@@ -358,7 +358,7 @@ void() ContinueReload = //Special reloads
 			delay *= 0.5;
 		}
 		self.reload_delay = time + delay;
-		Set_W_Frame (startframe, endframe, delay, 0, RELOAD, endanimfunc, modelname, false, S_RIGHT);
+		Set_W_Frame (startframe, endframe, delay, 0, RELOAD, endanimfunc, modelname, false, S_RIGHT, false);
 	}
 }
 
@@ -378,7 +378,7 @@ void(float side) W_AdvanceAnim =
 
 	self.reload_delay = self.reload_delay2 = delay + time;
 
-	Set_W_Frame (startframe, endframe, delay, reloadcancelframe, RELOAD, W_Give_Ammo, modelname, false, side);
+	Set_W_Frame (startframe, endframe, delay, reloadcancelframe, RELOAD, W_Give_Ammo, modelname, false, side, false);
 }
 
 void(float side) W_Reload =
@@ -490,7 +490,7 @@ void(float side) W_Reload =
 			self.reload_delay2 = delay + time;
 		}
 		
-		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, RELOAD, endanimfunc, modelname, false, side);
+		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, RELOAD, endanimfunc, modelname, false, side, false);
 	}
 	
 	if (self.weapon != W_TRENCH) {
@@ -544,7 +544,7 @@ void () W_LoadAmmo =
 		if (self.perks & P_DOUBLE)
 			delay *= 0.66;
 			
-		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, FIRE, W_LoadAmmoDone, modelname, false, S_RIGHT);
+		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, FIRE, W_LoadAmmoDone, modelname, false, S_RIGHT, false);
 		self.fire_delay = delay + time;
 	}
 }
@@ -1126,10 +1126,10 @@ void(float side) W_Fire =
 
 	if (self.weapon == W_GUT || self.weapon == W_KAR_SCOPE || self.weapon == W_TRENCH || self.weapon == W_KAR || self.weapon == W_ARMAGEDDON || self.weapon == W_HEADCRACKER || self.weapon == W_SPRING || self.weapon == W_PULVERIZER)
 	{
-		Set_W_Frame (startframe, endframe, delay, 0, FIRE, W_LoadAmmo, modelname, FALSE, side);
+		Set_W_Frame (startframe, endframe, delay, 0, FIRE, W_LoadAmmo, modelname, FALSE, side, false);
 		self.NeedLoad = true;
 	} else {
-		Set_W_Frame (startframe, endframe, delay, 0, FIRE, WeaponCore_CheckForReload, modelname, FALSE, side);
+		Set_W_Frame (startframe, endframe, delay, 0, FIRE, WeaponCore_CheckForReload, modelname, FALSE, side, false);
 	}
 
 
@@ -1270,7 +1270,7 @@ void() WeaponCore_Melee =
 	// Apply camera punch, and begin playback.
 	self.punchangle_x = -5;
 	self.punchangle_y = -10;
-	Set_W_Frame (start_frame, end_frame, anim_duration, 0, KNIFE, end_func, model_path, false, S_RIGHT);
+	Set_W_Frame (start_frame, end_frame, anim_duration, 0, KNIFE, end_func, model_path, false, S_RIGHT, true);
 	self.knife_delay = anim_duration + time;
 
 	// Now apply the lunge velocity, but only if we're Standing.
@@ -1408,7 +1408,7 @@ void() W_ThrowGrenade =
 	startframe = GetFrame(self.weapon,TAKE_OUT_START);
 	endframe = GetFrame(self.weapon,TAKE_OUT_END);
 	modelname = GetWeaponModel(self.weapon, 0);
-	Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH);
+	Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH, false);
 
 	SetUpdate(self, UT_HUD, 6, 0, 0);
 }
@@ -1426,7 +1426,7 @@ void() checkHold =
 			self.grenade_delay = time + 0.05;
 			
 		self.isBuying = true;  
-		Set_W_Frame (3, 6, 0, 5, GRENADE, W_ThrowGrenade, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
+		Set_W_Frame (3, 6, 0, 5, GRENADE, W_ThrowGrenade, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT, true);
 		sound (self, CHAN_WEAPON, "sounds/weapons/grenade/throw.wav", 1, ATTN_NORM);
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
 		self.throw_delay = time + 0.9;
@@ -1445,7 +1445,7 @@ void() checkHold =
 			grenade_pulse(self);
 		}
 
-		Set_W_Frame (2, 2, 0, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
+		Set_W_Frame (2, 2, 0, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT, true);
 	}
 }
 
@@ -1459,7 +1459,7 @@ void() W_Grenade =
 	W_SprintStop();
 
 	W_HideCrosshair(self);
-	Set_W_Frame (0, 2, 0.6, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT);
+	Set_W_Frame (0, 2, 0.6, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT, true);
 	sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);	
 	self.primary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
