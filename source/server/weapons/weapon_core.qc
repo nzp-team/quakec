@@ -100,6 +100,9 @@ void() ReturnWeaponModel =
         W_SprintStart();
 
 	W_ShowCrosshair(self);
+
+	// Slight rumble whenever we pull our weapon out again.
+	nzp_rumble(self, 1000, 1200, 75);
 }
 
 void() W_PlayTakeOut =
@@ -1102,6 +1105,9 @@ void(float side) W_Fire =
 		startframe = endframe = GetFrame(self.weapon, FIRE_HOLD);
 	}
 
+	// Rumble the GamePad a fixed amount when we fire a weapon.
+	nzp_rumble(self, 1400, 2000, 200);
+
 	// Increment the amount of shots fired while downed
 	if (self.downed == true)
 		self.teslacount++;
@@ -1430,6 +1436,7 @@ void() checkHold =
 		sound (self, CHAN_WEAPON, "sounds/weapons/grenade/throw.wav", 1, ATTN_NORM);
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
 		self.throw_delay = time + 0.9;
+		nzp_rumble(self, 1000, 1200, 75);
 	}
 	else
 	{
@@ -1464,6 +1471,8 @@ void() W_Grenade =
 	self.primary_grenades -= 1;
 	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
 	self.grenade_delay = time + 5;
+
+	nzp_rumble(self, 1000, 1200, 75);
 } 
 
 void(float wepnum) CheckButton = {

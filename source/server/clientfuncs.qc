@@ -268,6 +268,22 @@ void(entity target, float color, float duration, float type) nzp_screenflash =
 	}
 };
 
+//
+// nzp_rumble(target, low_frequency, high_frequency, duration)
+// FTE equivalent of the nzp_rumble builtin.
+//
+void(entity target, float low_frequency, float high_frequency, float duration) nzp_rumble =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_RUMBLE);
+	WriteShort(MSG_MULTICAST, low_frequency);
+	WriteShort(MSG_MULTICAST, high_frequency);
+	WriteShort(MSG_MULTICAST, duration);
+
+	msg_entity = target;
+	multicast('0 0 0', MULTICAST_ONE);
+};
+
 #endif // FTE
 
 void(float count) UpdatePlayerCount = {

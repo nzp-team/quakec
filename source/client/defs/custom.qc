@@ -213,22 +213,11 @@ int 	stopwatch_round_hr;
 int 	stopwatch_round_isactive;
 float 	stopwatch_round_starttime;
 
-//controller buttons
-
-/*
-    reference:
-    0: A
-    1: B
-    2: X
-    3: Y
-    4: DPAD UP
-    5: DPAD DOWN
-    6: DPAD LEFT
-    7: DPAD RIGHT
-
-*/
-float GPActive[32];
-float GPButtonHeldBeginTime[24];
+//
+// GamePad Input Variables
+//
+float GPButtonHeldBeginTime[24];	// Tracks time button down event is called, to track holding down for different actions.
+float last_input_deviceid;			// The Device ID of the input hardware that last called CSQC_InputEvent, to target it directly.
 
 string build_datetime;
 #define VERSION_STRING  "v1.0"

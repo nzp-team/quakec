@@ -919,6 +919,12 @@ void(float button, string key) setToBind =
 
 noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent =
 {
+
+	if (last_input_deviceid != devid)
+		print(sprintf("device id swapped to %d\n", last_input_deviceid));
+
+	last_input_deviceid = devid;
+
 	if (evtype == IE_KEYDOWN) {
 		switch (scanx) {
 			case K_GP_A:
@@ -1064,45 +1070,12 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 						return TRUE;
 					}
 				}
-
-				// Controller Menu Navigation
-				if (scanx == K_JOY2) {
-					GPActive[0] = TRUE;
-				}
-
-				if (scanx == K_JOY4) {
-					GPActive[1] = TRUE;
-				}
-
-				if (scanx == K_JOY1) {
-					GPActive[2] = TRUE;
-				}
-
 			}
 		
 			Input_Movecheck(scanx, 1);
-
 			return FALSE;
 		case IE_KEYUP:
-
-			// Controller Menu Navigation
-			if(in_menu != MENU_NONE) {
-				if (scanx == K_JOY2) {
-					GPActive[0] = FALSE;
-				} 
-
-				if (scanx == K_JOY4) {
-					GPActive[1] = FALSE;
-				} 
-
-				if (scanx == K_JOY1) {
-					GPActive[2] = FALSE;
-				}
-			}
-			
-
 			Input_Movecheck(scanx, 0);
-	
 			return FALSE;
 		case IE_MOUSEDELTA:
 			return FALSE;
@@ -1187,6 +1160,9 @@ noref void() CSQC_Parse_Event =
 			screenflash_type = readbyte();
 			screenflash_worktime = 0;
 			screenflash_starttime = time;
+			break;
+		case CSQC_EVENT_RUMBLE:
+			gp_rumble(last_input_deviceid, readshort(), readshort(), readshort());
 			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
