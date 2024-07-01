@@ -924,10 +924,6 @@ void(float button, string key) setToBind =
 
 noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent =
 {
-
-	if (last_input_deviceid != devid)
-		print(sprintf("device id swapped to %d\n", last_input_deviceid));
-
 	last_input_deviceid = devid;
 
 	if (evtype == IE_KEYDOWN) {
