@@ -120,7 +120,7 @@ void() menu_quit =
 void() menu_back =
 {
 	if (in_menu == MENU_CSETTINGS)
-		localcmd("saveconfig\n");
+		localcmd("saveconfig user_settings.cfg\n");
 
 	if (in_menu == MENU_GSETTINGS || in_menu == MENU_CSETTINGS ||
 	in_menu == MENU_AUDSETTINGS || in_menu == MENU_CONSETTINGS) {
@@ -605,7 +605,7 @@ void() settings_apply = {
 		localcmd(strcat("vid_fullscreen ", ftos(fullscreenval), "\n"));
 		localcmd("vid_restart\n");
 	}
-	localcmd("saveconfig\n");
+	localcmd("saveconfig user_settings.cfg\n");
 }
 
 void() bind_walkf = {
