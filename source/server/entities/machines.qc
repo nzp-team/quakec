@@ -580,7 +580,7 @@ void() perk_dead = { perk_deadshot();}
 // Mule Kick
 void() perk_mule =
 {
-	Perk_InitMachine("perk_deadshot", PERK_MULEKICK_DEFAULT_MODEL, 4000, 4000,
+	Perk_InitMachine("perk_mule", PERK_MULEKICK_DEFAULT_MODEL, 4000, 4000,
 	PERK_SPAWNFLAG_LIMELIGHT, 1000, 1000, true, true, 8, P_MULE);
 }
 
