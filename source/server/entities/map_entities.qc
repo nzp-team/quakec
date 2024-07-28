@@ -268,7 +268,7 @@ void() misc_model =
 		if (cvar("developer"))
 			bprint(PRINT_HIGH, "+ [DEV-INFO]: misc_model without model set. Fix this!\n");
 
-		self.model = "models/missing_model.mdl");
+		self.model = "models/missing_model.mdl";
 	}
 		
 
