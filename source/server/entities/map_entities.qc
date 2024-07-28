@@ -265,7 +265,7 @@ void() misc_model =
 	// NZ:P Edit -- No model specified, use our missing/replacement
 	// model.
 	if (self.model == "") {
-		if (cvar("developer))
+		if (cvar("developer"))
 			bprint(PRINT_HIGH, "+ [DEV-INFO]: misc_model without model set. Fix this!\n");
 
 		self.model = "models/missing_model.mdl");
