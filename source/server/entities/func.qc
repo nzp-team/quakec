@@ -111,7 +111,7 @@ void () func_rotating_use =
 
 void() rot_crush =
 {
-    DamageHandler(self, other, 1, DMG_TYPE_OTHER);
+    DamageHandler(self, other, 1, S_ZOMBIE);
 }
 	
 void () func_rotating =
@@ -159,7 +159,7 @@ void() train_blocked =
 
 	self.death_timer = time + 0.5;
 
-    DamageHandler(self, other, self.dmg, DMG_TYPE_OTHER);
+    DamageHandler(self, other, self.dmg, S_ZOMBIE);
 };
 
 void() train_use =

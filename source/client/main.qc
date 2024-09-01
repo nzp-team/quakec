@@ -760,11 +760,7 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setviewprop(VF_DRAWENGINESBAR, 0);	
 	setviewprop(VF_DRAWCROSSHAIR, 0);
 
-	if (in_menu == MENU_PAUSE)
-		setsensitivityscaler(0);
-	else
-		setsensitivityscaler((1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT));
-
+	setsensitivityscaler((1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT));
 	setviewprop(VF_AFOV, autocvar(fov,90)*getstatf(STAT_VIEWZOOM));
 
 	cvar_set("r_viewmodel_fov", ftos(cvar("r_viewmodel_default_fov")*getstatf(STAT_VIEWZOOM)));
@@ -1215,20 +1211,28 @@ noref void() CSQC_Parse_Event =
 			}
 			break;
 		case EVENT_REVIVECHANGE:
-			float revivechange_player_index = readbyte() - 1; // playernum starts at one.
+			float revivechange_id = readbyte();
 			float state = readbyte();
-			revive_icons[revivechange_player_index].state = state;
+			revive_icons[revivechange_id].state = state;
 			break;
 		case EVENT_REVIVEON:
-			float reviveon_player_index = readbyte() - 1; // playernum starts at one.
-			revive_icons[reviveon_player_index].state = 1;
-			revive_icons[reviveon_player_index].draw = true;
+			float reviveon_id = readbyte();
+			revive_icons[reviveon_id].org[0] = readcoord();
+			revive_icons[reviveon_id].org[1] = readcoord();
+			revive_icons[reviveon_id].org[2] = readcoord();
+			revive_icons[reviveon_id].state = 1;
+			revive_icons[reviveon_id].draw = true;
+			active_revive_icons++;
 			break;
 		case EVENT_REVIVEOFF:
-			float reviveoff_player_index = readbyte() - 1; // playernum starts at one.
-			revive_icons[reviveoff_player_index].state = 0;
-			revive_icons[reviveoff_player_index].timer = 0;
-			revive_icons[reviveoff_player_index].draw = false;
+			float reviveoff_id = readbyte();
+			revive_icons[reviveoff_id].org[0] = 0;
+			revive_icons[reviveoff_id].org[1] = 0;
+			revive_icons[reviveoff_id].org[2] = 0;
+			revive_icons[reviveoff_id].state = 0;
+			revive_icons[reviveoff_id].timer = 0;
+			revive_icons[reviveoff_id].draw = false;
+			active_revive_icons--;
 			break;
 		case EVENT_MAPTYPE:
 			map_compatibility_mode = readbyte();

@@ -69,9 +69,9 @@ void() zapper_do_damage =
 		// Inflict Damage
 		if (other.damage_timer < time) {
 			if (other.perks & P_JUG)
-				DamageHandler(other, self, 50, DMG_TYPE_ELECTRICTRAP);
+				DamageHandler(other, self, 50, S_ZAPPER);
 			else
-				DamageHandler(other, self, other.health, DMG_TYPE_ELECTRICTRAP);
+				DamageHandler(other, self, other.health, S_ZAPPER);
 			other.damage_timer = time + 1.25;
 		}
 		// Inflict Speed Penalty

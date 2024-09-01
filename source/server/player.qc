@@ -1,5 +1,5 @@
 /*
-	server/player/player_core.qc
+	server/player.qc
 
 	Various stuff done for the player, including per-frame functions 
 	like PlayerPreThink and PlayerPostThink, also client specific 
@@ -30,7 +30,7 @@
 void(entity e) Light_None;
 void() Spawns_Init;
 void() SUB_UseTargets;
-void(entity client) LastStand_UnlinkRevivee;
+void() rec_downed;
 
 #define PLAYER_START_HEALTH				100
 
@@ -208,7 +208,7 @@ void() PAnim_GetDown1	=[	2, 		PAnim_GetDown2		] {self.frame = 33;};
 void() PAnim_GetDown2	=[	3, 		PAnim_GetDown3		] {self.frame = 34;};
 void() PAnim_GetDown3	=[	4, 		PAnim_GetDown4		] {self.frame = 35;};
 void() PAnim_GetDown4	=[	5, 		PAnim_GetDown5		] {self.frame = 36;};
-void() PAnim_GetDown5	=[	6, 		SUB_Null			] {self.frame = 37;};
+void() PAnim_GetDown5	=[	6, 		SUB_Null			] {self.frame = 37; rec_downed();};
 
 // Firing, while in Last Stand
 void() PAnim_LastFire 	=[	1,		PAnim_LastFire1		] {self.frame = 36; self.tp_anim_time = time + 0.25;}
@@ -392,41 +392,6 @@ void(entity who, float preferred_stance, float play_animation) Player_SetStance 
 		self = tempe;
 	}
 }
-
-//
-// Player_InitiateProgressBar(who, duration)
-// Kicks-off progress bar for the server to interpret
-// and render on the client side.
-//
-void(entity who, float duration) Player_InitiateProgressBar =
-{
-	who.progress_bar_time = duration;
-	who.progress_bar = who.progress_bar_time + time;
-};
-
-//
-// Player_RemoveProgressBar(who)
-// Resets progress bar status for client.
-//
-void(entity who) Player_RemoveProgressBar =
-{
-	who.progress_bar = who.progress_bar_time = who.progress_bar_percent = 0;
-};
-
-//
-// Player_UpdateProgressBar()
-// Increments progress bar percentage for client rendering updates.
-//
-void() Player_UpdateProgressBar =
-{
-	if (self.progress_bar_time) {
-		float progress_bar_remaining = self.progress_bar - time;
-		self.progress_bar_percent = invertfloat(progress_bar_remaining / self.progress_bar_time);
-
-		if (self.progress_bar_percent >= 0.95)
-			Player_RemoveProgressBar(self);
-	}
-};
 
 void() PlayerJump =
 {
@@ -707,16 +672,25 @@ void() PlayerPostThink =
 			self.health_was_very_low = false;
 		}
 	}
-
-	if (self.downed && self.firer != world) {
-		// Has our revivee left the vicinity of our revive trigger?
-		if (fabs(vlen(self.origin - self.firer.origin)) >= 72) {
-			LastStand_UnlinkRevivee(self);
+	
+	if (self.progress_bar) {
+		if (self.progress_bar < time) {
+			if (self.downed)
+				GetUp();
+			
+			if (self.reviving)
+				self.revived = 1;
+			
+			self.progress_bar = 0;
+			self.progress_bar_time = 0;
+			self.progress_bar_percent = 0;
+			
+				
+		} else {
+			float remaining = self.progress_bar - time;
+			self.progress_bar_percent = invertfloat((remaining / self.progress_bar_time));
 		}
 	}
-
-	// Keep track of any active progress bars.
-	Player_UpdateProgressBar();
 
 	if (self.sprinting) {
 		self.sprint_timer = self.sprint_duration + (time - self.sprint_start_time);
@@ -1042,11 +1016,9 @@ void() ClientDisconnect =
 
 	GameRestart_ResetPerkaColas();
 
-	if (self.downed && self.firer != world) {
-		LastStand_UnlinkRevivee(self);
-		DisableReviveIcon(self.playernum);
-	} else if (self.firer != world) {
-		self.firer.beingrevived = false;
+	if (self.downed) {
+		DisableReviveIcon(self.electro_targeted);
+		revive_index--;
 	}
 
 #ifdef FTE

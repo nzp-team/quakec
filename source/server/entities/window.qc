@@ -59,12 +59,12 @@ void() screen_shake =
 
 void() Window_repaired =
 {
-	if (barricade_reward_maximum > self.enemy.barricade_reward)
+	if (maxreward > totalreward)
 	{
 		sound(self, 0,"sounds/misc/ching.wav", 1, ATTN_NORM);
 		Player_AddScore(self.enemy, 10, true);
 
-		self.enemy.barricade_reward += 10;
+		totalreward = totalreward + 10;
 	}
 	screen_shake();
 	self.enemy = world;

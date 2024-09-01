@@ -66,7 +66,7 @@ void() Particles_MuzzleflashCallback =
 				
 	muzzleflash_position += v_forward * muzzleflash_offset_z;
 	muzzleflash_position += v_right * muzzleflash_offset_x;
-	muzzleflash_position += v_up * muzzleflash_offset_y;
+	muzzleflash_position += v_up * muzzleflash_offset_y;			
 
 	float muzzleflash_type = rint(random() * 2); // Choose one of three Muzzleflash variances.
 
@@ -92,7 +92,6 @@ void() Particles_MuzzleflashCallback =
 		pointparticles(particleeffectnum("weapons.impact"), particle_position, '0 0 0', 1);
 		pointparticles(particleeffectnum("weapons.impact_decal"), particle_position, '0 0 0', 1);
 	}
-
 };
 
 // This struct must be ordered linearly for fast array lookups. Do NOT skip indexes.

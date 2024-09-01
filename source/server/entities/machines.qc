@@ -80,11 +80,37 @@ void GivePerk(optional float p) {
 	// No Perks? No Problem tracker
 	self.ach_tracker_npnp++;
 
-	self.perks = self.perks | perk;
+	switch(perk) {
+		case P_REVIVE:
+			self.perks = self.perks | 8;
+			break;
+		case P_FLOP:
+			self.perks = self.perks | 16;
+			break;
+		case P_JUG:
+			self.perks = self.perks | 1;
 
-	// Instant re-gen, set health to Jugg health.
-	if (perk & P_JUG)
-		self.health = self.max_health = PERK_JUGGERNOG_HEALTH;
+			// Instant re-gen, set health to Jugg health.
+			self.health = self.max_health = PERK_JUGGERNOG_HEALTH;
+			break;
+		case P_STAMIN:
+			self.perks = self.perks | 32;
+			break;
+		case P_SPEED:
+			self.perks = self.perks | 4;
+			break;
+		case P_DOUBLE:
+			self.perks = self.perks | 2;
+			break;
+		case P_DEAD:
+			self.perks = self.perks | 64;
+			break;
+		case P_MULE:
+			self.perks = self.perks | 128;
+			break;
+		default:
+			break;
+	}
 
 	if (self.perks == 255)
 		GiveAchievement(6, self);
@@ -609,7 +635,7 @@ void() Turn_Lights =
 			Turn_PerkLight_On(tempe);
 		tempe = findfloat (tempe, requirespower, 1);
 	}
-
+/*
 	// Light Styles
 	tempe = find(world, classname, "light");
 	while(tempe)
@@ -617,13 +643,14 @@ void() Turn_Lights =
 		if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTOFF) {
 			tempe.style = tempe.score;
 			LS_Setup();
-		}/* else if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTON) {
+		} else if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTON) {
 			tempe.style = 64;
 			lightstyle(tempe.style, "a");
-		}*/
+		}
 
 		tempe = find(tempe, classname, "light");
 	}
+*/
 } 
 
 //

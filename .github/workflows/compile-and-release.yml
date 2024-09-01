@@ -16,7 +16,7 @@ jobs:
         working-directory: ./tools
         run: |
           sudo -i
-          ./qc-compiler-gnu.sh
+          ./qc-compiler-lin.sh
           echo "QC COMPILE STATUS - ${{ job.status }}."
       - name: Zip Progs
         working-directory: ./build

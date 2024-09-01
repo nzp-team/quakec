@@ -155,26 +155,29 @@ void(float round) FTE_IncrementRound =
 
 #endif // FTE
 
-void(float player_index, float state) ChangeReviveIconState =
+void(float index, float state) ChangeReviveIconState =
 {
 #ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVECHANGE);
-	WriteByte(MSG_MULTICAST, player_index);
+	WriteByte(MSG_MULTICAST, index);
 	WriteByte(MSG_MULTICAST, state);
 	multicast('0 0 0', MULTICAST_ALL);
 
 #endif // FTE
 }
 
-void(float player_index) EnableReviveIcon =
+void(float index, vector org) EnableReviveIcon =
 {
 #ifdef FTE
 
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, EVENT_REVIVEON);
-	WriteByte(MSG_MULTICAST, player_index);
+	WriteByte(MSG_MULTICAST, index);
+	WriteCoord(MSG_MULTICAST, org_x);
+	WriteCoord(MSG_MULTICAST, org_y);
+	WriteCoord(MSG_MULTICAST, org_z);
 	multicast('0 0 0', MULTICAST_ALL);
 
 #endif // FTE
