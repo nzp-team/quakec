@@ -1185,6 +1185,7 @@ void(entity ent) Zombie_Death_Cleanup = {
 	
 	ent.health = 0;
 	ent.respawn_iterator = 0;
+	ent.skin = 0;
 	Remaining_Zombies = Remaining_Zombies - 1;
 }
 

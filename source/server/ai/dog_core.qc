@@ -360,6 +360,7 @@ void(entity where) spawn_a_dogB =
 	sdog.enemy = Dog_FindEnemy();
 
 	sdog.electro_targeted = 0;
+	sdog.skin = 0;
 
 	SetZombieWalk(sdog);
 	
