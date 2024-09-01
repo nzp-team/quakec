@@ -120,7 +120,7 @@ void() menu_quit =
 void() menu_back =
 {
 	if (in_menu == MENU_CSETTINGS)
-		localcmd("saveconfig\n");
+		localcmd("saveconfig user_settings.cfg\n");
 
 	if (in_menu == MENU_GSETTINGS || in_menu == MENU_CSETTINGS ||
 	in_menu == MENU_AUDSETTINGS || in_menu == MENU_CONSETTINGS) {
@@ -605,7 +605,7 @@ void() settings_apply = {
 		localcmd(strcat("vid_fullscreen ", ftos(fullscreenval), "\n"));
 		localcmd("vid_restart\n");
 	}
-	localcmd("saveconfig\n");
+	localcmd("saveconfig user_settings.cfg\n");
 }
 
 void() bind_walkf = {
@@ -791,6 +791,12 @@ void() settings_adsmode =
 		localcmd("bind MOUSE2 \"impulse 26\"\n");
 	else
 		localcmd("bind MOUSE2 \"+button8\"\n");
+}
+
+void() settings_rumble =
+{
+	float rumble = cvar("in_rumbleenabled");
+	cvar_set("in_rumbleenabled", ftos(!rumble));
 }
 
 void() setting_mastervol =
@@ -1005,6 +1011,7 @@ var struct
 	// Control Settings (cont.)
 	{[6, 115], "Invert Mouse", -1, setting_invert, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 66
 	{[6, 135], "Controller Glyphs", -1, setting_glyph, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 67
+	{[6, 155], "Rumble", -1, settings_rumble, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 68
 
 	// Main menu (cont.)
 	{[6, 145], "Achievements (Not on Web)", -1, null, null, MENU_MAIN, 1, OPTION_WEB_ONLY}, // 3
@@ -1495,6 +1502,12 @@ void() Draw_Extra_CSettings =
 	else
 		drawstring([320, 115], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
 
+	// Rumble
+	if (cvar("in_rumbleenabled") == 0)
+		drawstring([320, 155], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+	else
+		drawstring([320, 155], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
+
 	// Controller Glyphs
 	string controller_glyph_brand = "Unknown";
 	switch(cvar_string("cl_controllerglyphs")) {
@@ -1530,6 +1543,9 @@ void() Draw_Extra_CSettings =
 			break;
 		case 67:
 			cset_desc = "Glyph Branding type to display for Controllers.";
+			break;
+		case 68:
+			cset_desc = "Toggle Rumble support for Controllers.";
 			break;
 		default:
 			cset_desc = "";

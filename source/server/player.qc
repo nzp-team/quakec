@@ -991,6 +991,10 @@ void() PutClientInServer =
 	else 
 		SpectatorSpawn();
 
+	// Force the client to always be networked to other clients, even when
+	// outside of the same PVS.
+	self.pvsflags |= PVSF_IGNOREPVS;
+
 #endif // FTE
 
 	GameRestart_ResetPerkaColas();

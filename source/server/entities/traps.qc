@@ -55,7 +55,7 @@ void()  A_ElecSwitchOff3    =   [   3,  SUB_Null            ]   {self.frame = 0;
 // zapper_do_damage
 // Called when entities touch the Electric barrier.
 //
-void() zapper_do_damage
+void() zapper_do_damage =
 {
 	entity tempe;
 
@@ -121,7 +121,8 @@ void() zapper_do_damage
 }
 
 
-void zapper_play () {
+void() zapper_play =
+{
 	entity zents = find(world, targetname, self.target);
 	local vector org = self.origin;
 	local vector targetorg = zents.origin;
@@ -161,7 +162,8 @@ void() zapper_cooldown =
 	self.touch = zapper_touch;
 }
 
-void zapper_stop() {
+void() zapper_stop = 
+{
 	entity zents;
 	entity tempe;
 
@@ -181,7 +183,7 @@ void zapper_stop() {
             }
 
 			self = tempe;
-		} else if (zents.classname == "zapper_node" && zents.target) {
+		} else if (zents.classname == "zapper_node" && zents.target != "") {
 			zents.think = SUB_Null;
 			entity zent_target = find(world, targetname, self.target);
 			if (zent_target != world)
@@ -195,7 +197,8 @@ void zapper_stop() {
 	remove(self);
 }
 
-void zapper_start(string zapper) {
+void(string zapper) zapper_start = 
+{
 	entity zents;
 	entity tempe;
 
@@ -213,7 +216,7 @@ void zapper_start(string zapper) {
 			lasting_time = self.calc_time;
 			A_ElecSwitchOn1();
 			self = tempe;
-		} else if (zents.classname == "zapper_node" && zents.target) {
+		} else if (zents.classname == "zapper_node" && zents.target != "") {
 			zents.think = zapper_play;
 			zents.nextthink = time + 0.65;
 		}
@@ -226,7 +229,8 @@ void zapper_start(string zapper) {
 	tempe.zappername = zapper;
 }
 
-void zapper_touch () {
+void() zapper_touch = 
+{
 	if (other.classname != "player") {
 		return;
 	}

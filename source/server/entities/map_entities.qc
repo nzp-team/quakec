@@ -257,14 +257,20 @@ void() misc_model_think =
 
 void() misc_model = 
 {
-    if (!self.mdl || self.mdl == "") {
-		// NZP: Check for .model instead
-		if (!self.model || self.model == "")
-        	objerror("Model not defined");
-	} else {
-		// Convert to .model instead of .mdl
+	// NZ:P Edit -- We use .model instead of .mdl, but keep
+	// compatibility with progs_dump's .mdl
+	if (self.mdl != "")
 		self.model = self.mdl;
+
+	// NZ:P Edit -- No model specified, use our missing/replacement
+	// model.
+	if (self.model == "") {
+		if (cvar("developer"))
+			bprint(PRINT_HIGH, "+ [DEV-INFO]: misc_model without model set. Fix this!\n");
+
+		self.model = "models/missing_model.mdl";
 	}
+		
 
 	//
 	// Set default stats.
