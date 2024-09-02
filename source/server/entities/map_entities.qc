@@ -90,6 +90,8 @@ void() radio_hit =
 
 	if (self.spawnflags & SPAWNFLAG_RADIO_PLAYONCE)
 		self.takedamage = DAMAGE_NO;
+
+	SUB_UseTargets();
 }
 
 void() item_radio = 
