@@ -2094,10 +2094,21 @@ void() WeaponCore_ClientLogic =
 
 	// If Client has ADS bound to impulse 26 (toggle),
 	// check if the flag is set and W_AimIn()
-	if (self.ads_release)
+	if (self.ads_release) {
+		// A bit of a hack -- but if we are using a dual wield weapon
+		// and we've triggered the toggle ADS, emulate a RMB tap and
+		// remove the ADS toggle flag.
+		if (IsDualWeapon(self.weapon)) {
+			self.ads_release = false;
+			self.has_ads_toggle = false;
+			WeaponCore_AimButtonPressed();
+			WeaponCore_AimButtonReleased();
+			return;
+		}
 		W_AimIn();
-	else if (self.has_ads_toggle)
+	} else if (self.has_ads_toggle) {
 		W_AimOut();
+	}
 
 	// ADS Button Pressed
 	if (self.button8) {
