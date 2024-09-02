@@ -275,6 +275,11 @@ void() W_TakeOut =
 
 void(float side) W_Give_Ammo =
 {
+	// Prevent ammo duplication when we have a low reserve
+	// amount when attempting to reload a Dual Wield weapon.
+	if (self.weapons[0].weapon_reserve == 0)
+		return;
+
 	float ammo_shot, max_mag, loadammo;
 	
 	max_mag = getWeaponMag(self.weapon);
