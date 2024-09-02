@@ -823,6 +823,7 @@ void(vector where, float type) Spawn_Powerup =
 		sparkle.scale = 0.66;
 	}
 
+	sparkle.effects = EF_FULLBRIGHT;
 	sparkle.think = PU_SparkleThink;
 	sparkle.nextthink = time + 0.1;
 
