@@ -475,6 +475,10 @@ void() Zombie_ProcessRespawn =
 			if (self.respawn_iterator >= 10) {
 				self.respawn_iterator = 0;
 
+				// Set outside -- we do this to prevent Power-Ups from
+				// dropping.
+				self.outside = true;
+
 				// Kill it.
 				self.th_die();
 
