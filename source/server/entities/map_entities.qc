@@ -53,7 +53,7 @@ void() radioPlay =
 	self.health = 1;
 
 	if (self.radioState == 1) {
-		sound (self, CHAN_ITEM, self.tune, 1, ATTN_NORM);
+		Sound_PlaySound(self, self.tune, SOUND_TYPE_ENV_IMPORTANT, SOUND_PRIORITY_PLAYALWAYS);
 
 
 		if (!(self.spawnflags & SPAWNFLAG_RADIO_PLAYONCE))
@@ -69,7 +69,7 @@ void() radioPlay =
 
 		self.think = radioPlay;
 	} else if (self.radioState == 0) {
-		sound (self, CHAN_ITEM, "sounds/null.wav", 1, ATTN_NONE);
+		sound(self, CHAN_ITEM, "sounds/null.wav", 1, ATTN_NONE);
 		self.nextthink = 0;
 		self.think = SUB_Null;
 	}
@@ -79,7 +79,7 @@ void() radio_hit =
 {
 	self.health = 1;
 
-	sound (self, CHAN_ITEM, "sounds/misc/radio.wav", 1, ATTN_NORM);
+	Sound_PlaySound(self, "sounds/misc/radio.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 	self.nextthink = time + 1;
 	self.think = radioPlay;
 	
@@ -99,7 +99,7 @@ void() item_radio =
 	if (!self.maxs) self.maxs = '8 8 4';
 	
 	precache_model (self.model);
-	precache_sound ("sounds/misc/radio.wav");
+	precache_sound("sounds/misc/radio.wav");
 
 	// Backwards compatibility
 	if (!self.tune) {
@@ -107,7 +107,7 @@ void() item_radio =
 		self.length = 10.1;
 	}
 
-	precache_sound (self.tune);
+	precache_sound(self.tune);
 	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything
 	self.solid=SOLID_BBOX;
 	self.classname = "item_radio";
@@ -140,7 +140,7 @@ void() teddy_spawn =
 	self.th_die = teddy_react;
 	
 	if (self.noise)
-		precache_sound (self.noise);
+		precache_sound(self.noise);
 };
 
 /* ==================

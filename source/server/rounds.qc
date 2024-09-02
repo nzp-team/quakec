@@ -106,9 +106,7 @@ void(string sound_path) Rounds_PlayTransition =
 	if (music_override > time)
 		return;
 
-	// Pick a random player because it needs a source.
-	entity some_player = find(world, classname, "player");
-	sound(some_player, CHAN_AUTO, sound_path, 1, ATTN_NONE);
+	Sound_PlaySound(world, sound_path, SOUND_TYPE_MUSIC_ROUND, SOUND_PRIORITY_PLAYALWAYS);
 }
 
 void() updateDogRound =
@@ -185,7 +183,6 @@ void() NewRound =
 	entity tempe;
 	round_changetime = 0;
 	spawn_time = time + 5;
-	sounds_playing = 0;//just in case it ever somehow glitches
 	if (delay_at_round > 0.08)
 	{
 		delay_at_round = delay_at_round*0.95;

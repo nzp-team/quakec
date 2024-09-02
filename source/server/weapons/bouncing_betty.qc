@@ -142,7 +142,7 @@ void() Betty_CheckForRelease =
 			self.grenade_delay = time + 0.05;
 		self.isBuying = true;
 		Set_W_Frame (13, 19, 0.3, 5, GRENADE, Betty_Drop, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT, true);
-		sound (self, CHAN_WEAPON, "sounds/weapons/grenade/throw.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/weapons/grenade/throw.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
 		self.throw_delay = time + 0.9;
 	}

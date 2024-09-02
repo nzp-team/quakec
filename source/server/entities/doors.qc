@@ -274,19 +274,30 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		if (other.points >= self.cost)
 		{
 			door_fire();
-			sound(self, 0, "sounds/misc/ching.wav", 1, 1);
-			sound(self, 1, "sounds/misc/buy.wav", 1, 1);
+			
+			// We need to create a new entity with the specific assignment of
+			// just playing the door sound, due to the door moving if we just
+			// assign the sound to the door, it cannot be heard when the engine
+			// supports SOUNDFLAG_FOLLOW.
+			entity door_sound = spawn();
+			setorigin(door_sound, other.origin);
+			door_sound.think = SUB_Remove;
+			door_sound.nextthink = time + 5;
+
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
+			Sound_PlaySound(door_sound, "sounds/misc/buy.wav", SOUND_TYPE_ENV_IMPORTANT, SOUND_PRIORITY_PLAYALWAYS);
 			switch(self.sounds)
 			{
 				case 1:
-					sound(self, 2, "sounds/misc/wood_door.wav", 1, 1);
+					Sound_PlaySound(door_sound, "sounds/misc/wood_door.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					break;
 				case 2:
-					sound(self, 2, "sounds/misc/debris.wav", 1, 1);
+					Sound_PlaySound(door_sound, "sounds/misc/debris.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					break;
 				default:
 					break;
 			}
+
 			Player_RemoveScore(other, self.cost);
 			self.solid = SOLID_NOT;
 		}
@@ -295,7 +306,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 			if(other.classname == "player" && !other.downed)
 			{
 				centerprint (other, STR_NOTENOUGHPOINTS);
-				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+				Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 				other.semi_actions |= SEMIACTION_USE;
 			}
 		}

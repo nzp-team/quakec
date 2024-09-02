@@ -128,7 +128,7 @@ void() PAP_Tick =
 	if (self.ltime < time)
 		PAP_Reset();
 	else {
-		sound(self, CHAN_BODY, "sounds/machines/packapunch/tick.wav", 1, 1);
+		Sound_PlaySound(self, "sounds/machines/packapunch/tick.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		self.nextthink = time + 0.87;
 	}
 };
@@ -187,11 +187,11 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 
 	// Give a nice blue glow and play upgrade sound
     Light_Cyan(pap, false);
-    sound(pap, CHAN_ITEM, pap.oldmodel, 0.8, 1);
+	Sound_PlaySound(pap, pap.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Mapper-provided musical sting.
 	if (pap.powerup_vo)
-		sound(pap, CHAN_AUTO, pap.powerup_vo, 1, ATTN_IDLE);
+		Sound_PlaySound(pap, pap.powerup_vo, SOUND_TYPE_ENV_MUSIC, SOUND_PRIORITY_PLAYALWAYS);
 
 	//
 	// Spawn and prepare the floating Weapon
@@ -226,7 +226,7 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 
 	// Play Player's view model animation and sound.
 	self.fire_delay = self.reload_delay = 2.0 + time;
-	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NORM);
+	Sound_PlaySound(self, "sounds/machines/papsound.wav", SOUND_TYPE_PLAYER_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 
 	pap.weapon = self.weapon;
 
@@ -284,7 +284,7 @@ void() PAP_Touch =
 		else if (other.button7 && other.weapon && !(other.semi_actions & SEMIACTION_USE)) {
 			other.semi_actions |= SEMIACTION_USE;
 			centerprint (other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		}
 	} 
 
@@ -319,7 +319,7 @@ void() PAP_Touch =
 void() PAP_Click =
 {
 	if (!self.active_door.papState)
-    	sound(self, CHAN_ITEM, "sounds/machines/packapunch/gear_shift.wav", 1, 1);
+		Sound_PlaySound(self, "sounds/machines/packapunch/gear_shift.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
     self.nextthink = time + 0.75;
 };
 
@@ -428,7 +428,7 @@ void() perk_pap =
 	if (self.powerup_vo)
 		precache_sound(self.powerup_vo);
 
-	precache_sound ("sounds/machines/papsound.wav");
+	precache_sound("sounds/machines/papsound.wav");
 	precache_sound("sounds/weapons/papfire.wav");
     precache_sound("sounds/machines/packapunch/gear_shift.wav");
 	precache_sound("sounds/machines/packapunch/tick.wav");

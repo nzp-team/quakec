@@ -314,7 +314,7 @@ void() PU_NukeKill =
 	self.th_die();
 
 	// override their death sound
-	sound(self, CHAN_BODY, "sounds/pu/nuke.wav", 1, ATTN_NORM);
+	Sound_PlaySound(self, "sounds/pu/nuke.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// restore self
 	self = oldself;
@@ -663,7 +663,7 @@ void() PU_Flash =
 //
 void() PU_PlayVO =
 {
-	sound(self, CHAN_VOICE, self.powerup_vo, 1, ATTN_NONE);
+	Sound_PlaySound(world, self.powerup_vo, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_ALLOWSKIP);
 	PU_FreeEnt(self);
 };
 
@@ -700,7 +700,7 @@ void() PU_Touch =
 	if (other.classname == "player")
 	{
 		// Acquire sound
-		sound(self.owner, CHAN_VOICE, "sounds/pu/pickup.wav", 1, ATTN_NONE);
+		Sound_PlaySound(self.owner, "sounds/pu/pickup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 		// Prepare for VO and destruction
 		self.think = PU_PlayVO;
@@ -749,7 +749,7 @@ void() PU_SparkleThink =
 	
 	if(self.calc_time <= time)
 	{
-		sound(self, CHAN_VOICE, "sounds/pu/powerup.wav", 0.6, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/pu/powerup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		self.calc_time = time + 2.998;
 	}
 };
@@ -827,8 +827,8 @@ void(vector where, float type) Spawn_Powerup =
 	sparkle.nextthink = time + 0.1;
 
 	// Drop Sounds
-	sound(sparkle, CHAN_VOICE, "sounds/pu/powerup.wav", 0.6, ATTN_NORM);
-	sound(powerup, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NONE);
+	Sound_PlaySound(sparkle, "sounds/pu/powerup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(powerup, "sounds/pu/drop.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Check if we were forcefully assigned an ID
 	if (type != -1) {

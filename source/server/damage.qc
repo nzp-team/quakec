@@ -150,7 +150,7 @@ void() EndGameSetup =
 	self.movetype = MOVETYPE_TOSS;
 
 	if (!game_over) {
-		sound(self, CHAN_AUTO, "sounds/music/end.wav", 1, ATTN_NONE);
+		Rounds_PlayTransition("sounds/music/end.wav");
 		NotifyGameEnd();
 	}
 	game_over = true;
@@ -243,7 +243,7 @@ void(entity attacker, float d_style) DieHandler =
 				points_earned = DMG_SCORE_GRENADE;
 
 				// override their death sound (FIXME: make a new sound..)
-				sound(self, CHAN_BODY, "sounds/pu/drop.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/pu/drop.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 				break;
 			case DMG_TYPE_GRENADE:
 				points_earned = DMG_SCORE_GRENADE;
@@ -334,10 +334,11 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 		victim.punchangle_y = distance_y;
 
 		// Play pain noise if this isn't done by an electric barrier.
-		if (d_style != DMG_TYPE_ELECTRICTRAP)
-			sound (victim, CHAN_AUTO, "sounds/player/pain4.wav", 1, ATTN_NORM);
-		else
-			sound (victim, CHAN_AUTO, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+		if (d_style != DMG_TYPE_ELECTRICTRAP) {
+			Sound_PlaySound(victim, "sounds/player/pain4.wav", SOUND_TYPE_PLAYER_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+		} else {
+			Sound_PlaySound(victim, "sounds/machines/elec_shock.wav", SOUND_TYPE_PLAYER_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+		}
 
 		if (victim.sprinting) {
 			old_self = self;

@@ -52,7 +52,7 @@ void() WallWeapon_Use =
 		return;
 
 	// Play a sound for it "spawning"
-	sound(self, 1, "sounds/misc/buy.wav", 1, 1);
+	Sound_PlaySound(self, "sounds/misc/buy.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// MP5K and Waffe were added in late in the mix-up.. needs special case. Also grenade bag.
 	switch(self.sequence + 1) {
@@ -186,7 +186,7 @@ void () WallWeapon_TouchTrigger =
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
 				centerprint(other, STR_NOTENOUGHPOINTS);
-				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+				Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 				return;
 			}
 
@@ -195,7 +195,7 @@ void () WallWeapon_TouchTrigger =
 			// Set the weapon's ammo to the max capacity.
 			Weapon_SetPlayerAmmoInSlot(other, slot, wall_ammo);
 
-			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			other.reload_delay = 0;
 
 			// Subtract the cost from player points.
@@ -234,13 +234,13 @@ void () WallWeapon_TouchTrigger =
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
 				centerprint(other, STR_NOTENOUGHPOINTS);
-				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+				Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 				return;
 			}
 
 			other.weapons[0].weapon_reserve = getWeaponAmmo(other.weapon);
 
-			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			other.reload_delay = 0;
 
 			// Subtract the cost from player points.
@@ -267,14 +267,14 @@ void () WallWeapon_TouchTrigger =
 		if (other.points < self.cost2)
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 		else
 		{
 			other.ach_tracker_coll++;
 			other.reload_delay = 0;
-			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			//other.boughtweapon = true;
 			Player_RemoveScore(other, self.cost2);
 			other.grenades = other.grenades | 2;
@@ -302,14 +302,14 @@ void () WallWeapon_TouchTrigger =
 		if (other.points < self.cost)
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 		else
 		{
 			other.ach_tracker_coll++;
 			other.reload_delay = 0;
-			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			//other.boughtweapon = true;
 			Player_RemoveScore(other, self.cost);
 			other.primary_grenades = 4;
@@ -332,12 +332,12 @@ void () WallWeapon_TouchTrigger =
 			{
 				if (other.points < self.cost2) {
 					centerprint(other, STR_NOTENOUGHPOINTS);
-					sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+					Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					return;
 				} else {
 					W_HideCrosshair(other);
 					Player_RemoveScore(other, self.cost2);
-					sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+					Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					other.ach_tracker_coll++;
 					if (self.enemy)
 					{
@@ -369,12 +369,12 @@ void () WallWeapon_TouchTrigger =
 		other.semi_actions |= SEMIACTION_USE;
 		if (other.points < self.cost) {
 			centerprint (other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 		other.ach_tracker_coll++;
 
-		sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+		Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		other.reload_delay = 0;
 		Player_RemoveScore(other, self.cost);
 		if (self.enemy) {

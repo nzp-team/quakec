@@ -174,7 +174,7 @@ void() train_wait =
 {
 	if (self.wait) {
 		self.nextthink = self.ltime + self.wait;
-		sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+		sound(self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 	} else {
         self.nextthink = self.ltime + 0.1;
     }
@@ -204,7 +204,7 @@ void() train_next =
 	else
 		self.wait = 0;
 
-	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	sound(self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	SUB_CalcMove (targ.origin - self.mins, self.speed, train_wait);
 };
 
@@ -237,16 +237,16 @@ void() func_train =
 
 	if (self.sounds == 0) {
 		self.noise = ("sounds/null.wav");
-		precache_sound ("sounds/null.wav");
+		precache_sound("sounds/null.wav");
 		self.noise1 = ("sounds/null.wav");
-		precache_sound ("sounds/null.wav");
+		precache_sound("sounds/null.wav");
 	}
 
 	if (self.sounds == 1) {
 		self.noise = ("sounds/misc/debris.wav");
-		precache_sound ("sounds/misc/debris.wav");
+		precache_sound("sounds/misc/debris.wav");
 		self.noise1 = ("sounds/misc/debris.wav");
-		precache_sound ("sounds/misc/debris.wav");
+		precache_sound("sounds/misc/debris.wav");
 	}
 
 	self.cnt = 1;
@@ -315,7 +315,7 @@ void() button_fire =
 	if (self.state == STATE_UP || self.state == STATE_TOP)
 		return;
 
-	sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+	//sound(self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 
 	self.state = STATE_UP;
 	SUB_CalcMove (self.pos2, self.speed, button_wait);
@@ -349,7 +349,7 @@ void() button_touch =
 					return;
 				} else {
 					centerprint(other, STR_NOTENOUGHPOINTS);
-					sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+					Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 				}
 			}
 		}
