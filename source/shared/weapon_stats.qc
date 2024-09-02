@@ -3090,6 +3090,8 @@ float(float wep)  EqualPapWeapon =
 	}
 }
 
+#ifndef CSQC
+
 float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeaponSound =
 {
 	if (anim_style == KNIFE) {
@@ -3107,24 +3109,24 @@ float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 		if (wep == W_KAR || wep == W_ARMAGEDDON || wep == W_KAR_SCOPE || wep == W_HEADCRACKER || wep == W_SPRING || wep == W_PULVERIZER)
 		{
 			if (curweaponframe == 6) {
-				sound (self ,5, "sounds/weapons/boltaction/boltup.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltup.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			else if (curweaponframe == 7) {
-				sound (self ,5, "sounds/weapons/boltaction/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 9) {
-				sound (self ,5, "sounds/weapons/boltaction/boltforward.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltforward.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 10) {
-				sound (self ,5, "sounds/weapons/boltaction/boltdown.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltdown.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 		}
 		else if (wep == W_TRENCH || wep == W_GUT)
 		{
 			if (curweaponframe == 7) {
-				sound (self ,5, "sounds/weapons/shotgun/pump.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/pump.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 		}
@@ -3136,13 +3138,13 @@ float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 	switch (wep) {
 		case W_COLT:
 			if (curweaponframe == 5) {
-				sound (self ,5, "sounds/weapons/colt/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/colt/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 12) {
-				sound (self ,5, "sounds/weapons/colt/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/colt/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if(curweaponframe == 18) {
-				sound (self ,5, "sounds/weapons/colt/slide.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/colt/slide.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
@@ -3151,92 +3153,92 @@ float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 		case W_SPRING:
 		case W_PULVERIZER:
 			if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/boltaction/boltup.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltup.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 16) {
-				sound (self ,5, "sounds/weapons/boltaction/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/boltaction/clipin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/clipin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 25) {
-				sound (self ,5, "sounds/weapons/boltaction/boltforward.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltforward.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 26) {
-				sound (self ,5, "sounds/weapons/boltaction/clipoff.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/clipoff.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 27) {
-				sound (self ,5, "sounds/weapons/boltaction/boltdown.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltdown.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_THOMPSON:
 		case W_GIBS:
 			if (curweaponframe == 6) {
-				sound (self ,5, "sounds/weapons/thomp/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/thomp/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 12) {
-				sound (self ,5, "sounds/weapons/thomp/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/thomp/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 19) {
-				sound (self ,5, "sounds/weapons/thomp/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/thomp/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_357:
 		case W_KILLU:
 			if (curweaponframe == 5) {
-				sound (self ,5, "sounds/weapons/357/open.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/357/open.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 9) {
-				sound (self ,5, "sounds/weapons/357/out.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/357/out.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/357/in.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/357/in.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/357/close.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/357/close.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_BAR:
     	case W_WIDOW:
 			if (curweaponframe == 6  || curweaponframe == 31) {
-				sound (self ,5, "sounds/weapons/bar/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/bar/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 19 || curweaponframe == 29) {
-				sound (self ,5, "sounds/weapons/bar/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/bar/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 23) {
-				sound (self ,5, "sounds/weapons/bar/maghit.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/bar/maghit.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_BROWNING:
 		case W_ACCELERATOR:
 			if (curweaponframe == 6 || curweaponframe == 60) {
-				sound (self ,5, "sounds/weapons/browning/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/browning/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 16 || curweaponframe == 69)  {
-				sound (self ,5, "sounds/weapons/browning/topopen.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/browning/topopen.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 21) {
-				sound (self ,5, "sounds/weapons/browning/chainoff.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/browning/chainoff.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 27) {
-				sound (self ,5, "sounds/weapons/browning/chainon.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/browning/chainon.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 30) {
-				sound (self ,5, "sounds/weapons/browning/chainplace.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/browning/chainplace.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 36) {
-				sound (self ,5, "sounds/weapons/browning/topclose.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/browning/topclose.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 41) {
-				sound (self ,5, "sounds/weapons/browning/tophit.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/browning/tophit.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 48) {
-				sound (self ,5, "sounds/weapons/browning/boltforward.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/browning/boltforward.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
@@ -3244,63 +3246,63 @@ float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 		case W_SAWNOFF:
 		case W_BORE:
 			if (curweaponframe == 6) {
-				sound (self ,5, "sounds/weapons/shotgun/open.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/open.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 12) {
-				sound (self ,5, "sounds/weapons/shotgun/out.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/out.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/shotgun/in.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/in.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 26) {
-				sound (self ,5, "sounds/weapons/shotgun/close.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/close.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_SNUFF:
 			if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/shotgun/open.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/open.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 23) {
-				sound (self ,5, "sounds/weapons/shotgun/out.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/out.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 33) {
-				sound (self ,5, "sounds/weapons/shotgun/in.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/in.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 40) {
-				sound (self ,5, "sounds/weapons/shotgun/close.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/close.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_FG:
 		case W_IMPELLER:
 			if (curweaponframe == 6) {
-				sound (self ,5, "sounds/weapons/fg42/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/fg42/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 14) {
-				sound (self ,5, "sounds/weapons/fg42/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/fg42/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 23) {
-				sound (self ,5, "sounds/weapons/fg42/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/fg42/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 26) {
-				sound (self ,5, "sounds/weapons/fg42/boltforward.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/fg42/boltforward.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_GEWEHR:
 		case W_COMPRESSOR:
 			if (curweaponframe == 21) {
-				sound (self ,5, "sounds/weapons/gewehr/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/gewehr/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 32) {
-				sound (self ,5, "sounds/weapons/gewehr/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/gewehr/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 36) {
-				sound (self ,5, "sounds/weapons/gewehr/maghit.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/gewehr/maghit.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 45) {
-				sound (self ,5, "sounds/weapons/gewehr/boltrelease.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/gewehr/boltrelease.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
@@ -3309,231 +3311,231 @@ float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 		case W_SPRING:
 		case W_PULVERIZER:
 			if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/boltaction/boltup.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltup.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 16) {
-				sound (self ,5, "sounds/weapons/boltaction/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/boltaction/insert.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/insert.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 25) {
-				sound (self ,5, "sounds/weapons/boltaction/boltforward.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltforward.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 27) {
-				sound (self ,5, "sounds/weapons/boltaction/boltdown.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/boltaction/boltdown.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_M1:
 		case W_M1000:
 			if (curweaponframe == 5 || curweaponframe == 25) {
-				sound (self ,5, "sounds/weapons/garand/clipout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/garand/clipout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 13) {
-				sound (self ,5, "sounds/weapons/garand/clipin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/garand/clipin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/garand/boltrelease.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/garand/boltrelease.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 24) {
-				sound (self ,5, "sounds/weapons/garand/clippush.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/garand/clippush.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_M1A1:
 		case W_WIDDER:
 			if (curweaponframe == 6) {
-				sound (self ,5, "sounds/weapons/m1carbine/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/m1carbine/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 14) {
-				sound (self ,5, "sounds/weapons/m1carbine/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/m1carbine/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if(curweaponframe == 16) {
-				sound (self ,5, "sounds/weapons/m1carbine/maghit.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/m1carbine/maghit.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 24) {
-				sound (self ,5, "sounds/weapons/m1carbine/bolt.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/m1carbine/bolt.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_MP40:
 		case W_AFTERBURNER:
 			if (curweaponframe == 7) {
-				sound (self ,5, "sounds/weapons/mp40/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mp40/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 17) {
-				sound (self ,5, "sounds/weapons/mp40/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mp40/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 25) {
-				sound (self ,5, "sounds/weapons/mp40/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mp40/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_MP5K:
 		case W_KOLLIDER:
 			if (curweaponframe == 16) {
-				sound (self ,5, "sounds/weapons/mp5k/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mp5k/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 31) {
-				sound (self ,5, "sounds/weapons/mp5k/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mp5k/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 39) {
-				sound (self ,5, "sounds/weapons/mp5k/slap.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mp5k/slap.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_PANZER:
 		case W_LONGINUS:
 			if (curweaponframe == 12) {
-				sound (self ,5, "sounds/weapons/panzer/move.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/panzer/move.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 16) {
-				sound (self ,5, "sounds/weapons/panzer/insert.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/panzer/insert.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_MG:
 		case W_BARRACUDA:
 			if (curweaponframe == 8) {
-				sound (self ,5, "sounds/weapons/mg42/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mg42/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 19) {
-				sound (self ,5, "sounds/weapons/mg42/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mg42/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 29) {
-				sound (self ,5, "sounds/weapons/mg42/charge.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/mg42/charge.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_PPSH:
     	case W_REAPER:
 			if (curweaponframe == 8) {
-				sound (self ,5, "sounds/weapons/ppsh/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ppsh/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/ppsh/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ppsh/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 22) {
-				sound (self ,5, "sounds/weapons/ppsh/maghit.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ppsh/maghit.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 30) {
-				sound (self ,5, "sounds/weapons/ppsh/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ppsh/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 33) {
-				sound (self ,5, "sounds/weapons/ppsh/boltrelease.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ppsh/boltrelease.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_PTRS:
 		case W_PENETRATOR:
 			if (curweaponframe == 7) {
-				sound (self ,5, "sounds/weapons/ptrs/open.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ptrs/open.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 13 || curweaponframe == 31) {
-				sound (self ,5, "sounds/weapons/ptrs/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ptrs/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 21) {
-				sound (self ,5, "sounds/weapons/ptrs/maghit.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ptrs/maghit.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 23) {
-				sound (self ,5, "sounds/weapons/ptrs/close.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ptrs/close.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_RAY:
 		case W_PORTER:
 			if (curweaponframe == 10) {
-				sound (self ,5, "sounds/weapons/raygun/open.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/raygun/open.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 19) {
-				sound (self ,5, "sounds/weapons/raygun/out.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/raygun/out.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 33) {
-				sound (self ,5, "sounds/weapons/raygun/in.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/raygun/in.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 41) {
-				sound (self ,5, "sounds/weapons/raygun/close.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/raygun/close.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_STG:
 		case W_SPATZ:
 			if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/stg/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/stg/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 28) {
-				sound (self ,5, "sounds/weapons/stg/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/stg/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 37) {
-				sound (self ,5, "sounds/weapons/stg/boltback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/stg/boltback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 41) {
-				sound (self ,5, "sounds/weapons/stg/boltrelease.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/stg/boltrelease.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_TRENCH:
 		case W_GUT:
 			if (curweaponframe == 19) {
-				sound (self ,5, "sounds/weapons/shotgun/insert.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/shotgun/insert.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_TYPE:
 		case W_SAMURAI:
 			if (curweaponframe == 6) {
-				sound (self ,5, "sounds/weapons/type100/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/type100/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 15) {
-				sound (self ,5, "sounds/weapons/type100/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/type100/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/type100/boltpull.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/type100/boltpull.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_BIATCH:
 			if (curweaponframe == 23) {
-				sound (self ,5, "sounds/weapons/colt/magout.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/colt/magout.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe ==30) {
-				sound (self ,5, "sounds/weapons/colt/magin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/colt/magin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if(curweaponframe == 36) {
-				sound (self ,5, "sounds/weapons/biatch/slideback.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/biatch/slideback.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if(curweaponframe == 42) {
-				sound (self ,5, "sounds/weapons/biatch/sliderelease.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/biatch/sliderelease.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_TESLA:
 		case W_DG3:
 			if (curweaponframe == 20) {
-				sound (self ,5, "sounds/weapons/tesla/switchoff.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/tesla/switchoff.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 25) {
-				sound (self ,5, "sounds/weapons/tesla/pulllever.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/tesla/pulllever.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 31) {
-				sound (self ,5, "sounds/weapons/tesla/glassbreak.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/tesla/glassbreak.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 38) {
-				sound (self ,5, "sounds/weapons/tesla/clipin.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/tesla/clipin.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 43) {
-				sound (self ,5, "sounds/weapons/tesla/clipoff.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/tesla/clipoff.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			} else if (curweaponframe == 51) {
-				sound (self ,5, "sounds/weapons/tesla/switchon.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/tesla/switchon.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
 		case W_BK:
 		case W_KRAUS:
 			if (curweaponframe == 41) {
-				sound(self, 5, "sounds/weapons/ballknife/insert.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/weapons/ballknife/insert.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
 			return false;
@@ -3544,6 +3546,7 @@ float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 	return false;
 }
 
+#endif // CSQC
 
 void(float weptype) precache_extra =
 {

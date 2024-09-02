@@ -231,7 +231,7 @@ void() trigger_interact_touch =
 
 	if (other.button7) {
 		if (self.noise)
-			sound (other, CHAN_ITEM, self.noise, 1, ATTN_NORM);
+			Sound_PlaySound(other, self.noise, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		multi_trigger();
 	}
 }
@@ -265,7 +265,7 @@ void() teddy_react =
 
 
 	if (self.noise)
-    	sound (dummy, CHAN_ITEM, self.noise, 1, ATTN_NORM);
+    	Sound_PlaySound(dummy, self.noise, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	Ent_FakeRemove(self);
 }
@@ -381,7 +381,7 @@ void() trigger_awardpoints_touch =
 	Player_AddScore(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
 
 	if (self.noise != "")
-		sound(self, 0, self.noise, 1, 1);
+		Sound_PlaySound(self, self.noise, SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 
 	self.health = 0;
 }

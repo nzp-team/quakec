@@ -385,9 +385,18 @@ float tracemove(vector start, vector min, vector max, vector end, float nomonste
 .float way_path[40];
 .float way_cur;
 
+//
+// Zombie Sound System
+//
+
+#define ZOMBIE_SOUND_TYPE_MELEE		0
+#define ZOMBIE_SOUND_TYPE_WALK		1
+#define ZOMBIE_SOUND_TYPE_CRAWL		2
+#define ZOMBIE_SOUND_TYPE_SPRINT	3
+#define ZOMBIE_SOUND_TYPE_DEATH		4
+
 .float sound_time;
 .float s_time;
-float sounds_playing;
 
 .float fall;
 //.vector lastOrg;//Zombie's last origin, for checking stuckness
@@ -518,7 +527,6 @@ float blink_return;
 float delay_at_round;
 float spawn_delay;
 float totalpowerups;
-float sounds_playing;
 
 float barricade_reward_maximum;
 .float barricade_reward;

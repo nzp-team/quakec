@@ -20,6 +20,7 @@ defs/standard.qc
 #endif
 shared_defs.qc
 defs/custom.qc
+utilities/sound_helper.qc
 weapon_stats.qc
 utilities/math.qc
 clientfuncs.qc

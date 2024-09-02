@@ -61,7 +61,7 @@ void() Window_repaired =
 {
 	if (barricade_reward_maximum > self.enemy.barricade_reward)
 	{
-		sound(self, 0,"sounds/misc/ching.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self.enemy, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		Player_AddScore(self.enemy, 10, true);
 
 		self.enemy.barricade_reward += 10;
@@ -72,7 +72,7 @@ void() Window_repaired =
 
 void() Barricade_hit_window =
 {
-	sound(self, 0, self.oldmodel, 1, ATTN_NORM);
+	Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 }
 
 void(void() next) checkForSpeed = {
@@ -227,17 +227,17 @@ void()	window_repair6_6	=[	6,		window_repair6_7 ]	{self.frame = 46;};
 void()	window_repair6_7	=[	7,		window_repair6_8 ]	{self.frame = 47;Barricade_hit_window();};
 void()	window_repair6_8	=[	8,		SUB_Null		 ]	{self.frame = 48; Window_repaired();};
 
-void()	window_carpenter_1	=[	1,		window_carpenter_2 	]	{self.frame = 47;sound(self, 0, self.oldmodel, 1, ATTN_NORM);};
+void()	window_carpenter_1	=[	1,		window_carpenter_2 	]	{self.frame = 47; Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); };
 void()	window_carpenter_2	=[	2,		window_carpenter_3 	]	{self.frame = 48;};
-void()	window_carpenter_3	=[	3,		window_carpenter_4 	]	{self.frame = 55;sound(self, 1, self.oldmodel, 1, ATTN_NORM);};
+void()	window_carpenter_3	=[	3,		window_carpenter_4 	]	{self.frame = 55; Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); };
 void()	window_carpenter_4	=[	4,		window_carpenter_5 	]	{self.frame = 56;};
-void()	window_carpenter_5	=[	5,		window_carpenter_6 	]	{self.frame = 63;sound(self, 2, self.oldmodel, 1, ATTN_NORM);};
+void()	window_carpenter_5	=[	5,		window_carpenter_6 	]	{self.frame = 63; Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); };
 void()	window_carpenter_6	=[	6,		window_carpenter_7 	]	{self.frame = 64;};
-void()	window_carpenter_7	=[	7,		window_carpenter_8 	]	{self.frame = 71;sound(self, 0, self.oldmodel, 1, ATTN_NORM);};
+void()	window_carpenter_7	=[	7,		window_carpenter_8 	]	{self.frame = 71; Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); };
 void()	window_carpenter_8	=[	8,		window_carpenter_9 	]	{self.frame = 72;};
-void()	window_carpenter_9	=[	7,		window_carpenter_10 ]		{self.frame = 79;sound(self, 1, self.oldmodel, 1, ATTN_NORM);};
+void()	window_carpenter_9	=[	7,		window_carpenter_10 ]		{self.frame = 79; Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); };
 void()	window_carpenter_10	=[	8,		window_carpenter_11	]	{self.frame = 80;};
-void()	window_carpenter_11	=[	7,		window_carpenter_12 ]		{self.frame = 87;sound(self, 2, self.oldmodel, 1, ATTN_NORM);};
+void()	window_carpenter_11	=[	7,		window_carpenter_12 ]		{self.frame = 87; Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); };
 void()	window_carpenter_12	=[	8,		SUB_Null		 	]	{self.frame = 88;self.isspec = 0;};
 
 
@@ -246,7 +246,7 @@ void() Window_Damage =
 	if(self.health == 0 || self.owner)
 		return;
 
-	sound(self, CHAN_VOICE, self.aistatus, 1, ATTN_NORM);
+	Sound_PlaySound(self, self.aistatus, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 	
 	self.health = self.health - 1;
 	

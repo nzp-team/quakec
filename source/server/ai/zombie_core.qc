@@ -46,163 +46,266 @@ float JOG_BBOX = 7;
 float RUN_BBOX = 8;
 float CRAWLER_BBOX = 9;
 
-void(float what) play_sound_z =
+void(float type) Zombie_PlaySoundType =
 {
+	// If we already have ambient groaning type sounds playing, don't allow another.
+	// We DO want to allow attacks, deaths, etc. though.
+	if (self.sound_time > time && type != ZOMBIE_SOUND_TYPE_MELEE && type != ZOMBIE_SOUND_TYPE_DEATH)
+		return;
+
 	if(self.classname == "ai_zombie")
 	{
-		local float e;
-		e = random();
-		
-		if(what == 1)//attack
-		{
-			if (e < 0.125)
-				sound(self, CHAN_WEAPON, "sounds/zombie/a0.wav", 1, ATTN_NORM);
-			else if (e < 0.25)
-				sound(self, CHAN_WEAPON, "sounds/zombie/a1.wav", 1, ATTN_NORM);
-			else if (e < 0.375)
-				sound(self, CHAN_WEAPON, "sounds/zombie/a2.wav", 1, ATTN_NORM); 
-			else if( e < 0.5)
-				sound(self, CHAN_WEAPON, "sounds/zombie/a3.wav", 1, ATTN_NORM);
-			else if( e < 0.625)
-				sound(self, CHAN_WEAPON, "sounds/zombie/a4.wav", 1, ATTN_NORM);  
-			else if( e < 0.75)
-				sound(self, CHAN_WEAPON, "sounds/zombie/a5.wav", 1, ATTN_NORM);  
-			else if( e < 0.875)
-				sound(self, CHAN_WEAPON, "sounds/zombie/a6.wav", 1, ATTN_NORM); 
-			else
-				sound(self, CHAN_WEAPON, "sounds/zombie/a7.wav", 1, ATTN_NORM);   
-			return;
-		}
-		if(what == 2)//walking!
-		{
-			
-			if(self.s_time < time && self.s_time > 0)
-			{
-				sounds_playing --;
-				self.s_time = 0;
-			}
-			if(sounds_playing >= 3)
-			{
-				return;
-			}
-			sounds_playing++;
-			self.s_time = time + 1;
-			
-			
-			if(self.sound_time < time)
-			{
-				play_sound_z(4);
-				
-				if(self.crawling == TRUE)
-				{
-					self.sound_time = time + 3 + random()*2;
-					if(e < 0.2)
-						sound(self, CHAN_VOICE, "sounds/zombie/t0.wav", 1, ATTN_NORM);   
-					else if (e < 0.4)
-						sound(self, CHAN_VOICE, "sounds/zombie/t1.wav", 1, ATTN_NORM);   
-					else if (e < 0.6)
-						sound(self, CHAN_VOICE, "sounds/zombie/t2.wav", 1, ATTN_NORM);   
-					else if (e < 0.8)
-						sound(self, CHAN_VOICE, "sounds/zombie/t3.wav", 1, ATTN_NORM);   
-					else
-						sound(self, CHAN_VOICE, "sounds/zombie/t4.wav", 1, ATTN_NORM);    
-					return;
-				}					
-				if(self.walktype == 1 || self.walktype == 2 || self.walktype == 3)
-				{
-					self.sound_time = time + 3 + random();
-					if (e < 0.1)
-						sound(self, CHAN_VOICE, "sounds/zombie/w0.wav", 1, ATTN_NORM);    
-					else if (e < 0.2)
-						sound(self, CHAN_VOICE, "sounds/zombie/w1.wav", 1, ATTN_NORM);     
-					else if (e < 0.3)
-						sound(self, CHAN_VOICE, "sounds/zombie/w2.wav", 1, ATTN_NORM);      
-					else if( e < 0.4)
-						sound(self, CHAN_VOICE, "sounds/zombie/w3.wav", 1, ATTN_NORM);      
-					else if( e < 0.5)
-						sound(self, CHAN_VOICE, "sounds/zombie/w4.wav", 1, ATTN_NORM);       
-					else if( e < 0.6)
-						sound(self, CHAN_VOICE, "sounds/zombie/w5.wav", 1, ATTN_NORM);    
-					else if( e < 0.7)
-						sound(self, CHAN_VOICE, "sounds/zombie/w6.wav", 1, ATTN_NORM);    
-					else if( e < 0.8)
-						sound(self, CHAN_VOICE, "sounds/zombie/w7.wav", 1, ATTN_NORM);    
-					else if( e < 0.9)
-						sound(self, CHAN_VOICE, "sounds/zombie/w8.wav", 1, ATTN_NORM);    
-					else
-						sound(self, CHAN_VOICE, "sounds/zombie/w9.wav", 1, ATTN_NORM);    
-					return;
+		float next_sound_time = 0;
+		float curr_sound_len = 0;
+		float rand = 0;
+
+		switch(type) {
+			// 8 options.
+			case ZOMBIE_SOUND_TYPE_MELEE:
+				rand = rint(random() * 7) + 1;
+
+				switch(rand) {
+					case 1:
+						Sound_PlaySound(self.head, "sounds/zombie/a0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						curr_sound_len = 1.1;
+						break;
+					case 2:
+						Sound_PlaySound(self.head, "sounds/zombie/a1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						curr_sound_len = 0.8;
+						break;
+					case 3:
+						Sound_PlaySound(self.head, "sounds/zombie/a2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						curr_sound_len = 0.9;
+						break;
+					case 4:
+						Sound_PlaySound(self.head, "sounds/zombie/a3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						curr_sound_len = 0.8;
+						break;
+					case 5:
+						Sound_PlaySound(self.head, "sounds/zombie/a4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						curr_sound_len = 1;
+						break;
+					case 6:
+						Sound_PlaySound(self.head, "sounds/zombie/a5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						curr_sound_len = 1;
+						break;
+					case 7:
+						Sound_PlaySound(self.head, "sounds/zombie/a6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						curr_sound_len = 1;
+						break;
+					case 8:
+						Sound_PlaySound(self.head, "sounds/zombie/a7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						curr_sound_len = 1;
+						break;
+					default:
+						break;
 				}
-				else if(self.walktype == 4 || self.walktype == 5)
-				{
-					self.sound_time = time + 4 + random()*2;
-					if (e < 0.1)
-						sound(self, CHAN_VOICE, "sounds/zombie/r0.wav", 1, ATTN_NORM);     
-					else if (e < 0.2)
-						sound(self, CHAN_VOICE, "sounds/zombie/r1.wav", 1, ATTN_NORM);  
-					else if (e < 0.3)
-						sound(self, CHAN_VOICE, "sounds/zombie/r2.wav", 1, ATTN_NORM); 
-					else if( e < 0.4)
-						sound(self, CHAN_VOICE, "sounds/zombie/r3.wav", 1, ATTN_NORM);   
-					else if( e < 0.5)
-						sound(self, CHAN_VOICE, "sounds/zombie/r4.wav", 1, ATTN_NORM);    
-					else if( e < 0.6)
-						sound(self, CHAN_VOICE, "sounds/zombie/r5.wav", 1, ATTN_NORM); 
-					else if( e < 0.7)
-						sound(self, CHAN_VOICE, "sounds/zombie/r6.wav", 1, ATTN_NORM); 
-					else if( e < 0.8)
-						sound(self, CHAN_VOICE, "sounds/zombie/r7.wav", 1, ATTN_NORM); 
-					else if( e < 0.9)
-						sound(self, CHAN_VOICE, "sounds/zombie/r8.wav", 1, ATTN_NORM); 
-					else
-						sound(self, CHAN_VOICE, "sounds/zombie/r9.wav", 1, ATTN_NORM); 
-					return;
-				}
+				break;
+
+			// 15 options.
+			case ZOMBIE_SOUND_TYPE_WALK:
+				rand = rint(random() * 14) + 1;
+				next_sound_time = rint(random() * 4) + 1;
+
+				// Don't allow overriding current playing sounds.
+				if (self.s_time > time)
+					break;
 				
-			}
-		}
-		if(what == 3)//death!
-		{
-			if (e < 0.125)
-				sound(self, CHAN_BODY, "sounds/zombie/d0.wav", 1, ATTN_NORM); 
-			else if (e < 0.25)
-				sound(self, CHAN_BODY, "sounds/zombie/d1.wav", 1, ATTN_NORM); 
-			else if (e < 0.375)
-				sound(self, CHAN_BODY, "sounds/zombie/d2.wav", 1, ATTN_NORM);   
-			else if( e < 0.5)
-				sound(self, CHAN_BODY, "sounds/zombie/d3.wav", 1, ATTN_NORM);    
-			else if( e < 0.625)
-				sound(self, CHAN_BODY, "sounds/zombie/d4.wav", 1, ATTN_NORM);    
-			else if( e < 0.75)
-				sound(self, CHAN_BODY, "sounds/zombie/d5.wav", 1, ATTN_NORM); 
-			else if( e < 0.875)
-				sound(self, CHAN_BODY, "sounds/zombie/d6.wav", 1, ATTN_NORM);  
-			else
-				sound(self, CHAN_BODY, "sounds/zombie/d7.wav", 1, ATTN_NORM); 
-			return;
+				switch(rand) {
+					case 1:
+						Sound_PlaySound(self.head, "sounds/zombie/w0.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.3;
+						break;
+					case 2:
+						Sound_PlaySound(self.head, "sounds/zombie/w1.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.75;
+						break;
+					case 3:
+						Sound_PlaySound(self.head, "sounds/zombie/w2.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.95;
+						break;
+					case 4:
+						Sound_PlaySound(self.head, "sounds/zombie/w3.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.4;
+						break;
+					case 5:
+						Sound_PlaySound(self.head, "sounds/zombie/w4.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 2.7;
+						break;
+					case 6:
+						Sound_PlaySound(self.head, "sounds/zombie/w5.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.9;
+						break;
+					case 7:
+						Sound_PlaySound(self.head, "sounds/zombie/w6.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.6;
+						break;
+					case 8:
+						Sound_PlaySound(self.head, "sounds/zombie/w7.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.9;
+						break;
+					case 9:
+						Sound_PlaySound(self.head, "sounds/zombie/w8.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 2.4;
+						break;
+					case 10:
+						Sound_PlaySound(self.head, "sounds/zombie/w9.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.5;
+						break;
+					case 11:
+						Sound_PlaySound(self.head, "sounds/zombie/t0.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.5;
+						break;
+					case 12:
+						Sound_PlaySound(self.head, "sounds/zombie/t1.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.6;
+						break;
+					case 13:
+						Sound_PlaySound(self.head, "sounds/zombie/t2.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 2.3;
+						break;
+					case 14:
+						Sound_PlaySound(self.head, "sounds/zombie/t3.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.75;
+						break;
+					case 15:
+						Sound_PlaySound(self.head, "sounds/zombie/t4.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.7;
+						break;
+					default:
+						break;
+				}
+				break;
 			
+			// 5 options.
+			case ZOMBIE_SOUND_TYPE_CRAWL:
+				rand = rint(random() * 4) + 1;
+				next_sound_time = rint(random() * 4) + 1;
+
+				// Don't allow overriding current playing sounds.
+				if (self.s_time > time)
+					break;
+
+				switch(rand) {
+					case 1:
+						Sound_PlaySound(self.head, "sounds/zombie/t0.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.5;
+						break;
+					case 2:
+						Sound_PlaySound(self.head, "sounds/zombie/t1.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.6;
+						break;
+					case 3:
+						Sound_PlaySound(self.head, "sounds/zombie/t2.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 2.3;
+						break;
+					case 4:
+						Sound_PlaySound(self.head, "sounds/zombie/t3.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.75;
+						break;
+					case 5:
+						Sound_PlaySound(self.head, "sounds/zombie/t4.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 1.7;
+						break;
+					default:
+						break;
+				}
+				break;
+
+			// 10 options.
+			case ZOMBIE_SOUND_TYPE_SPRINT:
+				rand = rint(random() * 9) + 1;
+				next_sound_time = rint(random() * 4) + 1;
+
+				// Don't allow overriding current playing sounds.
+				if (self.s_time > time)
+					break;
+				
+				switch(rand) {
+					case 1:
+						Sound_PlaySound(self.head, "sounds/zombie/r0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 3.1;
+						break;
+					case 2:
+						Sound_PlaySound(self.head, "sounds/zombie/r1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 4.6;
+						break;
+					case 3:
+						Sound_PlaySound(self.head, "sounds/zombie/r2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 3.4;
+						break;
+					case 4:
+						Sound_PlaySound(self.head, "sounds/zombie/r3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 5.1;
+						break;
+					case 5:
+						Sound_PlaySound(self.head, "sounds/zombie/r4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 3.5;
+						break;
+					case 6:
+						Sound_PlaySound(self.head, "sounds/zombie/r5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 3.2;
+						break;
+					case 7:
+						Sound_PlaySound(self.head, "sounds/zombie/r6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 5.1;
+						break;
+					case 8:
+						Sound_PlaySound(self.head, "sounds/zombie/r7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 5.1;
+						break;
+					case 9:
+						Sound_PlaySound(self.head, "sounds/zombie/r8.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 3;
+						break;
+					case 10:
+						Sound_PlaySound(self.head, "sounds/zombie/r9.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						curr_sound_len = 4.1;
+						break;
+					default:
+						break;
+				}
+				break;
+
+			// 8 options.
+			case ZOMBIE_SOUND_TYPE_DEATH:
+				rand = rint(random() * 7) + 1;
+				next_sound_time = 0.1;
+				curr_sound_len = 2;
+
+				switch(rand) {
+					case 1:
+						Sound_PlaySound(self.head, "sounds/zombie/d0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						break;
+					case 2:
+						Sound_PlaySound(self.head, "sounds/zombie/d1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						break;
+					case 3:
+						Sound_PlaySound(self.head, "sounds/zombie/d2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						break;
+					case 4:
+						Sound_PlaySound(self.head, "sounds/zombie/d3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						break;
+					case 5:
+						Sound_PlaySound(self.head, "sounds/zombie/d4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						break;
+					case 6:
+						Sound_PlaySound(self.head, "sounds/zombie/d5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						break;
+					case 7:
+						Sound_PlaySound(self.head, "sounds/zombie/d6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						break;
+					case 8:
+						Sound_PlaySound(self.head, "sounds/zombie/d7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						break;
+					default:
+						break;
+				}
+				break;
 		}
-		if(what == 4)//Taunt!
-		{
-			if(random() < 0.83)
-				return;
-			
-			if(e < 0.2)
-				sound(self, CHAN_ITEM, "sounds/zombie/t0.wav", 1, ATTN_NORM);   
-			else if (e < 0.4)
-				sound(self, CHAN_ITEM, "sounds/zombie/t1.wav", 1, ATTN_NORM);  
-			else if (e < 0.6)
-				sound(self, CHAN_ITEM, "sounds/zombie/t2.wav", 1, ATTN_NORM);   
-			else if (e < 0.8)
-				sound(self, CHAN_ITEM, "sounds/zombie/t3.wav", 1, ATTN_NORM);  
-			else
-				sound(self, CHAN_ITEM, "sounds/zombie/t4.wav", 1, ATTN_NORM);    
-			return;
-		}
-		if (what == 5) // Electric Zap
-		{
-			sound(self, CHAN_ITEM, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
-		}
+
+		self.sound_time = time + next_sound_time;
+		self.s_time = time + curr_sound_len;
 	}
 };
 
@@ -438,12 +541,12 @@ void() zombie_footstep
 	if(self.laststep == 1)
 	{
 		self.laststep = 0;
-		sound(self, 5, "sounds/zombie/s0.wav", 0.6, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/zombie/s0.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 	}
 	else
 	{
 		self.laststep = 1;
-		sound(self, 5, "sounds/zombie/s1.wav", 0.6, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/zombie/s1.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 	}
 }
 
@@ -743,7 +846,7 @@ void() zombie_ripboardB10			=[	$zripB10,		zombie_decide		]	{self.frame = 201;Zom
 //186-188
 void() zombie_attack_through_window =
 {
-	play_sound_z(1);
+	Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE);
 	local entity who;
 	who = findradius(self.origin, 70);
 	while(who)
@@ -789,43 +892,43 @@ void() zombie_attack_through_w19		=[	$zatkw9,		zombie_decide		]	{self.is_attacki
 
 void() zm_swipe_right_slow	=[	1, 	zm_swipe_right_slow1	]	{self.is_attacking = true; self.frame = 102; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
 void() zm_swipe_right_slow1	=[	2, 	zm_swipe_right_slow2	]	{self.frame = 103; Zombie_Think(); };
-void() zm_swipe_right_slow2	=[	3, 	zm_swipe_right_slow3	]	{self.frame = 104; Zombie_Think(); };
+void() zm_swipe_right_slow2	=[	3, 	zm_swipe_right_slow3	]	{self.frame = 104; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_right_slow3	=[	4, 	zm_swipe_right_slow4	]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
 void() zm_swipe_right_slow4	=[	5, 	zombie_decide			]	{self.is_attacking = false; self.frame = 106; Zombie_Think(); };
 
-void() zm_swipe_right_fast	=[	1, 	zm_swipe_right_fast1	]	{self.is_attacking = true; self.frame = 104; Zombie_Think(); };
+void() zm_swipe_right_fast	=[	1, 	zm_swipe_right_fast1	]	{self.is_attacking = true; self.frame = 104; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_right_fast1	=[	2, 	zm_swipe_right_fast2	]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
 void() zm_swipe_right_fast2	=[	3, 	zombie_decide			]	{self.is_attacking = false; self.frame = 106; Zombie_Think(); };
 
 void() zm_swipe_left_slow	=[	1, 	zm_swipe_left_slow1		]	{self.is_attacking = true; self.frame = 107; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
 void() zm_swipe_left_slow1	=[	2, 	zm_swipe_left_slow2		]	{self.frame = 108; Zombie_Think(); };
-void() zm_swipe_left_slow2	=[	3, 	zm_swipe_left_slow3		]	{self.frame = 109; Zombie_Think(); };
+void() zm_swipe_left_slow2	=[	3, 	zm_swipe_left_slow3		]	{self.frame = 109; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_left_slow3	=[	4, 	zm_swipe_left_slow4		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
 void() zm_swipe_left_slow4	=[	5, 	zm_swipe_left_slow5		]	{self.frame = 111; Zombie_Think(); };
 void() zm_swipe_left_slow5	=[	6, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
 
-void() zm_swipe_left_fast	=[	1, 	zm_swipe_left_fast1		]	{self.is_attacking = true; self.frame = 109; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_left_fast	=[	1, 	zm_swipe_left_fast1		]	{self.is_attacking = true; self.frame = 109; SetZombieHitBox(BASE_BBOX); Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_left_fast1	=[	2, 	zm_swipe_left_fast2		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
 void() zm_swipe_left_fast2	=[	3, 	zm_swipe_left_fast3		]	{self.frame = 111; Zombie_Think(); };
 void() zm_swipe_left_fast3	=[	4, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
 
 void() zm_swipe_both_slow	=[	1, 	zm_swipe_both_slow1		]	{self.is_attacking = true; self.frame = 102; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
 void() zm_swipe_both_slow1	=[	2, 	zm_swipe_both_slow2		]	{self.frame = 103; Zombie_Think(); };
-void() zm_swipe_both_slow2	=[	3, 	zm_swipe_both_slow3		]	{self.frame = 104; Zombie_Think(); };
+void() zm_swipe_both_slow2	=[	3, 	zm_swipe_both_slow3		]	{self.frame = 104; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_both_slow3	=[	4, 	zm_swipe_both_slow4		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
 void() zm_swipe_both_slow4	=[	5, 	zm_swipe_both_slow5		]	{self.frame = 106; Zombie_Think(); };
 void() zm_swipe_both_slow5	=[	6, 	zm_swipe_both_slow6		]	{self.frame = 107; Zombie_Think(); };
 void() zm_swipe_both_slow6	=[	7, 	zm_swipe_both_slow7		]	{self.frame = 108; Zombie_Think(); };
 void() zm_swipe_both_slow7	=[	8, 	zm_swipe_both_slow8		]	{self.frame = 109; Zombie_Think(); };
-void() zm_swipe_both_slow8	=[	9, 	zm_swipe_both_slow9		]	{self.frame = 110; Zombie_Think(); };
+void() zm_swipe_both_slow8	=[	9, 	zm_swipe_both_slow9		]	{self.frame = 110; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_both_slow9	=[	10, zombie_decide			]	{zombie_attack2(); self.is_attacking = false; self.frame = 111; Zombie_Think(); };
 
-void() zm_swipe_both_fast	=[	1, 	zm_swipe_both_fast1		]	{self.is_attacking = true; self.frame = 104; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_both_fast	=[	1, 	zm_swipe_both_fast1		]	{self.is_attacking = true; self.frame = 104; SetZombieHitBox(BASE_BBOX); Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_both_fast1	=[	2, 	zm_swipe_both_fast2		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
 void() zm_swipe_both_fast2	=[	3, 	zm_swipe_both_fast3		]	{self.frame = 106; Zombie_Think(); };
 void() zm_swipe_both_fast3	=[	4, 	zm_swipe_both_fast4		]	{self.frame = 109; Zombie_Think(); };
 void() zm_swipe_both_fast4	=[	5, 	zm_swipe_both_fast5		]	{self.frame = 110; Zombie_Think(); };
-void() zm_swipe_both_fast5	=[	6, 	zm_swipe_both_fast6		]	{self.frame = 111; Zombie_Think(); };
+void() zm_swipe_both_fast5	=[	6, 	zm_swipe_both_fast6		]	{self.frame = 111; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_both_fast6	=[	7, 	zombie_decide			]	{zombie_attack2(); self.is_attacking = false; self.frame = 112; Zombie_Think(); };
 
 void(float which) zombie_attack_choose =
@@ -840,8 +943,6 @@ void(float which) zombie_attack_choose =
 			return;
 		}
 	}
-	
-	play_sound_z(1);
 
 	//
 	// choose what attack to play
@@ -1196,16 +1297,9 @@ void() Zombie_Death =
 	
 	// Death Noises
 	if (self.electro_targeted == false)
-		play_sound_z(3);
+		Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_DEATH);
 	else
-		play_sound_z(5);
-
-	//Gotta' make sure we set it back down instead of glitching it up, yo'
-	if(self.s_time > 0 && sounds_playing > 0)
-	{
-		sounds_playing --;
-		self.s_time = 0;
-	}
+		Sound_PlaySound(self.head, "sounds/machines/elec_shock.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 	
 	if(self.outside == false && self.electro_targeted == false)
 	{
@@ -1314,7 +1408,7 @@ void() Z_ElectroShock =
 	}
 
 	// Play the first Electro-Sound
-	play_sound_z(5);
+	Sound_PlaySound(self.head, "sounds/machines/elec_shock.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 }
 
 /////////////////////ZOMBIE WAFFE STUFF/////////////////////
@@ -1323,14 +1417,14 @@ void() Z_ElectroShock =
 // 149-152 (FIXME - animate wunder'd zombies)
 $frame wunder1 wunder2 wunder3 wunder4 wunder5 wunder6 wunder7 wunder8 wunder9 wunder10
 
-void() zombie_wunder1		=[	$wunder1,		zombie_wunder2	]	{tesla_arc(); play_sound_z(4); self.frame = 149;};
+void() zombie_wunder1		=[	$wunder1,		zombie_wunder2	]	{tesla_arc(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_CRAWL); self.frame = 149;};
 void() zombie_wunder2		=[	$wunder2,		zombie_wunder3	]	{tesla_arc(); self.frame = 150;};
 void() zombie_wunder3		=[	$wunder3,		zombie_wunder4	]	{tesla_arc();  self.frame = 151;};
 void() zombie_wunder4		=[	$wunder4,		zombie_wunder5	]	{tesla_arc(); self.frame = 152;};
 void() zombie_wunder5		=[	$wunder5,		zombie_wunder6	]	{tesla_arc(); self.frame = 151;};
 void() zombie_wunder6		=[	$wunder6,		zombie_wunder7	]	{tesla_arc(); self.frame = 152;};
 void() zombie_wunder7		=[	$wunder7,		zombie_wunder8	]	{tesla_arc(); self.frame = 151;};
-void() zombie_wunder8		=[	$wunder8,		zombie_wunder9	]	{tesla_arc(); play_sound_z(3); self.frame = 152;};
+void() zombie_wunder8		=[	$wunder8,		zombie_wunder9	]	{tesla_arc(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_DEATH); self.frame = 152;};
 void() zombie_wunder9		=[	$wunder9,		zombie_wunder10	]	{tesla_arc(); self.frame = 151;};
 void() zombie_wunder10		=[	$wunder10,		SUB_Null 		]	{
 	tesla_arc(); self.iszomb = 0; self.nextthink = time + 3; self.think = removeZombie;self.frame = 152;

@@ -44,12 +44,12 @@ void() crawler_footstep
 	if(self.laststep == 1)
 	{
 		self.laststep = 0;
-		sound(self, 5, "sounds/zombie/sc0.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/zombie/sc0.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 	}
 	else
 	{
 		self.laststep = 1;
-		sound(self, 5, "sounds/zombie/sc1.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/zombie/sc1.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 	}
 }
 
@@ -128,7 +128,7 @@ void(float which) crawler_attack_choose =
 		zombie_decide();
 		return;
 	}
-	play_sound_z(1);
+	Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE);
 	
 	crawler_atk1();
 };
@@ -153,7 +153,7 @@ void() crawler_die2		=[	1,		crawler_die3] 	{self.frame = 38;};
 void() crawler_die3		=[	2,		SUB_Null] 	{self.iszomb = 0; self.frame = 39;self.nextthink = time + 3;self.think = removeZombie; if (crawler_num > 0) {crawler_num = crawler_num - 1;}};
 
 //====================== Crawler Tesla Death ============================
-void() crawler_death_wunder1		=[	72,		crawler_death_wunder2	]	{tesla_arc(); play_sound_z(4); };
+void() crawler_death_wunder1		=[	72,		crawler_death_wunder2	]	{tesla_arc(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_DEATH); };
 void() crawler_death_wunder2		=[	73,		crawler_death_wunder3	]	{tesla_arc(); };
 void() crawler_death_wunder3		=[	74,		crawler_death_wunder4	]	{tesla_arc();  };
 void() crawler_death_wunder4		=[	75,		crawler_death_wunder5	]	{tesla_arc(); };

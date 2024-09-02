@@ -145,7 +145,7 @@ void() StartFrame =
 		} else if (time_before_gamestart < time) {
 			InitRounds();
 			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
-			sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
+			Rounds_PlayTransition("sounds/rounds/splash.wav");
 
 			entity players = find(world, classname, "player");
 			
@@ -277,67 +277,67 @@ void() precaches =
 	precache_sound("sounds/misc/denybuy.wav");
 
 	// power-ups
-	precache_sound ("sounds/pu/pickup.wav");
-	precache_sound ("sounds/pu/powerup.wav");
-	precache_sound ("sounds/pu/drop.wav");
-	precache_sound ("sounds/pu/byebye.wav");
+	precache_sound("sounds/pu/pickup.wav");
+	precache_sound("sounds/pu/powerup.wav");
+	precache_sound("sounds/pu/drop.wav");
+	precache_sound("sounds/pu/byebye.wav");
 
 	// zombie walk
-	precache_sound ("sounds/zombie/w0.wav");
-	precache_sound ("sounds/zombie/w1.wav");
-	precache_sound ("sounds/zombie/w2.wav");
-	precache_sound ("sounds/zombie/w3.wav");
-	precache_sound ("sounds/zombie/w4.wav");
-	precache_sound ("sounds/zombie/w5.wav");
-	precache_sound ("sounds/zombie/w6.wav");
-	precache_sound ("sounds/zombie/w7.wav");
-	precache_sound ("sounds/zombie/w8.wav");
-	precache_sound ("sounds/zombie/w9.wav");
+	precache_sound("sounds/zombie/w0.wav");
+	precache_sound("sounds/zombie/w1.wav");
+	precache_sound("sounds/zombie/w2.wav");
+	precache_sound("sounds/zombie/w3.wav");
+	precache_sound("sounds/zombie/w4.wav");
+	precache_sound("sounds/zombie/w5.wav");
+	precache_sound("sounds/zombie/w6.wav");
+	precache_sound("sounds/zombie/w7.wav");
+	precache_sound("sounds/zombie/w8.wav");
+	precache_sound("sounds/zombie/w9.wav");
 
 	// zombie run
-	precache_sound ("sounds/zombie/r0.wav");
-	precache_sound ("sounds/zombie/r1.wav");
-	precache_sound ("sounds/zombie/r2.wav");
-	precache_sound ("sounds/zombie/r3.wav");
-	precache_sound ("sounds/zombie/r4.wav");
-	precache_sound ("sounds/zombie/r5.wav");
-	precache_sound ("sounds/zombie/r6.wav");
-	precache_sound ("sounds/zombie/r7.wav");
-	precache_sound ("sounds/zombie/r8.wav");
-	precache_sound ("sounds/zombie/r9.wav");
+	precache_sound("sounds/zombie/r0.wav");
+	precache_sound("sounds/zombie/r1.wav");
+	precache_sound("sounds/zombie/r2.wav");
+	precache_sound("sounds/zombie/r3.wav");
+	precache_sound("sounds/zombie/r4.wav");
+	precache_sound("sounds/zombie/r5.wav");
+	precache_sound("sounds/zombie/r6.wav");
+	precache_sound("sounds/zombie/r7.wav");
+	precache_sound("sounds/zombie/r8.wav");
+	precache_sound("sounds/zombie/r9.wav");
 
 	// zombie swipe
-	precache_sound ("sounds/zombie/a0.wav");
-	precache_sound ("sounds/zombie/a1.wav");
-	precache_sound ("sounds/zombie/a2.wav");
-	precache_sound ("sounds/zombie/a3.wav");
-	precache_sound ("sounds/zombie/a4.wav");
-	precache_sound ("sounds/zombie/a5.wav");
-	precache_sound ("sounds/zombie/a6.wav");
-	precache_sound ("sounds/zombie/a7.wav");
+	precache_sound("sounds/zombie/a0.wav");
+	precache_sound("sounds/zombie/a1.wav");
+	precache_sound("sounds/zombie/a2.wav");
+	precache_sound("sounds/zombie/a3.wav");
+	precache_sound("sounds/zombie/a4.wav");
+	precache_sound("sounds/zombie/a5.wav");
+	precache_sound("sounds/zombie/a6.wav");
+	precache_sound("sounds/zombie/a7.wav");
 
 	// zombie death
-	precache_sound ("sounds/zombie/d0.wav");
-	precache_sound ("sounds/zombie/d1.wav");
-	precache_sound ("sounds/zombie/d2.wav");
-	precache_sound ("sounds/zombie/d3.wav");
-	precache_sound ("sounds/zombie/d4.wav");
-	precache_sound ("sounds/zombie/d5.wav");
-	precache_sound ("sounds/zombie/d6.wav");
-	precache_sound ("sounds/zombie/d7.wav");
+	precache_sound("sounds/zombie/d0.wav");
+	precache_sound("sounds/zombie/d1.wav");
+	precache_sound("sounds/zombie/d2.wav");
+	precache_sound("sounds/zombie/d3.wav");
+	precache_sound("sounds/zombie/d4.wav");
+	precache_sound("sounds/zombie/d5.wav");
+	precache_sound("sounds/zombie/d6.wav");
+	precache_sound("sounds/zombie/d7.wav");
 
 	// zombie taunt
-	precache_sound ("sounds/zombie/t0.wav");
-	precache_sound ("sounds/zombie/t1.wav");
-	precache_sound ("sounds/zombie/t2.wav");
-	precache_sound ("sounds/zombie/t3.wav");
-	precache_sound ("sounds/zombie/t4.wav");
+	precache_sound("sounds/zombie/t0.wav");
+	precache_sound("sounds/zombie/t1.wav");
+	precache_sound("sounds/zombie/t2.wav");
+	precache_sound("sounds/zombie/t3.wav");
+	precache_sound("sounds/zombie/t4.wav");
 
 	// zombie footsteps
-	precache_sound ("sounds/zombie/s0.wav");
-	precache_sound ("sounds/zombie/s1.wav");
-	precache_sound ("sounds/zombie/sc0.wav");
-	precache_sound ("sounds/zombie/sc1.wav");
+	precache_sound("sounds/zombie/s0.wav");
+	precache_sound("sounds/zombie/s1.wav");
+	precache_sound("sounds/zombie/sc0.wav");
+	precache_sound("sounds/zombie/sc1.wav");
 
 	// null
 	precache_sound("sounds/null.wav");

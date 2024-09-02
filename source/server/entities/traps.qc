@@ -110,7 +110,7 @@ void() zapper_do_damage =
 	// - Dogs should always explode on contact, instantly.
 	// - Trap plays Electro-Shock sound, dog plays explosion.
 	else if (other.classname == "ai_dog") {
-		sound(self, CHAN_WEAPON, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/machines/elec_shock.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 
 		tempe = self;
 		self = other;
@@ -250,7 +250,7 @@ void() zapper_touch =
 		other.semi_actions |= SEMIACTION_USE;
 		if (other.points < self.cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 

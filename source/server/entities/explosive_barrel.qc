@@ -31,7 +31,7 @@
 //
 void() Barrel_Explode =
 {
-	sound (self, CHAN_WEAPON, self.oldmodel, 1, ATTN_NORM);	
+    Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_PLAYALWAYS);
 	DamgageExplode (self, self.enemy, 1, 250, 250);
 	
 #ifdef FTE

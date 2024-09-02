@@ -1141,7 +1141,7 @@ noref void() CSQC_Parse_Event =
 			else
 				track_extension = ".ogg";
 
-			localsound_enhanced(strcat("tracks/", track_name, track_extension), CHAN_MUSIC, 1);
+			localsound_enhanced(strcat("tracks/", track_name, track_extension), CHAN_MUSIC, 0.85);
 			break;
 		case CSQC_EVENT_GIVEACHIEVEMENT:
 			float achievement_id = readbyte();

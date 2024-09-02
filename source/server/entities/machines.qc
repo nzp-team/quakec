@@ -117,7 +117,7 @@ void DrinkPerk() {
 	self.knife_delay = self.reload_delay2 = self.fire_delay2 = self.fire_delay = self.reload_delay = 3 + time;	
 	W_HideCrosshair(self);	
 	Set_W_Frame (machine.weapon_animduration, machine.weapon2_animduration, 2.25, 0, PERK, GivePerk, machine.weapon2model, true, S_RIGHT, true);
-	sound(self, CHAN_ITEM, machine.oldmodel, 1, ATTN_NORM);
+	Sound_PlaySound(self, machine.oldmodel, SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Communicate to our engines that this client should display correct Double-Tap icon.
 	if (self.style == P_DOUBLE) {
@@ -172,7 +172,7 @@ void() Perk_StopLeaveAnimation =
 	Light_None(self); // Remove light effect
 	SUB_UseTargets();
 
-	sound(self,CHAN_ITEM,"sounds/pu/drop.wav",1,ATTN_NONE); // Play a fitting sound
+	Sound_PlaySound(self, "sounds/pu/drop.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); // Play a fitting sound
 }
 
 void() Perk_MachineLeaveAnimation =
@@ -200,7 +200,7 @@ void() Perk_MachineGoAwayForReal =
 	self.movetype = MOVETYPE_NOCLIP;
 	self.velocity = v_up * 7;
 
-	sound(self, CHAN_ITEM, "sounds/pu/byebye.wav", 1, ATTN_NORM);
+	Sound_PlaySound(world, "sounds/pu/byebye.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Do our silly little animation for 6 seconds
 	self.ltime = time + 6;
@@ -277,11 +277,11 @@ void() touch_perk =
 			Player_RemoveScore(other, price);
 
 			// Play the sound of the bottle "vending"
-			sound(self, CHAN_ITEM,"sounds/machines/vend.wav", 1, 1);
+			Sound_PlaySound(self, "sounds/machines/vend.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 
 			// Play Perk Sting if we can and it exists
 			if (self.aistatus && self.ltime < time) {
-				sound(self, CHAN_AUTO, self.aistatus, 0.8, ATTN_IDLE);
+				Sound_PlaySound(self, self.aistatus, SOUND_TYPE_ENV_MUSIC, SOUND_PRIORITY_PLAYALWAYS);
 				self.ltime = time + self.anim_weapon_time;
 			}
 
@@ -318,7 +318,7 @@ void() touch_perk =
 		} else if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
 			// We tried to use, but we don't have the cash..
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			other.semi_actions |= SEMIACTION_USE;
 		}
 	}
@@ -387,9 +387,9 @@ void() Perk_Jingle =
 		self.nextthink = time + jinglewaittime;
 	} else {
 		// 15% Chance to Play Jingle
-		local float chance = random();
+		float chance = random();
 		if (chance <= 0.15) {
-			sound(self, CHAN_AUTO, self.powerup_vo, 0.8, ATTN_IDLE);
+			Sound_PlaySound(self, self.powerup_vo, SOUND_TYPE_ENV_MUSIC, SOUND_PRIORITY_PLAYALWAYS);
 			self.ltime = time + self.anim_weapon2_time;
 			jinglewaittime += self.anim_weapon2_time;
 		}
@@ -645,7 +645,7 @@ void() touch_power_Switch =
 	if (other.button7 && !isPowerOn) {
 		turnpower1();
 		isPowerOn = true;
-		sound(self, CHAN_ITEM, self.oldmodel, 1, ATTN_NONE);
+		Sound_PlaySound(world, self.oldmodel, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 
 		// Print message
 		if (self.message) {

@@ -25,7 +25,7 @@
 
 */
 
-void(float what) play_sound_z;
+void(float type) Zombie_PlaySoundType;
 void() LinkZombiesHitbox;
 entity() Dog_FindEnemy;
 
@@ -825,7 +825,6 @@ void(float dist) Zombie_Walk =  {
 	}
 	
 	if(self.outside == 2) {
-		//play_sound_z(2);
 		Window_Hop(dist);
 		//handle special walk case for walking to org
 		return;
@@ -845,19 +844,26 @@ void() Zombie_AI = {
 	float dist = 0;
 	self.flags = self.flags | FL_PARTIALGROUND;
 	//check_onfire();
+
+	//
+	// Try to play some zombie sounds.
+	//
+
+	// Crawling
+	if (self.crawling == true) {
+		Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_CRAWL);
+	} else {
+		// Walking
+		if (self.walktype < 4) {
+			Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_WALK);
+		}
+		// Running
+		else {
+			Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_SPRINT);
+		}
+	}
 	
-	if(self.outside == TRUE) {
-		play_sound_z(2);
-		//self.calc_time = time + (0.3 * random());
-		//Window_Walk(dist);
-		return;
-	} else if(self.outside == 2) {
-		play_sound_z(2);
-		//Window_Hop(0);
-		return;
-	} else if(self.outside == FALSE) {
-		play_sound_z(2);
-		//self.calc_time = time + (0.25 + (0.15 * random()));
+	if(self.outside == FALSE) {
 		Inside_Walk(dist);
 	}
 }
