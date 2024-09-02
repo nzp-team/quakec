@@ -1200,7 +1200,7 @@ void() WeaponCore_Melee =
 	// Do not trigger if we're Aiming down the Sight, or
 	// already melee-ing, or doing some other action.
 	if (self.knife_delay > time || self.new_anim_stop ||
-	self.new_anim2_stop || self.zoom)
+	self.new_anim2_stop || self.zoom || game_over)
 		return;
 
 	// Perform the third person animation if standing
