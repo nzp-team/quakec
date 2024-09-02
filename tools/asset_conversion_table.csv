@@ -45,7 +45,8 @@ progs/props/lamp_ndu.mdl,models/props/lamp_ndu.mdl
 progs/props/lamp_ndu45.mdl,models/props/lamp_ndu45.mdl
 progs/jeep.mdl,models/props/jeep.mdl
 progs/tree.mdl,models/props/treeth.mdl
-progs/treef.mdl,models/props/tree_swamp.mdl
+progs/treef.mdl,models/props/tree_swamp$.mdl
+models/props/tree_swamp.mdl,models/props/tree_swamp$.mdl
 progs/props/barrel_m.mdl,models/props/barrel_m.mdl
 progs/props/lamp_oil.mdl,models/props/lamp_oil.mdl
 progs/props/piano.mdl,models/props/piano.mdl
