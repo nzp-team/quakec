@@ -598,12 +598,16 @@ void() settings_re = {
 	active_sheight = newh;
 }
 
+float menu_sound_length;
+float menu_sound_time;
+
 void() settings_apply = {
 	if (in_menu == MENU_GSETTINGS) {
 		localcmd(strcat("vid_width ", ftos(active_swidth), "\n"));
 		localcmd(strcat("vid_height ", ftos(active_sheight), "\n"));
 		localcmd(strcat("vid_fullscreen ", ftos(fullscreenval), "\n"));
 		localcmd("vid_restart\n");
+		menu_sound_time = 900000;
 	}
 	localcmd("saveconfig user_settings.cfg\n");
 }
@@ -2038,9 +2042,6 @@ void() Draw_Extra_ASettings =
 	// Draw desc
 	drawstring([6, g_height - 42, 0], aset_desc, [12, 12], [1, 1, 1], 1, 0);
 }
-
-float menu_sound_length;
-float menu_sound_time;
 
 string() LoadScreen_GiveTip;
 void() Draw_Menu =
