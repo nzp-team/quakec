@@ -403,6 +403,7 @@ void(entity where) spawn_dog_lightning =
 	dogsprite = spawn();
 	setmodel(dogsprite, "models/sprites/lightning.spr");
 	setorigin(dogsprite, where.origin);
+	dogsprite.effects = EF_FULLBRIGHT;
 	dogsprite.owner = where;
 	dogsprite.think = dogsprite_think;
 	dogsprite.nextthink = time + 0.05;

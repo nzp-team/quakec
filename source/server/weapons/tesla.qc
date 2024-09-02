@@ -49,6 +49,7 @@ void(vector pos) tesla_spark = {
 	local entity lightning = spawn();
 	setmodel(lightning, "models/sprites/lightning.spr");
 	setorigin(lightning, pos);
+    lightning.effects = EF_FULLBRIGHT;
 	lightning.think = tesla_spark_think;
 	lightning.nextthink = time + 0.05;
 	lightning.ltime = time + 1;

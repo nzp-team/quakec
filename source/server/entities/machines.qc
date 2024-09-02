@@ -150,6 +150,7 @@ void(vector where, float time_alive) SpawnSpark =
 	entity spark = spawn();
 	setmodel(spark, "models/sprites/lightning.spr");
 	setorigin(spark, where);
+	spark.effects = EF_FULLBRIGHT;
 	spark.think = SparkThink;
 	spark.nextthink = time + 0.05;
 	spark.ltime = time + time_alive;
