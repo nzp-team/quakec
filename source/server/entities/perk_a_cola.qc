@@ -1,7 +1,7 @@
 /*
-	server/entities/machines.qc
+	server/entities/perk_a_cola.qc
 
-	perks, power
+	Perks-A-Cola Entity Logic
 
 	Copyright (C) 2021-2024 NZ:P Team
 
@@ -331,6 +331,9 @@ void() touch_perk =
 //
 void(entity who) Turn_PerkLight_On =
 {
+	if (who.classname == "perk_pap")
+		return;
+	
 	if (who.spawnflags & PERK_SPAWNFLAG_NOLIGHT) {
 		Light_None(who);
 	}
@@ -583,145 +586,6 @@ void() perk_mule =
 {
 	Perk_InitMachine("perk_mule", PERK_MULEKICK_DEFAULT_MODEL, 4000, 4000,
 	PERK_SPAWNFLAG_LIMELIGHT, 1000, 1000, true, true, 8, P_MULE);
-}
-
-//
-// --------------------
-// Power Switch
-// --------------------
-//
-
-void()	turnpower1	=[	1,		turnpower2	] {self.frame = 1;};
-void()	turnpower2	=[	2,		turnpower3	] {self.frame = 2;};
-void()	turnpower3	=[	3,		turnpower4	] {self.frame = 3;};
-void()	turnpower4	=[	4,		SUB_Null	] {self.frame = 4;};
-
-//
-// Turn_Lights()
-// Activates Perk Light Effects and LightStyles
-//
-void() Turn_Lights =
-{
-	// Perk Lights
-	entity tempe = findfloat(world, requirespower, 1);
-	while (tempe)
-	{
-		if (tempe.classname != "perk_pap")
-			Turn_PerkLight_On(tempe);
-		tempe = findfloat (tempe, requirespower, 1);
-	}
-
-	// Light Styles
-	tempe = find(world, classname, "light");
-	while(tempe)
-	{
-		if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTOFF) {
-			tempe.style = tempe.score;
-			LS_Setup();
-		}/* else if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTON) {
-			tempe.style = 64;
-			lightstyle(tempe.style, "a");
-		}*/
-
-		tempe = find(tempe, classname, "light");
-	}
-} 
-
-//
-// touch_power_Switch()
-// Power Switch touch function; play Animation and do Power things..
-//
-void() touch_power_Switch =
-{
-	if (other.classname != "player" || other.downed)
-		return;
-
-	if (isPowerOn == true)
-    	return;
-	
-	local entity tempe;
-	local entity old_self;
-
-	useprint (other, 10, 0, 0);
-	if (other.button7 && !isPowerOn) {
-		turnpower1();
-		isPowerOn = true;
-		Sound_PlaySound(world, self.oldmodel, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
-
-		// Print message
-		if (self.message) {
-			entity players = find(world, classname, "player");
-			while (players != world) {
-				centerprint(players, strcat(self.message, "\n"));
-				players = find(players, classname, "player");
-			}
-		}
-
-		tempe = find (world, classname, "door_nzp");// trigger all paired doors
-		while (tempe) {
-			local entity starte;
-
-			if (!tempe.targetname) {
-				if (!tempe.cost) {
-					old_self = self;
-					self = tempe;
-					starte = self;
-					door_go_up ();
-					tempe.classname = "door_open";
-					tempe = find (tempe, classname, "door_nzp");// trigger all paired doors
-					self = old_self;
-				}
-			}
-			if (tempe.targetname) {
-				old_self = self;
-				self = tempe;
-				remove(self);
-				self = old_self;
-				tempe = find (tempe, classname, "door_nzp");// trigger all paired doors
-			}
-		}
-
-		tempe = find(world, classname, "perk_pap");
-		while(tempe != world) {
-			entity tempe2 = self;
-			self = tempe;
-			PAP_TurnOn();
-			self = tempe2;
-			tempe = find(tempe, classname, "perk_pap");
-		}
-
-		Turn_Lights();
-		SUB_UseTargets();
-	}
-}
-
-void() power_switch =
-{
-	//
-	// Set Default Stats for Compatibility
-	//
-
-    // Model
-    if (!self.model)
-        self.model = "models/machines/quake_scale/power_switch.mdl";
-
-	// Sound
-	if (!self.oldmodel)
-		self.oldmodel = "sounds/machines/power.wav";
-
-	// Skin
-	if (!self.skin)
-		self.skin = 0;
-
-	self.solid = SOLID_TRIGGER;
-	Precache_Set(self.model);
-	precache_sound(self.oldmodel);
-	setorigin (self, self.origin);
-	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
-	self.classname = "power_switch";
-	self.touch = touch_power_Switch;
-
-	isPowerOn = false;
 }
 
 //

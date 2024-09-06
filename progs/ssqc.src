@@ -48,7 +48,8 @@ entities/pack_a_punch.qc
 entities/mystery_box.qc
 entities/doors.qc
 entities/window.qc
-entities/machines.qc
+entities/power_switch.qc
+entities/perk_a_cola.qc
 entities/wall_weapon.qc
 weapons/frames_core.qc
 weapons/rocket_launcher.qc
