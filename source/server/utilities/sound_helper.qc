@@ -136,7 +136,7 @@ void(entity source_ent, string path, float type, float priority) Sound_PlaySound
         case SOUND_TYPE_ZOMBIE_QUIET:
             float zombie_quiet_groan = Sound_GetZombieGroan();
             if (priority == SOUND_PRIORITY_PLAYALWAYS || zombie_quiet_groan != -1) {
-                PLAYSOUND(source_ent, CHAN_VOICE, path, 0.60, 1);
+                PLAYSOUND(source_ent, CHAN_VOICE, path, 0.50, 2);
                 Sound_SetZombieGroan(priority, zombie_quiet_groan);
             }
             break;
