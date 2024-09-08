@@ -790,8 +790,13 @@ void() PlayerPostThink =
 		else
 			self.facingenemy = false;
 
+#ifndef FTE
 		// 1/4 of a second is enough of a delay to not kill the effect.
 		player_trace_time = time + 0.25;
+#else
+		// FTE's server rate is already slower, no real need to delay this.
+		player_trace_time = time + 0.05;
+#endif // FTE
 	}
 };
 

@@ -803,6 +803,25 @@ void() settings_rumble =
 	cvar_set("in_rumbleenabled", ftos(!rumble));
 }
 
+void() settings_aimassist =
+{
+	float aimassist = cvar("in_aimassist");
+	cvar_set("in_aimassist", ftos(!aimassist));
+}
+
+float gamepad_enabled;
+void() SetGamepadBindings;
+void() settings_gamepad =
+{
+	gamepad_enabled = !gamepad_enabled;
+
+	if (gamepad_enabled) {
+		SetGamepadBindings();
+	} else {
+		localcmd("unbindall; exec default.cfg; exec user_settings.cfg\n");
+	}
+}
+
 void() setting_mastervol =
 {
 	float vol = cvar("volume");
@@ -1016,6 +1035,8 @@ var struct
 	{[6, 115], "Invert Mouse", -1, setting_invert, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 66
 	{[6, 135], "Controller Glyphs", -1, setting_glyph, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 67
 	{[6, 155], "Rumble", -1, settings_rumble, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 68
+	{[6, 175], "Gamepad", -1, settings_gamepad, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 69
+	{[6, 195], "Aim Assist", -1, settings_aimassist, null, MENU_CONSETTINGS, 0, OPTION_WEB_AND_EXE}, // 70
 
 	// Main menu (cont.)
 	{[6, 145], "Achievements (Not on Web)", -1, null, null, MENU_MAIN, 1, OPTION_WEB_ONLY}, // 3
@@ -1534,6 +1555,18 @@ void() Draw_Extra_CSettings =
 	drawstring([320, 135], controller_glyph_brand, [14, 14], [1, 1, 1], 1, 0);
 	drawsubpic([325 + strlen(controller_glyph_brand)*14, 132], [80, 20], sprintf("gfx/controller_glyphs/%s.tga", cvar_string("cl_controllerglyphs")), [0, 0], [0.5, 0.125], [1, 1, 1], 1);
 
+	// Gamepad
+	if (gamepad_enabled == 0)
+		drawstring([320, 175], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+	else
+		drawstring([320, 175], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
+
+	// Aim Assist
+	if (cvar("in_aimassist") == 0)
+		drawstring([320, 195], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+	else
+		drawstring([320, 195], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
+
 	// Descriptions
 	switch(lastActive) {
 		case 54:
@@ -1550,6 +1583,12 @@ void() Draw_Extra_CSettings =
 			break;
 		case 68:
 			cset_desc = "Toggle Rumble support for Controllers.";
+			break;
+		case 69:
+			cset_desc = "Enable Gamepad support with preset bindings.";
+			break;
+		case 70:
+			cset_desc = "Lower Gamepad sensitivity when looking at enemies.";
 			break;
 		default:
 			cset_desc = "";

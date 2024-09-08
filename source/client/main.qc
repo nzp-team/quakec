@@ -56,6 +56,18 @@ void() ToggleMenu =
 	}
 }
 
+//
+// SetGamepadBindings()
+// Since our menu architecture currently sucks,
+// we don't yet support a good binds menu that
+// let's you get good gamepad control.. so
+// force these binds (sorry!)
+//
+void() SetGamepadBindings =
+{
+	localcmd("unbindall;  bind ~ \"toggleconsole\"; bind ` \"toggleconsole\"; bind ESCAPE \"togglemenu\"; joyadvaxisr 4; joyadvaxisu 2; joyadvaxisx 3; joyadvaxisy -1; bind JOY1 \"+button5\"; bindlevel JOY2 30 \"null\"; bind JOY3 \"+button4\"; bind GP_LSHOULDER \"impulse 33\"; bind AUX1 \"+moveup\"; bind AUX2 \"+button3\"; bindlevel AUX3 30 \"null\"; bindlevel AUX4 30 \"null\"; bind AUX5 \"togglemenu\"; bind AUX10 \"+attack\"; bind GP_Y \"+button4\"; bindlevel GP_A 30 \"impulse 10\"; bindlevel GP_B 30 \"impulse 30\"; bindlevel GP_X 30 \"+button5\"; bindlevel GP_LTHUMB 30 \"impulse 23\"; bindlevel GP_RTHUMB 30 \"+button6\"; bind GP_LTRIGGER \"+button8\"; bindlevel GP_DPAD_DOWN 30 \"+button7\"; bindlevel GP_RSHOULDER 30 \"+button3\"; bindlevel GP_DPAD_RIGHT 30 \"impulse 33\"; bindlevel GP_DPAD_UP 30 \"+button7\"; bind GP_VIEW \"showscores\"; joysidesensitivity 0.8; joyyawsensitivity 0.6; joypitchsensitivity 0.55\n");
+}
+
 float(float isnew) SetZombieSkinning =
 {
 	self.drawmask = MASK_ENGINE;
@@ -82,6 +94,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(r_viewmodel_default_fov, 70);
 	autocvar(cl_controllerglyphs, "xbox");
 	autocvar(in_rumbleenabled, 1);
+	autocvar(in_aimassist, 0);
 
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
@@ -743,6 +756,7 @@ void() Camera_SniperSway =
 	sniper_sway[0] = angledelta(delta_pitch);
 	sniper_sway[1] = angledelta(delta_yaw);
 };
+float gamepad_enabled;
 
 // CALLED EVERY CLIENT RENDER FRAME
 float pap_flash_alternate;
@@ -760,10 +774,16 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setviewprop(VF_DRAWENGINESBAR, 0);	
 	setviewprop(VF_DRAWCROSSHAIR, 0);
 
+	float sensitivity_factor;
 	if (in_menu == MENU_PAUSE)
-		setsensitivityscaler(0);
+		sensitivity_factor = 0;
 	else
-		setsensitivityscaler((1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT));
+		sensitivity_factor = (1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT);
+
+	if (gamepad_enabled && getstatf(STAT_FACINGENEMY) && cvar("in_aimassist") == 1)
+		sensitivity_factor *= 0.5;
+
+	setsensitivityscaler(sensitivity_factor);
 
 	setviewprop(VF_AFOV, autocvar(fov,90)*getstatf(STAT_VIEWZOOM));
 
@@ -835,6 +855,11 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 
 		Draw_Menu();
 		setlocaluserinfo(0, "in_menu", "1");
+
+		if (gamepad_enabled)
+			buttons[20].gray_out = true;
+		else
+			buttons[20].gray_out = false;
 	}
 	else
 	{
