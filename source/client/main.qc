@@ -190,6 +190,8 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	for(float i = 0; i < zombie_skins.length; i++) {
 		deltalisten(zombie_skins[i], SetZombieSkinning, 0);
 	}
+
+	InitKerningMap();
 };
 
 noref void() CSQC_WorldLoaded =

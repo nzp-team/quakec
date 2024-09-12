@@ -1090,14 +1090,14 @@ void(float index) Update_Button =
 
 	if (buttons[index].gray_out == 0) {
 		if(buttons[index].active > 0) {
-			drawstring(pos, buttons[index].text, [14, 14], [1, 0, 0], 1, 0);
+			Draw_String(pos, buttons[index].text, [14, 14], [1, 0, 0], 1, 0);
 		} else {
-			drawstring(pos, buttons[index].text, [14, 14], [1, 1, 1], 1, 0);
+			Draw_String(pos, buttons[index].text, [14, 14], [1, 1, 1], 1, 0);
 		}
 	} else {
-		drawstring(pos, buttons[index].text, [14, 14], [0.25, 0.25, 0.25], 1, 0);
+		Draw_String(pos, buttons[index].text, [14, 14], [0.25, 0.25, 0.25], 1, 0);
 	}
-	
+
 
 	if (cursor_pos_x > pos_x && cursor_pos_x < pos_x + 300 && cursor_pos_y > pos_y && cursor_pos_y < pos_y + 14 && buttons[index].gray_out == 0) {
 		if (index != lastActive)
@@ -1214,7 +1214,7 @@ void() Draw_Extra_Main =
 	}
 
 	// Draw desc
-	drawstring([6, g_height - 42, 0], main_desc, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, g_height - 42, 0], main_desc, [12, 12], [1, 1, 1], 1, 0);
 
 	// Social Links
 	// Discord doesn't allow permanant invites anymore, "bummer"..
@@ -1235,8 +1235,8 @@ void() Draw_Extra_Main =
 			advert_text = "patreon.com/cypressimplex";
 		}
 
-		drawfill([cursor_pos_x - (strlen(advert_text) * 10) - 5, cursor_pos_y + 2], [strlen(advert_text) * 10, 10], [0, 0, 0], 0.90);
-		drawstring([cursor_pos_x - (strlen(advert_text) * 10) - 5, cursor_pos_y + 2], advert_text, [10, 10], [1, 1, 0], 1, 0);
+		drawfill([cursor_pos_x - (getTextWidth(advert_text, 10)) - 5, cursor_pos_y + 2], [getTextWidth(advert_text, 10), 10], [0, 0, 0], 0.90);
+		Draw_String([cursor_pos_x - (getTextWidth(advert_text, 10)) - 5, cursor_pos_y + 2], advert_text, [10, 10], [1, 1, 0], 1, 0);
 	}
 }
 
@@ -1246,11 +1246,11 @@ void() Draw_Extra_Join =
 
 	// Server ID
 	drawfill ([318, 73], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
-	drawstring([320, 75], temp_server_name, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 75], temp_server_name, [14, 14], [1, 1, 1], 1, 0);
 
 	// Draw a cute little guy so user knows they're editing their name.
 	if (editing_server_id) {
-		drawstring([320 + (strlen(temp_server_name)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
+		Draw_String([320 + (strlen(temp_server_name)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
 	}
 
 	// Password
@@ -1260,11 +1260,11 @@ void() Draw_Extra_Join =
 		safe_password = sprintf("%s%s", safe_password, "*");
 	}
 	drawfill ([318, 93], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
-	drawstring([320, 95], safe_password, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 95], safe_password, [14, 14], [1, 1, 1], 1, 0);
 
 	// Draw a cute little guy for password
 	if (editing_password) {
-		drawstring([320 + (strlen(temp_password)*14), 95], "_", [14, 14], [1, 1, 0], 1, 0);
+		Draw_String([320 + (strlen(temp_password)*14), 95], "_", [14, 14], [1, 1, 0], 1, 0);
 	}
 
 	// Descriptions
@@ -1284,7 +1284,7 @@ void() Draw_Extra_Join =
 	}
 
 	// Draw desc
-	drawstring([6, g_height - 42, 0], join_desc, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, g_height - 42, 0], join_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Create =
@@ -1299,20 +1299,20 @@ void() Draw_Extra_Create =
 	}
 
 	drawfill ([318, 73], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
-	drawstring([320, 75], safe_password, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 75], safe_password, [14, 14], [1, 1, 1], 1, 0);
 
 	// Draw a cute little guy for password
 	if (editing_password) {
-		drawstring([320 + (strlen(temp_hostname)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
+		Draw_String([320 + (strlen(temp_hostname)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
 	}
 
 	// hostname
 	drawfill ([318, 93], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
-	drawstring([320, 95], temp_hostname, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 95], temp_hostname, [14, 14], [1, 1, 1], 1, 0);
 
 	// Draw a cute little guy for hostname
 	if (editing_hostname) {
-		drawstring([320 + (strlen(temp_hostname)*14), 95], "_", [14, 14], [1, 1, 0], 1, 0);
+		Draw_String([320 + (strlen(temp_hostname)*14), 95], "_", [14, 14], [1, 1, 0], 1, 0);
 	}
 
 	// Descriptions
@@ -1332,7 +1332,7 @@ void() Draw_Extra_Create =
 	}
 
 	// Draw desc
-	drawstring([6, g_height - 42, 0], crea_desc, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, g_height - 42, 0], crea_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Coop =
@@ -1341,11 +1341,11 @@ void() Draw_Extra_Coop =
 
 	// Player Name
 	drawfill ([318, 73], [14 * 19, 18], [0.07, 0.07, 0.07], 0.5, 0);
-	drawstring([320, 75], temp_player_name, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 75], temp_player_name, [14, 14], [1, 1, 1], 1, 0);
 
 	// Draw a cute little guy so user knows they're editing their name.
 	if (editing_player_name) {
-		drawstring([320 + (strlen(temp_player_name)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
+		Draw_String([320 + (strlen(temp_player_name)*14), 75], "_", [14, 14], [1, 1, 0], 1, 0);
 	}
 
 	// Division lines
@@ -1368,7 +1368,7 @@ void() Draw_Extra_Coop =
 	}
 
 	// Draw desc
-	drawstring([6, g_height - 42, 0], coop_desc, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, g_height - 42, 0], coop_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Solo =
@@ -1437,14 +1437,14 @@ void() Draw_Extra_Solo =
 		drawpic([g_width - 340 - 6, 75], solo_img, [300, 170], [1, 1, 1], 1);
 
 	// Draw desc
-	drawstring([g_width - 360, 250, 0], solo_desc, [11, 11], [1, 1, 1], 1, 0);
-	drawstring([g_width - 360, 265, 0], solo_desc2, [11, 11], [1, 1, 1], 1, 0);
-	drawstring([g_width - 360, 280, 0], solo_desc3, [11, 11], [1, 1, 1], 1, 0);
-	drawstring([g_width - 360, 295, 0], solo_desc4, [11, 11], [1, 1, 1], 1, 0);
-	drawstring([g_width - 360, 310, 0], solo_desc5, [11, 11], [1, 1, 1], 1, 0);
-	drawstring([g_width - 360, 325, 0], solo_desc6, [11, 11], [1, 1, 1], 1, 0);
-	drawstring([g_width - 360, 340, 0], solo_desc7, [11, 11], [1, 1, 1], 1, 0);
-	drawstring([g_width - 360, 355, 0], solo_desc8, [11, 11], [1, 1, 1], 1, 0);
+	Draw_String([g_width - 340, 250, 0], solo_desc, [11, 11], [1, 1, 1], 1, 0);
+	Draw_String([g_width - 340, 265, 0], solo_desc2, [11, 11], [1, 1, 1], 1, 0);
+	Draw_String([g_width - 340, 280, 0], solo_desc3, [11, 11], [1, 1, 1], 1, 0);
+	Draw_String([g_width - 340, 295, 0], solo_desc4, [11, 11], [1, 1, 1], 1, 0);
+	Draw_String([g_width - 340, 310, 0], solo_desc5, [11, 11], [1, 1, 1], 1, 0);
+	Draw_String([g_width - 340, 325, 0], solo_desc6, [11, 11], [1, 1, 1], 1, 0);
+	Draw_String([g_width - 340, 340, 0], solo_desc7, [11, 11], [1, 1, 1], 1, 0);
+	Draw_String([g_width - 340, 355, 0], solo_desc8, [11, 11], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Settings =
@@ -1471,37 +1471,37 @@ void() Draw_Extra_Settings =
 	}
 
 	// Draw desc
-	drawstring([6, g_height - 42, 0], set_desc, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, g_height - 42, 0], set_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Credits = 
 {
-	drawstring([6, 65], "Programming:", [12, 12], TEXT_ORANGE, 1, 0);
-	drawstring([6, 85], "Blubs, Jukki, DR_Mabuse1981, Naievil", [12, 12], [1, 1, 1], 1, 0);
-	drawstring([6, 105], "Cypress, ScatterBox", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 65], "Programming:", [12, 12], TEXT_ORANGE, 1, 0);
+	Draw_String([6, 85], "Blubs, Jukki, DR_Mabuse1981, Naievil", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 105], "Cypress, ScatterBox", [12, 12], [1, 1, 1], 1, 0);
 
-	drawstring([6, 130], "Models:", [12, 12], TEXT_ORANGE, 1, 0);
-	drawstring([6, 150], "Blubs, Ju[s]tice, Derped_Crusader", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 130], "Models:", [12, 12], TEXT_ORANGE, 1, 0);
+	Draw_String([6, 150], "Blubs, Ju[s]tice, Derped_Crusader", [12, 12], [1, 1, 1], 1, 0);
 
-	drawstring([6, 175], "GFX:", [12, 12], TEXT_ORANGE, 1, 0);
-	drawstring([6, 195], "Blubs, Ju[s]tice, Cypress, Derped_Crusader", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 175], "GFX:", [12, 12], TEXT_ORANGE, 1, 0);
+	Draw_String([6, 195], "Blubs, Ju[s]tice, Cypress, Derped_Crusader", [12, 12], [1, 1, 1], 1, 0);
 
-	drawstring([6, 220], "Sounds/Music:", [12, 12], TEXT_ORANGE, 1, 0);
-	drawstring([6, 240], "Blubs, Biodude, Cypress, Marty P.", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 220], "Sounds/Music:", [12, 12], TEXT_ORANGE, 1, 0);
+	Draw_String([6, 240], "Blubs, Biodude, Cypress, Marty P.", [12, 12], [1, 1, 1], 1, 0);
 
-	drawstring([6, 265], "Special Thanks:", [12, 12], TEXT_ORANGE, 1, 0);
-	drawstring([6, 285], "- Spike, Eukara:     FTEQW", [12, 12], [1, 1, 1], 1, 0);
-	drawstring([6, 305], "- Shpuld:            CleanQC4FTE", [12, 12], [1, 1, 1], 1, 0);
-	drawstring([6, 325], "- Crow_Bar, st1x51:  dQuake(plus)", [12, 12], [1, 1, 1], 1, 0);
-	drawstring([6, 345], "- fgsfdsfgs:         Quakespasm-NX", [12, 12], [1, 1, 1], 1, 0);
-	drawstring([6, 365], "- MasterFeizz:       ctrQuake", [12, 12], [1, 1, 1], 1, 0);
-	drawstring([6, 385], "- Rinnegatamante:    Initial VITA Port & Updater", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 265], "Special Thanks:", [12, 12], TEXT_ORANGE, 1, 0);
+	Draw_String([6, 285], "- Spike, Eukara:     FTEQW", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 305], "- Shpuld:            CleanQC4FTE", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 325], "- Crow_Bar, st1x51:  dQuake(plus)", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 345], "- fgsfdsfgs:         Quakespasm-NX", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 365], "- MasterFeizz:       ctrQuake", [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, 385], "- Rinnegatamante:    Initial VITA Port & Updater", [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Restart =
 {
-	drawstring([0.025*g_width, 0.375*g_height, 0], "Are you sure you want to restart?", [g_height * 0.020, g_height * 0.020, 1], [0.8,0.8,0.8], 1, 0);
-	drawstring([0.02*g_width, 0.425*g_height, 0], "Your current progress will be lost!", [g_height * 0.020, g_height * 0.020, 1], [0.8,0.8,0.8], 1, 0);
+	Draw_String([0.025*g_width, 0.375*g_height, 0], "Are you sure you want to restart?", [g_height * 0.020, g_height * 0.020, 1], [0.8,0.8,0.8], 1, 0);
+	Draw_String([0.02*g_width, 0.425*g_height, 0], "Your current progress will be lost!", [g_height * 0.020, g_height * 0.020, 1], [0.8,0.8,0.8], 1, 0);
 }
 
 void() Draw_Extra_CSettings =
@@ -1514,24 +1514,24 @@ void() Draw_Extra_CSettings =
 
 	// ADS Mode
 	if (button8_key == "MOUSE2")
-		drawstring([320, 75], "HOLD", [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 75], "HOLD", [14, 14], [1, 1, 1], 1, 0);
 	else
-		drawstring([320, 75], "TOGGLE", [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 75], "TOGGLE", [14, 14], [1, 1, 1], 1, 0);
 
 	// Look Sensitivity
-	drawstring([320, 95], ftos(cvar("sensitivity")), [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 95], ftos(cvar("sensitivity")), [14, 14], [1, 1, 1], 1, 0);
 
 	// Mouse Inversion
 	if (cvar("m_pitch") == 0.022)
-		drawstring([320, 115], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 115], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
 	else
-		drawstring([320, 115], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 115], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
 
 	// Rumble
 	if (cvar("in_rumbleenabled") == 0)
-		drawstring([320, 155], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 155], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
 	else
-		drawstring([320, 155], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 155], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
 
 	// Controller Glyphs
 	string controller_glyph_brand = "Unknown";
@@ -1552,20 +1552,20 @@ void() Draw_Extra_CSettings =
 			controller_glyph_brand = sprintf("User (\"%s\")", cvar_string("cl_controllerglyphs"));
 			break;
 	}
-	drawstring([320, 135], controller_glyph_brand, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 135], controller_glyph_brand, [14, 14], [1, 1, 1], 1, 0);
 	drawsubpic([325 + strlen(controller_glyph_brand)*14, 132], [80, 20], sprintf("gfx/controller_glyphs/%s.tga", cvar_string("cl_controllerglyphs")), [0, 0], [0.5, 0.125], [1, 1, 1], 1);
 
 	// Gamepad
 	if (gamepad_enabled == 0)
-		drawstring([320, 175], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 175], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
 	else
-		drawstring([320, 175], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 175], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
 
 	// Aim Assist
 	if (cvar("in_aimassist") == 0)
-		drawstring([320, 195], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 195], S_DISABLED, [14, 14], [1, 1, 1], 1, 0);
 	else
-		drawstring([320, 195], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 195], S_ENABLED, [14, 14], [1, 1, 1], 1, 0);
 
 	// Descriptions
 	switch(lastActive) {
@@ -1599,7 +1599,7 @@ void() Draw_Extra_CSettings =
 	drawfill ([6, g_height - 85], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Draw desc
-	drawstring([6, g_height - 42, 0], cset_desc, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, g_height - 42, 0], cset_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_GSettings =
@@ -1641,13 +1641,13 @@ void() Draw_Extra_GSettings =
 				arval = "ERR";
 				break;
 		}
-		drawstring([320, 115], arval, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 115], arval, [14, 14], [1, 1, 1], 1, 0);
 	} else {
 		// Render Scale
 		resval = strcat(itos(ftoi(cvar("r_renderscale")*100)), "%");
 	}
 
-	drawstring([320, 95], resval, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 95], resval, [14, 14], [1, 1, 1], 1, 0);
 	
 	// Fullscreen
 	if (fullscreenval == 0)
@@ -1655,7 +1655,7 @@ void() Draw_Extra_GSettings =
 	else
 		sval = S_ENABLED;
 
-	drawstring([320, 135], sval, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 135], sval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Show FPS
 	if (cvar("show_fps") == 0)
@@ -1663,14 +1663,14 @@ void() Draw_Extra_GSettings =
 	else
 		fpsval = S_ENABLED;
 
-	drawstring([320, 155], fpsval, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 155], fpsval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Max FPS
 	// can't adjust when vsync is enabled, so grey out
 	if (!cvar("vid_vsync")) {
-		drawstring([320, 175], ftos(cvar("cl_maxfps")), [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 175], ftos(cvar("cl_maxfps")), [14, 14], [1, 1, 1], 1, 0);
 	} else { 
-		drawstring([320, 175], ftos(cvar("cl_maxfps")), [14, 14], [0.25, 0.25, 0.25], 1, 0);
+		Draw_String([320, 175], ftos(cvar("cl_maxfps")), [14, 14], [0.25, 0.25, 0.25], 1, 0);
 	}
 
 	// VSync
@@ -1680,11 +1680,11 @@ void() Draw_Extra_GSettings =
 		else
 			vsyncval = S_ENABLED;
 
-		drawstring([320, 195], vsyncval, [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([320, 195], vsyncval, [14, 14], [1, 1, 1], 1, 0);
 	}
 
 	// Field of View
-	drawstring([320, 215], ftos(cvar("fov")), [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 215], ftos(cvar("fov")), [14, 14], [1, 1, 1], 1, 0);
 
 	// Brightness
 	// have to use a drawfill because of how gamma values are subtracted.. for some reason
@@ -1696,7 +1696,7 @@ void() Draw_Extra_GSettings =
 	else
 		ultraval = S_DISABLED;
 
-	drawstring([320, 255], ultraval, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 255], ultraval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Particles
 	if (cvar("nzp_particles") == 0)
@@ -1704,7 +1704,7 @@ void() Draw_Extra_GSettings =
 	else
 		partval = S_ENABLED;
 
-	drawstring([320, 275], partval, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 275], partval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Fullbright
 	if (cvar("r_fullbright") == 0)
@@ -1712,7 +1712,7 @@ void() Draw_Extra_GSettings =
 	else
 		fullval = S_ENABLED;
 
-	drawstring([320, 295], fullval, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 295], fullval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Retro
 	if (cvar_string("gl_texturemode") == "gl_nearest")
@@ -1720,7 +1720,7 @@ void() Draw_Extra_GSettings =
 	else
 		retroval = S_DISABLED;
 
-	drawstring([320, 315], retroval, [14, 14], [1, 1, 1], 1, 0);
+	Draw_String([320, 315], retroval, [14, 14], [1, 1, 1], 1, 0);
 
 	// Descriptions
 	switch(lastActive) {
@@ -1775,7 +1775,7 @@ void() Draw_Extra_GSettings =
 	drawfill ([6, g_height - 85], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Draw desc
-	drawstring([6, g_height - 42, 0], gset_desc, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, g_height - 42, 0], gset_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 void() Draw_Extra_Controls =
@@ -1800,7 +1800,7 @@ void() Draw_Extra_Controls =
 		if (Key_IsControllerGlyph(buttoncon[i]))
 			Key_DrawControllerGlyph([320, 75+(20*i)], buttoncon[i], [22, 22]);
 		else
-			drawstring([320, 75+(20*i)], buttoncon[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
+			Draw_String([320, 75+(20*i)], buttoncon[i], [g_height * 0.030, g_height * 0.030, 1], [0.8,0.8,0.8], 1, 0);
 	}
 }
 
@@ -1912,47 +1912,47 @@ void() Draw_Extra_Customs =
 	for (float i = 0; i < 10; i++) {
 		if (custom_map_active[i] == TRUE || last_active_custom_select == i) {
 			if (custom_maps[i + multiplier].map_name_pretty)
-				drawstring([6, 75+(20*i)], custom_maps[i + multiplier].map_name_pretty, [14, 14], [1, 0, 0], 1, 0);
+				Draw_String([6, 75+(20*i)], custom_maps[i + multiplier].map_name_pretty, [14, 14], [1, 0, 0], 1, 0);
 			else
-				drawstring([6, 75+(20*i)], custom_map_names[i], [14, 14], [1, 0, 0], 1, 0);
+				Draw_String([6, 75+(20*i)], custom_map_names[i], [14, 14], [1, 0, 0], 1, 0);
 
 			float line_increment;
 			line_increment = 0;
 
 			if (custom_maps[i + multiplier].map_desc_1 != "" && custom_maps[i + multiplier].map_desc_1 != " ") {
-				drawstring([g_width - 360, 250, 0], custom_maps[i + multiplier].map_desc_1, [11, 11], [1, 1, 1], 1, 0);
+				Draw_String([g_width - 360, 250, 0], custom_maps[i + multiplier].map_desc_1, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_2 != "" && custom_maps[i + multiplier].map_desc_2 != " ") {
 				line_increment++;
-				drawstring([g_width - 360, 265, 0], custom_maps[i + multiplier].map_desc_2, [11, 11], [1, 1, 1], 1, 0);
+				Draw_String([g_width - 360, 265, 0], custom_maps[i + multiplier].map_desc_2, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_3 != "" && custom_maps[i + multiplier].map_desc_3 != " ") {
 				line_increment++;
-				drawstring([g_width - 360, 280, 0], custom_maps[i + multiplier].map_desc_3, [11, 11], [1, 1, 1], 1, 0);
+				Draw_String([g_width - 360, 280, 0], custom_maps[i + multiplier].map_desc_3, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_4 != "" && custom_maps[i + multiplier].map_desc_4 != " ") {
 				line_increment++;
-				drawstring([g_width - 360, 295, 0], custom_maps[i + multiplier].map_desc_4, [11, 11], [1, 1, 1], 1, 0);
+				Draw_String([g_width - 360, 295, 0], custom_maps[i + multiplier].map_desc_4, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_5 != "" && custom_maps[i + multiplier].map_desc_5 != " ") {
 				line_increment++;
-				drawstring([g_width - 360, 310, 0], custom_maps[i + multiplier].map_desc_5, [11, 11], [1, 1, 1], 1, 0);
+				Draw_String([g_width - 360, 310, 0], custom_maps[i + multiplier].map_desc_5, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_6 != "" && custom_maps[i + multiplier].map_desc_6 != " ") {
 				line_increment++;
-				drawstring([g_width - 360, 325, 0], custom_maps[i + multiplier].map_desc_6, [11, 11], [1, 1, 1], 1, 0);
+				Draw_String([g_width - 360, 325, 0], custom_maps[i + multiplier].map_desc_6, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_7 != "" && custom_maps[i + multiplier].map_desc_7 != " ") {
 				line_increment++;
-				drawstring([g_width - 360, 340, 0], custom_maps[i + multiplier].map_desc_7, [11, 11], [1, 1, 1], 1, 0);
+				Draw_String([g_width - 360, 340, 0], custom_maps[i + multiplier].map_desc_7, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_desc_8 != "" && custom_maps[i + multiplier].map_desc_8 != " ") {
 				line_increment++;
-				drawstring([g_width - 360, 355, 0], custom_maps[i + multiplier].map_desc_8, [11, 11], [1, 1, 1], 1, 0);
+				Draw_String([g_width - 360, 355, 0], custom_maps[i + multiplier].map_desc_8, [11, 11], [1, 1, 1], 1, 0);
 			}
 			if (custom_maps[i + multiplier].map_author != "" && custom_maps[i + multiplier].map_author != " ") {
 				line_increment++;
-				drawstring([g_width - 360, 235 + (20*line_increment), 0], custom_maps[i + multiplier].map_author, [11, 11], TEXT_ORANGE, 1, 0);
+				Draw_String([g_width - 360, 235 + (20*line_increment), 0], custom_maps[i + multiplier].map_author, [11, 11], TEXT_ORANGE, 1, 0);
 			}
 
 			if (custom_maps[i + multiplier].map_use_thumbnail) {
@@ -1961,9 +1961,9 @@ void() Draw_Extra_Customs =
 
 		} else {
 			if (custom_maps[i + multiplier].map_name_pretty)
-				drawstring([6, 75+(20*i)], custom_maps[i + multiplier].map_name_pretty, [14, 14], [1, 1, 1], 1, 0);
+				Draw_String([6, 75+(20*i)], custom_maps[i + multiplier].map_name_pretty, [14, 14], [1, 1, 1], 1, 0);
 			else
-				drawstring([6, 75+(20*i)], custom_map_names[i], [14, 14], [1, 1, 1], 1, 0);
+				Draw_String([6, 75+(20*i)], custom_map_names[i], [14, 14], [1, 1, 1], 1, 0);
 		}
 			
 	}
@@ -2020,31 +2020,31 @@ void() Draw_Extra_Achievements =
 		if (achievements[i + multiplier].unlocked == false) {
 			int lock_width_pos;
 
-			drawstring([0.450*g_height, (0.150 + (0.212 * i))*g_height, 0], name1, [g_height * 0.030, g_height * 0.030, 1], [0.5,0.5,0.5], 1, 0);
-			drawstring([0.450*g_height, (0.180 + (0.212 * i))*g_height, 0], name2, [g_height * 0.030, g_height * 0.030, 1], [0.5,0.5,0.5], 1, 0);
+			Draw_String([0.450*g_height, (0.150 + (0.212 * i))*g_height, 0], name1, [g_height * 0.030, g_height * 0.030, 1], [0.5,0.5,0.5], 1, 0);
+			Draw_String([0.450*g_height, (0.180 + (0.212 * i))*g_height, 0], name2, [g_height * 0.030, g_height * 0.030, 1], [0.5,0.5,0.5], 1, 0);
 
 			if (name2 == "") {
 				lock_width_pos = stringwidth(name1, 0, [g_height * 0.030, g_height * 0.030, 1]);
-				drawstring([0.450*g_height + lock_width_pos, (0.150 + (0.212 * i))*g_height, 0], " (LOCKED)", [g_height * 0.030, g_height * 0.030, 1], [1,0,0], 1, 0);
+				Draw_String([0.450*g_height + lock_width_pos, (0.150 + (0.212 * i))*g_height, 0], " (LOCKED)", [g_height * 0.030, g_height * 0.030, 1], [1,0,0], 1, 0);
 			} else {
 				lock_width_pos = stringwidth(name2, 0, [g_height * 0.030, g_height * 0.030, 1]);
-				drawstring([0.450*g_height + lock_width_pos, (0.180 + (0.212 * i))*g_height, 0], " (LOCKED)", [g_height * 0.030, g_height * 0.030, 1], [1,0,0], 1, 0);
+				Draw_String([0.450*g_height + lock_width_pos, (0.180 + (0.212 * i))*g_height, 0], " (LOCKED)", [g_height * 0.030, g_height * 0.030, 1], [1,0,0], 1, 0);
 			}
 
-			drawstring([0.450*g_height, (0.210 + (0.212 * i))*g_height, 0], desc1, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
-			drawstring([0.450*g_height, (0.240 + (0.212 * i))*g_height, 0], desc2, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
-			drawstring([0.450*g_height, (0.270 + (0.212 * i))*g_height, 0], desc3, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
-			drawstring([0.450*g_height, (0.300 + (0.212 * i))*g_height, 0], desc4, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
+			Draw_String([0.450*g_height, (0.210 + (0.212 * i))*g_height, 0], desc1, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
+			Draw_String([0.450*g_height, (0.240 + (0.212 * i))*g_height, 0], desc2, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
+			Draw_String([0.450*g_height, (0.270 + (0.212 * i))*g_height, 0], desc3, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
+			Draw_String([0.450*g_height, (0.300 + (0.212 * i))*g_height, 0], desc4, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
 
 			drawpic([0.025*g_width, (0.150 + (0.212 * i))*g_height, 0], "gfx/achievement/achievement_locked.tga", [0.38*g_height, 0.19*g_height, 0], [1,1,1], 1);
 		} else {
-			drawstring([0.450*g_height, (0.150 + (0.212 * i))*g_height, 0], name1, [g_height * 0.030, g_height * 0.030, 1], [1,1,0], 1, 0);
-			drawstring([0.450*g_height, (0.180 + (0.212 * i))*g_height, 0], name2, [g_height * 0.030, g_height * 0.030, 1], [1,1,0], 1, 0);
+			Draw_String([0.450*g_height, (0.150 + (0.212 * i))*g_height, 0], name1, [g_height * 0.030, g_height * 0.030, 1], [1,1,0], 1, 0);
+			Draw_String([0.450*g_height, (0.180 + (0.212 * i))*g_height, 0], name2, [g_height * 0.030, g_height * 0.030, 1], [1,1,0], 1, 0);
 
-			drawstring([0.450*g_height, (0.210 + (0.212 * i))*g_height, 0], desc1, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
-			drawstring([0.450*g_height, (0.240 + (0.212 * i))*g_height, 0], desc2, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
-			drawstring([0.450*g_height, (0.270 + (0.212 * i))*g_height, 0], desc3, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
-			drawstring([0.450*g_height, (0.300 + (0.212 * i))*g_height, 0], desc4, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
+			Draw_String([0.450*g_height, (0.210 + (0.212 * i))*g_height, 0], desc1, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
+			Draw_String([0.450*g_height, (0.240 + (0.212 * i))*g_height, 0], desc2, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
+			Draw_String([0.450*g_height, (0.270 + (0.212 * i))*g_height, 0], desc3, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
+			Draw_String([0.450*g_height, (0.300 + (0.212 * i))*g_height, 0], desc4, [g_height * 0.030, g_height * 0.030, 1], [1,1,1], 1, 0);
 
 			drawpic([0.025*g_width, (0.150 + (0.212 * i))*g_height, 0], achievements[i + multiplier].img, [0.38*g_height, 0.19*g_height, 0], [1,1,1], 1);
 		}
@@ -2079,7 +2079,7 @@ void() Draw_Extra_ASettings =
 	drawfill ([6, g_height - 85], [270, 4], [0.5, 0.5, 0.5], 1, 0);
 
 	// Draw desc
-	drawstring([6, g_height - 42, 0], aset_desc, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([6, g_height - 42, 0], aset_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
 string() LoadScreen_GiveTip;
@@ -2099,12 +2099,12 @@ void() Draw_Menu =
 		drawfill ([0, 0], [g_width, 32, 1], [0, 0, 0], 0.68, 0);
 		drawfill ([0, g_height - 32], [g_width, 32, 1], [0, 0, 0], 0.68, 0);
 
-		drawstring([g_width/2 - (stringwidth(loadscreen_tip, 0, [12, 12])/2), g_height - 16, 0], loadscreen_tip, [12, 12], [1, 1, 1], 1, 0);
-		drawstring([6, 6], loadscreen_maptitle, [24, 24], TEXT_ORANGE, 1, 0);
+		Draw_String([g_width/2 - (stringwidth(loadscreen_tip, 0, [12, 12])/2), g_height - 16, 0], loadscreen_tip, [12, 12], [1, 1, 1], 1, 0);
+		Draw_String([6, 6], loadscreen_maptitle, [24, 24], TEXT_ORANGE, 1, 0);
 
 		drawfill ([g_width/2 - 160, g_height - 42], [320, 18, 1], [0.27, 0.27, 0.27], 1, 0);
 		drawfill ([g_width/2 - 164, g_height - 46], [328, 26, 1], [0, 0, 0], 0.77, 0);
-		drawstring([g_width/2 - (stringwidth("Loading...", 0, [14, 14])/2), g_height - 40, 0], "Loading...", [14, 14], [1, 1, 1], 1, 0);
+		Draw_String([g_width/2 - (stringwidth("Loading...", 0, [14, 14])/2), g_height - 40, 0], "Loading...", [14, 14], [1, 1, 1], 1, 0);
 
 		if (loadscreen_timetrigger < cltime) {
 			in_loadscreen = true;
@@ -2149,7 +2149,7 @@ void() Draw_Menu =
 
 		vers_string = build_datetime;
 
-		drawstring([(g_width - 6 - stringwidth(vers_string, 0, [12, 12])), 8], vers_string, [12, 12], [1, 1, 1], 1, 0);
+		Draw_String([(g_width - 6 - getTextWidth(vers_string, 12)), 8], vers_string, [12, 12], [1, 1, 1], 1, 0);
 	}
 
 	//menu title
@@ -2226,7 +2226,7 @@ void() Draw_Menu =
 			title = "Nazi Zombies: Portable";
 	}
 	
-	drawstring([6, 8, 0], title, [28, 28, 0], [1, 1, 1], 1, 0);
+	Draw_String([6, 8, 0], title, [28, 28, 0], [1, 1, 1], 1, 0);
 
 	//Update buttons
 	local float i;

@@ -86,16 +86,12 @@ void(float width, float height) HUD_Health =
 
 void(float width, float height) HUD_Ammo =
 {
-	local float ammo, curmag, benis, benis2;
+	float ammo, curmag;
 	string ammostring, ammostring_1, ammostring_2;
 	vector color;
 	
 	curmag = getstatf(STAT_CURRENTMAG);		
 	ammo = getstatf(STAT_AMMO);	
-	
-	benis = strlen(ftos(ammo));
-	benis2 = strlen(ftos(curmag));
-	benis = benis + benis2;
 	
 	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_CURRENTMAG), true))
 		color = [215/255, 0, 0];
@@ -112,16 +108,16 @@ void(float width, float height) HUD_Ammo =
 		float curmag2 = getstatf(STAT_CURRENTMAG2);
 		
 		ammostring = strcat(ftos(curmag2), " ", ftos(curmag), "/", ftos(ammo));
-		float x2 = (g_width - GetUltraWideOffset()) - 62 - stringwidth(ammostring, 0, [12, 12]);
-		drawstring([x2, g_height - 29], ammostring, [12, 12], [1,1,1], 1, 0);
+		float x2 = (g_width - GetUltraWideOffset()) - 62 - getTextWidth(ammostring, 12);
+		Draw_String([x2, g_height - 29], ammostring, [12, 12], [1,1,1], 1, 0);
 	} else {
 		ammostring_1 = ftos(curmag);
 		ammostring_2 = strcat("/", ftos(ammo));
 		string weapon_ammo_string = strcat(ftos(curmag), "/", ftos(ammo));
-		float x = (g_width - GetUltraWideOffset())  - 62 - stringwidth(weapon_ammo_string, 0, [12, 12]);
+		float x = (g_width - GetUltraWideOffset())  - 62 - getTextWidth(weapon_ammo_string, 12);
 
-		drawstring([x, g_height - 29], ammostring_1, [12, 12], color, 1, 0);
-		drawstring([x + stringwidth(ammostring_1, 0, [12, 12]), g_height - 29], ammostring_2, [12, 12], color_2, 1, 0);
+		Draw_String([x, g_height - 29], ammostring_1, [12, 12], color, 1, 0);
+		Draw_String([x + getTextWidth(ammostring_1, 12), g_height - 29], ammostring_2, [12, 12], color_2, 1, 0);
 	}
 }
 
@@ -191,8 +187,8 @@ void() HUD_AmmoString =
 		}
 	}
 
-	float x = (g_width/2) - (stringwidth(message, 0, [12, 12])/2);
-	drawstring([x, g_height/2 + 40, 0], message, [12, 12, 0], textcolor, ammoopac, 0);
+	float x = (g_width/2) - (getTextWidth(message, 12)/2);
+	Draw_String([x, g_height/2 + 40, 0], message, [12, 12, 0], textcolor, ammoopac, 0);
 }
 
 /*******************
@@ -241,7 +237,7 @@ void(float amount, float playernum) RegisterPointChange =
 	}
 
 	// determine the width of the text string
-	point_elements[index].string_width = stringwidth(point_elements[index].text_string, 0, [12, 12]);
+	point_elements[index].string_width = getTextWidth(point_elements[index].text_string, 12);
 
 	// generate a velocity
 	point_elements[index].y_velocity = random()/4;
@@ -300,7 +296,7 @@ void(float pwidth, float width, float height, float playernum) PointUpdate =
 		}
 
 		if (point_elements[i].difference != 0 && point_elements[i].opacity > 0) {
-			drawstring([pwidth - point_elements[i].string_width - point_elements[i].x_position, 
+			Draw_String([pwidth - point_elements[i].string_width - point_elements[i].x_position, 
 			point_elements[i].y_position], point_elements[i].text_string, [12, 12], 
 			POINT_DIFF_COLOR, point_elements[i].opacity, 0);
 		}
@@ -332,15 +328,15 @@ void(float width, float height) HUD_Points =
 			default: TEXTCOLOR = [1, 1, 1]; break;
 		}
 
-		pointwidth = stringwidth(ftos(client.points), 0, [12, 12]);
+		pointwidth = getTextWidth(ftos(client.points), 12);
 		x = (99 - pointwidth)/2 + GetUltraWideOffset();
 
 		if ((i + 1) == getstatf(STAT_PLAYERNUM)) {
 			drawpic([3 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
-			drawstring([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
+			Draw_String([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		} else {
 			drawpic([-7 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback_condensed.tga", [96, 24], [1,1,1], 1);
-			drawstring([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
+			Draw_String([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		}
 
 		PointUpdate(x + 70, width, height, i + 1);
@@ -360,7 +356,7 @@ void(float width, float height) HUD_CharacterName =
 		alpha = (nameprint_time - time);
 	}
 
-	drawstring([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], character_name, [12, 12], [1, 1, 1], alpha, 0);
+	Draw_String([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], character_name, [12, 12], [1, 1, 1], alpha, 0);
 }
 
 /*******************
@@ -389,11 +385,11 @@ void(float width, float height) HUD_Grenades =
 		betties_text_color = [1, 1, 1];
 
 	drawpic([g_width - 3 - 56 - GetUltraWideOffset(), g_height - 50], "gfx/hud/frag.tga", [32, 32], [1, 1, 1], 1);
-	drawstring([g_width - 3 - 38 - GetUltraWideOffset(), g_height - 29], ftos(grenades), [12, 12], grenade_text_color, 1, 0);
+	Draw_String([g_width - 3 - 38 - GetUltraWideOffset(), g_height - 29], ftos(grenades), [12, 12], grenade_text_color, 1, 0);
 
 	if (betties != -1) {
 		drawpic([g_width - 3 - 28 - GetUltraWideOffset(), g_height - 50], "gfx/hud/betty.tga", [32, 32], [1, 1, 1], 1);
-		drawstring([g_width - 3 - 10 - GetUltraWideOffset(), g_height - 29], ftos(betties), [12, 12], betties_text_color, 1, 0);
+		Draw_String([g_width - 3 - 10 - GetUltraWideOffset(), g_height - 29], ftos(betties), [12, 12], betties_text_color, 1, 0);
 	}
 }
 
@@ -446,8 +442,8 @@ void(float width, float height) HUD_Rounds =
 			ralpha = 1;
 		}
 
-		pwidth = stringwidth("Round", 0, [24, 24])/2;
-		drawstring([(g_width/2) - pwidth, g_height/2 - 70], "Round", [24, 24], [1, rcolor, rcolor], ralpha, 0);
+		pwidth = getTextWidth("Round", 24)/2;
+		Draw_String([(g_width/2) - pwidth, g_height/2 - 70], "Round", [24, 24], [1, rcolor, rcolor], ralpha, 0);
 
 		rcolor -= frametime/2.5;
 		if (rcolor < 0) {
@@ -466,10 +462,10 @@ void(float width, float height) HUD_Rounds =
 			}
 		}
 
-		drawstring([3 + GetUltraWideOffset(), g_height/2 + 24], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
-		drawstring([3 + GetUltraWideOffset(), g_height/2 + 36], location, [12, 12], [1, 1, 1], localpha, 0);
-		drawstring([3 + GetUltraWideOffset(), g_height/2 + 48], date, [12, 12], [1, 1, 1], localpha, 0);
-		drawstring([3 + GetUltraWideOffset(), g_height/2 + 60], person, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 24], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 36], location, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 48], date, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 60], person, [12, 12], [1, 1, 1], localpha, 0);
 	}
 
 	if (rounds_change == 1)//this is the rounds icon at the middle of the screen
@@ -961,99 +957,99 @@ void(float width, float height) HUD_Useprint =
 			usestring = "";
 			break;
 		case 1://door
-			usestring = strcat("Hold ",usespace, " to open Door");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to open Door");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 2://debris
-			usestring = strcat("Hold ",usespace, " to remove Debris");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to remove Debris");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 3://ammo
-			usestring = strcat("Hold ",usespace, " to buy Ammo for ", GetWeaponName(useprint_weapon));
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to buy Ammo for ", GetWeaponName(useprint_weapon));
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 4://weapon
-			usestring = strcat("Hold ",usespace, " to buy ", GetWeaponName(useprint_weapon));
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to buy ", GetWeaponName(useprint_weapon));
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 5://window
-			usestring = strcat("Hold ",usespace, " to Rebuild Barrier");
+			usestring = strcat("Hold  ",usespace, " to Rebuild Barrier");
 			break;
 		case 6://box
-			usestring = strcat("Hold ",usespace, " for Mystery Box");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " for Mystery Box");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 7://box take
-			usestring = strcat("Hold ",usespace, " for ", GetWeaponName(useprint_weapon));
+			usestring = strcat("Hold  ",usespace, " for ", GetWeaponName(useprint_weapon));
 			break;
 		case 8://power
 			usestring = "The Power must be Activated first";
 			break;
 		case 9://perk
-			usestring = strcat("Hold ",usespace, " to buy ", GetPerkName(useprint_weapon));
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to buy ", GetPerkName(useprint_weapon));
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 10://turn on power
-			usestring = strcat("Hold ",usespace, " to Turn On the Power");
+			usestring = strcat("Hold  ",usespace, " to Turn On the Power");
 			break;
 		case 11://turn on trap
-			usestring = strcat("Hold ",usespace, " to Activate the Trap");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to Activate the Trap");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 12://packapunch
-			usestring = strcat("Hold ",usespace, " to Pack-a-Punch");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to Pack-a-Punch");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 13://revive
-			usestring = strcat("Hold ",usespace, " to Revive Player");
+			usestring = strcat("Hold  ",usespace, " to Revive Player");
 			break;
 		case 14://use teleporter (free)
-			usestring = strcat("Hold ", usespace, " to use Teleporter");
+			usestring = strcat("Hold  ", usespace, " to use Teleporter");
 			break;
 		case 15://use teleporter (cost)
-			usestring = strcat("Hold ", usespace, " to use Teleporter");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ", usespace, " to use Teleporter");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 16://tp cooldown
 			usestring = "Teleporter is cooling down";
 			break;
 		case 17://link
-			usestring = strcat("Hold ", usespace, " to initate link to pad");
+			usestring = strcat("Hold  ", usespace, " to initate link to pad");
 			break;
 		case 18://no link
 			usestring = "Link not active";
 			break;
 		case 19://finish link
-			usestring = strcat("Hold ", usespace, " to link pad with core");
+			usestring = strcat("Hold  ", usespace, " to link pad with core");
 			break;
 		case 20://buyable ending
-			usestring = strcat("Hold ", usespace, " to End the Game");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ", usespace, " to End the Game");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		default:
 			usestring = "This should not happen you dum fuck"; //yikes
 			break;
 	}
 
-	print_width = stringwidth (usestring, 0, [12, 12]);
+	print_width = getTextWidth(usestring, 12);
 	x = (width - print_width)/2;
-	drawstring([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
+	Draw_String([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
 
 	// Draw "Cost" text.
 	if (usecost != "") {
-		float cost_width = stringwidth(usecost, 0, [12, 12]);
+		float cost_width = getTextWidth(usecost, 12);
 		float x3 = (width - cost_width)/2;
-		drawstring([x3, g_height/2 + 78, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
+		Draw_String([x3, g_height/2 + 78, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
 	}
 
 	// Draw highlighted usebutton
 	if (substring(usestring, 0, 4) == "Hold") {
-		button_width = x + stringwidth ("Hold ", 0, [12, 12, 0]);
+		button_width = x + getTextWidth("Hold ", 12);
 
 		if (Key_IsControllerGlyph(usebutton))
 			Key_DrawControllerGlyph([button_width - 5, g_height/2 + 60], usebutton, [22, 22]);
 		else
-			drawstring([button_width, g_height/2 + 65, 0], usebutton, [12, 12, 0], [1, 1, 0], 1, 0);
+			Draw_String([button_width, g_height/2 + 65, 0], usebutton, [12, 12, 0], [1, 1, 0], 1, 0);
 	}
 }
 
@@ -1177,8 +1173,8 @@ void(float width, float height) HUD_Weaponstring =
 {
 	string weaponstring; 
 	weaponstring = GetWeaponName(getstatf(STAT_ACTIVEWEAPON));
-	float x = g_width - 62 - stringwidth(weaponstring, 0, [12, 12]);
-	drawstring([x - GetUltraWideOffset(), g_height - 49], weaponstring, [12, 12], [1, 1, 1], 1, 0);
+	float x = g_width - 62 - getTextWidth(weaponstring, 12);
+	Draw_String([x - GetUltraWideOffset(), g_height - 49], weaponstring, [12, 12], [1, 1, 1], 1, 0);
 }
 
 /*********************
@@ -1211,19 +1207,19 @@ void(float width, float height) HUD_BouncingBetty =
 	activate_string = strcat("Press ", betty_space, " to place a");
 	activate_string2 = "Bouncing Betty";
 
-	top_x = (g_width/2) - (stringwidth(activate_string, 0, [12, 12])/2);
-	bot_x = (g_width/2) - (stringwidth(activate_string2, 0, [12, 12])/2);
+	top_x = (g_width/2) - (getTextWidth(activate_string, 12)/2);
+	bot_x = (g_width/2) - (getTextWidth(activate_string2, 12)/2);
 
-	drawstring([top_x, g_height - 303], activate_string, [12, 12], [1, 1, 1], 1, 0); 
-	drawstring([bot_x, g_height - 289], activate_string2, [12, 12], [1, 1, 1], 1, 0); 
+	Draw_String([top_x, g_height - 303], activate_string, [12, 12], [1, 1, 1], 1, 0); 
+	Draw_String([bot_x, g_height - 289], activate_string2, [12, 12], [1, 1, 1], 1, 0); 
 
 	// Draw the highlighted button
-	but_x = top_x + stringwidth("Press ", 0, [12, 12, 0]);
+	but_x = top_x + getTextWidth("Press ", 12);
 
 	if (Key_IsControllerGlyph(betty_key))
 		Key_DrawControllerGlyph([but_x - 5, g_height - 308], betty_key, [22, 22]);
 	else
-		drawstring([but_x, g_height - 303], betty_key, [12, 12], [1, 1, 0], 1, 0); 
+		Draw_String([but_x, g_height - 303], betty_key, [12, 12], [1, 1, 0], 1, 0); 
 }
 
 /*******************
@@ -1250,9 +1246,8 @@ void(float width, float height) HUD_Progressbar =
 
 	drawfill ([bar_x - 1, bar_y - 1, 0], [bar_width+2, bar_height, 0], [0, 0, 0], 0.4, 0);
 	drawfill ([bar_x, bar_y, 0], [bar_width * percent, bar_height-2, 0], [1, 1, 1], 0.4, 0);
-	
-	float x = (g_width/2) - (stringwidth("Reviving...", 0, [12, 12])/2);
-	drawstring([x, g_height - 105], "Reviving...", [12, 12], [1, 1, 1], 1, 0); 
+	float x = (g_width/2) - (getTextWidth("Reviving...", 12)/2);
+	Draw_String([x, g_height - 105], "Reviving...", [12, 12], [1, 1, 1], 1, 0); 
 }
 
 /*******************
@@ -1382,8 +1377,8 @@ void() Draw_Crosshair =
 	}
 	// Area of Effect (o)
 	else if (crosshair_value == 2) {
-		float circle_offset = stringwidth("O", 0, [14, 14])/2;
-		drawstring([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [14, 14], crosshair_color, 1, 0);
+		float circle_offset = getTextWidth("O", 14)/2;
+		Draw_String([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [14, 14], crosshair_color, 1, 0);
 	}
 	// Dot crosshair (.)
 	else if (crosshair_value == 3) {
@@ -1461,11 +1456,11 @@ void() HUD_Broadcast =
 			break;
 	}
 
-	float print_width = stringwidth (broadcast_msg, 0, [0.015*g_width, 0.015*g_width, 0]);
+	float print_width = getTextWidth(broadcast_msg, 0.015*g_width);
 	float x = (g_width - print_width)/2;
 
 	if (broadcast_msg != "")
-		drawstring([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
+		Draw_String([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
 };
 
 void() HUD_Scores =
@@ -1476,8 +1471,8 @@ void() HUD_Scores =
 	if(serverkey("constate") != "disconnected")
 	{
 		// Headers
-		drawstring([g_width/2 + 15, 175], "Points", [12, 12], TEXTCOLOR, 1, 0); 
-		drawstring([g_width/2 + 170, 175], "Kills", [12, 12], TEXTCOLOR, 1, 0); 
+		Draw_String([g_width/2 + 15, 175], "Points", [12, 12], TEXTCOLOR, 1, 0); 
+		Draw_String([g_width/2 + 170, 175], "Kills", [12, 12], TEXTCOLOR, 1, 0); 
 	
 		for (int i = 0; i < 4; i = i + 1)
 		{
@@ -1512,17 +1507,17 @@ void() HUD_Scores =
 			
 			// Name
 			string player_name = getplayerkeyvalue(i, "name");
-			drawstring([g_width/2 - 245, 200 + (30 * i)], player_name, [12, 12], TEXTCOLOR, 1, 0); 
+			Draw_String([g_width/2 - 245, 200 + (30 * i)], player_name, [12, 12], TEXTCOLOR, 1, 0); 
 
 			// Points
-			float point_width = stringwidth(ftos(client.points), 0, [12, 12]);
+			float point_width = getTextWidth(ftos(client.points), 12);
 			float point_x = ((g_width/2) - (point_width)/2) + 52;
-			drawstring([point_x, 200 + (30 * i)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0); 
+			Draw_String([point_x, 200 + (30 * i)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0); 
 
 			// Kills
-			float kill_width = stringwidth(ftos(client.points), 0, [12, 12]);
+			float kill_width = getTextWidth(ftos(client.kills), 12);
 			float kill_x = ((g_width/2) - (kill_width)/2) + 210;
-			drawstring([kill_x, 200 + (30 * i)], ftos(client.kills), [12, 12], TEXTCOLOR, 1, 0); 
+			Draw_String([kill_x, 200 + (30 * i)], ftos(client.kills), [12, 12], TEXTCOLOR, 1, 0); 
 		}
 	}
 }
@@ -1539,11 +1534,11 @@ void() HUD_Endgame = {
 
 	survive = strcat("You Survived ", ftos(rounds), round);
 
-	float game_over_width = stringwidth(game_over, 0, [24, 24]);
-	drawstring([g_width/2 - game_over_width/2, 100], game_over, [24, 24], [1, 1, 1], 1, 0);
+	float game_over_width = getTextWidth(game_over, 24);
+	Draw_String([g_width/2 - game_over_width/2, 100], game_over, [24, 24], [1, 1, 1], 1, 0);
 
-	float survive_width = stringwidth(survive, 0, [18, 18]);
-	drawstring([g_width/2 - survive_width/2, 135], survive, [18, 18], [1, 1, 1], 1, 0);
+	float survive_width = getTextWidth(survive, 18);
+	Draw_String([g_width/2 - survive_width/2, 135], survive, [18, 18], [1, 1, 1], 1, 0);
 
 	HUD_Scores();
 }
@@ -1604,7 +1599,7 @@ void(float width, float height) HUD_MaxAmmo =
 
 	float text_alpha = 1;
 
-	float string_width = stringwidth(maxammo_string, 0, [14, 14]);
+	float string_width = getTextWidth(maxammo_string, 14);
 	float pos_x = (width - string_width)/2;
 	float pos_y;
 
@@ -1629,7 +1624,7 @@ void(float width, float height) HUD_MaxAmmo =
 		text_alpha = 1 - percent_time;
 	}
 
-	drawstring([pos_x, pos_y, 0], maxammo_string, [14, 14], [1, 1, 1], text_alpha, 0);
+	Draw_String([pos_x, pos_y, 0], maxammo_string, [14, 14], [1, 1, 1], text_alpha, 0);
 };
 
 float achievement_init;
@@ -1650,8 +1645,8 @@ void(float width, float height) HUD_Achievements = {
 	}
 
 
-	drawstring([0.2*width, achievement_ypos*height, 0], "ACHIEVEMENT GET!", [0.015*width, 0.015*width, 0], [1, 1, 0], 1, 0);
-	drawstring([0.2*width, achievement_desc_ypos*height, 0], achievements[active_achievement].name, [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.2*width, achievement_ypos*height, 0], "ACHIEVEMENT GET!", [0.015*width, 0.015*width, 0], [1, 1, 0], 1, 0);
+	Draw_String([0.2*width, achievement_desc_ypos*height, 0], achievements[active_achievement].name, [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
 	drawpic([0.005*width, achievement_img_ypos*height,0], achievements[active_achievement].img, [0.16*width, 0.08*width, 0], [1,1,1], 1);
 
 	if (achievement_time <= 120) {
@@ -1695,16 +1690,16 @@ string(float index) GetButtonString =
 
 void(float width, float height) HUD_Waypoint =
 {
-	drawstring([0.015*width, 0.015*height, 0], "WAYPOINT MODE", [0.030*width, 0.030*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.015*height, 0], "WAYPOINT MODE", [0.030*width, 0.030*width, 0], [1, 1, 1], 1, 0);
 	drawfill([0.015*width, 0.035*height + height*0.035, 0], [strlen("WAYPOINT MODE")*0.030*width, 0.005*width, 0], [1, 1,1], 1, 0);
-	drawstring([0.015*width, 0.095*height, 0], strcat("Press ", GetButtonString(100), " to Create a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.125*height, 0], strcat("Press ", GetButtonString(9), " to Select a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.155*height, 0], strcat("Press ", GetButtonString(101), " to Link a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.185*height, 0], strcat("Press ", GetButtonString(11), " to Remove a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.215*height, 0], strcat("Press ", GetButtonString(7), " to Move a Waypoint Here"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.245*height, 0], strcat("Press ", GetButtonString(10), " to Create a Special Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.275*height, 0], strcat("Press ", "=", " to load map waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.305*height, 0], strcat("Press ", "-", " to save current waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.095*height, 0], strcat("Press ", GetButtonString(100), " to Create a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.125*height, 0], strcat("Press ", GetButtonString(9), " to Select a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.155*height, 0], strcat("Press ", GetButtonString(101), " to Link a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.185*height, 0], strcat("Press ", GetButtonString(11), " to Remove a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.215*height, 0], strcat("Press ", GetButtonString(7), " to Move a Waypoint Here"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.245*height, 0], strcat("Press ", GetButtonString(10), " to Create a Special Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.275*height, 0], strcat("Press ", "=", " to load map waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.015*width, 0.305*height, 0], strcat("Press ", "-", " to save current waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
 }
 
 void(float width, float height) HUD_PlayerNames =
@@ -1736,7 +1731,7 @@ void(float width, float height) HUD_PlayerNames =
 		if (player_origin == '0 0 48')
 			continue;
 
-		screen_position_x -= stringwidth(text, 0, [8, 8])/2;
+		screen_position_x -= getTextWidth(text, 8)/2;
 
 		switch(i) {
 			case 1: text_color = TEXT_LIGHTBLUE; break;
@@ -1746,7 +1741,7 @@ void(float width, float height) HUD_PlayerNames =
 		}
 
 		if (screen_position_z > 0)
-			drawstring(screen_position, text, [8, 8], text_color, 1, 0);
+			Draw_String(screen_position, text, [8, 8], text_color, 1, 0);
 	}
 }
 
@@ -1814,7 +1809,7 @@ void(float width, float height) HUD_StopWatch =
 
 	stopwatch = strcat(hr, ":", min, ":", sec);
 
-	drawstring([width - (strlen(stopwatch) * 12) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
+	Draw_String([width - (getTextWidth(stopwatch, 12)) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
 }
 
 void(float width, float height) HUD_RoundStopWatch =
@@ -1834,7 +1829,7 @@ void(float width, float height) HUD_RoundStopWatch =
 
 	stopwatch = strcat(hr, ":", min, ":", sec);
 
-	drawstring([width - (strlen(stopwatch) * 12) - 2, 16], stopwatch, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([width - (getTextWidth(stopwatch, 12)) - 2, 16], stopwatch, [12, 12], [1, 1, 1], 1, 0);
 }
 
 /*******************

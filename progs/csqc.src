@@ -11,6 +11,7 @@ shared_defs.qc
 sound_enhanced.qc
 weapon_stats.qc
 defs/custom.qc
+draw.qc
 menu.qc
 achievements.qc
 hud.qc
