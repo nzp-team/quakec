@@ -1,0 +1,25 @@
+../source/menu/main.qc
+
+#pragma noref 1
+#pragma target fte_5768
+#pragma progs_dat "../build/fte/menu.dat"
+
+#pragma includedir "../source/menu/"
+
+#includelist
+defs/fte.qc
+defs/custom.qc
+../client/draw.qc
+sui_sys.qc
+m_menu.qc
+
+menu_main.qc     // Main Menu
+menu_maps.qc     // Maps Menu
+menu_opts.qc     // Options Menu
+menu_vide.qc     // Video Menu
+menu_audi.qc     // Audio Menu
+menu_ctrl.qc     // Control Menu
+menu_gpad.qc     // Gamepad Menu
+
+main.qc
+#endlist
