@@ -59,6 +59,8 @@ enum {
 };
 float menu_map_mode;
 
+#define USER_MAPS_MAX   512
+
 // Map content data structure
 var struct
 {
@@ -69,7 +71,7 @@ var struct
 	string 	map_name_pretty;
     string  map_desc[8];
 	string 	map_author;
-} user_maps[500];
+} user_maps[USER_MAPS_MAX];
 float user_maps_count;
 float user_maps_page;
 

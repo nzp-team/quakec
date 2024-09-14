@@ -31,6 +31,12 @@ void() Menu_Maps_PrevPage =
     user_maps_page--;
 }
 
+void(string bsp_name) Menu_Maps_LoadMap =
+{
+    localcmd(sprintf("map %s\n", bsp_name)); 
+    current_menu = MENU_MAIN;
+};
+
 void() Menu_Maps =
 {
     if (!menu_maps_init)
@@ -56,7 +62,7 @@ void() Menu_Maps =
     // Stock Maps
     if (menu_map_mode == MAP_SOLOSTOCK || menu_map_mode == MAP_COOPSTOCK) {
         for(i = 0; i < stock_maps.length; i++) {
-            Menu_MapButton(i + 1, sprintf("map_%s", stock_maps[i].bsp_name), stock_maps[i].bsp_name, -1) ? localcmd(sprintf("map %s\n", stock_maps[i].bsp_name)) : 0;
+            Menu_MapButton(i + 1, sprintf("map_%s", stock_maps[i].bsp_name), stock_maps[i].bsp_name, -1) ? Menu_Maps_LoadMap(stock_maps[i].bsp_name) : 0;
         }
         Menu_DrawDivider(i + 1.25);
         Menu_Button(i + 1.5, "map_nzpusermaps", "USER MAPS", "View User-Created Maps.") ? current_menu = MENU_SOLOUSER : 0;

@@ -50,6 +50,26 @@ string() Menu_PickBackground =
 };
 
 //
+// UserMapNameLookup(bsp_name)
+// Returns the Prettified name for the given
+// .BSP
+//
+string UserMapNameLookup(string bsp_name) =
+{
+	for(int i = 0; i < USER_MAPS_MAX; i++) {
+		if (user_maps[i].map_name != bsp_name)
+			continue;
+
+		if (user_maps[i].map_name_pretty)
+			return user_maps[i].map_name_pretty;
+
+		return user_maps[i].map_name;
+	}
+
+	return "NULL";
+};
+
+//
 // Menu_MapFinder()
 // Performs a .BSP search in the maps/
 // directory and adds them to the custom

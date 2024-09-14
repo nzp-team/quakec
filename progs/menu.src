@@ -21,6 +21,7 @@ menu_audi.qc     // Audio Menu
 menu_ctrl.qc     // Control Menu
 menu_gpad.qc     // Gamepad Menu
 menu_cred.qc     // Credits Menu
+menu_load.qc     // Loading Screen
 
 main.qc
 #endlist

@@ -2082,36 +2082,8 @@ void() Draw_Extra_ASettings =
 	Draw_String([6, g_height - 42, 0], aset_desc, [12, 12], [1, 1, 1], 1, 0);
 }
 
-string() LoadScreen_GiveTip;
 void() Draw_Menu =
 {
-	// CSQC likes to take us back and forth between UpdateView and UpdateViewLoading,
-	// meaning normally you'd see the menu pop in and out of scene. We add a delay
-	// before the loading sequence and make sure to draw the first load screen "frame",
-	// so when this back and forth shenanigan happens, the client will not notice
-	// this stupid hack.
-	if (loadscreen_timetrigger) {
-		if (!loadscreen_tip)
-			loadscreen_tip = LoadScreen_GiveTip();
-
-		drawpic([0, 0], strcat("gfx/lscreen/", loadscreen_mapname), [g_width, g_height], [1, 1, 1], 1);
-
-		drawfill ([0, 0], [g_width, 32, 1], [0, 0, 0], 0.68, 0);
-		drawfill ([0, g_height - 32], [g_width, 32, 1], [0, 0, 0], 0.68, 0);
-
-		Draw_String([g_width/2 - (stringwidth(loadscreen_tip, 0, [12, 12])/2), g_height - 16, 0], loadscreen_tip, [12, 12], [1, 1, 1], 1, 0);
-		Draw_String([6, 6], loadscreen_maptitle, [24, 24], TEXT_ORANGE, 1, 0);
-
-		drawfill ([g_width/2 - 160, g_height - 42], [320, 18, 1], [0.27, 0.27, 0.27], 1, 0);
-		drawfill ([g_width/2 - 164, g_height - 46], [328, 26, 1], [0, 0, 0], 0.77, 0);
-		Draw_String([g_width/2 - (stringwidth("Loading...", 0, [14, 14])/2), g_height - 40, 0], "Loading...", [14, 14], [1, 1, 1], 1, 0);
-
-		if (loadscreen_timetrigger < cltime) {
-			in_loadscreen = true;
-		}
-		return;
-	}
-
 	string menu_track_path;
 	if (platform_is_web)
 		menu_track_path = "tracks/tensioned_by_the_damned.wav";
