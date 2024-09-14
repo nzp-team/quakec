@@ -25,16 +25,16 @@ void() Menu_Main =
     Menu_Button(2, "mm_coop", "COOPERATIVE", "Play with up to Four Players.") ? localcmd("\n") : 0;
     Menu_DrawDivider(3);
     Menu_Button(3.25, "mm_options", "CONFIGURATION", "Tweak Game related Options.") ? current_menu = MENU_OPTIONS : 0;
-    Menu_Button(4.25, "mm_achievements", "ACHIEVEMENTS", "View Achievement Progress.") ? localcmd("\n") : 0;
+    //Menu_Button(4.25, "mm_achievements", "ACHIEVEMENTS", "View Achievement Progress.") ? localcmd("\n") : 0;
+    Menu_GreyButton(4.25, "ACHIEVEMENTS");
     Menu_DrawDivider(5.25);
-    Menu_Button(5.50, "mm_credits", "CREDITS", "NZ:P Team + Special Thanks.") ? localcmd("\n") : 0;
+    Menu_Button(5.50, "mm_credits", "CREDITS", "NZ:P Team + Special Thanks.") ? current_menu = MENU_CREDITS : 0;
 
     // Don't have a Quit Game button on WASM 
     if (running_platform != PLATFORM_WEB) {
         Menu_DrawDivider(6.50);
         Menu_Button(6.75, "mm_quit", "QUIT GAME", sprintf("Return to %s.", Menu_Main_GetDashboardName())) ? localcmd("quit\n") : 0;
     }
-
 
     Menu_SocialBadge(1, "soc_youtube", "youtube.com/@nzpteam", 2);
     Menu_SocialBadge(2, "soc_mastadon", "FIXME", 3);

@@ -34,6 +34,7 @@ enum {
     MENU_AUDIO,
     MENU_CONTROL,
     MENU_GAMEPAD,
+    MENU_CREDITS,
     MENU_HELP
 };
 
@@ -48,6 +49,7 @@ void() Menu_Video;
 void() Menu_Audio;
 void() Menu_Control;
 void() Menu_Gamepad;
+void() Menu_Credits;
 
 enum {
     MAP_SOLOSTOCK,

@@ -20,6 +20,7 @@ menu_vide.qc     // Video Menu
 menu_audi.qc     // Audio Menu
 menu_ctrl.qc     // Control Menu
 menu_gpad.qc     // Gamepad Menu
+menu_cred.qc     // Credits Menu
 
 main.qc
 #endlist

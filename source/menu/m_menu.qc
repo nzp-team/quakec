@@ -313,6 +313,30 @@ float(string id, vector pos, vector size, string text) my_button =
 };
 
 //
+// Menu_DrawCreditHeader()
+// Wrapper for drawing the role/title in credits.
+//
+void(float order, string header) Menu_DrawCreditHeader =
+{
+	vector position = [8, 60 + (order * 60)];
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+	sui_text(position - [getTextWidth(header, MENU_TEXT_SMALL_x), 0, 0] + [275, 0, 0], MENU_TEXT_SMALL, header, [1, 1, 0], 1, 0);
+};
+
+//
+// Menu_DrawCreditContributor()
+// Wrapper for drawing the contributor list in credits.
+//
+void(float order, float sub_order, string header) Menu_DrawCreditContributor =
+{
+	vector position = [315, 60 + (order * 60)];
+	position_y += sub_order * (MENU_TEXT_SUPERSMALL_x + 3);
+
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+	sui_text(position, MENU_TEXT_SUPERSMALL, header, [1, 1, 1], 1, 0);
+};
+
+//
 // Menu_DrawBuildDate()
 // Wrapper for drawing the build date
 // retrieved from nzp/version.txt
@@ -554,6 +578,7 @@ void(vector size) root_menu =
 		case MENU_AUDIO: Menu_Audio(); break;
 		case MENU_CONTROL: Menu_Control(); break;
 		case MENU_GAMEPAD: Menu_Gamepad(); break;
+		case MENU_CREDITS: Menu_Credits(); break;
 		case MENU_HELP: help_menu();
 		default: break;
 	}
