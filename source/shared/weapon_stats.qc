@@ -1550,7 +1550,7 @@ vector GetWeaponADSOfs(float wep) =
 	{
 		case W_COLT:
 		case W_BIATCH:
-			return [-5479.2, 1850, -4000];
+			return [-3479.2, 1050, -4000];
 		case W_KAR:
 		case W_ARMAGEDDON:
 			return [-5495.9, 3006.9, -6000];
