@@ -218,9 +218,9 @@ float Link (entity from, entity to) {
 	float i;
 	entity tempe;
 	for	(i = 0; i < MAX_WAY_TARGETS; i++) {
-		tempe = find (world, waynum, from.targets[i]);
+		tempe = find(world, waynum, from.targets[i]);
 
-		if (tempe == world || tempe == to) {
+		if (tempe == world || !from.targets[i]) {
 			from.targets[i] = to.waynum;
 			bprint(PRINT_HIGH, "Linked waypoint ");
 			bprint(PRINT_HIGH, to.waynum);
@@ -253,24 +253,38 @@ void () Link_Waypoints =
 		return;
 	
 	if (Waypoint_Linked_To(current_way, active_way)) {
-		bprint(PRINT_HIGH, "These waypoints are already linked!\n");
+		bprint(PRINT_HIGH, "[INFO]: These waypoints are already linked!\n");
 		return;
 	}
 	
 	float i;
 	entity tempe;
 	for	(i = 0; i < MAX_WAY_TARGETS; i++) {
-		tempe = findfloat (world, waynum, active_way.targets[i]);
-
-		if (tempe == world) {
-			if (Link(active_way, current_way)) {
+		// First pass - if the target field is blank no extra
+		// validation is needed, just link.
+		if (!active_way.targets[i]) {
+			if (Link(active_way, current_way))
 				return;
-			}
+
+			bprint(PRINT_HIGH, "[INFO]: Got Linkable Waypoints but Linking failed!\n");
+			return;
+		}
+
+		// Second pass - if the targets field is occupied
+		// check if the waypoint still exists, link if it
+		// does not.
+		if (find(world, waynum, active_way.targets[i]) == world) {
+			bprint(PRINT_HIGH, sprintf("[INFO]: Found Waypoint ID %s but not entity, overwriting link..\n", active_way.targets[i]));
+
+			if (Link(active_way, current_way))
+				return;
+
+			bprint(PRINT_HIGH, "        ..Failed!\n");
+			return;
 		}
 	}
 
-	
-	bprint(PRINT_HIGH, "no targets remaining!\n");
+	bprint(PRINT_HIGH, "[INFO]: All Waypoint links occupied for this Waypoint!\n");
 }
 
 
