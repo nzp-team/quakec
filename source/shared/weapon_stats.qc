@@ -1928,7 +1928,7 @@ float(float wep, float frametype, optional float z) GetFrame =
 					case SPRINT_OUT_END:
 						return 31;
 					case TAKE_OUT_START:
-						return 38;
+						return 37;
 					case TAKE_OUT_END:
 						return 41;
 					case PUT_OUT_START:
