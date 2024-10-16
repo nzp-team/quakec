@@ -1,3 +1,5 @@
+string menu_ctrl_buttons[6] = {"cm_adsm", "cm_sens", "cm_invs", "cm_gpad", "cm_apply", "cm_back"};
+
 float menu_ctrl_init;
 
 float current_adsmode;
@@ -60,6 +62,46 @@ void() Menu_Control_ApplySettings =
 {
     localcmd("vid_reload\nsaveconfig user_settings.cfg\n");
     music_duration_time = 0;
+};
+
+string(string prev_id) Menu_Control_GetNextButton =
+{
+    if (prev_id == "")
+        return menu_ctrl_buttons[0];
+
+    string ret = menu_ctrl_buttons[0];
+
+    for(float i = 0; i < menu_ctrl_buttons.length; i++) {
+        if (menu_ctrl_buttons[i] == prev_id) {
+            if (i + 1 >= menu_ctrl_buttons.length)
+                break;
+
+            ret = menu_ctrl_buttons[i + 1];
+            break;
+        }
+    }
+
+    return ret;
+};
+
+string(string next_id) Menu_Control_GetPreviousButton =
+{
+    if (next_id == "")
+        return menu_ctrl_buttons[menu_ctrl_buttons.length - 1];
+
+    string ret = menu_ctrl_buttons[menu_ctrl_buttons.length - 1];
+
+    for(float i = menu_ctrl_buttons.length - 1; i > 0; i--) {
+        if (menu_ctrl_buttons[i] == next_id) {
+            if (i - 1 < 0)
+                break;
+
+            ret = menu_ctrl_buttons[i - 1];
+            break;
+        }
+    }
+
+    return ret;
 };
 
 void() Menu_Control =

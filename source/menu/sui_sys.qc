@@ -368,6 +368,7 @@ void(vector pos) _sui_mouse_move =
 	
 	// Reset hover, it'll be back to what it used to be before draw gets called if mouse is still on same element
 	_hover_action_count = 0;
+	_hover_actions[0] = "";
 	
 	// Iterate front to back, so topmost element gets the click/hover
 	for (int i = min(MAX_ACTION_ELEMENTS, _action_elements_index) - 1; i >= 0; i--)
@@ -386,6 +387,84 @@ void(vector pos) _sui_mouse_move =
 	// navigation sounds
 	if (!_hover_action_count)
 		last_hovered_id = "";
+};
+
+void() _sui_menukey_downarrow =
+{
+	string current_hovered_option = _hover_actions[0];
+
+	switch(current_menu) {
+		case MENU_MAIN:
+			_hover_actions[0] = Menu_Main_GetNextButton(current_hovered_option);
+			break;
+		case MENU_SOLO:
+		case MENU_SOLOUSER:
+			_hover_actions[0] = Menu_Maps_GetNextButton(current_hovered_option);
+			break;
+		case MENU_OPTIONS:
+			_hover_actions[0] = Menu_Options_GetNextButton(current_hovered_option);
+			break;
+		case MENU_VIDEO:
+			_hover_actions[0] = Menu_Video_GetNextButton(current_hovered_option);
+			break;
+		case MENU_AUDIO:
+			_hover_actions[0] = Menu_Audio_GetNextButton(current_hovered_option);
+			break;
+		case MENU_CONTROL:
+			_hover_actions[0] = Menu_Control_GetNextButton(current_hovered_option);
+			break;
+		case MENU_GAMEPAD:
+			_hover_actions[0] = Menu_Gamepad_GetNextButton(current_hovered_option);
+			break;
+		default:
+			break;
+	}
+
+	_hover_action_count = 1;
+};
+
+void() _sui_menukey_uparrow =
+{
+	string current_hovered_option = _hover_actions[0];
+
+	switch(current_menu) {
+		case MENU_MAIN:
+			_hover_actions[0] = Menu_Main_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_SOLO:
+		case MENU_SOLOUSER:
+			_hover_actions[0] = Menu_Maps_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_OPTIONS:
+			_hover_actions[0] = Menu_Options_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_VIDEO:
+			_hover_actions[0] = Menu_Video_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_AUDIO:
+			_hover_actions[0] = Menu_Audio_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_CONTROL:
+			_hover_actions[0] = Menu_Control_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_GAMEPAD:
+			_hover_actions[0] = Menu_Gamepad_GetPreviousButton(current_hovered_option);
+			break;
+		default:
+			break;
+	}
+	
+	_hover_action_count = 1;
+};
+
+void() _sui_menukey_enter =
+{
+	if (_hover_actions[0] == "")
+		_sui_menukey_downarrow();
+
+	_click_actions[0] =  _hover_actions[0];
+	_click_action_count = 1;
+	_last_clicked_action_count = 1;
 };
 
 // JERK ALERT: hard to pass input params for it without them just being the globals
@@ -438,6 +517,12 @@ void() _sui_mouse1_up =
 	_release_action_count = _hold_action_count;
 	_hold_action_count = 0;
 	_holding_click = FALSE;
+};
+
+// HACK!
+void() sui_reset_hover =
+{
+	_hover_actions[0] = "";
 };
 
 void(vector pos, vector size, string id, void(float index, vector click_ratios) action) sui_action_element =
@@ -669,6 +754,21 @@ float(float evtype, float scanx, float chary, float devid) sui_input_event =
 		else if (scanx == K_MOUSE1)
 		{
 			_sui_mouse1_down();
+			return TRUE;
+		}
+		else if (scanx == K_DOWNARROW || scanx == K_GP_DPAD_DOWN)
+		{
+			_sui_menukey_downarrow();
+			return TRUE;
+		}
+		else if (scanx == K_UPARROW || scanx == K_GP_DPAD_UP)
+		{
+			_sui_menukey_uparrow();
+			return TRUE;
+		}
+		else if (scanx == K_ENTER || scanx == K_GP_A)
+		{
+			_sui_menukey_enter();
 			return TRUE;
 		}
 		else

@@ -587,5 +587,6 @@ void(vector size) root_menu =
 	if (last_menu != current_menu) {
 		Menu_PlaySound(MENU_SND_ENTER);
 		last_menu = current_menu;
+		sui_reset_hover();
 	}
 };

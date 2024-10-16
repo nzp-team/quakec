@@ -1,3 +1,45 @@
+string menu_opts_buttons[5] = {"om_video", "om_audio", "om_binds", "om_console", "om_back"};
+
+string(string prev_id) Menu_Options_GetNextButton =
+{
+    if (prev_id == "")
+        return menu_opts_buttons[0];
+
+    string ret = menu_opts_buttons[0];
+
+    for(float i = 0; i < menu_opts_buttons.length; i++) {
+        if (menu_opts_buttons[i] == prev_id) {
+            if (i + 1 >= menu_opts_buttons.length)
+                break;
+
+            ret = menu_opts_buttons[i + 1];
+            break;
+        }
+    }
+
+    return ret;
+};
+
+string(string next_id) Menu_Options_GetPreviousButton =
+{
+    if (next_id == "")
+        return menu_opts_buttons[menu_opts_buttons.length - 1];
+
+    string ret = menu_opts_buttons[menu_opts_buttons.length - 1];
+
+    for(float i = menu_opts_buttons.length - 1; i > 0; i--) {
+        if (menu_opts_buttons[i] == next_id) {
+            if (i - 1 < 0)
+                break;
+
+            ret = menu_opts_buttons[i - 1];
+            break;
+        }
+    }
+
+    return ret;
+};
+
 void() Menu_Options =
 {
     Menu_DrawBackground();

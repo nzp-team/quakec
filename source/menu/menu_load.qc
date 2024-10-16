@@ -37,7 +37,8 @@ string loading_tips[] =
     "\"not my trouble\" - Cooller",
     "\"it's not internet\" - Cooller",
     "\"relax\" - Cooller",
-    "Also try LibreQuake."
+    "Also try LibreQuake.",
+    "Support the Internet Archive!"
 };
 
 float loading_tip_endtime;

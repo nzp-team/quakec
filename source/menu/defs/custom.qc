@@ -51,6 +51,21 @@ void() Menu_Control;
 void() Menu_Gamepad;
 void() Menu_Credits;
 
+string(string prev_id) Menu_Main_GetNextButton;
+string(string next_id) Menu_Main_GetPreviousButton;
+string(string prev_id) Menu_Maps_GetNextButton;
+string(string next_id) Menu_Maps_GetPreviousButton;
+string(string prev_id) Menu_Options_GetNextButton;
+string(string next_id) Menu_Options_GetPreviousButton;
+string(string prev_id) Menu_Video_GetNextButton;
+string(string next_id) Menu_Video_GetPreviousButton;
+string(string prev_id) Menu_Audio_GetNextButton;
+string(string next_id) Menu_Audio_GetPreviousButton;
+string(string prev_id) Menu_Control_GetNextButton;
+string(string next_id) Menu_Control_GetPreviousButton;
+string(string prev_id) Menu_Gamepad_GetNextButton;
+string(string next_id) Menu_Gamepad_GetPreviousButton;
+
 enum {
     MAP_SOLOSTOCK,
     MAP_SOLOUSER,

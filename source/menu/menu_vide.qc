@@ -1,3 +1,5 @@
+string menu_video_buttons[12] = {"vm_resol", "vm_fulls", "vm_shfps", "vm_maxps", "vm_vsync", "vm_fov", "vm_gamma", "vm_uwide", "vm_parts", "vm_filtr", "vm_apply", "vm_back"};
+
 float menu_video_init;
 float menu_video_modes;
 
@@ -153,6 +155,52 @@ void() Menu_Video_UpdateFiltering =
         cvar_set("gl_texturemode", "GL_NEAREST_MIPMAP_LINEAR");
         current_filter = 1;
     }
+};
+
+string(string prev_id) Menu_Video_GetNextButton =
+{
+    if (prev_id == "")
+        return menu_video_buttons[0];
+
+    string ret = menu_video_buttons[0];
+
+    for(float i = 0; i < menu_video_buttons.length; i++) {
+        if (menu_video_buttons[i] == prev_id) {
+            if (i + 1 >= menu_video_buttons.length)
+                break;
+
+            ret = menu_video_buttons[i + 1];
+            break;
+        }
+    }
+
+    if (cvar("vid_vsync") && ret == "vm_maxps")
+        ret = "vm_vsync";
+
+    return ret;
+};
+
+string(string next_id) Menu_Video_GetPreviousButton =
+{
+    if (next_id == "")
+        return menu_video_buttons[menu_video_buttons.length - 1];
+
+    string ret = menu_video_buttons[menu_video_buttons.length - 1];
+
+    for(float i = menu_video_buttons.length - 1; i > 0; i--) {
+        if (menu_video_buttons[i] == next_id) {
+            if (i - 1 < 0)
+                break;
+
+            ret = menu_video_buttons[i - 1];
+            break;
+        }
+    }
+
+    if (cvar("vid_vsync") && ret == "vm_maxps")
+        ret = "vm_shfps";
+
+    return ret;
 };
 
 void() Menu_Video =

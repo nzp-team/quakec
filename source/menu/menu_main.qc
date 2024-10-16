@@ -1,3 +1,5 @@
+string menu_main_buttons[5] = {"mm_start", "mm_coop", "mm_options", "mm_credits", "mm_quit"};
+
 string() Menu_Main_GetDashboardName =
 {
     switch(running_platform) {
@@ -13,6 +15,54 @@ string() Menu_Main_GetDashboardName =
     }
 
     return "System";
+};
+
+string(string prev_id) Menu_Main_GetNextButton =
+{
+    if (prev_id == "")
+        return menu_main_buttons[0];
+
+    string ret = menu_main_buttons[0];
+
+    for(float i = 0; i < menu_main_buttons.length; i++) {
+        if (menu_main_buttons[i] == prev_id) {
+            if (i + 1 >= menu_main_buttons.length)
+                break;
+
+            ret = menu_main_buttons[i + 1];
+            break;
+        }
+    }
+
+    // Wrap around to first if we selected Quit and this is WASM.
+    if (running_platform == PLATFORM_WEB && ret == "mm_quit")
+        ret = menu_main_buttons[0];
+
+    return ret;
+};
+
+string(string next_id) Menu_Main_GetPreviousButton =
+{
+    if (next_id == "")
+        return menu_main_buttons[menu_main_buttons.length - 1];
+
+    string ret = menu_main_buttons[menu_main_buttons.length - 1];
+
+    for(float i = menu_main_buttons.length - 1; i > 0; i--) {
+        if (menu_main_buttons[i] == next_id) {
+            if (i - 1 < 0)
+                break;
+
+            ret = menu_main_buttons[i - 1];
+            break;
+        }
+    }
+
+    // Wrap around to first if we selected Quit and this is WASM.
+    if (running_platform == PLATFORM_WEB && ret == "mm_quit")
+        ret = menu_main_buttons[menu_main_buttons.length - 1];
+
+    return ret;
 };
 
 void() Menu_Main =

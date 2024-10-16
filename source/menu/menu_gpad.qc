@@ -1,3 +1,5 @@
+string menu_gpad_buttons[5] = {"gp_glyp", "gp_rumb", "gp_aima", "gp_apply", "gp_back"};
+
 void() Menu_Gamepad_ApplyGlpyh =
 {
     Menu_PlaySound(MENU_SND_ENTER);
@@ -40,6 +42,46 @@ void() Menu_Gamepad_ApplySettings =
 {
     localcmd("vid_reload\nsaveconfig user_settings.cfg\n");
     music_duration_time = 0;
+};
+
+string(string prev_id) Menu_Gamepad_GetNextButton =
+{
+    if (prev_id == "")
+        return menu_gpad_buttons[0];
+
+    string ret = menu_gpad_buttons[0];
+
+    for(float i = 0; i < menu_gpad_buttons.length; i++) {
+        if (menu_gpad_buttons[i] == prev_id) {
+            if (i + 1 >= menu_gpad_buttons.length)
+                break;
+
+            ret = menu_gpad_buttons[i + 1];
+            break;
+        }
+    }
+
+    return ret;
+};
+
+string(string next_id) Menu_Gamepad_GetPreviousButton =
+{
+    if (next_id == "")
+        return menu_gpad_buttons[menu_gpad_buttons.length - 1];
+
+    string ret = menu_gpad_buttons[menu_gpad_buttons.length - 1];
+
+    for(float i = menu_gpad_buttons.length - 1; i > 0; i--) {
+        if (menu_gpad_buttons[i] == next_id) {
+            if (i - 1 < 0)
+                break;
+
+            ret = menu_gpad_buttons[i - 1];
+            break;
+        }
+    }
+
+    return ret;
 };
 
 void() Menu_Gamepad =
