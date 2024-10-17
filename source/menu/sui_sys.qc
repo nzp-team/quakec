@@ -152,7 +152,7 @@ void(vector pos, vector size) sui_push_frame =
 	_frame_index += 1;
 	if (_frame_index >= MAX_FRAMES)
 	{
-		printf("^3sui warning: amount of frames = %.0f exceeds MAX_FRAMES = %.0f, consider increasing MAX_FRAMES\n", _frame_index, MAX_FRAMES);
+		//printf("^3sui warning: amount of frames = %.0f exceeds MAX_FRAMES = %.0f, consider increasing MAX_FRAMES\n", _frame_index, MAX_FRAMES);
 		return;
 	}
 	
@@ -214,7 +214,7 @@ void() _action_element_count_sanity =
 	if (_action_elements_index > MAX_ACTION_ELEMENTS)
 	{
 		// let the user know if they're hitting the bounds
-		printf("^3sui warning: amount of action elements = %.0f exceeds MAX_ACTION_ELEMENTS = %.0f, consider increasing MAX_ACTION_ELEMENTS\n", _action_elements_index, MAX_ACTION_ELEMENTS);
+		//printf("^3sui warning: amount of action elements = %.0f exceeds MAX_ACTION_ELEMENTS = %.0f, consider increasing MAX_ACTION_ELEMENTS\n", _action_elements_index, MAX_ACTION_ELEMENTS);
 	}
 };
 
@@ -353,7 +353,7 @@ float(float num) mouse_action_sanity =
 {
 	if (num >= MAX_MOUSE_ACTIONS)
 	{
-		printf("^3sui warning: you have exceeded the amount of overlapping action elements with %.0f, MAX_MOUSE_ACTIONS = %.0f\n", num, MAX_MOUSE_ACTIONS);
+		//printf("^3sui warning: you have exceeded the amount of overlapping action elements with %.0f, MAX_MOUSE_ACTIONS = %.0f\n", num, MAX_MOUSE_ACTIONS);
 		return TRUE;
 	}
 	return FALSE;
@@ -394,6 +394,9 @@ void() _sui_menukey_downarrow =
 	string current_hovered_option = _hover_actions[0];
 
 	switch(current_menu) {
+
+#ifdef MENU
+
 		case MENU_MAIN:
 			_hover_actions[0] = Menu_Main_GetNextButton(current_hovered_option);
 			break;
@@ -401,6 +404,15 @@ void() _sui_menukey_downarrow =
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetNextButton(current_hovered_option);
 			break;
+
+#else
+
+		case MENU_PAUSE:
+			_hover_actions[0] = Menu_Pause_GetNextButton(current_hovered_option);
+			break;
+
+#endif // MENU
+
 		case MENU_OPTIONS:
 			_hover_actions[0] = Menu_Options_GetNextButton(current_hovered_option);
 			break;
@@ -428,6 +440,9 @@ void() _sui_menukey_uparrow =
 	string current_hovered_option = _hover_actions[0];
 
 	switch(current_menu) {
+
+#ifdef MENU
+
 		case MENU_MAIN:
 			_hover_actions[0] = Menu_Main_GetPreviousButton(current_hovered_option);
 			break;
@@ -435,6 +450,15 @@ void() _sui_menukey_uparrow =
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetPreviousButton(current_hovered_option);
 			break;
+
+#else
+
+		case MENU_PAUSE:
+			_hover_actions[0] = Menu_Pause_GetPreviousButton(current_hovered_option);
+			break;
+
+#endif // MENU
+
 		case MENU_OPTIONS:
 			_hover_actions[0] = Menu_Options_GetPreviousButton(current_hovered_option);
 			break;
@@ -607,9 +631,9 @@ float(float char, float scan) _sui_add_input =
 	// TODO check if input was listened, return FALSE if not
 	if (_input_length >= MAX_INPUTS)
 	{
-		printf("^3sui warning: exceeded amount of per frame inputs count MAX_INPUTS = %.0f\n"
-			"^3 - make sure sui_input_event isn't being called without sui_draw being called in update loop\n"
-			"^3 - consider increasing MAX_INPUTS\n", MAX_INPUTS);
+		// printf("^3sui warning: exceeded amount of per frame inputs count MAX_INPUTS = %.0f\n"
+		// 	"^3 - make sure sui_input_event isn't being called without sui_draw being called in update loop\n"
+		// 	"^3 - consider increasing MAX_INPUTS\n", MAX_INPUTS);
 		return TRUE;
 	}
 	_input_buffer[_input_length].char = char;

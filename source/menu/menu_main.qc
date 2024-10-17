@@ -89,7 +89,7 @@ void() Menu_Main =
     Menu_SocialBadge(1, "soc_youtube", "youtube.com/@nzpteam", 2);
     Menu_SocialBadge(2, "soc_mastadon", "FIXME", 3);
     Menu_SocialBadge(3, "soc_patreon", "patreon.com/cypressimplex", 4);
-    Menu_SocialBadge(4, "soc_matrix", "matrix.nzp.gay", 1);
+    Menu_SocialBadge(4, "soc_discord", "discord.nzp.gay", 1);
 
 	sui_pop_frame();	
 };

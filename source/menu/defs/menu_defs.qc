@@ -35,26 +35,45 @@ enum {
     MENU_CONTROL,
     MENU_GAMEPAD,
     MENU_CREDITS,
-    MENU_HELP
+    MENU_PAUSE
 };
 
 #define MENU_SND_NAVIGATE 	0
 #define MENU_SND_ENTER 		1
 void(float type) Menu_PlaySound;
 
+#ifdef MENU
+
 void() Menu_Main;
 void() Menu_Maps;
+void() Menu_Credits;
+
+#else
+
+void() Menu_Pause;
+
+#endif // MENU
+
 void() Menu_Options;
 void() Menu_Video;
 void() Menu_Audio;
 void() Menu_Control;
 void() Menu_Gamepad;
-void() Menu_Credits;
+
+#ifdef MENU
 
 string(string prev_id) Menu_Main_GetNextButton;
 string(string next_id) Menu_Main_GetPreviousButton;
 string(string prev_id) Menu_Maps_GetNextButton;
 string(string next_id) Menu_Maps_GetPreviousButton;
+
+#else
+
+string(string prev_id) Menu_Pause_GetNextButton;
+string(string next_id) Menu_Pause_GetPreviousButton;
+
+#endif // MENU
+
 string(string prev_id) Menu_Options_GetNextButton;
 string(string next_id) Menu_Options_GetPreviousButton;
 string(string prev_id) Menu_Video_GetNextButton;

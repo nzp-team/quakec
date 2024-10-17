@@ -53,7 +53,15 @@ void() Menu_Options =
     Menu_DrawDivider(5);
     Menu_Button(5.25, "om_console", "OPEN CONSOLE", "Access the Developer Console.") ? localcmd("toggleconsole\n") : 0;
 
+#ifdef MENU
+
     Menu_Button(-1, "om_back", "BACK", "Return to Main Menu.") ? current_menu = MENU_MAIN : 0;
+
+#else
+
+    Menu_Button(-1, "om_back", "BACK", "Return to Pause Menu.") ? current_menu = MENU_PAUSE : 0;
+
+#endif // MENU
 
 	sui_pop_frame();	
 };

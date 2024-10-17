@@ -4,15 +4,26 @@
 
 #pragma includedir "../source/client/"
 #pragma includedir "../source/shared/"
+#pragma includedir "../source/menu/"
 
 #includelist
 defs/fte.qc
+defs/menu_defs.qc
 shared_defs.qc
+draw.qc
+
+sui_sys.qc
+m_menu.qc
+menu_paus.qc     // Pause Menu
+menu_opts.qc     // Options Menu
+menu_vide.qc     // Video Menu
+menu_audi.qc     // Audio Menu
+menu_ctrl.qc     // Control Menu
+menu_gpad.qc     // Gamepad Menu
+
 sound_enhanced.qc
 weapon_stats.qc
 defs/custom.qc
-draw.qc
-menu.qc
 achievements.qc
 hud.qc
 chat.qc

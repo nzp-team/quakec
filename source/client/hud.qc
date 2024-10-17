@@ -1676,16 +1676,17 @@ void(float width, float height) HUD_Achievements = {
 
 string(float index) GetButtonString =
 {
-	// place holder
-	if (index == 100)
-		return "LMOUSE";
-	else if (index == 101)
-		return "RMOUSE";
+	// // place holder
+	// if (index == 100)
+	// 	return "LMOUSE";
+	// else if (index == 101)
+	// 	return "RMOUSE";
 
-	tokenize(findkeysforcommandex(buttonBind[index]));
-	string temps = strtoupper(argv(0));
+	// tokenize(findkeysforcommandex(buttonBind[index]));
+	// string temps = strtoupper(argv(0));
 
-	return temps;
+	// return temps;
+	return "LMOUSE";
 }
 
 void(float width, float height) HUD_Waypoint =

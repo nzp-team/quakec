@@ -8,7 +8,7 @@
 
 #includelist
 defs/fte.qc
-defs/custom.qc
+defs/menu_defs.qc
 ../client/draw.qc
 sui_sys.qc
 m_menu.qc

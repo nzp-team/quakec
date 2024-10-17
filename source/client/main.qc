@@ -27,32 +27,22 @@
 
 void() ToggleMenu =
 {
-	if(serverkey("constate") != "disconnected")
+	if (serverkey("constate") != "disconnected")
 	{
 		if (player_count == 0)
 			localcmd("cmd pause\n");
-		if(in_menu == MENU_NONE)
+
+		if(current_menu == MENU_NONE)
 		{
-			in_menu = MENU_PAUSE;
-			time_in_menu = 0;
-			local float i;
-			for(i = 0; i < buttons.length; i++)
-			{
-				buttons[i].active = 1;
-			}
+			current_menu = MENU_PAUSE;
 			setcursormode(TRUE, cvar_string("cl_cursor"), __NULL__, cvar("cl_cursor_scale"));
 		}
 		else
 		{
-			in_menu = MENU_NONE;
+			menu_paus_submenu = 0;
+			current_menu = MENU_NONE;
 			setcursormode(FALSE);
 		}
-	}
-	else
-	{
-		in_menu = MENU_MAIN;
-		time_in_menu = 0;
-		setcursormode(TRUE, cvar_string("cl_cursor"), __NULL__, cvar("cl_cursor_scale"));
 	}
 }
 
@@ -84,8 +74,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	precache_model("models/player.mdl");
 
 	registercommand("togglemenu");
-	registercommand("startwalk");
-	registercommand("stopwalk");
 	registercommand("promptjoin");
 	registercommand("showscores");
 
@@ -105,33 +93,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	if (platform_is_web) {
 		cvar_set("com_protocolname", "NZP-REBOOT-WEB");
 	}
-		
-	//print("CSQC Started\n");
-	if(serverkey("constate") == "disconnected")
-		ToggleMenu();
-	//bgpos = 0;
-
-	// default button binds
-
-	buttonBind[0] = "+forward";
-	buttonBind[1] = "+back";
-	buttonBind[2] = "+moveleft";
-	buttonBind[3] = "+moveright";
-	buttonBind[4] = "impulse 10";
-	buttonBind[5] = "impulse 23";
-	buttonBind[6] = "impulse 30";
-	buttonBind[7] = "+button4";
-	buttonBind[8] = "+button4";
-	buttonBind[9] = "+button7";
-	buttonBind[10] = "+button5";
-	buttonBind[11] = "+button6";
-	buttonBind[12] = "+button3";
-	buttonBind[13] = "impulse 33";
-
-	// default/current width and height
-	active_swidth = cvar("vid_width");
-	active_sheight = cvar("vid_height");
-	fullscreenval = cvar("vid_fullscreen");
 
 	// cvars for custom settings
 	autocvar(cl_cinematic, 0);
@@ -173,9 +134,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 		localcmd("bind 1 +button4; bind 2 +button4\n");
 	}
 
-	// retrieve custom maps
-	Customs_Get();
-
 	//
 	// get the build date
 	//
@@ -203,12 +161,6 @@ noref void() CSQC_WorldLoaded =
 	huddir = "gfx/hud/";
 };
 
-// This is from COW lol!
-#define ADS_THOMPSON    '-3 +5.80 +4.52'
-
-/*vector adsOffset;
-float adsAmount;
-float adsDir;*/
 vector weapon_bob_factor;
 float weapon_bob_factor_z_coef;
 vector dampening_factor;
@@ -592,7 +544,8 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setviewprop(VF_DRAWCROSSHAIR, 0);
 
 	float sensitivity_factor;
-	if (in_menu == MENU_PAUSE)
+
+	if (current_menu != MENU_NONE)
 		sensitivity_factor = 0;
 	else
 		sensitivity_factor = (1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT);
@@ -658,23 +611,22 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	//does what you think it does
 	renderscene();
 
-	if(in_menu)
+	if (current_menu != MENU_NONE)
 	{
 		// sorta-nasty hack: flashes should still draw if we're
 		// drawing the menu.
 		if (screenflash_duration > time)
 			HUD_Screenflash();
 
-		Draw_Menu();
 		setlocaluserinfo(0, "in_menu", "1");
 
-		if (gamepad_enabled)
-			buttons[20].gray_out = true;
-		else
-			buttons[20].gray_out = false;
+		sui_begin(g_width, g_height);
+		root_menu([g_width, g_height]);
+		sui_end();
 	}
 	else
 	{
+		setcursormode(FALSE);
 		HUD_Draw(g_width, g_height);
 		Chat_Draw();
 		setlocaluserinfo(0, "in_menu", "0");
@@ -695,15 +647,6 @@ noref float(string cmd) CSQC_ConsoleCommand =
 			return TRUE;
 		case "map":
 			return FALSE;
-		case "startwalk":
-			walk = TRUE;
-			return FALSE;
-		case "stopwalk":
-			walk = FALSE;
-			return FALSE;
-		case "promptjoin":
-			menu_join();
-			return TRUE;
 		case "showscores":
 			if (score_show)
 				score_show = FALSE;
@@ -741,27 +684,14 @@ void(float scanx, float setval) Input_Movecheck =
 		K_BACKDOWN = setval;
 }
 
-void(float button, string key) setToBind =
-{
-	local string fullbind, unbind, oldkey;
-	local string btn;
-	editBind[button] = FALSE;
-
-	btn = buttonBind[button];
-
-	tokenize(findkeysforcommandex(btn));
-	oldkey = argv(0);
-
-	unbind = strcat("bind ", oldkey, " null\n");
-	fullbind = strcat("bind ", key, " \"", btn, "\"\n");
-			
-	localcmd(unbind);
-	localcmd(fullbind);
-}
-
 noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent =
 {
 	last_input_deviceid = devid;
+
+	if (current_menu != MENU_NONE)
+	{
+		return sui_input_event(evtype, scanx, chary, devid);
+	}
 
 	if (evtype == IE_KEYDOWN) {
 		switch (scanx) {
@@ -831,85 +761,6 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 	switch(evtype)
 	{
 		case IE_KEYDOWN:
-			if(in_menu != MENU_NONE)
-			{
-				if(scanx == K_MOUSE1) {
-					Menu_Click(0);
-
-					if (in_menu == MENU_CUSTOMS)
-						Menu_Click_Custom();
-					return TRUE;
-				} else if (scanx == K_MOUSE2) {
-					Menu_Click(1);
-					return TRUE;
-				}
-
-				if (in_menu == MENU_CSETTINGS) {
-					for (int i = 0; i < MAX_BINDS; i += 1) {
-						if (editBind[i] == TRUE)
-							setToBind(i, keynumtostring(scanx));
-					}
-				}
-
-				if (in_menu == MENU_MULTI) {
-					// GO AWAY!
-					if (scanx == K_ENTER || scanx == K_ESCAPE) {
-						editing_player_name = editing_server_id = editing_password = editing_hostname = false;
-						return FALSE;
-					}
-
-					if (editing_player_name == true) {
-						// Update the temp string.
-						temp_player_name = GetUserInput(temp_player_name, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("name", temp_player_name);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-				} else if (in_menu == MENU_CREATE || in_menu == MENU_JOIN) {
-					// GO AWAY!
-					if (scanx == K_ENTER || scanx == K_ESCAPE) {
-						editing_player_name = editing_server_id = editing_password = false;
-						return FALSE;
-					}
-
-					// Server IP
-					if (editing_server_id == true) {
-						// Update the temp string.
-						temp_server_name = GetUserInput(temp_server_name, scanx, chary, 18);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-
-					// Password
-					if (editing_password == true) {
-						// Update the temp string.
-						temp_password = GetUserInput(temp_password, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("password", temp_password);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-
-					// Hostname
-					if (editing_hostname == true) {
-						// Update the temp string.
-						temp_hostname = GetUserInput(temp_hostname, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("hostname", temp_hostname);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-				}
-			}
-		
 			Input_Movecheck(scanx, 1);
 			return FALSE;
 		case IE_KEYUP:
@@ -918,10 +769,6 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 		case IE_MOUSEDELTA:
 			return FALSE;
 		case IE_MOUSEABS:
-			//if(devid != 0 && devid != 1)
-			//	return FALSE;
-			cursor_pos_x = scanx;
-			cursor_pos_y = chary;
 			return FALSE;
 	}
 

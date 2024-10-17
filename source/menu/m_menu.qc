@@ -22,7 +22,6 @@ void() input_tester =
 	{
 		printme = strcat(printme, chr2str(char));
 	}
-	if (printme != "") printf("INPUT: %s\n", printme); 
 };
 
 void(string id, vector pos, vector size, float maxlen, __inout string text, __inout float cursor) text_input_control =
@@ -105,6 +104,29 @@ void(float order, string id, string text, float index) Menu_SocialBadge =
 	}
 
 	sui_action_element(position, [28, 28], id, sui_noop);
+};
+
+//
+// Menu_DrawYesNoPanel()
+// Draws a ribbon over the screen typically used
+// for Yes/No message boxes.
+//
+void(string line_1, string line_2) Menu_DrawYesNoPanel =
+{
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+	sui_fill([0, 0], sui_current_frame_size(), [0.01, 0, 0], 0.5, 0);
+
+	// Black Fill
+	sui_fill([0, 160], [sui_current_frame_size()[0], 160], [0, 0, 0], 1, 0);
+
+	// Yellow borders
+	sui_fill([0, 160], [sui_current_frame_size()[0], 3], [1, 1, 0], 0.9, 0);
+	sui_fill([0, sui_current_frame_size()[1] - 160], [sui_current_frame_size()[0], 3], [1, 1, 0], 0.9, 0);
+
+	sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_START]);
+	sui_text([0, 170], MENU_TEXT_MEDIUM, line_1, [1, 1, 1], 1, 0);
+	sui_text([0, 190], MENU_TEXT_MEDIUM, line_2, [1, 1, 1], 1, 0);
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
 };
 
 //
@@ -355,12 +377,20 @@ void() Menu_DrawBuildDate =
 // background for readibility, and some
 // style lines.
 //
-string() Menu_PickBackground;
 void() Menu_DrawBackground =
 {
 	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+
+#ifdef MENU
+
 	sui_pic([0, 0], sui_current_frame_size(), menu_background, [1, 1, 1], 1, 1);
 	sui_fill([0, 0], sui_current_frame_size(), [0, 0, 0], 0.7, 0);
+
+#else
+
+	sui_fill([0, 0], sui_current_frame_size(), [0, 0, 0], 0.8, 0);
+
+#endif // MENU
 
 	// Top Bars
 	sui_fill([0, 0], [sui_current_frame_size()[0], 55], [0, 0, 0], 0.9, 0);
@@ -530,29 +560,6 @@ void() settings_menu =
 	sui_pop_frame();
 };
 
-void() help_menu =
-{
-	vector pos = [0, 0];
-	vector size = [360, 280];
-	
-	sui_push_frame(pos, size);
-
-	sui_fill([0, 0], size, MENU_BG, 0.75, 0);
-	sui_border_box([0, 0], size, 2, MENU_BORDER, 0.3, 0);
-	
-	sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_START]);
-	sui_text([0, 4], MENU_TEXT_MEDIUM, "Help", MENU_TEXT_1, 1, 0);
-	
-	float xpos = 0;
-	float ypos = 32;
-	sui_text([xpos, ypos], MENU_TEXT_SMALL, "Bunch of Help and About", MENU_TEXT_1, 1, 0);
-	
-	sui_set_align([SUI_ALIGN_END, SUI_ALIGN_END]);
-	my_button("hlp_back", [-8, -8], [80, 20], "Back") ? current_menu = MENU_MAIN : 0;
-
-	sui_pop_frame();	
-};
-
 void(float type) Menu_PlaySound =
 {
 	string sound = "";
@@ -570,16 +577,26 @@ void(vector size) root_menu =
 	sui_fill([0, 0], size, '0 0 0', 0.5, 0);
 	switch (current_menu)
 	{
+
+#ifdef MENU
+
 		case MENU_MAIN: Menu_Main(); break;
 		case MENU_SOLO: menu_map_mode = MAP_SOLOSTOCK; Menu_Maps(); break;
 		case MENU_SOLOUSER: menu_map_mode = MAP_SOLOUSER; Menu_Maps(); break;
+		case MENU_CREDITS: Menu_Credits(); break;
+
+#else
+
+		case MENU_PAUSE: Menu_Pause(); break;
+
+#endif // MENU
+
 		case MENU_OPTIONS: Menu_Options(); break;
 		case MENU_VIDEO: Menu_Video(); break;
 		case MENU_AUDIO: Menu_Audio(); break;
 		case MENU_CONTROL: Menu_Control(); break;
 		case MENU_GAMEPAD: Menu_Gamepad(); break;
-		case MENU_CREDITS: Menu_Credits(); break;
-		case MENU_HELP: help_menu();
+
 		default: break;
 	}
 
