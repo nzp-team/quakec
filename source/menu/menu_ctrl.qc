@@ -16,11 +16,6 @@ void() Menu_Control_StoreCurrentSettings =
         current_adsmode = 1;
     }
 
-    	if (cvar("m_pitch") == 0.022)
-		localcmd("m_pitch -0.022\n");
-	else
-		localcmd("m_pitch 0.022\n");
-
     current_invert = (cvar("m_pitch") == 0.022);
 };
 
@@ -53,9 +48,9 @@ void() Menu_Control_InvertLook =
     current_invert = !current_invert;
 
     if (current_invert)
-        localcmd("m_pitch -0.022\n");
-    else
         localcmd("m_pitch 0.022\n");
+    else
+        localcmd("m_pitch -0.022\n");
 };
 
 void() Menu_Control_ApplySettings =
