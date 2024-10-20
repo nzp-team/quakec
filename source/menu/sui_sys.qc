@@ -428,6 +428,9 @@ void() _sui_menukey_downarrow =
 		case MENU_GAMEPAD:
 			_hover_actions[0] = Menu_Gamepad_GetNextButton(current_hovered_option);
 			break;
+		case MENU_BINDINGS:
+			_hover_actions[0] = Menu_Bindings_GetNextButton(current_hovered_option);
+			break;
 		default:
 			break;
 	}
@@ -473,6 +476,9 @@ void() _sui_menukey_uparrow =
 			break;
 		case MENU_GAMEPAD:
 			_hover_actions[0] = Menu_Gamepad_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_BINDINGS:
+			_hover_actions[0] = Menu_Bindings_GetPreviousButton(current_hovered_option);
 			break;
 		default:
 			break;
@@ -722,6 +728,7 @@ void(string command) _sui_unbind =
 	localcmd(sprintf("unbind %s\n", altkeyname));
 };
 
+float menu_bind_currentwatcher;
 void(float scan, string command) _sui_do_keybind =
 {
 	if (scan == K_ESCAPE) 
@@ -742,6 +749,7 @@ void(float scan, string command) _sui_do_keybind =
 	localcmd(sprintf("bind %s %s\n", keyname, command));
 	_sui_binding_command = "";
 	_sui_binding_command_name = "";
+	menu_bind_currentwatcher = 0;
 };
 
 void(string command, string command_name) sui_start_bind =
@@ -772,7 +780,7 @@ float(float evtype, float scanx, float chary, float devid) sui_input_event =
 	case IE_KEYDOWN:
 		if (_sui_binding_command != "")
 		{
-			// Nothing
+			_sui_do_keybind(scanx, _sui_binding_command);
 			return TRUE;
 		}
 		else if (scanx == K_MOUSE1)
@@ -806,7 +814,7 @@ float(float evtype, float scanx, float chary, float devid) sui_input_event =
 	case IE_KEYUP:
 		if (_sui_binding_command != "")
 		{
-			_sui_do_keybind(scanx, _sui_binding_command);
+			// Nothing
 			return TRUE;
 		}
 		else if (scanx == K_MOUSE1)
@@ -834,14 +842,10 @@ void(float width, float height) sui_begin =
 	sui_push_frame([0, 0], [width, height]);
 }
 
-void() sui_draw_bind_overlay;
-
 // void() sui_end
 // Call after your menu code per frame in your draw/updateview.
 void() sui_end =
 {
-	// Todo: move overlay drawing elsewhere:
-	sui_draw_bind_overlay();
 	// Dirty part:
 	_sui_draw_initialized = FALSE;
 	// reset "once" type actions
@@ -1065,20 +1069,5 @@ string(string id, vector pos, vector size, string name, string command) sui_bind
 	
 	return keyname;
 };
-
-void() sui_draw_bind_overlay =
-{
-	if (_sui_binding_command != "")
-	{
-		vector size = sui_current_frame_size();
-		sui_fill([0, 0], size, '0 0 0', 0.5, 0);
-		sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_CENTER]);
-		float textsize = 16;
-		sui_text([0, -16], [textsize, textsize], "Press a key for", '1 1 1', 1, 0);
-		sui_text([0, 0], [textsize, textsize], sprintf("'%s'", _sui_binding_command_name), '1 1 1', 1, 0);
-		sui_text([0, 16], [textsize - 4, textsize - 4], "ESC to cancel, BACKSPACE to remove", '1 1 1', 1, 0);
-	}
-};
-
 
 // -------------------- END OF SUI SYSTEM STUFF --------------------

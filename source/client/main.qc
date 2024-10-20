@@ -686,7 +686,21 @@ void(float scanx, float setval) Input_Movecheck =
 
 noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent =
 {
+	if (evtype == IE_GYROSCOPE || evtype == IE_ACCELEROMETER)
+		return FALSE;
+
+	// Ignore subtle (drift-y) joystick axes
+	if (evtype == IE_JOYAXIS && devid > 0 && fabs(chary) < 0.1) {
+		return FALSE;
+	}
+
 	last_input_deviceid = devid;
+	float last_input_storage = last_input_was_gamepad;
+
+	if (last_input_deviceid > 0)
+		last_input_was_gamepad = TRUE;
+	else
+		last_input_was_gamepad = FALSE;
 
 	if (current_menu != MENU_NONE)
 	{

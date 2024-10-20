@@ -255,11 +255,18 @@ void() m_open =
 float(float evtype, float scanx, float chary, float devid) Menu_InputEvent =
 {
 	last_input_deviceid = devid;
+	float last_input_storage = last_input_was_gamepad;
 
 	if (last_input_deviceid > 0)
 		last_input_was_gamepad = TRUE;
 	else
 		last_input_was_gamepad = FALSE;
+
+	if (last_input_storage != last_input_was_gamepad) {
+		menu_bind_currentwatcher = 0;
+		_sui_binding_command = "";
+		_sui_binding_command_name = "";
+	}
 
 	float used = sui_input_event(evtype, scanx, chary, devid);
 	

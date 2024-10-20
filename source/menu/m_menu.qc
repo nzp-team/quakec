@@ -155,6 +155,47 @@ void(float order, string value) Menu_DrawOptionValue =
 };
 
 //
+// Menu_DrawOptionKey(order, value)
+// Draws a key/glyph at a given order.
+//
+void(float order, string bind) Menu_DrawOptionKey =
+{
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+
+	vector position = [320, 50 + (order * 25)];
+	float keynum = stringtokeynum(bind);
+
+	if (keynum >= 816 && keynum <= 839) {
+		vector tilemap_position = [0, 0];
+
+		// Get the position of the button in the tilemap.
+		switch(keynum) {
+			case K_GP_A: tilemap_position = [0, 0]; break;
+			case K_GP_B: tilemap_position = [0.125, 0]; break;
+			case K_GP_X: tilemap_position = [0.250, 0]; break;
+			case K_GP_Y: tilemap_position = [0.375, 0]; break;
+			case K_GP_LSHOULDER: tilemap_position = [0.250, 0.125]; break;
+			case K_GP_RSHOULDER: tilemap_position = [0.375, 0.125]; break;
+			case K_GP_LTRIGGER: tilemap_position = [0.500, 0.125]; break;
+			case K_GP_RTRIGGER: tilemap_position = [0.625, 0.125]; break;
+			case K_GP_BACK: tilemap_position = [0.875, 0.125]; break;
+			case K_GP_START: tilemap_position = [0.750, 0.125]; break;
+			case K_GP_LTHUMB: tilemap_position = [0, 0.125]; break;
+			case K_GP_RTHUMB: tilemap_position = [0.125, 0.125]; break;
+			case K_GP_DPAD_UP: tilemap_position = [0.500, 0]; break;
+			case K_GP_DPAD_DOWN: tilemap_position = [0.625, 0]; break;
+			case K_GP_DPAD_LEFT: tilemap_position = [0.750, 0]; break;
+			case K_GP_DPAD_RIGHT: tilemap_position = [0.875, 0]; break;
+		}
+
+		sui_subpic([position_x, position_y - 2], [MENU_TEXT_MEDIUM_x + 5, MENU_TEXT_MEDIUM_x + 5], sprintf("gfx/controller_glyphs/%s.tga", cvar_string("cl_controllerglyphs")), [1, 1, 1], tilemap_position, [0.125, 0.125], 1, 0);
+	}
+	else {
+		sui_text(position, MENU_TEXT_MEDIUM, bind, [1, 1, 0], 1, 0);
+	}
+};
+
+//
 // Menu_MapButton(order, id, bsp_name)
 // Displays a fancy menu option that loads
 // and draws the details for the given
@@ -615,6 +656,7 @@ void(vector size) root_menu =
 		case MENU_AUDIO: Menu_Audio(); break;
 		case MENU_CONTROL: Menu_Control(); break;
 		case MENU_GAMEPAD: Menu_Gamepad(); break;
+		case MENU_BINDINGS: Menu_Bindings(); break;
 
 		default: break;
 	}

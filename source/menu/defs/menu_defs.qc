@@ -42,6 +42,7 @@ enum {
     MENU_AUDIO,
     MENU_CONTROL,
     MENU_GAMEPAD,
+    MENU_BINDINGS,
     MENU_CREDITS,
     MENU_PAUSE
 };
@@ -67,6 +68,7 @@ void() Menu_Video;
 void() Menu_Audio;
 void() Menu_Control;
 void() Menu_Gamepad;
+void() Menu_Bindings;
 
 #ifdef MENU
 
@@ -92,6 +94,8 @@ string(string prev_id) Menu_Control_GetNextButton;
 string(string next_id) Menu_Control_GetPreviousButton;
 string(string prev_id) Menu_Gamepad_GetNextButton;
 string(string next_id) Menu_Gamepad_GetPreviousButton;
+string(string prev_id) Menu_Bindings_GetNextButton;
+string(string next_id) Menu_Bindings_GetPreviousButton;
 
 enum {
     MAP_SOLOSTOCK,

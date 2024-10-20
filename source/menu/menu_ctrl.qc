@@ -1,4 +1,4 @@
-string menu_ctrl_buttons[6] = {"cm_adsm", "cm_sens", "cm_invs", "cm_gpad", "cm_apply", "cm_back"};
+string menu_ctrl_buttons[7] = {"cm_adsm", "cm_sens", "cm_invs", "cm_gpad", "cm_bind", "cm_apply", "cm_back"};
 
 float menu_ctrl_init;
 
@@ -135,6 +135,7 @@ void() Menu_Control =
     Menu_DrawOptionValue(3, invert_string);
 
     Menu_Button(4, "cm_gpad", "GAMEPAD", "Gamepad specific options.") ? current_menu = MENU_GAMEPAD : 0;
+    Menu_Button(5, "cm_bind", "BINDINGS", "Change Input Bindings.") ? current_menu = MENU_BINDINGS : 0;
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "cm_apply", "APPLY", "Save & Apply Settings.") ? Menu_Control_ApplySettings() : 0;
