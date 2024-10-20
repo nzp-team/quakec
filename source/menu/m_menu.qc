@@ -443,8 +443,30 @@ void() Menu_DrawBackground =
 
 #ifdef MENU
 
-	sui_pic([0, 0], sui_current_frame_size(), menu_background, [1, 1, 1], 1, 1);
+	float elapsed_background_time = time - menu_starttime;
+
+	// 
+	// Slight background pan
+	//
+	float x_pos = 0 - (((sui_current_frame_size()[0] * 1.05) - sui_current_frame_size()[0]) * (elapsed_background_time/7));
+
+	sui_pic([x_pos, 0], [sui_current_frame_size()[0] * 1.05, sui_current_frame_size()[1]], menu_background, [1, 1, 1], 1, 1);
 	sui_fill([0, 0], sui_current_frame_size(), [0, 0, 0], 0.7, 0);
+
+	//
+	// Fade new images in/out
+	//
+	float alpha = 0;
+
+	if (elapsed_background_time < 1.0) {
+        alpha = 1.0f - sin((elapsed_background_time / 1.0f) * (M_PI / 2));  // Opacity from 1 -> 0
+    } else if (elapsed_background_time < 6.0f) {
+        alpha = 0.0f;
+    } else if (elapsed_background_time < 7.0f) {
+        alpha = sin(((elapsed_background_time - 6.0f) / 1.0f) * (M_PI / 2));  // Opacity from 0 -> 1
+    }
+
+	sui_fill([0, 0], sui_current_frame_size(), [0, 0, 0], alpha, 0);
 
 #else
 

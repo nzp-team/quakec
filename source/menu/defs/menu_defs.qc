@@ -6,6 +6,7 @@ float music_duration_time;
 
 string menu_background;
 float menu_changetime;
+float menu_starttime;
 
 
 float current_menu;

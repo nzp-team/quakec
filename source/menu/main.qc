@@ -230,7 +230,8 @@ void(vector screensize) m_draw =
 	// Menu Background Changing
 	if (time > menu_changetime) {
 		menu_background = Menu_PickBackground();
-		menu_changetime = time + 5;
+		menu_changetime = time + 7;
+		menu_starttime = time;
 	}
 	
 	sui_begin(screensize_x, screensize_y);
