@@ -100,6 +100,7 @@ void() Menu_Gamepad =
         default: glyph_string = sprintf("USER (\"%s\")", cvar_string("cl_controllerglyphs")); break;
     }
     Menu_DrawOptionValue(1, glyph_string);
+    Menu_DrawControllerGlyphDemo(1);
 
     Menu_Button(2, "gp_rumb", "RUMBLE", "Toggle Rumble during Gameplay Actions.") ? Menu_Gamepad_ApplyRumble() : 0;
     string rumble_string = "";

@@ -11,6 +11,14 @@ float menu_changetime;
 float current_menu;
 float running_platform;
 
+float last_input_was_gamepad;
+
+#ifdef MENU
+
+float last_input_deviceid;
+
+#endif // MENU
+
 enum {
     PLATFORM_WIN,
     PLATFORM_MAC,

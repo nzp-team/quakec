@@ -254,6 +254,13 @@ void() m_open =
 
 float(float evtype, float scanx, float chary, float devid) Menu_InputEvent =
 {
+	last_input_deviceid = devid;
+
+	if (last_input_deviceid > 0)
+		last_input_was_gamepad = TRUE;
+	else
+		last_input_was_gamepad = FALSE;
+
 	float used = sui_input_event(evtype, scanx, chary, devid);
 	
 	if (evtype == IE_KEYDOWN && !used)

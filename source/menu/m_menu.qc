@@ -334,6 +334,25 @@ float(string id, vector pos, vector size, string text) my_button =
 	return sui_is_clicked(id);
 };
 
+
+//
+// Menu_DrawControllerGlyphDemo(order)
+// Draws ABXY on the same line as an OptionVal to demonstrate
+// the current cl_controllerglyphs value.
+//
+void(float order) Menu_DrawControllerGlyphDemo =
+{
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+
+	vector tilemap_positions[4] = {[0, 0], [0.125, 0], [0.250, 0], [0.375, 0]};
+	vector position = [450, 50 + (order * 25)];
+
+	for(int i = 0; i < 4; i++) {
+		sui_subpic(position, [MENU_TEXT_MEDIUM_x, MENU_TEXT_MEDIUM_x], sprintf("gfx/controller_glyphs/%s.tga", cvar_string("cl_controllerglyphs")), [1, 1, 1], tilemap_positions[i], [0.125, 0.125], 1, 0);
+		position_x += 14;
+	}
+};
+
 //
 // Menu_DrawCreditHeader()
 // Wrapper for drawing the role/title in credits.
