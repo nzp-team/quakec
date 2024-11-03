@@ -202,10 +202,7 @@ void () WallWeapon_TouchTrigger =
 			Player_RemoveScore(other, wcost);
 
 			if (self.enemy) {
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 	} else 
@@ -247,10 +244,7 @@ void () WallWeapon_TouchTrigger =
 			Player_RemoveScore(other, wcost);
 
 			if (self.enemy) {
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 	}
@@ -282,10 +276,7 @@ void () WallWeapon_TouchTrigger =
 			nzp_bettyprompt(other);
 			if (self.enemy)
 			{
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 		other.semi_actions |= SEMIACTION_USE;
@@ -315,10 +306,7 @@ void () WallWeapon_TouchTrigger =
 			other.primary_grenades = 4;
 			if (self.enemy)
 			{
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 		other.semi_actions |= SEMIACTION_USE;
@@ -341,10 +329,7 @@ void () WallWeapon_TouchTrigger =
 					other.ach_tracker_coll++;
 					if (self.enemy)
 					{
-						oldent = self;
-						self = self.enemy;
-						self.use();
-						self = oldent;
+						SUB_UseTargets();
 					}
 					entity tempz;
 					tempz = self;
@@ -378,10 +363,7 @@ void () WallWeapon_TouchTrigger =
 		other.reload_delay = 0;
 		Player_RemoveScore(other, self.cost);
 		if (self.enemy) {
-			oldent = self;
-			self = self.enemy;
-			self.use();
-			self = oldent;
+			SUB_UseTargets();
 		}
 		tempe = self;
 		self = other;
