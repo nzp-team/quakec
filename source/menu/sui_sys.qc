@@ -676,7 +676,7 @@ void(float char, float scan, __inout string text, __inout float cursor) sui_hand
 		text = sprintf("%s%s%s", pre_cursor, chr2str(char), post_cursor);
 		cursor += 1;
 	}
-	else if (char == 8) // backspace
+	else if (char == 8 || scan == K_BACKSPACE) // backspace
 	{
 		if (cursor <= 0) return;
 		pre_cursor = substring(prev, 0, cursor - 1);
@@ -692,7 +692,7 @@ void(float char, float scan, __inout string text, __inout float cursor) sui_hand
 		post_cursor = substring(prev, cursor + 1, length);
 		text = strcat(pre_cursor, post_cursor);
 	}
-	else if (char == 13 || char == 27) // enter or escape
+	else if (char == 13 || char == 27 || scan == K_ENTER || scan == K_ESCAPE) // enter or escape
 	{
 		// Commit and deselect...
 		// Let's try a hack..
