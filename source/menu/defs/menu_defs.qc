@@ -38,6 +38,13 @@ enum {
     MENU_MAIN,
     MENU_SOLO,
     MENU_SOLOUSER,
+    MENU_COOP,
+    MENU_COOPJOIN,
+    MENU_COOPBROWSE,
+    MENU_COOPDIRECT,
+    MENU_COOPCREATE,
+    MENU_COOPSTOCK,
+    MENU_COOPUSER,
     MENU_OPTIONS,
     MENU_VIDEO,
     MENU_AUDIO,
@@ -56,6 +63,11 @@ void(float type) Menu_PlaySound;
 
 void() Menu_Main;
 void() Menu_Maps;
+void() Menu_Coop;
+void() Menu_Coop_Join;
+void() Menu_Coop_Browse;
+void() Menu_Coop_Direct;
+void() Menu_Coop_Create;
 void() Menu_Credits;
 
 #else

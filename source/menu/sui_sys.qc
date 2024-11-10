@@ -400,6 +400,17 @@ void() _sui_menukey_downarrow =
 		case MENU_MAIN:
 			_hover_actions[0] = Menu_Main_GetNextButton(current_hovered_option);
 			break;
+		// TODO: do this
+#if 0
+		case MENU_COOP:
+		case MENU_COOPJOIN:
+		case MENU_COOPBROWSE:
+		case MENU_COOPDIRECT:
+		case MENU_COOPCREATE:
+		case MENU_COOPSTOCK:
+			_hover_actions[0] = Menu_Maps_GetNextButton(current_hovered_option);
+			break;
+#endif
 		case MENU_SOLO:
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetNextButton(current_hovered_option);

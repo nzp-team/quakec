@@ -23,6 +23,7 @@ menu_gpad.qc     // Gamepad Menu
 menu_bind.qc     // Bindings Menu
 menu_cred.qc     // Credits Menu
 menu_load.qc     // Loading Screen
+menu_coop.qc     // Co-op Menu
 
 main.qc
 #endlist
