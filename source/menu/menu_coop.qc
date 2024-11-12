@@ -83,7 +83,7 @@ void() Menu_Coop_Browse_Refresh =
 	if (refreshtime > time)
 		return;
 
-	refreshtime = time + 0.5;
+	refreshtime = time + 0.1;
 
 	resethostcachemasks();
 	// TODO: figure out why this returns 0 servers
