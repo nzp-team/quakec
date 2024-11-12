@@ -76,6 +76,7 @@ void() Menu_Coop_Password_Update =
 	}
 };
 
+// this flushes the server cache
 void() Menu_Coop_Browse_Refresh =
 {
 	static float refreshtime;
@@ -83,7 +84,27 @@ void() Menu_Coop_Browse_Refresh =
 	if (refreshtime > time)
 		return;
 
-	refreshtime = time + 0.1;
+	refreshtime = time + 0.5;
+
+	resethostcachemasks();
+	// TODO: figure out why this returns 0 servers
+	// sethostcachemaskstring(0, gethostcacheindexforkey("gamedir"), cvar_string("game"), SLIST_TEST_EQUAL);
+	sethostcachesort(gethostcacheindexforkey("ping"), false);
+	refreshhostcache(true);
+	resorthostcache();
+
+	num_cached_servers = (int)gethostcachevalue(SLIST_HOSTCACHEVIEWCOUNT);
+};
+
+// this updates the current server cache
+void() Menu_Coop_Browse_Update =
+{
+	static float refreshtime;
+
+	if (refreshtime > time)
+		return;
+
+	refreshtime = time + 0.5;
 
 	resethostcachemasks();
 	// TODO: figure out why this returns 0 servers
@@ -97,12 +118,13 @@ void() Menu_Coop_Browse_Refresh =
 
 void() Menu_Coop_Browse =
 {
-
-	Menu_Coop_Browse_Refresh();
+	Menu_Coop_Browse_Update();
 
 	Menu_DrawBackground();
 
 	Menu_DrawTitle("BROWSE SERVERS");
+
+	// refresh button
 
 	// draw server list
 	sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_CENTER]);
@@ -110,6 +132,7 @@ void() Menu_Coop_Browse =
 	vector vsize = sui_current_frame_size();
 	Menu_ServerList("cbm_serverlist", [0, 0], [vsize.x, vsize.y / 2], serverlist_scrollofs, num_cached_servers);
 
+	Menu_Button(-2, "cbm_refresh", "REFRESH", "Refresh server list.") ? Menu_Coop_Browse_Refresh() : 0;
 	Menu_Button(-1, "cbm_back", "BACK", "Return to Join Game Menu.") ? current_menu = MENU_COOPJOIN : 0;
 
 	sui_pop_frame();
