@@ -126,7 +126,7 @@ void() Menu_Coop_Direct =
 	Menu_Button(1, "cdm_serverip", "SERVER IP/ROOM ID", "IP or ID for the Server (typically starts with /).");
 	Menu_TextInput("cdm_serverip", 1, server_ip, server_ip_cursor);
 
-	Menu_Button(2, "cdm_serverpassword", "SERVER PASSWORD", "Password for the Match set by the Host.");
+	Menu_Button(2, "cdm_serverpassword", "SERVER PASSWORD", "Password for the Match set by the Host (optional).");
 	Menu_PasswordInput("cdm_serverpassword", 2, server_password, server_password_cursor);
 
 	Menu_DrawDivider(3);
