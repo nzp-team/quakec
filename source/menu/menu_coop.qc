@@ -87,8 +87,7 @@ void() Menu_Coop_Browse_Refresh =
 	refreshtime = time + 0.5;
 
 	resethostcachemasks();
-	// TODO: figure out why this returns 0 servers
-	// sethostcachemaskstring(0, gethostcacheindexforkey("gamedir"), cvar_string("game"), SLIST_TEST_EQUAL);
+	sethostcachemaskstring(0, gethostcacheindexforkey("gamedir"), cvar_string("game"), SLIST_TEST_EQUAL);
 	sethostcachesort(gethostcacheindexforkey("ping"), false);
 	refreshhostcache(true);
 	resorthostcache();
@@ -100,18 +99,18 @@ void() Menu_Coop_Browse_Refresh =
 void() Menu_Coop_Browse_Update =
 {
 	static float refreshtime;
+	static float initialized;
+
+	if (!initialized)
+	{
+		Menu_Coop_Browse_Refresh();
+		initialized = true;
+	}
 
 	if (refreshtime > time)
 		return;
 
 	refreshtime = time + 0.5;
-
-	resethostcachemasks();
-	// TODO: figure out why this returns 0 servers
-	// sethostcachemaskstring(0, gethostcacheindexforkey("gamedir"), cvar_string("game"), SLIST_TEST_EQUAL);
-	sethostcachesort(gethostcacheindexforkey("ping"), false);
-	refreshhostcache(false);
-	resorthostcache();
 
 	num_cached_servers = (int)gethostcachevalue(SLIST_HOSTCACHEVIEWCOUNT);
 };
@@ -123,8 +122,6 @@ void() Menu_Coop_Browse =
 	Menu_DrawBackground();
 
 	Menu_DrawTitle("BROWSE SERVERS");
-
-	// refresh button
 
 	// draw server list
 	sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_CENTER]);
