@@ -622,7 +622,7 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 
 		// bg
 		vector bpos = [0, 0];
-		vector bsize = [rowsize.x / 3, rowsize.y];
+		vector bsize = [(rowsize.x / 8) * 5, rowsize.y];
 		sui_fill(bpos, rowsize, [0.25, 0.25, 0.25], 0.5, 0);
 
 		// name
@@ -630,11 +630,12 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, gethostcachestring(gethostcacheindexforkey("name"), index), MENU_TEXT_1, 1, 0);
 
 		// map
-		bpos.x = size.x / 3;
+		bsize.x = (rowsize.x / 8);
+		bpos.x = bsize.x * 5;
 		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, gethostcachestring(gethostcacheindexforkey("map"), index), MENU_TEXT_1, 1, 0);
 
 		// players
-		bpos.x *= 2;
+		bpos.x = bsize.x * 7;
 		string s = sprintf("%d/%d",
 			stof(gethostcachestring(gethostcacheindexforkey("numhumans"), index)),
 			stof(gethostcachestring(gethostcacheindexforkey("maxplayers"), index))
