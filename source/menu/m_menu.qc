@@ -567,7 +567,8 @@ static void(string id, vector pos, vector size, __inout string text, __inout flo
 static void(vector pos, vector size, string text) draw_text_input =
 {
 	sui_push_frame(pos, size);
-	sui_fill([0, 0], size, [0.5, 0.1, 0.1], 1.0, 0);
+	sui_fill([0, 0], size, [0, 0, 0], 1.0, 0);
+	sui_border_box([0, 0], size, 2, [0.2, 0.2, 0.2], 0.3, 0);
 	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
 	sui_text([6, 0], MENU_TEXT_SMALL, text, MENU_TEXT_1, 1, 0);
 	sui_pop_frame();
@@ -580,7 +581,7 @@ static void(vector pos, vector size, string text) draw_text_input =
 void(string id, float order, __inout string text, __inout float cursor) Menu_TextInput =
 {
 	vector pos = [320, 50 + (order * 25)];
-	vector size = [240, 16];
+	vector size = [240, 20];
 
 	handle_text_input(id, pos, size, text, cursor);
 
@@ -594,7 +595,7 @@ void(string id, float order, __inout string text, __inout float cursor) Menu_Tex
 void(string id, float order, __inout string text, __inout float cursor) Menu_PasswordInput =
 {
 	vector pos = [320, 50 + (order * 25)];
-	vector size = [240, 16];
+	vector size = [240, 20];
 	string safe = "";
 
 	for (int i = 0; i < strlen(text); i++)
