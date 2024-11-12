@@ -614,7 +614,7 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 	vector rowsize = [size.x, 16];
 	vector listitem_pos = [0, 0, 0];
 	sui_fill(pos, size, [0, 0, 0], 0.75, 0);
-	sui_list_view_begin(strcat(id, "scrl"), pos, size, rowsize, num_servers, scrollofs, [0, 8]);
+	sui_list_view_begin(strcat(id, "scrl"), pos, size, rowsize, num_servers, scrollofs, [0, 16]);
 	for (float index = sui_list_item(listitem_pos); index > -1; index = sui_list_item(listitem_pos))
 	{
 		sui_push_frame(listitem_pos, rowsize);
