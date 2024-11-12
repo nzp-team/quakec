@@ -171,7 +171,7 @@ void() Menu_Coop_Create =
 	Menu_PasswordInput("ccm_password", 3, server_password, server_password_cursor);
 
 	Menu_DrawDivider(4);
-	Menu_Button(4.25, "ccm_choosemap", "CHOOSE MAP", "Select a Map to start the Game.") ? current_menu = MENU_COOPSTOCK : 0;
+	Menu_Button(4.25, "ccm_choosemap", "CHOOSE MAP", "Select a Map to start the Game.") ? Menu_StartCoop() : 0;
 
 	Menu_Button(-1, "ccm_back", "BACK", "Return to Co-Op Menu.") ? current_menu = MENU_COOP : 0;
 

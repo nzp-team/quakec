@@ -647,6 +647,18 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 	sui_list_view_end();
 };
 
+void() Menu_StartCoop =
+{
+	localcmd("sv_public 2\n");
+	current_menu = MENU_COOPSTOCK;
+};
+
+void() Menu_StartSolo =
+{
+	localcmd("sv_public 0\n");
+	current_menu = MENU_SOLO;
+};
+
 struct name_command {
 	string name;
 	string command;
