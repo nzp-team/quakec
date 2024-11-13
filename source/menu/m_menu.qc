@@ -564,13 +564,15 @@ static void(string id, vector pos, vector size, __inout string text, __inout flo
 	}
 };
 
-static void(vector pos, vector size, string text) draw_text_input =
+static void(string id, vector pos, vector size, string text, float cursor) draw_text_input =
 {
 	sui_push_frame(pos - [6, 5], size);
 	sui_fill([0, 0], size, [0, 0, 0], 1.0, 0);
 	sui_border_box([0, 0], size, 2, [0.2, 0.2, 0.2], 0.3, 0);
 	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
 	sui_text([6, 0], MENU_TEXT_SMALL, text, MENU_TEXT_1, 1, 0);
+	if (sui_is_hovered(id))
+		sui_text([6, 0] + [cursor * 10, 0], MENU_TEXT_SMALL, "|", MENU_TEXT_1 + MENU_HIGHLIGHT, 1, 0);
 	sui_pop_frame();
 };
 
@@ -585,7 +587,7 @@ void(string id, float order, __inout string text, __inout float cursor) Menu_Tex
 
 	handle_text_input(id, pos, size, text, cursor);
 
-	draw_text_input(pos, size, text);
+	draw_text_input(id, pos, size, text, cursor);
 };
 
 //
@@ -603,7 +605,7 @@ void(string id, float order, __inout string text, __inout float cursor) Menu_Pas
 
 	handle_text_input(id, pos, size, text, cursor);
 
-	draw_text_input(pos, size, safe);
+	draw_text_input(id, pos, size, safe, cursor);
 };
 
 //
