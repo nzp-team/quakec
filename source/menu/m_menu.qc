@@ -608,6 +608,16 @@ void(string id, float order, __inout string text, __inout float cursor) Menu_Pas
 	draw_text_input(id, pos, size, safe, cursor);
 };
 
+static string str2ascii(string s)
+{
+	for (int i = 0; i < strlen(s); i++)
+	{
+		if (str2chr(s, i) < 32 || str2chr(s, i) > 126)
+			s[i] = 63; // question mark
+	}
+	return s;
+}
+
 //
 // Menu_ServerList(id, pos, size, scrollofs, num_servers)
 // Draw the master server list
@@ -630,7 +640,7 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 
 		// name
 		sui_fill(bpos, bsize, [0.25, 0.25, 0.25], 0.5, 0);
-		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, gethostcachestring(gethostcacheindexforkey("name"), index), MENU_TEXT_1, 1, 0);
+		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, str2ascii(gethostcachestring(gethostcacheindexforkey("name"), index)), MENU_TEXT_1, 1, 0);
 
 		// map
 		bsize.x = (rowsize.x / 8);
