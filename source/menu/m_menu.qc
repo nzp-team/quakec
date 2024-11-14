@@ -633,10 +633,21 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 		sui_push_frame(listitem_pos, rowsize);
 		sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
 
+		string listitem_id = strcat(id, "scrl", ftos(index));
+		sui_action_element([0, 0], rowsize, listitem_id, sui_noop);
+
 		// bg
 		vector bpos = [0, 0];
 		vector bsize = [(rowsize.x / 8) * 5, rowsize.y];
 		sui_fill(bpos, rowsize, [0.25, 0.25, 0.25], 0.5, 0);
+
+		// hovered bg
+		if (sui_is_hovered(listitem_id))
+			sui_fill(bpos, rowsize, [0.25, 0.25, 0.25], 0.5, 0);
+
+		// do it
+		if (sui_is_clicked(listitem_id))
+			localcmd("connect ", gethostcachestring(gethostcacheindexforkey("cname"), index), "\n");
 
 		// name
 		sui_fill(bpos, bsize, [0.25, 0.25, 0.25], 0.5, 0);
