@@ -608,15 +608,15 @@ void(string id, float order, __inout string text, __inout float cursor) Menu_Pas
 	draw_text_input(id, pos, size, safe, cursor);
 };
 
-static string str2ascii(string s)
+static string(string s) str2ascii =
 {
 	for (int i = 0; i < strlen(s); i++)
 	{
-		if (str2chr(s, i) < 32 || str2chr(s, i) > 126)
+		if (s[i] < 32 || s[i] > 126)
 			s[i] = 63; // question mark
 	}
 	return s;
-}
+};
 
 //
 // Menu_ServerList(id, pos, size, scrollofs, num_servers)
