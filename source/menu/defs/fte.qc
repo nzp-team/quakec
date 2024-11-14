@@ -21,7 +21,7 @@ Available options:
 #pragma warning disable F211 /*system crc outdated (eg: dp's csqc)*/
 #pragma warning enable F301 /*non-utf-8 strings*/
 #pragma warning enable F302 /*uninitialised locals*/
-#pragma target FTE_5768
+#pragma target fte_5768
 #ifndef MENU
 #define MENU
 #endif

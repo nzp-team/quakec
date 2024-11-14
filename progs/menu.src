@@ -1,5 +1,3 @@
-../source/menu/main.qc
-
 #pragma noref 1
 #pragma target fte_5768
 #pragma progs_dat "../build/fte/menu.dat"

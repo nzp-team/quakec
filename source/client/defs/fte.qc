@@ -12,7 +12,7 @@ pr_dumpplatform -O csdefs -Tcs -Ffte
 #pragma warning error Q208 /*system crc unknown. Compatibility goes out of the window if you disable this.*/
 #pragma warning enable F301 /*non-utf-8 strings. Think of the foreigners! Also think of text editors that insist on screwing up your char encodings.*/
 #pragma warning enable F302 /*uninitialised locals. They usually default to 0 in qc (except in recursive functions), but its still probably a bug*/
-#pragma target FTE
+#pragma target fte_5768
 #define FTEDEP DEP
 #ifndef CSQC
 	#define CSQC
