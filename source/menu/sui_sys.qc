@@ -671,10 +671,8 @@ string() sui_listen_text_input =
 	return "";
 };
 
-void(float char, float scan, __inout string text, __inout float cursor) sui_handle_text_input =
+void(float char, float scan, float maxlen, __inout string text, __inout float cursor) sui_handle_text_input =
 {
-	float maxlen = 128;
-	
 	string prev = text;
 	string pre_cursor, post_cursor;
 	float length = strlen(prev);
@@ -941,7 +939,7 @@ float(string id, vector pos, vector size, vector minmaxsteps, float value, void(
 	return newvalue;
 };
 
-void(string id, vector pos, vector size, __inout string text, __inout float cursor) sui_text_input =
+void(string id, vector pos, vector size, float maxlen, __inout string text, __inout float cursor) sui_text_input =
 {
 	sui_action_element(pos, size, id, sui_noop);
 	if (sui_is_clicked(id)) cursor = strlen(text);
@@ -949,7 +947,7 @@ void(string id, vector pos, vector size, __inout string text, __inout float curs
 	{
 		float char = 0;
 		float scan = 0;
-		while(sui_get_input(char, scan)) sui_handle_text_input(char, scan, text, cursor);
+		while(sui_get_input(char, scan)) sui_handle_text_input(char, scan, maxlen, text, cursor);
 	}
 };
 

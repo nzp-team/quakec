@@ -31,7 +31,7 @@ void(string id, vector pos, vector size, float maxlen, __inout string text, __in
 	vector basecolor = sui_is_hovered(id) ? MENU_BG_DARK + MENU_HIGHLIGHT * 0.08 : MENU_BG_DARK; 
 	sui_fill([0, 0], size, basecolor, 0.6, 0);
 	
-	sui_text_input(id, [0, 0], size, text, cursor);
+	sui_text_input(id, [0, 0], size, maxlen, text, cursor);
 
 	sui_cap_input_length(maxlen, text, cursor);
 	
@@ -554,13 +554,20 @@ void(float order, vector minmaxsteps, string cvar_s, float is_int, float no_text
 
 static void(string id, vector pos, vector size, __inout string text, __inout float cursor) handle_text_input =
 {
+	float maxlen = 0;
+
+	if (getTextWidth(text, MENU_TEXT_SMALL.x) + 18 >= size.x)
+		maxlen = strlen(text);
+	else
+		maxlen = 128;
+
 	sui_action_element(pos, size, id, sui_noop);
 	if (sui_is_clicked(id)) cursor = strlen(text);
 	if (sui_is_hovered(id))
 	{
 		float char = 0;
 		float scan = 0;
-		while(sui_get_input(char, scan)) sui_handle_text_input(char, scan, text, cursor);
+		while(sui_get_input(char, scan)) sui_handle_text_input(char, scan, maxlen, text, cursor);
 	}
 };
 
@@ -571,8 +578,9 @@ static void(string id, vector pos, vector size, string text, float cursor) draw_
 	sui_border_box([0, 0], size, 2, [0.2, 0.2, 0.2], 0.3, 0);
 	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
 	sui_text([6, 0], MENU_TEXT_SMALL, text, MENU_TEXT_1, 1, 0);
+	float cursor_x = getTextWidth(substring(text, 0, cursor), MENU_TEXT_SMALL.x);
 	if (sui_is_hovered(id))
-		sui_text([6, 0] + [cursor * 10, 0], MENU_TEXT_SMALL, "|", MENU_TEXT_1 + MENU_HIGHLIGHT, 1, 0);
+		sui_text([6 + cursor_x, 0], MENU_TEXT_SMALL, "|", [1.0, 0.25, 0.25], 1, 0);
 	sui_pop_frame();
 };
 
