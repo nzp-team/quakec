@@ -217,3 +217,83 @@ void() Menu_Coop =
 
 	sui_pop_frame();
 };
+
+string menu_coop_browse_buttons[] = {
+	"cbm_serverlist", "cbm_refresh", "cbm_back"
+};
+
+string menu_coop_direct_buttons[] = {
+	"cdm_serverip", "cdm_serverpassword", "cdm_connect", "cdm_back"
+};
+
+string menu_coop_join_buttons[] = {
+	"cjm_browse", "cjm_direct", "cjm_back"
+};
+
+string menu_coop_create_buttons[] = {
+	"ccm_servername", "ccm_port", "ccm_password", "ccm_choosemap", "ccm_back"
+};
+
+string menu_coop_buttons[] = {
+	"cm_playername", "cm_join", "cm_create", "cm_back"
+};
+
+// can you tell i'm a C user at heart? -- erysdren
+
+#define NEXTBUTTON_FUNC(fn, arr) 				\
+string(string prev_id) fn ## _GetNextButton =	\
+{ 												\
+	if (prev_id == "") 							\
+		return arr[0]; 							\
+												\
+	string ret = arr[0];						\
+												\
+	for(float i = 0; i < arr.length; i++) {		\
+		if (arr[i] == prev_id) {				\
+			if (i + 1 >= arr.length)			\
+				break;							\
+												\
+			ret = arr[i + 1];					\
+			break;								\
+		}										\
+	}											\
+												\
+	return ret;									\
+};												\
+
+NEXTBUTTON_FUNC(Menu_Coop_Browse, menu_coop_browse_buttons)
+NEXTBUTTON_FUNC(Menu_Coop_Direct, menu_coop_direct_buttons)
+NEXTBUTTON_FUNC(Menu_Coop_Join, menu_coop_join_buttons)
+NEXTBUTTON_FUNC(Menu_Coop_Create, menu_coop_create_buttons)
+NEXTBUTTON_FUNC(Menu_Coop, menu_coop_buttons)
+
+#undef NEXTBUTTON_FUNC
+
+#define PREVBUTTON_FUNC(fn, arr) 					\
+string(string next_id) fn ## _GetPreviousButton =	\
+{													\
+	if (next_id == "")								\
+		return arr[arr.length - 1];					\
+													\
+	string ret = arr[arr.length - 1];				\
+													\
+	for(float i = arr.length - 1; i > 0; i--) {		\
+		if (arr[i] == next_id) {					\
+			if (i - 1 < 0)							\
+				break;								\
+													\
+			ret = arr[i - 1];						\
+			break;									\
+		}											\
+	}												\
+													\
+	return ret;										\
+};													\
+
+PREVBUTTON_FUNC(Menu_Coop_Browse, menu_coop_browse_buttons)
+PREVBUTTON_FUNC(Menu_Coop_Direct, menu_coop_direct_buttons)
+PREVBUTTON_FUNC(Menu_Coop_Join, menu_coop_join_buttons)
+PREVBUTTON_FUNC(Menu_Coop_Create, menu_coop_create_buttons)
+PREVBUTTON_FUNC(Menu_Coop, menu_coop_buttons)
+
+#undef PREVBUTTON_FUNC

@@ -400,17 +400,23 @@ void() _sui_menukey_downarrow =
 		case MENU_MAIN:
 			_hover_actions[0] = Menu_Main_GetNextButton(current_hovered_option);
 			break;
-		// TODO: do this
-#if 0
 		case MENU_COOP:
-		case MENU_COOPJOIN:
-		case MENU_COOPBROWSE:
-		case MENU_COOPDIRECT:
-		case MENU_COOPCREATE:
-		case MENU_COOPSTOCK:
-			_hover_actions[0] = Menu_Maps_GetNextButton(current_hovered_option);
+			_hover_actions[0] = Menu_Coop_GetNextButton(current_hovered_option);
 			break;
-#endif
+		case MENU_COOPJOIN:
+			_hover_actions[0] = Menu_Coop_Join_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPBROWSE:
+			_hover_actions[0] = Menu_Coop_Browse_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPDIRECT:
+			_hover_actions[0] = Menu_Coop_Direct_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPCREATE:
+			_hover_actions[0] = Menu_Coop_Create_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPSTOCK:
+		case MENU_COOPUSER:
 		case MENU_SOLO:
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetNextButton(current_hovered_option);
@@ -460,6 +466,23 @@ void() _sui_menukey_uparrow =
 		case MENU_MAIN:
 			_hover_actions[0] = Menu_Main_GetPreviousButton(current_hovered_option);
 			break;
+		case MENU_COOP:
+			_hover_actions[0] = Menu_Coop_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPJOIN:
+			_hover_actions[0] = Menu_Coop_Join_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPBROWSE:
+			_hover_actions[0] = Menu_Coop_Browse_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPDIRECT:
+			_hover_actions[0] = Menu_Coop_Direct_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPCREATE:
+			_hover_actions[0] = Menu_Coop_Create_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPSTOCK:
+		case MENU_COOPUSER:
 		case MENU_SOLO:
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetPreviousButton(current_hovered_option);

@@ -87,6 +87,19 @@ void() Menu_Bindings;
 
 string(string prev_id) Menu_Main_GetNextButton;
 string(string next_id) Menu_Main_GetPreviousButton;
+
+string(string next_id) Menu_Coop_Browse_GetNextButton;
+string(string next_id) Menu_Coop_Direct_GetNextButton;
+string(string next_id) Menu_Coop_Join_GetNextButton;
+string(string next_id) Menu_Coop_Create_GetNextButton;
+string(string next_id) Menu_Coop_GetNextButton;
+
+string(string next_id) Menu_Coop_Browse_GetPreviousButton;
+string(string next_id) Menu_Coop_Direct_GetPreviousButton;
+string(string next_id) Menu_Coop_Join_GetPreviousButton;
+string(string next_id) Menu_Coop_Create_GetPreviousButton;
+string(string next_id) Menu_Coop_GetPreviousButton;
+
 string(string prev_id) Menu_Maps_GetNextButton;
 string(string next_id) Menu_Maps_GetPreviousButton;
 
