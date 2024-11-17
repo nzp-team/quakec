@@ -86,12 +86,22 @@ void() Menu_Coop_Browse_Refresh =
 
 	refreshtime = time + 0.5;
 
+	// reset cache masks
 	resethostcachemasks();
+
+	// set the masks to our gamedir and game strings
 	sethostcachemaskstring(0, gethostcacheindexforkey("gamedir"), cvar_string("game"), SLIST_TEST_EQUAL);
+
+	// set sort value to ping (ascending)
 	sethostcachesort(gethostcacheindexforkey("ping"), false);
+
+	// flush the current cache and refresh it
 	refreshhostcache(true);
+
+	// resort the cache (by ping)
 	resorthostcache();
 
+	// get number of cached servers
 	num_cached_servers = (int)gethostcachevalue(SLIST_HOSTCACHEVIEWCOUNT);
 };
 
@@ -112,6 +122,7 @@ void() Menu_Coop_Browse_Update =
 
 	refreshtime = time + 0.5;
 
+	// call this every 0.5 seconds to keep probing the cache, but without flushing everything
 	num_cached_servers = (int)gethostcachevalue(SLIST_HOSTCACHEVIEWCOUNT);
 };
 
