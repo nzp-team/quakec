@@ -16,7 +16,7 @@ string server_port;
 
 int num_cached_servers;
 
-void() Menu_Coop_Name_Update =
+void() Menu_Coop_UpdateName =
 {
 	static float initialized;
 	if (!initialized)
@@ -31,7 +31,7 @@ void() Menu_Coop_Name_Update =
 	}
 };
 
-void() Menu_Coop_Hostname_Update =
+void() Menu_Coop_UpdateHostname =
 {
 	static float initialized;
 	if (!initialized)
@@ -46,7 +46,7 @@ void() Menu_Coop_Hostname_Update =
 	}
 };
 
-void() Menu_Coop_Port_Update =
+void() Menu_Coop_UpdatePort =
 {
 	static float initialized;
 	if (!initialized)
@@ -61,7 +61,7 @@ void() Menu_Coop_Port_Update =
 	}
 };
 
-void() Menu_Coop_Password_Update =
+void() Menu_Coop_UpdatePassword =
 {
 	static float initialized;
 	if (!initialized)
@@ -77,7 +77,7 @@ void() Menu_Coop_Password_Update =
 };
 
 // this flushes the server cache
-void() Menu_Coop_Browse_Refresh =
+void() Menu_Coop_RefreshCache =
 {
 	static float refreshtime;
 
@@ -106,14 +106,14 @@ void() Menu_Coop_Browse_Refresh =
 };
 
 // this updates the current server cache
-void() Menu_Coop_Browse_Update =
+void() Menu_Coop_UpdateCache =
 {
 	static float refreshtime;
 	static float initialized;
 
 	if (!initialized)
 	{
-		Menu_Coop_Browse_Refresh();
+		Menu_Coop_RefreshCache();
 		initialized = true;
 	}
 
@@ -128,7 +128,7 @@ void() Menu_Coop_Browse_Update =
 
 void() Menu_Coop_Browse =
 {
-	Menu_Coop_Browse_Update();
+	Menu_Coop_UpdateCache();
 
 	Menu_DrawBackground();
 
@@ -140,7 +140,7 @@ void() Menu_Coop_Browse =
 	vector vsize = sui_current_frame_size();
 	Menu_ServerList("cbm_serverlist", [0, 0], [vsize.x, vsize.y / 2], serverlist_scrollofs, num_cached_servers);
 
-	Menu_Button(-2, "cbm_refresh", "REFRESH", "Refresh server list.") ? Menu_Coop_Browse_Refresh() : 0;
+	Menu_Button(-2, "cbm_refresh", "REFRESH", "Refresh server list.") ? Menu_Coop_RefreshCache() : 0;
 	Menu_Button(-1, "cbm_back", "BACK", "Return to Join Game Menu.") ? current_menu = MENU_COOPJOIN : 0;
 
 	sui_pop_frame();
@@ -148,7 +148,7 @@ void() Menu_Coop_Browse =
 
 void() Menu_Coop_Direct =
 {
-	Menu_Coop_Password_Update();
+	Menu_Coop_UpdatePassword();
 
 	Menu_DrawBackground();
 
@@ -184,9 +184,9 @@ void() Menu_Coop_Join =
 
 void() Menu_Coop_Create =
 {
-	Menu_Coop_Hostname_Update();
-	Menu_Coop_Port_Update();
-	Menu_Coop_Password_Update();
+	Menu_Coop_UpdateHostname();
+	Menu_Coop_UpdatePort();
+	Menu_Coop_UpdatePassword();
 
 	Menu_DrawBackground();
 
@@ -211,7 +211,7 @@ void() Menu_Coop_Create =
 
 void() Menu_Coop =
 {
-	Menu_Coop_Name_Update();
+	Menu_Coop_UpdateName();
 
 	Menu_DrawBackground();
 
