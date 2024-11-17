@@ -647,18 +647,18 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 		// bg
 		vector bpos = [0, 0];
 		vector bsize = [(rowsize.x / 8) * 5, rowsize.y];
-		sui_fill(bpos, rowsize, [0.25, 0.25, 0.25], 0.5, 0);
+		sui_fill(bpos, rowsize, [0.25, 0.1, 0.1], 0.5, 0);
 
 		// hovered bg
 		if (sui_is_hovered(listitem_id))
-			sui_fill(bpos, rowsize, [0.25, 0.25, 0.25], 0.5, 0);
+			sui_fill(bpos, rowsize, [0.25, 0.1, 0.1], 0.5, 0);
 
 		// do it
 		if (sui_is_clicked(listitem_id))
 			localcmd("connect ", gethostcachestring(gethostcacheindexforkey("cname"), index), "\n");
 
 		// name
-		sui_fill(bpos, bsize, [0.25, 0.25, 0.25], 0.5, 0);
+		sui_fill(bpos, bsize, [0.25, 0.1, 0.1], 0.5, 0);
 		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, str2ascii(gethostcachestring(gethostcacheindexforkey("name"), index)), MENU_TEXT_1, 1, 0);
 
 		// map
@@ -672,8 +672,13 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 			stof(gethostcachestring(gethostcacheindexforkey("numhumans"), index)),
 			stof(gethostcachestring(gethostcacheindexforkey("maxplayers"), index))
 		);
-		sui_fill(bpos, bsize, [0.25, 0.25, 0.25], 0.5, 0);
+		sui_fill(bpos, bsize, [0.25, 0.1, 0.1], 0.5, 0);
 		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, s, MENU_TEXT_1, 1, 0);
+
+		// hovered border
+		bpos = [0, 0];
+		if (sui_is_hovered(listitem_id))
+			sui_border_box(bpos, rowsize, 1, [0.4, 0.4, 0], 1, 0);
 
 		sui_pop_frame();
 	}
