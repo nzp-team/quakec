@@ -554,12 +554,9 @@ void(float order, vector minmaxsteps, string cvar_s, float is_int, float no_text
 
 static void(string id, vector pos, vector size, __inout string text, __inout float cursor) handle_text_input =
 {
-	float maxlen = 0;
-
-	if (getTextWidth(text, MENU_TEXT_SMALL.x) + 18 >= size.x)
-		maxlen = strlen(text);
-	else
-		maxlen = 128;
+	// best length to fit the largest character in the font
+	// ex: AAAAAAAAAAAAAAAAAAAAAAA
+	float maxlen = 23;
 
 	sui_action_element(pos, size, id, sui_noop);
 	if (sui_is_clicked(id)) cursor = strlen(text);
