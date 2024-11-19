@@ -139,6 +139,7 @@ void() Menu_Coop_Browse =
 	static vector serverlist_scrollofs;
 	vector vsize = sui_current_frame_size();
 	Menu_ServerList("cbm_serverlist", [0, 0], [vsize.x, vsize.y / 2], serverlist_scrollofs, num_cached_servers);
+	sui_text([0, (vsize.y / -3) + 16], MENU_TEXT_SMALL, "NOTE: Mouse input only.", [1, 1, 1], 1, 0);
 
 	Menu_Button(-2, "cbm_refresh", "REFRESH", "Refresh server list.") ? Menu_Coop_RefreshCache() : 0;
 	Menu_Button(-1, "cbm_back", "BACK", "Return to Join Game Menu.") ? current_menu = MENU_COOPJOIN : 0;
