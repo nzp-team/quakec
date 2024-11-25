@@ -314,7 +314,7 @@ void () WallWeapon_TouchTrigger =
 	}
 	else if (self.weapon == W_BOWIE)
 	{
-		if (!other.bowie) {
+		if (!other.has_bowie_knife) {
 			useprint(other, 4, self.cost2, self.weapon);
 			if (other.button7)
 			{
@@ -335,7 +335,7 @@ void () WallWeapon_TouchTrigger =
 					tempz = self;
 					self = other;
 					Set_W_Frame(15, 30, 2.75, 0, 0, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_BOTH, true);
-					self.bowie = 1;
+					self.has_bowie_knife = true;
 				}
 			}
 		}

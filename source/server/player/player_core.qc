@@ -926,7 +926,8 @@ void() PlayerSpawn =
 		setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
 	}
 
-	self.stance = 2;
+	self.has_bowie_knife = false;
+	self.stance = PLAYER_STANCE_STAND;
 	self.new_ofs_z = self.view_ofs_z;
 	self.oldz = self.origin_z;
 	self.grenades = self.grenades | 1;  // add frag grenades to player inventory

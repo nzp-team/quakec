@@ -225,7 +225,7 @@ var struct guninventory_struct
 
 //Knife 
 .float knife_delay;
-.float bowie;
+.float has_bowie_knife;
 
 //Grenades
 .float grenades;
