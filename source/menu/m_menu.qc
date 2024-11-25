@@ -31,7 +31,9 @@ void(string id, vector pos, vector size, float maxlen, __inout string text, __in
 	vector basecolor = sui_is_hovered(id) ? MENU_BG_DARK + MENU_HIGHLIGHT * 0.08 : MENU_BG_DARK; 
 	sui_fill([0, 0], size, basecolor, 0.6, 0);
 	
-	sui_text_input(id, [0, 0], size, text, cursor);
+	sui_text_input(id, [0, 0], size, maxlen, text, cursor);
+
+	sui_cap_input_length(maxlen, text, cursor);
 	
 	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
 	float focused = sui_is_last_clicked(id);
@@ -550,6 +552,148 @@ void(float order, vector minmaxsteps, string cvar_s, float is_int, float no_text
 	}
 };
 
+static void(string id, vector pos, vector size, __inout string text, __inout float cursor) handle_text_input =
+{
+	// best length to fit the largest character in the font
+	// ex: AAAAAAAAAAAAAAAAAAAAAAA
+	float maxlen = 23;
+
+	sui_action_element(pos, size, id, sui_noop);
+	if (sui_is_clicked(id)) cursor = strlen(text);
+	if (sui_is_hovered(id))
+	{
+		float char = 0;
+		float scan = 0;
+		while(sui_get_input(char, scan)) sui_handle_text_input(char, scan, maxlen, text, cursor);
+	}
+};
+
+static void(string id, vector pos, vector size, string text, float cursor) draw_text_input =
+{
+	sui_push_frame(pos - [6, 5], size);
+	sui_fill([0, 0], size, [0, 0, 0], 1.0, 0);
+	sui_border_box([0, 0], size, 2, [0.2, 0.2, 0.2], 0.3, 0);
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
+	sui_text([6, 0], MENU_TEXT_SMALL, text, MENU_TEXT_1, 1, 0);
+	float cursor_x = getTextWidth(substring(text, 0, cursor), MENU_TEXT_SMALL.x);
+	if (sui_is_hovered(id))
+		sui_text([6 + cursor_x, 0], MENU_TEXT_SMALL, "|", [1.0, 0.25, 0.25], 1, 0);
+	sui_pop_frame();
+};
+
+//
+// Menu_TextInput(id, order, text, cursor)
+// Draws a Text Input box at the given order position
+//
+void(string id, float order, __inout string text, __inout float cursor) Menu_TextInput =
+{
+	vector pos = [320, 50 + (order * 25)];
+	vector size = [290, 22];
+
+	handle_text_input(id, pos, size, text, cursor);
+
+	draw_text_input(id, pos, size, text, cursor);
+};
+
+//
+// Menu_PasswordInput(id, order, text, cursor)
+// Draws a Text Input box at the given order position (blocked out with asterisks)
+//
+void(string id, float order, __inout string text, __inout float cursor) Menu_PasswordInput =
+{
+	vector pos = [320, 50 + (order * 25)];
+	vector size = [290, 22];
+	string safe = "";
+
+	for (int i = 0; i < strlen(text); i++)
+		safe = sprintf("%s%s", safe, "*");
+
+	handle_text_input(id, pos, size, text, cursor);
+
+	draw_text_input(id, pos, size, safe, cursor);
+};
+
+static string(string s) str2ascii =
+{
+	for (int i = 0; i < strlen(s); i++)
+	{
+		if (s[i] < 32 || s[i] > 126)
+			s[i] = 63; // question mark
+	}
+	return s;
+};
+
+//
+// Menu_ServerList(id, pos, size, scrollofs, num_servers)
+// Draw the master server list
+//
+void(string id, vector pos, vector size, __inout vector scrollofs, float num_servers) Menu_ServerList =
+{
+	vector rowsize = [size.x, 16];
+	vector listitem_pos = [0, 0, 0];
+	sui_fill(pos, size, [0, 0, 0], 0.75, 0);
+	sui_list_view_begin(strcat(id, "scrl"), pos, size, rowsize, num_servers, scrollofs, [0, 16]);
+	for (float index = sui_list_item(listitem_pos); index > -1; index = sui_list_item(listitem_pos))
+	{
+		sui_push_frame(listitem_pos, rowsize);
+		sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
+
+		string listitem_id = strcat(id, "scrl", ftos(index));
+		sui_action_element([0, 0], rowsize, listitem_id, sui_noop);
+
+		// bg
+		vector bpos = [0, 0];
+		vector bsize = [(rowsize.x / 8) * 5, rowsize.y];
+		sui_fill(bpos, rowsize, [0.25, 0.1, 0.1], 0.5, 0);
+
+		// hovered bg
+		if (sui_is_hovered(listitem_id))
+			sui_fill(bpos, rowsize, [0.25, 0.1, 0.1], 0.5, 0);
+
+		// do it
+		if (sui_is_clicked(listitem_id))
+			localcmd("connect ", gethostcachestring(gethostcacheindexforkey("cname"), index), "\n");
+
+		// name
+		sui_fill(bpos, bsize, [0.25, 0.1, 0.1], 0.5, 0);
+		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, str2ascii(gethostcachestring(gethostcacheindexforkey("name"), index)), MENU_TEXT_1, 1, 0);
+
+		// map
+		bsize.x = (rowsize.x / 8);
+		bpos.x = bsize.x * 5;
+		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, gethostcachestring(gethostcacheindexforkey("map"), index), MENU_TEXT_1, 1, 0);
+
+		// players
+		bpos.x = bsize.x * 7;
+		string s = sprintf("%d/%d",
+			stof(gethostcachestring(gethostcacheindexforkey("numhumans"), index)),
+			stof(gethostcachestring(gethostcacheindexforkey("maxplayers"), index))
+		);
+		sui_fill(bpos, bsize, [0.25, 0.1, 0.1], 0.5, 0);
+		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, s, MENU_TEXT_1, 1, 0);
+
+		// hovered border
+		bpos = [0, 0];
+		if (sui_is_hovered(listitem_id))
+			sui_border_box(bpos, rowsize, 1, [0.4, 0.4, 0], 1, 0);
+
+		sui_pop_frame();
+	}
+	sui_list_view_end();
+};
+
+void() Menu_StartCoop =
+{
+	localcmd("sv_public 2\n");
+	current_menu = MENU_COOPSTOCK;
+};
+
+void() Menu_StartSolo =
+{
+	localcmd("sv_public 0\n");
+	current_menu = MENU_SOLO;
+};
+
 struct name_command {
 	string name;
 	string command;
@@ -665,6 +809,13 @@ void(vector size) root_menu =
 		case MENU_MAIN: Menu_Main(); break;
 		case MENU_SOLO: menu_map_mode = MAP_SOLOSTOCK; Menu_Maps(); break;
 		case MENU_SOLOUSER: menu_map_mode = MAP_SOLOUSER; Menu_Maps(); break;
+		case MENU_COOP: Menu_Coop(); break;
+		case MENU_COOPJOIN: Menu_Coop_Join(); break;
+		case MENU_COOPBROWSE: Menu_Coop_Browse(); break;
+		case MENU_COOPDIRECT: Menu_Coop_Direct(); break;
+		case MENU_COOPCREATE: Menu_Coop_Create(); break;
+		case MENU_COOPSTOCK: menu_map_mode = MAP_COOPSTOCK; Menu_Maps(); break;
+		case MENU_COOPUSER: menu_map_mode = MAP_COOPUSER; Menu_Maps(); break;
 		case MENU_CREDITS: Menu_Credits(); break;
 
 #else

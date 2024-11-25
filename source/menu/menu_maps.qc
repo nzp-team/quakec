@@ -105,8 +105,8 @@ void() Menu_Maps =
     switch(menu_map_mode) {
         case MAP_SOLOSTOCK: Menu_DrawTitle("SELECT MAP: SOLO"); back_string = "Return to Main Menu."; back_menudest = MENU_MAIN; break;
         case MAP_SOLOUSER: Menu_DrawTitle("USER MAPS: SOLO"); back_string = "Return to Stock Map selection."; back_menudest = MENU_SOLO; break;
-        case MAP_COOPSTOCK: Menu_DrawTitle("SELECT MAP: COOP"); break;
-        case MAP_COOPUSER: Menu_DrawTitle("USER MAPS: COOP"); break;
+        case MAP_COOPSTOCK: Menu_DrawTitle("SELECT MAP: COOP"); back_string = "Return to Create Game Menu."; back_menudest = MENU_COOPCREATE; break;
+        case MAP_COOPUSER: Menu_DrawTitle("USER MAPS: COOP"); back_string = "Return to Stock Map selection."; back_menudest = MENU_COOPSTOCK; break;
         default: break;
     }
 
@@ -128,7 +128,12 @@ void() Menu_Maps =
             Menu_MapButton(i + 1, sprintf("map_%s", stock_maps[i].bsp_name), stock_maps[i].bsp_name, -1) ? Menu_Maps_LoadMap(stock_maps[i].bsp_name) : 0;
         }
         Menu_DrawDivider(i + 1.25);
-        Menu_Button(i + 1.5, "map_nzpusermaps", "USER MAPS", "View User-Created Maps.") ? current_menu = MENU_SOLOUSER : 0;
+
+		if (menu_map_mode == MAP_SOLOSTOCK) {
+			Menu_Button(i + 1.5, "map_nzpusermaps", "USER MAPS", "View User-Created Maps.") ? current_menu = MENU_SOLOUSER : 0;
+		} else if (menu_map_mode == MAP_COOPSTOCK) {
+			Menu_Button(i + 1.5, "map_nzpusermaps", "USER MAPS", "View User-Created Maps.") ? current_menu = MENU_COOPUSER : 0;
+		}
 
         // Usermaps and back button registry
         menu_maps_buttons[i] = "map_nzpusermaps";

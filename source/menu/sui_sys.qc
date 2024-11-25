@@ -400,6 +400,23 @@ void() _sui_menukey_downarrow =
 		case MENU_MAIN:
 			_hover_actions[0] = Menu_Main_GetNextButton(current_hovered_option);
 			break;
+		case MENU_COOP:
+			_hover_actions[0] = Menu_Coop_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPJOIN:
+			_hover_actions[0] = Menu_Coop_Join_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPBROWSE:
+			_hover_actions[0] = Menu_Coop_Browse_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPDIRECT:
+			_hover_actions[0] = Menu_Coop_Direct_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPCREATE:
+			_hover_actions[0] = Menu_Coop_Create_GetNextButton(current_hovered_option);
+			break;
+		case MENU_COOPSTOCK:
+		case MENU_COOPUSER:
 		case MENU_SOLO:
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetNextButton(current_hovered_option);
@@ -449,6 +466,23 @@ void() _sui_menukey_uparrow =
 		case MENU_MAIN:
 			_hover_actions[0] = Menu_Main_GetPreviousButton(current_hovered_option);
 			break;
+		case MENU_COOP:
+			_hover_actions[0] = Menu_Coop_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPJOIN:
+			_hover_actions[0] = Menu_Coop_Join_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPBROWSE:
+			_hover_actions[0] = Menu_Coop_Browse_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPDIRECT:
+			_hover_actions[0] = Menu_Coop_Direct_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPCREATE:
+			_hover_actions[0] = Menu_Coop_Create_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_COOPSTOCK:
+		case MENU_COOPUSER:
 		case MENU_SOLO:
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetPreviousButton(current_hovered_option);
@@ -660,10 +694,8 @@ string() sui_listen_text_input =
 	return "";
 };
 
-void(float char, float scan, __inout string text, __inout float cursor) sui_handle_text_input =
+void(float char, float scan, float maxlen, __inout string text, __inout float cursor) sui_handle_text_input =
 {
-	float maxlen = 128;
-	
 	string prev = text;
 	string pre_cursor, post_cursor;
 	float length = strlen(prev);
@@ -676,7 +708,7 @@ void(float char, float scan, __inout string text, __inout float cursor) sui_hand
 		text = sprintf("%s%s%s", pre_cursor, chr2str(char), post_cursor);
 		cursor += 1;
 	}
-	else if (char == 8) // backspace
+	else if (char == 8 || scan == K_BACKSPACE) // backspace
 	{
 		if (cursor <= 0) return;
 		pre_cursor = substring(prev, 0, cursor - 1);
@@ -692,7 +724,7 @@ void(float char, float scan, __inout string text, __inout float cursor) sui_hand
 		post_cursor = substring(prev, cursor + 1, length);
 		text = strcat(pre_cursor, post_cursor);
 	}
-	else if (char == 13 || char == 27) // enter or escape
+	else if (char == 13 || char == 27 || scan == K_ENTER || scan == K_ESCAPE) // enter or escape
 	{
 		// Commit and deselect...
 		// Let's try a hack..
@@ -930,7 +962,7 @@ float(string id, vector pos, vector size, vector minmaxsteps, float value, void(
 	return newvalue;
 };
 
-void(string id, vector pos, vector size, __inout string text, __inout float cursor) sui_text_input =
+void(string id, vector pos, vector size, float maxlen, __inout string text, __inout float cursor) sui_text_input =
 {
 	sui_action_element(pos, size, id, sui_noop);
 	if (sui_is_clicked(id)) cursor = strlen(text);
@@ -938,7 +970,7 @@ void(string id, vector pos, vector size, __inout string text, __inout float curs
 	{
 		float char = 0;
 		float scan = 0;
-		while(sui_get_input(char, scan)) sui_handle_text_input(char, scan, text, cursor);
+		while(sui_get_input(char, scan)) sui_handle_text_input(char, scan, maxlen, text, cursor);
 	}
 };
 

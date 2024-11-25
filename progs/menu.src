@@ -1,5 +1,3 @@
-../source/menu/main.qc
-
 #pragma noref 1
 #pragma target fte_5768
 #pragma progs_dat "../build/fte/menu.dat"
@@ -23,6 +21,7 @@ menu_gpad.qc     // Gamepad Menu
 menu_bind.qc     // Bindings Menu
 menu_cred.qc     // Credits Menu
 menu_load.qc     // Loading Screen
+menu_coop.qc     // Co-op Menu
 
 main.qc
 #endlist

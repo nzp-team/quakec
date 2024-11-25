@@ -71,8 +71,8 @@ void() Menu_Main =
     Menu_DrawTitle("MAIN MENU");
     Menu_DrawBuildDate();
 
-    Menu_Button(1, "mm_start", "SOLO", "Play Solo.") ? current_menu = MENU_SOLO : 0;
-    Menu_Button(2, "mm_coop", "COOPERATIVE", "Play with up to Four Players.") ? localcmd("\n") : 0;
+    Menu_Button(1, "mm_start", "SOLO", "Play Solo.") ? Menu_StartSolo() : 0;
+    Menu_Button(2, "mm_coop", "COOPERATIVE", "Play with up to Four Players.") ? current_menu = MENU_COOP : 0;
     Menu_DrawDivider(3);
     Menu_Button(3.25, "mm_options", "CONFIGURATION", "Tweak Game related Options.") ? current_menu = MENU_OPTIONS : 0;
     //Menu_Button(4.25, "mm_achievements", "ACHIEVEMENTS", "View Achievement Progress.") ? localcmd("\n") : 0;
