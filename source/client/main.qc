@@ -25,6 +25,8 @@
 
 */
 
+float need_vid_reload;
+
 void() ToggleMenu =
 {
 	if(serverkey("constate") != "disconnected")
@@ -73,6 +75,95 @@ float(float isnew) SetZombieSkinning =
 	self.drawmask = MASK_ENGINE;
 	setcustomskin(self, __NULL__, sprintf("replace \"\" \"models/ai/zfull.mdl_%d.pcx\"\n", self.skin));
 	return PREDRAW_NEXT;
+};
+
+//
+// GenerateAlphaTransparencyQ3Shaders()
+// What a mouth-full! Anyway, NZ:P supports
+// alpha transparency via a pseudo-hack where
+// if the last character of a model is "$"
+// we render with special blend modes. To
+// do the same on FTE, we need to generate
+// Quake III "shader" files. Returns TRUE
+// if we had shader modifications.
+//
+float() GenerateAlphaTransparencyQ3Shaders =
+{
+	searchhandle 	alias_models;
+	float 			amod_count;
+	float 			need_reload = false;
+
+	alias_models = search_begin("*.mdl:*/*.mdl:*/*/*.mdl:*/*/*/*.mdl:*/*/*/*/*.mdl:*/*/*/*/*/*.mdl", SB_CASEINSENSITIVE | SB_MULTISEARCH, true); // gross.
+	amod_count = search_getsize(alias_models);
+
+	for (float i = 0; i < amod_count; i++) {
+		string full_path = search_getfilename(alias_models, i);
+
+		// Single out character before ".mdl" extension.
+		string special_character = substring(full_path, strlen(full_path) - 5, 1);
+
+		// Early out, not a special guy.
+		if (special_character != "$")
+			continue;
+
+		// Isolate its basename.. manually :(
+		string basename = "";
+		for (float j = strlen(full_path); j > 0; j--) {
+			if (str2chr(full_path, j) == str2chr("/", 0)) {
+				// Strip path
+				basename = substring(full_path, j + 1, strlen(full_path) - (j + 1));
+
+				// Strip extension
+				basename = substring(basename, 0, strlen(basename) - 4);
+				break;
+			}
+		}
+
+		if (basename == "") {
+			print(sprintf("[ERROR]: Unable to calculate basename for [%s]!\n", full_path));
+			continue;
+		}
+
+		float shader_file;
+		string shader_path = sprintf("scripts/%s.shader", basename);
+
+		// Check if the shader already exists.
+		shader_file = fopen(shader_path, FILE_READ);
+		if (shader_file != -1) {
+			fclose(shader_file);
+			continue;
+		}
+
+		// Begin to write.
+		shader_file = fopen(shader_path, FILE_WRITE);
+		if (shader_file == -1) {
+			print(sprintf("[ERROR]: Unable to generate Q3 shader for [%s]!\n", full_path));
+			continue;
+		}
+
+		// Body of our shader file we're writing.
+		string shader_content = sprintf(
+			"//\n"
+			"// Quake III Shader generated automatically by Nazi Zombies: Portable. Do not modify.\n"
+			"//\n"
+			"\n"
+			"%s_0.lmp\n" // full_path
+			"{\n"
+			"	program defaultskin\n"
+			"	progblendfunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA\n"
+			"	diffusemap %s_0.tga\n" // full_path
+			"	alphafunc ge128\n"
+			"}\n"
+		, full_path, full_path);
+
+		fputs(shader_file, shader_content);
+		fclose(shader_file);
+
+		need_reload = true;
+	}
+
+	search_end(alias_models);
+	return need_reload;
 };
 
 noref void(float apiver, string enginename, float enginever) CSQC_Init =
@@ -192,10 +283,19 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	}
 
 	InitKerningMap();
+
+	// If we've made shader changes, we should perform
+	// a vid_reload at a reasonable time.
+	need_vid_reload = GenerateAlphaTransparencyQ3Shaders();
 };
 
 noref void() CSQC_WorldLoaded =
 {
+	if (need_vid_reload == true) {
+		need_vid_reload = false;
+		localcmd("vid_reload\n");
+	}
+
 	Achievement_Init();
 	Particles_Init();
 	nameprint_time = time + 8;
