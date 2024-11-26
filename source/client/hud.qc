@@ -1053,7 +1053,7 @@ void(float width, float height) HUD_Useprint =
 	if (usecost != "") {
 		float cost_width = getTextWidth(usecost, 12);
 		float x3 = (width - cost_width)/2;
-		Draw_String([x3, g_height/2 + 78, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
+		Draw_String([x3, g_height/2 + 84, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
 	}
 
 	// Draw highlighted usebutton
@@ -1061,7 +1061,7 @@ void(float width, float height) HUD_Useprint =
 		button_width = x + getTextWidth("Hold ", 12);
 
 		if (Key_IsControllerGlyph(usebutton))
-			Key_DrawControllerGlyph([button_width - 5, g_height/2 + 60], usebutton, [22, 22]);
+			Key_DrawControllerGlyph([button_width - 5, g_height/2 + 62], usebutton, [18, 18]);
 		else
 			Draw_String([button_width, g_height/2 + 65, 0], usebutton, [12, 12, 0], [1, 1, 0], 1, 0);
 	}
