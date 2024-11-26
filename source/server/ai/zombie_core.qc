@@ -1962,6 +1962,12 @@ void(entity where) spawn_a_zombieB =
 
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;
+
+	// Depending on how fast AI processes, sometimes Zombie_AI() will execute
+	// while we are still at the world origin temporarily. This can cause us
+	// to play a sound at the origin, so add a small delay to prevent this.
+	// (and randomize it a bit).
+	szombie.sound_time = time + (random() * 2) + 3;
 };
 
 void() zombie_dummy =
