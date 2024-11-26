@@ -395,6 +395,23 @@ void() worldspawn =
 	G_WORLDTEXT = 1;
 	G_PERKS = 0;
 	G_PERKPOWER = 0;
+
+	//
+	// World Gravity Multiplier
+	//
+
+	// FIXME: This should technically poll sv_gravity but
+	// we do not currently enforce a default that resets
+	// on a new server.
+	float sv_gravity = 800;
+
+	// worldspawn "gravity" field is a multiplier to be applied
+	// to sv_gravity.
+	if (!world.gravity) world.gravity = 1;
+	world.gravity = clamp(world.gravity, 0.1, 2);
+
+	// Update the cvar for the server.
+	cvar_set("sv_gravity", ftos(sv_gravity * world.gravity));
 }
 
 void() SpectatorConnect =

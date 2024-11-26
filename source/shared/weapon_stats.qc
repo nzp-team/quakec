@@ -1550,7 +1550,7 @@ vector GetWeaponADSOfs(float wep) =
 	{
 		case W_COLT:
 		case W_BIATCH:
-			return [-5479.2, 1850, -4000];
+			return [-3479.2, 1050, -4000];
 		case W_KAR:
 		case W_ARMAGEDDON:
 			return [-5495.9, 3006.9, -6000];
@@ -1928,7 +1928,7 @@ float(float wep, float frametype, optional float z) GetFrame =
 					case SPRINT_OUT_END:
 						return 31;
 					case TAKE_OUT_START:
-						return 38;
+						return 37;
 					case TAKE_OUT_END:
 						return 41;
 					case PUT_OUT_START:

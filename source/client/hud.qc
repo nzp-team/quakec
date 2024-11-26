@@ -779,6 +779,7 @@ void(float width, float height) HUD_Rounds =
 	else if (rounds_change == 7)//blink white while fading back
 	{
 		stopwatch_round_isactive = true;
+		stopwatch_round_hr = stopwatch_round_min = stopwatch_round_sec = 0;
 		if (!color_shift_init)
 		{
 			color_shift_end[0] = 107;

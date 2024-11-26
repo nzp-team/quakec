@@ -643,7 +643,8 @@ void() Perk_RandomDecide =
 	}
 
 	// Choose which of the eight machines we want to become, if permitted.
-	while (true) {
+	float num_attempts;
+	for(num_attempts = 64; num_attempts > 0; num_attempts--) {
 		i = random();
 		// Quick Revive
 		if (i < (1/8) && (self.spawnflags & SPAWNFLAG_PERKRANDOM_QUICKREVIVE)) {
@@ -694,6 +695,9 @@ void() Perk_RandomDecide =
 			break;
 		}
 	}
+
+	if (!num_attempts)
+		objerror("perk_random: Failed 64 times to pick a Perk-A-Cola. Bailing!\n");
 };
 
 void() Perk_RandomPrecaches =

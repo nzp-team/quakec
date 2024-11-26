@@ -1268,17 +1268,17 @@ void() WeaponCore_Melee =
 
 			// Apply damage to the entity.
 			if (trace_ent.takedamage) {
-				float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.bowie);
+				float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.has_bowie_knife);
 				DamageHandler (trace_ent, self, melee_damage, DMG_TYPE_MELEE);
 			}
 		}
 	}
 
 	// Grab animation stats for our melee weapon.
-	float start_frame = WepDef_GetMeleeFirstFrame(self.weapon, did_lunge, self.bowie);
-	float end_frame = WepDef_GetMeleeLastFrame(self.weapon, did_lunge, self.bowie);
-	float anim_duration = WepDef_GetMeleeAnimDuration(self.weapon, did_lunge, self.bowie);
-	string model_path = WepDef_GetMeleeModel(self.weapon, self.bowie);
+	float start_frame = WepDef_GetMeleeFirstFrame(self.weapon, did_lunge, self.has_bowie_knife);
+	float end_frame = WepDef_GetMeleeLastFrame(self.weapon, did_lunge, self.has_bowie_knife);
+	float anim_duration = WepDef_GetMeleeAnimDuration(self.weapon, did_lunge, self.has_bowie_knife);
+	string model_path = WepDef_GetMeleeModel(self.weapon, self.has_bowie_knife);
 
 	// Ensure we play the Take Out animation if the melee model is not our active weapon
 	void() end_func;

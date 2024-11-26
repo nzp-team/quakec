@@ -202,10 +202,7 @@ void () WallWeapon_TouchTrigger =
 			Player_RemoveScore(other, wcost);
 
 			if (self.enemy) {
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 	} else 
@@ -247,10 +244,7 @@ void () WallWeapon_TouchTrigger =
 			Player_RemoveScore(other, wcost);
 
 			if (self.enemy) {
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 	}
@@ -282,10 +276,7 @@ void () WallWeapon_TouchTrigger =
 			nzp_bettyprompt(other);
 			if (self.enemy)
 			{
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 		other.semi_actions |= SEMIACTION_USE;
@@ -315,10 +306,7 @@ void () WallWeapon_TouchTrigger =
 			other.primary_grenades = 4;
 			if (self.enemy)
 			{
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 		other.semi_actions |= SEMIACTION_USE;
@@ -326,7 +314,7 @@ void () WallWeapon_TouchTrigger =
 	}
 	else if (self.weapon == W_BOWIE)
 	{
-		if (!other.bowie) {
+		if (!other.has_bowie_knife) {
 			useprint(other, 4, self.cost2, self.weapon);
 			if (other.button7)
 			{
@@ -341,16 +329,13 @@ void () WallWeapon_TouchTrigger =
 					other.ach_tracker_coll++;
 					if (self.enemy)
 					{
-						oldent = self;
-						self = self.enemy;
-						self.use();
-						self = oldent;
+						SUB_UseTargets();
 					}
 					entity tempz;
 					tempz = self;
 					self = other;
 					Set_W_Frame(15, 30, 2.75, 0, 0, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_BOTH, true);
-					self.bowie = 1;
+					self.has_bowie_knife = true;
 				}
 			}
 		}
@@ -378,10 +363,7 @@ void () WallWeapon_TouchTrigger =
 		other.reload_delay = 0;
 		Player_RemoveScore(other, self.cost);
 		if (self.enemy) {
-			oldent = self;
-			self = self.enemy;
-			self.use();
-			self = oldent;
+			SUB_UseTargets();
 		}
 		tempe = self;
 		self = other;
