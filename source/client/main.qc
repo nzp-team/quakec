@@ -488,7 +488,7 @@ void() DropRecoilKick =
 {
 	float	len;
 
-	if (crosshair_spread_time > time)
+	if (recoil_kick_time > time)
 		return;
 
 	len = VectorNormalize(gun_kick);
@@ -1006,7 +1006,8 @@ noref void() CSQC_Parse_Event =
 						Hitmark_time = time + 0.2;
 					break;
 				case 5:
-					crosshair_spread_time = time + 70/getWeaponRecoilReturn(getstatf(STAT_ACTIVEWEAPON));
+					recoil_kick_time = time + 70/getWeaponRecoilReturn(getstatf(STAT_ACTIVEWEAPON));
+					cur_spread = CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE));
 					break;
 				default: 
 					break;

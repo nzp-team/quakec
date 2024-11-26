@@ -55,7 +55,7 @@ float hud_maxammo_starttime;
 float nameprint_time;
 float HUD_Change_time; 
 float Hitmark_time;
-float crosshair_spread_time;
+float recoil_kick_time;
 float crosshair_pulse_grenade;
 float zoom_2_time;
 

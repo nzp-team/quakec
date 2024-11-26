@@ -1346,25 +1346,6 @@ void() Draw_Crosshair =
 	if (getstatf(STAT_HEALTH) < 1)
 		return;
 
-	if (crosshair_spread_time > time && crosshair_spread_time)
-    {
-        cur_spread = cur_spread + 10;
-		if (cur_spread >= CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)))
-			cur_spread = CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE));
-		
-		if (!croshhairmoving)
-			cur_spread *= 1/2;
-    }
-    else if (crosshair_spread_time < time && crosshair_spread_time)
-    {
-        cur_spread = cur_spread - 0.25;
-		if (cur_spread <= 0)
-		{
-			cur_spread = 0;
-			crosshair_spread_time = 0;
-		}
-    }
-
 	// Standard crosshair (+)
 	if (crosshair_value == 1) {
 		int x_value, y_value;
