@@ -23,6 +23,8 @@ echo "Compiling FTE CSQC.."
 ./$FTEQCC -srcfile ../progs/csqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
 echo "Compiling FTE SSQC.."
 ./$FTEQCC -O3 -DFTE -srcfile ../progs/ssqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
+echo "Compiling FTE MenuQC.."
+./$FTEQCC -O3 -DFTE -srcfile ../progs/menu.src | grep -E -i "warning |error |defined |not |unknown |branches"
 echo "Compiling Standard/Id SSQC.."
 ./$FTEQCC -O3 -srcfile ../progs/ssqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
 

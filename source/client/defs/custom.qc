@@ -28,21 +28,7 @@
 
 #pragma warning disable Q302
 
-vector cursor_pos; /* Current mouse cursor position, updated in csqc_inputevent */
 float g_width, g_height; /* Globals for screen width and height */
-
-float walk;
-
-//Menu stuff
-float in_menu; //what menu are we in
-float time_in_menu;
-
-// Loading screen definitions
-float in_loadscreen;
-float loadscreen_timetrigger;
-string loadscreen_mapname;
-string loadscreen_maptitle;
-string loadscreen_tip;
 
 float weapon;
 
@@ -52,24 +38,6 @@ float tracercounter;
 
 entity cl_viewent;
 entity cl_viewent2;
-
-const float MENU_NONE 			= 0;
-const float MENU_MAIN 			= 1;
-const float MENU_SINGLE 		= 2;
-const float MENU_MULTI 			= 4;
-const float MENU_SETTINGS 		= 8;
-const float MENU_ABOUT 			= 16;
-const float MENU_JOIN 			= 32;
-const float MENU_PAUSE 			= 64;
-const float MENU_IGS 			= 128;
-const float MENU_RES 			= 256;
-const float MENU_GSETTINGS 		= 512;
-const float MENU_CSETTINGS 		= 1024;
-const float MENU_CUSTOMS 		= 2048;
-const float MENU_ACHIEVEMENTS	= 4096;
-const float MENU_CONSETTINGS 	= 8192;
-const float MENU_AUDSETTINGS 	= 16384;
-const float MENU_CREATE 		= 32768;
 
 float matchmake_enabled;
 float double_tap_version;
@@ -159,10 +127,6 @@ float screenflash_starttime;
 .float points;
 .float kills;
 
-float menu_initialized;
-
-float customs_interact;
-
 vector camang;		// used for punches
 
 //world text
@@ -174,29 +138,7 @@ string person;
 //custom hud
 string huddir;
 
-//this just cleans up settings a bit..
-#define     S_ENABLED       "Enabled"
-#define     S_DISABLED      "Disabled"
-float wasigs;
-
-//controls
-#define MAX_BINDS   14
-
-float editBind[MAX_BINDS];
-string buttonBind[MAX_BINDS];
-string tempBind[MAX_BINDS];
-
-// resolution
-float aspectratio;
-float fullscreenval;
-float active_swidth;
-float active_sheight;
-
 int 	platform_is_web;
-
-#define 	OPTION_EXE_ONLY 	0
-#define 	OPTION_WEB_ONLY 	1
-#define 	OPTION_WEB_AND_EXE	2
 
 // Stopwatch server time counter
 float 	stopwatch_sec;
@@ -217,7 +159,6 @@ float GPButtonHeldBeginTime[24];	// Tracks time button down event is called, to 
 float last_input_deviceid;			// The Device ID of the input hardware that last called CSQC_InputEvent, to target it directly.
 
 string build_datetime;
-#define VERSION_STRING  "v1.0"
 
 vector gun_kick;
 
@@ -243,54 +184,4 @@ string zombie_skins[] =
 	"models/ai/zh^.mdl",
 	"models/ai/zal(.mdl", 
 	"models/ai/zar(.mdl"
-};
-
-//
-// Screen sizes, self-explanatory.
-//
-var struct screenres_s
-{
-	float width;
-	float height;
-};
-
-screenres_s screen_resolution_5x4[] =
-{
-	{1280, 1024}
-};
-
-screenres_s screen_resolution_4x3[] =
-{
-	{640, 480},
-	{800, 600},
-	{1024, 768}
-};
-
-screenres_s screen_resolution_16x9[] =
-{
-	{640, 360},
-	{1280, 720},
-	{1360, 768},
-	{1366, 768},
-	{1536, 864},
-	{1600, 900},
-	{1920, 1080},
-	{2048, 1152},
-	{2560, 1440},
-	{3840, 2160}
-};
-
-screenres_s screen_resolution_16x10[] =
-{
-	{1280, 800},
-	{1440, 900},
-	{1680, 1050},
-	{1920, 1200},
-	{2560, 1600}
-};
-
-screenres_s screen_resolution_21x9[] =
-{
-	{2560, 1080},
-	{3840, 1440}
 };

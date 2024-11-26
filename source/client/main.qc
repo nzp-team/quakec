@@ -29,32 +29,22 @@ float need_vid_reload;
 
 void() ToggleMenu =
 {
-	if(serverkey("constate") != "disconnected")
+	if (serverkey("constate") != "disconnected")
 	{
 		if (player_count == 0)
 			localcmd("cmd pause\n");
-		if(in_menu == MENU_NONE)
+
+		if(current_menu == MENU_NONE)
 		{
-			in_menu = MENU_PAUSE;
-			time_in_menu = 0;
-			local float i;
-			for(i = 0; i < buttons.length; i++)
-			{
-				buttons[i].active = 1;
-			}
+			current_menu = MENU_PAUSE;
 			setcursormode(TRUE, cvar_string("cl_cursor"), __NULL__, cvar("cl_cursor_scale"));
 		}
 		else
 		{
-			in_menu = MENU_NONE;
+			menu_paus_submenu = 0;
+			current_menu = MENU_NONE;
 			setcursormode(FALSE);
 		}
-	}
-	else
-	{
-		in_menu = MENU_MAIN;
-		time_in_menu = 0;
-		setcursormode(TRUE, cvar_string("cl_cursor"), __NULL__, cvar("cl_cursor_scale"));
 	}
 }
 
@@ -175,8 +165,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	precache_model("models/player.mdl");
 
 	registercommand("togglemenu");
-	registercommand("startwalk");
-	registercommand("stopwalk");
 	registercommand("promptjoin");
 	registercommand("showscores");
 
@@ -196,33 +184,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	if (platform_is_web) {
 		cvar_set("com_protocolname", "NZP-REBOOT-WEB");
 	}
-		
-	//print("CSQC Started\n");
-	if(serverkey("constate") == "disconnected")
-		ToggleMenu();
-	//bgpos = 0;
-
-	// default button binds
-
-	buttonBind[0] = "+forward";
-	buttonBind[1] = "+back";
-	buttonBind[2] = "+moveleft";
-	buttonBind[3] = "+moveright";
-	buttonBind[4] = "impulse 10";
-	buttonBind[5] = "impulse 23";
-	buttonBind[6] = "impulse 30";
-	buttonBind[7] = "+button4";
-	buttonBind[8] = "+button4";
-	buttonBind[9] = "+button7";
-	buttonBind[10] = "+button5";
-	buttonBind[11] = "+button6";
-	buttonBind[12] = "+button3";
-	buttonBind[13] = "impulse 33";
-
-	// default/current width and height
-	active_swidth = cvar("vid_width");
-	active_sheight = cvar("vid_height");
-	fullscreenval = cvar("vid_fullscreen");
 
 	// cvars for custom settings
 	autocvar(cl_cinematic, 0);
@@ -264,9 +225,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 		localcmd("bind 1 +button4; bind 2 +button4\n");
 	}
 
-	// retrieve custom maps
-	Customs_Get();
-
 	//
 	// get the build date
 	//
@@ -303,12 +261,6 @@ noref void() CSQC_WorldLoaded =
 	huddir = "gfx/hud/";
 };
 
-// This is from COW lol!
-#define ADS_THOMPSON    '-3 +5.80 +4.52'
-
-/*vector adsOffset;
-float adsAmount;
-float adsDir;*/
 vector weapon_bob_factor;
 float weapon_bob_factor_z_coef;
 vector dampening_factor;
@@ -550,191 +502,6 @@ void() DropRecoilKick =
 	gun_kick[2] *= len;
 }
 
-string() LoadScreen_GiveTip =
-{
-	float index = rint((random() * (80 - 1))) + 1;
-
-	switch(index)
-    {
-        case 1:
-			return  "Released in 1996, Quake is over 25 years old!";
-        case 2:
-            return  "Use the Kar98k to be the hero we need!";
-        case 3:
-            return  "Lots of modern engines are based on Quake!";
-        case 4:
-            return  "NZ:P began development on September 27 2009!";
-        case 5:
-            return  "NZ:P was first released on December 25, 2010!";
-        case 6:
-            return  "NZ:P Beta 1.1 has over 300,000 downloads!";
-        case 7:
-            return  "NZ:P has been downloaded over 500,000 times!";
-        case 8:
-            return  "A lot of people have worked on NZ:P!";
-        case 9:
-            return  "Blubswillrule, or \"blubs\", is from the US.";
-        case 10:
-            return  "Jukki is from Finland.";
-        case 11:
-            return  "Ju[s]tice, or \"tom\" is from Lithuania.";
-        case 12:
-            return  "This game has given us bad sleeping habits!";
-        case 13:
-            return  "We had a lot of fun making this game!";
-        case 14:
-            return  "Pro Tip: you can make your own custom map!";
-        case 15:
-            return  "Try Retro Mode, it's in the Graphics Settings!";
-        case 16:
-			return  "Tired of our maps? Go make your own!";
-        case 17:
-            return  "Slay zombies & be grateful.";
-        case 18:
-            return  "Custom maps, CUSTOM MAPS!";
-        case 19:
-            return  "Go outside & build a snowman!";
-        case 20:
-            return  "Please surround yourself with zombies!";
-        case 21:
-            return  "Don't play for too long.. zombies may eat you.";
-        case 22:
-            return  "That was epic... EPIC FOR THE WIIIN!"; //why
-        case 23:
-            return  "FTEQW is an awesome Quake Engine!";
-        case 24:
-            return  "You dead yet?";
-        case 25:
-            return  "Now 21% cooler!";
-        case 26:
-            return  "your lg is nothink on the lan!"; //what
-        case 27:
-            return  "I'm not your chaotic on dm6!"; 
-        case 28:
-            return  "Shoot or knife zombies to kill them, up to you!";
-        case 29:
-            return 	"How many people forgot to Compile today?";
-        case 30:
-            return  "ggnore";
-        case 31:
-			return  "NZ:P is also on PC, Switch, Vita, and PSP!";
-        case 32:
-            return  "Submerge your device in water for godmode!";
-        case 33:
-            return  "10/10/10 was a good day.";
-        case 34:
-            return  "Also check out \"FreeCS\" by eukara!";
-        case 35:
-            return 	"CypressImplex, or \"Ivy\", is from the USA.";
-        case 36:
-            return  "Zombies don't like bullets.";
-        case 37:
-            return  "Thanks for being an awesome fan!";
-		case 38:
-			return 	"Removed Herobrine";
-		case 39:
-			return 	"Pack-a-Punch the Kar98k to get to round 100000.";
-		case 40:
-			return 	"I feel like I'm being gaslit.";
-		case 41:
-			return 	"Heads up! You will die if you are killed!";
-		case 42:
-			return 	"Zombies legally can't kill you if you say no!";
-		case 43:
-			return 	"Please help me find the meaning of   . Thanks.";
-		case 44:
-			return  "Discord is ONLY for Thomas the Tank Engine RP!";
-		case 45:
-			return 	"\"Get rid of the 21% tip, it's an MLP reference.\"";
-		case 46:
-			return 	"You're playing on FTE!";
-		case 47:
-			return 	"Don't leak the beta!";
-		case 48:
-			return  "Jugger-Nog increases your health!";
-		case 49:
-			return  "greg was here";
-		case 50:
-			return  "Where the hell is the Mystery Box?!";
-		case 51:
-			return  "Zombies like getting shot.. I think.";
-		case 52:
-			return  "pro tip: aiming helps";
-		case 53:
-			return  "\"my mom gave me plunger money\"";
-		case 54:
-			return "dolphin dive on top of your friend for god mode";
-		case 55:
-			return "no free rides. ass, grass, or cash!";
-		case 56:
-			return "https://nzp.gay/";
-		case 57:
-			return "im an mlg gamer girl so its pretty guaranteed";
-		case 58:
-			return "this is a w because you cant have enough fnaf";
-		case 59:
-			return "i hope santa drops bombs on the uk";
-		case 60:
-			return "Hoyl shit, bro! You fucking ported fortnite!";
-		case 61:
-			return "icarly feet futtishist.";
-		case 62:
-			return "Well, it's impossible to play, I'm disgusted.";
-		case 63:
-			return "I like my women to not be cartoons";
-		case 64:
-			return "Plot twist: NZP was always broken";
-		case 65:
-			return "testing some think.";
-		case 66:
-			return "fnaf is older than gay marriage in the us";
-		case 67:
-			return "i want that twink Obliterated";
-		case 68:
-			return "i think he started the femboy transition process";
-		case 69:
-			return "nice";
-		case 70:
-			return "He's FUCKING annoying";
-		case 71:
-			return "yeah pog female bikers";
-		case 72:
-			return "Its either a stroke of genius or just a stroke";
-		case 73:
-			return  "Play some Custom Maps!";
-		case 74:
-			return  "Real OGs play on Win9X Machines!";
-		case 75:
-			return  "Adding this tip improved framerate by 39%!";
-		case 76:
-			return  "The NZ in NZP stands for New Zealand!";
-		case 77:
-			return  "The P in NZP stands for Professional!";
-		case 78:
-			return  "Remember to stay hydrated!";
-		case 79:
-			return  "cofe";
-    }
-    return "wut wut";
-};
-
-noref void(float width, float height, float notmenu) CSQC_UpdateViewLoading =
-{
-	if (loadscreen_mapname != "") {
-		drawpic([0, 0], strcat("gfx/lscreen/", loadscreen_mapname), [width, height], [1, 1, 1], 1);
-	}
-
-	drawfill ([0, 0], [width, 32, 1], [0, 0, 0], 0.68, 0);
-	drawfill ([0, height - 32], [width, 32, 1], [0, 0, 0], 0.68, 0);
-
-	drawstring([width/2 - (stringwidth(loadscreen_tip, 0, [12, 12])/2), height - 16, 0], loadscreen_tip, [12, 12], [1, 1, 1], 1, 0);
-	drawstring([6, 6], loadscreen_maptitle, [24, 24], TEXT_ORANGE, 1, 0);
-
-	drawfill ([width/2 - 160, height - 42], [320, 18, 1], [0.27, 0.27, 0.27], 1, 0);
-	drawfill ([width/2 - 164, height - 46], [328, 26, 1], [0, 0, 0], 0.77, 0);
-	drawstring([width/2 - (stringwidth("Loading...", 0, [14, 14])/2), height - 40, 0], "Loading...", [14, 14], [1, 1, 1], 1, 0);
-};
-
 //
 // Key_IsControllerGlyph(bind)
 // Returns TRUE if the string provided belongs to
@@ -877,7 +644,8 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setviewprop(VF_DRAWCROSSHAIR, 0);
 
 	float sensitivity_factor;
-	if (in_menu == MENU_PAUSE)
+
+	if (current_menu != MENU_NONE)
 		sensitivity_factor = 0;
 	else
 		sensitivity_factor = (1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT);
@@ -943,28 +711,22 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	//does what you think it does
 	renderscene();
 
-	if (in_loadscreen)
-	{
-		in_loadscreen = false;
-		localcmd(strcat("map ", loadscreen_mapname, "\n"));
-	}
-	if(in_menu)
+	if (current_menu != MENU_NONE)
 	{
 		// sorta-nasty hack: flashes should still draw if we're
 		// drawing the menu.
 		if (screenflash_duration > time)
 			HUD_Screenflash();
 
-		Draw_Menu();
 		setlocaluserinfo(0, "in_menu", "1");
 
-		if (gamepad_enabled)
-			buttons[20].gray_out = true;
-		else
-			buttons[20].gray_out = false;
+		sui_begin(g_width, g_height);
+		root_menu([g_width, g_height]);
+		sui_end();
 	}
 	else
 	{
+		setcursormode(FALSE);
 		HUD_Draw(g_width, g_height);
 		Chat_Draw();
 		setlocaluserinfo(0, "in_menu", "0");
@@ -985,15 +747,6 @@ noref float(string cmd) CSQC_ConsoleCommand =
 			return TRUE;
 		case "map":
 			return FALSE;
-		case "startwalk":
-			walk = TRUE;
-			return FALSE;
-		case "stopwalk":
-			walk = FALSE;
-			return FALSE;
-		case "promptjoin":
-			menu_join();
-			return TRUE;
 		case "showscores":
 			if (score_show)
 				score_show = FALSE;
@@ -1031,27 +784,28 @@ void(float scanx, float setval) Input_Movecheck =
 		K_BACKDOWN = setval;
 }
 
-void(float button, string key) setToBind =
-{
-	local string fullbind, unbind, oldkey;
-	local string btn;
-	editBind[button] = FALSE;
-
-	btn = buttonBind[button];
-
-	tokenize(findkeysforcommandex(btn));
-	oldkey = argv(0);
-
-	unbind = strcat("bind ", oldkey, " null\n");
-	fullbind = strcat("bind ", key, " \"", btn, "\"\n");
-			
-	localcmd(unbind);
-	localcmd(fullbind);
-}
-
 noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent =
 {
+	if (evtype == IE_GYROSCOPE || evtype == IE_ACCELEROMETER)
+		return FALSE;
+
+	// Ignore subtle (drift-y) joystick axes
+	if (evtype == IE_JOYAXIS && devid > 0 && fabs(chary) < 0.1) {
+		return FALSE;
+	}
+
 	last_input_deviceid = devid;
+	float last_input_storage = last_input_was_gamepad;
+
+	if (last_input_deviceid > 0)
+		last_input_was_gamepad = TRUE;
+	else
+		last_input_was_gamepad = FALSE;
+
+	if (current_menu != MENU_NONE)
+	{
+		return sui_input_event(evtype, scanx, chary, devid);
+	}
 
 	if (evtype == IE_KEYDOWN) {
 		switch (scanx) {
@@ -1121,85 +875,6 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 	switch(evtype)
 	{
 		case IE_KEYDOWN:
-			if(in_menu != MENU_NONE)
-			{
-				if(scanx == K_MOUSE1) {
-					Menu_Click(0);
-
-					if (in_menu == MENU_CUSTOMS)
-						Menu_Click_Custom();
-					return TRUE;
-				} else if (scanx == K_MOUSE2) {
-					Menu_Click(1);
-					return TRUE;
-				}
-
-				if (in_menu == MENU_CSETTINGS) {
-					for (int i = 0; i < MAX_BINDS; i += 1) {
-						if (editBind[i] == TRUE)
-							setToBind(i, keynumtostring(scanx));
-					}
-				}
-
-				if (in_menu == MENU_MULTI) {
-					// GO AWAY!
-					if (scanx == K_ENTER || scanx == K_ESCAPE) {
-						editing_player_name = editing_server_id = editing_password = editing_hostname = false;
-						return FALSE;
-					}
-
-					if (editing_player_name == true) {
-						// Update the temp string.
-						temp_player_name = GetUserInput(temp_player_name, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("name", temp_player_name);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-				} else if (in_menu == MENU_CREATE || in_menu == MENU_JOIN) {
-					// GO AWAY!
-					if (scanx == K_ENTER || scanx == K_ESCAPE) {
-						editing_player_name = editing_server_id = editing_password = false;
-						return FALSE;
-					}
-
-					// Server IP
-					if (editing_server_id == true) {
-						// Update the temp string.
-						temp_server_name = GetUserInput(temp_server_name, scanx, chary, 18);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-
-					// Password
-					if (editing_password == true) {
-						// Update the temp string.
-						temp_password = GetUserInput(temp_password, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("password", temp_password);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-
-					// Hostname
-					if (editing_hostname == true) {
-						// Update the temp string.
-						temp_hostname = GetUserInput(temp_hostname, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("hostname", temp_hostname);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-				}
-			}
-		
 			Input_Movecheck(scanx, 1);
 			return FALSE;
 		case IE_KEYUP:
@@ -1208,10 +883,6 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 		case IE_MOUSEDELTA:
 			return FALSE;
 		case IE_MOUSEABS:
-			//if(devid != 0 && devid != 1)
-			//	return FALSE;
-			cursor_pos_x = scanx;
-			cursor_pos_y = chary;
 			return FALSE;
 	}
 

@@ -929,16 +929,29 @@ void(float width, float height) HUD_Rounds =
 
 void(float width, float height) HUD_Useprint =
 {
-	string usestring, usebutton, usespace;
+	string usestring, usespace;
 	string usecost;
 	float print_width, x, button_width;
 	
 	usestring = "";
 	usespace = "";
 	usecost = "";
-		
-	tokenize(findkeysforcommandex("+button7"));
-	usebutton = strtoupper(argv(0));
+
+	string usebutton = "";
+    float argc = tokenize(findkeysforcommandex("+button7"));
+
+    for (int i = 0; i < argc; i++) {
+        usebutton = strtoupper(argv(i));
+        float bind_is_gamepad = Key_IsControllerGlyph(usebutton);
+
+        if (bind_is_gamepad && last_input_was_gamepad)
+            break;
+        else if (!bind_is_gamepad && !last_input_was_gamepad)
+            break;
+    }
+
+    if (usebutton == "")
+        usebutton = "UNBOUND";
 
 	// If this is a gamepad button, the space we want to reserve
 	// in the usestring should be a fixed width.
@@ -1677,16 +1690,17 @@ void(float width, float height) HUD_Achievements = {
 
 string(float index) GetButtonString =
 {
-	// place holder
-	if (index == 100)
-		return "LMOUSE";
-	else if (index == 101)
-		return "RMOUSE";
+	// // place holder
+	// if (index == 100)
+	// 	return "LMOUSE";
+	// else if (index == 101)
+	// 	return "RMOUSE";
 
-	tokenize(findkeysforcommandex(buttonBind[index]));
-	string temps = strtoupper(argv(0));
+	// tokenize(findkeysforcommandex(buttonBind[index]));
+	// string temps = strtoupper(argv(0));
 
-	return temps;
+	// return temps;
+	return "LMOUSE";
 }
 
 void(float width, float height) HUD_Waypoint =

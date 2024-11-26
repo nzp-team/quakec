@@ -17,6 +17,8 @@ echo Compiling FTE CSQC..
 fteqcc-cli-win.exe -srcfile ../progs/csqc.src
 echo Compiling FTE SSQC..
 fteqcc-cli-win.exe -O3 -DFTE -srcfile ../progs/ssqc.src
+echo Compiling FTE MenuQC..
+fteqcc-cli-win.exe -O3 -DFTE -srcfile ../progs/menu.src
 echo Compiling Standard/Id SSQC..
 fteqcc-cli-win.exe -O3 -srcfile ../progs/ssqc.src
 
