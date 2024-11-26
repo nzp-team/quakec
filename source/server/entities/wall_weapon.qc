@@ -424,6 +424,7 @@ void() buy_weapon =
 	self.touch = WallWeapon_TouchTrigger;
 	
 	self.think = WallWeapon_LinkChalk;
+	self.message = "";
 	self.nextthink = time + 0.2; 
 
 	ach_tracker_col2++;
