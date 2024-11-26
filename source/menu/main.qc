@@ -208,6 +208,10 @@ void() m_init =
 	// Get Platform Information
 	running_platform = Menu_GetPlatform();
 
+	if (running_platform == PLATFORM_WEB) {
+		localcmd("com_protocolname NZP-REBOOT-WEB\n");
+	}
+
 	// Init Cvars
 	autocvar(cl_cinematic, 0);
 	autocvar(nzp_particles, 1);
