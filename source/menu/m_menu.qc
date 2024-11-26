@@ -627,6 +627,7 @@ static string(string s) str2ascii =
 // Menu_ServerList(id, pos, size, scrollofs, num_servers)
 // Draw the master server list
 //
+void(float type) Menu_PlaySound;
 void(string id, vector pos, vector size, __inout vector scrollofs, float num_servers) Menu_ServerList =
 {
 	vector rowsize = [size.x, 16];
@@ -650,9 +651,15 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 		if (sui_is_hovered(listitem_id))
 			sui_fill(bpos, rowsize, [0.25, 0.1, 0.1], 0.5, 0);
 
+#ifdef MENU
 		// do it
-		if (sui_is_clicked(listitem_id))
+		if (sui_is_clicked(listitem_id)) {
+			Menu_PlaySound(MENU_SND_ENTER);
+			m_toggle(false);
+			map_name_override = gethostcachestring(gethostcacheindexforkey("map"), index);
 			localcmd("connect ", gethostcachestring(gethostcacheindexforkey("cname"), index), "\n");
+		}
+#endif // MENU
 
 		// name
 		sui_fill(bpos, bsize, [0.25, 0.1, 0.1], 0.5, 0);

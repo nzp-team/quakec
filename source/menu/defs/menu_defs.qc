@@ -14,6 +14,9 @@ float running_platform;
 
 float last_input_was_gamepad;
 
+float loading_into_server;
+string map_name_override;
+
 #ifdef MENU
 
 float last_input_deviceid;

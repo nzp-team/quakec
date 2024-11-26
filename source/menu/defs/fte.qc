@@ -630,6 +630,9 @@ void(string cmdname) registercommand = #352; /*
 		Register the given console command, for easy console use.
 		Console commands that are later used will invoke CSQC_ConsoleCommand. */
 
+string(string key) serverkey = #354; /*
+		Look up a key in the server's public serverinfo string. If the key contains binary data then it will be truncated at the first null. */
+
 float(string s) findfont = #356; /* Part of DP_GFX_FONTS
 		Looks up a named font slot. Matches the actual font name as a last resort. */
 

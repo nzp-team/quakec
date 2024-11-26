@@ -153,6 +153,14 @@ void() Menu_Coop_Browse =
 	sui_pop_frame();
 };
 
+void(string ip) Menu_Coop_Connect =
+{
+	Menu_PlaySound(MENU_SND_ENTER);
+	m_toggle(false);
+	localcmd("connect ", ip, "\n");
+	map_name_override = "OVERRIDE";
+};
+
 void() Menu_Coop_Direct =
 {
 	Menu_Coop_UpdatePassword();
@@ -168,7 +176,7 @@ void() Menu_Coop_Direct =
 	Menu_PasswordInput("cdm_serverpassword", 2, server_password, server_password_cursor);
 
 	Menu_DrawDivider(3);
-	Menu_Button(3.25, "cdm_connect", "CONNECT TO SERVER", "Attempt to connect to Game.") ? localcmd("connect ", server_ip, "\n") : 0;
+	Menu_Button(3.25, "cdm_connect", "CONNECT TO SERVER", "Attempt to connect to Game.") ? Menu_Coop_Connect(server_ip) : 0;
 
 	Menu_Button(-1, "cdm_back", "BACK", "Return to Join Game Menu.") ? current_menu = MENU_COOPJOIN : 0;
 
@@ -208,12 +216,22 @@ void() Menu_Coop_Create =
 	Menu_Button(3, "ccm_password", "SERVER PASSWORD", "Enter an (optional) password to limit who can join.");
 	Menu_PasswordInput("ccm_password", 3, server_password, server_password_cursor);
 
-	Menu_DrawDivider(4);
-	Menu_Button(4.25, "ccm_choosemap", "CHOOSE MAP", "Select a Map to start the Game.") ? Menu_StartCoop() : 0;
+	// Max players
+	Menu_Button(4, "ccm_maxplayers", "MAX PLAYERS", "Change the maximum number of players who can join your server.") ? 0 : 0;
+    Menu_CvarSlider(4, [1, 4, 3], "maxplayers", true, false);
+
+	Menu_DrawDivider(5);
+	Menu_Button(5.25, "ccm_choosemap", "CHOOSE MAP", "Select a Map to start the Game.") ? Menu_StartCoop() : 0;
 
 	Menu_Button(-1, "ccm_back", "BACK", "Return to Co-Op Menu.") ? current_menu = MENU_COOP : 0;
 
 	sui_pop_frame();
+};
+
+void() Menu_Coop_EnterCreate =
+{
+	localcmd("maxplayers 4\n");
+	current_menu = MENU_COOPCREATE;
 };
 
 void() Menu_Coop =
@@ -229,7 +247,7 @@ void() Menu_Coop =
 
 	Menu_DrawDivider(2);
 	Menu_Button(2.25, "cm_join", "JOIN GAME", "Join an in-progress Match.") ? current_menu = MENU_COOPJOIN : 0;
-	Menu_Button(3.25, "cm_create", "CREATE GAME", "Create a new Match for others to join.") ? current_menu = MENU_COOPCREATE : 0;
+	Menu_Button(3.25, "cm_create", "CREATE GAME", "Create a new Match for others to join.") ? Menu_Coop_EnterCreate() : 0;
 
 	Menu_Button(-1, "cm_back", "BACK", "Return to Main Menu.") ? current_menu = MENU_MAIN : 0;
 

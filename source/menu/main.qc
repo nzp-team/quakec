@@ -221,6 +221,23 @@ void() m_init =
 
 void(vector screensize) m_draw =
 {
+	// In game or connecting.
+	if (!menu_active) {
+		menu_changetime = 0;
+		music_duration_time = 0;
+
+		// Draw the loading screen if we're connecting to a lobby.
+		tokenize(serverkey("loadstate"));
+		float loadstate = stof(argv(0));
+
+		if (loadstate == 1) {
+			loading_into_server = true;
+			m_drawloading(screensize, false);
+			loading_into_server = false;
+		}
+		return;
+	}
+
 	// Menu Music Playback
 	if (time > music_duration_time) {
 		localsound(sprintf("tracks/%s.ogg", cvar_string("menu_trackname")), 1, cvar("nzp_bgmvolume"));
@@ -235,8 +252,8 @@ void(vector screensize) m_draw =
 	}
 	
 	sui_begin(screensize_x, screensize_y);
-	if (menu_active)
-		root_menu(screensize);
+
+	root_menu(screensize);
 	
 	sui_end();
 };
@@ -251,6 +268,19 @@ void() m_open =
 {
 	setkeydest(2);
 	menu_active = TRUE;
+};
+
+void(float wantmode) m_toggle =
+{
+	if (menu_active) {
+		map_name_override = "";
+		m_close();
+		setcursormode(FALSE);
+	} else {
+		m_open();
+		setcursormode(TRUE);
+		current_menu = MENU_MAIN;
+	}
 };
 
 float(float evtype, float scanx, float chary, float devid) Menu_InputEvent =
@@ -294,12 +324,6 @@ float(string cmd) m_consolecommand =
 	}
 
 	return FALSE;
-};
-
-void(float wantmode) m_toggle =
-{
-	if (menu_active) m_close();
-	else m_open();
 };
 
 void() m_shutdown =

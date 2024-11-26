@@ -87,9 +87,9 @@ void() Menu_Main =
     }
 
     Menu_SocialBadge(1, "soc_youtube", "youtube.com/@nzpteam", 2);
-    Menu_SocialBadge(2, "soc_mastadon", "twitter.com/nzpteam", 3); // FIXME: Move to Mastadon
+    Menu_SocialBadge(2, "soc_bluesky", "@nzportable.bsky.social", 3);
     Menu_SocialBadge(3, "soc_patreon", "patreon.com/cypressimplex", 4);
-    Menu_SocialBadge(4, "soc_matrix", "discord.nzp.gay", 1); // FIXME: Move to Matrix
+    Menu_SocialBadge(4, "soc_docs", "docs.nzp.gay", 1);
 
 	sui_pop_frame();	
 };
