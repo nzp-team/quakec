@@ -633,11 +633,17 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 	vector rowsize = [size.x, 16];
 	vector listitem_pos = [0, 0, 0];
 	sui_fill(pos, size, [0, 0, 0], 0.75, 0);
+
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
+
+	int server_display_x = 0;
+	int map_display_x = 0;
+	int player_display_x = 0;
+
 	sui_list_view_begin(strcat(id, "scrl"), pos, size, rowsize, num_servers, scrollofs, [0, 16]);
 	for (float index = sui_list_item(listitem_pos); index > -1; index = sui_list_item(listitem_pos))
 	{
 		sui_push_frame(listitem_pos, rowsize);
-		sui_set_align([SUI_ALIGN_START, SUI_ALIGN_CENTER]);
 
 		string listitem_id = strcat(id, "scrl", ftos(index));
 		sui_action_element([0, 0], rowsize, listitem_id, sui_noop);
@@ -662,22 +668,25 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 #endif // MENU
 
 		// name
+		server_display_x = bpos.x;
 		sui_fill(bpos, bsize, [0.25, 0.1, 0.1], 0.5, 0);
-		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, str2ascii(gethostcachestring(gethostcacheindexforkey("name"), index)), MENU_TEXT_1, 1, 0);
+		sui_text(bpos + [8, 2], MENU_TEXT_SMALL, str2ascii(gethostcachestring(gethostcacheindexforkey("name"), index)), MENU_TEXT_1, 1, 0);
 
 		// map
 		bsize.x = (rowsize.x / 8);
 		bpos.x = bsize.x * 5;
-		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, gethostcachestring(gethostcacheindexforkey("map"), index), MENU_TEXT_1, 1, 0);
+		map_display_x = bpos.x;
+		sui_text(bpos + [8, 2], MENU_TEXT_SMALL, gethostcachestring(gethostcacheindexforkey("map"), index), MENU_TEXT_1, 1, 0);
 
 		// players
 		bpos.x = bsize.x * 7;
+		player_display_x = bpos.x;
 		string s = sprintf("%d/%d",
 			stof(gethostcachestring(gethostcacheindexforkey("numhumans"), index)),
 			stof(gethostcachestring(gethostcacheindexforkey("maxplayers"), index))
 		);
 		sui_fill(bpos, bsize, [0.25, 0.1, 0.1], 0.5, 0);
-		sui_text(bpos + [8, 0], MENU_TEXT_SMALL, s, MENU_TEXT_1, 1, 0);
+		sui_text(bpos + [8, 2], MENU_TEXT_SMALL, s, MENU_TEXT_1, 1, 0);
 
 		// hovered border
 		bpos = [0, 0];
@@ -687,6 +696,14 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 		sui_pop_frame();
 	}
 	sui_list_view_end();
+
+	// Table
+	if (map_display_x == 0)
+		return;
+	
+	sui_text([server_display_x, pos.y] + [8, -135], MENU_TEXT_SMALL, "Server Name", MENU_TEXT_1, 1, 0);
+	sui_text([map_display_x, pos.y] + [8, -135], MENU_TEXT_SMALL, "Map", MENU_TEXT_1, 1, 0);
+	sui_text([player_display_x, pos.y] + [8, -135], MENU_TEXT_SMALL, "Players", MENU_TEXT_1, 1, 0);
 };
 
 void() Menu_StartCoop =
