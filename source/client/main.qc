@@ -609,22 +609,102 @@ float(float a) angledelta =
 }
 
 //MOVEME
-float delta_pitch, delta_yaw;
+vector current_sway;
+float current_intensity;
+float target_intensity;
 vector sniper_sway;
-// Sways the camera while scoped in.
-void() Camera_SniperSway =
+float sniper_breath_starttime;
+float sniper_breath_endtime;
+float sniper_breath_counter;
+float sniper_breath_exhaustion_starttime;
+float sniper_breath_exhaustion_endtime;
+float sniper_breath_delay;
+float sniper_hold_breath;
+
+#define SNIPER_SWAY_INTENSITY_FOCUSED		0.05
+#define SNIPER_SWAY_INTENSITY_NORMAL		0.5
+#define SNIPER_SWAY_INTENSITY_EXHAUSTION	2
+
+void(float inhale) Sniper_HoldBreath =
 {
+	if (sniper_breath_delay > time)
+		return;
+
 	if (getstatf(STAT_WEAPONZOOM) != 2 || (getstatf(STAT_PERKS) & P_DEAD)) {
-		sniper_sway = '0 0 0';
 		return;
 	}
 
-	delta_pitch = (cos(cltime/0.7) + cos(cltime) + sin(cltime/1.1)) * 0.5;
-	delta_yaw = (sin(cltime/0.4) + cos(cltime/0.56) + sin(cltime)) * 0.5;
-
-	sniper_sway[0] = angledelta(delta_pitch);
-	sniper_sway[1] = angledelta(delta_yaw);
+	if (inhale) {
+		if (sniper_hold_breath == true)
+			return;
+		sniper_breath_starttime = time;
+		sniper_breath_endtime = time + 4;
+		sniper_hold_breath = true;
+		localsound("sounds/player/inhale.wav", 0, 1);
+	} else {
+		if (sniper_hold_breath == false)
+			return;
+		sniper_breath_endtime = sniper_breath_starttime = 0;
+		sniper_hold_breath = false;
+		sniper_breath_delay = time + 1;
+		localsound("sounds/player/exhale.wav", 0, 1);
+	}
 };
+
+void() Camera_SniperSway =
+{
+    // Determine target intensity based on state
+    target_intensity = SNIPER_SWAY_INTENSITY_NORMAL;
+
+    if (getstatf(STAT_WEAPONZOOM) != 2 || (getstatf(STAT_PERKS) & P_DEAD)) {
+		current_intensity = 0;
+		current_sway = '0 0 0';
+        target_intensity = 0;
+		sniper_breath_counter = 0;
+    } else {
+		// We are focused.
+        if (sniper_breath_endtime > time) {
+            target_intensity = SNIPER_SWAY_INTENSITY_FOCUSED;
+
+			float breath_duration = floor(time - sniper_breath_starttime);
+
+			// Play heartbeat sfx at every second interval.
+			if (breath_duration != sniper_breath_counter) {
+				sniper_breath_counter = breath_duration;
+				localsound("sounds/player/heart.wav", 0, 5);
+			}
+        } 
+		// Time has expired and we're out of breath, begin exhaustion.
+		else if (sniper_breath_endtime < time && sniper_hold_breath == true) {
+            Sniper_HoldBreath(false);
+            sniper_breath_exhaustion_starttime = time;
+            sniper_breath_exhaustion_endtime = time + 4;
+            sniper_breath_delay = time + 4;
+        }
+
+		// Slowly decrease in intensity from fully exhausted to normal.
+        if (sniper_breath_exhaustion_endtime > time) {
+            float progress = (time - sniper_breath_exhaustion_starttime) / (sniper_breath_exhaustion_endtime - sniper_breath_exhaustion_starttime);
+            target_intensity = SNIPER_SWAY_INTENSITY_EXHAUSTION + progress * (SNIPER_SWAY_INTENSITY_NORMAL - SNIPER_SWAY_INTENSITY_EXHAUSTION);
+        }
+    }
+
+    // Smoothly interpolate intensity towards target
+    current_intensity += (target_intensity - current_intensity) * (clframetime * 5); // Adjust 0.1 for smoother/faster transitions
+
+    // Calculate sway deltas based on cltime and intensity
+    float sway_pitch = (cos(cltime / 0.7) + cos(cltime) + sin(cltime / 1.1));
+    float sway_yaw = (sin(cltime / 0.4) + cos(cltime / 0.56) + sin(cltime));
+
+    // Update current sway using the smoothly interpolated intensity
+    current_sway[0] = sway_pitch * current_intensity;
+    current_sway[1] = sway_yaw * current_intensity;
+
+    // Apply the smooth sway to sniper_sway
+    sniper_sway[0] = angledelta(current_sway[0]);
+    sniper_sway[1] = angledelta(current_sway[1]);
+};
+
 float gamepad_enabled;
 
 // CALLED EVERY CLIENT RENDER FRAME
@@ -782,6 +862,13 @@ void(float scanx, float setval) Input_Movecheck =
 	tokenize(findkeysforcommand("+back"));
 	if (scanx == stof(argv(0)))
 		K_BACKDOWN = setval;
+
+	float argc = tokenize(findkeysforcommand("impulse 23"));
+    for (int i = 0; i < argc; i++) {
+		if (scanx == stof(argv(i))) {
+			Sniper_HoldBreath(setval);
+		}
+    }
 }
 
 noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent =

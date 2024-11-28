@@ -102,6 +102,8 @@ float active_achievement;
 float current_achievement_page;
 float achievement_pages;
 
+float sniper_hold_breath;
+
 
 float K_LEFTDOWN, K_RIGHTDOWN, K_BACKDOWN, K_FORWARDDOWN;
 

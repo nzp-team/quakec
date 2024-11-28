@@ -1299,6 +1299,49 @@ void() Draw_Crosshair =
 		drawfill('0 0 0',  [g_width/2 - g_height/2, g_height, 0], '0 0 0', 1, 0);
 		drawpic([(g_width/2 - g_height/2),0,0], "gfx/hud/scope_nb.tga", [g_height, g_height, 1], [1,1,1], 1);
 		drawfill([(g_width/2 + g_height/2),0,0],  [g_width, g_height, 0], '0 0 0', 1, 0);
+
+		// Draw "Hold Breath" text if we aren't already doing so and we don't have Deadshot Daiquiri.
+		if (sniper_hold_breath != true && !(getstatf(STAT_PERKS) & P_DEAD)) {
+			// Grab the bind for Sprint/Hold Breath
+			string breath_button = "";
+			string space_width = "";
+
+			float argc = tokenize(findkeysforcommandex("impulse 23"));
+			for (int i = 0; i < argc; i++) {
+			    breath_button = strtoupper(argv(i));
+			    float bind_is_gamepad = Key_IsControllerGlyph(breath_button);
+
+			    if (bind_is_gamepad && last_input_was_gamepad)
+			        break;
+			    else if (!bind_is_gamepad && !last_input_was_gamepad)
+			        break;
+			}
+
+			if (breath_button == "")
+				breath_button = "UNBOUND";
+
+			string breath_button_string = "  ";
+
+			// If this is a gamepad button, the space we want to reserve
+			// in the string should be a fixed width.
+			if (!Key_IsControllerGlyph(breath_button)) {
+				breath_button_string = breath_button;
+			} 
+
+			string breath_string = strcat("Hold ", breath_button_string, " to steady");
+			float print_width = getTextWidth(breath_string, 12);
+			float x = (g_width - print_width)/2;
+			Draw_String([x, 65, 0], breath_string, [12, 12, 0], [1, 1, 1], 1, 0);
+
+			// Draw highlighted button
+			float button_width = x + getTextWidth("Hold ", 12);
+
+			if (Key_IsControllerGlyph(breath_button))
+				Key_DrawControllerGlyph([button_width - 5, 62], breath_button, [18, 18]);
+			else
+				Draw_String([button_width, 65, 0], breath_button, [12, 12, 0], [1, 1, 0], 1, 0);
+		}
+
 		return;
 	}
 
