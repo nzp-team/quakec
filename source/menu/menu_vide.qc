@@ -260,7 +260,7 @@ void() Menu_Video =
 
     // Field of View
     Menu_Button(6, "vm_fov", "FIELD OF VIEW", "Change Camera Field of View.") ? 0 : 0;
-    Menu_CvarSlider(6, [10, 200, 190], "fov", true, false);
+    Menu_CvarSlider(6, [10, 150, 140], "fov", true, false);
 
     // Gamma
     Menu_Button(7, "vm_gamma", "GAMMA", "Adjust game Black Level.") ? 0 : 0;
