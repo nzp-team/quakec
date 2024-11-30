@@ -1198,17 +1198,27 @@ void(float width, float height) HUD_Weaponstring =
 void(float width, float height) HUD_BouncingBetty =
 {
 	float top_x, bot_x, but_x;
-	string betty_key;
+	string betty_key = "";
 	string betty_space = "";
 	string activate_string, activate_string2;
 
-	tokenize(findkeysforcommandex("impulse 33"));
-	betty_key = strtoupper(argv(0));
+	float argc = tokenize(findkeysforcommandex("impulse 33"));
+
+	for (int i = 0; i < argc; ++i)
+	{
+		betty_key = strtoupper(argv(i));
+		float bind_is_gamepad = Key_IsControllerGlyph(betty_key);
+
+		if (bind_is_gamepad && last_input_was_gamepad)
+			break;
+		else if (!bind_is_gamepad && !last_input_was_gamepad)
+			break;
+	}
 
 	// If this is a gamepad button, the space we want to reserve
 	// in the betty string should be a fixed width.
 	if (Key_IsControllerGlyph(betty_key)) {
-		betty_space = " ";
+		betty_space = "  ";
 	} 
 	// Scale the space in the betty string for the bind according to
 	// the bind's name.
@@ -1231,7 +1241,7 @@ void(float width, float height) HUD_BouncingBetty =
 	but_x = top_x + getTextWidth("Press ", 12);
 
 	if (Key_IsControllerGlyph(betty_key))
-		Key_DrawControllerGlyph([but_x - 5, g_height - 308], betty_key, [22, 22]);
+		Key_DrawControllerGlyph([but_x - 5, g_height - 308], betty_key, [18, 18]);
 	else
 		Draw_String([but_x, g_height - 303], betty_key, [12, 12], [1, 1, 0], 1, 0); 
 }
