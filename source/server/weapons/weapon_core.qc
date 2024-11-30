@@ -1718,7 +1718,7 @@ void() CheckPlayer =
 		// CoD continues the animation but applies a move speed
 		// penalty, however, that makes no sense! This also applies
 		// as a better implementation to stop sprinting while jumping.
-		if (fabs(self.velocity_z) >= 5)
+		if (fabs(self.velocity_z) >= 150)
 			W_SprintStop();
 		// Otherwise, also stop sprinting if we are moving at a base below
 		// predicted for our slowest possible weapon. This removes the need
