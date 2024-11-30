@@ -230,8 +230,21 @@ void() Menu_Coop_Create =
 
 void() Menu_Coop_EnterCreate =
 {
+	localcmd("saveconfig user_settings.cfg\n");
 	localcmd("maxplayers 4\n");
 	current_menu = MENU_COOPCREATE;
+};
+
+void() Menu_Coop_EnterJoin =
+{
+	localcmd("saveconfig user_settings.cfg\n");
+	current_menu = MENU_COOPJOIN;
+};
+
+void() Menu_Coop_EnterBack =
+{
+	localcmd("saveconfig user_settings.cfg\n");
+	current_menu = MENU_MAIN;
 };
 
 void() Menu_Coop =
@@ -246,10 +259,10 @@ void() Menu_Coop =
 	Menu_TextInput("cm_playername", 1, player_name, player_name_cursor);
 
 	Menu_DrawDivider(2);
-	Menu_Button(2.25, "cm_join", "JOIN GAME", "Join an in-progress Match.") ? current_menu = MENU_COOPJOIN : 0;
+	Menu_Button(2.25, "cm_join", "JOIN GAME", "Join an in-progress Match.") ? Menu_Coop_EnterJoin() : 0;
 	Menu_Button(3.25, "cm_create", "CREATE GAME", "Create a new Match for others to join.") ? Menu_Coop_EnterCreate() : 0;
 
-	Menu_Button(-1, "cm_back", "BACK", "Return to Main Menu.") ? current_menu = MENU_MAIN : 0;
+	Menu_Button(-1, "cm_back", "BACK", "Return to Main Menu.") ? Menu_Coop_EnterBack() : 0;
 
 	sui_pop_frame();
 };
