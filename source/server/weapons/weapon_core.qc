@@ -454,6 +454,9 @@ void(float side) W_Reload =
 		delay = getWeaponDelay(self.weapon,RELOAD);
 		void(optional float t) endanimfunc = SUB_Null;
 
+		if (!reloadcancelframe)
+			reloadcancelframe = endframe;
+
 		if (self.weapon == W_KAR_SCOPE || self.weapon == W_HEADCRACKER ){
 			startframe = 14;
 			endframe = 18;
@@ -496,6 +499,17 @@ void(float side) W_Reload =
 			self.reload_delay = delay + time;
 		} else {
 			self.reload_delay2 = delay + time;
+		}
+
+		// Sometimes we hit a race condition of sorts where if we have a weapon
+		// designed not to fill the magazine until the end of the reload, 
+		// reload_delay is improperly zero because of server tick rate.
+		// Firing while this occurs causes the reload to cancel and the mag to not
+		// fill. So we delay when we can action again to ensure we reach the mag
+		// fill state. -- cypress (30 Nov 2024)
+		if (endframe == reloadcancelframe) {
+			self.reload_delay += 0.5;
+			self.reload_delay2 += 0.5;
 		}
 		
 		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, RELOAD, endanimfunc, modelname, false, side, false);
