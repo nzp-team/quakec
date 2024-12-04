@@ -303,6 +303,15 @@ float(float evtype, float scanx, float chary, float devid) Menu_InputEvent =
 		_sui_binding_command_name = "";
 	}
 
+	// HACK: we issue a toggleconsole cmd because the engine doesn't seem to
+	// do it on its own. stupid stupid stupid. also, return TRUE so the engine
+	// thinks we did something else with the input. -- erysdren
+	if (evtype == IE_KEYDOWN && getkeybind(scanx) == "toggleconsole")
+	{
+		localcmd("toggleconsole\n");
+		return TRUE;
+	}
+
 	float used = sui_input_event(evtype, scanx, chary, devid);
 	
 	if (evtype == IE_KEYDOWN && !used)
