@@ -1722,33 +1722,77 @@ void(float width, float height) HUD_Achievements = {
 	}
 }
 
-string(float index) GetButtonString =
+void(float x_position, float y_position, string command, string action) HUD_DrawWaypointModeString =
 {
-	// // place holder
-	// if (index == 100)
-	// 	return "LMOUSE";
-	// else if (index == 101)
-	// 	return "RMOUSE";
+	string bind_button = "";
+	string bind_space = "";
 
-	// tokenize(findkeysforcommandex(buttonBind[index]));
-	// string temps = strtoupper(argv(0));
+	float argc = tokenize(findkeysforcommandex(command));
 
-	// return temps;
-	return "LMOUSE";
-}
+    for (int i = 0; i < argc; i++) {
+        bind_button = strtoupper(argv(i));
+        float bind_is_gamepad = Key_IsControllerGlyph(bind_button);
+
+        if (bind_is_gamepad && last_input_was_gamepad)
+            break;
+        else if (!bind_is_gamepad && !last_input_was_gamepad)
+            break;
+    }
+
+	if (bind_button == "")
+		bind_button = "UNBOUND";
+
+	// If this is a gamepad button, the space we want to reserve
+	// in the usestring should be a fixed width.
+	if (Key_IsControllerGlyph(bind_button)) {
+		bind_space = " ";
+	} 
+	// Scale the space in the usestring for the bind according to
+	// the bind's name.
+	else {
+		for(float i = 0; i < strlen(bind_button); i++) {
+			bind_space = strcat(bind_space, "  ");
+		}
+	}
+
+	string tooltip = sprintf("Press %s to %s", bind_space, action);
+	float bind_x = x_position + getTextWidth("Press ", 12);
+
+	Draw_String([x_position, y_position], tooltip, [12, 12], [1, 1, 1], 1, 0);
+
+	if (Key_IsControllerGlyph(bind_button)) {
+		Key_DrawControllerGlyph([bind_x - 5, y_position], bind_button, [15, 15]);
+	} else {
+		// FTE likes to use MOUSE1 and MOUSE2 for LMOUSE and RMOUSE respectively, which is obtuse.
+		string bind_display = "";
+		switch(bind_button) {
+			case "MOUSE1": bind_display = "LMOUSE"; break;
+			case "MOUSE2": bind_display = "RMOUSE"; break;
+			default: bind_display = bind_button; break;
+		}
+
+		Draw_String([bind_x, y_position, 0], bind_display, [12, 12, 0], [1, 1, 0], 1, 0);
+	}
+};
 
 void(float width, float height) HUD_Waypoint =
 {
-	Draw_String([0.015*width, 0.015*height, 0], "WAYPOINT MODE", [0.030*width, 0.030*width, 0], [1, 1, 1], 1, 0);
-	drawfill([0.015*width, 0.035*height + height*0.035, 0], [strlen("WAYPOINT MODE")*0.030*width, 0.005*width, 0], [1, 1,1], 1, 0);
-	Draw_String([0.015*width, 0.095*height, 0], strcat("Press ", GetButtonString(100), " to Create a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	Draw_String([0.015*width, 0.125*height, 0], strcat("Press ", GetButtonString(9), " to Select a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	Draw_String([0.015*width, 0.155*height, 0], strcat("Press ", GetButtonString(101), " to Link a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	Draw_String([0.015*width, 0.185*height, 0], strcat("Press ", GetButtonString(11), " to Remove a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	Draw_String([0.015*width, 0.215*height, 0], strcat("Press ", GetButtonString(7), " to Move a Waypoint Here"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	Draw_String([0.015*width, 0.245*height, 0], strcat("Press ", GetButtonString(10), " to Create a Special Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	Draw_String([0.015*width, 0.275*height, 0], strcat("Press ", "=", " to load map waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	Draw_String([0.015*width, 0.305*height, 0], strcat("Press ", "-", " to save current waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	drawfill([0, 4], [450, 190], [0, 0, 0], 0.75, 0);
+
+	Draw_String([5, 8], "WAYPOINT MODE", [18, 18], [1, 1, 1], 1, 0);
+	Draw_String([5, 30], "Create/Tweak Pathfind Nodes for Zombie AI", [12, 12], [1, 1, 0], 1, 0);
+	Draw_String([5, 45], "(If you don't know what you're doing, you probably shouldn't be here!)", [10, 10], [1, 1, 1], 1, 0);
+
+	drawfill([5, 60], [440, 3], [0.3, 0.3, 0.3], 1, 0);
+
+	HUD_DrawWaypointModeString(5, 70, "+attack", "Create a Waypoint");
+	HUD_DrawWaypointModeString(5, 85, "+button7", "Select a Waypoint");
+	HUD_DrawWaypointModeString(5, 100, "+button8", "Link a Waypoint");
+	HUD_DrawWaypointModeString(5, 115, "+button6", "Remove a Waypoint");
+	HUD_DrawWaypointModeString(5, 130, "+button4", "Move selected Waypoint Here");
+	HUD_DrawWaypointModeString(5, 145, "+button5", "Create a (Special) Waypoint");
+	HUD_DrawWaypointModeString(5, 160, "impulse 22", "Load Map's Waypoints");
+	HUD_DrawWaypointModeString(5, 175, "impulse 24", "Save current Waypoints");
 }
 
 void(float width, float height) HUD_PlayerNames =
