@@ -1654,6 +1654,7 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.goaldummy = spawn();
 	if (cvar("developer")) {
 		setmodel(zSpawn.goaldummy, "models/way/normal_way.spr");
+		zSpawn.goaldummy.effects = EF_FULLBRIGHT;
 	}
 
 

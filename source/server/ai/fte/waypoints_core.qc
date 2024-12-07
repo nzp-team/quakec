@@ -63,6 +63,7 @@ void () Create_New_Waypoint =
 	
 	setmodel(new_way, "models/way/normal_way.spr");
 	new_way.classname = "waypoint";
+	new_way.effects = EF_FULLBRIGHT;
 	
 	new_way.waynum = ftos(way_count + 1);
 	new_way.targetname = strzone(new_way.targetname);
@@ -499,7 +500,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 	if (cvar("waypoint_mode"))
 		setmodel(new_way, "models/way/normal_way.spr");
 	new_way.classname = "waypoint";
-
+	new_way.effects = EF_FULLBRIGHT;
 	new_way.waynum = ftos(which);
 	dprint ("Created waypoint  ");
 	dprint (new_way.waynum);
@@ -580,6 +581,7 @@ void() Load_Waypoints
 				if (h == "waypoint") {
 					new_way = spawn();
 					new_way.solid = SOLID_TRIGGER;
+					new_way.effects = EF_FULLBRIGHT;
 					new_way.model = "models/way/normal_way.spr";
 					setmodel(new_way, "models/way/normal_way.spr");
 					new_way.classname = "waypoint";
@@ -740,6 +742,7 @@ void() Load_Waypoints_Legacy
 			entity new_way = spawn();
 			new_way.solid = SOLID_TRIGGER;
 			new_way.touch = creator_way_touch;
+			new_way.effects = EF_FULLBRIGHT;
 			new_way.classname = "waypoint";
 			new_way.waynum = ftos(which);
 			new_way.targets[0] = trg;

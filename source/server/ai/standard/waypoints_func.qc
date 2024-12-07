@@ -214,6 +214,7 @@ void () Create_New_Waypoint =
 	
 	setmodel(new_way, "models/way/normal_way.spr");
 	new_way.classname = "waypoint";
+	new_way.effects = EF_FULLBRIGHT;
 
 	tempe = find (world, classname, "waypoint");
 	while (tempe)

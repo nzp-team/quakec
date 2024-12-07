@@ -110,6 +110,7 @@ void() Compat_TryLoadBetaWaypoints =
 		if (waypoint_mode) {
 			entity new_way = spawn();
 			new_way.solid = SOLID_TRIGGER;
+            new_way.effects = EF_FULLBRIGHT;
 			new_way.touch = creator_way_touch;
 			new_way.classname = "waypoint";
 			new_way.waynum = ftos(way_id);

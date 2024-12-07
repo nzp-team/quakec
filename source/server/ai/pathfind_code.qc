@@ -399,6 +399,7 @@ void LoadWaypointData() {
 					new_way.solid = SOLID_TRIGGER;
 
 					setmodel(new_way, "models/way/normal_way.spr");
+					new_way.effects = EF_FULLBRIGHT;
 					new_way.classname = "waypoint";
 
 					new_way.touch = creator_way_touch;
