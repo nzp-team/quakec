@@ -1926,6 +1926,35 @@ void(float width, float height) HUD_RoundStopWatch =
 }
 
 /*******************
+*     HUD UPS      *
+*******************/
+
+void() Draw_UPS =
+{
+	static float lastupstime;
+	static float lastups;
+
+	if (!cvar("show_speed"))
+		return;
+
+	if ((time - lastupstime) >= 1.0 / 20)
+	{
+		vector vel = [
+			getstatf(STAT_VELOCITY_X),
+			getstatf(STAT_VELOCITY_Y),
+			getstatf(STAT_VELOCITY_Z)
+		];
+
+		lastups = vlen(vel);
+		lastupstime = time;
+	}
+
+	string str = sprintf("%3.1f UPS", lastups);
+	vector pos = [cvar("show_speed_x"), cvar("show_speed_y")];
+	Draw_String(pos, str, [12, 12], [1, 1, 1], 1, 0);
+};
+
+/*******************
 *     HUD Draw     *
 *******************/
 
@@ -1999,6 +2028,8 @@ void(float width, float height) HUD_Draw =
 		HUD_Scores();
 
 	HUD_Achievements(width, height);
+
+	Draw_UPS();
 		
 	if (screenflash_duration > time)
 		HUD_Screenflash();

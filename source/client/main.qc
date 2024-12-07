@@ -175,6 +175,9 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(in_rumbleenabled, 1);
 	autocvar(in_aimassist, 0);
 
+	cvar_set("show_speed_x", ftos(32));
+	cvar_set("show_speed_y", ftos(32));
+
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
 		platform_is_web = true;
