@@ -708,13 +708,13 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 
 void() Menu_StartCoop =
 {
-	localcmd("sv_public 2\n");
+	localcmd("sv_public 2; sv_listen_qw 1\n");
 	current_menu = MENU_COOPSTOCK;
 };
 
 void() Menu_StartSolo =
 {
-	localcmd("sv_public 0\n");
+	localcmd("sv_public 0; sv_listen_qw 0\n");
 	current_menu = MENU_SOLO;
 };
 
