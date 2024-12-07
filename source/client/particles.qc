@@ -38,7 +38,7 @@ vector  particle_position;
 void() Particles_MuzzleflashCallback =
 {
     // Do not display Muzzleflashes if we're using a Sniper Scope or not drawing the viewmodel.
-    if (getstatf(STAT_WEAPONZOOM) == 2 || !cvar("r_drawviewmodel"))
+    if (getstatf(STAT_WEAPONZOOM) == 2 || !cvar("r_drawviewmodel") || cvar("chase_active"))
         return;
 
     // Organized storage of optional_field and optional_entity.

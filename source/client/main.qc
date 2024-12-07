@@ -788,6 +788,10 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 
 	setviewprop(VF_ANGLES, camang);
 
+	if (cvar("chase_active")) {
+		Chase_Update();
+	}
+
 	//does what you think it does
 	renderscene();
 

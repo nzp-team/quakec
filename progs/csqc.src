@@ -31,5 +31,6 @@ chat.qc
 user_input.qc
 view_model.qc
 particles.qc
+chasecam.qc
 main.qc
 #endlist

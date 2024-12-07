@@ -276,7 +276,7 @@ void() ViewModel_Draw =
     }
 
     // If we're zoomed in with a Sniper scope or r_drawviewmodel is false, early-out.
-    if (!cvar("r_drawviewmodel") || getstatf(STAT_WEAPONZOOM) == 2)
+    if (!cvar("r_drawviewmodel") || getstatf(STAT_WEAPONZOOM) == 2 || cvar("chase_active"))
         return;
 
     cl_viewent.origin = cl_viewent2.origin = '0 0 0';
