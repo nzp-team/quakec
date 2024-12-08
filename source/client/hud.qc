@@ -1935,6 +1935,43 @@ void(float width, float height) HUD_RoundStopWatch =
 }
 
 /*******************
+*  HUD Debug Info  *
+*******************/
+
+// set from CSQC_Ent_Update
+vector player_velocity;
+
+void(float width, float height) HUD_PlayerDebugInfo =
+{
+	static float lastupstime;
+	static float lastups;
+
+	if (!cvar("scr_playerdebuginfo"))
+		return;
+
+	if ((time - lastupstime) >= 1.0 / 20)
+	{
+		lastups = vlen(player_velocity);
+		lastupstime = time;
+	}
+
+	string str = sprintf("speed: %3.1f qu/s", lastups);
+	vector pos = [cvar("scr_playerdebuginfo_x"), cvar("scr_playerdebuginfo_y")];
+	Draw_String(pos, str, [12, 12], [1, 1, 1], 1, 0);
+
+	if (cvar("scr_playerdebuginfo") >= 2)
+	{
+		pos.y += 16;
+		str = sprintf("angles: %v", getproperty(VF_ANGLES));
+		Draw_String(pos, str, [12, 12], [1, 1, 1], 1, 0);
+
+		pos.y += 16;
+		str = sprintf("origin: %v", getproperty(VF_ORIGIN));
+		Draw_String(pos, str, [12, 12], [1, 1, 1], 1, 0);
+	}
+};
+
+/*******************
 *     HUD Draw     *
 *******************/
 
@@ -2014,6 +2051,8 @@ void(float width, float height) HUD_Draw =
 		HUD_Scores();
 
 	HUD_Achievements(width, height);
+
+	HUD_PlayerDebugInfo(width, height);
 		
 	if (screenflash_duration > time)
 		HUD_Screenflash();
