@@ -175,8 +175,9 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(in_rumbleenabled, 1);
 	autocvar(in_aimassist, 0);
 
-	cvar_set("show_speed_x", ftos(32));
-	cvar_set("show_speed_y", ftos(32));
+	autocvar(scr_playerdebuginfo, 0);
+	autocvar(scr_playerdebuginfo_x, 48);
+	autocvar(scr_playerdebuginfo_y, 48);
 
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
@@ -431,6 +432,9 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.points = readfloat();	// FIXME: this should be made a short, but I know we use price of 1 for some test maps, so I can't do /10 *10 shenanigans.
 		self.kills = readshort();
 		self.is_in_menu = readbyte();
+
+		// set for HUD_PlayerDebugInfo
+		player_velocity = self.velocity;
 
 		RegisterPointChange(self.points - old_points, self.playernum);
 
