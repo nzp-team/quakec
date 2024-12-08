@@ -311,6 +311,7 @@ float 	map_compatibility_mode;
 #define STAT_PERKS				69
 
 .float playernum;
+.float is_spectator;
 float game_over;
 
 #ifdef FTE

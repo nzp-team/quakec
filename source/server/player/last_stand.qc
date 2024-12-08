@@ -176,7 +176,7 @@ void(entity client) LastStand_AssignWeapon =
 			self.weapons[0].weapon_reserve = 0;
 		}
 	} else {
-		if (!player_count) {
+		if (player_count == 1) {
 			Weapon_AssignWeapon(0, W_BIATCH, 6, 12);
 		} else {
 			Weapon_AssignWeapon(0, W_COLT, 8, 16);
@@ -461,7 +461,7 @@ void(entity client) LastStand_Begin =
 
     // End the game if no one else is alive.
 	float players_still_alive = PollPlayersAlive();
-	if ((player_count && !players_still_alive) || (!player_count && !(self.perks & P_REVIVE))) {
+	if ((player_count > 1&& !players_still_alive) || (player_count == 1 && !(self.perks & P_REVIVE))) {
 		EndGameSetup();
 		return;
 	}
@@ -476,7 +476,7 @@ void(entity client) LastStand_Begin =
     self.health = 19; 
 
 	// Initiate Self-Revive on Solo
-	if ((self.perks & P_REVIVE) && !player_count) {	
+	if ((self.perks & P_REVIVE) && player_count == 1) {	
         LastStand_InitiateSoloRevive(self);
     }
     // Spawn the Revive Trigger
@@ -494,7 +494,7 @@ void(entity client) LastStand_Begin =
     LastStand_AssignWeapon(self);
 
 	// Spawn Revive Sprite in Co-Op
-	if (player_count) {
+	if (player_count > 1) {
 		EnableReviveIcon(self.playernum);
 	}
 

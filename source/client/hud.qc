@@ -258,7 +258,7 @@ void(float amount, float playernum) RegisterPointChange =
 
 	// set our x and y positions
 	point_elements[index].x_position = 0;
-	point_elements[index].y_position = (g_height - 90) - (25*(playernum - 1));
+	point_elements[index].y_position = (g_height - 90) - (25 * (playernum - 1));
 
 	// start with an opacity of 1
 	point_elements[index].opacity = 1;
@@ -315,10 +315,10 @@ void(float width, float height) HUD_Points =
 
 	for (int i = 3; i >= 0; i = i - 1)
 	{
-		float player_number = getplayerkeyfloat(i, "viewentity");
+		float player_number = getplayerkeyfloat(i, "client_index");
 		entity client = findfloat(world, playernum, player_number);
 
-		if (client == world || client.movetype == MOVETYPE_BOUNCE)
+		if ((client == world || !client.classname) && !client.is_spectator)
 			continue;
 
 		switch(i) {
@@ -331,7 +331,7 @@ void(float width, float height) HUD_Points =
 		pointwidth = getTextWidth(ftos(client.points), 12);
 		x = (99 - pointwidth)/2 + GetUltraWideOffset();
 
-		if ((i + 1) == getstatf(STAT_PLAYERNUM)) {
+		if (player_number == getstatf(STAT_PLAYERNUM)) {
 			drawpic([3 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
 			Draw_String([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		} else {
@@ -339,7 +339,7 @@ void(float width, float height) HUD_Points =
 			Draw_String([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		}
 
-		PointUpdate(x + 70, width, height, i + 1);
+		PointUpdate(x + 70, width, height, player_number);
 	}
 }
 
@@ -1524,11 +1524,11 @@ void() HUD_Scores =
 	
 		for (int i = 0; i < 4; i = i + 1)
 		{
-			float player_number = getplayerkeyfloat(i, "viewentity");
+			float player_number = getplayerkeyfloat(i, "client_index");
 			entity client = findfloat(world, playernum, player_number);
 
-			if (client == world || client.movetype == MOVETYPE_BOUNCE)
-				break;
+			if ((client == world || !client.classname) && !client.is_spectator)
+				continue;
 			
 			switch(i) {
 				case 1: TEXTCOLOR = TEXT_LIGHTBLUE; break;
@@ -1795,18 +1795,27 @@ void(float width, float height) HUD_Waypoint =
 	HUD_DrawWaypointModeString(5, 175, "impulse 24", "Save current Waypoints");
 }
 
+void(float width, float height) HUD_Spectator =
+{
+	drawfill([0, 4], [250, 60], [0, 0, 0], 0.75, 0);
+	Draw_String([5, 8], "SPECTATING", [18, 18], [1, 1, 1], 1, 0);
+	Draw_String([5, 30], "You will spawn next Round", [12, 12], [1, 1, 0], 1, 0);
+	Draw_String([5, 45], "(Fly around or go grab a snack!)", [10, 10], [1, 1, 1], 1, 0);
+	drawfill([5, 60], [240, 3], [0.3, 0.3, 0.3], 1, 0);
+}
+
 void(float width, float height) HUD_PlayerNames =
 {
 	for (float i = 3; i >= 0; i = i - 1) {
-		if ((i+1) == getstatf(STAT_PLAYERNUM))
+		float player_number = getplayerkeyfloat(i, "client_index");
+
+		if (player_number == getstatf(STAT_PLAYERNUM))
 			continue;
-		
-		float player_number = getplayerkeyfloat(i, "viewentity");
 
 		string text = getplayerkeyvalue(i, "name");
 		entity client = findfloat(world, playernum, player_number);
 
-		if (client == world || client.movetype == MOVETYPE_BOUNCE)
+		if (client == world || !client.classname || client.is_spectator)
 			continue;
 
 		// Append "[CHAT] " to the player name if the user is in message mode
@@ -1856,13 +1865,13 @@ void(float width, float height) HUD_ReviveIcons =
 		if (revive_icons[player_index].state == 1)
 			revive_icons[player_index].timer += frametime;
 		
-		float player_number = getplayerkeyfloat(i, "viewentity");
+		float player_number = getplayerkeyfloat(i, "client_index");
 
 		//string text = getplayerkeyvalue(i, "name");
 		entity client = findfloat(world, playernum, player_number);
 
-		// Client does not exist/is spectating.
-		if (client == world || client.movetype == MOVETYPE_BOUNCE)
+		// Client does not exist.
+		if (client == world || !client.classname || client.is_spectator)
 			continue;
 
 		entity plr = findfloat(world, playernum, player_number);
@@ -1970,8 +1979,14 @@ void(float width, float height) HUD_Draw =
 {
 	if (cvar("cl_cinematic"))
 		return;
+
+	if (getstatf(STAT_SPECTATING)) {
+		HUD_Rounds(width, height);
+		HUD_Spectator(width, height);
+		return;
+	}
 	
-	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 1) && !score_show)
+	if ((getstatf(STAT_HEALTH) > 1) && !score_show)
 	{
 		Draw_Crosshair();
 

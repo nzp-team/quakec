@@ -80,11 +80,9 @@ float global_trace_damage_multiplier;
 
 .vector oldvelocity;
 .float lastsound_time;
-.float isspec;
 string mappath;
 .float ads_toggle;
 float player_count;
-entity pl1;
 .string fog;		// used for hacking in changing fog from world.fog for legacy maps
 
 entity local_client;

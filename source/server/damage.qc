@@ -146,7 +146,7 @@ void() EndGameSetup =
 	self.weapon2model = "";
 	self.animend = SUB_Null;
 	self.perks = 0;
-	self.isspec = true;
+	self.is_spectator = true;
 	self.movetype = MOVETYPE_TOSS;
 
 	if (!game_over) {

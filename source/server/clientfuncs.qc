@@ -440,7 +440,7 @@ void(entity target, string player_name) nzp_setplayername =
 };
 
 void(string chaptertitle, string location, string date, string person, entity who) WorldText = {
-	if (player_count == 0) {
+	if (player_count == 1) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_WORLDDATA);
 		WriteString(MSG_MULTICAST, chaptertitle);
@@ -472,8 +472,8 @@ void (float achievement_id, optional entity who) GiveAchievement =
 #endif // FTE
 
 	// this is an achievement specific to an individual
-	if ((who && who != world) || player_count == 0) {
-		if (player_count == 0) who = find(world, classname, "player");
+	if ((who && who != world) || player_count == 1) {
+		if (player_count == 1) who = find(world, classname, "player");
 
 #ifndef FTE
 
@@ -549,6 +549,7 @@ float Player_SendEntity( entity ePVEnt, float flChanged ) {
 	WriteFloat( MSG_ENTITY, self.points ); // Player Score
 	WriteShort( MSG_ENTITY, self.kills ); // Player Kills
 	WriteByte( MSG_ENTITY, self.is_in_menu ); // Player is in a Menu State
+	WriteByte( MSG_ENTITY, self.is_spectator ); // Player is spectating
     return TRUE;
 }
 

@@ -370,7 +370,7 @@ void() worldspawn =
 	clientstat(STAT_WEAPONZOOM, EV_FLOAT, zoom);
 	clientstat(STAT_INSTA, EV_FLOAT, insta_icon);
 	clientstat(STAT_X2, EV_FLOAT, x2_icon);
-	clientstat(STAT_SPECTATING, EV_FLOAT, isspec);
+	clientstat(STAT_SPECTATING, EV_FLOAT, is_spectator);
 	clientstat(STAT_PLAYERNUM, EV_FLOAT, playernum);		// literally useless but will be kept in case
 	clientstat(STAT_PLAYERSTANCE, EV_FLOAT, stance);
 	clientstat(STAT_FACINGENEMY, EV_FLOAT, facingenemy);
