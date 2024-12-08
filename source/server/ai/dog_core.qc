@@ -422,7 +422,7 @@ float() spawn_a_dogA =
 	FAIL = false;
 	pcount = 0;
 	szombie = getFreeZombieEnt();
-	if(szombie == world || dogCount >= (2 * (player_count + 1)))
+	if(szombie == world || dogCount >= (2 * (player_count)))
 	{
 		return 0;
 	}

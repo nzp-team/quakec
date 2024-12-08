@@ -59,19 +59,18 @@ float(float a, float b) qc_max =
 
 float() getZombieTotal = {
 	if (roundtype == 1) {
-		float count, multiplier, plrcnt;
+		float count, multiplier;
 		count = 24;
-		plrcnt = player_count + 1;
 
 		multiplier = qc_max(rounds/5, 1);
 
 		if (rounds >= 10)
 			multiplier *= rounds * 0.15;
 
-		if (plrcnt == 1)
+		if (player_count == 1)
 			count += rint((0.5 * 6) * multiplier);
 		else
-			count += rint(((plrcnt - 1) * 6) * multiplier);
+			count += rint(((player_count - 1) * 6) * multiplier);
 
 		if (rounds < 2)
 			count = floor(count * 0.25);
@@ -88,9 +87,9 @@ float() getZombieTotal = {
 	} else { //dogs
 		// 2 waves
 		if (rounds <= 14)
-			return 6 * (player_count + 1);
+			return 6 * (player_count);
 
-		return 8 * (player_count + 1);
+		return 8 * (player_count);
 	}
 	return 0;
 }
@@ -129,7 +128,7 @@ void() EndRound =
 	entity who = find(world,classname,"spectator");
 	while(who != world)
 	{
-		if(who.isspec)
+		if(who.is_spectator)
 		{
 			self = who;
 			PlayerSpawn();

@@ -31,7 +31,7 @@ void() ToggleMenu =
 {
 	if (serverkey("constate") != "disconnected")
 	{
-		if (player_count == 0)
+		if (player_count == 1)
 			localcmd("cmd pause\n");
 
 		if(current_menu == MENU_NONE)
@@ -428,15 +428,16 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.points = readfloat();	// FIXME: this should be made a short, but I know we use price of 1 for some test maps, so I can't do /10 *10 shenanigans.
 		self.kills = readshort();
 		self.is_in_menu = readbyte();
+		self.is_spectator = readbyte();
 
-		RegisterPointChange(self.points - old_points, self.playernum);
+		setmodelindex(self, self.modelindex);
 
-		if (self.movetype == MOVETYPE_BOUNCE)
+		if (self.is_spectator)
 			self.solid = SOLID_NOT;
 		else
 			self.solid = SOLID_SLIDEBOX;
-			
-		setmodelindex(self, self.modelindex);
+
+		RegisterPointChange(self.points - old_points, self.playernum);
 
 		if (map_compatibility_mode != MAP_COMPAT_BETA) {
 			if (self.stance == 2)
@@ -445,6 +446,13 @@ noref void(float isnew) CSQC_Ent_Update =
 				setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 		} else {
 			setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
+		}
+
+		if (self.modelindex == getmodelindex("models/sprites/null.spr") && !self.playernum) {
+			self.solid = SOLID_NOT;
+			self.classname = "";
+		} else {
+			self.classname = "player";
 		}
 	} 
 	// Power-Up

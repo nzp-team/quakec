@@ -238,7 +238,7 @@ void()	window_carpenter_8	=[	8,		window_carpenter_9 	]	{self.frame = 72;};
 void()	window_carpenter_9	=[	7,		window_carpenter_10 ]		{self.frame = 79; Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); };
 void()	window_carpenter_10	=[	8,		window_carpenter_11	]	{self.frame = 80;};
 void()	window_carpenter_11	=[	7,		window_carpenter_12 ]		{self.frame = 87; Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); };
-void()	window_carpenter_12	=[	8,		SUB_Null		 	]	{self.frame = 88;self.isspec = 0;};
+void()	window_carpenter_12	=[	8,		SUB_Null		 	]	{self.frame = 88;self.is_spectator = 0;};
 
 
 void() Window_Damage =

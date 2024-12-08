@@ -252,7 +252,7 @@ void() touch_perk =
 
 	float perk_purchase_limit;
 
-	if (player_count >= 1)
+	if (player_count > 1)
 		perk_purchase_limit = self.perk_purchase_limit_coop;
 	else
 		perk_purchase_limit = self.perk_purchase_limit_solo;
@@ -265,7 +265,7 @@ void() touch_perk =
 		float price;
 
 		// Check if we're playing in Co-Op, adjust price if so.
-		if (player_count >= 1)
+		if (player_count > 1)
 			price = self.cost2;
 		// Nope, use normal/solo cost.
 		else
@@ -374,7 +374,7 @@ void() Perk_Jingle =
 {
 	float perk_purchase_limit;
 
-	if (player_count >= 1)
+	if (player_count > 1)
 		perk_purchase_limit = self.perk_purchase_limit_coop;
 	else
 		perk_purchase_limit = self.perk_purchase_limit_solo;
@@ -413,8 +413,8 @@ void() setup_perk =
 	// Check for Power
 	if (power != world && !isPowerOn) {
 		// Power Switch is present -- but does this machine have an override?
-		if ((self.perk_requires_power_coop < 0 && player_count >= 1) || 
-		(self.perk_requires_power_solo < 0 && !player_count))
+		if ((self.perk_requires_power_coop < 0 && player_count > 1) || 
+		(self.perk_requires_power_solo < 0 && player_count == 1))
 			self.requirespower = false;
 		else
 			self.requirespower = true;

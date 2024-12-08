@@ -399,7 +399,7 @@ void() PU_CarpenterFinalize =
 
 	// Reset all windows
 	while(windows) {
-		windows.isspec = 0;
+		windows.is_spectator = 0;
 		windows.box1owner = world;
 		windows.usedent = world;
 		windows.owner = world;
@@ -424,7 +424,7 @@ entity() PU_CarpenterFindWindow =
 
 	while(windows != world) {
 		// Window needs repaired and is repairable
-		if (windows.health < 6 && windows.health != -10 && !windows.isspec
+		if (windows.health < 6 && windows.health != -10 && !windows.is_spectator
 		&& !windows.ads_release)
 			return windows;
 
@@ -442,7 +442,7 @@ entity() PU_CarpenterFindWindow =
 void() PU_CarpenterRepair =
 {
 	// Find a new Barricade to Repair
-	if (self.goaldummy == world || self.goaldummy.isspec == 0) {
+	if (self.goaldummy == world || self.goaldummy.is_spectator == 0) {
 
 		if (self.goaldummy != world)
 			self.goaldummy.owner = world;
@@ -458,7 +458,7 @@ void() PU_CarpenterRepair =
 		}
 
 		// Mark the window as being Repaired
-		self.goaldummy.isspec = 1;
+		self.goaldummy.is_spectator = 1;
 		self.goaldummy.ads_release = 1;
 		self.goaldummy.owner = self;
 	}
@@ -484,7 +484,7 @@ void() PU_CarpenterRepair =
 	} else {
 		if (self.ltime < time) {
 			self.goaldummy.frame = 88;
-			self.goaldummy.isspec = 0;
+			self.goaldummy.is_spectator = 0;
 			self.goaldummy.health = 6;
 		}
 	}

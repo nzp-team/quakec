@@ -536,34 +536,9 @@ void() PlayerPreThink =
 		if (!self.isBuying)
 			self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	}
-	if(self.isspec != 0 && !self.downed)
+	if (self.is_spectator)
 	{
-		if(self.button0 && self.fire_delay < time)
-		{
-			self.aiment = find(self.aiment, classname, "player");
-			if(self.aiment != world)
-			{
-				sprint(self, PRINT_HIGH, "Now spectating ");
-				sprint(self, PRINT_HIGH, self.aiment.netname);
-				sprint(self, PRINT_HIGH, "\n");
-				
-				self.solid = SOLID_NOT;
-				self.movetype = MOVETYPE_NONE;
-			}
-			else
-			{
-				sprint(self, PRINT_HIGH, "Freefly spectate\n");
-				self.movetype = MOVETYPE_FLY;
-			}
-			self.fire_delay = time + 0.25;
-		}
-		if(self.aiment != world)
-		{
-			self.origin = self.aiment.origin;
-			self.angles = self.aiment.v_angle;
-			self.velocity = self.aiment.velocity;
-			self.fixangle = TRUE;
-		}
+		self.movetype = MOVETYPE_NOCLIP;
 		return;
 	}
 	
@@ -624,7 +599,7 @@ void() PlayerPostThink =
 
 #endif // FTE
 
-	if(self.isspec)
+	if(self.is_spectator)
 		return;
 
 	//landsound
@@ -871,12 +846,13 @@ void() Player_PickSpawnPoint =
 	self = tempe;
 };
 
+void() SpectatorSpawn;
 void() PlayerSpawn =
 {	
 	entity spawnpoint = world;
 	local_client = self;
 
-	self.isspec = FALSE;
+	self.is_spectator = false;
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
 	self.flags = FL_CLIENT;
@@ -895,21 +871,27 @@ void() PlayerSpawn =
 	setmodel(self, "models/player.mdl");
 	self.movetype = MOVETYPE_WALK;
 	self.max_health = self.health = PLAYER_START_HEALTH;
-
-	entity who = find(world,classname,"player");
-	while(who != self && !self.playernum)
-	{
-		if(who)
-		{
-			player_count++;
-			break;
-		}
-	}
-
+	
+	// Pick an available slot from 1-4 inclusive.
 	if (!self.playernum) {
-		self.playernum = player_count + 1;
-		if (self.playernum == 1)
-			pl1 = self;
+		for (float i = 1; i <= 4; i++) {
+			entity potential_player = findfloat(world, playernum, i);
+			if (potential_player == world) {
+				self.playernum = i;
+
+#ifdef FTE
+				clientcommand(self, sprintf("setinfo client_index %d\n", self.playernum));
+#endif // FTE
+
+				break;
+			}
+		}
+
+		// All four slots are occupied.
+		if (!self.playernum) {
+			SpectatorSpawn();
+			return;
+		}
 	}
 
 	// Assign them a spawn location.
@@ -949,8 +931,6 @@ void() PlayerSpawn =
 	self.stamina = 3;
 	self.reviving = 0;
 	self.perks = G_PERKS;
-
-	UpdatePlayerCount(player_count);
 	
 #ifdef FTE
 
@@ -984,20 +964,40 @@ void() PlayerSpawn =
 
 void() SpectatorSpawn =
 {
-	local entity spawnpoint;
-	spawnpoint = find(world, classname, "info_player_1_spawn");
-	
-	self.isspec = TRUE;
-	self.health = 420;
+	entity spawnpoint = find(world, classname, "info_player_1_spawn");
+	local_client = self;
+
+	self.is_spectator = true;
 	self.classname = "spectator";
-	self.solid = SOLID_CORPSE;
+	self.solid = SOLID_NOT;
+	self.flags = FL_CLIENT;
+
+	self.onfire = false;
+	self.fire_timeout = 0;
+
 	setmodel(self, "models/sprites/null.spr");
-	self.movetype = MOVETYPE_FLY;
-	self.origin = spawnpoint.origin + [0,0,1];
-	self.fixangle = TRUE;
-	setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-	self.view_ofs = '0 0 22';
-	self.aiment = world;
+	self.movetype = MOVETYPE_NOCLIP;
+	self.max_health = self.health = PLAYER_START_HEALTH;
+	
+	self.fixangle = true;
+
+	// NZ:P Beta used Quake BSP 29, so set bounding box accordingly.
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		self.view_ofs = VIEW_OFS_QK;
+		setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
+	} else {
+		self.view_ofs = VIEW_OFS_HL;
+		setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+	}
+	
+#ifdef FTE
+
+	self.viewzoom = 1;
+	self.SendEntity = Player_SendEntity;
+
+#endif // FTE
+
+	setorigin(self, spawnpoint.origin + '0 0 20');
 };
 
 //called when a client loads a map
@@ -1009,6 +1009,9 @@ void() PutClientInServer =
 		Spawns_Init();
 		spawns_initialized = true;
 	}
+
+	player_count++;
+	UpdatePlayerCount(player_count);
 
 	if(cvar("developer") || player_count > 1) {
 		bprint(PRINT_HIGH, self.netname);
@@ -1026,6 +1029,7 @@ void() PutClientInServer =
 	// Force the client to always be networked to other clients, even when
 	// outside of the same PVS.
 	self.pvsflags |= PVSF_IGNOREPVS;
+	FTE_IncrementRound(rounds);
 
 #endif // FTE
 
@@ -1042,8 +1046,9 @@ void() ClientDisconnect =
 	
 	self.classname = "disconnected";
 	self.solid = SOLID_NOT;
-	self.movetype = MOVETYPE_BOUNCE;
 	self.nextthink = -1;
+	self.playernum = 0;
+	self.is_spectator = false;
 	setmodel(self, "models/sprites/null.spr");
 
 	GameRestart_ResetPerkaColas();
