@@ -377,7 +377,6 @@ void() worldspawn =
 	clientstat(STAT_VIEWZOOM, EV_FLOAT, viewzoom);
 	clientstat(STAT_MAXHEALTH, EV_FLOAT, max_health);
 	clientstat(STAT_PERKS, EV_FLOAT, perks);
-	clientstat(STAT_VELOCITY, EV_VECTOR, velocity);
 
 #endif // FTE
 

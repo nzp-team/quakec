@@ -309,10 +309,6 @@ float 	map_compatibility_mode;
 #define STAT_MAXHEALTH 			67
 #define STAT_WEAPONSKIN 		68
 #define STAT_PERKS				69
-#define STAT_VELOCITY			70
-#define STAT_VELOCITY_X			70
-#define STAT_VELOCITY_Y			71
-#define STAT_VELOCITY_Z			72
 
 .float playernum;
 float game_over;
