@@ -1957,6 +1957,7 @@ void(float width, float height) HUD_PlayerDebugInfo =
 
 	string str = sprintf("Speed: %3.1f qu/s", lastups);
 	vector pos = [cvar("scr_playerdebuginfo_x"), cvar("scr_playerdebuginfo_y")];
+	pos.x += GetUltraWideOffset();
 	Draw_String(pos, str, [12, 12], [1, 1, 1], 1, 0);
 
 	if (cvar("scr_playerdebuginfo") >= 2)
