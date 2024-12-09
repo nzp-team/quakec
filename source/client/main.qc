@@ -177,7 +177,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 
 	autocvar(scr_playerdebuginfo, 0);
 	autocvar(scr_playerdebuginfo_x, 64);
-	autocvar(scr_playerdebuginfo_y, 64);
+	autocvar(scr_playerdebuginfo_y, 6);
 
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
