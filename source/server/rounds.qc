@@ -357,7 +357,7 @@ void() InitRounds =
 	delay_at_round = 2/0.95;
 	totalpowerups = 0;
 	powerup_activate = 2000;
-	powerup_score_threshold = ((player_count + 1) * G_STARTPOINTS) + powerup_activate;
+	powerup_score_threshold = ((player_count + 1) * 500) + powerup_activate;
 
 	// cypress -- fix Soft_Restart spawning multiple 
 	// pairs of zombie spawn points.

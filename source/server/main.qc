@@ -386,7 +386,6 @@ void() worldspawn =
 	LoadWaypointData();
 
 	//set game elements
-	G_STARTPOINTS = 500;
 	G_STARTROUND = 1;
 	G_PRONEPOINTS = 0;
 	G_STARTWEAPON[0] = W_COLT;

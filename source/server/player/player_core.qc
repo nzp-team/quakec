@@ -42,6 +42,9 @@ void(entity client) LastStand_UnlinkRevivee;
 #define PLAYER_ANIM_WALK 				1
 #define PLAYER_ANIM_SPRINT				2
 
+#define PLAYER_STARTPOINTS_NORMAL		500
+#define PLAYER_STARTPOINTS_LATE			1500
+
 //
 // Player 3rd Person Animations
 //
@@ -922,8 +925,17 @@ void() PlayerSpawn =
 	self.pri_grenade_state = 0; 		// defines that frag grenades are for player first, not betty
 	self.secondary_grenades = -1;		// shows that we both don't have betties AND shouldn't draw the image onscreen
 
-	if (!self.points)
-		Player_AddScore(self, G_STARTPOINTS, false);
+	// Assign the Player starting points.
+	if (rounds > 6) {
+		// If we're higher than round 6(?), we start the player with
+		// more points than we would otherwise.
+		if (self.points < PLAYER_STARTPOINTS_LATE)
+			Player_AddScore(self, PLAYER_STARTPOINTS_LATE - self.points, false);
+	} else {
+		// Rounds 1-5(?), normal starting point amount.
+		if (self.points < PLAYER_STARTPOINTS_NORMAL)
+			Player_AddScore(self, PLAYER_STARTPOINTS_NORMAL - self.points, false);
+	}
 
 	self.weaponmodel = GetWeaponModel(self.weapon, 0);// Give weapon model
 	self.weapon2model = GetWeapon2Model(self.weapon);
