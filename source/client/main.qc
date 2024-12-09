@@ -1119,9 +1119,9 @@ noref void() CSQC_Parse_Event =
 			break;
 		case EVENT_REVIVEON:
 			float reviveon_player_index = readbyte() - 1; // playernum starts at one.
-			if (reviveoff_player_index < 0)
+			if (reviveon_player_index < 0)
 				return;
-			
+
 			revive_icons[reviveon_player_index].state = 1;
 			revive_icons[reviveon_player_index].draw = true;
 			break;
