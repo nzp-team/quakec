@@ -70,8 +70,6 @@ void() EndGame =
 	local entity who;
 
 	self.health = 0;
-	self.origin = '0 0 0';
-	setorigin (self, self.origin);
 	self.velocity = '0 0 0';
 
 	oldself = self;
@@ -114,7 +112,8 @@ void() startspectate =
 	self.downed = 0;
 	self.frame = 0;
 	
-	SpectatorSpawn();
+	if (player_count > 1)
+		SpectatorSpawn();
 }
 
 // searches for players that are alive given which clients have which playernumbers
@@ -146,7 +145,6 @@ void() EndGameSetup =
 	self.weapon2model = "";
 	self.animend = SUB_Null;
 	self.perks = 0;
-	self.is_spectator = true;
 	self.movetype = MOVETYPE_TOSS;
 
 	if (!game_over) {

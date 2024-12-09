@@ -368,7 +368,6 @@ void() Soft_Restart = {
 	self.pri_grenade_state = 0;
 
 	InitRounds();
-	self.is_spectator = true;
 	PutClientInServer();
 
 	nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
