@@ -1973,6 +1973,8 @@ void(float width, float height) HUD_PlayerDebugInfo =
 	vector pos = [cvar("scr_playerdebuginfo_x"), cvar("scr_playerdebuginfo_y")];
 	pos.x += GetUltraWideOffset();
 
+	drawfill(pos - [8, 8], [128, 192], [0, 0, 0], 0.75, 0);
+
 	Draw_Float_Fancy(pos, "Speed:", lastups, "qu/s");
 
 	if (cvar("scr_playerdebuginfo") >= 2)
