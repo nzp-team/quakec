@@ -1941,21 +1941,6 @@ void(float width, float height) HUD_RoundStopWatch =
 // set from CSQC_Ent_Update
 vector player_velocity;
 
-// probably only need these right here
-static void(vector pos, string label, vector v) Draw_Vector_Fancy =
-{
-	Draw_String(pos, label, [12, 12], [1, 1, 0], 1, 0);
-	Draw_String(pos + [32, 16], sprintf("X: %d", v.x), [12, 12], [1, 1, 1], 1, 0);
-	Draw_String(pos + [32, 32], sprintf("Y: %d", v.y), [12, 12], [1, 1, 1], 1, 0);
-	Draw_String(pos + [32, 48], sprintf("Z: %d", v.z), [12, 12], [1, 1, 1], 1, 0);
-};
-
-static void(vector pos, string label, float f, string suffix) Draw_Float_Fancy =
-{
-	Draw_String(pos, label, [12, 12], [1, 1, 0], 1, 0);
-	Draw_String(pos + [32, 16], sprintf("%d %s", f, suffix), [12, 12], [1, 1, 1], 1, 0);
-};
-
 void(float width, float height) HUD_PlayerDebugInfo =
 {
 	static float lastupstime;
@@ -1975,12 +1960,12 @@ void(float width, float height) HUD_PlayerDebugInfo =
 
 	drawfill(pos - [8, 8], [128, 192], [0, 0, 0], 0.75, 0);
 
-	Draw_Float_Fancy(pos, "Speed:", lastups, "qu/s");
+	Draw_FancyFloat(pos, "Speed:", lastups, "qu/s");
 
 	if (cvar("scr_playerdebuginfo") >= 2)
 	{
-		Draw_Vector_Fancy(pos + [0, 36], "Angles:", getproperty(VF_ANGLES));
-		Draw_Vector_Fancy(pos + [0, 106], "Origin:", getproperty(VF_ORIGIN));
+		Draw_FancyVector(pos + [0, 36], "Angles:", getproperty(VF_ANGLES));
+		Draw_FancyVector(pos + [0, 106], "Origin:", getproperty(VF_ORIGIN));
 	}
 };
 
