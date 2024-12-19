@@ -1912,9 +1912,20 @@ void() WeaponCore_FireButtonPressed =
 	// to which click of the mouse you've provided, which is different behavior
 	// to single-hand weapons, where left click fires its right-side. (Hooray
 	// for ternaries!).
+	// For gamepads, we don't want this behavior, because the gun that
+	// fires will be the wrong side
 #ifdef FTE
 
-	(IsDualWeapon(self.weapon)) ? W_Fire(S_LEFT) : W_Fire(S_RIGHT);
+	if (self.is_using_gamepad)
+	{
+		// Gamepads always fire the right side
+		W_Fire(S_RIGHT);
+	}
+	else
+	{
+		// Otherwise, fire the side of the mouse click for akimbo weapons
+		(IsDualWeapon(self.weapon)) ? W_Fire(S_LEFT) : W_Fire(S_RIGHT);
+	}
 
 #else
 
@@ -1959,8 +1970,17 @@ void() WeaponCore_AimButtonPressed =
 	// fire our secondary as opposed to Aiming down the Sight.
 	if (IsDualWeapon(self.weapon)) {
 #ifdef FTE
+		// On KBM this is the right click, so it should fire the right weapon.
+		// On gamepads, this is the left trigger, so it should fire the left weapon.
 
-		W_Fire(S_RIGHT);
+		if (self.is_using_gamepad)
+		{
+			W_Fire(S_LEFT);
+		}
+		else
+		{
+			W_Fire(S_RIGHT);
+		}
 
 #else
 
