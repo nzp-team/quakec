@@ -21,7 +21,7 @@ string(string prev_id) Menu_Pause_GetNextButton =
         }
     }
 
-    if (player_count != 0 && ret == "pm_reloa")
+    if (player_count != 1 && ret == "pm_reloa")
         ret = "pm_opts";
 
     if (ret == "")
@@ -47,7 +47,7 @@ string(string next_id) Menu_Pause_GetPreviousButton =
         }
     }
 
-    if (player_count != 0 && ret == "pm_reloa")
+    if (player_count != 1 && ret == "pm_reloa")
         ret = "pm_resum";
 
     if (ret == "")
@@ -86,7 +86,7 @@ void() Menu_Pause =
     {
         Menu_Button(1, "pm_resum", "RESUME CARNAGE", "Return to Game.") ? ToggleMenu() : 0;
 
-        if (player_count == 0)
+        if (player_count == 1)
             Menu_Button(2, "pm_reloa", "RESTART LEVEL", "Tough luck? Give things another go.") ? Menu_Pause_EnterSubMenu(1) : 0;
         else
             Menu_GreyButton(2, "RESTART LEVEL");
