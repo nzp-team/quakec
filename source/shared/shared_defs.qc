@@ -316,6 +316,7 @@ float game_over;
 
 #ifdef FTE
 .float is_in_menu;
+.float is_using_gamepad;
 #endif // FTE
 
 //
