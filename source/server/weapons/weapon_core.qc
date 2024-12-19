@@ -972,7 +972,7 @@ void(float side) W_Fire =
 	if (GetFiretype(self.weapon) == FIRETYPE_FLAME && self.cooldown)
 		return;
 
-	if (self.switch_delay > time || self.dive || self.isBuying)
+	if (self.switch_delay > time || self.dive || self.isBuying || game_over)
 		return;
 
 	//First check that we can actualy fire
