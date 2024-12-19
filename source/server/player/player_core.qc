@@ -592,6 +592,9 @@ void() PlayerPostThink =
 
 	// Network everything
 	self.SendFlags = 1;
+
+	// Used to tell which gun of the mustang and sally to shoot
+	self.is_using_gamepad = stof(infokey(self, "using_gamepad"));
 	
 	// Obtain menu state from CSQC via infokeys.
 	self.is_in_menu = stof(infokey(self, "in_menu"));
