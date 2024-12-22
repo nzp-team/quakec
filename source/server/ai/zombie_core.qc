@@ -1719,8 +1719,11 @@ void(entity szombie)  SetUpHitBoxes =
 #ifdef FTE
 
 	szombie.head.dimension_solid = HITBOX_DIM_LIMBS;
+	szombie.head.dimension_hit = HITBOX_DIM_LIMBS;
 	szombie.larm.dimension_solid = HITBOX_DIM_LIMBS;
+	szombie.larm.dimension_hit = HITBOX_DIM_LIMBS;
 	szombie.rarm.dimension_solid = HITBOX_DIM_LIMBS;
+	szombie.rarm.dimension_hit = HITBOX_DIM_LIMBS;
 
 #endif	// FTE
 
@@ -1824,13 +1827,13 @@ void(entity where) spawn_a_zombieB =
 	updateLimb (szombie, 2, szombie.rarm);
 
 #endif // FTE
-	
-	
-	szombie.solid = SOLID_CORPSE;
+
+	szombie.solid = SOLID_SLIDEBOX;
 
 #ifdef FTE
 
 	szombie.dimension_solid = HITBOX_DIM_ZOMBIES;
+	szombie.dimension_hit &= ~HITBOX_DIM_ZOMBIES;
 
 #endif // FTE
 
