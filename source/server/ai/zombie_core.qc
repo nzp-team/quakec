@@ -1828,12 +1828,16 @@ void(entity where) spawn_a_zombieB =
 
 #endif // FTE
 
-	szombie.solid = SOLID_SLIDEBOX;
-
 #ifdef FTE
+
+	szombie.solid = SOLID_SLIDEBOX;
 
 	szombie.dimension_solid = HITBOX_DIM_ZOMBIES;
 	szombie.dimension_hit &= ~HITBOX_DIM_ZOMBIES;
+
+#else
+
+	szombie.solid = SOLID_CORPSE;
 
 #endif // FTE
 
