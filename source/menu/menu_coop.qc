@@ -308,7 +308,7 @@ string(string prev_id) fn ## _GetNextButton =	\
 	}											\
 												\
 	return ret;									\
-};												\
+};
 
 NEXTBUTTON_FUNC(Menu_Coop_Browse, menu_coop_browse_buttons)
 NEXTBUTTON_FUNC(Menu_Coop_Direct, menu_coop_direct_buttons)
@@ -337,7 +337,7 @@ string(string next_id) fn ## _GetPreviousButton =	\
 	}												\
 													\
 	return ret;										\
-};													\
+};
 
 PREVBUTTON_FUNC(Menu_Coop_Browse, menu_coop_browse_buttons)
 PREVBUTTON_FUNC(Menu_Coop_Direct, menu_coop_direct_buttons)

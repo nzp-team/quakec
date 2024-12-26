@@ -163,6 +163,10 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(in_rumbleenabled, 1);
 	autocvar(in_aimassist, 0);
 
+	autocvar(scr_playerdebuginfo, 0);
+	autocvar(scr_playerdebuginfo_x, 64);
+	autocvar(scr_playerdebuginfo_y, 6);
+
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
 		platform_is_web = true;
@@ -417,6 +421,9 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.kills = readshort();
 		self.is_in_menu = readbyte();
 		self.is_spectator = readbyte();
+
+		// set for HUD_PlayerDebugInfo
+		player_velocity = self.velocity;
 
 		setmodelindex(self, self.modelindex);
 

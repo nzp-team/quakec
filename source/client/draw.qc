@@ -92,3 +92,17 @@ void(vector position, string text, vector size, vector rgb, float alpha, float d
             x += (font_kerningamount[(chr - 33)] + 1) * (size_x/8);
     }
 };
+
+void(vector pos, string label, vector v) Draw_FancyVector =
+{
+	Draw_String(pos, label, [12, 12], [1, 1, 0], 1, 0);
+	Draw_String(pos + [32, 16], sprintf("X: %d", v.x), [12, 12], [1, 1, 1], 1, 0);
+	Draw_String(pos + [32, 32], sprintf("Y: %d", v.y), [12, 12], [1, 1, 1], 1, 0);
+	Draw_String(pos + [32, 48], sprintf("Z: %d", v.z), [12, 12], [1, 1, 1], 1, 0);
+};
+
+void(vector pos, string label, float f, string suffix) Draw_FancyFloat =
+{
+	Draw_String(pos, label, [12, 12], [1, 1, 0], 1, 0);
+	Draw_String(pos + [32, 16], sprintf("%d %s", f, suffix), [12, 12], [1, 1, 1], 1, 0);
+};

@@ -28,7 +28,6 @@ defs/custom.qc
 achievements.qc
 hud.qc
 chat.qc
-user_input.qc
 view_model.qc
 particles.qc
 chasecam.qc
