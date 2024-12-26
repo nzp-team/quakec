@@ -624,6 +624,21 @@ static string(string s) str2ascii =
 };
 
 //
+// Menu_CleanUpServerAddress(server_address)
+// Strips stuff from the CNAME like /udp/ etc.
+// if it causes conflicts when trying to connect.
+//
+string Menu_CleanUpServerAddress(string server_address) =
+{
+	// Strip /udp/
+	if (substring(server_address, 0, 5) == "/udp/") {
+		return substring(server_address, 5, strlen(server_address) - 5);
+	}
+
+	return server_address;
+};
+
+//
 // Menu_ServerList(id, pos, size, scrollofs, num_servers)
 // Draw the master server list
 //
@@ -663,7 +678,9 @@ void(string id, vector pos, vector size, __inout vector scrollofs, float num_ser
 			Menu_PlaySound(MENU_SND_ENTER);
 			m_toggle(false);
 			map_name_override = gethostcachestring(gethostcacheindexforkey("map"), index);
-			localcmd("connect ", gethostcachestring(gethostcacheindexforkey("cname"), index), "\n");
+			
+			string server_address = Menu_CleanUpServerAddress(gethostcachestring(gethostcacheindexforkey("cname"), index));
+			localcmd("connect ", server_address, "\n");
 		}
 #endif // MENU
 
