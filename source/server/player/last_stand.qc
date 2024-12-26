@@ -204,7 +204,12 @@ void(entity client) LastStand_KillPlayer =
     self = client;
 
     DisableReviveIcon(self.playernum);
-	startspectate();
+
+	// If we are in the middle of the Game Over
+	// sequence, we should not allow a bleed
+	// out to override it.
+	if (!game_over)
+		startspectate();
 
     self = old_self;
 };

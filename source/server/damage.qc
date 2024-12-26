@@ -42,13 +42,13 @@ void() teddy_react;
 
 void() EndGame_Restart = 
 {
-	localcmd("restart");
+	localcmd("restart\n");
 }
 
 // Fade to black function, creates another think for restart
 void() EndGame_FadePrompt =
 {
-	nzp_screenflash(self, SCREENFLASH_COLOR_BLACK, 6, SCREENFLASH_FADE_IN);
+	nzp_screenflash(self, SCREENFLASH_COLOR_BLACK, 5, SCREENFLASH_FADE_IN);
 
 #ifdef FTE
 
