@@ -1483,9 +1483,14 @@ void() HUD_Powerups =
 
 void() HUD_Broadcast = 
 {
+	// broadcast_num refers to the playernum of the client. This
+	// does NOT correspond to player key indexes, so we need to
+	// grab the player with the matching playernum and use infokeys.
+	entity player_target = findfloat(world, playernum, broadcast_num);
+	string broadcast_name = infokey(player_target, INFOKEY_P_NAME);
+
 	string broadcast_msg = "";
-	string broadcast_name = getplayerkeyvalue(broadcast_num - 1, "name");
-	
+
 	switch(broadcast_type) {
 		case CSQC_BROADCAST_PLAYERDOWNED:
 			broadcast_msg = strcat(broadcast_name, " needs to be revived");
