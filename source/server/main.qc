@@ -215,12 +215,6 @@ void() precaches =
 	precache_model ("models/weapons/grenade/g_grenade.mdl");
 	precache_extra (W_BIATCH);
 
-	// perk machine defaults
-	//precache_model (PERK_QUICKREVIVE_DEFAULT_MODEL);
-	//precache_model (PERK_JUGGERNOG_DEFAULT_MODEL);
-	//precache_model (PERK_SPEEDCOLA_DEFAULT_MODEL);
-	//precache_model (PERK_)
-
 #ifdef FTE
 
 	// FTE only has co-op, so don't precache morphine elsewhere.
@@ -371,12 +365,16 @@ void() worldspawn =
 	clientstat(STAT_INSTA, EV_FLOAT, insta_icon);
 	clientstat(STAT_X2, EV_FLOAT, x2_icon);
 	clientstat(STAT_SPECTATING, EV_FLOAT, is_spectator);
-	clientstat(STAT_PLAYERNUM, EV_FLOAT, playernum);		// literally useless but will be kept in case
+	clientstat(STAT_PLAYERNUM, EV_FLOAT, playernum);
 	clientstat(STAT_PLAYERSTANCE, EV_FLOAT, stance);
 	clientstat(STAT_FACINGENEMY, EV_FLOAT, facingenemy);
 	clientstat(STAT_VIEWZOOM, EV_FLOAT, viewzoom);
 	clientstat(STAT_MAXHEALTH, EV_FLOAT, max_health);
 	clientstat(STAT_PERKS, EV_FLOAT, perks);
+
+	autocvar(sv_enablechatplugins, 0);
+	autocvar(sv_maprotationbasename, "map_rotation");
+	autocvar(sv_maprotationmode, 0);
 
 #endif // FTE
 

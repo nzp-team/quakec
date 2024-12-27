@@ -196,9 +196,26 @@ float(string params) Command_say =
 {	
 	// Grab parameters.
     tokenize(params);
-	string value = argv(0);
+	string first_word = argv(0);
 
 #ifdef FTE
+
+	if (cvar("sv_enablechatplugins")) {
+		// Support for custom chat commands.
+		for (float i = 0; i < plugin_commands.length; i++) {
+			// Command names match
+			if (first_word == plugin_commands[i].command_name) {
+				// Return description if no params are given
+				if (argv(1) == "" && plugin_commands[i].requires_arguments == true) {
+					CSQC_SendChatMessageToPlayer(255, plugin_commands[i].command_description, self);
+				} else {
+					plugin_commands[i].command_function(argv(1));
+				}
+
+				return COMMAND_SUCCESS;
+			}
+		}
+	}
 
 	CSQC_SendChatMessage(self.playernum, params);
 

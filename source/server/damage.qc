@@ -40,11 +40,6 @@ void(entity client) LastStand_Begin;
 void() Barrel_Hit;
 void() teddy_react;
 
-void() EndGame_Restart = 
-{
-	localcmd("restart\n");
-}
-
 // Fade to black function, creates another think for restart
 void() EndGame_FadePrompt =
 {
@@ -56,7 +51,7 @@ void() EndGame_FadePrompt =
 
 #ifdef FTE
 
-	self.think = EndGame_Restart;
+	self.think = MapRotation_Decide;
 
 #else
 
