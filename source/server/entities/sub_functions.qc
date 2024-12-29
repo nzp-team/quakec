@@ -54,6 +54,8 @@ void() DelayThink =
 	remove(self);
 };
 
+float global_triggerstate;
+
 void() SUB_UseTargets =
 {
 	local entity t, stemp, otemp, act;
@@ -146,6 +148,7 @@ void() SUB_UseTargets =
 			t.enemy = activator;
 			t.message = self.message;
 			t.killtarget = self.killtarget;
+			t.triggerstate = self.triggerstate;
 			t.target = self.target;
 			t.target2 = self.target2;
 			t.target3 = self.target3;
@@ -189,8 +192,12 @@ void() SUB_UseTargets =
 					t.classname = "spawn_dog";
 				if (self.use != SUB_Null)
 				{
+					global_triggerstate = self.triggerstate;
+
 					if (self.use)
 						self.use();
+					
+					global_triggerstate = -1;
 				}
 				self = stemp;
 				other = otemp;
