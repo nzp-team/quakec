@@ -73,6 +73,7 @@ void() Chase_Update =
     // take contents of the view leaf
     viewcontents = pointcontents(cl_vieworigin);
 
+    float attempts = 0;
     for (best = 0; best < NUM_TESTS; best++) {
         vector chase_newdest;
 
@@ -85,8 +86,9 @@ void() Chase_Update =
         {
             // go back to the previous best as this one is bad
             // unless the first one was also bad, (viewleaf contents != viewleaf contents!!!)
-            if (best > 0) {
+            if (best > 0 && attempts < 5) {
                 best--;
+                attempts++;
             } else { 
                 best = NUM_TESTS;
                 break;
@@ -138,6 +140,7 @@ void() Chase_Update =
         // all tests passed so we're good!
         if (nummatches == 6) break;
     }
+
 
     // find the spot the player is looking at
     dest[0] = cl_vieworigin[0] + 4096 * v_forward[0];
