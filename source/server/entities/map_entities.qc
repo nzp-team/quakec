@@ -273,6 +273,7 @@ void() misc_model =
 		self.model = "models/missing_model.mdl";
 	}
 		
+	self.oldmodel = self.model;
 
 	//
 	// Set default stats.
