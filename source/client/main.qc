@@ -892,9 +892,15 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 	float last_input_storage = last_input_was_gamepad;
 
 	if (last_input_deviceid > 0)
+	{
 		last_input_was_gamepad = TRUE;
+		setlocaluserinfo(0, "using_gamepad", "1");
+	}
 	else
+	{
 		last_input_was_gamepad = FALSE;
+		setlocaluserinfo(0, "using_gamepad", "0");
+	}
 
 	if (current_menu != MENU_NONE)
 	{
