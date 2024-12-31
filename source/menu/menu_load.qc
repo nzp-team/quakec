@@ -3,7 +3,7 @@ string UserMapNameLookup(string bsp_name);
 string loading_tips[] =
 {
     "Now with Font Kerning.",
-    "Quick Revive will ressurect you in Solo.",
+    "Quick Revive will resurrect you in Solo.",
     "Use Quick Revive to revive faster in Co-Op!",
     "Jugger-Nog increases your health.",
     "Speed Cola increases Reload speed.",
