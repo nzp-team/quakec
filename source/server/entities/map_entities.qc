@@ -273,6 +273,7 @@ void() misc_model =
 		self.model = "models/missing_model.mdl";
 	}
 		
+	self.oldmodel = self.model;
 
 	//
 	// Set default stats.
@@ -384,7 +385,10 @@ void() place_model =
 #define SPAWNFLAG_COUNTER_RESETONFIRE 		2
 void() game_counter_increment =
 {
-	self.frags++;
+	if (global_triggerstate == TRIGGERSTATE_OFF)
+		self.frags--;
+	else
+		self.frags++;
 
 	if (self.frags == self.health) {
 		SUB_UseTargets();

@@ -43,7 +43,15 @@
 
 float cheats_have_been_activated;
 
-// Quake assumes these are defined.
+// cypress - NOTE
+// on/off are inverted compared to goldsrc for
+// compatibility with existing nzp content.
+#define TRIGGERSTATE_ON			0
+#define TRIGGERSTATE_OFF		1
+#define TRIGGERSTATE_TOGGLE		2
+
+.float 	triggerstate;
+
 string 	string_null;
 .string killtarget;
 entity 	activator;

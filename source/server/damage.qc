@@ -40,19 +40,18 @@ void(entity client) LastStand_Begin;
 void() Barrel_Hit;
 void() teddy_react;
 
-void() EndGame_Restart = 
-{
-	localcmd("restart");
-}
-
 // Fade to black function, creates another think for restart
 void() EndGame_FadePrompt =
 {
-	nzp_screenflash(self, SCREENFLASH_COLOR_BLACK, 6, SCREENFLASH_FADE_IN);
+	entity players = find(world, classname, "player");
+	while(players != world) {
+		nzp_screenflash(players, SCREENFLASH_COLOR_BLACK, 5, SCREENFLASH_FADE_IN);
+		players = find(players, classname, "player");
+	}
 
 #ifdef FTE
 
-	self.think = EndGame_Restart;
+	self.think = MapRotation_Decide;
 
 #else
 
@@ -66,22 +65,16 @@ void() EndGame_FadePrompt =
 //Actual endgame function, all zombies die, music plays
 void() EndGame =
 {
-	local entity oldself;
-	local entity who;
-
-	self.health = 0;
-	self.velocity = '0 0 0';
-
-	oldself = self;
-	
-	who = find(world,classname,"ai_zombie");
+	entity old_self;
+	entity who = find(world,classname,"ai_zombie");
 	while(who != world)
 	{
 		if(who.health)
 		{
+			old_self = self;
 			self = who;
 			self.th_die();
-			self = oldself;
+			self = old_self;
 		}
 		
 		who = find(who,classname,"ai_zombie");
@@ -135,17 +128,29 @@ float() PollPlayersAlive =
 // Endgamesetup -- think function for setting up the death of everyone
 void() EndGameSetup =
 {
-	self.health = 10;
-	self.think = EndGame;
-	self.nextthink = time + 4;
-	self.weapon = 0;
-	self.currentammo = 0;
-	self.currentmag = 0;
-	self.weaponmodel = "";
-	self.weapon2model = "";
-	self.animend = SUB_Null;
-	self.perks = 0;
-	self.movetype = MOVETYPE_TOSS;
+	entity gameover_watcher = spawn();
+	gameover_watcher.think = EndGame;
+	gameover_watcher.nextthink = time + 4;
+	gameover_watcher.classname = "gameover_watcher";
+
+	entity players = find(world, classname, "player");
+	while(players != world) {
+		players.health = 0;
+		players.weapon = 0;
+		players.currentammo = 0;
+		players.currentmag = 0;
+		players.weaponmodel = "";
+		players.weapon2model = "";
+		players.animend = SUB_Null;
+		players.perks = 0;
+		players.movetype = MOVETYPE_TOSS;
+		players.velocity = '0 0 0';
+
+		Player_RemoveScore(players, players.points);
+		Player_AddScore(players, players.score, false);
+
+		players = find(players, classname, "player");
+	}
 
 	if (!game_over) {
 		Rounds_PlayTransition("sounds/music/end.wav");
@@ -158,7 +163,7 @@ void() EndGameSetup =
 	{
 		Weapon_RemoveWeapon(i);
 	}
-    return;
+  return;
 }
 
 float() push_away_zombies;

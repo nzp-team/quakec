@@ -258,11 +258,13 @@ void() NewRound =
 	} else {
 		roundtype = 1;
 
-		if (world.fog) {
-			localcmd(strcat("fog ", world.fog));
-		} else {
-			localcmd("fog 0 0 0 0 0\n");
-		}
+		string fog_value;
+		if (world.fog)
+			fog_value = strcat(world.fog, "\n");
+		else
+			fog_value = "0 0 0 0 0\n";
+
+		localcmd(strcat("fog ", fog_value));
 	}
 
 	Remaining_Zombies = Total_Zombies = getZombieTotal();

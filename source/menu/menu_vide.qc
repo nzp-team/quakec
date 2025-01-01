@@ -134,7 +134,7 @@ void() Menu_Video_UpdateShowFPS =
     Menu_PlaySound(MENU_SND_ENTER);
     current_showfps++;
     if (current_showfps > 2) current_showfps = 0;
-    localcmd(sprintf("show_fps %d", current_showfps));
+    localcmd(sprintf("show_fps %d\n", current_showfps));
 };
 
 void() Menu_Video_UpdateVsync =

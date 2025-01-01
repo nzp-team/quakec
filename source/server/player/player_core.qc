@@ -592,6 +592,9 @@ void() PlayerPostThink =
 
 	// Network everything
 	self.SendFlags = 1;
+
+	// Used to tell which gun to fire for akimbo weapons
+	self.is_using_gamepad = stof(infokey(self, "using_gamepad"));
 	
 	// Obtain menu state from CSQC via infokeys.
 	self.is_in_menu = stof(infokey(self, "in_menu"));
@@ -1048,6 +1051,12 @@ void() PutClientInServer =
 	GameRestart_ResetPerkaColas();
 };
 
+void() RestartDedicatedServer =
+{
+	bprint(PRINT_HIGH, "[INFO]: Issuing server restart as player is connecting to an empty server.\n");
+	localcmd("restart\n");
+}
+
 //called when client disconnects from the server
 void() ClientDisconnect =
 {
@@ -1079,6 +1088,18 @@ void() ClientDisconnect =
 	self.is_in_menu = 0;
 
 #endif // FTE
+
+	// We can encounter a player count of zero if we are in a dedicated
+	// server. If this is the case we should restart the current level
+	// to prevent issues with a player joining mid-match stuck in spectator
+	// mode, or spawning in at a high round not able to progress.
+	if (player_count == 0) {
+		// We need to use a temp entity for this to add a delay, else this
+		// will interfere with SP games.
+		entity tempe = spawn();
+		tempe.think = RestartDedicatedServer;
+		tempe.nextthink = time + 0.25;
+	}
 };
 
 

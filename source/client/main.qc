@@ -48,18 +48,6 @@ void() ToggleMenu =
 	}
 }
 
-//
-// SetGamepadBindings()
-// Since our menu architecture currently sucks,
-// we don't yet support a good binds menu that
-// let's you get good gamepad control.. so
-// force these binds (sorry!)
-//
-void() SetGamepadBindings =
-{
-	localcmd("unbindall;  bind ~ \"toggleconsole\"; bind ` \"toggleconsole\"; bind ESCAPE \"togglemenu\"; joyadvaxisr 4; joyadvaxisu 2; joyadvaxisx 3; joyadvaxisy -1; bind JOY1 \"+button5\"; bindlevel JOY2 30 \"null\"; bind JOY3 \"+button4\"; bind GP_LSHOULDER \"impulse 33\"; bind AUX1 \"+moveup\"; bind AUX2 \"+button3\"; bindlevel AUX3 30 \"null\"; bindlevel AUX4 30 \"null\"; bind AUX5 \"togglemenu\"; bind AUX10 \"+attack\"; bind GP_Y \"+button4\"; bindlevel GP_A 30 \"impulse 10\"; bindlevel GP_B 30 \"impulse 30\"; bindlevel GP_X 30 \"+button5\"; bindlevel GP_LTHUMB 30 \"impulse 23\"; bindlevel GP_RTHUMB 30 \"+button6\"; bind GP_LTRIGGER \"+button8\"; bindlevel GP_DPAD_DOWN 30 \"+button7\"; bindlevel GP_RSHOULDER 30 \"+button3\"; bindlevel GP_DPAD_RIGHT 30 \"impulse 33\"; bindlevel GP_DPAD_UP 30 \"+button7\"; bind GP_VIEW \"showscores\"; joysidesensitivity 0.8; joyyawsensitivity 0.6; joypitchsensitivity 0.55\n");
-}
-
 float(float isnew) SetZombieSkinning =
 {
 	self.drawmask = MASK_ENGINE;
@@ -904,9 +892,15 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 	float last_input_storage = last_input_was_gamepad;
 
 	if (last_input_deviceid > 0)
+	{
 		last_input_was_gamepad = TRUE;
+		setlocaluserinfo(0, "using_gamepad", "1");
+	}
 	else
+	{
 		last_input_was_gamepad = FALSE;
+		setlocaluserinfo(0, "using_gamepad", "0");
+	}
 
 	if (current_menu != MENU_NONE)
 	{
