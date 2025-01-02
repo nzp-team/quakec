@@ -157,6 +157,13 @@ void() EndGameSetup =
 		NotifyGameEnd();
 	}
 	game_over = true;
+	Player_RemoveScore(self, self.points);
+	Player_AddScore(self, self.score, false);
+	for (float i = 0; i < MAX_PLAYER_WEAPONS; ++i)
+	{
+		Weapon_RemoveWeapon(i);
+	}
+  return;
 }
 
 float() push_away_zombies;

@@ -1989,7 +1989,7 @@ void(float width, float height) HUD_Draw =
 		return;
 	}
 	
-	if ((getstatf(STAT_HEALTH) > 1) && !score_show)
+	if ((getstatf(STAT_HEALTH) > 1) && !score_show && !game_over)
 	{
 		Draw_Crosshair();
 
