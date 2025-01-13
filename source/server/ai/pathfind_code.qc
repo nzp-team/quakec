@@ -132,8 +132,19 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 		return s_wp;
 	}
 
+
+	bprint(PRINT_HIGH, "=============================================\n");
+	bprint(PRINT_HIGH, "=============================================\n");
+	bprint(PRINT_HIGH, "Start pathfind from waypoint ");
+	bprint(PRINT_HIGH, ftos(s_wp));
+	bprint(PRINT_HIGH, ftos(e_wp));
+	bprint(PRINT_HIGH, "\n");
+	bprint(PRINT_HIGH, "=============================================\n");
+	bprint(PRINT_HIGH, "=============================================\n");
+
 	SV_WP_ClearSet();
 
+	// bprint(PRINT_HIGH, sprintf("Adding waypoint %d to open set.\n", s_wp));
 	open_first = s_wp;
 	open = s_wp;
 	waypoints[s_wp].next = s_wp;
@@ -150,6 +161,7 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 	while (waypoints[open_first].set == SET_OPEN) {
 		i = open_first;
 
+
 		bestf = 320000;
 		//print("Current ", ftos(current), "\n");
 
@@ -162,8 +174,12 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 			i = waypoints[i].next;
 		} while (i != open);
 
+
+
+		// bprint(PRINT_HIGH, sprintf("Processing next waypoint %d from open set.\n", current));
+
 		// mark node as visited
-		//print("Removing ", ftos(current), " from open\n");
+		// print("Removing ", ftos(current), " from open\n");
 		SV_WP_SetAdd(current, false);
 
 		// we found a result, loop back with pathlength
@@ -173,13 +189,25 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 			// keep 2 next steps with us
 			//print("Result\n");
 			//print(ftos(current), "\n");
+
+
+			// float path_length = 0;
+			bprint(PRINT_HIGH, "Printing final path: [");
+
 			while (waypoints[current].step != current) {
+				bprint(PRINT_HIGH, " ");
+				bprint(PRINT_HIGH, ftos(current));
+				bprint(PRINT_HIGH, " <-");
+
 				j = i; // 3rd waypoint along path
 				i = current; // 2nd waypoint along path
 				current = waypoints[current].step; // Start waypoint
 			}
+			bprint(PRINT_HIGH, sprintf("%d]\n", current));
+
 
 			// go to the furthest one on the path that we can actually see
+			bprint(PRINT_HIGH, sprintf("Path found. Checking waypoints %d, %d, %d\n", current, i, j));
 			// If within a radius of 6 qu of the first waypoint along the path,
 			// Always return the 2nd waypoint along the path
 			float is_at_first_waypoint = vlen(z.origin - waypoints[s_wp].org) <= 6;
@@ -191,6 +219,7 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 			{
 				//VectorCopy(waypoints[i].origin, res);
 				//print("Giving third wp ", ftos(i), "\n");
+				bprint(PRINT_HIGH, sprintf("Can walk to 3rd waypoint (%d)\n", i));
 				return i;
 			}
 			// Check if we can tracemove to the 2nd waypoint along the path
@@ -198,12 +227,14 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 			{
 				//VectorCopy(waypoints[j].origin, res);
 				//print("Giving second wp ", ftos(j), "\n");
+				bprint(PRINT_HIGH, sprintf("Can walk to 2nd waypoint (%d)\n", j));
 				return j;
 			}
 			else
 			{
 				//VectorCopy(waypoints[current].origin, res);
 				//print("Giving first wp ", ftos(current), "\n");
+				bprint(PRINT_HIGH, sprintf("Can only walk to 1st waypoint (%d)\n", current));
 				return current;
 			}
 		}
@@ -213,6 +244,8 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 		for (j = 0; j < MAX_WAY_TARGETS; j++)
 		{
 			i = waypoints[current].target_id[j];
+
+			// bprint(PRINT_HIGH, sprintf("Checking waypoint %d's neighbor %d waypoint %d \n", current, j, i));
 			// Skip empty neighbor slots
 			if(i == -1) {
 				continue;
@@ -220,6 +253,8 @@ float Pathfind (entity z, float s_wp, float e_wp) {
 
 			if (waypoints[i].set != SET_CLOSED && i != current && IsActive(i))
 			{
+				// bprint(PRINT_HIGH, sprintf("\twaypoint %d's neighbor %d waypoint %d is active.\n", current, j, i));
+
 				bestf = waypoints[current].g + HeuristicCostEstimate(i, current);
 				if (waypoints[i].set == SET_NONE || bestf < waypoints[i].g)
 				{
@@ -294,7 +329,7 @@ float Do_Pathfind(entity from, entity to) {
 		}
 	}
 
-	//print("Starting waypoint: ", ftos(best)," Ending waypoint: ", ftos(best_target), "\n");
+	print("Starting waypoint: ", ftos(best)," Ending waypoint: ", ftos(best_target), "\n");
 
 
 

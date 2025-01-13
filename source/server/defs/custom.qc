@@ -108,7 +108,6 @@ void(entity person, float expamt , float doublepoint) addmoney;
 #endif // FTE
 
 //doors
-.float state;
 #define STATE_TOP		0
 #define STATE_BOTTOM	1
 #define STATE_UP		2
@@ -475,6 +474,15 @@ float nuke_powerup_active;
 float nuke_powerups_activated;
 float nuke_powerup_spawndelay;
 
+// Zombies (TODO - These shouldn't be hardcoded like this...)
+float zombie_anim_walk1_modelindex;
+float zombie_anim_walk2_modelindex;
+// Temp zombie test state vars for calculating movement distance between two frames
+.float          prev_skeleton_anim_frametime;
+
+
+
+
 //rounds
 float roundinit;
 float roundtype;
@@ -583,9 +591,9 @@ float G_PERKPOWER;
 .entity entities[4];
 
 // GIBBING
-.entity larm;
-.entity rarm;
-.entity head;
+// .entity larm;
+// .entity rarm;
+// .entity head;
 .vector	bbmins, bbmaxs;	
 .float currentHitBoxSetup;
 

@@ -284,39 +284,39 @@ void(entity who) makeCrawler =
 	//who.th_diewunder = die_wunder1;
 	
 	setmodel(who,"models/ai/zbc%.mdl");
-	if(who.head.deadflag)
-	{
-		setmodel(who.head,"models/ai/zhc^.mdl");
+// 	if(who.head.deadflag)
+// 	{
+// 		setmodel(who.head,"models/ai/zhc^.mdl");
 
-#ifndef FTE
+// #ifndef FTE
 
-		updateLimb (who, 0, who.head);
+// 		updateLimb (who, 0, who.head);
 
-#endif // FTE
+// #endif // FTE
 
-	}
-	if(who.larm.deadflag)
-	{
-		setmodel(who.larm,"models/ai/zalc(.mdl");
+// 	}
+// 	if(who.larm.deadflag)
+// 	{
+// 		setmodel(who.larm,"models/ai/zalc(.mdl");
 
-#ifndef FTE
+// #ifndef FTE
 
-		updateLimb (who, 1, who.larm);
+// 		updateLimb (who, 1, who.larm);
 
-#endif // FTE
+// #endif // FTE
 
-	}
-	if(who.rarm.deadflag)
-	{
-		setmodel(who.rarm,"models/ai/zarc(.mdl");
+// 	}
+// 	if(who.rarm.deadflag)
+// 	{
+// 		setmodel(who.rarm,"models/ai/zarc(.mdl");
 
-#ifndef FTE
+// #ifndef FTE
 
-		updateLimb (who, 2, who.rarm);
+// 		updateLimb (who, 2, who.rarm);
 
-#endif // FTE
+// #endif // FTE
 
-	}
+// 	}
 	who.crawling = 1;
 	
 	setsize(who,'-9 -9 -32','9 9 -10');

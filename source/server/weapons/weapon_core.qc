@@ -623,99 +623,101 @@ void Parse_Damage () = // DO NOT TOUCH
 
 			total_dmg = body_ent.hitamount;
 
-			if (body_ent.head.washit) {					
-				total_dmg += body_ent.head.hitamount;
-				body_ent.head.health -= body_ent.head.hitamount;
-				head_hit = 1;
+			// FIXME - Update this to handle nwe ent limb flags
+// 			if (body_ent.head.washit) {					
+// 				total_dmg += body_ent.head.hitamount;
+// 				body_ent.head.health -= body_ent.head.hitamount;
+// 				head_hit = 1;
 
-				// Check if we should Gib the head, before this would
-				// be a really weird check to "ressurect" a zombie if
-				// it was out of health. I *think* this is more accurate
-				// now. -- cypress (5 nov 2023)
-				if (Zombie_HeadCanGib(body_ent, self.weapon)) {
-					makevectors(body_ent.head.owner.angles);
- 					vector where = body_ent.head.owner.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
- 					spawn_gibs(where);
+// 				// Check if we should Gib the head, before this would
+// 				// be a really weird check to "ressurect" a zombie if
+// 				// it was out of health. I *think* this is more accurate
+// 				// now. -- cypress (5 nov 2023)
+// 				if (Zombie_HeadCanGib(body_ent, self.weapon)) {
+// 					makevectors(body_ent.head.owner.angles);
+//  					vector where = body_ent.head.owner.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
+//  					spawn_gibs(where);
 
-					body_ent.head.deadflag = false;
-					body_ent.head.solid = SOLID_NOT;
-					setmodel(body_ent.head, "");
-					body_ent.head.frame = 0;
+// 					body_ent.head.deadflag = false;
+// 					body_ent.head.solid = SOLID_NOT;
+// 					setmodel(body_ent.head, "");
+// 					body_ent.head.frame = 0;
 					
-					body_ent.usedent = self;
-					body_ent.bleedingtime = time + 1;
+// 					body_ent.usedent = self;
+// 					body_ent.bleedingtime = time + 1;
 
-#ifndef FTE
+// #ifndef FTE
 
-					updateLimb (body_ent.head.owner, 0, world);
+// 					updateLimb (body_ent.head.owner, 0, world);
 
-#endif // FTE
+// #endif // FTE
 
-				}
+// 				}
 				
-				body_ent.head.washit = 0;
-				body_ent.head.hitamount = 0;
-			}
-			if (body_ent.larm.washit) {
-				total_dmg += body_ent.larm.hitamount;
-				body_ent.larm.health -= body_ent.larm.hitamount;
+// 				body_ent.head.washit = 0;
+// 				body_ent.head.hitamount = 0;
+// 			}
+// 			if (body_ent.larm.washit) {
+// 				total_dmg += body_ent.larm.hitamount;
+// 				body_ent.larm.health -= body_ent.larm.hitamount;
 
-				if (WepDef_WeaponCanGibEnemy(self.weapon) && body_ent.larm.owner.rarm.deadflag && body_ent.larm.deadflag)
-				{
-					makevectors(body_ent.larm.owner.angles);
-					where = body_ent.larm.owner.origin + (body_ent.larm.view_ofs_x * v_right) + (body_ent.larm.view_ofs_y * v_forward) + (body_ent.larm.view_ofs_z * v_up);
-					spawn_gibs(where);
+// 				if (WepDef_WeaponCanGibEnemy(self.weapon) && body_ent.larm.owner.rarm.deadflag && body_ent.larm.deadflag)
+// 				{
+// 					makevectors(body_ent.larm.owner.angles);
+// 					where = body_ent.larm.owner.origin + (body_ent.larm.view_ofs_x * v_right) + (body_ent.larm.view_ofs_y * v_forward) + (body_ent.larm.view_ofs_z * v_up);
+// 					spawn_gibs(where);
 					
-					body_ent.larm.deadflag = false;
-					body_ent.larm.solid = SOLID_NOT;
-					setmodel(body_ent.larm,"");
-					body_ent.larm.frame = 0;
+// 					body_ent.larm.deadflag = false;
+// 					body_ent.larm.solid = SOLID_NOT;
+// 					setmodel(body_ent.larm,"");
+// 					body_ent.larm.frame = 0;
 
-#ifndef FTE
+// #ifndef FTE
 
-					updateLimb (body_ent.larm.owner, 1, world);
+// 					updateLimb (body_ent.larm.owner, 1, world);
 
-#endif // FTE
+// #endif // FTE
 
-				}
+// 				}
 
-				body_ent.larm.washit = 0;
-				body_ent.larm.hitamount = 0;
-			}
-			if (body_ent.rarm.washit) {
-				total_dmg += body_ent.rarm.hitamount;
-				body_ent.rarm.health -= body_ent.rarm.hitamount;
+// 				body_ent.larm.washit = 0;
+// 				body_ent.larm.hitamount = 0;
+// 			}
+// 			if (body_ent.rarm.washit) {
+// 				total_dmg += body_ent.rarm.hitamount;
+// 				body_ent.rarm.health -= body_ent.rarm.hitamount;
 
-				if (WepDef_WeaponCanGibEnemy(self.weapon) && body_ent.rarm.owner.larm.deadflag && body_ent.rarm.deadflag) {
+// 				if (WepDef_WeaponCanGibEnemy(self.weapon) && body_ent.rarm.owner.larm.deadflag && body_ent.rarm.deadflag) {
 					
-					makevectors(body_ent.rarm.owner.angles);
-					where = body_ent.rarm.owner.origin + (body_ent.rarm.view_ofs_x * v_right) + (body_ent.rarm.view_ofs_y * v_forward) + (body_ent.rarm.view_ofs_z * v_up);
-					spawn_gibs(where);
+// 					makevectors(body_ent.rarm.owner.angles);
+// 					where = body_ent.rarm.owner.origin + (body_ent.rarm.view_ofs_x * v_right) + (body_ent.rarm.view_ofs_y * v_forward) + (body_ent.rarm.view_ofs_z * v_up);
+// 					spawn_gibs(where);
 					
-					body_ent.rarm.deadflag = false;
-					body_ent.rarm.solid = SOLID_NOT;
-					setmodel(body_ent.rarm,"");
-					body_ent.rarm.frame = 0;
+// 					body_ent.rarm.deadflag = false;
+// 					body_ent.rarm.solid = SOLID_NOT;
+// 					setmodel(body_ent.rarm,"");
+// 					body_ent.rarm.frame = 0;
 
-#ifndef FTE
+// #ifndef FTE
 
-					updateLimb (body_ent.rarm.owner, 2, world);
+// 					updateLimb (body_ent.rarm.owner, 2, world);
 
-#endif // FTE
+// #endif // FTE
 
-				}
+// 				}
 
-				body_ent.rarm.washit = 0;
-				body_ent.rarm.hitamount = 0;
-			}
+// 				body_ent.rarm.washit = 0;
+// 				body_ent.rarm.hitamount = 0;
+// 			}
 
 			if (instakill_finished) {
-				if(body_ent.head.deadflag) {
-					body_ent.head.deadflag = false;
-					body_ent.head.solid = SOLID_NOT;
-					setmodel(body_ent.head,"");
-					body_ent.head.frame = 0;
-				}
+				// FIXME-  Update this for new limb status
+				// if(body_ent.head.deadflag) {
+				// 	body_ent.head.deadflag = false;
+				// 	body_ent.head.solid = SOLID_NOT;
+				// 	setmodel(body_ent.head,"");
+				// 	body_ent.head.frame = 0;
+				// }
 			}
 			
 			if (head_hit)
@@ -1265,11 +1267,12 @@ void () W_Knife =
 		if (hit_ent.classname == "ai_zombie")
 			hit = true;
 
-		// if zombie has a head and it's instakill, gib for  a e s t h e t i c
-		if (hit_ent.head && instakill_finished >= time) {
-			spawn_gibs(hit_ent.head.origin);
-			setmodel(hit_ent.head, "");
-		}
+		// // if zombie has a head and it's instakill, gib for  a e s t h e t i c
+		// FIXME - update logic to check for head limb status
+		// if (hit_ent.head && instakill_finished >= time) {
+		// 	spawn_gibs(hit_ent.head.origin);
+		// 	setmodel(hit_ent.head, "");
+		// }
 	}
 	else if (trace_fraction < 1.0)
 	{	// hit wall

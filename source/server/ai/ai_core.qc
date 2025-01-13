@@ -26,7 +26,7 @@
 */
 
 void(float what) play_sound_z;
-void() LinkZombiesHitbox;
+// void() LinkZombiesHitbox;
 entity() Dog_FindEnemy;
 
 void() path_corner_touch =
@@ -724,8 +724,6 @@ void(float dist) Inside_Walk = {
 	else if (self.classname != "ai_dog") {
 		if(self.enemy_timeout < time || self.enemy == world || self.enemy.downed == true) {
 			self.enemy_timeout = time + 5;
-			local entity oldEnemy;
-			oldEnemy = self.enemy;
 			self.enemy = find_new_enemy(self);
 		}
 	}
@@ -738,8 +736,10 @@ void(float dist) Inside_Walk = {
 		if(self.attack_delay < time) {
 			self.attack_delay = time + 1 + (1 * random());
 
-			if (self.enemy.health)
-				self.th_melee(); 
+			if (self.enemy.health) {
+				self.th_die();
+				// self.th_melee(); 
+			}
 
 			if (self.enemy.downed == true) {
 				if (self.classname == "ai_dog")
@@ -755,6 +755,7 @@ void(float dist) Inside_Walk = {
 	
 	if(vlen(self.enemy.origin - self.origin) < 600) {//50 feet
 		if(self.goalentity == self.enemy && self.chase_enemy_time > time) {
+			// TODO - Double check this
 			return;
 		}
 		if(TryWalkToEnemy())
@@ -782,6 +783,7 @@ void(float dist) Inside_Walk = {
 
 #else
 
+			bprint(PRINT_HIGH, "Nearby goaldummy, restart pathfind\n");
 			PathfindToEnemy();
 
 #endif // FTE
@@ -790,8 +792,10 @@ void(float dist) Inside_Walk = {
 
 		if(self.chase_time < time) {
 			if(self.goaldummy.origin != world.origin && tracemove(self.origin,VEC_HULL_MIN,VEC_HULL_MAX,self.goalentity.origin,TRUE,self) == 1) {
+				// bprint(PRINT_HIGH, "Chase time reset, increment time.\n");
 				self.chase_time = time + 7;
 			} else {
+				// bprint(PRINT_HIGH, "Chase time reset, Restart pathfind.\n");
 				PathfindToEnemy();
 			}
 		}
@@ -961,12 +965,12 @@ void() AI_RevertEnemySolidState =
 		if (zombies.aistatus == "1") {
 			zombies.solid = zombies.last_solid;
 
-			if (zombies.head)
-				zombies.head.solid = zombies.head.last_solid;
-			if (zombies.larm)
-				zombies.larm.solid = zombies.larm.last_solid;
-			if (zombies.rarm)
-				zombies.rarm.solid = zombies.rarm.last_solid;
+			// if (zombies.head)
+			// 	zombies.head.solid = zombies.head.last_solid;
+			// if (zombies.larm)
+			// 	zombies.larm.solid = zombies.larm.last_solid;
+			// if (zombies.rarm)
+			// 	zombies.rarm.solid = zombies.rarm.last_solid;
 		}
 
 		zombies = find(zombies, classname, "ai_zombie");

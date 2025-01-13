@@ -61,12 +61,12 @@ void(vector pos) tesla_spark = {
 void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float do_arc) tesla_damage = {
     // set lib models to null
 	// (if we remove them RelinkZombies will cry)
-	if (hit_ent.head)
-		setmodel(hit_ent.head, "");
-	if (hit_ent.larm)
-		setmodel(hit_ent.larm, "");
-	if (hit_ent.rarm)
-		setmodel(hit_ent.rarm, "");
+	// if (hit_ent.head)
+	// 	setmodel(hit_ent.head, "");
+	// if (hit_ent.larm)
+	// 	setmodel(hit_ent.larm, "");
+	// if (hit_ent.rarm)
+	// 	setmodel(hit_ent.rarm, "");
 
     hit_ent.velocity.x = 0;
     hit_ent.velocity.y = 0;

@@ -436,6 +436,106 @@ void() PlayerPreThink =
 		Weapon_Logic();
 	}
 
+	// ------------------------------------------------
+	// Skeletal anim testing:
+	// ------------------------------------------------
+	if(self.skeletonindex < 0) {
+		float modelindex = getmodelindex("models/weapons/m1911/v_colt.iqm");
+		self.skeletonindex = skel_create(modelindex);
+		self.skeleton_modelindex = modelindex;
+		self.skeleton_anim_modelindex = modelindex;
+		self.skeleton_anim_framegroup = 0;
+		self.skeleton_anim_start_time = 0.5;
+		self.skeleton_anim_speed = 0.1;
+	}
+	skel_build(self.skeletonindex, self.skeleton_anim_modelindex, self.skeleton_anim_framegroup, self.skeleton_anim_start_time, self.skeleton_anim_speed);
+
+	// bprint (PRINT_HIGH, "Player skel idx: ");
+	// bprint (PRINT_HIGH, ftos(self.skeletonindex));
+	// bprint (PRINT_HIGH, ", start time: ");
+	// bprint (PRINT_HIGH, ftos(self.skeleton_anim_start_time));
+	// bprint (PRINT_HIGH, ", speed: ");
+	// bprint (PRINT_HIGH, ftos(self.skeleton_anim_speed));
+	// bprint (PRINT_HIGH, "\n");
+
+	// ----------------------------------------------------------
+	// ------------------------------------------------
+
+	// ------------------------------------------------
+	// Skeletal hitbox testing
+	// ------------------------------------------------
+	vector ray_start = self.origin + self.view_ofs;
+	makevectors(self.v_angle);
+	traceline(ray_start, ray_start + v_forward * 200, MOVE_SKEL_HITBOXES, self);
+
+	if(trace_fraction < 1.0) {
+		sprint(self, PRINT_HIGH, "Trace frac: ");
+		sprint(self, PRINT_HIGH, ftos(trace_fraction));
+		// sprint(self, PRINT_HIGH, ", Bone idx: ");
+		// sprint(self, PRINT_HIGH, ftos(trace_bone_idx));
+		// sprint(self, PRINT_HIGH, ", Bone tag: ");
+		// sprint(self, PRINT_HIGH, ftos(trace_bone_tag));
+		if(trace_bone_idx >= 0) {
+			float skel_idx = trace_ent.skeletonindex;
+
+			sprint(self, PRINT_HIGH, ", Bone idx: ");
+			sprint(self, PRINT_HIGH, ftos(trace_bone_idx));
+			sprint(self, PRINT_HIGH, "   ");
+			sprint(self, PRINT_HIGH, trace_ent.classname);
+			sprint(self, PRINT_HIGH, ", ");
+			sprint(self, PRINT_HIGH, ftos(skel_idx));
+			sprint(self, PRINT_HIGH, ", ");
+
+			// skel_reset_bone_hitboxes(skel_idx);
+			switch(trace_bone_tag) {
+				case 1:
+					sprint(self, PRINT_HIGH, "BODY");
+					// skel_set_bone_hitbox_enabled(skel_idx, 1, 0, SKEL_BONE_SELECT_TYPE_BY_HITBOX_TAG);
+					break;
+				case 2:
+					sprint(self, PRINT_HIGH, "HEAD");
+					// skel_set_bone_hitbox_enabled(skel_idx, 2, 0, SKEL_BONE_SELECT_TYPE_BY_HITBOX_TAG);
+					trace_ent.limbs_state =  ZOMBIE_LIMB_STATE_ARM_L | ZOMBIE_LIMB_STATE_ARM_R | ZOMBIE_LIMB_STATE_LEG_L | ZOMBIE_LIMB_STATE_LEG_R;
+					break;
+				case 3:
+					sprint(self, PRINT_HIGH, "LEFT ARM");
+					// skel_set_bone_hitbox_enabled(skel_idx, 3, 0, SKEL_BONE_SELECT_TYPE_BY_HITBOX_TAG);
+					trace_ent.limbs_state = ZOMBIE_LIMB_STATE_HEAD | ZOMBIE_LIMB_STATE_ARM_R | ZOMBIE_LIMB_STATE_LEG_L | ZOMBIE_LIMB_STATE_LEG_R;
+					break;
+				case 4:
+					sprint(self, PRINT_HIGH, "LEFT LEG");
+					// skel_set_bone_hitbox_enabled(skel_idx, 4, 0, SKEL_BONE_SELECT_TYPE_BY_HITBOX_TAG);
+					trace_ent.limbs_state = ZOMBIE_LIMB_STATE_HEAD | ZOMBIE_LIMB_STATE_ARM_L | ZOMBIE_LIMB_STATE_ARM_R | ZOMBIE_LIMB_STATE_LEG_R;
+					break;
+				case 5:
+					sprint(self, PRINT_HIGH, "RIGHT LEG");
+					// skel_set_bone_hitbox_enabled(skel_idx, 5, 0, SKEL_BONE_SELECT_TYPE_BY_HITBOX_TAG);
+					trace_ent.limbs_state = ZOMBIE_LIMB_STATE_HEAD | ZOMBIE_LIMB_STATE_ARM_L | ZOMBIE_LIMB_STATE_ARM_R | ZOMBIE_LIMB_STATE_LEG_L;
+					break;
+				case 6:
+					sprint(self, PRINT_HIGH, "RIGHT ARM");
+					// skel_set_bone_hitbox_enabled(skel_idx, 6, 0, SKEL_BONE_SELECT_TYPE_BY_HITBOX_TAG);
+					trace_ent.limbs_state = ZOMBIE_LIMB_STATE_HEAD | ZOMBIE_LIMB_STATE_ARM_L | ZOMBIE_LIMB_STATE_LEG_L | ZOMBIE_LIMB_STATE_LEG_R;
+					break;
+				default:
+					break;
+			}
+		}
+		sprint(self, PRINT_HIGH, "\n");
+	}
+
+
+	// Globals set
+	// trace_endpos
+	// trace_startsolid
+	// trace_allsolid
+	// trace_fraction
+	// trace_ent
+	// trace_plane_dist
+	// trace_plane_normal
+	// ------------------------------------------------
+
+
 	JumpCheck(0);
 
 	// Fire effect
@@ -652,7 +752,7 @@ void() PlayerPostThink =
 
 
 		// use .head here to avoid expanding ent struct
-		self.head = trace_ent;
+		// self.head = trace_ent;
 
 		// check whether we're looking at an entity separately to communicate
 		// with the client more reasonably
@@ -759,6 +859,7 @@ void() PlayerSpawn =
 
 #endif // FTE
 
+	self.skeletonindex = -1;
 	setmodel(self, "models/player.mdl");
 	self.movetype = MOVETYPE_WALK;
 	self.max_health = self.health = PLAYER_START_HEALTH;

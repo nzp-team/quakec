@@ -151,6 +151,18 @@ string(string s) precache_model         = #20;
 void() precaches =
 {
 	precache_model ("models/player.mdl");
+	// precache_model("models/ai/zombie_with_anims.iqm");
+	// precache_model("models/ai/zombie_mesh.iqm");
+	// precache_model("models/ai/anim1_v2.iqm");
+	// precache_model("models/ai/anim2_v2.iqm");
+	precache_model("models/ai/iqm/nazi_zombie.iqm");
+	precache_model("models/ai/iqm/zombie_anim_walk1.iqm");
+	precache_model("models/ai/iqm/zombie_anim_walk2.iqm");
+
+	// Pre-register animations with models to calculate bounding box
+	skel_register_anim("models/ai/iqm/nazi_zombie.iqm", "models/ai/iqm/zombie_anim_walk1.iqm");
+	skel_register_anim("models/ai/iqm/nazi_zombie.iqm", "models/ai/iqm/zombie_anim_walk2.iqm");
+
 
 	//
 	// Models
@@ -192,7 +204,8 @@ void() precaches =
 	precache_model ("models/ai/zhc^.mdl");
 
 	// start weapons
-	precache_model ("models/weapons/m1911/v_colt.mdl");
+	// precache_model ("models/weapons/m1911/v_colt.mdl");
+	precache_model ("models/weapons/m1911/v_colt.iqm");
 	precache_model ("models/weapons/m1911/g_colt.mdl");
 	precache_model ("models/weapons/knife/v_knife.mdl");
 	precache_model ("models/weapons/grenade/v_grenade.mdl");
@@ -376,163 +389,163 @@ void() SpectatorConnect =
 	bprint(PRINT_HIGH, " has joined the spectators.\n");
 }
 
-void() RelinkZombies =
-{
-	entity ent,ent2;
-	local float i;
-	local vector min, max;
+// void() RelinkZombies =
+// {
+// 	entity ent,ent2;
+// 	local float i;
+// 	local vector min, max;
 
 
-	//warn
-	ent = ent2 = world;
+// 	//warn
+// 	ent = ent2 = world;
 
-	while ((ent = find (ent, classname, "ai_zombie")))
-	{
-		if(ent.currentHitBoxSetup == 0)//empty bbox, we don't care to update
-			continue;
+// 	while ((ent = find (ent, classname, "ai_zombie")))
+// 	{
+// 		if(ent.currentHitBoxSetup == 0)//empty bbox, we don't care to update
+// 			continue;
 
-#ifdef FTE
-		// This is just a weird hack we do to avoid spamming other clients in co-op with
-		// the update positions for limbs. Brings bandwidth from 90kbps->30kbps without
-		// a tick rate limit. 30kbps->12kbps with a tickrate of 20Hz. Basically, like we
-		// do other platforms for render speedups, if a zombie has all of its limbs dont
-		// bother drawing them all separately. draw one full mesh instead, then when it
-		// has been gibbed, then begin drawing separately -- cypress
-		if (ent.larm.deadflag && ent.rarm.deadflag && ent.head.deadflag) {
-			setmodel(ent.larm, "");
-			setmodel(ent.rarm, "");
-			setmodel(ent.head, "");
+// #ifdef FTE
+// 		// // This is just a weird hack we do to avoid spamming other clients in co-op with
+// 		// // the update positions for limbs. Brings bandwidth from 90kbps->30kbps without
+// 		// // a tick rate limit. 30kbps->12kbps with a tickrate of 20Hz. Basically, like we
+// 		// // do other platforms for render speedups, if a zombie has all of its limbs dont
+// 		// // bother drawing them all separately. draw one full mesh instead, then when it
+// 		// // has been gibbed, then begin drawing separately -- cypress
+// 		// if (ent.larm.deadflag && ent.rarm.deadflag && ent.head.deadflag) {
+// 		// 	setmodel(ent.larm, "");
+// 		// 	setmodel(ent.rarm, "");
+// 		// 	setmodel(ent.head, "");
 
-			if (ent.crawling == 1)
-				setmodel(ent, "models/ai/zcfull.mdl");
-			else
-				setmodel(ent, "models/ai/zfull.mdl");
-		} else if (!(ent.crawling == 1 && ent.model == "models/ai/zbc%.mdl") || !(ent.model == "models/ai/zb%.mdl")) {
-			if (ent.crawling == 1)
-				setmodel(ent, "models/ai/zbc%.mdl");
-			else
-				setmodel(ent, "models/ai/zb%.mdl");
+// 		// 	if (ent.crawling == 1)
+// 		// 		setmodel(ent, "models/ai/zcfull.mdl");
+// 		// 	else
+// 		// 		setmodel(ent, "models/ai/zfull.mdl");
+// 		// } else if (!(ent.crawling == 1 && ent.model == "models/ai/zbc%.mdl") || !(ent.model == "models/ai/zb%.mdl")) {
+// 		// 	if (ent.crawling == 1)
+// 		// 		setmodel(ent, "models/ai/zbc%.mdl");
+// 		// 	else
+// 		// 		setmodel(ent, "models/ai/zb%.mdl");
 
-			if (ent.larm.deadflag) {
-				if (ent.crawling == 1)
-					setmodel(ent.larm, "models/ai/zalc(.mdl");
-				else
-					setmodel(ent.larm, "models/ai/zal(.mdl");
-			}
+// 		// 	if (ent.larm.deadflag) {
+// 		// 		if (ent.crawling == 1)
+// 		// 			setmodel(ent.larm, "models/ai/zalc(.mdl");
+// 		// 		else
+// 		// 			setmodel(ent.larm, "models/ai/zal(.mdl");
+// 		// 	}
 
-			if (ent.rarm.deadflag) {
-				if (ent.crawling == 1)
-					setmodel(ent.rarm, "models/ai/zarc(.mdl");
-				else
-					setmodel(ent.rarm, "models/ai/zar(.mdl");
-			}
+// 		// 	if (ent.rarm.deadflag) {
+// 		// 		if (ent.crawling == 1)
+// 		// 			setmodel(ent.rarm, "models/ai/zarc(.mdl");
+// 		// 		else
+// 		// 			setmodel(ent.rarm, "models/ai/zar(.mdl");
+// 		// 	}
 
-			if (ent.head.deadflag) {
-				if (ent.crawling == 1)
-					setmodel(ent.head, "models/ai/zhc^.mdl");
-				else
-					setmodel(ent.head, "models/ai/zh^.mdl");
-			}
-		}
-#endif // FTE
+// 		// 	if (ent.head.deadflag) {
+// 		// 		if (ent.crawling == 1)
+// 		// 			setmodel(ent.head, "models/ai/zhc^.mdl");
+// 		// 		else
+// 		// 			setmodel(ent.head, "models/ai/zh^.mdl");
+// 		// 	}
+// 		// }
+// #endif // FTE
 
-		makevectors (ent.angles);
+// 	// 	makevectors (ent.angles);
 
-		for(i = 0; i < 3; i++)
-		{
-			if(i == 0)
-				ent2 = ent.head;
-			if(i == 1)
-				ent2 = ent.larm;
-			if(i == 2)
-				ent2 = ent.rarm;
+// 	// 	for(i = 0; i < 3; i++)
+// 	// 	{
+// 	// 		if(i == 0)
+// 	// 			ent2 = ent.head;
+// 	// 		if(i == 1)
+// 	// 			ent2 = ent.larm;
+// 	// 		if(i == 2)
+// 	// 			ent2 = ent.rarm;
 
 
-			if (ent2)
-			{
-				//setorigin (ent.head, ent.origin + v_right * ent.head.view_ofs_x + v_forward * ent.head.view_ofs_y + v_up * ent.head.view_ofs_z);
-				setorigin (ent2, ent.origin);
-				//fixme, move angles set and frame set to below the continue, we only want to update origin (maybe angles too?)
-				ent2.angles = ent.angles;
+// 	// 		if (ent2)
+// 	// 		{
+// 	// 			//setorigin (ent.head, ent.origin + v_right * ent.head.view_ofs_x + v_forward * ent.head.view_ofs_y + v_up * ent.head.view_ofs_z);
+// 	// 			setorigin (ent2, ent.origin);
+// 	// 			//fixme, move angles set and frame set to below the continue, we only want to update origin (maybe angles too?)
+// 	// 			ent2.angles = ent.angles;
 
-				if(ent2.deadflag)
-					ent2.frame = ent.frame;
+// 	// 			if(ent2.deadflag)
+// 	// 				ent2.frame = ent.frame;
 
-				//if(OnlyOrigin)
-				//	continue;
+// 	// 			//if(OnlyOrigin)
+// 	// 			//	continue;
 				
 				
-				min = ent2.bbmins + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
-				max = ent2.bbmaxs + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
+// 	// 			min = ent2.bbmins + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
+// 	// 			max = ent2.bbmaxs + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
 
-				if(min_x > max_x) { min_x += max_x; max_x = min_x - max_x; min_x -= max_x; }
-				if(min_y > max_y) { min_y += max_y; max_y = min_y - max_y; min_y -= max_y; }
-				if(min_z > max_z) { min_z += max_z; max_z = min_z - max_z; min_z -= max_z; }
+// 	// 			if(min_x > max_x) { min_x += max_x; max_x = min_x - max_x; min_x -= max_x; }
+// 	// 			if(min_y > max_y) { min_y += max_y; max_y = min_y - max_y; min_y -= max_y; }
+// 	// 			if(min_z > max_z) { min_z += max_z; max_z = min_z - max_z; min_z -= max_z; }
 
-				setsize(ent2,min,max);
+// 	// 			setsize(ent2,min,max);
 				
-			}
+// 	// 		}
 
-		}
-	}
-}
+// 	// 	}
+// 	// }
+// }
 
-void() LinkZombiesHitbox =
-{
-	entity ent,ent2;
-	local float i;
-	local vector min, max;
-
-
-	//warn
-	ent = ent2 = world;
-
-	while ((ent = find (ent, classname, "ai_zombie")))
-	{
-		if(ent.currentHitBoxSetup == 0)//empty bbox, we don't care to update
-			continue;
-
-		makevectors (ent.angles);
-
-		for(i = 0; i < 3; i++)
-		{
-			if(i == 0)
-				ent2 = ent.head;
-			if(i == 1)
-				ent2 = ent.larm;
-			if(i == 2)
-				ent2 = ent.rarm;
+// void() LinkZombiesHitbox =
+// {
+// 	entity ent,ent2;
+// 	local float i;
+// 	local vector min, max;
 
 
-			if (ent2)
-			{
-				ent2.angles = ent.angles;
+// 	//warn
+// 	ent = ent2 = world;
 
-				if(ent2.deadflag)
-					ent2.frame = ent.frame;
+// 	while ((ent = find (ent, classname, "ai_zombie")))
+// 	{
+// 		if(ent.currentHitBoxSetup == 0)//empty bbox, we don't care to update
+// 			continue;
 
-				//if(OnlyOrigin)
-				//	continue;
+// 		makevectors (ent.angles);
+
+// 		for(i = 0; i < 3; i++)
+// 		{
+// 			if(i == 0)
+// 				ent2 = ent.head;
+// 			if(i == 1)
+// 				ent2 = ent.larm;
+// 			if(i == 2)
+// 				ent2 = ent.rarm;
+
+
+// 			if (ent2)
+// 			{
+// 				ent2.angles = ent.angles;
+
+// 				if(ent2.deadflag)
+// 					ent2.frame = ent.frame;
+
+// 				//if(OnlyOrigin)
+// 				//	continue;
 				
 				
-				min = ent2.bbmins + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
-				max = ent2.bbmaxs + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
+// 				min = ent2.bbmins + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
+// 				max = ent2.bbmaxs + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
 
-				if(min_x > max_x) { min_x += max_x; max_x = min_x - max_x; min_x -= max_x; }
-				if(min_y > max_y) { min_y += max_y; max_y = min_y - max_y; min_y -= max_y; }
-				if(min_z > max_z) { min_z += max_z; max_z = min_z - max_z; min_z -= max_z; }
+// 				if(min_x > max_x) { min_x += max_x; max_x = min_x - max_x; min_x -= max_x; }
+// 				if(min_y > max_y) { min_y += max_y; max_y = min_y - max_y; min_y -= max_y; }
+// 				if(min_z > max_z) { min_z += max_z; max_z = min_z - max_z; min_z -= max_z; }
 
-				setsize(ent2,min,max);
+// 				setsize(ent2,min,max);
 				
-			}
+// 			}
 
-		}
-	}
-}
+// 		}
+// 	}
+// }
 
 void() EndFrame =
 {
-	RelinkZombies();
+	// RelinkZombies();
 
 	if (cheats_have_been_activated == false && cvar("sv_cheats") == 1) {
 		cheats_have_been_activated = true;

@@ -2651,7 +2651,8 @@ string(float wep, float gorvmodel) GetWeaponModel =
 			if (gorvmodel)
 				return ("models/weapons/m1911/g_colt.mdl");
 			else
-				return ("models/weapons/m1911/v_colt.mdl");
+				// return ("models/weapons/m1911/v_colt.mdl");
+				return ("models/weapons/m1911/v_colt.iqm");
 		case W_BIATCH:
 			if (gorvmodel)
 				return ("models/weapons/m1911/g_colt.mdl");

@@ -40,6 +40,8 @@ float           trace_plane_dist;
 entity          trace_ent;
 float           trace_inopen;
 float           trace_inwater;
+float           trace_bone_idx;
+float           trace_bone_tag;
 entity          msg_entity;                             // destination of single entity writes
 void()          main;                                   // only for testing
 void()          StartFrame;
@@ -58,6 +60,14 @@ void()          Soft_Restart;
 void            end_sys_globals;						// flag for structure dumping
 
 .float          modelindex;								// *** model index in the precached list
+.float          skeletonindex;
+.float          skeleton_modelindex;
+.float          skeleton_anim_modelindex;
+.float          skeleton_anim_framegroup;
+.float          skeleton_anim_start_time;
+.float          skeleton_anim_speed;
+.float          limbs_state;
+
 .vector         absmin, absmax;							// *** origin + mins / maxs
 .float          ltime;									// local time for entity
 .float          movetype;
@@ -128,9 +138,9 @@ void            end_sys_globals;						// flag for structure dumping
 .float          ideal_yaw;
 .float          yaw_speed;
 .entity         aiment;
-.entity 		head;
-.entity			larm;
-.entity 		rarm;
+// .entity 		head;
+// .entity			larm;
+// .entity 		rarm;
 .entity         goalentity; 							// a movetarget or an enemy
 //.entity       goalorigin;                             // a movetarget location
 .float          spawnflags;
@@ -155,6 +165,8 @@ void            end_sys_globals;						// flag for structure dumping
 .float          maxspeed;
 .float     		facingenemy;
 .float          scale;
+.float          state;                                  // Need to access door state from the engine
+.string         nav_targetname;                         // Field to check for open doors in pathfinding routine
 void            end_sys_fields; 						// flag for structure dumping
 // End. Lines below this MAY be altered, to some extent
 
@@ -173,7 +185,7 @@ float   (vector v)                                                              
 float   (vector v)                                                                              vectoyaw            = #13;
 entity  ()                                                                                      spawn               = #14;
 void    (entity e)                                                                              remove              = #15;
-void    (vector v1, vector v2, float nomonsters, entity forent)                                 traceline           = #16;
+void    (vector v1, vector v2, float type_flags, entity forent)                                 traceline           = #16;
 entity  ()                                                                                      checkclient         = #17;  // returns a client to look for
 entity  (entity start, .string fld, string match)                                               find                = #18;
 string  (string s)                                                                              precache_sound      = #19;
@@ -243,8 +255,8 @@ void    (string s)                                                              
 vector  (entity zombie,vector start,vector min, vector max)                                     Get_Next_Waypoint   = #86;
 void    (entity client, float type, float cost, float weapon)                                   useprint            = #87;
 vector  (entity zombie,vector start,vector min, vector max)                                     Get_First_Waypoint  = #88;
-void    (string s)                                                                            	Close_Waypoint      = #89;
-void    (vector start, vector min, vector max, vector end, float nomonsters, entity forent)   	tracebox            = #90;
+void    (string s)                                                                              Close_Waypoint      = #89;
+void    (vector start, vector min, vector max, vector end, float nomonsters, entity forent)     tracebox            = #90;
 entity  (entity start, .float field, float match)                                               findfloat           = #98;
 float   (vector start, vector min, vector max, vector end, float nomonsters, entity forent)     tracemove           = #99;
 // 2001-09-20 QuakeC file access by FrikaC  start
@@ -273,6 +285,30 @@ float   ()                                                                      
 void    (entity who)                                                                            nzp_bettyprompt     = #504;
 void    (entity who, string name)                                                               nzp_setplayername   = #505;
 void    (entity who, float version)                                                             nzp_setdoubletapver = #506;
+
+
+float   (float skel_modelindex)                                                                 skel_create                     = #601;  // blubs -- Gets free server skeleton index
+void    (float skel_idx)                                                                        skel_destroy                    = #602;  // blubs -- Frees server skeleton at index
+void    (float skel_idx, float anim_modelindex, float anim_framegroup, float anim_starttime, float anim_speed) skel_build       = #603;  // blubs -- Build server skeleton at index
+float   (string model_name)                                                                     getmodelindex                   = #604;  // blubs -- Get modelindex for a given model name (Returns 0 if unrecognized)
+float   (float anim_modelindex, float anim_framegroup)                                          getframeduration                = #605;  // blubs -- Get modelindex for a given model name (Returns 0 if unrecognized)
+void    (float anim_modelindex, float anim_framegroup, float t_start, float t_stop, void(float, float, string) callback_func)     processmodelevents  = #606;  // blubs -- Execute FTE IQM anim events from t_start to t_stop
+float   (float anim_modelindex, float anim_framegroup, float t_start, float t_stop)             getmovedistance                 = #607;  // blubs -- Returns animation movement distance between two times
+
+
+#define SKEL_BONE_SELECT_TYPE_BY_IDX 0
+#define SKEL_BONE_SELECT_TYPE_BY_HITBOX_TAG 1
+
+string  (float skel_idx, float bone_idx)                                                        skel_get_bonename               = #608;  // blubs -- Get bone name for skeleton's bone at index
+float   (float skel_idx, float bone_idx)                                                        skel_get_boneparent             = #609;  // blubs -- Get bone parent bone index for skeleton 
+float   (float skel_idx, string bone_name)                                                      skel_find_bone                  = #610;  // blubs -- Get bone index for skeleton bone with matching name
+void    (float skel_idx, float bones_spec, float val, float bones_spec_type)                    skel_set_bone_hitbox_enabled    = #611;  // blubs -- Set bone hitbox `enabled` field for skeleton bone(s)
+void    (float skel_idx, float bones_spec, vector ofs, float bones_spec_type)                   skel_set_bone_hitbox_ofs        = #612;  // blubs -- Set bone hitbox `ofs` field for skeleton bone(s)
+void    (float skel_idx, float bones_spec, vector scale, float bones_spec_type)                 skel_set_bone_hitbox_scale      = #613;  // blubs -- Set bone hitbox `scale` field for skeleton bone(s)
+void    (float skel_idx, float bones_spec, float tag, float bones_spec_type)                    skel_set_bone_hitbox_tag        = #614;  // blubs -- Set bone hitbox `tag` field for skeleton bone(s)
+void    (float skel_idx)                                                                        skel_reset_bone_hitboxes        = #615;  // blubs -- Resets bone hitbox fields for all skeleton bones
+void    (string model_name, string anim_model_name)                                             skel_register_anim              = #616;  // blubs -- Pre-calculates and caches the AABB for a skeletal model playing a skeletal animation
+
 
 //
 // constants
@@ -477,3 +513,17 @@ void    (entity who, float version)                                             
 #define		FILE_READ 	 				0
 #define		FILE_APPEND 				1
 #define		FILE_WRITE 					2
+
+// traceline / SV_Move type flags
+#define     MOVE_NORMAL                 0
+#define     MOVE_NOMONSTERS             1
+#define     MOVE_MISSILE                2
+#define     MOVE_SKEL_HITBOXES          4
+
+// Limb state flags recognized by DQuake
+#define ZOMBIE_LIMB_STATE_HEAD		1
+#define ZOMBIE_LIMB_STATE_ARM_L		2
+#define ZOMBIE_LIMB_STATE_ARM_R		4
+#define ZOMBIE_LIMB_STATE_LEG_L		8
+#define ZOMBIE_LIMB_STATE_LEG_R		16
+#define ZOMBIE_LIMB_STATE_FULL      (ZOMBIE_LIMB_STATE_HEAD | ZOMBIE_LIMB_STATE_ARM_L | ZOMBIE_LIMB_STATE_ARM_R | ZOMBIE_LIMB_STATE_LEG_L | ZOMBIE_LIMB_STATE_LEG_R)

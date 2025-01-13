@@ -302,12 +302,12 @@ void() Soft_Restart = {
 
 			// hide bodies
 			setmodel(self, "");
-			if (self.head)
-				setmodel(self.head, "");
-			if (self.larm)
-				setmodel(self.larm, "");
-			if (self.rarm)
-				setmodel(self.rarm, "");
+			// if (self.head)
+			// 	setmodel(self.head, "");
+			// if (self.larm)
+			// 	setmodel(self.larm, "");
+			// if (self.rarm)
+			// 	setmodel(self.rarm, "");
 
 			self = oldself;
 		}
