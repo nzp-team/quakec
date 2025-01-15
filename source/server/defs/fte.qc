@@ -3840,3 +3840,12 @@ accessor jsonnode : json_t
 #undef FTEDEP
 #undef DEP
 #pragma noref 0
+
+
+// IQM fields that are engine-linked for non-FTE
+.float          skeleton_modelindex;
+.float          skeleton_anim_modelindex;
+.float          skeleton_anim_framegroup;
+.float          skeleton_anim_start_time;
+.float          skeleton_anim_speed;
+.float          limbs_state;

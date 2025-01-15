@@ -563,7 +563,11 @@ void() PlayerPreThink =
 		self.skeleton_anim_start_time = 0.5;
 		self.skeleton_anim_speed = 0.1;
 	}
+#ifdef FTE
+	// TODO - Call FTE's skel_build routine
+#else
 	skel_build(self.skeletonindex, self.skeleton_anim_modelindex, self.skeleton_anim_framegroup, self.skeleton_anim_start_time, self.skeleton_anim_speed);
+#endif // FTE
 
 	// bprint (PRINT_HIGH, "Player skel idx: ");
 	// bprint (PRINT_HIGH, ftos(self.skeletonindex));
@@ -579,6 +583,7 @@ void() PlayerPreThink =
 	// ------------------------------------------------
 	// Skeletal hitbox testing
 	// ------------------------------------------------
+#ifndef FTE
 	vector ray_start = self.origin + self.view_ofs;
 	makevectors(self.v_angle);
 	traceline(ray_start, ray_start + v_forward * 200, MOVE_SKEL_HITBOXES, self);
@@ -638,6 +643,7 @@ void() PlayerPreThink =
 		}
 		sprint(self, PRINT_HIGH, "\n");
 	}
+#endif // FTE
 
 
 	// Globals set

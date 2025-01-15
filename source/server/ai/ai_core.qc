@@ -26,7 +26,7 @@
 */
 
 void(float type) Zombie_PlaySoundType;
-void() LinkZombiesHitbox;
+// void() LinkZombiesHitbox;
 entity() Dog_FindEnemy;
 
 void() path_corner_touch =
@@ -943,20 +943,20 @@ void() AI_SetAllEnemiesBBOX =
 			zombies.last_solid = zombies.solid;
 			zombies.solid = SOLID_BBOX;
 
-			if (zombies.head) {
-				zombies.head.last_solid = zombies.head.solid;
-				zombies.head.solid = SOLID_BBOX;
-			}
+			// if (zombies.head) {
+			// 	zombies.head.last_solid = zombies.head.solid;
+			// 	zombies.head.solid = SOLID_BBOX;
+			// }
 
-			if (zombies.larm) {
-				zombies.larm.last_solid = zombies.larm.solid;
-				zombies.larm.solid = SOLID_BBOX;
-			}
+			// if (zombies.larm) {
+			// 	zombies.larm.last_solid = zombies.larm.solid;
+			// 	zombies.larm.solid = SOLID_BBOX;
+			// }
 
-			if (zombies.rarm) {
-				zombies.rarm.last_solid = zombies.rarm.solid;
-				zombies.rarm.solid = SOLID_BBOX;
-			}
+			// if (zombies.rarm) {
+			// 	zombies.rarm.last_solid = zombies.rarm.solid;
+			// 	zombies.rarm.solid = SOLID_BBOX;
+			// }
 		}
 		
 		zombies = find(zombies, classname, "ai_zombie");

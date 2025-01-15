@@ -65,12 +65,12 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
     if (!hit_ent.th_diewunder)
         return;
 
-	if (hit_ent.head)
-		setmodel(hit_ent.head, "");
-	if (hit_ent.larm)
-		setmodel(hit_ent.larm, "");
-	if (hit_ent.rarm)
-		setmodel(hit_ent.rarm, "");
+	// if (hit_ent.head)
+	// 	setmodel(hit_ent.head, "");
+	// if (hit_ent.larm)
+	// 	setmodel(hit_ent.larm, "");
+	// if (hit_ent.rarm)
+	// 	setmodel(hit_ent.rarm, "");
 
     hit_ent.velocity.x = 0;
     hit_ent.velocity.y = 0;
@@ -294,8 +294,8 @@ void() W_FireTesla =
 	self.tesla_n_kills = 0;
     
     entity hit_ent = trace_ent;
-	if(hit_ent.classname == "ai_zombie_head" || hit_ent.classname == "ai_zombie_larm" || hit_ent.classname == "ai_zombie_rarm")
-		hit_ent = hit_ent.owner;
+	// if(hit_ent.classname == "ai_zombie_head" || hit_ent.classname == "ai_zombie_larm" || hit_ent.classname == "ai_zombie_rarm")
+	// 	hit_ent = hit_ent.owner;
 
     // print("W_FireTesla hit ent: ", hit_ent.classname, "\n");
 

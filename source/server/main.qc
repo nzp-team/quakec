@@ -174,9 +174,13 @@ void() precaches =
 	precache_model("models/ai/iqm/zombie_anim_walk1.iqm");
 	precache_model("models/ai/iqm/zombie_anim_walk2.iqm");
 
+
+#ifndef FTE
+	// TODO - Remove these?
 	// Pre-register animations with models to calculate bounding box
 	skel_register_anim("models/ai/iqm/nazi_zombie.iqm", "models/ai/iqm/zombie_anim_walk1.iqm");
 	skel_register_anim("models/ai/iqm/nazi_zombie.iqm", "models/ai/iqm/zombie_anim_walk2.iqm");
+#endif // FTE
 
 
 	//

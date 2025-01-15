@@ -522,11 +522,3 @@ void    (string model_name, string anim_model_name)                             
 #define     MOVE_NOMONSTERS             1
 #define     MOVE_MISSILE                2
 #define     MOVE_SKEL_HITBOXES          4
-
-// Limb state flags recognized by DQuake
-#define ZOMBIE_LIMB_STATE_HEAD		1
-#define ZOMBIE_LIMB_STATE_ARM_L		2
-#define ZOMBIE_LIMB_STATE_ARM_R		4
-#define ZOMBIE_LIMB_STATE_LEG_L		8
-#define ZOMBIE_LIMB_STATE_LEG_R		16
-#define ZOMBIE_LIMB_STATE_FULL      (ZOMBIE_LIMB_STATE_HEAD | ZOMBIE_LIMB_STATE_ARM_L | ZOMBIE_LIMB_STATE_ARM_R | ZOMBIE_LIMB_STATE_LEG_L | ZOMBIE_LIMB_STATE_LEG_R)

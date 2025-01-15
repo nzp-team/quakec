@@ -66,35 +66,35 @@ void(float type) Zombie_PlaySoundType =
 
 				switch(rand) {
 					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/a0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/a0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						curr_sound_len = 1.1;
 						break;
 					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/a1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/a1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						curr_sound_len = 0.8;
 						break;
 					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/a2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/a2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						curr_sound_len = 0.9;
 						break;
 					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/a3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/a3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						curr_sound_len = 0.8;
 						break;
 					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/a4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/a4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						curr_sound_len = 1;
 						break;
 					case 6:
-						Sound_PlaySound(self.head, "sounds/zombie/a5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/a5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						curr_sound_len = 1;
 						break;
 					case 7:
-						Sound_PlaySound(self.head, "sounds/zombie/a6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/a6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						curr_sound_len = 1;
 						break;
 					case 8:
-						Sound_PlaySound(self.head, "sounds/zombie/a7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/a7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						curr_sound_len = 1;
 						break;
 					default:
@@ -113,63 +113,63 @@ void(float type) Zombie_PlaySoundType =
 				
 				switch(rand) {
 					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/w0.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w0.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.3;
 						break;
 					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/w1.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w1.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.75;
 						break;
 					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/w2.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w2.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.95;
 						break;
 					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/w3.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w3.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.4;
 						break;
 					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/w4.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w4.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 2.7;
 						break;
 					case 6:
-						Sound_PlaySound(self.head, "sounds/zombie/w5.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w5.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.9;
 						break;
 					case 7:
-						Sound_PlaySound(self.head, "sounds/zombie/w6.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w6.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.6;
 						break;
 					case 8:
-						Sound_PlaySound(self.head, "sounds/zombie/w7.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w7.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.9;
 						break;
 					case 9:
-						Sound_PlaySound(self.head, "sounds/zombie/w8.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w8.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 2.4;
 						break;
 					case 10:
-						Sound_PlaySound(self.head, "sounds/zombie/w9.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/w9.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.5;
 						break;
 					case 11:
-						Sound_PlaySound(self.head, "sounds/zombie/t0.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t0.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.5;
 						break;
 					case 12:
-						Sound_PlaySound(self.head, "sounds/zombie/t1.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t1.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.6;
 						break;
 					case 13:
-						Sound_PlaySound(self.head, "sounds/zombie/t2.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t2.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 2.3;
 						break;
 					case 14:
-						Sound_PlaySound(self.head, "sounds/zombie/t3.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t3.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.75;
 						break;
 					case 15:
-						Sound_PlaySound(self.head, "sounds/zombie/t4.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t4.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.7;
 						break;
 					default:
@@ -188,23 +188,23 @@ void(float type) Zombie_PlaySoundType =
 
 				switch(rand) {
 					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/t0.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t0.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.5;
 						break;
 					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/t1.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t1.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.6;
 						break;
 					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/t2.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t2.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 2.3;
 						break;
 					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/t3.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t3.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.75;
 						break;
 					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/t4.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/t4.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 1.7;
 						break;
 					default:
@@ -223,43 +223,43 @@ void(float type) Zombie_PlaySoundType =
 				
 				switch(rand) {
 					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/r0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 3.1;
 						break;
 					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/r1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 4.6;
 						break;
 					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/r2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 3.4;
 						break;
 					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/r3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 5.1;
 						break;
 					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/r4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 3.5;
 						break;
 					case 6:
-						Sound_PlaySound(self.head, "sounds/zombie/r5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 3.2;
 						break;
 					case 7:
-						Sound_PlaySound(self.head, "sounds/zombie/r6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 5.1;
 						break;
 					case 8:
-						Sound_PlaySound(self.head, "sounds/zombie/r7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 5.1;
 						break;
 					case 9:
-						Sound_PlaySound(self.head, "sounds/zombie/r8.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r8.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 3;
 						break;
 					case 10:
-						Sound_PlaySound(self.head, "sounds/zombie/r9.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
+						Sound_PlaySound(self, "sounds/zombie/r9.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
 						curr_sound_len = 4.1;
 						break;
 					default:
@@ -275,28 +275,28 @@ void(float type) Zombie_PlaySoundType =
 
 				switch(rand) {
 					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/d0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/d0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						break;
 					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/d1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/d1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						break;
 					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/d2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/d2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						break;
 					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/d3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/d3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						break;
 					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/d4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/d4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						break;
 					case 6:
-						Sound_PlaySound(self.head, "sounds/zombie/d5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/d5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						break;
 					case 7:
-						Sound_PlaySound(self.head, "sounds/zombie/d6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/d6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						break;
 					case 8:
-						Sound_PlaySound(self.head, "sounds/zombie/d7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+						Sound_PlaySound(self, "sounds/zombie/d7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 						break;
 					default:
 						break;
@@ -316,145 +316,145 @@ void(__inout vector what, float howmuch) vector_scale_hack =
 	what_z *= howmuch;
 }
 
-void(float which) SetZombieHitBox =
-{
+// void(float which) SetZombieHitBox =
+// {
 
-	//Zombie's bbox is constant across all hitbox setups, so we don't update it.
+// 	//Zombie's bbox is constant across all hitbox setups, so we don't update it.
 	
-	if(self.currentHitBoxSetup == which)
-		return;
+// 	if(self.currentHitBoxSetup == which)
+// 		return;
 
-	//which = IDLE_BBOX;
+// 	//which = IDLE_BBOX;
 	
-	switch(which)
-	{
-		case EMPTY_BBOX:
-			self.head.view_ofs = '0 0 0';
-			self.rarm.view_ofs = '0 0 0';
-			self.larm.view_ofs = '0 0 0';
-			break;
-		case IDLE_BBOX: 
-			self.head.bbmins = '-5 -5 -5';
-			self.head.bbmaxs = '5 5 5';
-			self.head.view_ofs = '0 10 35';
+// 	switch(which)
+// 	{
+// 		case EMPTY_BBOX:
+// 			self.head.view_ofs = '0 0 0';
+// 			self.rarm.view_ofs = '0 0 0';
+// 			self.larm.view_ofs = '0 0 0';
+// 			break;
+// 		case IDLE_BBOX: 
+// 			self.head.bbmins = '-5 -5 -5';
+// 			self.head.bbmaxs = '5 5 5';
+// 			self.head.view_ofs = '0 10 35';
 		
-			self.larm.bbmins = '-5 -5 -15';
-			self.larm.bbmaxs  = '5 5 15';
-			self.larm.view_ofs = '-10 10 10';
+// 			self.larm.bbmins = '-5 -5 -15';
+// 			self.larm.bbmaxs  = '5 5 15';
+// 			self.larm.view_ofs = '-10 10 10';
 		
-			self.rarm.bbmins = '-5 -5 -15';
-			self.rarm.bbmaxs = '5 5 15';
-			self.rarm.view_ofs = '10 10 10';
-			break;
-		case WALK1_BBOX:
-			self.head.bbmins = '-5 -5 -5';
-			self.head.bbmaxs = '5 5 5';
-			self.head.view_ofs = '2 -3 35';
+// 			self.rarm.bbmins = '-5 -5 -15';
+// 			self.rarm.bbmaxs = '5 5 15';
+// 			self.rarm.view_ofs = '10 10 10';
+// 			break;
+// 		case WALK1_BBOX:
+// 			self.head.bbmins = '-5 -5 -5';
+// 			self.head.bbmaxs = '5 5 5';
+// 			self.head.view_ofs = '2 -3 35';
 
-			self.larm.bbmins = '-5 -7 -15';
-			self.larm.bbmaxs = '5 7 15';
-			self.larm.view_ofs = '-10 -4 15';
+// 			self.larm.bbmins = '-5 -7 -15';
+// 			self.larm.bbmaxs = '5 7 15';
+// 			self.larm.view_ofs = '-10 -4 15';
 
-			self.rarm.bbmins = '-5 -8 -11';
-			self.rarm.bbmaxs = '5 8 11';
-			self.rarm.view_ofs = '10 11 11';
-			break;
-		case WALK2_BBOX:
-			self.head.bbmins = '-7 -5 -5';
-			self.head.bbmaxs = '7 5 5';
-			self.head.view_ofs = '-11 6 36';
+// 			self.rarm.bbmins = '-5 -8 -11';
+// 			self.rarm.bbmaxs = '5 8 11';
+// 			self.rarm.view_ofs = '10 11 11';
+// 			break;
+// 		case WALK2_BBOX:
+// 			self.head.bbmins = '-7 -5 -5';
+// 			self.head.bbmaxs = '7 5 5';
+// 			self.head.view_ofs = '-11 6 36';
 
-			self.larm.bbmins = '-5 -6 -15';
-			self.larm.bbmaxs = '5 6 15';
-			self.larm.view_ofs = '-14 3 15';
+// 			self.larm.bbmins = '-5 -6 -15';
+// 			self.larm.bbmaxs = '5 6 15';
+// 			self.larm.view_ofs = '-14 3 15';
 	
-			self.rarm.bbmins = '-5 -5 -11';
-			self.rarm.bbmaxs = '5 5 11';
-			self.rarm.view_ofs = '4 13 11';
-			break;
-		case WALK3_BBOX:
-			self.head.bbmins = '-5 -5 -5';
-			self.head.bbmaxs = '5 5 5';
-			self.head.view_ofs = '-2 13 31';
+// 			self.rarm.bbmins = '-5 -5 -11';
+// 			self.rarm.bbmaxs = '5 5 11';
+// 			self.rarm.view_ofs = '4 13 11';
+// 			break;
+// 		case WALK3_BBOX:
+// 			self.head.bbmins = '-5 -5 -5';
+// 			self.head.bbmaxs = '5 5 5';
+// 			self.head.view_ofs = '-2 13 31';
 	
-			self.larm.bbmins = '-4 -6 -14';
-			self.larm.bbmaxs = '4 6 14';
-			self.larm.view_ofs = '-12 3 11';
+// 			self.larm.bbmins = '-4 -6 -14';
+// 			self.larm.bbmaxs = '4 6 14';
+// 			self.larm.view_ofs = '-12 3 11';
 	
-			self.rarm.bbmins = '-5 -5 -11';
-			self.rarm.bbmaxs = '5 5 11';
-			self.rarm.view_ofs = '14 6 12';
-			break;
-		case JOG_BBOX:
-			self.head.bbmins = '-5 -5 -5';
-			self.head.bbmaxs = '5 5 5';
-			self.head.view_ofs = '0 5 36';
+// 			self.rarm.bbmins = '-5 -5 -11';
+// 			self.rarm.bbmaxs = '5 5 11';
+// 			self.rarm.view_ofs = '14 6 12';
+// 			break;
+// 		case JOG_BBOX:
+// 			self.head.bbmins = '-5 -5 -5';
+// 			self.head.bbmaxs = '5 5 5';
+// 			self.head.view_ofs = '0 5 36';
 			
-			self.larm.bbmins = '-5 -13 -5';
-			self.larm.bbmaxs = '5 13 5';
-			self.larm.view_ofs = '-8 19 24';
+// 			self.larm.bbmins = '-5 -13 -5';
+// 			self.larm.bbmaxs = '5 13 5';
+// 			self.larm.view_ofs = '-8 19 24';
 			
-			self.rarm.bbmins = '-5 -13 -5';
-			self.rarm.bbmaxs = '5 13 5';
-			self.rarm.view_ofs = '10 19 24';
-			break;
-		case RUN_BBOX:
-			self.head.bbmins = '-5 -5 -5';
-			self.head.bbmaxs = '5 5 5';
-			self.head.view_ofs = '3 17 32';
+// 			self.rarm.bbmins = '-5 -13 -5';
+// 			self.rarm.bbmaxs = '5 13 5';
+// 			self.rarm.view_ofs = '10 19 24';
+// 			break;
+// 		case RUN_BBOX:
+// 			self.head.bbmins = '-5 -5 -5';
+// 			self.head.bbmaxs = '5 5 5';
+// 			self.head.view_ofs = '3 17 32';
 	
-			self.larm.bbmins = '-4 -10 -9';
-			self.larm.bbmaxs = '4 10 9';
-			self.larm.view_ofs = '-12 28 18';
+// 			self.larm.bbmins = '-4 -10 -9';
+// 			self.larm.bbmaxs = '4 10 9';
+// 			self.larm.view_ofs = '-12 28 18';
 			
-			self.rarm.bbmins = '-4 -13 -10';
-			self.rarm.bbmaxs = '4 13 10';
-			self.rarm.view_ofs = '12 -2 19';
-			break;
-		case CRAWLER_BBOX:
-			self.head.bbmins = '-5 -5 -5';
-			self.head.bbmaxs = '5 5 5';
-			self.head.view_ofs = '2 18 -14';
+// 			self.rarm.bbmins = '-4 -13 -10';
+// 			self.rarm.bbmaxs = '4 13 10';
+// 			self.rarm.view_ofs = '12 -2 19';
+// 			break;
+// 		case CRAWLER_BBOX:
+// 			self.head.bbmins = '-5 -5 -5';
+// 			self.head.bbmaxs = '5 5 5';
+// 			self.head.view_ofs = '2 18 -14';
 	
-			// self.larm.bbmins = '-4 -10 -9';
-			// self.larm.bbmaxs = '4 10 9';
-			// self.larm.view_ofs = '-9 24 -27';
+// 			// self.larm.bbmins = '-4 -10 -9';
+// 			// self.larm.bbmaxs = '4 10 9';
+// 			// self.larm.view_ofs = '-9 24 -27';
 			
-			self.rarm.bbmins = '-4 -13 -10';
-			self.rarm.bbmaxs = '4 13 10';
-			self.rarm.view_ofs = '12 15 -25';
-			break;
-		default:  //also known as BASE_BBOX
-			self.head.bbmins = '-5 -5 -5';
-			self.head.bbmaxs = '5 5 5';
-			self.head.view_ofs = '0 0 35';
+// 			self.rarm.bbmins = '-4 -13 -10';
+// 			self.rarm.bbmaxs = '4 13 10';
+// 			self.rarm.view_ofs = '12 15 -25';
+// 			break;
+// 		default:  //also known as BASE_BBOX
+// 			self.head.bbmins = '-5 -5 -5';
+// 			self.head.bbmaxs = '5 5 5';
+// 			self.head.view_ofs = '0 0 35';
 			
-			self.larm.bbmins = '-5 -5 -15';
-			self.larm.bbmaxs = '5 5 15';
-			self.larm.view_ofs = '-10 0 5';
+// 			self.larm.bbmins = '-5 -5 -15';
+// 			self.larm.bbmaxs = '5 5 15';
+// 			self.larm.view_ofs = '-10 0 5';
 			
-			self.rarm.bbmins = '-5 -5 -15';
-			self.rarm.bbmaxs = '5 5 15';
-			self.rarm.view_ofs = '10 0 5';
-			break;
-	}
+// 			self.rarm.bbmins = '-5 -5 -15';
+// 			self.rarm.bbmaxs = '5 5 15';
+// 			self.rarm.view_ofs = '10 0 5';
+// 			break;
+// 	}
 
-	self.currentHitBoxSetup = which;
+// 	self.currentHitBoxSetup = which;
 
-	if (map_compatibility_mode == MAP_COMPAT_BETA) {
-		vector_scale_hack(self.head.bbmins, self.head.scale);
-		vector_scale_hack(self.head.bbmaxs, self.head.scale);
-		vector_scale_hack(self.head.view_ofs, self.head.scale);
+// 	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+// 		vector_scale_hack(self.head.bbmins, self.head.scale);
+// 		vector_scale_hack(self.head.bbmaxs, self.head.scale);
+// 		vector_scale_hack(self.head.view_ofs, self.head.scale);
 
-		vector_scale_hack(self.larm.bbmins, self.larm.scale);
-		vector_scale_hack(self.larm.bbmaxs, self.larm.scale);
-		vector_scale_hack(self.larm.view_ofs, self.larm.scale);
+// 		vector_scale_hack(self.larm.bbmins, self.larm.scale);
+// 		vector_scale_hack(self.larm.bbmaxs, self.larm.scale);
+// 		vector_scale_hack(self.larm.view_ofs, self.larm.scale);
 
-		vector_scale_hack(self.rarm.bbmins, self.rarm.scale);
-		vector_scale_hack(self.rarm.bbmaxs, self.rarm.scale);
-		vector_scale_hack(self.rarm.view_ofs, self.rarm.scale);
-	}
-};
+// 		vector_scale_hack(self.rarm.bbmins, self.rarm.scale);
+// 		vector_scale_hack(self.rarm.bbmaxs, self.rarm.scale);
+// 		vector_scale_hack(self.rarm.view_ofs, self.rarm.scale);
+// 	}
+// };
 
 //
 // Zombie_ProcessRespawn()
@@ -525,12 +525,13 @@ void() Zombie_Think = //called every frame for zombies
 		self.th_die();
 	}
 
-	if (self.bleedingtime < time && !self.head.deadflag)
-	{
-		bprint(PRINT_HIGH, "bleeding?");
-		self.bleedingtime = time + 1;
-		DamageHandler (self, self.usedent, z_health * 0.2, DMG_TYPE_HEADSHOT);
-	}
+	// TODO - Check limb state for zombie head
+	// if (self.bleedingtime < time && !self.head.deadflag)
+	// {
+	// 	bprint(PRINT_HIGH, "bleeding?");
+	// 	self.bleedingtime = time + 1;
+	// 	DamageHandler (self, self.usedent, z_health * 0.2, DMG_TYPE_HEADSHOT);
+	// }
 
 	// If we're mid attack and our enemy has moved out of range
 	if (self.is_attacking && vlen(self.enemy.origin - self.origin) > 64) {
@@ -563,7 +564,7 @@ void() zombie_footstep
 $frame walk1 walk2 walk3 walk4 walk5 walk6 walk7 walk8 walk9 walk10 walk11 walk12 walk13 walk14 walk15 walk16
 //walk15
 //walk 1!
-void()	zombie_walk1		=[	$walk1,		zombie_walk2	] 	{self.nextthink = time + 0.12;Zombie_Walk(8);SetZombieHitBox(WALK1_BBOX);/*if(freeze_time < time)*/ self.frame = 37;Zombie_Think();};
+void()	zombie_walk1		=[	$walk1,		zombie_walk2	] 	{self.nextthink = time + 0.12;Zombie_Walk(8);/*if(freeze_time < time)*/ self.frame = 37;Zombie_Think();};
 void()	zombie_walk2		=[	$walk2,		zombie_walk3	] 	{self.nextthink = time + 0.12;Zombie_Walk(3.5); self.frame = 38;Zombie_Think();};
 void()	zombie_walk3		=[	$walk3,		zombie_walk4	] 	{self.nextthink = time + 0.12;Zombie_Walk(3.5); self.frame = 39;Zombie_Think();};
 void()	zombie_walk4		=[	$walk4,		zombie_walk5	] 	{self.nextthink = time + 0.12;Zombie_Walk(3.5); self.frame = 40;Zombie_Think();};
@@ -585,7 +586,7 @@ void()	zombie_walk16		=[	$walk16,		Zombie_Walk_Setup	] 	{self.nextthink = time +
 //Walk 2!
 $frame bwalk1 bwalk2 bwalk3 bwalk4 bwalk5 bwalk6 bwalk7 bwalk8 bwalk9 bwalk10 bwalk11 bwalk12 bwalk13 bwalk14
 
-void()	zombie_walkb1		=[	$bwalk1,		zombie_walkb2	] 	{self.nextthink = time + 0.13;Zombie_Walk(4.2);SetZombieHitBox(WALK2_BBOX);/*if(freeze_time < time)*/ self.frame = 53;Zombie_Think();};
+void()	zombie_walkb1		=[	$bwalk1,		zombie_walkb2	] 	{self.nextthink = time + 0.13;Zombie_Walk(4.2);/*if(freeze_time < time)*/ self.frame = 53;Zombie_Think();};
 void()	zombie_walkb2		=[	$bwalk2,		zombie_walkb3	] 	{self.nextthink = time + 0.13;Zombie_Walk(5.9); self.frame = 54;Zombie_Think();};
 void()	zombie_walkb3		=[	$bwalk3,		zombie_walkb4	] 	{self.nextthink = time + 0.13;Zombie_Walk(3); self.frame = 55;Zombie_Think();};
 void()	zombie_walkb4		=[	$bwalk4,		zombie_walkb5	] 	{self.nextthink = time + 0.13;Zombie_Walk(5.7); self.frame = 56;Zombie_Think();zombie_footstep();};//footstep
@@ -605,7 +606,7 @@ void()	zombie_walkb14		=[	$bwalk14,		Zombie_Walk_Setup	] 	{self.nextthink = time
 //Walk 3!
 $frame cwalk1 cwalk2 cwalk3 cwalk4 cwalk5 cwalk6 cwalk7 cwalk8 cwalk9 cwalk10 cwalk11 cwalk12 cwalk13 cwalk14 cwalk15 cwalk16
 
-void()	zombie_walkc1		=[	$cwalk1,		zombie_walkc2	] 		{self.nextthink = time + 0.13;Zombie_Walk(3.4);SetZombieHitBox(WALK3_BBOX);/*if(freeze_time < time)*/ self.frame = 67;Zombie_Think();};
+void()	zombie_walkc1		=[	$cwalk1,		zombie_walkc2	] 		{self.nextthink = time + 0.13;Zombie_Walk(3.4);/*if(freeze_time < time)*/ self.frame = 67;Zombie_Think();};
 void()	zombie_walkc2		=[	$cwalk2,		zombie_walkc3	] 		{self.nextthink = time + 0.13;Zombie_Walk(2); self.frame = 68;Zombie_Think();};
 void()	zombie_walkc3		=[	$cwalk3,		zombie_walkc4	] 		{self.nextthink = time + 0.13;Zombie_Walk(5.4); self.frame = 69;Zombie_Think();};
 void()	zombie_walkc4		=[	$cwalk4,		zombie_walkc5	] 		{self.nextthink = time + 0.13;Zombie_Walk(5.6); self.frame = 70;Zombie_Think();zombie_footstep();};//footstep
@@ -627,7 +628,7 @@ void()	zombie_walkc16		=[	$cwalk16,		Zombie_Walk_Setup	] 	{self.nextthink = time
 //116- 129
 $frame jog1 jog2 jog3 jog4 jog5 jog6 jog7 jog8
 
-void()	zombie_jog1		=[	$jog1,		zombie_jog2	] 			{self.nextthink = time + 0.08;Zombie_Walk(6);SetZombieHitBox(JOG_BBOX);/*if(freeze_time < time)*/ self.frame = 83;Zombie_Think();};//FOOTSTEP
+void()	zombie_jog1		=[	$jog1,		zombie_jog2	] 			{self.nextthink = time + 0.08;Zombie_Walk(6);/*if(freeze_time < time)*/ self.frame = 83;Zombie_Think();};//FOOTSTEP
 void()	zombie_jog2		=[	$jog2,		zombie_jog3	] 			{self.nextthink = time + 0.08;Zombie_Walk(6); self.frame = 84;Zombie_Think();};
 void()	zombie_jog3		=[	$jog3,		zombie_jog4	] 			{self.nextthink = time + 0.08;Zombie_Walk(6); self.frame = 85;Zombie_Think();};
 void()	zombie_jog4		=[	$jog4,		zombie_jog5	] 			{self.nextthink = time + 0.08;Zombie_Walk(6); self.frame = 86;Zombie_Think();zombie_footstep();};//footstep
@@ -640,7 +641,7 @@ void()	zombie_jog8		=[	$jog8,		Zombie_Walk_Setup	] 	{self.nextthink = time + 0.0
 //78-85
 $frame run1 run2 run3 run4 run5 run6 run7 run8 run9 run10 
 //12 unless 14
-void()	zombie_run1		=[	$run1,		zombie_run2	] 		{Zombie_Walk(13);/*if(freeze_time < time)*/ self.frame = 92;SetZombieHitBox(RUN_BBOX);Zombie_Think();zombie_footstep();};//footstep
+void()	zombie_run1		=[	$run1,		zombie_run2	] 		{Zombie_Walk(13);/*if(freeze_time < time)*/ self.frame = 92;Zombie_Think();zombie_footstep();};//footstep
 void()	zombie_run2		=[	$run2,		zombie_run3	] 		{Zombie_Walk(13); self.frame = 93;Zombie_Think();};
 void()	zombie_run3		=[	$run3,		zombie_run4	] 		{Zombie_Walk(13); self.frame = 94;Zombie_Think();zombie_footstep();};//footstep
 void()	zombie_run4		=[	$run4,		zombie_run5	] 		{Zombie_Walk(13); self.frame = 95;Zombie_Think();};
@@ -703,7 +704,12 @@ void() Zombie_Walk_Setup = {
 
 	// Build the skeleton on the server so hit detections are correct
 	if(self.skeletonindex >= 0) {
+
+#ifdef FTE
+	// TODO - Figure out the call to FTE's skel_build...
+#else
 		skel_build(self.skeletonindex, self.skeleton_anim_modelindex, self.skeleton_anim_framegroup, self.skeleton_anim_start_time, self.skeleton_anim_speed);
+#endif // FTE
 		// self.angles_y = self.skeletonindex * 45 + time * 30;
 		// self.angles_y = 45;
 	}
@@ -752,7 +758,14 @@ void() Zombie_Walk_Setup = {
 
 	float prev_anim_frametime = self.prev_skeleton_anim_frametime;
 	float cur_anim_frametime = (time - self.skeleton_anim_start_time) * self.skeleton_anim_speed;
-	float dist = getmovedistance(self.skeleton_anim_modelindex, self.skeleton_anim_framegroup, prev_anim_frametime, cur_anim_frametime);
+	float dist;
+	
+#ifdef FTE
+	dist = 1;
+	// TODO - Call FTE-specific routine for accumulating movement distance across frametimes for skeletal anim
+#else
+	dist = getmovedistance(self.skeleton_anim_modelindex, self.skeleton_anim_framegroup, prev_anim_frametime, cur_anim_frametime);
+#endif // FTE
 
 	// dist = 2;
 
@@ -800,7 +813,7 @@ void() Zombie_Walk_Setup = {
 ///////////////////////////////////////////////////////////////////// ZOMBIE IDLE 1
 //0-12
 $frame idle1 idle2 idle3 idle4 idle5 idle6 idle7 idle8 idle9 idle10 idle11 idle12 idle13 idle14
-void() zombie_idle		=[	$idle1, 		zombie_idle1	]		{Zombie_Walk(0);self.frame = 0;SetZombieHitBox(IDLE_BBOX);Zombie_Think();};
+void() zombie_idle		=[	$idle1, 		zombie_idle1	]		{Zombie_Walk(0);self.frame = 0;Zombie_Think();};
 void() zombie_idle1		=[	$idle2, 		zombie_idle2	]		{Zombie_Walk(0);self.frame = 1;Zombie_Think();};
 void() zombie_idle2		=[	$idle3, 		zombie_idle3	]		{Zombie_Walk(0);self.frame = 2;Zombie_Think();};
 void() zombie_idle3		=[	$idle4, 		zombie_idle4	]		{Zombie_Walk(0);self.frame = 3;Zombie_Think();};
@@ -937,7 +950,7 @@ void() zombie_hop10_5=[	$hop10,		SUB_Null		] {self.frame = 122;
 //ripboard1
 //181-191
 $frame zrip1 zrip2 zrip3 zrip4 zrip5 zrip6 zrip7 zrip8 zrip9 zrip10 zrip11
-void() zombie_ripboardA1			=[	$zrip1,		zombie_ripboardA2		]	{self.frame = 181;SetZombieHitBox(IDLE_BBOX);Zombie_Think();};
+void() zombie_ripboardA1			=[	$zrip1,		zombie_ripboardA2		]	{self.frame = 181;Zombie_Think();};
 void() zombie_ripboardA2			=[	$zrip2,		zombie_ripboardA3		]	{self.frame = 182;Zombie_Think();};
 void() zombie_ripboardA3			=[	$zrip3,		zombie_ripboardA4		]	{self.frame = 183;Zombie_Think();};
 void() zombie_ripboardA4			=[	$zrip4,		zombie_ripboardA5		]	{self.frame = 184;Zombie_Think();};
@@ -952,7 +965,7 @@ void() zombie_ripboardA11			=[	$zrip11,		zombie_decide		]	{self.frame = 191;Zomb
 //ripboard2
 //192-201
 $frame zripB1 zripB2 zripB3 zripB4 zripB5 zripB6 zripB7 zripB8 zripB9 zripB10 zripB11
-void() zombie_ripboardB1			=[	$zripB1,		zombie_ripboardB2		]	{self.frame = 192;SetZombieHitBox(IDLE_BBOX);Zombie_Think();};
+void() zombie_ripboardB1			=[	$zripB1,		zombie_ripboardB2		]	{self.frame = 192;Zombie_Think();};
 void() zombie_ripboardB2			=[	$zripB2,		zombie_ripboardB3		]	{self.frame = 193;Zombie_Think();};
 void() zombie_ripboardB3			=[	$zripB3,		zombie_ripboardB4		]	{self.frame = 194;Zombie_Think();};
 void() zombie_ripboardB4			=[	$zripB4,		zombie_ripboardB5		]	{self.frame = 195;Zombie_Think();};
@@ -989,7 +1002,7 @@ void() zombie_attack_through_window =
 void() zombie_attack2;
 
 $frame zatkw1 zatkw2 zatkw3 zatkw4 zatkw5 zatkw6 zatkw7 zatkw8 zatkw9
-void() zombie_attack_through_w1			=[	$zatkw1,		zombie_attack_through_w2		]	{self.is_attacking = true; self.frame = 202;SetZombieHitBox(IDLE_BBOX);Zombie_Think();};//START
+void() zombie_attack_through_w1			=[	$zatkw1,		zombie_attack_through_w2		]	{self.is_attacking = true; self.frame = 202;Zombie_Think();};//START
 void() zombie_attack_through_w2			=[	$zatkw2,		zombie_attack_through_w3		]	{self.frame = 203;zombie_attack_through_window();Zombie_Think();};//SWINGING
 void() zombie_attack_through_w3			=[	$zatkw3,		zombie_attack_through_w4		]	{self.frame = 204;Zombie_Think();};//SWINGING
 void() zombie_attack_through_w4			=[	$zatkw4,		zombie_attack_through_w5		]	{self.frame = 205;Zombie_Think();};//SWINGING
@@ -1009,7 +1022,7 @@ void() zombie_attack_through_w17		=[	$zatkw7,		zombie_attack_through_w18		]	{sel
 void() zombie_attack_through_w18		=[	$zatkw8,		zombie_attack_through_w19		]	{self.frame = 209;Zombie_Think();};//ENDING
 void() zombie_attack_through_w19		=[	$zatkw9,		zombie_decide					]	{self.is_attacking = false; self.frame = 210;Zombie_Think();};//ENDING
 
-void() zm_swipe_right_slow	=[	1, 	zm_swipe_right_slow1	]	{self.is_attacking = true; self.frame = 102; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_right_slow	=[	1, 	zm_swipe_right_slow1	]	{self.is_attacking = true; self.frame = 102;  Zombie_Think(); };
 void() zm_swipe_right_slow1	=[	2, 	zm_swipe_right_slow2	]	{self.frame = 103; Zombie_Think(); };
 void() zm_swipe_right_slow2	=[	3, 	zm_swipe_right_slow3	]	{self.frame = 104; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_right_slow3	=[	4, 	zm_swipe_right_slow4	]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
@@ -1019,19 +1032,19 @@ void() zm_swipe_right_fast	=[	1, 	zm_swipe_right_fast1	]	{self.is_attacking = tr
 void() zm_swipe_right_fast1	=[	2, 	zm_swipe_right_fast2	]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
 void() zm_swipe_right_fast2	=[	3, 	zombie_decide			]	{self.is_attacking = false; self.frame = 106; Zombie_Think(); };
 
-void() zm_swipe_left_slow	=[	1, 	zm_swipe_left_slow1		]	{self.is_attacking = true; self.frame = 107; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_left_slow	=[	1, 	zm_swipe_left_slow1		]	{self.is_attacking = true; self.frame = 107;  Zombie_Think(); };
 void() zm_swipe_left_slow1	=[	2, 	zm_swipe_left_slow2		]	{self.frame = 108; Zombie_Think(); };
 void() zm_swipe_left_slow2	=[	3, 	zm_swipe_left_slow3		]	{self.frame = 109; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_left_slow3	=[	4, 	zm_swipe_left_slow4		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
 void() zm_swipe_left_slow4	=[	5, 	zm_swipe_left_slow5		]	{self.frame = 111; Zombie_Think(); };
 void() zm_swipe_left_slow5	=[	6, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
 
-void() zm_swipe_left_fast	=[	1, 	zm_swipe_left_fast1		]	{self.is_attacking = true; self.frame = 109; SetZombieHitBox(BASE_BBOX); Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
+void() zm_swipe_left_fast	=[	1, 	zm_swipe_left_fast1		]	{self.is_attacking = true; self.frame = 109;  Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_left_fast1	=[	2, 	zm_swipe_left_fast2		]	{zombie_attack2(); self.frame = 110; Zombie_Think(); };
 void() zm_swipe_left_fast2	=[	3, 	zm_swipe_left_fast3		]	{self.frame = 111; Zombie_Think(); };
 void() zm_swipe_left_fast3	=[	4, 	zombie_decide			]	{self.is_attacking = false; self.frame = 112; Zombie_Think(); };
 
-void() zm_swipe_both_slow	=[	1, 	zm_swipe_both_slow1		]	{self.is_attacking = true; self.frame = 102; SetZombieHitBox(BASE_BBOX); Zombie_Think(); };
+void() zm_swipe_both_slow	=[	1, 	zm_swipe_both_slow1		]	{self.is_attacking = true; self.frame = 102;  Zombie_Think(); };
 void() zm_swipe_both_slow1	=[	2, 	zm_swipe_both_slow2		]	{self.frame = 103; Zombie_Think(); };
 void() zm_swipe_both_slow2	=[	3, 	zm_swipe_both_slow3		]	{self.frame = 104; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_both_slow3	=[	4, 	zm_swipe_both_slow4		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
@@ -1042,7 +1055,7 @@ void() zm_swipe_both_slow7	=[	8, 	zm_swipe_both_slow8		]	{self.frame = 109; Zomb
 void() zm_swipe_both_slow8	=[	9, 	zm_swipe_both_slow9		]	{self.frame = 110; Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_both_slow9	=[	10, zombie_decide			]	{zombie_attack2(); self.is_attacking = false; self.frame = 111; Zombie_Think(); };
 
-void() zm_swipe_both_fast	=[	1, 	zm_swipe_both_fast1		]	{self.is_attacking = true; self.frame = 104; SetZombieHitBox(BASE_BBOX); Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
+void() zm_swipe_both_fast	=[	1, 	zm_swipe_both_fast1		]	{self.is_attacking = true; self.frame = 104;  Zombie_Think(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE); };
 void() zm_swipe_both_fast1	=[	2, 	zm_swipe_both_fast2		]	{zombie_attack2(); self.frame = 105; Zombie_Think(); };
 void() zm_swipe_both_fast2	=[	3, 	zm_swipe_both_fast3		]	{self.frame = 106; Zombie_Think(); };
 void() zm_swipe_both_fast3	=[	4, 	zm_swipe_both_fast4		]	{self.frame = 109; Zombie_Think(); };
@@ -1105,7 +1118,7 @@ void(float which) zombie_attack_choose =
 };
 
 $frame zda1 zda2 zda3 zda4 zda5 zda6 zda7 zda8 zda9 zda10 zda11 zda12 zda13 zda14
-void() zombie_zda		=[	$zda1, 		zombie_zda1	]		{self.frame = 0;zombie_attack_choose(0);SetZombieHitBox(IDLE_BBOX);Zombie_Think();};
+void() zombie_zda		=[	$zda1, 		zombie_zda1	]		{self.frame = 0;zombie_attack_choose(0);Zombie_Think();};
 void() zombie_zda1		=[	$zda2, 		zombie_zda2	]		{self.frame = 1;zombie_attack_choose(0);Zombie_Think();};
 void() zombie_zda2		=[	$zda3, 		zombie_zda3	]		{self.frame = 2;zombie_attack_choose(0);Zombie_Think();};
 void() zombie_zda3		=[	$zda4, 		zombie_zda4	]		{self.frame = 3;zombie_attack_choose(0);Zombie_Think();};
@@ -1204,7 +1217,7 @@ void CheckLand() =
 //149-152
 $frame fall1 fall2 fall3 fall4
 
-void() zombie_fall1		=[	$fall1,		zombie_fall2	]	{self.frame = 149;SetZombieHitBox(BASE_BBOX);self.fall = TRUE;CheckLand();Zombie_Think();};
+void() zombie_fall1		=[	$fall1,		zombie_fall2	]	{self.frame = 149;self.fall = TRUE;CheckLand();Zombie_Think();};
 void() zombie_fall2		=[	$fall2,		zombie_fall3	]	{self.frame = 150;CheckLand();Zombie_Think();};
 void() zombie_fall3		=[	$fall3,		zombie_fall4	]	{self.frame = 151;CheckLand();Zombie_Think();};
 void() zombie_fall4		=[	$fall4,		zombie_fall3	]	{self.frame = 152;CheckLand();Zombie_Think();};
@@ -1212,7 +1225,7 @@ void() zombie_fall4		=[	$fall4,		zombie_fall3	]	{self.frame = 152;CheckLand();Zo
 //Landing
 //153-159
 $frame land1 land2 land3 land4 land5 land6 land7
-void() zombie_land1		=[	$land1,		zombie_land2	]	{self.frame = 153;SetZombieHitBox(BASE_BBOX);Zombie_Think();zombie_footstep();zombie_footstep();};
+void() zombie_land1		=[	$land1,		zombie_land2	]	{self.frame = 153;Zombie_Think();zombie_footstep();zombie_footstep();};
 void() zombie_land2		=[	$land2,		zombie_land3	]	{self.frame = 154;Zombie_Think();};
 void() zombie_land3		=[	$land3,		zombie_land4	]	{self.frame = 155;Zombie_Think();};
 void() zombie_land4		=[	$land4,		zombie_land5	]	{self.frame = 156;Zombie_Think();};
@@ -1296,7 +1309,7 @@ void() removeZombie =
 	self.th_grabledge = SUB_Null;
 	self.th_diewunder = SUB_Null;
 	//Disabling collision bboxes
-	SetZombieHitBox(EMPTY_BBOX);
+	
 };
 
 ///////////////////////////////////////////////////////////////////// ZOMBIE DEATH 1
@@ -1349,23 +1362,24 @@ void(entity ent) Zombie_Death_Cleanup = {
 		return;
 	}
 
+	// TODO - Update limb checking
 	// Insta-Kill should always cause the head to gib on Zombie death.
-	if (ent.head && instakill_finished > time) {
-		makevectors(ent.head.owner.angles);
- 		vector where = ent.origin + (ent.head.view_ofs_x * v_right) + (ent.head.view_ofs_y * v_forward) + (ent.head.view_ofs_z * v_up);
- 		spawn_gibs(where);
- 		ent.head.deadflag = false;
-		ent.head.solid = SOLID_NOT;
-		setmodel(ent.head, "");
-		ent.head.frame = 0;
+// 	if (ent.head && instakill_finished > time) {
+// 		makevectors(ent.head.owner.angles);
+//  		vector where = ent.origin + (ent.head.view_ofs_x * v_right) + (ent.head.view_ofs_y * v_forward) + (ent.head.view_ofs_z * v_up);
+//  		spawn_gibs(where);
+//  		ent.head.deadflag = false;
+// 		ent.head.solid = SOLID_NOT;
+// 		setmodel(ent.head, "");
+// 		ent.head.frame = 0;
 
-#ifndef FTE
+// #ifndef FTE
 
-		updateLimb (ent, 0, world);
+// 		updateLimb (ent, 0, world);
 
-#endif // FTE
+// #endif // FTE
 
-	} 
+// 	} 
 
 	ent.aistatus = "0";
 	ent.solid = SOLID_NOT;
@@ -1373,7 +1387,11 @@ void(entity ent) Zombie_Death_Cleanup = {
 	ent.takedamage = DAMAGE_NO;
 
 
+#ifdef FTE
+	// TODO - Call FTE's skeleton destroy func
+#else
 	skel_destroy(ent.skeletonindex);
+#endif // FTE
 	
 	// ent.head.classname = "";
 	// ent.head.solid = SOLID_NOT;
@@ -1422,7 +1440,7 @@ void() Zombie_Death =
 	if (self.electro_targeted == false)
 		Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_DEATH);
 	else
-		Sound_PlaySound(self.head, "sounds/machines/elec_shock.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+		Sound_PlaySound(self, "sounds/machines/elec_shock.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 	
 	if(self.outside == false && self.electro_targeted == false)
 	{
@@ -1531,7 +1549,7 @@ void() Z_ElectroShock =
 	// }
 
 	// Play the first Electro-Sound
-	Sound_PlaySound(self.head, "sounds/machines/elec_shock.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(self, "sounds/machines/elec_shock.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 }
 
 /////////////////////ZOMBIE WAFFE STUFF/////////////////////
@@ -1847,7 +1865,7 @@ void(entity szombie)  SetUpHitBoxes =
 
 	local entity oldself = self;
 	self = szombie;
-	SetZombieHitBox(BASE_BBOX);
+	
 	self = oldself;
 };
 
@@ -2088,8 +2106,8 @@ void(entity where) spawn_a_zombieB = {
 	}
 	// szombie.head.skin = szombie.larm.skin = szombie.rarm.skin = szombie.skin;
 
-	if (map_compatibility_mode == MAP_COMPAT_BETA)
-		szombie.head.scale = szombie.larm.scale = szombie.rarm.scale = szombie.scale = 0.73;
+	// if (map_compatibility_mode == MAP_COMPAT_BETA)
+	// 	szombie.head.scale = szombie.larm.scale = szombie.rarm.scale = szombie.scale = 0.73;
 
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;
