@@ -1,9 +1,9 @@
 /*
-	shared/defs/custom.qc
+	shared/shared_defs.qc
 
 	shared definitions
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -28,40 +28,86 @@
 #define true    1
 #define false   0
 
-const float EVENT_WEAPONCHANGE 			= 9;
-const float EVENT_PISTOLFIRE 			= 10;
-const float EVENT_USEPRINT 				= 11;
-const float EVENT_NEWROUND 				= 12;
-const float EVENT_SETROUND 				= 13;
-const float EVENT_UPDATEVMODEL 			= 20;
-const float EVENT_UPDATEV2MODEL 		= 21;
-const float EVENT_PERK	 				= 22;
-const float EVENT_UPDATE 				= 23;
-const float EVENT_BROADCAST 			= 24;
-const float EVENT_POINTUPDATE 			= 25;
-const float EVENT_BLACKOUT 				= 26;
-const float EVENT_PUNCHANGLE 			= 27;
-const float EVENT_SCROLLTEXT 			= 28;
-const float EVENT_WORLDDATA 			= 29;
-const float EVENT_ACHIEVEMENT 			= 30;
-const float EVENT_PLAYERUPDATE 			= 31;
-const float EVENT_WEAPONUPDATE 			= 32;
-const float EVENT_HUDUPDATE 			= 33;
-const float EVENT_EXPLOSION 			= 34;
-const float EVENT_BLOOD 				= 35;
-const float EVENT_ACHIEVEMENTPROGRESS 	= 36;
-const float EVENT_REVIVEON 				= 37;
-const float EVENT_REVIVEOFF 			= 38;
-const float EVENT_REVIVECHANGE 			= 39;
-const float EVENT_WEAPONRECOIL 			= 40;
-const float EVENT_SONGPLAY 				= 41;
-const float EVENT_GRENADEPULSE 			= 42;
-const float EVENT_BETTYPROMPT 			= 43;
-const float EVENT_LIMBGIB				= 44;
-const float EVENT_CHATMESSAGE			= 45;
-const float EVENT_DOUBLETAPUPDATE 		= 46;
-const float EVENT_FLAME 				= 47;
-const float EVENT_ENDGAME				= 48;
+//
+// CSQC Particle Types
+//
+#define CSQC_PART_MUZZLEFLASH			0 	// View Entity Muzzleflashes.
+#define CSQC_PART_EXPLOSION 			1	// Explosion effect.
+#define CSQC_PART_BLOODIMPACT			2 	// Blood Impact effect.
+#define CSQC_PART_ZOMBIEGIB				3	// Zombie Gib effect.
+#define CSQC_PART_FIRE					4 	// Fire/flame effect.
+
+//
+// CSQC Broadcast Messages
+//
+#define CSQC_BROADCAST_NONE				0 	// ""
+#define CSQC_BROADCAST_PLAYERDOWNED		1	// "$ needs to be revived"
+#define CSQC_BROADCAST_BEINGREVIVED		2	// "$ is reviving you"
+#define CSQC_BROADCAST_REVIVINGPLAYER	3	// "Reviving $"
+
+//
+// CSQC Event Types
+//
+#define CSQC_EVENT_PARTICLE				10	// <byte> particle_type
+											// <coord> pos_x
+											// <coord> pos_y
+											// <coord> pos_z
+											// <byte> optional_field
+											// <entity> optional_entity
+
+#define CSQC_EVENT_USEPRINT				11	// <byte> useprint_type
+											// <short> useprint_cost
+											// <byte> useprint_weapon
+
+#define CSQC_EVENT_ROUNDCHANGE			12	// <byte> round
+
+#define CSQC_EVENT_BROADCASTMESSAGE		13	// <byte> broadcast_message_type
+											// <byte> broadcast_time
+											// <byte> player_number
+
+#define CSQC_EVENT_MAXAMMOTEXT			14	// NO DATA.
+
+#define CSQC_EVENT_MUSICSTREAM			15	// <string> track_name
+
+#define CSQC_EVENT_GIVEACHIEVEMENT		16 	// <byte> achievement_index
+
+#define CSQC_EVENT_PLAYERNAME			17 	// <string> player_name
+
+#define CSQC_EVENT_SCREENFLASH			18 	// <byte> screenflash_color
+											// <byte> screenflash_duration
+											// <byte> screenflash_type
+
+#define CSQC_EVENT_RUMBLE				19 	// <short> low_frequency
+											// <short> high_frequency
+											// <short> duration
+
+#define EVENT_UPDATE 					20
+#define EVENT_BLACKOUT 					21
+#define EVENT_WORLDDATA 				22
+#define EVENT_PLAYERUPDATE 				23
+#define EVENT_REVIVEON 					24
+#define EVENT_REVIVEOFF 				25
+#define EVENT_REVIVECHANGE 				26
+#define EVENT_WEAPONRECOIL 				27
+#define EVENT_GRENADEPULSE 				28
+#define EVENT_BETTYPROMPT 				29
+#define EVENT_CHATMESSAGE				30
+#define EVENT_DOUBLETAPUPDATE 			31
+#define EVENT_ENDGAME					32
+#define EVENT_MAPTYPE					33
+
+//
+// Types of screen-flashes, global.
+//
+
+// Colors
+#define SCREENFLASH_COLOR_WHITE			0
+#define SCREENFLASH_COLOR_BLACK			1
+
+// Types
+#define SCREENFLASH_FADE_INANDOUT		0
+#define SCREENFLASH_FADE_IN 			1
+#define SCREENFLASH_FADE_OUT 			2
 
 // Define our FTE platform
 #ifndef STANDARD
@@ -73,9 +119,21 @@ const float EVENT_ENDGAME				= 48;
 #define PLAYER_MINS_STANDING 	'-16 -16 -32'
 #define PLAYER_MAXS_STANDING 	'16 16 40'
 
+// 32x32x56
+#define PLAYER_MINS_QUAKE 		'-16 -16 -24'
+#define PLAYER_MAXS_QUAKE 		'16 16 32'
+
 // 32x32x36
 #define PLAYER_MINS_CROUCHING	'-16 -16 -32'
 #define PLAYER_MAXS_CROUCHING 	'16 16 4'
+
+#define PLAYER_STANCE_STAND		2
+#define PLAYER_STANCE_CROUCH	1
+#define PLAYER_STANCE_PRONE		0
+
+// map compatibility
+#define MAP_COMPAT_BETA     1
+float 	map_compatibility_mode;
 
 // Weapon Firetype definitions
 #define FIRETYPE_FULLAUTO	0
@@ -184,30 +242,40 @@ const float EVENT_ENDGAME				= 48;
 #define AIM_IN        		24	// Frame to snap to when in ADS (optional)
 #define AIM_FIRE_START      25	// Start of firing while ADS (optional)
 #define AIM_FIRE_END        26	// End of firing while ADS (optional)
+#define MELEE_NORMAL_START	27 	// Start of normal (non-lunged) melee frame, for melee weapons
+#define MELEE_NORMAL_END	28 	// End of normal (non-lunged) melee frame, for melee weapons
+#define MELEE_LUNGED_START	29 	// Start of lunged melee frame, for melee weapons
+#define MELEE_LUNGED_END	30 	// End of lunged melee frame, for melee weapons
 
 //Animation types
-#define RELOAD		1
-#define GRENADE		2
-#define FIRE		3
-#define SWITCHWEP	4
-#define KNIFE		5
-#define ZOOM		6
-#define SPRINT		7
-#define PERK		8
-#define KNIFE2		9
-#define REVIVE		10
-#define RELOAD_EMP 	11
-#define RELOAD_PAR 	12
-#define PUTOUT 		13
-#define TAKEOUT 	14
+#define RELOAD			1
+#define GRENADE			2
+#define FIRE			3
+#define SWITCHWEP		4
+#define KNIFE			5
+#define ZOOM			6
+#define SPRINT			7
+#define PERK			8
+#define KNIFE2			9
+#define REVIVE			10
+#define RELOAD_EMP 		11
+#define RELOAD_PAR 		12
+#define PUTOUT 			13
+#define TAKEOUT 		14
+#define MELEE_NORMAL	15
+#define MELEE_LUNGED 	16
 
-#define S_HEADSHOT	1
-#define S_KNIFE		2
-#define S_NORMAL	3
-#define S_ZOMBIE	4
-#define S_EXPLOSIVE	5
-#define S_ZAPPER	6
-#define S_TESLA 	7
+#define DMG_TYPE_HEADSHOT		1  		// Player-inflicted: Headshot
+#define DMG_TYPE_MELEE			2  		// Player-inflicted: Melee
+#define DMG_TYPE_UPPERTORSO		3  		// Player-inflicted: Upper torso shot
+#define DMG_TYPE_LOWERTORSO		4   	// Player-inflicted: Lower torso shot
+#define DMG_TYPE_EXPLOSIVE		5       // Player-inflicted: Non-grenade explosive weapon
+#define DMG_TYPE_FLAMETHROWER	6  		// Player-inflicted: Flamethrower
+#define DMG_TYPE_GRENADE 		7  		// Player-inflicted: Grenade-based weapons (includes Ray Gun)
+#define DMG_TYPE_TESLA 			8   	// Player-inflicted: Wunderwaffe
+#define DMG_TYPE_ZOMBIESWIPE	9  		// Zombie-inflicted: Any attack on Player
+#define DMG_TYPE_ELECTRICTRAP	10 		// Trap-inflicted: Electric trap damage
+#define DMG_TYPE_OTHER 			11 		// For use with misc. damage infliction
 
 //Perk types
 #define 	P_JUG		1
@@ -225,7 +293,7 @@ const float EVENT_ENDGAME				= 48;
 #define STAT_CURRENTMAG2        51
 #define STAT_POINTS             52
 #define STAT_WEAPON2FRAME       53
-#define STAT_WEAPON2MODEL       54
+#define STAT_WEAPON2MODELI      54
 #define STAT_GRENADES   	    55
 #define STAT_SECGRENADES    	56
 #define STAT_PROGRESSBAR   	    57
@@ -239,18 +307,26 @@ const float EVENT_ENDGAME				= 48;
 #define STAT_PLAYERSTANCE 		65
 #define STAT_FACINGENEMY 		66
 #define STAT_MAXHEALTH 			67
-#define STAT_PLAYERNAME 		68
+#define STAT_WEAPONSKIN 		68
+#define STAT_PERKS				69
 
 .float playernum;
+.float is_spectator;
 float game_over;
+
+#ifdef FTE
+.float is_in_menu;
+.float is_using_gamepad;
+#endif // FTE
 
 //
 // invert float takes in float value between 0 and 1, inverts position
 // eg: 0.1 returns 0.9, 0.34 returns 0.66
 float invertfloat(float input) {
-	
-	if (input <= 0 || input >= 1)
-		return input; 					// out of boundaries 
-	
-	return (1 - input);	
+    if (input < 0)
+        return 0; // adjust to lower boundary
+    else if (input > 1)
+        return 1; // adjust to upper boundary
+    else
+        return (1 - input);
 }

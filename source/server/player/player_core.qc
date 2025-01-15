@@ -1,11 +1,11 @@
 /*
-	server/player.qc
+	server/player/player_core.qc
 
 	Various stuff done for the player, including per-frame functions 
 	like PlayerPreThink and PlayerPostThink, also client specific 
 	stuff like PutClientInServer etc.
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -30,15 +30,20 @@
 void(entity e) Light_None;
 void() Spawns_Init;
 void() SUB_UseTargets;
-void() rec_downed;
+void(entity client) LastStand_UnlinkRevivee;
 
-#define PLAYER_START_HEALTH		100
+#define PLAYER_START_HEALTH				100
 
-#define PLAYER_CROUCH_HEIGHT 	25
-#define PLAYER_PRONE_HEIGHT 	23
+#define PLAYER_CROUCH_DIFFERENCE_HL 	25
+#define PLAYER_PRONE_DIFFERENCE_HL 		23
+#define PLAYER_CROUCH_DIFFERENCE_QK 	15
+#define PLAYER_PRONE_DIFFERENCE_QK 		13
 
-#define PLAYER_ANIM_WALK 		1
-#define PLAYER_ANIM_SPRINT		2
+#define PLAYER_ANIM_WALK 				1
+#define PLAYER_ANIM_SPRINT				2
+
+#define PLAYER_STARTPOINTS_NORMAL		500
+#define PLAYER_STARTPOINTS_LATE			1500
 
 //
 // Player 3rd Person Animations
@@ -112,7 +117,7 @@ void() PAnim_EnterDive3 =[	4,		PAnim_EnterDive4	] {self.frame = 206;}
 void() PAnim_EnterDive4 =[	5,		SUB_Null			] {self.frame = 207;}
 
 // Flop from Dive
-void() PAnim_Flop 		=[	1,		PAnim_Flop1			] {self.frame = 208; self.tp_anim_time = time + 1;}
+void() PAnim_Flop 		=[	1,		PAnim_Flop1			] {self.frame = 208; self.tp_anim_time = time + 1; nzp_rumble(self, 1000, 1200, 75);}
 void() PAnim_Flop1 		=[	2,		PAnim_Flop2			] {self.frame = 209;}
 void() PAnim_Flop2 		=[	3,		PAnim_Flop3			] {self.frame = 210;}
 void() PAnim_Flop3 		=[	4,		SUB_Null			] {self.frame = 211;}
@@ -206,7 +211,7 @@ void() PAnim_GetDown1	=[	2, 		PAnim_GetDown2		] {self.frame = 33;};
 void() PAnim_GetDown2	=[	3, 		PAnim_GetDown3		] {self.frame = 34;};
 void() PAnim_GetDown3	=[	4, 		PAnim_GetDown4		] {self.frame = 35;};
 void() PAnim_GetDown4	=[	5, 		PAnim_GetDown5		] {self.frame = 36;};
-void() PAnim_GetDown5	=[	6, 		SUB_Null			] {self.frame = 37; rec_downed();};
+void() PAnim_GetDown5	=[	6, 		SUB_Null			] {self.frame = 37;};
 
 // Firing, while in Last Stand
 void() PAnim_LastFire 	=[	1,		PAnim_LastFire1		] {self.frame = 36; self.tp_anim_time = time + 0.25;}
@@ -259,6 +264,41 @@ float(float dir) checkMovement =
 	}
 }
 
+#define Player_RemoveScore(who, value)	Player_ChangeScore(who, -value, false)
+#define Player_AddScore(who, value, impacted_by_2x_points) Player_ChangeScore(who, value, impacted_by_2x_points)
+
+//
+// Player_ChangeScore(who, value, impacted_by_2x_points)
+// Appends the given value to the provided clients
+// current score, potentially multiplied if the
+// Double Points Power-Up is active.
+//
+void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore =
+{
+	// We shouldn't ever allow a player in Last Stand to have
+	// their score modified.
+	if (who.downed)
+		return;
+
+	// Multiply the value if it is to be impacted by Double
+	// Points
+	if (impacted_by_2x_points && x2_finished > time)
+		value *= 2;
+
+	// The value was positive, so we should do two things:
+	// 1. add this to our point threshold check for Power-Up
+	//    spawning.
+	// 2. add the value to our total score, which is displayed
+	//    at the end of the game to rank every player.
+	if (value > 0) {
+		who.score += value;
+		total_powerup_points += value;
+	}
+
+	// Append the value to our current score.
+	who.points += value;
+};
+
 //
 // Player_CanStandHere
 // Performs a tracebox and will return true
@@ -267,10 +307,129 @@ float(float dir) checkMovement =
 //
 float(entity who) Player_CanStandHere =
 {
-	tracebox(who.origin, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING, who.origin, true, who);
+	// There shouldn't be any real reason we'd care about this since beta maps don't support
+	// stance changing impacting the bbox, but still, consistency..
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		tracebox(who.origin, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE, who.origin, true, who);
+	else
+		tracebox(who.origin, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING, who.origin, true, who);
 
 	return !trace_startsolid;
 }
+
+//
+// Player_SetStance(who, preferred_stance, play_animation)
+// Lowers the camera height as needed, registers
+// preferred stance, plays animation, and sets 
+// bounding box (if applicable).
+//
+void(entity who, float preferred_stance, float play_animation) Player_SetStance =
+{
+	// Don't bother if we're already the desired stance, or if it wasn't valid
+	if (who.stance == preferred_stance || preferred_stance < 0 || preferred_stance > 2)
+		return;
+
+	// First check -- if we want to stand, only crouch if there
+	// is no space for it.
+	if (preferred_stance == PLAYER_STANCE_STAND && !Player_CanStandHere(who))
+		preferred_stance = PLAYER_STANCE_CROUCH;
+
+	// Set the bounding box
+	if (map_compatibility_mode != MAP_COMPAT_BETA) {
+		if (preferred_stance != PLAYER_STANCE_STAND)
+			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+		else
+			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+	}
+
+	// NZ:P Beta should change the stances by a different amount,
+	// to avoid looking like you're in the ground..
+	float height_diff_crouch, height_diff_prone;
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		height_diff_crouch = PLAYER_CROUCH_DIFFERENCE_QK;
+		height_diff_prone = PLAYER_PRONE_DIFFERENCE_QK;
+	} else {
+		height_diff_crouch = PLAYER_CROUCH_DIFFERENCE_HL;
+		height_diff_prone = PLAYER_PRONE_DIFFERENCE_HL;
+	}
+
+	// Prone while standing? Lower to crouch + prone height.
+	if (who.stance == PLAYER_STANCE_STAND && preferred_stance == PLAYER_STANCE_PRONE)
+		who.new_ofs_z = who.view_ofs_z - (height_diff_crouch + height_diff_prone);
+
+	// Prone while crouching? Lower to prone height.
+	else if (who.stance == PLAYER_STANCE_CROUCH && preferred_stance == PLAYER_STANCE_PRONE)
+		who.new_ofs_z = who.view_ofs_z - height_diff_prone;
+
+	// Crouch while proning? Raise to crouch height/take away prone difference.
+	else if (who.stance == PLAYER_STANCE_PRONE && preferred_stance == PLAYER_STANCE_CROUCH)
+		who.new_ofs_z = who.view_ofs_z + height_diff_prone;
+
+	// Crouch while standing? Lower to crouch height.
+	else if (who.stance == PLAYER_STANCE_STAND && preferred_stance == PLAYER_STANCE_CROUCH)
+		who.new_ofs_z = who.view_ofs_z - height_diff_crouch;
+
+	// Stand while crouching? Raise to stand height/take away crouch difference.
+	else if (who.stance == PLAYER_STANCE_CROUCH && preferred_stance == PLAYER_STANCE_STAND)
+		who.new_ofs_z = who.view_ofs_z + height_diff_crouch;
+
+	// Stand while proning? Raise to stand height/take away crouch + prone difference.
+	else if (who.stance == PLAYER_STANCE_PRONE && preferred_stance == PLAYER_STANCE_STAND)
+		who.new_ofs_z = who.view_ofs_z + (height_diff_crouch + height_diff_prone);
+
+	// Set the stance value
+	who.stance = preferred_stance;
+
+	// Animation playback
+	if (play_animation == true) {
+		entity tempe = self;
+		self = who;
+
+		switch(who.stance) {
+			case PLAYER_STANCE_STAND: PAnim_Stand(); break;
+			case PLAYER_STANCE_CROUCH: PAnim_Crouch(); break;
+			case PLAYER_STANCE_PRONE: PAnim_Prone(); break;
+			default: break;
+		}
+
+		self = tempe;
+	}
+}
+
+//
+// Player_InitiateProgressBar(who, duration)
+// Kicks-off progress bar for the server to interpret
+// and render on the client side.
+//
+void(entity who, float duration) Player_InitiateProgressBar =
+{
+	who.progress_bar_time = duration;
+	who.progress_bar = who.progress_bar_time + time;
+};
+
+//
+// Player_RemoveProgressBar(who)
+// Resets progress bar status for client.
+//
+void(entity who) Player_RemoveProgressBar =
+{
+	who.progress_bar = who.progress_bar_time = who.progress_bar_percent = 0;
+};
+
+//
+// Player_UpdateProgressBar()
+// Increments progress bar percentage for client rendering updates.
+//
+void() Player_UpdateProgressBar =
+{
+	if (self.progress_bar_time) {
+		float progress_bar_remaining = self.progress_bar - time;
+		self.progress_bar_percent = invertfloat(progress_bar_remaining / self.progress_bar_time);
+
+		if (self.progress_bar_percent >= 0.95)
+			Player_RemoveProgressBar(self);
+	}
+};
 
 void() PlayerJump =
 {
@@ -304,25 +463,10 @@ void(float override) JumpCheck =
 		if (self.downed)
 			return;
 			
-		if (self.stance == 2) {
-      // naievil -- stop sprinting if we jump, which is a real mechanic from the game that we never implemented 
-		  if (self.sprinting) {
-			  W_SprintStop();
-		  }
+		if (self.stance == PLAYER_STANCE_STAND) {
 			PlayerJump();
-		} else if (self.view_ofs_z == self.new_ofs_z && (self.flags & FL_ONGROUND) && Player_CanStandHere(self)) {
-			switch(self.stance) {
-				case 0:
-					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT + PLAYER_PRONE_HEIGHT;
-					self.stance = 2;
-					break;
-				case 1:
-					self.new_ofs_z = self.view_ofs_z + PLAYER_CROUCH_HEIGHT;
-					self.stance = 2;
-					break;
-				default: break;
-			}
-			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+		} else if (self.view_ofs_z == self.new_ofs_z && (self.flags & FL_ONGROUND)) {
+			Player_SetStance(self, PLAYER_STANCE_STAND, true);
 		}
 	} else
 		self.flags = self.flags | FL_JUMPRELEASED;
@@ -334,16 +478,17 @@ void() PlayerPreThink =
 	if (self.downed) {
 		self.maxspeed = 30;
 	} else {
-		self.maxspeed = 190;
+
+		// Walk slower to account for NZ:P Beta Scaling.
+		if (map_compatibility_mode == MAP_COMPAT_BETA)
+			self.maxspeed = 150;
+		else
+			self.maxspeed = 190;
+
 		if (self.sprinting) {
 
 #ifdef FTE
 
-			if (self.viewzoom > 0.97)
-				self.viewzoom -= 0.015;
-			else if (self.viewzoom < 0.97)
-				self.viewzoom = 0.97;
-				
 			// viewbob when running 
 			self.punchangle_y = 0.6*sin(time*10);
 
@@ -354,11 +499,6 @@ void() PlayerPreThink =
 		} else if (!self.sprinting && !self.zoom) {
 
 #ifdef FTE
-
-			if (self.viewzoom < 1)
-				self.viewzoom += 0.015;
-			else 
-				self.viewzoom = 1;
 				
 			if (checkMovement(-1))
 				self.punchangle_x = 0.25*sin(time*15);	
@@ -399,41 +539,16 @@ void() PlayerPreThink =
 		if (!self.isBuying)
 			self.maxspeed *= GetWeaponWalkSpeed(self.perks, self.weapon);
 	}
-	if(self.isspec != 0 && !self.downed)
+	if (self.is_spectator)
 	{
-		if(self.button0 && self.fire_delay < time)
-		{
-			self.aiment = find(self.aiment, classname, "player");
-			if(self.aiment != world)
-			{
-				sprint(self, PRINT_HIGH, "Now spectating ");
-				sprint(self, PRINT_HIGH, self.aiment.netname);
-				sprint(self, PRINT_HIGH, "\n");
-				
-				self.solid = SOLID_NOT;
-				self.movetype = MOVETYPE_NONE;
-			}
-			else
-			{
-				sprint(self, PRINT_HIGH, "Freefly spectate\n");
-				self.movetype = MOVETYPE_FLY;
-			}
-			self.fire_delay = time + 0.25;
-		}
-		if(self.aiment != world)
-		{
-			self.origin = self.aiment.origin;
-			self.angles = self.aiment.v_angle;
-			self.velocity = self.aiment.velocity;
-			self.fixangle = TRUE;
-		}
+		self.movetype = MOVETYPE_NOCLIP;
 		return;
 	}
 	
 	if (cvar("waypoint_mode")) {
 		Waypoint_Logic();
 	} else {
-		Weapon_Logic();
+		WeaponCore_ClientLogic();
 	}
 
 	// ------------------------------------------------
@@ -546,10 +661,9 @@ void() PlayerPreThink =
 			self.onfire = false;
 	}
 
-	// refuel/cool flamethrowers
+	// Flamethrower-based weapon cooldown/refuel process.
 	if (self.ltime < time) {
-		// FIXME: Weapon hardcode definition.
-		float weapon_slot = Weapon_PlayerHasWeapon(self, W_M2, true);
+		float weapon_slot = Weapon_PlayerHasWeaponWithFiretype(self, FIRETYPE_FLAME);
 
 		if (weapon_slot == 0)
 			return;
@@ -579,22 +693,25 @@ void() PlayerPostThink =
 	// Network everything
 	self.SendFlags = 1;
 
+	// Used to tell which gun to fire for akimbo weapons
+	self.is_using_gamepad = stof(infokey(self, "using_gamepad"));
+	
+	// Obtain menu state from CSQC via infokeys.
+	self.is_in_menu = stof(infokey(self, "in_menu"));
+	if (self.is_in_menu != 1)
+		if (infokey(self, "chat") == "1")
+			self.is_in_menu = 2;
+	
+
 #endif // FTE
 
-	if(self.isspec)
+	if(self.is_spectator)
 		return;
-
-#ifndef FTE
-
-	if (time < 5 && self.name != "")
-		nzp_setplayername(self, self.name);
-
-#endif // FTE
 
 	//landsound
 	if((self.oldvelocity_z < -212) && (self.flags & FL_ONGROUND))
 	{
-		sound(self, CHAN_BODY, "sounds/player/land.wav", 0.6, 1.75);
+		Sound_PlaySound(self, "sounds/player/land.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 		self.lastsound_time = time - 0.15;
 	}
 
@@ -638,15 +755,15 @@ void() PlayerPostThink =
 		{		
 			local float ran = random();
 			if(ran > 0.8)
-				sound(self, CHAN_BODY, "sounds/player/footstep1.wav", 0.6, 2.5);
+				Sound_PlaySound(self, "sounds/player/footstep1.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 			else if(ran > 0.6)
-				sound(self, CHAN_BODY, "sounds/player/footstep2.wav", 0.6, 2.5);
+				Sound_PlaySound(self, "sounds/player/footstep2.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 			else if(ran > 0.4)
-				sound(self, CHAN_BODY, "sounds/player/footstep3.wav", 0.6, 2.5);
+				Sound_PlaySound(self, "sounds/player/footstep3.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 			else if(ran > 0.2)
-				sound(self, CHAN_BODY, "sounds/player/footstep4.wav", 0.6, 2.5);
+				Sound_PlaySound(self, "sounds/player/footstep4.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 			else
-				sound(self, CHAN_BODY, "sounds/player/footstep5.wav", 0.6, 2.5);
+				Sound_PlaySound(self, "sounds/player/footstep5.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 			self.lastsound_time = time;
 		}
 	}
@@ -671,25 +788,16 @@ void() PlayerPostThink =
 			self.health_was_very_low = false;
 		}
 	}
-	
-	if (self.progress_bar) {
-		if (self.progress_bar < time) {
-			if (self.downed)
-				GetUp();
-			
-			if (self.reviving)
-				self.revived = 1;
-			
-			self.progress_bar = 0;
-			self.progress_bar_time = 0;
-			self.progress_bar_percent = 0;
-			
-				
-		} else {
-			float remaining = self.progress_bar - time;
-			self.progress_bar_percent = invertfloat((remaining / self.progress_bar_time));
+
+	if (self.downed && self.firer != world) {
+		// Has our revivee left the vicinity of our revive trigger?
+		if (fabs(vlen(self.origin - self.firer.origin)) >= 72) {
+			LastStand_UnlinkRevivee(self);
 		}
 	}
+
+	// Keep track of any active progress bars.
+	Player_UpdateProgressBar();
 
 	if (self.sprinting) {
 		self.sprint_timer = self.sprint_duration + (time - self.sprint_start_time);
@@ -763,8 +871,13 @@ void() PlayerPostThink =
 		else
 			self.facingenemy = false;
 
+#ifndef FTE
 		// 1/4 of a second is enough of a delay to not kill the effect.
 		player_trace_time = time + 0.25;
+#else
+		// FTE's server rate is already slower, no real need to delay this.
+		player_trace_time = time + 0.05;
+#endif // FTE
 	}
 };
 
@@ -839,14 +952,16 @@ void() Player_PickSpawnPoint =
 	self = tempe;
 };
 
+void() SpectatorSpawn;
 void() PlayerSpawn =
 {	
 	entity spawnpoint = world;
 	local_client = self;
 
-	self.isspec = FALSE;
+	self.is_spectator = false;
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
+	self.flags = FL_CLIENT;
 
 	self.onfire = false;
 	self.fire_timeout = 0;
@@ -863,30 +978,45 @@ void() PlayerSpawn =
 	setmodel(self, "models/player.mdl");
 	self.movetype = MOVETYPE_WALK;
 	self.max_health = self.health = PLAYER_START_HEALTH;
-
-	entity who = find(world,classname,"player");
-	while(who != self && !self.playernum)
-	{
-		if(who)
-		{
-			player_count++;
-			break;
-		}
-	}
-
+	
+	// Pick an available slot from 1-4 inclusive.
 	if (!self.playernum) {
-		self.playernum = player_count + 1;
-		if (self.playernum == 1)
-			pl1 = self;
+		for (float i = 1; i <= 4; i++) {
+			entity potential_player = findfloat(world, playernum, i);
+			if (potential_player == world) {
+				self.playernum = i;
+
+#ifdef FTE
+				clientcommand(self, sprintf("setinfo client_index %d\n", self.playernum));
+#endif // FTE
+
+				break;
+			}
+		}
+
+		// All four slots are occupied.
+		if (!self.playernum) {
+			SpectatorSpawn();
+			return;
+		}
 	}
 
 	// Assign them a spawn location.
 	Player_PickSpawnPoint();
 	
 	self.fixangle = true;
-	setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-	self.view_ofs = VEC_VIEW_OFS; // naievil -- set view_ofs to 32 to maintain half life (64) sizes
-	self.stance = 2;
+
+	// NZ:P Beta used Quake BSP 29, so set bounding box accordingly.
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		self.view_ofs = VIEW_OFS_QK;
+		setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
+	} else {
+		self.view_ofs = VIEW_OFS_HL;
+		setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+	}
+
+	self.has_bowie_knife = false;
+	self.stance = PLAYER_STANCE_STAND;
 	self.new_ofs_z = self.view_ofs_z;
 	self.oldz = self.origin_z;
 	self.grenades = self.grenades | 1;  // add frag grenades to player inventory
@@ -899,32 +1029,27 @@ void() PlayerSpawn =
 	self.pri_grenade_state = 0; 		// defines that frag grenades are for player first, not betty
 	self.secondary_grenades = -1;		// shows that we both don't have betties AND shouldn't draw the image onscreen
 
-	if (!self.points)
-		addmoney(self, G_STARTPOINTS, 0);
+	// Assign the Player starting points.
+	if (rounds > 6) {
+		// If we're higher than round 6(?), we start the player with
+		// more points than we would otherwise.
+		if (self.points < PLAYER_STARTPOINTS_LATE)
+			Player_AddScore(self, PLAYER_STARTPOINTS_LATE - self.points, false);
+	} else {
+		// Rounds 1-5(?), normal starting point amount.
+		if (self.points < PLAYER_STARTPOINTS_NORMAL)
+			Player_AddScore(self, PLAYER_STARTPOINTS_NORMAL - self.points, false);
+	}
 
 	self.weaponmodel = GetWeaponModel(self.weapon, 0);// Give weapon model
 	self.weapon2model = GetWeapon2Model(self.weapon);
 
-	SwitchWeapon(self.weapon);
-
 	self.stamina = 3;
 	self.reviving = 0;
 	self.perks = G_PERKS;
-	SetPerk(self, self.perks);
-
-	if (rounds < 1 && player_count == 0) {
-		sound(self, CHAN_AUTO, "sounds/rounds/splash.wav", 1, ATTN_NONE);
-		sound(self, CHAN_ITEM, "sounds/rounds/nround.wav", 0.75, ATTN_NONE);
-	}
-
-	PromptLevelChange(self.nextthink + 3, 1, self);	
-	UpdatePlayerCount(player_count);
 	
 #ifdef FTE
 
-	UpdateV2model("", 0);
-	stuffcmd(self, "cl_gunx 8;cl_guny 16;cl_gunz 25\n");
-	SetRound(self, G_STARTROUND);
 	self.viewzoom = 1;
 	self.SendEntity = Player_SendEntity;
 	self.weapon_animduration = getWeaponDelay(self.weapon, FIRE);
@@ -932,36 +1057,63 @@ void() PlayerSpawn =
 	if (G_WORLDTEXT)
 		WorldText(world.chaptertitle, world.location, world.date, world.person, self);
 
+	ReportMapMode(map_compatibility_mode, self);
+
 #else 
 
 	self.Weapon_Name = GetWeaponName(self.weapon);
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 	self.Flash_Size = GetWeaponFlash_Size(self.weapon);
-	self.ADS_Offset = GetWeaponADSOfs_PSP(self.weapon);
+	self.ADS_Offset = GetWeaponADSOfs(self.weapon);
 
 #endif // FTE
 
 	if (G_STARTROUND != 1) {
 		rounds = G_STARTROUND - 1;
 	}
+
+	// Make sure players joining after game start are still allowed
+	// to see their name.
+	if (time >= 5 && self.name != "")
+		nzp_setplayername(self, self.name);
 };
 
 void() SpectatorSpawn =
 {
-	local entity spawnpoint;
-	spawnpoint = find(world, classname, "info_player_1_spawn");
-	
-	self.isspec = TRUE;
-	self.health = 420;
+	entity spawnpoint = find(world, classname, "info_player_1_spawn");
+	local_client = self;
+
+	self.is_spectator = true;
 	self.classname = "spectator";
-	self.solid = SOLID_CORPSE;
+	self.solid = SOLID_NOT;
+	self.flags = FL_CLIENT;
+
+	self.onfire = false;
+	self.fire_timeout = 0;
+
 	setmodel(self, "models/sprites/null.spr");
-	self.movetype = MOVETYPE_FLY;
-	self.origin = spawnpoint.origin + [0,0,1];
-	self.fixangle = TRUE;
-	setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-	self.view_ofs = '0 0 22';
-	self.aiment = world;
+	self.movetype = MOVETYPE_NOCLIP;
+	self.max_health = self.health = PLAYER_START_HEALTH;
+	
+	self.fixangle = true;
+
+	// NZ:P Beta used Quake BSP 29, so set bounding box accordingly.
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		self.view_ofs = VIEW_OFS_QK;
+		setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
+	} else {
+		self.view_ofs = VIEW_OFS_HL;
+		setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+	}
+	
+#ifdef FTE
+
+	self.viewzoom = 1;
+	self.SendEntity = Player_SendEntity;
+
+#endif // FTE
+
+	setorigin(self, spawnpoint.origin + '0 0 20');
 };
 
 //called when a client loads a map
@@ -973,6 +1125,9 @@ void() PutClientInServer =
 		Spawns_Init();
 		spawns_initialized = true;
 	}
+
+	player_count++;
+	UpdatePlayerCount(player_count);
 
 	if(cvar("developer") || player_count > 1) {
 		bprint(PRINT_HIGH, self.netname);
@@ -987,10 +1142,21 @@ void() PutClientInServer =
 	else 
 		SpectatorSpawn();
 
+	// Force the client to always be networked to other clients, even when
+	// outside of the same PVS.
+	self.pvsflags |= PVSF_IGNOREPVS;
+	FTE_IncrementRound(rounds);
+
 #endif // FTE
 
 	GameRestart_ResetPerkaColas();
 };
+
+void() RestartDedicatedServer =
+{
+	bprint(PRINT_HIGH, "[INFO]: Issuing server restart as player is connecting to an empty server.\n");
+	localcmd("restart\n");
+}
 
 //called when client disconnects from the server
 void() ClientDisconnect =
@@ -1002,23 +1168,39 @@ void() ClientDisconnect =
 	
 	self.classname = "disconnected";
 	self.solid = SOLID_NOT;
-	self.movetype = MOVETYPE_BOUNCE;
 	self.nextthink = -1;
+	self.playernum = 0;
+	self.is_spectator = false;
 	setmodel(self, "models/sprites/null.spr");
 
 	GameRestart_ResetPerkaColas();
 
-	if (self.downed) {
-		DisableReviveIcon(self.electro_targeted);
-		revive_index--;
+	if (self.downed && self.firer != world) {
+		LastStand_UnlinkRevivee(self);
+		DisableReviveIcon(self.playernum);
+	} else if (self.firer != world) {
+		self.firer.beingrevived = false;
 	}
 
 #ifdef FTE
 
 	// Network everything
 	self.SendFlags = 1;
+	self.is_in_menu = 0;
 
 #endif // FTE
+
+	// We can encounter a player count of zero if we are in a dedicated
+	// server. If this is the case we should restart the current level
+	// to prevent issues with a player joining mid-match stuck in spectator
+	// mode, or spawning in at a high round not able to progress.
+	if (player_count == 0) {
+		// We need to use a temp entity for this to add a delay, else this
+		// will interfere with SP games.
+		entity tempe = spawn();
+		tempe.think = RestartDedicatedServer;
+		tempe.nextthink = time + 0.25;
+	}
 };
 
 

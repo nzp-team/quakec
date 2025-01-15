@@ -3,7 +3,7 @@
 
 	put custom server-only globals and fields here
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -43,7 +43,15 @@
 
 float cheats_have_been_activated;
 
-// Quake assumes these are defined.
+// cypress - NOTE
+// on/off are inverted compared to goldsrc for
+// compatibility with existing nzp content.
+#define TRIGGERSTATE_ON			0
+#define TRIGGERSTATE_OFF		1
+#define TRIGGERSTATE_TOGGLE		2
+
+.float 	triggerstate;
+
 string 	string_null;
 .string killtarget;
 entity 	activator;
@@ -51,11 +59,13 @@ float 	framecount;
 
 float music_override;
 
+.float	recoil_delay;
+.float 	cur_spread;
+
 #ifndef FTE
 
 void(string com) SV_ParseClientCommand;
 .float	gravity;
-.float	recoil_delay;
 .float 	mapversion;
 .float	ammo;
 .float 	frags;
@@ -72,16 +82,15 @@ float 	ach_tracker_spin;
 
 float global_trace_damage_multiplier;
 
+.float has_ads_toggle;
 .float ads_release;
 .float has_doubletap_damage_buff;
 
 .vector oldvelocity;
 .float lastsound_time;
-.float isspec;
 string mappath;
 .float ads_toggle;
 float player_count;
-entity pl1;
 .string fog;		// used for hacking in changing fog from world.fog for legacy maps
 
 entity local_client;
@@ -94,7 +103,6 @@ entity local_client;
 .float points;
 .float cost;
 .float cost2;
-void(entity person, float expamt , float doublepoint) addmoney;
 
 //stats
 .float score;
@@ -150,9 +158,8 @@ void() W_SprintStop;
 .float hunt_count; // How many Hellhounds are hunting a client
 
 //Weaponsystem defines
-void SwitchWeapon(float to);
 void GetUp();
-void Weapon_Logic();
+void WeaponCore_ClientLogic();
 void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float downed;
 .float fire_delay;
@@ -171,17 +178,28 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float currentmagbk;
 .float currentmagbk2;
 .float currentammobk;
-.float semi;
-.float semi2;
-.float semiuse;
-.float semiswitch;		// Weapon Swap Toggle
-.float seminade;		// Grenade Toggle
-.float semireload;
 .float NeedLoad;
 .string weapon2model;
 .float weapon2frame;
 .float reloadinterupted;
 .float hitcount;
+
+#ifdef FTE
+
+.float weapon2modelindex;
+
+#endif // FTE
+
+#define SEMIACTION_FIRE_RIGHT	1
+#define SEMIACTION_FIRE_LEFT 	2
+#define SEMIACTION_USE			4
+#define SEMIACTION_GRENADE		8
+#define SEMIACTION_MELEE		16
+#define SEMIACTION_WAYPOINT		32
+#define SEMIACTION_WEAPONSWAP	64
+
+// Semi-automatic actions (requires button release)
+.float semi_actions;
 
 #define MAX_PLAYER_WEAPONS 		3
 #define MULEKICK_WEAPON_SLOT	3
@@ -211,9 +229,8 @@ var struct guninventory_struct
 #define S_BOTH 2
 
 //Knife 
-.float semiknife;
 .float knife_delay;
-.float bowie;
+.float has_bowie_knife;
 
 //Grenades
 .float grenades;
@@ -225,7 +242,7 @@ var struct guninventory_struct
 .float throw_delay;
 
 //weapon frames
-void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side);
+void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side, float lock_viewmodel);
 .float weapon_animduration;
 .float weapon2_animduration;
 .float weapon_anim_type;
@@ -243,6 +260,8 @@ void Set_W_Frame (float startframe, float endframe, float duration, float funcca
 .void() animend;
 .void(optional float t) animend2;
 
+string(string path) Compat_ConvertOldAssetPath;
+
 //Null functions
 void() SUB_Null = {};
 void() SUB_Null2 = {};
@@ -252,7 +271,8 @@ void() SUB_Null2 = {};
 #define 	VEC_HULL2_MIN   	'-32 -32 -24'
 #define 	VEC_HULL2_MAX  		'32 32 64'
 
-#define     VEC_VIEW_OFS  '0 0 32'
+#define 	VIEW_OFS_HL 		'0 0 32'
+#define 	VIEW_OFS_QK			'0 0 22'
 
 .string name;
 vector	trace_plane_normal;
@@ -370,16 +390,31 @@ float tracemove(vector start, vector min, vector max, vector end, float nomonste
 .float way_path[40];
 .float way_cur;
 
+//
+// Zombie Sound System
+//
+
+#define ZOMBIE_SOUND_TYPE_MELEE		0
+#define ZOMBIE_SOUND_TYPE_WALK		1
+#define ZOMBIE_SOUND_TYPE_CRAWL		2
+#define ZOMBIE_SOUND_TYPE_SPRINT	3
+#define ZOMBIE_SOUND_TYPE_DEATH		4
+
 .float sound_time;
 .float s_time;
-float sounds_playing;
 
 .float fall;
 //.vector lastOrg;//Zombie's last origin, for checking stuckness
 //.float OrgStuckCount;
 .float crawling;
 
+#define HIT_REGION_HEAD 		1
+#define HIT_REGION_ARM 			2
+#define HIT_REGION_TORSO_LOWER 	3
+#define HIT_REGION_TORSO_UPPER	4
+
 .float washit;
+.float hit_region;
 .float hitamount;
 
 .float laststep;
@@ -415,6 +450,16 @@ float crandom();
 .string door_model_name;
 
 //Perk and Power system
+
+#define PERK_QUICKREVIVE_DEFAULT_MODEL	"models/machines/quake_scale/quick_revive.mdl"
+#define PERK_JUGGERNOG_DEFAULT_MODEL	"models/machines/quake_scale/juggernog.mdl"
+#define PERK_SPEEDCOLA_DEFAULT_MODEL	"models/machines/quake_scale/speed_cola.mdl"
+#define PERK_DOUBLETAP_DEFAULT_MODEL	"models/machines/quake_scale/double_tap.mdl"
+#define PERK_PHDFLOPPER_DEFAULT_MODEL	"models/machines/quake_scale/flopper.mdl"
+#define PERK_STAMINUP_DEFAULT_MODEL		"models/machines/quake_scale/staminup.mdl"
+#define PERK_DEADSHOT_DEFAULT_MODEL		"models/machines/quake_scale/deadshot.mdl"
+#define PERK_MULEKICK_DEFAULT_MODEL		"models/machines/quake_scale/mulekick.mdl"
+
 float isPowerOn;
 .float isBuying; // naievil -- used for checking if a perk is being consumed, limits glitching
 .float perks;
@@ -495,10 +540,10 @@ float round_changetime;
 float blink_return;
 float delay_at_round;
 float spawn_delay;
-float maxreward;
-float totalreward;
 float totalpowerups;
-float sounds_playing;
+
+float barricade_reward_maximum;
+.float barricade_reward;
 
 float rounds;
 float rounds_change;
@@ -569,7 +614,6 @@ waypoint_ai waypoints[MAX_WAYPOINTS];
 .string song;
 
 //altered game elements
-float G_STARTPOINTS;
 float G_STARTROUND;
 float G_PRONEPOINTS;
 float G_STARTWEAPON[3];
@@ -603,8 +647,6 @@ float G_PERKPOWER;
 .float rendermode;
 .float renderamt;
 .vector rendercolor;
-
-float revive_index;
 
 #ifdef FTE
 .float last_solid;

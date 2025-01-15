@@ -3,7 +3,7 @@
 
 	Pack-A-Punch Entity Logic
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -106,7 +106,7 @@ void() PAP_Reset =
 {
 	self.weapon = 0;
 	self.usedent = 0;
-
+	self.host = world;
 
 	if (self.goaldummy) {
 		remove(self.goaldummy);
@@ -128,7 +128,7 @@ void() PAP_Tick =
 	if (self.ltime < time)
 		PAP_Reset();
 	else {
-		sound(self, CHAN_BODY, "sounds/machines/packapunch/tick.wav", 1, 1);
+		Sound_PlaySound(self, "sounds/machines/packapunch/tick.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		self.nextthink = time + 0.87;
 	}
 };
@@ -172,7 +172,8 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 
 	tempe = self;
 	self = buyer;
-	addmoney (self, -pap.cost, 0);
+
+	Player_RemoveScore(self, pap.cost);
 
 	// Spawn Upgrade Spark if permitted
     if (!(pap.spawnflags & PAP_SPAWNFLAG_NOSPARK))
@@ -186,11 +187,11 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 
 	// Give a nice blue glow and play upgrade sound
     Light_Cyan(pap, false);
-    sound(pap, CHAN_ITEM, pap.oldmodel, 0.8, 1);
+	Sound_PlaySound(pap, pap.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Mapper-provided musical sting.
 	if (pap.powerup_vo)
-		sound(pap, CHAN_AUTO, pap.powerup_vo, 1, ATTN_IDLE);
+		Sound_PlaySound(pap, pap.powerup_vo, SOUND_TYPE_ENV_MUSIC, SOUND_PRIORITY_PLAYALWAYS);
 
 	//
 	// Spawn and prepare the floating Weapon
@@ -217,21 +218,22 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
     pap.usedent = self;
 	pap.goaldummy = floating_weapon;
 
+	pap.host = buyer;
+
 	// Upgrade Timer
     pap.think = PAP_SendWeaponOut;
     pap.nextthink = time + 3.5;
 
 	// Play Player's view model animation and sound.
 	self.fire_delay = self.reload_delay = 2.0 + time;
-	sound(self,CHAN_WEAPON,"sounds/machines/papsound.wav",1,ATTN_NORM);
+	Sound_PlaySound(self, "sounds/machines/papsound.wav", SOUND_TYPE_PLAYER_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 
 	pap.weapon = self.weapon;
 
 	Weapon_RemoveWeapon(0);
 	W_HideCrosshair(self);
-	Set_W_Frame (0, 39, 2.0, 0, 0, W_PutOutHack, "models/machines/v_pap.mdl", true, S_BOTH);
+	Set_W_Frame (0, 39, 2.0, 0, 0, W_PutOutHack, "models/machines/v_pap.mdl", true, S_BOTH, true);
 	self.weapon2model = "";
-	UpdateV2model(self.weapon2model, 0);
 
 #ifndef FTE
 
@@ -279,15 +281,15 @@ void() PAP_Touch =
 			PAP_UpgradeWeapon(self, other);
 		} 
 		// They're broke! Notify.
-		else if (other.button7 && other.weapon && !other.semiuse) {
-			other.semiuse = true;
+		else if (other.button7 && other.weapon && !(other.semi_actions & SEMIACTION_USE)) {
+			other.semi_actions |= SEMIACTION_USE;
 			centerprint (other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		}
 	} 
 
 	// Claiming upgraded Weapon
-	else if (self.papState == 2) {
+	else if (self.papState == 2 && self.host == other) {
 
 #ifndef FTE
 
@@ -317,7 +319,7 @@ void() PAP_Touch =
 void() PAP_Click =
 {
 	if (!self.active_door.papState)
-    	sound(self, CHAN_ITEM, "sounds/machines/packapunch/gear_shift.wav", 1, 1);
+		Sound_PlaySound(self, "sounds/machines/packapunch/gear_shift.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
     self.nextthink = time + 0.75;
 };
 
@@ -407,13 +409,12 @@ void() perk_pap =
 		self.oldmodel = "sounds/machines/packapunch/upgrade.wav";
 	}
 
-	self.model = convert_old_asset_path(self.model);
-	self.weapon2model = convert_old_asset_path(self.weapon2model);
-	self.door_model_name = convert_old_asset_path(self.door_model_name);
+	self.model = Compat_ConvertOldAssetPath(self.model);
+	self.weapon2model = Compat_ConvertOldAssetPath(self.weapon2model);
+	self.door_model_name = Compat_ConvertOldAssetPath(self.door_model_name);
 
     // Precaches
 	// FIXME: Don't hardcode weapon precaches here.
-	precache_extra(W_BIATCH);
 	precache_extra(W_SNUFF);
 
 	precache_model (self.model);
@@ -427,7 +428,7 @@ void() perk_pap =
 	if (self.powerup_vo)
 		precache_sound(self.powerup_vo);
 
-	precache_sound ("sounds/machines/papsound.wav");
+	precache_sound("sounds/machines/papsound.wav");
 	precache_sound("sounds/weapons/papfire.wav");
     precache_sound("sounds/machines/packapunch/gear_shift.wav");
 	precache_sound("sounds/machines/packapunch/tick.wav");

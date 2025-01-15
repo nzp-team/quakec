@@ -3,7 +3,7 @@
 
 	Misc. Trigger functions
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -144,20 +144,6 @@ void() trigger_activator_touch =
 	tempcount = 1;
 	tempstring = "";
 	t = world;
-	do
-	{
-		t = find (t, classname, "spawn_zombie");
-		if (!t)
-		{
-			breakthis = 1;
-		}
-		if (t.classname == "spawn_zombie")
-		{
-			t.classname = "spawn_zombie_away";
-			/*if (cvar("developer"))
-				setmodel(t, "progs/player.mdl");*/
-		}
-	} while (!breakthis);
 	
 	if (self.target2)
 		tempcount =+ 1;
@@ -238,32 +224,6 @@ void() trigger_activator =
 	self.touch = trigger_activator_touch;
 }
 
-#define SPAWNFLAG_TRIGGERCMD_NOPLAYER	1
-#define SPAWNFLAG_TRIGGERCMD_NOSPEC		2
-void() trigger_stuffcmd_touch =
-{
-	// First, lets make sure this is a client
-	if (other.classname != "player" && other.classname != "spectator")
-		return;
-
-	// Don't interact with players
-	if ((self.spawnflags & SPAWNFLAG_TRIGGERCMD_NOPLAYER) && other.classname == "player")
-		return;
-
-	// Don't interact with spectators
-	if ((self.spawnflags & SPAWNFLAG_TRIGGERCMD_NOSPEC) && other.classname == "spectator")
-		return;
-
-	// Run the command.
-	stuffcmd(other, strcat(self.message, "\n"));
-}
-
-void() trigger_stuffcmd =
-{
-	InitTrigger();
-	self.touch = trigger_stuffcmd_touch;
-}
-
 void() trigger_interact_touch =
 {
 	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
@@ -271,7 +231,7 @@ void() trigger_interact_touch =
 
 	if (other.button7) {
 		if (self.noise)
-			sound (other, CHAN_ITEM, self.noise, 1, ATTN_NORM);
+			Sound_PlaySound(other, self.noise, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		multi_trigger();
 	}
 }
@@ -305,7 +265,7 @@ void() teddy_react =
 
 
 	if (self.noise)
-    	sound (dummy, CHAN_ITEM, self.noise, 1, ATTN_NORM);
+    	Sound_PlaySound(dummy, self.noise, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	Ent_FakeRemove(self);
 }
@@ -361,6 +321,14 @@ void() trigger_once =
 	trigger_multiple();
 }
 
+/*QUAKED trigger_relay (.5 .5 .5) (-8 -8 -8) (8 8 8)
+This fixed size trigger cannot be touched, it can only be fired by other events.  It can contain killtargets, targets, delays, and messages.
+*/
+void() trigger_relay =
+{
+	self.use = SUB_UseTargets;
+};
+
 void() trigger_atroundend =
 {
 	self.classname = "trigger_atroundend";
@@ -390,6 +358,45 @@ void() trigger_setfire =
 }
 
 //
+// trigger_awardpoints
+// Awards touching client Score on contact.
+//
+#define SPAWNFLAG_TRIGGERSCORE_REQUIRESTAND		1
+#define SPAWNFLAG_TRIGGERSCORE_REQUIRECROUCH	2
+#define SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE		4
+#define SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS	8
+
+void() trigger_awardpoints_touch =
+{
+	if (other.classname != "player" || other.downed || !self.health)
+		return;
+
+	if (other.stance != PLAYER_STANCE_STAND && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIRESTAND))
+		return;
+	if (other.stance != PLAYER_STANCE_CROUCH && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIRECROUCH))
+		return;
+	if (other.stance != PLAYER_STANCE_PRONE && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE))
+		return;
+
+	Player_AddScore(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
+
+	if (self.noise != "")
+		Sound_PlaySound(self, self.noise, SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
+
+	self.health = 0;
+}
+
+void() trigger_awardpoints =
+{
+	InitTrigger ();
+	self.touch = trigger_awardpoints_touch;
+	self.health = 1;
+
+	if (self.noise != "")
+		precache_sound(self.noise);
+}
+
+//
 // Quake Triggers
 //
 
@@ -410,7 +417,7 @@ void() hurt_touch =
 	(other.aistatus == "1" && !(self.spawnflags & HURT_SPAWNFLAG_NOAI)))
 	{
 		self.solid = SOLID_NOT;
-		DamageHandler(other, self, self.dmg, S_ZOMBIE);
+		DamageHandler(other, self, self.dmg, DMG_TYPE_OTHER);
 		self.think = hurt_on;
 		self.nextthink = time + 1;
 

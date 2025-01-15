@@ -3,7 +3,7 @@
 
 	ai stuff
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -25,8 +25,8 @@
 
 */
 
-void(float what) play_sound_z;
-// void() LinkZombiesHitbox;
+void(float type) Zombie_PlaySoundType;
+void() LinkZombiesHitbox;
 entity() Dog_FindEnemy;
 
 void() path_corner_touch =
@@ -100,7 +100,7 @@ entity(entity blarg) find_new_enemy =
 
 		while(targets != world) {
 			// Don't target downed players.
-			if (targets.downed == true || targets.isspec == true) {
+			if (targets.downed == true || targets.is_spectator == true) {
 				targets = find(targets, classname, "player");
 				continue;
 			}
@@ -674,7 +674,7 @@ void() PathfindToEnemy =
 
 #ifdef FTE
 
-		bprint(PRINT_HIGH, "FirstPathfind Failure\n");
+		//bprint(PRINT_HIGH, "FirstPathfind Failure\n");
 
 #endif // FTE
 
@@ -829,7 +829,6 @@ void(float dist) Zombie_Walk =  {
 	}
 	
 	if(self.outside == 2) {
-		//play_sound_z(2);
 		Window_Hop(dist);
 		//handle special walk case for walking to org
 		return;
@@ -849,19 +848,26 @@ void() Zombie_AI = {
 	float dist = 0;
 	self.flags = self.flags | FL_PARTIALGROUND;
 	//check_onfire();
+
+	//
+	// Try to play some zombie sounds.
+	//
+
+	// Crawling
+	if (self.crawling == true) {
+		Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_CRAWL);
+	} else {
+		// Walking
+		if (self.walktype < 4) {
+			Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_WALK);
+		}
+		// Running
+		else {
+			Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_SPRINT);
+		}
+	}
 	
-	if(self.outside == TRUE) {
-		play_sound_z(2);
-		//self.calc_time = time + (0.3 * random());
-		//Window_Walk(dist);
-		return;
-	} else if(self.outside == 2) {
-		play_sound_z(2);
-		//Window_Hop(0);
-		return;
-	} else if(self.outside == FALSE) {
-		play_sound_z(2);
-		//self.calc_time = time + (0.25 + (0.15 * random()));
+	if(self.outside == FALSE) {
 		Inside_Walk(dist);
 	}
 }

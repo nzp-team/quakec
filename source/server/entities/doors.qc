@@ -12,7 +12,7 @@
 	Door.enemy chains from the master door through all doors linked 
 	in the chain.
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -82,7 +82,7 @@ void() door_go_up;
 
 void() door_blocked =
 {
-			DamageHandler (other, self, self.dmg, S_NORMAL); 
+			DamageHandler (other, self, self.dmg, DMG_TYPE_OTHER); 
 	
 // if a door has a negative wait, it would never come back if blocked,
 // so let it just squash the object to death real fast
@@ -268,26 +268,37 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		}
 	}
 
-	if (other.button7 && !other.semiuse)
+	if (other.button7 && !(other.semi_actions & SEMIACTION_USE))
 	{
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		if (other.points >= self.cost)
 		{
 			door_fire();
-			sound(self, 0, "sounds/misc/ching.wav", 1, 1);
-			sound(self, 1, "sounds/misc/buy.wav", 1, 1);
+			
+			// We need to create a new entity with the specific assignment of
+			// just playing the door sound, due to the door moving if we just
+			// assign the sound to the door, it cannot be heard when the engine
+			// supports SOUNDFLAG_FOLLOW.
+			entity door_sound = spawn();
+			setorigin(door_sound, other.origin);
+			door_sound.think = SUB_Remove;
+			door_sound.nextthink = time + 5;
+
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
+			Sound_PlaySound(door_sound, "sounds/misc/buy.wav", SOUND_TYPE_ENV_IMPORTANT, SOUND_PRIORITY_PLAYALWAYS);
 			switch(self.sounds)
 			{
 				case 1:
-					sound(self, 2, "sounds/misc/wood_door.wav", 1, 1);
+					Sound_PlaySound(door_sound, "sounds/misc/wood_door.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					break;
 				case 2:
-					sound(self, 2, "sounds/misc/debris.wav", 1, 1);
+					Sound_PlaySound(door_sound, "sounds/misc/debris.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					break;
 				default:
 					break;
 			}
-			addmoney(other, self.cost*-1, 0);
+
+			Player_RemoveScore(other, self.cost);
 			self.solid = SOLID_NOT;
 		}
 		else
@@ -295,8 +306,8 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 			if(other.classname == "player" && !other.downed)
 			{
 				centerprint (other, STR_NOTENOUGHPOINTS);
-				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
-				other.semiuse = 1;
+				Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
+				other.semi_actions |= SEMIACTION_USE;
 			}
 		}
 	}
@@ -332,10 +343,8 @@ void() door_use =
 
 void() door_trigger_touch =
 {
-	if(other.classname != "player")
-	{
+	if(other.classname != "player" || other.downed)
 		return;
-	}
 
 	if(cvar("waypoint_mode"))
 	{
@@ -348,6 +357,9 @@ void() door_trigger_touch =
 		}
 		return;
 	}
+
+	if (self.owner.targetname && self.owner.classname != "door_nzp_cost")
+		return;
 	
 	if (other.health <= 20)
 		return;
@@ -391,6 +403,13 @@ void() door_touch =
 	{
 		centerprint (other, self.owner.message);
 	}
+
+	// Since we've removed support for Quake keys (*.items),
+	// this additional check is needed to prevent standard
+	// func_door entities from activating on-touch if it's
+	// set to only be triggered.
+	if (self.classname == "door" && self.targetname)
+		return;
 
 	if (isPowerOn == FALSE)
 	{
@@ -504,7 +523,11 @@ void() LinkDoors =
 				return;
 			if (self.health)
 				return;
-			if (self.targetname && self.classname != "door_nzp_cost")
+
+			// Only disable trigger spawn fields if this is a vanilla Quake door with a targetname
+			// AND its without a wayTarget. Implies the door isnt really a "door" and like a bonus
+			// or something, since if its a proper door you will want waypoint entry..
+			if (self.targetname && self.classname != "door_nzp_cost" && !self.wayTarget)
 				return;
 
 			self.owner.trigger_field = spawn_field(cmins, cmaxs);
@@ -651,7 +674,6 @@ void() func_door_nzp =
 	if (!roundinit) {
 		if (self.cost) {
 			self.classname = "door_nzp_cost";
-			precache_sound("sounds/misc/ching.wav");
 			switch(self.sounds)
 			{
 				case 1: precache_sound("sounds/misc/wood_door.wav"); break;

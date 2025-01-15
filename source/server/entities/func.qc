@@ -3,7 +3,7 @@
 
 	Source file for func_* map entities.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -111,7 +111,7 @@ void () func_rotating_use =
 
 void() rot_crush =
 {
-    DamageHandler(self, other, 1, S_ZOMBIE);
+    DamageHandler(self, other, 1, DMG_TYPE_OTHER);
 }
 	
 void () func_rotating =
@@ -159,7 +159,7 @@ void() train_blocked =
 
 	self.death_timer = time + 0.5;
 
-    DamageHandler(self, other, self.dmg, S_ZOMBIE);
+    DamageHandler(self, other, self.dmg, DMG_TYPE_OTHER);
 };
 
 void() train_use =
@@ -174,7 +174,7 @@ void() train_wait =
 {
 	if (self.wait) {
 		self.nextthink = self.ltime + self.wait;
-		sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+		sound(self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 	} else {
         self.nextthink = self.ltime + 0.1;
     }
@@ -204,7 +204,7 @@ void() train_next =
 	else
 		self.wait = 0;
 
-	sound (self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	sound(self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
 	SUB_CalcMove (targ.origin - self.mins, self.speed, train_wait);
 };
 
@@ -237,16 +237,16 @@ void() func_train =
 
 	if (self.sounds == 0) {
 		self.noise = ("sounds/null.wav");
-		precache_sound ("sounds/null.wav");
+		precache_sound("sounds/null.wav");
 		self.noise1 = ("sounds/null.wav");
-		precache_sound ("sounds/null.wav");
+		precache_sound("sounds/null.wav");
 	}
 
 	if (self.sounds == 1) {
 		self.noise = ("sounds/misc/debris.wav");
-		precache_sound ("sounds/misc/debris.wav");
+		precache_sound("sounds/misc/debris.wav");
 		self.noise1 = ("sounds/misc/debris.wav");
-		precache_sound ("sounds/misc/debris.wav");
+		precache_sound("sounds/misc/debris.wav");
 	}
 
 	self.cnt = 1;
@@ -315,7 +315,7 @@ void() button_fire =
 	if (self.state == STATE_UP || self.state == STATE_TOP)
 		return;
 
-	sound (self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+	//sound(self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
 
 	self.state = STATE_UP;
 	SUB_CalcMove (self.pos2, self.speed, button_wait);
@@ -339,17 +339,17 @@ void() button_touch =
 			centerprint(other,ftos(self.cost));
 			centerprint(other,"]\n");
 
-			if (other.button7 && !other.semiuse) {
-				other.semiuse = true;
+			if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+				other.semi_actions |= SEMIACTION_USE;
 				if(other.points >= self.cost) {
 					self.enemy = other;
-					addmoney(other, 0 - self.cost, FALSE);
+					Player_RemoveScore(other, self.cost);
 					button_fire();
 
 					return;
 				} else {
 					centerprint(other, STR_NOTENOUGHPOINTS);
-					sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+					Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 				}
 			}
 		}
@@ -421,7 +421,7 @@ void() touch_ending =
 		if (other.points < self.cost)
 			return;
 
-		addmoney(other, -self.cost, 0);
+		Player_RemoveScore(other, self.cost);
 
 		entity tempe;
 		entity players = find(world, classname, "player");

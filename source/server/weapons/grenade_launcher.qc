@@ -4,7 +4,7 @@
 	Core logic for the Ray Gun special weapon.
 	Modified from Unofficial Patch implementation.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -54,18 +54,7 @@ void(float side) W_FireGrenade =
 
 #ifdef FTE
 
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, EVENT_PISTOLFIRE);
-	WriteEntity(MSG_MULTICAST, self);
-    WriteFloat(MSG_MULTICAST, side);
-	WriteCoord(MSG_MULTICAST, 0);
-	WriteCoord(MSG_MULTICAST, 0);
-	WriteCoord(MSG_MULTICAST, 0);
-	WriteCoord(MSG_MULTICAST, 0);
-	WriteCoord(MSG_MULTICAST, 0);
-	WriteCoord(MSG_MULTICAST, 0);
-	WriteEntity(MSG_MULTICAST, world);
-	multicast(self.origin, MULTICAST_PHS);
+	FTE_RunParticleEffect(self, CSQC_PART_MUZZLEFLASH, '0 0 0', side, world);
 
 #endif // FTE
 }

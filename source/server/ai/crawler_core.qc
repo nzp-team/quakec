@@ -3,7 +3,7 @@
 
 	Crawler AI Type
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -44,12 +44,12 @@ void() crawler_footstep
 	if(self.laststep == 1)
 	{
 		self.laststep = 0;
-		sound(self, 5, "sounds/zombie/sc0.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/zombie/sc0.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 	}
 	else
 	{
 		self.laststep = 1;
-		sound(self, 5, "sounds/zombie/sc1.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/zombie/sc1.wav", SOUND_TYPE_PLAYER_FOOTSTEP, SOUND_PRIORITY_PLAYALWAYS);
 	}
 }
 
@@ -128,7 +128,7 @@ void(float which) crawler_attack_choose =
 		zombie_decide();
 		return;
 	}
-	play_sound_z(1);
+	Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE);
 	
 	crawler_atk1();
 };
@@ -150,10 +150,10 @@ void() crawler_da10		=[	9,		crawler_da1	] 	{crawler_attack_choose(0); self.frame
 //37-39
 void() crawler_die1		=[	0,		crawler_die2] 	{SetZombieHitBox(CRAWLER_BBOX);self.frame = 37;};
 void() crawler_die2		=[	1,		crawler_die3] 	{self.frame = 38;};
-void() crawler_die3		=[	2,		SUB_Null] 	{self.iszomb = 0; self.frame = 39;self.nextthink = time + 3;self.think = removeZombie; addmoney(other, 60, true); if (crawler_num > 0) {crawler_num = crawler_num - 1;}};
+void() crawler_die3		=[	2,		SUB_Null] 	{self.iszomb = 0; self.frame = 39;self.nextthink = time + 3;self.think = removeZombie; if (crawler_num > 0) {crawler_num = crawler_num - 1;}};
 
 //====================== Crawler Tesla Death ============================
-void() crawler_death_wunder1		=[	72,		crawler_death_wunder2	]	{tesla_arc(); play_sound_z(4); };
+void() crawler_death_wunder1		=[	72,		crawler_death_wunder2	]	{tesla_arc(); Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_DEATH); };
 void() crawler_death_wunder2		=[	73,		crawler_death_wunder3	]	{tesla_arc(); };
 void() crawler_death_wunder3		=[	74,		crawler_death_wunder4	]	{tesla_arc();  };
 void() crawler_death_wunder4		=[	75,		crawler_death_wunder5	]	{tesla_arc(); };
@@ -169,7 +169,7 @@ void() crawler_death_wunder10		=[	40,		SUB_Null 		]	{tesla_arc(); self.iszomb = 
 
 //======================== Climb Over Barricade ====================
 //40-70
-void() crawler_climbBarricade1	=[	0,		crawler_climbBarricade2] 	{self.movetype = MOVETYPE_STEP;self.zoom = 1;self.frame = 40;Zombie_Think();};
+void() crawler_climbBarricade1	=[	0,		crawler_climbBarricade2] 	{self.movetype = MOVETYPE_STEP;self.zoom = 1;self.frame = 40;Zombie_Think();SetZombieHitBox(IDLE_BBOX);};
 void() crawler_climbBarricade2	=[	1,		crawler_climbBarricade3] 	{self.frame = 41;	moveforwardalittle(0);Zombie_Think();};
 void() crawler_climbBarricade3	=[	2,		crawler_climbBarricade4] 	{self.frame = 42;	moveforwardalittle(0);Zombie_Think();};
 void() crawler_climbBarricade4	=[	3,		crawler_climbBarricade5] 	{self.frame = 43;	moveforwardalittle(1);Zombie_Think();};
@@ -225,7 +225,7 @@ void() crawler_land10		=[	9,		Crawler_Walk_Setup] 	{self.frame=86;Zombie_Think()
 //======================== Crawler Rip Board =======================
 //103-126
 
-void() crawler_rip_board1		=[	0,		crawler_rip_board2] 	{SetZombieHitBox(CRAWLER_BBOX);self.frame=103;Zombie_Think();};
+void() crawler_rip_board1		=[	0,		crawler_rip_board2] 	{SetZombieHitBox(IDLE_BBOX);self.frame=103;Zombie_Think();};
 void() crawler_rip_board2		=[	1,		crawler_rip_board3] 	{self.frame=104;Zombie_Think();};
 void() crawler_rip_board3		=[	2,		crawler_rip_board4] 	{self.frame=105;Zombie_Think();};
 void() crawler_rip_board4		=[	3,		crawler_rip_board5] 	{self.frame=106;Zombie_Think();};

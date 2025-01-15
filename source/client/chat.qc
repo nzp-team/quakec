@@ -3,7 +3,7 @@
 
 	Chat interception and custom drawing, based on Nuclide.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -98,6 +98,7 @@ string Chat_GetHexCodeForPlayer(float player_id)
         case 2: return "^x07E";
         case 3: return "^xCA0";
         case 4: return "^x5D0";
+		case 255: return "^xF76";
     }
     return "^xFFF";
 }
@@ -112,7 +113,14 @@ void Chat_Register(int sender, int player_id, string message)
     // Append name+color to the message
     string player_hex = Chat_GetHexCodeForPlayer(player_id);
     string player_name = getplayerkeyvalue(sender, "name");
-    message = strcat(player_hex, player_name, "^xCCC: ", message);
+
+	// Not a server message.
+	if (player_id != 255) {
+		message = strcat(player_hex, player_name, "^xCCC: ", message);
+	} else {
+		message = strcat(player_hex, message);
+	}
+    
 
 	if (g_chatlines < (CHAT_LINES - 1)) {
 		g_chatbuffer[g_chatlines + 1] = message;

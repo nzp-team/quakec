@@ -3,7 +3,7 @@
 
 	logic and entities pertaining to in-game traps
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ void()  A_ElecSwitchOff3    =   [   3,  SUB_Null            ]   {self.frame = 0;
 // zapper_do_damage
 // Called when entities touch the Electric barrier.
 //
-void() zapper_do_damage
+void() zapper_do_damage =
 {
 	entity tempe;
 
@@ -69,9 +69,9 @@ void() zapper_do_damage
 		// Inflict Damage
 		if (other.damage_timer < time) {
 			if (other.perks & P_JUG)
-				DamageHandler(other, self, 50, S_ZAPPER);
+				DamageHandler(other, self, 50, DMG_TYPE_ELECTRICTRAP);
 			else
-				DamageHandler(other, self, other.health, S_ZAPPER);
+				DamageHandler(other, self, other.health, DMG_TYPE_ELECTRICTRAP);
 			other.damage_timer = time + 1.25;
 		}
 		// Inflict Speed Penalty
@@ -110,7 +110,7 @@ void() zapper_do_damage
 	// - Dogs should always explode on contact, instantly.
 	// - Trap plays Electro-Shock sound, dog plays explosion.
 	else if (other.classname == "ai_dog") {
-		sound(self, CHAN_WEAPON, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/machines/elec_shock.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 
 		tempe = self;
 		self = other;
@@ -121,7 +121,8 @@ void() zapper_do_damage
 }
 
 
-void zapper_play () {
+void() zapper_play =
+{
 	entity zents = find(world, targetname, self.target);
 	local vector org = self.origin;
 	local vector targetorg = zents.origin;
@@ -161,7 +162,8 @@ void() zapper_cooldown =
 	self.touch = zapper_touch;
 }
 
-void zapper_stop() {
+void() zapper_stop = 
+{
 	entity zents;
 	entity tempe;
 
@@ -181,7 +183,7 @@ void zapper_stop() {
             }
 
 			self = tempe;
-		} else if (zents.classname == "zapper_node" && zents.target) {
+		} else if (zents.classname == "zapper_node" && zents.target != "") {
 			zents.think = SUB_Null;
 			entity zent_target = find(world, targetname, self.target);
 			if (zent_target != world)
@@ -195,7 +197,8 @@ void zapper_stop() {
 	remove(self);
 }
 
-void zapper_start(string zapper) {
+void(string zapper) zapper_start = 
+{
 	entity zents;
 	entity tempe;
 
@@ -213,9 +216,9 @@ void zapper_start(string zapper) {
 			lasting_time = self.calc_time;
 			A_ElecSwitchOn1();
 			self = tempe;
-		} else if (zents.classname == "zapper_node" && zents.target) {
+		} else if (zents.classname == "zapper_node" && zents.target != "") {
 			zents.think = zapper_play;
-			zents.nextthink = time + 0.1;
+			zents.nextthink = time + 0.65;
 		}
 		zents = find(zents, zappername, zapper);
 	}
@@ -226,7 +229,8 @@ void zapper_start(string zapper) {
 	tempe.zappername = zapper;
 }
 
-void zapper_touch () {
+void() zapper_touch = 
+{
 	if (other.classname != "player") {
 		return;
 	}
@@ -239,19 +243,19 @@ void zapper_touch () {
 	if (self.state == 0) {
 		useprint (other, 11, self.cost, self.weapon);
 
-		if (!other.button7 || other.semiuse) {
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		if (other.points < self.cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 
 		zapper_start(self.zappername);
-		addmoney(other, -1*self.cost, false);
+		Player_RemoveScore(other, self.cost);
 	}
 }
 

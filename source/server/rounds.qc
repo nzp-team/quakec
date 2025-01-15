@@ -3,7 +3,7 @@
 
 	wave logic
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -59,19 +59,18 @@ float(float a, float b) qc_max =
 
 float() getZombieTotal = {
 	if (roundtype == 1) {
-		float count, multiplier, plrcnt;
+		float count, multiplier;
 		count = 24;
-		plrcnt = player_count + 1;
 
 		multiplier = qc_max(rounds/5, 1);
 
 		if (rounds >= 10)
 			multiplier *= rounds * 0.15;
 
-		if (plrcnt == 1)
+		if (player_count == 1)
 			count += rint((0.5 * 6) * multiplier);
 		else
-			count += rint(((plrcnt - 1) * 6) * multiplier);
+			count += rint(((player_count - 1) * 6) * multiplier);
 
 		if (rounds < 2)
 			count = floor(count * 0.25);
@@ -88,9 +87,9 @@ float() getZombieTotal = {
 	} else { //dogs
 		// 2 waves
 		if (rounds <= 14)
-			return 6 * (player_count + 1);
+			return 6 * (player_count);
 
-		return 8 * (player_count + 1);
+		return 8 * (player_count);
 	}
 	return 0;
 }
@@ -106,9 +105,7 @@ void(string sound_path) Rounds_PlayTransition =
 	if (music_override > time)
 		return;
 
-	// Pick a random player because it needs a source.
-	entity some_player = find(world, classname, "player");
-	sound(some_player, CHAN_AUTO, sound_path, 1, ATTN_NONE);
+	Sound_PlaySound(world, sound_path, SOUND_TYPE_MUSIC_ROUND, SOUND_PRIORITY_PLAYALWAYS);
 }
 
 void() updateDogRound =
@@ -131,7 +128,7 @@ void() EndRound =
 	entity who = find(world,classname,"spectator");
 	while(who != world)
 	{
-		if(who.isspec)
+		if(who.is_spectator)
 		{
 			self = who;
 			PlayerSpawn();
@@ -155,13 +152,14 @@ void() EndRound =
 		players = find(world, classname, "player");
 
 		while(players != world) {
-			if (players.ach_tracker_npnp == 0) {
-				GiveAchievement(5, players);
-			}
 			if (players.ach_tracker_abst == 0) {
 				GiveAchievement(8, players);
 			}
-			players.ach_tracker_npnp = 0;
+			if (rounds >= 16) {
+				if (players.ach_tracker_npnp == 0) {
+					GiveAchievement(5, players);
+				}
+			}
 			players = find(players, classname, "player");
 		}
 	}
@@ -184,7 +182,6 @@ void() NewRound =
 	entity tempe;
 	round_changetime = 0;
 	spawn_time = time + 5;
-	sounds_playing = 0;//just in case it ever somehow glitches
 	if (delay_at_round > 0.08)
 	{
 		delay_at_round = delay_at_round*0.95;
@@ -212,7 +209,13 @@ void() NewRound =
 
 	rounds = rounds + 1;
 
-	NotifyNewRound(rounds);
+#ifdef FTE
+
+	// FTE-Specific - alert CSQC of the round increment for HUD display
+	FTE_IncrementRound(rounds);
+
+#endif // FTE
+
 	tempe = find(world, classname, "player");
 	while (tempe)
 	{
@@ -233,16 +236,18 @@ void() NewRound =
 		// Set everyone to full health.
 		tempe.health = tempe.max_health;
 
+		// Reset total repaired barricades for this round
+		tempe.barricade_reward = 0;
+
 		tempe = find(tempe, classname, "player");
 	}
 
 	set_z_health();
 
-	maxreward = 50 * rounds;
-	if (maxreward > 500)
-		maxreward = 500;
+	barricade_reward_maximum = 50 * rounds;
+	if (barricade_reward_maximum > 500)
+		barricade_reward_maximum = 500;
 
-	totalreward = 0;
 	Current_Zombies = 0;
 	spawn_delay = 0;
 	totalpowerups = 0;
@@ -253,11 +258,13 @@ void() NewRound =
 	} else {
 		roundtype = 1;
 
-		if (world.fog) {
-			localcmd(strcat("fog ", world.fog));
-		} else {
-			localcmd("fog 0 0 0 0 0\n");
-		}
+		string fog_value;
+		if (world.fog)
+			fog_value = strcat(world.fog, "\n");
+		else
+			fog_value = "0 0 0 0 0\n";
+
+		localcmd(strcat("fog ", fog_value));
 	}
 
 	Remaining_Zombies = Total_Zombies = getZombieTotal();
@@ -352,7 +359,7 @@ void() InitRounds =
 	delay_at_round = 2/0.95;
 	totalpowerups = 0;
 	powerup_activate = 2000;
-	powerup_score_threshold = ((player_count + 1) * G_STARTPOINTS) + powerup_activate;
+	powerup_score_threshold = ((player_count + 1) * 500) + powerup_activate;
 
 	// cypress -- fix Soft_Restart spawning multiple 
 	// pairs of zombie spawn points.

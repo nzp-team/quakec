@@ -3,7 +3,7 @@
 
 	entity/server utility subroutines
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -54,6 +54,8 @@ void() DelayThink =
 	remove(self);
 };
 
+float global_triggerstate;
+
 void() SUB_UseTargets =
 {
 	local entity t, stemp, otemp, act;
@@ -85,15 +87,22 @@ void() SUB_UseTargets =
 	//
 	// print the message
 	//
-	if (activator.classname == "player" && self.message != "")
+	if (self.message != "")
 	{
-		centerprint (activator, self.message);
+		// cypress -- NZ:P specific change, we should be firing the centerprint from
+		// activation onto all clients to not leave anyone out of the loop.
+		entity clients = find(world, classname, "player");
+
+		while (clients != world) {
+			centerprint(clients, self.message);
+			clients = find(clients, classname, "player");
+		}
 	}
 
 	//
 	// kill the killtagets
 	//
-	if (self.killtarget)
+	if (self.killtarget && self.killtarget != self.target)
 	{
 		t = world;
 		do
@@ -139,6 +148,7 @@ void() SUB_UseTargets =
 			t.enemy = activator;
 			t.message = self.message;
 			t.killtarget = self.killtarget;
+			t.triggerstate = self.triggerstate;
 			t.target = self.target;
 			t.target2 = self.target2;
 			t.target3 = self.target3;
@@ -182,8 +192,12 @@ void() SUB_UseTargets =
 					t.classname = "spawn_dog";
 				if (self.use != SUB_Null)
 				{
+					global_triggerstate = self.triggerstate;
+
 					if (self.use)
 						self.use();
+					
+					global_triggerstate = -1;
 				}
 				self = stemp;
 				other = otemp;

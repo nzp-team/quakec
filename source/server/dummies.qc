@@ -3,7 +3,7 @@
 
 	generic (all platform) dummys
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 */
 
 // Triggers
-void() trigger_relay            = {remove(self);};
 void() trigger_changelevel      = {remove(self);};
 void() trigger_counter          = {remove(self);};
 void() trigger_secret           = {remove(self);};
@@ -47,6 +46,7 @@ void() info_player_1_spawn 		= {};
 void() info_player_2_spawn 		= {};
 void() info_player_3_spawn 		= {};
 void() info_player_4_spawn 		= {};
+void() info_null = {remove(self);};
 
 void() zombie_horde_point 		= {};
 
@@ -58,12 +58,6 @@ void() info_end = {remove(self);};
 
 //// beta removal 
 void() monster_dog = {remove(self);};
-void() item_pap = {remove(self);};
-//void() item_juggernog = {remove(self);};
-//void() item_flopper = {remove(self);};
-//void() item_douple = {remove(self);};
-//void() item_speed = {remove(self);};
-//void() item_revive = {remove(self);};
 void() palm_tree_closed = {remove(self);};
 void() func_model = {remove(self);};
 void() wooden_crate = {remove(self);};

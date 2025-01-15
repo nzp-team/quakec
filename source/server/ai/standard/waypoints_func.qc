@@ -3,7 +3,7 @@
 
 	non-pc waypointing
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -214,6 +214,7 @@ void () Create_New_Waypoint =
 	
 	setmodel(new_way, "models/way/normal_way.spr");
 	new_way.classname = "waypoint";
+	new_way.effects = EF_FULLBRIGHT;
 
 	tempe = find (world, classname, "waypoint");
 	while (tempe)

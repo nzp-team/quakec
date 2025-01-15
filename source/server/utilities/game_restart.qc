@@ -4,7 +4,7 @@
 	A utility for re-starting the game without going through the
     server unload procedure.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -368,6 +368,7 @@ void() Soft_Restart = {
 	self.pri_grenade_state = 0;
 
 	InitRounds();
-	self.isspec = false;
 	PutClientInServer();
+
+	nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
 }

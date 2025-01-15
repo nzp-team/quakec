@@ -3,7 +3,7 @@
 
 	FTE waypointing
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -63,6 +63,7 @@ void () Create_New_Waypoint =
 	
 	setmodel(new_way, "models/way/normal_way.spr");
 	new_way.classname = "waypoint";
+	new_way.effects = EF_FULLBRIGHT;
 	
 	new_way.waynum = ftos(way_count + 1);
 	new_way.targetname = strzone(new_way.targetname);
@@ -218,9 +219,9 @@ float Link (entity from, entity to) {
 	float i;
 	entity tempe;
 	for	(i = 0; i < MAX_WAY_TARGETS; i++) {
-		tempe = find (world, waynum, from.targets[i]);
+		tempe = find(world, waynum, from.targets[i]);
 
-		if (tempe == world || tempe == to) {
+		if (tempe == world || !from.targets[i]) {
 			from.targets[i] = to.waynum;
 			bprint(PRINT_HIGH, "Linked waypoint ");
 			bprint(PRINT_HIGH, to.waynum);
@@ -253,24 +254,38 @@ void () Link_Waypoints =
 		return;
 	
 	if (Waypoint_Linked_To(current_way, active_way)) {
-		bprint(PRINT_HIGH, "These waypoints are already linked!\n");
+		bprint(PRINT_HIGH, "[INFO]: These waypoints are already linked!\n");
 		return;
 	}
 	
 	float i;
 	entity tempe;
 	for	(i = 0; i < MAX_WAY_TARGETS; i++) {
-		tempe = findfloat (world, waynum, active_way.targets[i]);
-
-		if (tempe == world) {
-			if (Link(active_way, current_way)) {
+		// First pass - if the target field is blank no extra
+		// validation is needed, just link.
+		if (!active_way.targets[i]) {
+			if (Link(active_way, current_way))
 				return;
-			}
+
+			bprint(PRINT_HIGH, "[INFO]: Got Linkable Waypoints but Linking failed!\n");
+			return;
+		}
+
+		// Second pass - if the targets field is occupied
+		// check if the waypoint still exists, link if it
+		// does not.
+		if (find(world, waynum, active_way.targets[i]) == world) {
+			bprint(PRINT_HIGH, sprintf("[INFO]: Found Waypoint ID %s but not entity, overwriting link..\n", active_way.targets[i]));
+
+			if (Link(active_way, current_way))
+				return;
+
+			bprint(PRINT_HIGH, "        ..Failed!\n");
+			return;
 		}
 	}
 
-	
-	bprint(PRINT_HIGH, "no targets remaining!\n");
+	bprint(PRINT_HIGH, "[INFO]: All Waypoint links occupied for this Waypoint!\n");
 }
 
 
@@ -485,7 +500,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 	if (cvar("waypoint_mode"))
 		setmodel(new_way, "models/way/normal_way.spr");
 	new_way.classname = "waypoint";
-
+	new_way.effects = EF_FULLBRIGHT;
 	new_way.waynum = ftos(which);
 	dprint ("Created waypoint  ");
 	dprint (new_way.waynum);
@@ -530,7 +545,14 @@ void() Load_Waypoints
 
 	if (file == -1)
 	{
-		dprint("Error: file not found \n");
+
+#ifdef FTE
+
+		dprint("LoadWaypointData: No .way file found, trying Beta format..\n");
+		Compat_TryLoadBetaWaypoints();
+
+#endif // FTE
+
 		return;
 	}
 
@@ -559,6 +581,7 @@ void() Load_Waypoints
 				if (h == "waypoint") {
 					new_way = spawn();
 					new_way.solid = SOLID_TRIGGER;
+					new_way.effects = EF_FULLBRIGHT;
 					new_way.model = "models/way/normal_way.spr";
 					setmodel(new_way, "models/way/normal_way.spr");
 					new_way.classname = "waypoint";
@@ -719,6 +742,7 @@ void() Load_Waypoints_Legacy
 			entity new_way = spawn();
 			new_way.solid = SOLID_TRIGGER;
 			new_way.touch = creator_way_touch;
+			new_way.effects = EF_FULLBRIGHT;
 			new_way.classname = "waypoint";
 			new_way.waynum = ftos(which);
 			new_way.targets[0] = trg;
@@ -825,9 +849,6 @@ void () Waypoint_Functions =
 					Load_Waypoints();
 			}
 			break;
-		case 110:
-			Move_Waypoint();
-			break;
 	}
 	
 	self.impulse = 0;
@@ -836,6 +857,11 @@ void () Waypoint_Functions =
 	if (self.button0 && self.waypoint_delay < time) { 
 		Create_New_Waypoint(); 
 		self.waypoint_delay = time + 1;
+	}
+
+	if (self.button4 && self.waypoint_delay < time) {
+		Move_Waypoint();
+		self.waypoint_delay = time + 0.25;
 	}
 
 	if (self.button7 && self.waypoint_delay < time) {
@@ -862,40 +888,6 @@ void () Waypoint_Functions =
 
 void () Waypoint_Logic =
 {
-	if (!waypoint_mode) {
-		waypoint_mode = 1;
-		entity zent;
-	
-		zent = find (world, classname, "ai_zombie");
-		while (zent)
-		{
-			remove (zent);
-			zent = find (zent, classname, "ai_zombie");
-		}
-
-		zent = find (world, classname, "door_nzp_cost");
-		while (zent)
-		{
-			zent.solid = SOLID_NOT;
-			zent.touch = SUB_Null;
-			zent = find (zent, classname, "door_nzp_cost");
-		}
-		zent = find (world, classname, "door_nzp");
-		while (zent)
-		{
-			zent.solid = SOLID_NOT;
-			zent.touch = SUB_Null;
-			zent.solid = SOLID_NOT;
-			zent = find (zent, classname, "door_nzp");
-		}
-		zent = find (world, classname, "window");
-		while (zent)
-		{
-			zent.solid = SOLID_NOT;
-			zent.touch = SUB_Null;
-			zent = find (zent, classname, "window");
-		}
-		
-	}
+	waypoint_mode = true;
 	Waypoint_Functions();
 };

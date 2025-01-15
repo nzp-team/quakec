@@ -3,7 +3,7 @@
 
 	advanced viewmodel frame iteration
 
-	Copyright (C) 2021 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ void() ContinueRun =
 		modelname = GetWeaponModel(self.weapon, 0);
 	} else
 		modelname = "";
-	Set_W_Frame (startframe, endframe, 0, 0, SPRINT, ContinueRun, modelname, false, S_BOTH);
+	Set_W_Frame (startframe, endframe, 0, 0, SPRINT, ContinueRun, modelname, false, S_BOTH, false);
 }
 
 
@@ -88,7 +88,11 @@ void () W2_Frame_Update =
 				}
 			}
 		}
-		PlayWeaponSound(self.weapon, self.weapon2_anim_type, FALSE, self.weapon2frame);
+
+		if (PlayWeaponSound(self.weapon, self.weapon2_anim_type, FALSE, self.weapon2frame)) {
+			// Slight rumble because we triggered a weapon sound
+			nzp_rumble(self, 1000, 1200, 75);
+		}
 		return;
 	}
 	else
@@ -136,7 +140,6 @@ void () W_Frame_Update =
 		}
 		else if (self.weaponmodel == "progs/VModels/v_knife.mdl" || self.weaponmodel == "models/machines/v_perk.mdl") {
 			self.weapon2model = "";
-			UpdateV2model(self.weapon2model, 0);
 		}
 
 		if (self.callfuncat)
@@ -152,11 +155,17 @@ void () W_Frame_Update =
 				}
 			}
 		}
-		PlayWeaponSound(self.weapon, self.weapon_anim_type, FALSE, self.weaponframe);
+
+		if (PlayWeaponSound(self.weapon, self.weapon_anim_type, FALSE, self.weaponframe)) {
+			// Slight rumble because we triggered a weapon sound
+			nzp_rumble(self, 1000, 1200, 75);
+		}
 
 		// FIXME: We need a way to play sounds at specific frames for any viewmodel, not just weapons
-		if (self.weaponmodel == "models/weapons/grenade/v_betty.mdl" && self.weaponframe == 12)
-			sound (self, CHAN_WEAPON, "sounds/weapons/grenade/prime.wav", 1, ATTN_NORM);
+		if (self.weaponmodel == "models/weapons/grenade/v_betty.mdl" && self.weaponframe == 9) {
+			Sound_PlaySound(self, "sounds/weapons/grenade/prime.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
+			nzp_rumble(self, 1000, 1200, 75);
+		}
 		return;
 	}
 	else
@@ -193,7 +202,7 @@ float(string path) model_should_hide_weapon2 =
 	return false;
 }
 
-void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side) =
+void Set_W_Frame (float startframe, float endframe, float duration, float funccalledin, float animtype, void(optional float t) endanimfunc, string set_model, float dontstartnew, float side, float lock_viewmodel) =
 {
 	float math, reversed;
 
@@ -237,25 +246,26 @@ void Set_W_Frame (float startframe, float endframe, float duration, float funcca
 	if ((startframe != endframe) && !(self.zoom == 2)) { // naievil -- latter used for checkhold 
 		if (side == S_LEFT) {
 			self.weapon2model = set_model;
-			UpdateV2model(self.weapon2model, GetWepSkin(self.weapon));
 		} else {
 			self.weaponmodel = set_model;
-			
-			if (set_model != "models/machines/v_perk.mdl")
-				UpdateVmodel(self.weaponmodel, GetWepSkin(self.weapon));
-			else	
-				UpdateVmodel(self.weaponmodel, self.weaponskin);
 
 			if (model_should_hide_weapon2(set_model) == true) {
 				self.weapon2model = "";
-				UpdateV2model(self.weapon2model, 0);
 			} else if (self.weapon == W_KAR_SCOPE) {	
 				self.weapon2model = "models/weapons/kar/v_karscope.mdl";
-				UpdateV2model(self.weapon2model, 0);
 			} else if (IsDualWeapon(self.weapon)) {	
 				self.weapon2model = GetLeftWeaponModel(self.weapon); 
-				UpdateV2model(self.weapon2model, 0);
 			}
 		}
 	}
+
+#ifndef FTE
+
+	// For source ports where the viewmodel is able to be manipulated based on the camera
+	// position, we explicitly communicate to those clients to prohibit that with
+	// lock_viewmodel whenever we are drinking a Perk-A-Cola, meleeing, etc.
+	nzp_lockviewmodel(self, lock_viewmodel);
+
+#endif // FTE
+
 }

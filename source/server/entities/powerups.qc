@@ -3,7 +3,7 @@
 
 	Power-Up Spawn and Use Logic
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -34,11 +34,16 @@
 #define PU_CARPENTER		3
 #define PU_MAXAMMO			4
 
+#define PU_OFFSET_QK		'0 0 12'
+#define PU_OFFSET_HL		'0 0 14'
+
+#define PU_BBOX_MINS		'-2 -2 -16'
+#define PU_BBOX_MAXS		'2 2 16'
+
 var struct powerup_struct
 {
 	float 	id;
 	float 	occupied;
-	float	flash_screen;
 	string	model_path;
 	string 	voiceover_path;
 	void()	function;
@@ -62,7 +67,16 @@ inline void(entity ent) PU_FreeEnt =
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
 	ent.frame = 0;
+	ent.scale = 1;
 	ent.effects = 0;
+
+#ifdef FTE
+
+	ent.SendEntity = __NULL__;
+	ent.SendFlags = 0;
+
+#endif // FTE
+
 };
 
 //
@@ -84,7 +98,7 @@ entity() PU_GetFreeEnt =
 // PU_AddToStruct(id, model_path, voiceover_path)
 // Adds the Power-Up and info to the powerup struct
 //
-void(float id, float flash_screen, string model_path, string voiceover_path, void() function, float() requirement_function) 
+void(float id, string model_path, string voiceover_path, void() function, float() requirement_function) 
 PU_AddToStruct =
 {
 	if (id > MAX_POWERUPS - 1)
@@ -97,7 +111,6 @@ PU_AddToStruct =
 	// Populate the Struct at Index
 	powerup_array[powerup_count].id = id;
 	powerup_array[powerup_count].occupied = true;
-	powerup_array[powerup_count].flash_screen = flash_screen;
 	powerup_array[powerup_count].model_path = model_path;
 	powerup_array[powerup_count].voiceover_path = voiceover_path;
 	powerup_array[powerup_count].function = function;
@@ -175,22 +188,6 @@ float() PU_GetNextPowerUp =
 };
 
 //
-// PU_ShouldFlashScreen(id)
-// Returns flash_screen from Power-Up struct.
-//
-float(float id) PU_ShouldFlashScreen =
-{
-	if (id == -1)
-		return false;
-
-	for(float i = 0; i < MAX_POWERUPS - 1; i++) {
-		if (powerup_array[i].id == id)
-			return powerup_array[i].flash_screen;
-	}
-	return false;
-};
-
-//
 // PU_ModelPath(id)
 // Returns model_path from Power-Up struct.
 //
@@ -253,7 +250,7 @@ void() PU_NukeFinalize =
 	players = find(world,classname,"player");
 	while(players)
 	{
-		addmoney(players, 400*nuke_powerups_activated, 1);
+		Player_AddScore(players, 400 * nuke_powerups_activated, true);
 		players = find(players,classname,"player");
 	}
 
@@ -317,7 +314,7 @@ void() PU_NukeKill =
 	self.th_die();
 
 	// override their death sound
-	sound(self, CHAN_BODY, "sounds/pu/nuke.wav", 1, ATTN_NORM);
+	Sound_PlaySound(self, "sounds/pu/nuke.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// restore self
 	self = oldself;
@@ -338,6 +335,9 @@ void() PU_NukeKill =
 //
 void() PU_Nuke =
 {
+	// Flash the screen white
+	nzp_screenflash(world, SCREENFLASH_COLOR_WHITE, 1, SCREENFLASH_FADE_INANDOUT);
+
 	// if there's already one active, just increment the point multiplier
 	if (nuke_powerup_active == true) {
 		nuke_powerups_activated++;
@@ -390,7 +390,7 @@ void() PU_CarpenterFinalize =
 
 	// Reward Players with Points
 	while(players) {
-		addmoney(players, 200, 1);
+		Player_AddScore(players, 200, true);
 
 		players = find(players, classname, "player");
 	}
@@ -399,7 +399,7 @@ void() PU_CarpenterFinalize =
 
 	// Reset all windows
 	while(windows) {
-		windows.isspec = 0;
+		windows.is_spectator = 0;
 		windows.box1owner = world;
 		windows.usedent = world;
 		windows.owner = world;
@@ -424,7 +424,7 @@ entity() PU_CarpenterFindWindow =
 
 	while(windows != world) {
 		// Window needs repaired and is repairable
-		if (windows.health < 6 && windows.health != -10 && !windows.isspec
+		if (windows.health < 6 && windows.health != -10 && !windows.is_spectator
 		&& !windows.ads_release)
 			return windows;
 
@@ -442,7 +442,7 @@ entity() PU_CarpenterFindWindow =
 void() PU_CarpenterRepair =
 {
 	// Find a new Barricade to Repair
-	if (self.goaldummy == world || self.goaldummy.isspec == 0) {
+	if (self.goaldummy == world || self.goaldummy.is_spectator == 0) {
 
 		if (self.goaldummy != world)
 			self.goaldummy.owner = world;
@@ -458,7 +458,7 @@ void() PU_CarpenterRepair =
 		}
 
 		// Mark the window as being Repaired
-		self.goaldummy.isspec = 1;
+		self.goaldummy.is_spectator = 1;
 		self.goaldummy.ads_release = 1;
 		self.goaldummy.owner = self;
 	}
@@ -484,7 +484,7 @@ void() PU_CarpenterRepair =
 	} else {
 		if (self.ltime < time) {
 			self.goaldummy.frame = 88;
-			self.goaldummy.isspec = 0;
+			self.goaldummy.is_spectator = 0;
 			self.goaldummy.health = 6;
 		}
 	}
@@ -557,16 +557,7 @@ void() PU_MaxAmmo =
 		}
 
 		// MAX AMMO! text
-
-#ifdef FTE
-
-		ScrollText("MAX AMMO!", players);
-
-#else
-
 		nzp_maxammo();
-
-#endif // FTE
 
 		players = find(players, classname, "player");
 	}
@@ -597,15 +588,15 @@ void() PU_Init =
 	}
 
 	// Just add all of them for now
-	PU_AddToStruct(PU_NUKE, 		true,	"models/pu/nuke!.mdl",		"sounds/pu/kaboom.wav",			PU_Nuke,			
+	PU_AddToStruct(PU_NUKE, 		"models/pu/nuke!.mdl",		"sounds/pu/kaboom.wav",			PU_Nuke,			
 					PU_NullRequirement		);
-	PU_AddToStruct(PU_INSTAKILL, 	false,	"models/pu/instakill!.mdl",	"sounds/pu/insta_kill.wav", 	PU_InstaKill,	
+	PU_AddToStruct(PU_INSTAKILL, 	"models/pu/instakill!.mdl",	"sounds/pu/insta_kill.wav", 	PU_InstaKill,	
 					PU_NullRequirement		);
-	PU_AddToStruct(PU_DOUBLEPTS, 	false,	"models/pu/x2!.mdl",		"sounds/pu/double_points.wav",	PU_DoublePoints,	
+	PU_AddToStruct(PU_DOUBLEPTS, 	"models/pu/x2!.mdl",		"sounds/pu/double_points.wav",	PU_DoublePoints,	
 					PU_NullRequirement		);
-	PU_AddToStruct(PU_CARPENTER,	false,	"models/pu/carpenter!.mdl",	"sounds/pu/carpenter.wav",		PU_Carpenter,	
+	PU_AddToStruct(PU_CARPENTER,	"models/pu/carpenter!.mdl",	"sounds/pu/carpenter.wav",		PU_Carpenter,	
 					PU_CarpenterRequirement	);
-	PU_AddToStruct(PU_MAXAMMO,		false,	"models/pu/maxammo!.mdl",	"sounds/pu/maxammo.wav", 		PU_MaxAmmo,		
+	PU_AddToStruct(PU_MAXAMMO,		"models/pu/maxammo!.mdl",	"sounds/pu/maxammo.wav", 		PU_MaxAmmo,		
 					PU_NullRequirement		);
 
 	// Nuke requires an extra Precache
@@ -647,6 +638,17 @@ void() PU_Flash =
 
 	self.hitcount++;
 
+#ifdef FTE
+
+	// Update the drawing of the Power-Up in CSQC to
+	// register the flash.
+	self.SendFlags = 1;
+
+#endif // FTE
+
+	// Re-set the size after relink.
+	setsize(self, PU_BBOX_MINS, PU_BBOX_MAXS);
+
 	// Too late, free the Power-Up
 	if (self.hitcount >= 40) {
         Light_None(self);
@@ -661,8 +663,32 @@ void() PU_Flash =
 //
 void() PU_PlayVO =
 {
-	sound(self, CHAN_VOICE, self.powerup_vo, 1, ATTN_NONE);
+	Sound_PlaySound(world, self.powerup_vo, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_ALLOWSKIP);
 	PU_FreeEnt(self);
+};
+
+//
+// PU_SparkleShrink()
+// Called on Power-Up contact, makes the Sparkle shrink
+// until eventually disappearing.
+//
+void() PU_SparkleShrink =
+{
+
+#ifdef FTE
+
+	self.scale -= frametime;
+
+#else
+
+	self.scale -= frametime*2.25;
+
+#endif // FTE
+
+	if (self.scale <= 0.02)
+		PU_FreeEnt(self);
+	else
+		self.nextthink = time + 0.01;
 };
 
 //
@@ -674,21 +700,29 @@ void() PU_Touch =
 	if (other.classname == "player")
 	{
 		// Acquire sound
-		sound(self.owner, CHAN_VOICE, "sounds/pu/pickup.wav", 1, ATTN_NONE);
+		Sound_PlaySound(self.owner, "sounds/pu/pickup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 		// Prepare for VO and destruction
 		self.think = PU_PlayVO;
 		self.nextthink = time + 1;
 
-		// Free the Power-Up sparkle, slight cleanup
-		PU_FreeEnt(self.owner);
+#ifdef FTE
+
+		// Update the drawing of the Power-Up in CSQC to
+		// register the flash.
+		self.SendFlags = 1;
+
+#endif // FTE
+
+		// Prepare to shrink the Power-Up sparkle
+		self.owner.think = PU_SparkleShrink;
+		self.owner.nextthink = time + 0.01;
+		self.owner.scale = 1;
+
+		// slight cleaup
 		setmodel(self, "");
 		Light_None(self);
 		self.touch = SUB_Null;
-
-		// Flash the Screen if permitted
-		if (PU_ShouldFlashScreen(self.walktype) == true)
-			stuffcmd(other, "bf\n");
 
 		// Run Power-Up function
 		PU_LogicFunction(self.walktype);
@@ -715,10 +749,27 @@ void() PU_SparkleThink =
 	
 	if(self.calc_time <= time)
 	{
-		sound(self, CHAN_VOICE, "sounds/pu/powerup.wav", 0.6, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/pu/powerup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		self.calc_time = time + 2.998;
 	}
 };
+
+#ifdef FTE
+
+//
+// PU_SendEntity(ePVent, flChanged)
+// Sends ourself to CSQC for rendering.
+//
+float PU_SendEntity( entity ePVEnt, float flChanged ) {
+    WriteByte( MSG_ENTITY, 2 );
+    WriteCoord( MSG_ENTITY, self.origin_x ); // Position X
+    WriteCoord( MSG_ENTITY, self.origin_y ); // Position Y
+    WriteCoord( MSG_ENTITY, self.origin_z ); // Position Z
+	WriteShort( MSG_ENTITY, self.modelindex ); // Power-Up Model
+    return TRUE;
+};
+
+#endif // FTE
 
 //
 // Spawn_Powerup(where, type)
@@ -729,6 +780,13 @@ void(vector where, float type) Spawn_Powerup =
 	entity 	powerup;
 	entity	sparkle;
 
+	// Move the Power-Up up a little to be near the player's
+	// mid torso.
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		where += PU_OFFSET_QK;
+	else
+		where += PU_OFFSET_HL;
+
 	// Set Up Power-Up
 	powerup = PU_GetFreeEnt();
 
@@ -738,7 +796,7 @@ void(vector where, float type) Spawn_Powerup =
 	powerup.solid = SOLID_TRIGGER;
 	powerup.classname = "item_powerup";
 
-	setsize(powerup, VEC_HULL_MIN, VEC_HULL_MAX);
+	setsize(powerup, PU_BBOX_MINS, PU_BBOX_MAXS);
 	powerup.movetype = MOVETYPE_NONE;
 
     Light_Green(powerup);
@@ -754,12 +812,24 @@ void(vector where, float type) Spawn_Powerup =
 
 	setmodel(sparkle,"models/sprites/sprkle.spr");
 
+	// Scale down for NZ:P Beta
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		powerup.scale = 0.66;
+		sparkle.scale = 0.45;
+	} 
+	// The "normal" sized sparkle also needs scaled down
+	// to be less aggressive and more supplemental.
+	else {
+		sparkle.scale = 0.66;
+	}
+
+	sparkle.effects = EF_FULLBRIGHT;
 	sparkle.think = PU_SparkleThink;
 	sparkle.nextthink = time + 0.1;
 
 	// Drop Sounds
-	sound(sparkle, CHAN_VOICE, "sounds/pu/powerup.wav", 0.6, ATTN_NORM);
-	sound(powerup, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NONE);
+	Sound_PlaySound(sparkle, "sounds/pu/powerup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(powerup, "sounds/pu/drop.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Check if we were forcefully assigned an ID
 	if (type != -1) {
@@ -782,6 +852,15 @@ void(vector where, float type) Spawn_Powerup =
 
 	// Finally assign collision function
 	powerup.touch = PU_Touch;
+
+	// We draw the Power-Up in CSQC on FTE to employ our custom EF_ROTATE
+	// implementation.
+#ifdef FTE
+
+	powerup.SendEntity = PU_SendEntity;
+	powerup.SendFlags = 1;
+
+#endif // FTE
 
 	totalpowerups++;
 };

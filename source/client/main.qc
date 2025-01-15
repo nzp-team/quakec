@@ -3,7 +3,7 @@
 
 	main csqc code
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -25,36 +25,124 @@
 
 */
 
+float need_vid_reload;
+
 void() ToggleMenu =
 {
-	if(serverkey("constate") != "disconnected")
+	if (serverkey("constate") != "disconnected")
 	{
-		if (player_count == 0)
+		if (player_count == 1)
 			localcmd("cmd pause\n");
-		if(in_menu == MENU_NONE)
+
+		if(current_menu == MENU_NONE)
 		{
-			in_menu = MENU_PAUSE;
-			time_in_menu = 0;
-			local float i;
-			for(i = 0; i < BUTTONS_COUNT; i++)
-			{
-				buttons[i].active = 1;
-			}
+			current_menu = MENU_PAUSE;
 			setcursormode(TRUE, cvar_string("cl_cursor"), __NULL__, cvar("cl_cursor_scale"));
 		}
 		else
 		{
-			in_menu = MENU_NONE;
+			menu_paus_submenu = 0;
+			current_menu = MENU_NONE;
 			setcursormode(FALSE);
 		}
 	}
-	else
-	{
-		in_menu = MENU_MAIN;
-		time_in_menu = 0;
-		setcursormode(TRUE, cvar_string("cl_cursor"), __NULL__, cvar("cl_cursor_scale"));
-	}
 }
+
+float(float isnew) SetZombieSkinning =
+{
+	self.drawmask = MASK_ENGINE;
+	setcustomskin(self, __NULL__, sprintf("replace \"\" \"models/ai/zfull.mdl_%d.pcx\"\n", self.skin));
+	return PREDRAW_NEXT;
+};
+
+//
+// GenerateAlphaTransparencyQ3Shaders()
+// What a mouth-full! Anyway, NZ:P supports
+// alpha transparency via a pseudo-hack where
+// if the last character of a model is "$"
+// we render with special blend modes. To
+// do the same on FTE, we need to generate
+// Quake III "shader" files. Returns TRUE
+// if we had shader modifications.
+//
+float() GenerateAlphaTransparencyQ3Shaders =
+{
+	searchhandle 	alias_models;
+	float 			amod_count;
+	float 			need_reload = false;
+
+	alias_models = search_begin("*.mdl:*/*.mdl:*/*/*.mdl:*/*/*/*.mdl:*/*/*/*/*.mdl:*/*/*/*/*/*.mdl", SB_CASEINSENSITIVE | SB_MULTISEARCH, true); // gross.
+	amod_count = search_getsize(alias_models);
+
+	for (float i = 0; i < amod_count; i++) {
+		string full_path = search_getfilename(alias_models, i);
+
+		// Single out character before ".mdl" extension.
+		string special_character = substring(full_path, strlen(full_path) - 5, 1);
+
+		// Early out, not a special guy.
+		if (special_character != "$")
+			continue;
+
+		// Isolate its basename.. manually :(
+		string basename = "";
+		for (float j = strlen(full_path); j > 0; j--) {
+			if (str2chr(full_path, j) == str2chr("/", 0)) {
+				// Strip path
+				basename = substring(full_path, j + 1, strlen(full_path) - (j + 1));
+
+				// Strip extension
+				basename = substring(basename, 0, strlen(basename) - 4);
+				break;
+			}
+		}
+
+		if (basename == "") {
+			print(sprintf("[ERROR]: Unable to calculate basename for [%s]!\n", full_path));
+			continue;
+		}
+
+		float shader_file;
+		string shader_path = sprintf("scripts/%s.shader", basename);
+
+		// Check if the shader already exists.
+		shader_file = fopen(shader_path, FILE_READ);
+		if (shader_file != -1) {
+			fclose(shader_file);
+			continue;
+		}
+
+		// Begin to write.
+		shader_file = fopen(shader_path, FILE_WRITE);
+		if (shader_file == -1) {
+			print(sprintf("[ERROR]: Unable to generate Q3 shader for [%s]!\n", full_path));
+			continue;
+		}
+
+		// Body of our shader file we're writing.
+		string shader_content = sprintf(
+			"//\n"
+			"// Quake III Shader generated automatically by Nazi Zombies: Portable. Do not modify.\n"
+			"//\n"
+			"\n"
+			"%s_0.lmp\n" // full_path
+			"{\n"
+			"	program defaultskin\n"
+			"	progblendfunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA\n"
+			"	diffusemap %s_0.tga\n" // full_path
+			"	alphafunc ge128\n"
+			"}\n"
+		, full_path, full_path);
+
+		fputs(shader_file, shader_content);
+		fclose(shader_file);
+
+		need_reload = true;
+	}
+
+	search_end(alias_models);
+	return need_reload;
+};
 
 noref void(float apiver, string enginename, float enginever) CSQC_Init =
 {
@@ -65,14 +153,19 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	precache_model("models/player.mdl");
 
 	registercommand("togglemenu");
-	registercommand("startwalk");
-	registercommand("stopwalk");
 	registercommand("promptjoin");
 	registercommand("showscores");
 
 	cvar_set("sv_cheats", ftos(1));
 	cvar_set("r_fb_models", ftos(0));
 	autocvar(r_viewmodel_default_fov, 70);
+	autocvar(cl_controllerglyphs, "xbox");
+	autocvar(in_rumbleenabled, 1);
+	autocvar(in_aimassist, 0);
+
+	autocvar(scr_playerdebuginfo, 0);
+	autocvar(scr_playerdebuginfo_x, 64);
+	autocvar(scr_playerdebuginfo_y, 6);
 
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
@@ -83,41 +176,13 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	if (platform_is_web) {
 		cvar_set("com_protocolname", "NZP-REBOOT-WEB");
 	}
-		
-	//print("CSQC Started\n");
-	dummy = spawn();
-	if(serverkey("constate") == "disconnected")
-		ToggleMenu();
-	//bgpos = 0;
-
-	// default button binds
-
-	buttonBind[0] = "+forward";
-	buttonBind[1] = "+back";
-	buttonBind[2] = "+moveleft";
-	buttonBind[3] = "+moveright";
-	buttonBind[4] = "impulse 10";
-	buttonBind[5] = "+sprint";
-	buttonBind[6] = "impulse 30";
-	buttonBind[7] = "impulse 110";
-	buttonBind[8] = "impulse 111";
-	buttonBind[9] = "+button7";
-	buttonBind[10] = "+button5";
-	buttonBind[11] = "+button6";
-	buttonBind[12] = "+button3";
-	buttonBind[13] = "impulse 33";
-
-	// default/current width and height
-	active_swidth = cvar("vid_width");
-	active_sheight = cvar("vid_height");
-	fullscreenval = cvar("vid_fullscreen");
 
 	// cvars for custom settings
-	autocvar(cl_adsmode, 0);
 	autocvar(cl_cinematic, 0);
 	autocvar(nzp_particles, 1);
 	autocvar(nzp_decals, 1);
 	autocvar(vid_ultrawide_limiter, 0);
+	autocvar(cl_bobside, 0.02);
 
 	// per-channel volume
 	autocvar(snd_channel1volume, 1);
@@ -126,6 +191,10 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(snd_channel4volume, 1);
 	autocvar(snd_channel5volume, 1);
 	autocvar(snd_channel6volume, 1);
+
+	// FTE is overriding cl_bobup values.. so be evil
+	// and force it to 0.02.
+	cvar_set("cl_bobup", "0.02");
 
 	// force nearest filtering for hud elements to avoid blur
 	cvar_set("gl_texturemode2d", "gl_nearest");
@@ -140,8 +209,13 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	stopwatch_round_sec = stopwatch_round_min = stopwatch_round_hr = 0;
 	stopwatch_round_starttime = time;
 
-	// retrieve custom maps
-	Customs_Get();
+	// FTE via emscripten (for the fault of the browser?) bugs out
+	// when using mousewheel. So as a hack, just unbind the mouse
+	// wheel. :/
+	if (platform_is_web) {
+		localcmd("unbind MWHEELUP; unbind MWHEELDOWN\n");
+		localcmd("bind 1 +button4; bind 2 +button4\n");
+	}
 
 	//
 	// get the build date
@@ -152,314 +226,98 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 		build_datetime = fgets(file);
 		fclose(file);
 	}
-};
 
-//
-// Init_Particles()
-// Spawns a dummy particle for each effect
-// so it loads. (FIXME - is there a better
-// way?)
-//
-void() Init_Particles =
-{
-	for(int i = 0; i < 3; i++) {
-		pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", itos(i))), '0 0 0', '0 0 0', 0);
-		pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", itos(i))), '0 0 0', '0 0 0', 0);
-	}					
-	pointparticles(particleeffectnum("weapons.impact"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("weapons.impact_decal"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("weapons.explode"), '0 0 0', '0 0 0', 0);
-	pointparticles(particleeffectnum("blood.blood_particle"), '0 0 0', '0 0 0', 0);
-}
+	// Intercept every Zombie mesh to apply custom skinning
+	for(float i = 0; i < zombie_skins.length; i++) {
+		deltalisten(zombie_skins[i], SetZombieSkinning, 0);
+	}
+
+	InitKerningMap();
+
+	// If we've made shader changes, we should perform
+	// a vid_reload at a reasonable time.
+	need_vid_reload = GenerateAlphaTransparencyQ3Shaders();
+};
 
 noref void() CSQC_WorldLoaded =
 {
-	//precache_model("models/weapons/mg/mzl.iqm");
-	//precache_model("models/blood.iqm");
-	
-	if(!player)
-		player = findfloat(world, entnum, player_localnum);
-	if(!vmodel)
-		vmodel = spawn();
-	if(!v2model)
-		v2model = spawn();
-	if(!mzlflash)
-		mzlflash = spawn();
-		
-	v2model.renderflags = vmodel.renderflags = RF_VIEWMODEL;
-	v2model.origin = vmodel.origin = '24 -12 -18';
-	v2model_targetpos = v2model_currentpos = v2model.origin = vmodel_targetpos = vmodel_currentpos = vmodel.origin;
-	v2model_velocity = vmodel_velocity = '0 0 0';
-	//v2model_muzzleoffset = vmodel_muzzleoffset = '48 -1 2';
-	setmodel(vmodel,"");
-	setmodel(v2model,"");
-	mzlflash.renderflags = vmodel.renderflags;
-	mzlflash.origin = vmodel.origin + vmodel_muzzleoffset;
+	if (need_vid_reload == true) {
+		need_vid_reload = false;
+		localcmd("vid_reload\n");
+	}
 
 	Achievement_Init();
-	Init_Particles();
-	nameprint_time = time + 12;
+	Particles_Init();
+	nameprint_time = time + 8;
 
 	huddir = "gfx/hud/";
 };
 
-// This is from COW lol!
-#define ADS_THOMPSON    '-3 +5.80 +4.52'
-
-/*vector adsOffset;
-float adsAmount;
-float adsDir;*/
 vector weapon_bob_factor;
 float weapon_bob_factor_z_coef;
 vector dampening_factor;
 float vaccel;
 float vzaccel;
-void() Update_Vmodel =
+
+// FIXME: Move Power-Up CSQC drawing to separate file :)
+float 	mdlflag_poweruprotate_duration;
+float 	mdlflag_poweruprotate_starttime;
+
+vector 	mdlflag_poweruprotate_startangles;
+vector 	mdlflag_poweruprotate_differenceangles;
+vector 	mdlflag_poweruprotate_currentangles;
+
+float 	last_puframetime;
+
+void() PU_UpdateAngles =
 {
-	local vector offset, adsoffset;
-	local vector dir;
-    local float ads;
+	// Don't update more than once per frame.
+	if (last_puframetime != frametime) {
+		// New cycle, dictate new rotation time and target angle. 
+		if (mdlflag_poweruprotate_duration <= time) {
+			mdlflag_poweruprotate_starttime = time;
+			mdlflag_poweruprotate_duration = time + (random() * 25 + 25)/10; // Take between 2.5 and 5 seconds.
 
-	if (cvar("r_drawviewmodel") == FALSE || hide_viewmodel == true) {
-		vmodel.origin = '-10000 -10000 -10000';
-		return;
-	}
+			mdlflag_poweruprotate_startangles[0] = mdlflag_poweruprotate_currentangles[0];
+			mdlflag_poweruprotate_startangles[1] = mdlflag_poweruprotate_currentangles[1];
+			mdlflag_poweruprotate_startangles[2] = mdlflag_poweruprotate_currentangles[2];
 
-//
-// View Bobbing Factors.
-//
+			float target_pitch = (random() * 120) - 60;
+			float target_yaw = (random() * 240) + 60;
+			float target_roll = (random() * 90) - 45;
 
-	// PAUSED, NO BOB
-	if (serverkey(SERVERKEY_PAUSESTATE) == "1") {
-		weapon_bob_factor = '0 0 0';
-		dampening_factor = weapon_bob_factor;
-		weapon_bob_factor_z_coef = 0;
-	}
-	// ADS
-	else if (getstatf(STAT_WEAPONZOOM) && getstatf(STAT_WEAPONZOOM) != 3) {
-		weapon_bob_factor = '0 0 0';
-		dampening_factor = weapon_bob_factor;
-		weapon_bob_factor_z_coef = 0;
-	} 
-	// SPRINT
-	else if (getstatf(STAT_WEAPONZOOM) == 3) {
-		weapon_bob_factor_x = 2;
-		weapon_bob_factor_y = 8;
-		weapon_bob_factor_z = 12;
-		weapon_bob_factor_z_coef = 1;
-		
-		dampening_factor_x = sin(cltime*weapon_bob_factor_x);
-		dampening_factor_y = 9*cos(cltime*weapon_bob_factor_y);
-		dampening_factor_z = 0.1*sin(cltime*weapon_bob_factor_z);
-	}
-	// WALK
-	else if (K_FORWARDDOWN || K_BACKDOWN || K_LEFTDOWN || K_RIGHTDOWN && !getstatf(STAT_WEAPONZOOM)) {
-		weapon_bob_factor_x = 8;
-		weapon_bob_factor_y = 8;
-		weapon_bob_factor_z = 13.4;
-		weapon_bob_factor_z_coef = 0.2;
-		
-		dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
-		dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
-		dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
-	}
-	// STILL
-	else if (!getstatf(STAT_WEAPONZOOM)) {
+			vector target_angles;
+			target_angles[0] = target_pitch;
+			target_angles[1] = target_yaw;
+			target_angles[2] = target_roll;
 
-		// HACK HACK
-		if (weapon_bob_factor_z == 12) {
-			weapon_bob_factor_x = 8;
-			weapon_bob_factor_y = 8;
-			weapon_bob_factor_z = 13.4;
-			weapon_bob_factor_z_coef = 0.2;
-			
-			dampening_factor_x = 0.2*sin(cltime*weapon_bob_factor_x);
-			dampening_factor_y = 0.2*cos(cltime*weapon_bob_factor_y);
-			dampening_factor_z = 0.2*sin(cltime*weapon_bob_factor_z);
-		}
-
-		// Naievil -- stupid ass calcs...
-		// Basically we have a dampening factor per offset and we have to decrease it back down to zero
-		// Problem is that we may be going in postive OR negative direction? 
-		// Better solution: use fabs() lol 
-		if (dampening_factor_x > 0 && sin(time*weapon_bob_factor_x) > 0) {
-			if ((dampening_factor_x - 0.00000068* sin(time*weapon_bob_factor_x)) < 0)
-				dampening_factor_x -= (0.00000068 - dampening_factor_x*sin(time*weapon_bob_factor_x));
-			else 
-				dampening_factor_x -= 0.00000068* sin(time*weapon_bob_factor_x);
-				
-		} else if (dampening_factor_x < 0 && sin(time*weapon_bob_factor_x) < 0) {
-			if ((dampening_factor_x + 0.00000068* sin(time*weapon_bob_factor_x)) > 0)
-				dampening_factor_x += (0.00000068 - dampening_factor_x*sin(time*weapon_bob_factor_x));
-			else 
-				dampening_factor_x += 0.00000068* sin(time*weapon_bob_factor_x);
-		} else {
-			weapon_bob_factor_x = 1.2;
-		}
-					
-		if (weapon_bob_factor_x - 0.00000068 < 1.2)
-			weapon_bob_factor_x = 1.2;
-		else 
-			weapon_bob_factor_x -= 0.00000068;
-	
-		
-		if (dampening_factor_y > 0 && cos(time*weapon_bob_factor_y) > 0) {
-			if ((dampening_factor_y - 0.00000065* cos(time*weapon_bob_factor_y)) < 0)
-				dampening_factor_y -= (0.00000065 - dampening_factor_y*cos(time*weapon_bob_factor_y));
-			else 
-				dampening_factor_y -= 0.00000065* cos(time*weapon_bob_factor_y);		
-				
-		} else if (dampening_factor_y < 0 && cos(time*weapon_bob_factor_y) < 0) {
-			if ((dampening_factor_y + 0.00000065* cos(time*weapon_bob_factor_y)) > 0)
-				dampening_factor_y += (0.00000065 - dampening_factor_y*cos(time*weapon_bob_factor_y));
-			else 
-				dampening_factor_y += 0.00000065* cos(time*weapon_bob_factor_y);		
-		} else {
-			weapon_bob_factor_y = 1.5;
-		}
-		
-		
-		if (weapon_bob_factor_y - 0.00000065 < 1.5)
-			weapon_bob_factor_y = 1.5;
-		else 
-			weapon_bob_factor_y -= 0.00000065;	
-		
-		if (dampening_factor_z > 0 && sin(time*weapon_bob_factor_z) > 0) {
-			if ((dampening_factor_z - 0.00000123* sin(time*weapon_bob_factor_z)) < 0)
-				dampening_factor_z -= (0.00000123 - dampening_factor_z*sin(time*weapon_bob_factor_z));
-			else 
-				dampening_factor_z -= 0.00000123* sin(time*weapon_bob_factor_z);	
-				
-		} else if (dampening_factor_z <= 0 && sin(time*weapon_bob_factor_z) < 0) {
-			if ((dampening_factor_z + 0.00000123* sin(time*weapon_bob_factor_z)) > 0)
-				dampening_factor_z += (0.00000123 - dampening_factor_z*sin(time*weapon_bob_factor_z));
-			else 
-				dampening_factor_z += 0.00000123* sin(time*weapon_bob_factor_z);
-		} else  {
-			weapon_bob_factor_z = 1.1;
-		}
-		
-		if (weapon_bob_factor_z - 0.00000123 < 1.1)
-			weapon_bob_factor_z = 1.1;
-		else 
-			weapon_bob_factor_z -= 0.00000123;	
-		
-		if (weapon_bob_factor_z_coef <= 0.1)
-			weapon_bob_factor_z_coef = 0.1;
-		else 
-			weapon_bob_factor_z_coef -= 0.0000001*sin(time*weapon_bob_factor_z);
-	}
-			
-	offset_x = 0.2 * (sin(cltime * weapon_bob_factor_x) + dampening_factor_x);
-	offset_y = 0.2 * (cos(cltime * weapon_bob_factor_y) + dampening_factor_y);
-	offset_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*cltime + 0.5) + dampening_factor_z);
-	
-	vector tempv; 
-	tempv_x = 0.2 * (sin(cltime * weapon_bob_factor_x));
-	tempv_y = 0.2 * (cos(cltime * weapon_bob_factor_y));
-	tempv_z = weapon_bob_factor_z_coef * (sin(weapon_bob_factor_z*cltime + 0.5));
-		
-	dir = vmodel_targetpos - vmodel_currentpos;
-	if(vlen(dir) < (0.15 * 128 * frametime))
-		vmodel_currentpos = vmodel_targetpos;
-	else
-		vmodel_currentpos += (dir * 0.15 * 128) * frametime;
-	
-
-	if(vlen(vmodel.angles) < (0.1 * 128 * frametime))
-		vmodel.angles = '0 0 0';
-	else
-		vmodel.angles += (-vmodel.angles * 0.2 * 128) * frametime;
-
-	vmodel_currentpos += (vmodel_velocity * 128) * frametime;
-	vmodel_velocity *= 1 - frametime * 30;
-	
-	vmodel.angles += (vmodel_avelocity * 128) * frametime;
-	vmodel_avelocity *= 1 - frametime * 30;
-	
-	adsoffset = GetWeaponADSPos(weapon);
-
-    ads = getstatf(STAT_WEAPONZOOM); //get the zoomtoggle value 
-    if(ads == 1 || ads == 2 && serverkey(SERVERKEY_PAUSESTATE) == "0")
-    {
-        vmodel_currentpos += (adsoffset * 0.15 * 128) * frametime;
-        vmodel.origin = vmodel_currentpos + adsoffset;
-    }
-    else
-    {
-        switch(getstatf(STAT_PLAYERSTANCE)) {
-			case 2:
-				break;
-			case 1:
-				vmodel_currentpos = '0 0.6 -0.3';
-				break;
-			case 0:
-				vmodel_currentpos = '1.5 0.6 -0.3';
-				break;
-			default: break;
-		}
-		vmodel.origin = vmodel_currentpos + offset;
-
-		vmodel.origin_y += vaccel;
-		vmodel.origin_z += vzaccel;
-
-		if (in_menu != MENU_NONE)
-			return;
-
-		if (K_LEFTDOWN) {
-			vaccel -= 0.01;
-			if (vaccel < -0.8) 
-				vaccel = -0.8;
-		} else if (K_RIGHTDOWN) {
-			vaccel += 0.01;
-			if (vaccel > 0.8)
-				vaccel = 0.8;
-		} else if (vaccel != 0) {
-			if (vaccel > 0)
-				vaccel -= 0.01;
-			else
-				vaccel += 0.01;
-		}
-
-		//black ops -0.01 till -0.6 (looks better)
-		if (K_BACKDOWN || K_FORWARDDOWN) {
-			if (ads == 3) {
-				vzaccel -= 0.1;
-
-				if (vzaccel < -1.2)
-					vzaccel = -1.2;
-			} else {
-				vzaccel -= 0.01;
-
-				if (vzaccel < -0.6)
-					vzaccel = -0.6;
+			// Calculate the difference from our start to our target.
+			for(float i = 0; i < 2; i++) {
+				if (mdlflag_poweruprotate_currentangles[i] > target_angles[i])
+					mdlflag_poweruprotate_differenceangles[i] = (mdlflag_poweruprotate_currentangles[i] - target_angles[i]) * -1;
+				else
+					mdlflag_poweruprotate_differenceangles[i] = fabs(mdlflag_poweruprotate_currentangles[i] - target_angles[i]);
 			}
-			
-		} else if (vzaccel != 0) {
-			if (vzaccel > 0)
-				vzaccel -= 0.02;
-			else
-				vzaccel += 0.02;
 		}
 
-    }
+		float percentage_complete = (time - mdlflag_poweruprotate_starttime) / (mdlflag_poweruprotate_duration - mdlflag_poweruprotate_starttime);
 
+		for(float j = 0; j < 2; j++) {
+			mdlflag_poweruprotate_currentangles[j] = mdlflag_poweruprotate_startangles[j] + (mdlflag_poweruprotate_differenceangles[j] * percentage_complete);
+		}
 
-	if(weapon == 1)
-	{
-		if(mzlflash.scale < 1)
-			mzlflash.scale += (10 * random()) * frametime;
+		last_puframetime = frametime;
 	}
-	else if(weapon == 2)
-	{
-		if(mzlflash.scale < 1.5)
-			mzlflash.scale += (20 * random()) * frametime;
-	}
-	mzlflash.origin = vmodel.origin + vmodel_muzzleoffset;
-	mzlflash.alpha -= (0.15 * 100) * frametime;
-	if(mzlflash.alpha < 0.1)
-		mzlflash.alpha = 0.01;
-}
+};
+
+float() PU_PreDraw =
+{
+	PU_UpdateAngles();
+	self.angles = mdlflag_poweruprotate_currentangles;
+	addentity(self);
+
+	return PREDRAW_NEXT;
+};
 
 float Player_PreDraw() =
 {
@@ -532,6 +390,7 @@ noref void(float isnew) CSQC_Ent_Update =
 {
 	float ent_type = readbyte();
 
+	// Player
 	if (ent_type == 1) {
 		if (isnew == TRUE) {
 			self.classname = "player";
@@ -560,21 +419,54 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.stance = readbyte();
 		self.points = readfloat();	// FIXME: this should be made a short, but I know we use price of 1 for some test maps, so I can't do /10 *10 shenanigans.
 		self.kills = readshort();
+		self.is_in_menu = readbyte();
+		self.is_spectator = readbyte();
 
-		RegisterPointChange(self.points - old_points, self.playernum);
+		// set for HUD_PlayerDebugInfo
+		player_velocity = self.velocity;
 
-		if (self.movetype == MOVETYPE_BOUNCE)
+		setmodelindex(self, self.modelindex);
+
+		if (self.is_spectator)
 			self.solid = SOLID_NOT;
 		else
 			self.solid = SOLID_SLIDEBOX;
-			
-		setmodelindex(self, self.modelindex);
-		if (self.stance == 2)
-			setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
-		else
-			setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
 
-	} else {
+		RegisterPointChange(self.points - old_points, self.playernum);
+
+		if (map_compatibility_mode != MAP_COMPAT_BETA) {
+			if (self.stance == 2)
+				setsize(self, PLAYER_MINS_STANDING, PLAYER_MAXS_STANDING);
+			else
+				setsize(self, PLAYER_MINS_CROUCHING, PLAYER_MAXS_CROUCHING);
+		} else {
+			setsize(self, PLAYER_MINS_QUAKE, PLAYER_MAXS_QUAKE);
+		}
+
+		if (self.modelindex == getmodelindex("models/sprites/null.spr") && !self.playernum) {
+			self.solid = SOLID_NOT;
+			self.classname = "";
+		} else {
+			self.classname = "player";
+		}
+	} 
+	// Power-Up
+	else if (ent_type == 2) {
+		if (isnew == TRUE) {
+			self.classname = "item_powerup";
+			self.solid = SOLID_NOT;
+			self.predraw = PU_PreDraw;
+			self.drawmask = MASK_ENGINE;
+		}
+
+		self.origin_x = readcoord();
+		self.origin_y = readcoord();
+		self.origin_z = readcoord();
+		self.modelindex = readshort();
+
+		setmodelindex(self, self.modelindex);
+	}
+	else {
 		if(isnew)
 			addentity(self);
 	}
@@ -599,7 +491,7 @@ void() DropRecoilKick =
 {
 	float	len;
 
-	if (crosshair_spread_time > time)
+	if (recoil_kick_time > time)
 		return;
 
 	len = VectorNormalize(gun_kick);
@@ -613,192 +505,210 @@ void() DropRecoilKick =
 	gun_kick[2] *= len;
 }
 
-string() LoadScreen_GiveTip =
+//
+// Key_IsControllerGlyph(bind)
+// Returns TRUE if the string provided belongs to
+// a gamepad/controller.
+//
+float(string bind) Key_IsControllerGlyph =
 {
-	float index = rint((random() * (80 - 1))) + 1;
-
-	switch(index)
-    {
-        case 1:
-			return  "Released in 1996, Quake is over 25 years old!";
-        case 2:
-            return  "Use the Kar98k to be the hero we need!";
-        case 3:
-            return  "Lots of modern engines are based on Quake!";
-        case 4:
-            return  "NZ:P began development on September 27 2009!";
-        case 5:
-            return  "NZ:P was first released on December 25, 2010!";
-        case 6:
-            return  "NZ:P Beta 1.1 has over 300,000 downloads!";
-        case 7:
-            return  "NZ:P has been downloaded over 500,000 times!";
-        case 8:
-            return  "A lot of people have worked on NZ:P!";
-        case 9:
-            return  "Blubswillrule, or \"blubs\", is from the US.";
-        case 10:
-            return  "Jukki is from Finland.";
-        case 11:
-            return  "Ju[s]tice, or \"tom\" is from Lithuania.";
-        case 12:
-            return  "This game has given us bad sleeping habits!";
-        case 13:
-            return  "We had a lot of fun making this game!";
-        case 14:
-            return  "Pro Tip: you can make your own custom map!";
-        case 15:
-            return  "Try Retro Mode, it's in the Graphics Settings!";
-        case 16:
-			return  "Tired of our maps? Go make your own!";
-        case 17:
-            return  "Slay zombies & be grateful.";
-        case 18:
-            return  "Custom maps, CUSTOM MAPS!";
-        case 19:
-            return  "Go outside & build a snowman!";
-        case 20:
-            return  "Please surround yourself with zombies!";
-        case 21:
-            return  "Don't play for too long.. zombies may eat you.";
-        case 22:
-            return  "That was epic... EPIC FOR THE WIIIN!"; //why
-        case 23:
-            return  "FTEQW is an awesome Quake Engine!";
-        case 24:
-            return  "You dead yet?";
-        case 25:
-            return  "Now 21% cooler!";
-        case 26:
-            return  "your lg is nothink on the lan!"; //what
-        case 27:
-            return  "I'm not your chaotic on dm6!"; 
-        case 28:
-            return  "Shoot or knife zombies to kill them, up to you!";
-        case 29:
-            return 	"How many people forgot to Compile today?";
-        case 30:
-            return  "ggnore";
-        case 31:
-			return  "NZ:P is also on PC, Switch, Vita, and PSP!";
-        case 32:
-            return  "Submerge your device in water for godmode!";
-        case 33:
-            return  "10/10/10 was a good day.";
-        case 34:
-            return  "Also check out \"FreeCS\" by eukara!";
-        case 35:
-            return 	"CypressImplex, or \"Ivy\", is from the USA.";
-        case 36:
-            return  "Zombies don't like bullets.";
-        case 37:
-            return  "Thanks for being an awesome fan!";
-		case 38:
-			return 	"Removed Herobrine";
-		case 39:
-			return 	"Pack-a-Punch the Kar98k to get to round 100000.";
-		case 40:
-			return 	"I feel like I'm being gaslit.";
-		case 41:
-			return 	"Heads up! You will die if you are killed!";
-		case 42:
-			return 	"Zombies legally can't kill you if you say no!";
-		case 43:
-			return 	"Please help me find the meaning of   . Thanks.";
-		case 44:
-			return  "Discord is ONLY for Thomas the Tank Engine RP!";
-		case 45:
-			return 	"\"Get rid of the 21% tip, it's an MLP reference.\"";
-		case 46:
-			return 	"You're playing on FTE!";
-		case 47:
-			return 	"Don't leak the beta!";
-		case 48:
-			return  "Jugger-Nog increases your health!";
-		case 49:
-			return  "greg was here";
-		case 50:
-			return  "Where the hell is the Mystery Box?!";
-		case 51:
-			return  "Zombies like getting shot.. I think.";
-		case 52:
-			return  "pro tip: aiming helps";
-		case 53:
-			return  "\"my mom gave me plunger money\"";
-		case 54:
-			return "dolphin dive on top of your friend for god mode";
-		case 55:
-			return "no free rides. ass, grass, or cash!";
-		case 56:
-			return "https://nzp.gay/";
-		case 57:
-			return "im an mlg gamer girl so its pretty guaranteed";
-		case 58:
-			return "this is a w because you cant have enough fnaf";
-		case 59:
-			return "i hope santa drops bombs on the uk";
-		case 60:
-			return "Hoyl shit, bro! You fucking ported fortnite!";
-		case 61:
-			return "icarly feet futtishist.";
-		case 62:
-			return "Well, it's impossible to play, I'm disgusted.";
-		case 63:
-			return "I like my women to not be cartoons";
-		case 64:
-			return "Plot twist: NZP was always broken";
-		case 65:
-			return "testing some think.";
-		case 66:
-			return "fnaf is older than gay marriage in the us";
-		case 67:
-			return "i want that twink Obliterated";
-		case 68:
-			return "i think he started the femboy transition process";
-		case 69:
-			return "nice";
-		case 70:
-			return "He's FUCKING annoying";
-		case 71:
-			return "yeah pog female bikers";
-		case 72:
-			return "Its either a stroke of genius or just a stroke";
-		case 73:
-			return  "Play some Custom Maps!";
-		case 74:
-			return  "Real OGs play on Win9X Machines!";
-		case 75:
-			return  "Adding this tip improved framerate by 39%!";
-		case 76:
-			return  "The NZ in NZP stands for New Zealand!";
-		case 77:
-			return  "The P in NZP stands for Professional!";
-		case 78:
-			return  "Remember to stay hydrated!";
-		case 79:
-			return  "cofe";
-    }
-    return "wut wut";
-};
-
-noref void(float width, float height, float notmenu) CSQC_UpdateViewLoading =
-{
-	if (loadscreen_mapname != "") {
-		drawpic([0, 0], strcat("gfx/lscreen/", loadscreen_mapname), [width, height], [1, 1, 1], 1);
+	switch(bind) {
+		case "GP_A":
+		case "GP_B":
+		case "GP_X":
+		case "GP_Y":
+		case "GP_LSHOULDER":
+		case "GP_RSHOULDER":
+		case "GP_LTRIGGER":
+		case "GP_RTRIGGER":
+		case "GP_BACK":
+		case "GP_START":
+		case "GP_LTHUMB":
+		case "GP_RTHUMB":
+		case "GP_DPAD_UP":
+		case "GP_DPAD_DOWN":
+		case "GP_DPAD_LEFT":
+		case "GP_DPAD_RIGHT":
+			return true;
 	}
 
-	drawfill ([0, 0], [width, 32, 1], [0, 0, 0], 0.68, 0);
-	drawfill ([0, height - 32], [width, 32, 1], [0, 0, 0], 0.68, 0);
+	return false;
+};
 
-	drawstring([width/2 - (stringwidth(loadscreen_tip, 0, [12, 12])/2), height - 16, 0], loadscreen_tip, [12, 12], [1, 1, 1], 1, 0);
-	drawstring([6, 6], loadscreen_maptitle, [24, 24], TEXT_ORANGE, 1, 0);
+//
+// Key_DrawControllerGlyph(position, bind, scale)
+// Draws the associated glyph for the bind name from the
+// Glyph tilemap at the provided position, with the
+// provided scale.
+//
+void(vector position, string bind, vector scale) Key_DrawControllerGlyph =
+{
+	vector tilemap_position = [0, 0];
 
-	drawfill ([width/2 - 160, height - 42], [320, 18, 1], [0.27, 0.27, 0.27], 1, 0);
-	drawfill ([width/2 - 164, height - 46], [328, 26, 1], [0, 0, 0], 0.77, 0);
-	drawstring([width/2 - (stringwidth("Loading...", 0, [14, 14])/2), height - 40, 0], "Loading...", [14, 14], [1, 1, 1], 1, 0);
+	// The coordinates in 0-1 range of each button in the glyph tilemap.
+	switch(bind) {
+		case "GP_A":
+			tilemap_position = [0, 0];
+			break;
+		case "GP_B":
+			tilemap_position = [0.125, 0];
+			break;
+		case "GP_X":
+			tilemap_position = [0.250, 0];
+			break;
+		case "GP_Y":
+			tilemap_position = [0.375, 0];
+			break;
+		case "GP_LSHOULDER":
+			tilemap_position = [0.250, 0.125];
+			break;
+		case "GP_RSHOULDER":
+			tilemap_position = [0.375, 0.125];
+			break;
+		case "GP_LTRIGGER":
+			tilemap_position = [0.500, 0.125];
+			break;
+		case "GP_RTRIGGER":
+			tilemap_position = [0.625, 0.125];
+			break;
+		case "GP_BACK":
+			tilemap_position = [0.875, 0.125];
+			break;
+		case "GP_START":
+			tilemap_position = [0.750, 0.125];
+			break;
+		case "GP_LTHUMB":
+			tilemap_position = [0, 0.125];
+			break;
+		case "GP_RTHUMB":
+			tilemap_position = [0.125, 0.125];
+			break;
+		case "GP_DPAD_UP":
+			tilemap_position = [0.500, 0];
+			break;
+		case "GP_DPAD_DOWN":
+			tilemap_position = [0.625, 0];
+			break;
+		case "GP_DPAD_LEFT":
+			tilemap_position = [0.750, 0];
+			break;
+		case "GP_DPAD_RIGHT":
+			tilemap_position = [0.875, 0];
+			break;
+	}
+
+	drawsubpic([position_x, position_y], [scale_x, scale_y], sprintf("gfx/controller_glyphs/%s.tga", cvar_string("cl_controllerglyphs")), [tilemap_position_x, tilemap_position_y], [0.125, 0.125], [1, 1, 1], 1);
 };
 
 #define SCALE_CONSTANT 		8
+
+//MOVEME
+float(float a) angledelta =
+{
+	a = anglemod(a);
+	if (a > 180)
+		a -= 360;
+	return a;
+}
+
+//MOVEME
+vector current_sway;
+float current_intensity;
+float target_intensity;
+vector sniper_sway;
+float sniper_breath_starttime;
+float sniper_breath_endtime;
+float sniper_breath_counter;
+float sniper_breath_exhaustion_starttime;
+float sniper_breath_exhaustion_endtime;
+float sniper_breath_delay;
+float sniper_hold_breath;
+
+#define SNIPER_SWAY_INTENSITY_FOCUSED		0.05
+#define SNIPER_SWAY_INTENSITY_NORMAL		0.5
+#define SNIPER_SWAY_INTENSITY_EXHAUSTION	2
+
+void(float inhale) Sniper_HoldBreath =
+{
+	if (sniper_breath_delay > time)
+		return;
+
+	if (getstatf(STAT_WEAPONZOOM) != 2 || (getstatf(STAT_PERKS) & P_DEAD)) {
+		return;
+	}
+
+	if (inhale) {
+		if (sniper_hold_breath == true)
+			return;
+		sniper_breath_starttime = time;
+		sniper_breath_endtime = time + 4;
+		sniper_hold_breath = true;
+		localsound("sounds/player/inhale.wav", 0, 1);
+	} else {
+		if (sniper_hold_breath == false)
+			return;
+		sniper_breath_endtime = sniper_breath_starttime = 0;
+		sniper_hold_breath = false;
+		sniper_breath_delay = time + 1;
+		localsound("sounds/player/exhale.wav", 0, 1);
+	}
+};
+
+void() Camera_SniperSway =
+{
+    // Determine target intensity based on state
+    target_intensity = SNIPER_SWAY_INTENSITY_NORMAL;
+
+    if (getstatf(STAT_WEAPONZOOM) != 2 || (getstatf(STAT_PERKS) & P_DEAD)) {
+		current_intensity = 0;
+		current_sway = '0 0 0';
+        target_intensity = 0;
+		sniper_breath_counter = 0;
+    } else {
+		// We are focused.
+        if (sniper_breath_endtime > time) {
+            target_intensity = SNIPER_SWAY_INTENSITY_FOCUSED;
+
+			float breath_duration = floor(time - sniper_breath_starttime);
+
+			// Play heartbeat sfx at every second interval.
+			if (breath_duration != sniper_breath_counter) {
+				sniper_breath_counter = breath_duration;
+				localsound("sounds/player/heart.wav", 0, 5);
+			}
+        } 
+		// Time has expired and we're out of breath, begin exhaustion.
+		else if (sniper_breath_endtime < time && sniper_hold_breath == true) {
+            Sniper_HoldBreath(false);
+            sniper_breath_exhaustion_starttime = time;
+            sniper_breath_exhaustion_endtime = time + 4;
+            sniper_breath_delay = time + 4;
+        }
+
+		// Slowly decrease in intensity from fully exhausted to normal.
+        if (sniper_breath_exhaustion_endtime > time) {
+            float progress = (time - sniper_breath_exhaustion_starttime) / (sniper_breath_exhaustion_endtime - sniper_breath_exhaustion_starttime);
+            target_intensity = SNIPER_SWAY_INTENSITY_EXHAUSTION + progress * (SNIPER_SWAY_INTENSITY_NORMAL - SNIPER_SWAY_INTENSITY_EXHAUSTION);
+        }
+    }
+
+    // Smoothly interpolate intensity towards target
+    current_intensity += (target_intensity - current_intensity) * (clframetime * 5); // Adjust 0.1 for smoother/faster transitions
+
+    // Calculate sway deltas based on cltime and intensity
+    float sway_pitch = (cos(cltime / 0.7) + cos(cltime) + sin(cltime / 1.1));
+    float sway_yaw = (sin(cltime / 0.4) + cos(cltime / 0.56) + sin(cltime));
+
+    // Update current sway using the smoothly interpolated intensity
+    current_sway[0] = sway_pitch * current_intensity;
+    current_sway[1] = sway_yaw * current_intensity;
+
+    // Apply the smooth sway to sniper_sway
+    sniper_sway[0] = angledelta(current_sway[0]);
+    sniper_sway[1] = angledelta(current_sway[1]);
+};
+
+float gamepad_enabled;
 
 // CALLED EVERY CLIENT RENDER FRAME
 float pap_flash_alternate;
@@ -816,7 +726,18 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setviewprop(VF_DRAWENGINESBAR, 0);	
 	setviewprop(VF_DRAWCROSSHAIR, 0);
 
-	setsensitivityscaler((1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT));
+	float sensitivity_factor;
+
+	if (current_menu != MENU_NONE)
+		sensitivity_factor = 0;
+	else
+		sensitivity_factor = (1 + SCALE_CONSTANT * getstatf(STAT_VIEWZOOM)) / (1 + SCALE_CONSTANT);
+
+	if (gamepad_enabled && getstatf(STAT_FACINGENEMY) && cvar("in_aimassist") == 1)
+		sensitivity_factor *= 0.5;
+
+	setsensitivityscaler(sensitivity_factor);
+
 	setviewprop(VF_AFOV, autocvar(fov,90)*getstatf(STAT_VIEWZOOM));
 
 	cvar_set("r_viewmodel_fov", ftos(cvar("r_viewmodel_default_fov")*getstatf(STAT_VIEWZOOM)));
@@ -855,143 +776,47 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	setproperty(VF_ORIGIN, playerOrigin + [ 0, 0, getstatf(STAT_VIEWHEIGHT)]);
 	//setproperty(VF_ANGLES, view_angles);
 
-	//do viewmodel manipulation, purely cosmetic stuff
-	if(vmodel)
-	{
-		Update_Vmodel();
-		local vector vorg;
-		local vector vang;
-		vorg = getviewprop(VF_ORIGIN);
-		vang = getviewprop(VF_ANGLES);
-		//vmodel.origin += vorg;
-		//vmodel.angles += vang;
-		addentity(vmodel);
-		addentity(v2model);
-		//vmodel.origin -= vorg;
-		//vmodel.angles -= vang;
-		//addentity(vmodel);
-		float weaponframe, weapon2frame;
-		weaponframe = getstatf(STAT_WEAPONFRAME);
-
-		float duration = getstatf(STAT_WEAPONDURATION);
-
-		if (!duration) {
-			duration = 0.1;
-		}
-		
-		if (curweaponframe != weaponframe) {
-			interpolating = TRUE;
-			vmodel.lerpfrac = 0;
-			oldweaponframe = curweaponframe;
-			curweaponframe = weaponframe;
-		}
-		
-		if (interpolating == TRUE) {
-			vmodel.lerpfrac += frametime * (1/duration);
-
-			if (vmodel.lerpfrac >= 1.0) {
-				oldweaponframe = curweaponframe;
-				vmodel.lerpfrac = 0;
-				interpolating = FALSE;	
-			}
-			
-		}
-		vmodel.frame = oldweaponframe;
-		vmodel.frame2 = curweaponframe;
-
-		if (IsDualWeapon(getstatf(STAT_ACTIVEWEAPON))) {
-			float duration2 = getstatf(STAT_WEAPON2DURATION);
-			if (!duration2) {
-				duration2 = 0.1;
-			}
-			weapon2frame = getstatf(STAT_WEAPON2FRAME);
-			if (curweapon2frame != weapon2frame) {
-				interpolating2 = TRUE;
-				v2model.lerpfrac = 0;
-				oldweapon2frame = curweapon2frame;
-				curweapon2frame = weapon2frame;
-			}
-			
-			if (interpolating2 == TRUE) {
-				v2model.lerpfrac += frametime * (1/duration2);
-
-				if (v2model.lerpfrac >= 1.0) {
-					oldweapon2frame = curweapon2frame;
-					v2model.lerpfrac = 0;
-					interpolating2 = FALSE;	
-				}
-				
-			}
-
-			v2model.frame = oldweapon2frame;
-			v2model.frame2 = curweapon2frame;
-
-		} else {
-			//v2model.frame = getstatf(STAT_WEAPON2FRAME);
-			v2model.lerpfrac = vmodel.lerpfrac;
-			v2model.frame = oldweaponframe;
-			v2model.frame2 = curweaponframe;
-		}
-		v2model.angles = vmodel.angles;
-		v2model.origin = vmodel.origin;
-		if(mzlflash.alpha > 0.09)
-		{
-			makevectors(view_angles);
-			local vector offset = vmodel.origin + vmodel_muzzleoffset;
-			local vector muzzlepos;
-			muzzlepos = getviewprop(VF_ORIGIN);
-			muzzlepos += v_forward * offset_x;
-			muzzlepos -= v_right * offset_y;
-			muzzlepos += v_up * (offset_z + 6);
-
-			if (cvar("r_drawviewmodel")) {
-				if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON))) {
-					if (pap_flash_alternate)
-						dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0.7 0 0' * mzlflash.alpha);
-					else
-						dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '0 0 0.7' * mzlflash.alpha);
-
-					pap_flash_alternate = !pap_flash_alternate;
-				}	
-				else
-					dynamiclight_add(muzzlepos, 128 * mzlflash.alpha, '1.2 0.7 0.2' * mzlflash.alpha);
-
-				addentity(mzlflash);
-			}
-		}
-	}
-	
-	//deltalisten makes engine call the "add_outline" func for each entity with the set model every frame
-	/*deltalisten("models/mg_ammo.iqm", add_outline, 0);
-	deltalisten("models/weapons/mg/mg.iqm", add_outline, 0);
-	deltalisten("models/weapons/pistol/pistol.iqm", add_outline, 0);*/
-	//deltalisten("models/humanoid_simplerig.iqm", add_outline, 0);
+	// Draw the client's viewmodels.
+	ViewModel_Draw();
 	
 	DropRecoilKick();
+	Camera_SniperSway();
 
 	camang[0] += gun_kick[0];
 	camang[1] += gun_kick[1];
 	camang[2] += gun_kick[2];
+	camang[0] += sniper_sway[0];
+	camang[1] += sniper_sway[1];
+	camang[2] += sniper_sway[2];
 
 	setviewprop(VF_ANGLES, camang);
+
+	if (cvar("chase_active")) {
+		Chase_Update();
+	}
 
 	//does what you think it does
 	renderscene();
 
-	if (in_loadscreen)
+	if (current_menu != MENU_NONE)
 	{
-		in_loadscreen = false;
-		localcmd(strcat("map ", loadscreen_mapname, "\n"));
-	}
-	if(in_menu)
-	{
-		//in menu.qc
-		Draw_Menu();
+		// sorta-nasty hack: flashes should still draw if we're
+		// drawing the menu.
+		if (screenflash_duration > time)
+			HUD_Screenflash();
+
+		setlocaluserinfo(0, "in_menu", "1");
+
+		sui_begin(g_width, g_height);
+		root_menu([g_width, g_height]);
+		sui_end();
 	}
 	else
 	{
+		setcursormode(FALSE);
 		HUD_Draw(g_width, g_height);
 		Chat_Draw();
+		setlocaluserinfo(0, "in_menu", "0");
 	}
 };
 
@@ -1009,15 +834,6 @@ noref float(string cmd) CSQC_ConsoleCommand =
 			return TRUE;
 		case "map":
 			return FALSE;
-		case "startwalk":
-			walk = TRUE;
-			return FALSE;
-		case "stopwalk":
-			walk = FALSE;
-			return FALSE;
-		case "promptjoin":
-			menu_join();
-			return TRUE;
 		case "showscores":
 			if (score_show)
 				score_show = FALSE;
@@ -1053,240 +869,203 @@ void(float scanx, float setval) Input_Movecheck =
 	tokenize(findkeysforcommand("+back"));
 	if (scanx == stof(argv(0)))
 		K_BACKDOWN = setval;
-}
 
-void(float button, string key) setToBind =
-{
-	local string fullbind, unbind, oldkey;
-	local string btn;
-	editBind[button] = FALSE;
-
-	btn = buttonBind[button];
-
-	tokenize(findkeysforcommand(btn));
-	oldkey = keynumtostring(stof(argv(0)));
-
-	unbind = strcat("bind ", oldkey, " null\n");
-	fullbind = strcat("bind ", key, " \"", btn, "\"\n");
-			
-	localcmd(unbind);
-	localcmd(fullbind);
+	float argc = tokenize(findkeysforcommand("impulse 23"));
+    for (int i = 0; i < argc; i++) {
+		if (scanx == stof(argv(i))) {
+			Sniper_HoldBreath(setval);
+		}
+    }
 }
 
 noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent =
 {
+	if (evtype == IE_GYROSCOPE || evtype == IE_ACCELEROMETER)
+		return FALSE;
+
+	// Ignore subtle (drift-y) joystick axes
+	if (evtype == IE_JOYAXIS && devid > 0 && fabs(chary) < 0.1) {
+		return FALSE;
+	}
+
+	last_input_deviceid = devid;
+	float last_input_storage = last_input_was_gamepad;
+
+	if (last_input_deviceid > 0)
+	{
+		last_input_was_gamepad = TRUE;
+		setlocaluserinfo(0, "using_gamepad", "1");
+	}
+	else
+	{
+		last_input_was_gamepad = FALSE;
+		setlocaluserinfo(0, "using_gamepad", "0");
+	}
+
+	if (current_menu != MENU_NONE)
+	{
+		return sui_input_event(evtype, scanx, chary, devid);
+	}
+
+	if (evtype == IE_KEYDOWN) {
+		switch (scanx) {
+			case K_GP_A:
+			case K_GP_B:
+			case K_GP_X:
+			case K_GP_Y:
+			case K_GP_LSHOULDER:
+			case K_GP_RSHOULDER:
+			case K_GP_LTRIGGER:
+			case K_GP_RTRIGGER:
+			case K_GP_BACK:
+			case K_GP_START:
+			case K_GP_LTHUMB:
+			case K_GP_RTHUMB:
+			case K_GP_DPAD_UP:
+			case K_GP_DPAD_DOWN:
+			case K_GP_DPAD_LEFT:
+			case K_GP_DPAD_RIGHT:
+			case K_GP_LTHUMB_UP:
+			case K_GP_LTHUMB_DOWN:
+			case K_GP_LTHUMB_LEFT:
+			case K_GP_LTHUMB_RIGHT:
+			case K_GP_RTHUMB_UP:
+			case K_GP_RTHUMB_DOWN:
+			case K_GP_RTHUMB_LEFT:
+			case K_GP_RTHUMB_RIGHT:
+				if (!GPButtonHeldBeginTime[scanx-816])
+					GPButtonHeldBeginTime[scanx-816] = cltime;
+				break;
+
+		}
+	}
+
+	if (evtype == IE_KEYUP) {
+		switch (scanx) {
+			case K_GP_A:
+			case K_GP_B:
+			case K_GP_X:
+			case K_GP_Y:
+			case K_GP_LSHOULDER:
+			case K_GP_RSHOULDER:
+			case K_GP_LTRIGGER:
+			case K_GP_RTRIGGER:
+			case K_GP_BACK:
+			case K_GP_START:
+			case K_GP_LTHUMB:
+			case K_GP_RTHUMB:
+			case K_GP_DPAD_UP:
+			case K_GP_DPAD_DOWN:
+			case K_GP_DPAD_LEFT:
+			case K_GP_DPAD_RIGHT:
+			case K_GP_LTHUMB_UP:
+			case K_GP_LTHUMB_DOWN:
+			case K_GP_LTHUMB_LEFT:
+			case K_GP_LTHUMB_RIGHT:
+			case K_GP_RTHUMB_UP:
+			case K_GP_RTHUMB_DOWN:
+			case K_GP_RTHUMB_LEFT:
+			case K_GP_RTHUMB_RIGHT:
+				//print(sprintf("Key: %f Duration: %f\n", scanx, cltime-GPButtonHeldBeginTime[scanx-816]));
+				GPButtonHeldBeginTime[scanx-816] = 0;
+				break;
+
+		}
+	}
 	switch(evtype)
 	{
 		case IE_KEYDOWN:
-			if(in_menu != MENU_NONE)
-			{
-				if(scanx == K_MOUSE1) {
-					Menu_Click(0);
-
-					if (in_menu == MENU_CUSTOMS)
-						Menu_Click_Custom();
-					return TRUE;
-				} else if (scanx == K_MOUSE2) {
-					Menu_Click(1);
-					return TRUE;
-				}
-
-				if (in_menu == MENU_CSETTINGS) {
-					for (int i = 0; i < MAX_BINDS; i += 1) {
-						if (editBind[i] == TRUE)
-							setToBind(i, keynumtostring(scanx));
-					}
-				}
-
-				if (in_menu == MENU_MULTI) {
-					// GO AWAY!
-					if (scanx == K_ENTER || scanx == K_ESCAPE) {
-						editing_player_name = editing_server_id = editing_password = editing_hostname = false;
-						return FALSE;
-					}
-
-					if (editing_player_name == true) {
-						// Update the temp string.
-						temp_player_name = GetUserInput(temp_player_name, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("name", temp_player_name);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-				} else if (in_menu == MENU_CREATE || in_menu == MENU_JOIN) {
-					// GO AWAY!
-					if (scanx == K_ENTER || scanx == K_ESCAPE) {
-						editing_player_name = editing_server_id = editing_password = false;
-						return FALSE;
-					}
-
-					// Server IP
-					if (editing_server_id == true) {
-						// Update the temp string.
-						temp_server_name = GetUserInput(temp_server_name, scanx, chary, 18);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-
-					// Password
-					if (editing_password == true) {
-						// Update the temp string.
-						temp_password = GetUserInput(temp_password, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("password", temp_password);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-
-					// Hostname
-					if (editing_hostname == true) {
-						// Update the temp string.
-						temp_hostname = GetUserInput(temp_hostname, scanx, chary, 18);
-
-						// Always append.
-						cvar_set("hostname", temp_hostname);
-
-						// No, I don't want to read binds. Thanks.
-						return TRUE;
-					}
-				}
-
-				// Controller Menu Navigation
-				if (scanx == K_JOY2) {
-					GPActive[0] = TRUE;
-				}
-
-				if (scanx == K_JOY4) {
-					GPActive[1] = TRUE;
-				}
-
-				if (scanx == K_JOY1) {
-					GPActive[2] = TRUE;
-				}
-
-			}
-		
 			Input_Movecheck(scanx, 1);
-
 			return FALSE;
 		case IE_KEYUP:
-
-			// Controller Menu Navigation
-			if(in_menu != MENU_NONE) {
-				if (scanx == K_JOY2) {
-					GPActive[0] = FALSE;
-				} 
-
-				if (scanx == K_JOY4) {
-					GPActive[1] = FALSE;
-				} 
-
-				if (scanx == K_JOY1) {
-					GPActive[2] = FALSE;
-				}
-			}
-			
-
 			Input_Movecheck(scanx, 0);
-	
 			return FALSE;
 		case IE_MOUSEDELTA:
 			return FALSE;
 		case IE_MOUSEABS:
-			//if(devid != 0 && devid != 1)
-			//	return FALSE;
-			cursor_pos_x = scanx;
-			cursor_pos_y = chary;
 			return FALSE;
 	}
+
 	return FALSE;
 };
 
 noref void() CSQC_Input_Frame =
 {
 	input_angles += gun_kick;
+	input_angles += sniper_sway;
 }
 
 #define DEG2RAD(x)	(x * M_PI / 180.f)
 
 noref void() CSQC_Parse_Event =
 {
-	local float first = readbyte();
+	float event_type = readbyte();
 
-	switch (first) {
-		case EVENT_PISTOLFIRE:			
-			local float entnum, traceent, side;
-			local vector pos, norm;
-			entnum = readentitynum();
-			side = readfloat();
-			pos_x = readcoord();
-			pos_y = readcoord();
-			pos_z = readcoord();
-			norm_x = readcoord();
-			norm_y = readcoord();
-			norm_z = readcoord();
-			
-			traceent = readentitynum();
+	switch (event_type) {
+		case CSQC_EVENT_PARTICLE:
+			float particle_type = readbyte();
+			float part_pos_x = readcoord();
+			float part_pos_y = readcoord();
+			float part_pos_z = readcoord();
+			float part_optional = readbyte();
+			float part_entity = readentitynum();
+			vector particle_pos = [part_pos_x, part_pos_y, part_pos_z];
+			Particles_RunParticle(particle_type, particle_pos, part_optional, part_entity);
+			break;
+		case CSQC_EVENT_USEPRINT:
+			useprint_type = readbyte();
+			useprint_cost = readshort();
+			useprint_weapon = readbyte();
+			useprint_time = time + 0.1;
+			break;
+		case CSQC_EVENT_ROUNDCHANGE:
+			rounds = readbyte();
+			HUD_Change_time = time + 6;
+			break;
+		case CSQC_EVENT_BROADCASTMESSAGE:
+			broadcast_type = readbyte();
+			broadcast_time = time + readbyte();
+			broadcast_num = readbyte();
+			break;
+		case CSQC_EVENT_MAXAMMOTEXT:
+			hud_maxammo_endtime = time + 2;
+			hud_maxammo_starttime = time;
+			break;
+		case CSQC_EVENT_MUSICSTREAM:
+			string track_name = readstring();
+			string track_extension;
+			if (platform_is_web)
+				track_extension = ".wav";
+			else
+				track_extension = ".ogg";
 
-			if(entnum == player_localentnum)
-			{
-				// originally was view_angles, but thats only what is reported
-				// to the server, weapon kick is NOT reported, so offset continued
-				// to grow.
-				getinputstate(servercommandframe);
-				makevectors(input_angles);
-				local vector offset = vmodel.origin + vmodel_muzzleoffset;
-				local vector muzzlepos, muzzle_offset;
-				muzzlepos = getviewprop(VF_ORIGIN);
-				
-				muzzle_offset = GetWeaponFlash_Offset(getstatf(STAT_ACTIVEWEAPON))/1000;
+			localsound_enhanced(strcat("tracks/", track_name, track_extension), CHAN_MUSIC, 0.85);
+			break;
+		case CSQC_EVENT_GIVEACHIEVEMENT:
+			float achievement_id = readbyte();
 
-				// Firing from the left? Use the other position instead
-                if (side == 0 && IsDualWeapon(getstatf(STAT_ACTIVEWEAPON)))
-					muzzle_offset = WepDef_GetLeftFlashOffset(getstatf(STAT_ACTIVEWEAPON))/1000;
-
-				// ADS offset
-				if(getstatf(STAT_WEAPONZOOM) == 1) {  
-					muzzle_offset += GetWeaponADSOfs_PSP(weapon)/1000;
-				}
-				
-				muzzlepos += v_forward * muzzle_offset_z;
-				muzzlepos += v_right * muzzle_offset_x;
-				muzzlepos += v_up * muzzle_offset_y;			
-				mzlflash.alpha = 1;
-
-				// Scale the muzzleflash to meet viewmodel FOV
-				// FTE doesnt support vector scaling :(
-				// float afov = cvar("fov");
-				// float vfov = cvar("r_viewmodel_default_fov");
-				// float ascale = 1.0 / tan(DEG2RAD(afov/2.0)) * vfov / 90.0;
-				// mzlflash.scale = ascale;
-
-				if (cvar("nzp_particles") && cvar("r_drawviewmodel")) {
-					float index = rint(random() * 2);
-					if (IsPapWeapon(getstatf(STAT_ACTIVEWEAPON)))				
-						pointparticles(particleeffectnum(strcat("muzzle.muzzle_pap_part", ftos(index))), muzzlepos, norm*24, 1);
-					else
-						pointparticles(particleeffectnum(strcat("muzzle.muzzle_part", ftos(index))), muzzlepos, norm*24, 1);
-				}
-			}
-
-			if (GetFiretype(getstatf(STAT_ACTIVEWEAPON)) == FIRETYPE_GRENADE)
+			// Don't unlock an existing achievement or any if on emscripten.
+			if (achievements[achievement_id].unlocked || platform_is_web)
 				return;
-			
-			if(traceent == 0)
-			{
-				if (cvar("nzp_particles"))
-					pointparticles(particleeffectnum("weapons.impact"), pos, norm*24, 1);
 
-				if (cvar("nzp_decals"))
-					pointparticles(particleeffectnum("weapons.impact_decal"), pos, '0 0 0', 1);
-			}
+			Achievement_Unlock(achievement_id);
+			break;
+		case CSQC_EVENT_PLAYERNAME:
+			character_name = readstring();
+			break;
+		case CSQC_EVENT_SCREENFLASH:
+			screenflash_color = readbyte();
+			screenflash_duration = time + readbyte();
+			screenflash_type = readbyte();
+			screenflash_worktime = 0;
+			screenflash_starttime = time;
+			break;
+		case CSQC_EVENT_RUMBLE:
+			float low_frequency = readshort();
+			float high_frequency = readshort();
+			float duration = readshort();
+			if (cvar("in_rumbleenabled"))
+				gp_rumble(last_input_deviceid, low_frequency, high_frequency, duration);
 			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
@@ -1296,110 +1075,14 @@ noref void() CSQC_Parse_Event =
 
 			gun_kick += rec;
 			break;
-		case EVENT_EXPLOSION:
-            local vector org;
-            org_x = readcoord();
-            org_y = readcoord();
-            org_z = readcoord();
-
-			if (cvar("nzp_decals"))
-            	pointparticles(particleeffectnum("weapons.explode"), org, '0 0 0', 1);
-            break;
-		case EVENT_BLOOD:
-			vector loc;
-
-			loc_x = readcoord();
-            loc_y = readcoord();
-            loc_z = readcoord();
-			
-			if (cvar("nzp_particles"))
-				pointparticles(particleeffectnum("blood.blood_particle"), loc, '0 0 0', 1);
-			break;
-		case EVENT_FLAME:
-			vector floc;
-
-			floc_x = readcoord();
-            floc_y = readcoord();
-            floc_z = readcoord();
-			
-			if (cvar("nzp_particles")) {
-				pointparticles(particleeffectnum("flames.flame_particle"), floc, '0 0 0', 1);
-			}
-			break;
-		case EVENT_LIMBGIB:
-			vector gloc;
-
-			gloc_x = readcoord();
-            gloc_y = readcoord();
-            gloc_z = readcoord();
-			
-			if (cvar("nzp_particles")) {
-				pointparticles(particleeffectnum("blood.blood_particle"), gloc, '0 0 0', 1);
-				pointparticles(particleeffectnum("blood.gibs"), gloc, '0 0 0', 1);
-			}
-			break;
 		case EVENT_CHATMESSAGE:
 			int sender = readbyte();
 			int player_id = readbyte();
 			string message = readstring();
 			Chat_Register(sender, player_id, message);
 			break;
-		case EVENT_WEAPONCHANGE:
-			local float to;
-			to = readbyte();
-			setmodel(vmodel,GetWeaponModel(to, FALSE));
-
-			if (to == W_KAR_SCOPE && vmodel.model == "models/weapons/kar/v_kar.mdl") {
-				setmodel(v2model,"models/weapons/kar/v_karscope.mdl");
-			} else {
-				setmodel(v2model,"");
-			}
-
-			v2model.origin = vmodel.origin = '0 0 0';
-			v2model.angles = vmodel.angles = '-60 0 0';
-			v2model_currentpos = vmodel_currentpos = vmodel.origin + '0 0 -24';
-			v2model_targetpos = vmodel_targetpos = vmodel.origin;
-			v2model_muzzleoffset = vmodel_muzzleoffset = '12 0 1';
-			weapon = to;
-			
-			HUD_Change_time = time + 6;
-			break;
-		case EVENT_UPDATEVMODEL:
-			local string new;
-			local float skin2;
-			new = readstring();
-			setmodel(vmodel,new);
-			vmodel.skin = readbyte();
-			break;
-		case EVENT_UPDATEV2MODEL:
-			local string new2;
-			new2 = readstring();
-			setmodel(v2model,new2);
-			v2model.skin = readbyte();
-			break;
-		case EVENT_USEPRINT:
-			useprint_type = readbyte();
-			useprint_cost = readshort();
-			useprint_weapon = readbyte();
-
-			useprint_time = time + 0.1;
-			break;
 		case EVENT_ENDGAME:
 			game_over = true;
-			break;
-		case EVENT_NEWROUND:
-			rounds = readbyte();
-			HUD_Change_time = time + 6;
-			break;
-		case EVENT_SETROUND:
-			rounds = readbyte();
-			break;
-		case EVENT_PERK:
-			float newperks;
-			
-			newperks = readlong();
-
-			UpdatePerks(newperks);
 			break;
 		case EVENT_DOUBLETAPUPDATE:
 			double_tap_version = readbyte();
@@ -1422,72 +1105,38 @@ noref void() CSQC_Parse_Event =
 					if (Hitmark_time < time)
 						Hitmark_time = time + 0.2;
 					break;
-				case 4:
-					zoom_2_time = time + 0.05;
-					break;
 				case 5:
-					crosshair_spread_time = time + 70/getWeaponRecoilReturn(getstatf(STAT_ACTIVEWEAPON));
+					recoil_kick_time = time + 70/getWeaponRecoilReturn(getstatf(STAT_ACTIVEWEAPON));
+					cur_spread = CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE));
 					break;
 				default: 
 					break;
 			}
 			break;
-		case EVENT_BROADCAST:
-			broadcast_time = readbyte();
-			broadcast_type = readbyte();
-			broadcast_string = readstring();
-			break;
 		case EVENT_REVIVECHANGE:
-			float revivechange_id = readbyte();
+			float revivechange_player_index = readbyte() - 1; // playernum starts at one.
 			float state = readbyte();
-			revive_icons[revivechange_id].state = state;
+			revive_icons[revivechange_player_index].state = state;
 			break;
 		case EVENT_REVIVEON:
-			float reviveon_id = readbyte();
-			revive_icons[reviveon_id].org[0] = readcoord();
-			revive_icons[reviveon_id].org[1] = readcoord();
-			revive_icons[reviveon_id].org[2] = readcoord();
-			revive_icons[reviveon_id].state = 1;
-			revive_icons[reviveon_id].draw = true;
-			active_revive_icons++;
+			float reviveon_player_index = readbyte() - 1; // playernum starts at one.
+			if (reviveon_player_index < 0)
+				return;
+
+			revive_icons[reviveon_player_index].state = 1;
+			revive_icons[reviveon_player_index].draw = true;
 			break;
 		case EVENT_REVIVEOFF:
-			float reviveoff_id = readbyte();
-			revive_icons[reviveoff_id].org[0] = 0;
-			revive_icons[reviveoff_id].org[1] = 0;
-			revive_icons[reviveoff_id].org[2] = 0;
-			revive_icons[reviveoff_id].state = 0;
-			revive_icons[reviveoff_id].timer = 0;
-			revive_icons[reviveoff_id].draw = false;
-			active_revive_icons--;
+			float reviveoff_player_index = readbyte() - 1; // playernum starts at one.
+			if (reviveoff_player_index < 0)
+				return;
+
+			revive_icons[reviveoff_player_index].state = 0;
+			revive_icons[reviveoff_player_index].timer = 0;
+			revive_icons[reviveoff_player_index].draw = false;
 			break;
-		// case EVENT_POINTUPDATE:
-		// 	float playernum = readbyte();
-		// 	float temppoints = readlong();
-		// 	RegisterPointChange(readlong(), playernum);
-		// 	float tempkills = readlong();
-		// 	string tempname = readstring();
-			
-		// 	switch(playernum) {
-		// 		case 1: playerpoints[0] = temppoints; playerkills[0] = tempkills; playernames[0] = tempname; break;
-		// 		case 2: playerpoints[1] = temppoints; playerkills[1] = tempkills; playernames[1] = tempname;  break;
-		// 		case 3: playerpoints[2] = temppoints; playerkills[2] = tempkills; playernames[2] = tempname; break;
-		// 		case 4: playerpoints[3] = temppoints; playerkills[3] = tempkills; playernames[3] = tempname; break;		
-		// 	}
-		// 	break;
-		case EVENT_BLACKOUT:
-			fade_time = readbyte();
-			fade_type = readbyte();
-			break;
-		case EVENT_PUNCHANGLE:			
-			vector changetest;
-			changetest_x = readcoord();
-			changetest_y = readcoord();
-			changetest_z = readcoord();
-			break;
-		case EVENT_SCROLLTEXT:
-			scrolltext = readstring();
-			stext = TRUE;
+		case EVENT_MAPTYPE:
+			map_compatibility_mode = readbyte();
 			break;
 		case EVENT_WORLDDATA:
 			chaptertitle = readstring();
@@ -1498,26 +1147,6 @@ noref void() CSQC_Parse_Event =
 			if (chaptertitle == "")
 				chaptertitle = "'Nazi Zombies'";
 			break;
-		case EVENT_SONGPLAY:
-			string track_name = readstring();
-			localsound_enhanced(strcat("tracks/", track_name, ".ogg"), CHAN_MUSIC, 1);
-			break;
-		case EVENT_ACHIEVEMENT:
-			float ach = readbyte();
-
-			if (achievements[ach].unlocked == true)
-				return;
-			Achievement_Unlock(ach);
-			break;
-		case EVENT_ACHIEVEMENTPROGRESS:
-			float id = readbyte();
-			float pg = readfloat();
-
-			if (achievements[id].unlocked == true)
-				return;
-			
-			Achievement_UpdateProgress(id, pg);
-			break;
 		case EVENT_PLAYERUPDATE:
 			player_count = readbyte();
 			break;
@@ -1526,39 +1155,6 @@ noref void() CSQC_Parse_Event =
 			break;
 		case EVENT_BETTYPROMPT:
 			bettyprompt_time = time + 4;
-			break;
-		case EVENT_WEAPONUPDATE:
-			float wepnum = readbyte();
-			string wepname = readstring();
-			string wvmodel = readstring();
-			float mag = readbyte();
-			float reserve = readbyte();
-			vector cads = stov(readstring());
-			float cmin = readbyte();
-			float cmax = readbyte();
-			vector flash = stov(readstring());
-			float flashsize = readbyte();
-			string v2 = readstring();
-			float isd = readbyte();
-			/*W_CUSTOMNAME[wepnum] = wepname;
-			W_CVMODEL[wepnum] = wvmodel;
-			W_CMAG[wepnum] = mag;
-			W_CRESERVE[wepnum] = reserve;
-			W_CCROSSMIN[wepnum] = cmin;
-			W_CCROSSMAX[wepnum] = cmax;
-			W_CADS[wepnum] = cads;
-			W_CFLASHSIZE[wepnum] = flashsize;
-			W_CVMODEL2[wepnum] = v2;
-			W_CDUAL[wepnum] = isd;*/
-			break;
-		case EVENT_HUDUPDATE:
-			/*string temps;
-			float tempf;
-			G_HUD = readstring();
-			G_HUDHOR = readbyte();
-
-			if (G_HUD != "")
-				huddir = strcat("gfx/hud/", G_HUD, "/");*/
 			break;
 	}
 }

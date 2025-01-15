@@ -3,7 +3,7 @@
 
 	all logic for teleporters of every form.
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -74,7 +74,7 @@ void() teleport_entities_back =
     SUB_UseTargets();
     self.iszomb = 0;
 
-	sound(self.entities[0], CHAN_WEAPON, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+	Sound_PlaySound(self.entities[0], "sounds/machines/elec_shock.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
     for(float i = 0; i < 4; i++) {
         if (self.entities[i].classname == "player") {
@@ -223,7 +223,7 @@ void() teleport_pad_touch =
 		if (other.button7) {
 			self.host.isLinked = true;
 			self.host.waitLink = false;
-			sound(self, CHAN_WEAPON, "sounds/weapons/tesla/switchon.wav", 1, ATTN_NORM);
+			Sound_PlaySound(self, "sounds/weapons/tesla/switchon.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		}
 	} else {
 		if (self.host.mode == 2) {
@@ -242,7 +242,7 @@ void() teleporter_link_touch =
 		local entity en;
 
 		en = find(world, targetname, self.target2);
-		sound(self, CHAN_WEAPON, "sounds/weapons/tesla/switchoff.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/weapons/tesla/switchoff.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		self.waitLink = true;
 		en.host = self;
 	}
@@ -276,16 +276,16 @@ void() teleport_touch =
 		useprint(other, 15, self.cost, 0);
 	
 
-	if (other.button7 && !other.semiuse) {
-		other.semiuse = true;
+	if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+		other.semi_actions |= SEMIACTION_USE;
 		
 		if (other.points < self.cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 
-		addmoney(other, -self.cost, 0);
+		Player_RemoveScore(other, self.cost);
 
 		SUB_UseTargets();
 
@@ -298,7 +298,7 @@ void() teleport_touch =
                 people.movetype = MOVETYPE_NONE;
             }
 			else if (people.classname == "ai_dog" && !people.electro_targeted) {
-				sound(self, CHAN_WEAPON, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+				Sound_PlaySound(self, "sounds/machines/elec_shock.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 				tempe = self;
 				self = people;
@@ -322,7 +322,7 @@ void() teleport_touch =
 		self.think = teleport_entities;
 		self.nextthink = time + 1;
 		SpawnSpark(self.origin + '0 0 32', 1.5);
-		sound(self, CHAN_WEAPON, "sounds/machines/elec_shock.wav", 1, ATTN_NORM);
+		Sound_PlaySound(self, "sounds/machines/elec_shock.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 	}
 
 	if (other.button1) {

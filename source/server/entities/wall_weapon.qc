@@ -4,7 +4,7 @@
 	Contains both weapon_wall (Chalk Prop) and buy_weapon (Buy Trigger)
     functionality for purchasing Weapons off the Wall.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -52,7 +52,7 @@ void() WallWeapon_Use =
 		return;
 
 	// Play a sound for it "spawning"
-	sound(self, 1, "sounds/misc/buy.wav", 1, 1);
+	Sound_PlaySound(self, "sounds/misc/buy.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// MP5K and Waffe were added in late in the mix-up.. needs special case. Also grenade bag.
 	switch(self.sequence + 1) {
@@ -138,7 +138,7 @@ void () WallWeapon_TouchTrigger =
 
 	float wcost;
 
-	if (other.classname != "player" || other.downed || other.isBuying || !PlayerIsLooking(other, self)) {
+	if (other.classname != "player" || other.downed || other.isBuying || (map_compatibility_mode != MAP_COMPAT_BETA && !PlayerIsLooking(other, self))) {
 		return;
 	}
 
@@ -167,7 +167,7 @@ void () WallWeapon_TouchTrigger =
 
 			useprint(other, 3, wcost, wep);
 
-			if (!other.button7 || other.semiuse || other.isBuying) {
+			if (!other.button7 || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 				return;
 			}
 
@@ -181,12 +181,12 @@ void () WallWeapon_TouchTrigger =
 			if (ammo >= wall_ammo)
 				return;
 
-			other.semiuse = true;
+			other.semi_actions |= SEMIACTION_USE;
 
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
 				centerprint(other, STR_NOTENOUGHPOINTS);
-				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+				Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 				return;
 			}
 
@@ -195,17 +195,14 @@ void () WallWeapon_TouchTrigger =
 			// Set the weapon's ammo to the max capacity.
 			Weapon_SetPlayerAmmoInSlot(other, slot, wall_ammo);
 
-			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			other.reload_delay = 0;
 
 			// Subtract the cost from player points.
-			addmoney(other, wcost*-1, 0);
+			Player_RemoveScore(other, wcost);
 
 			if (self.enemy) {
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 	} else 
@@ -225,32 +222,29 @@ void () WallWeapon_TouchTrigger =
 
 			useprint(other, 3, wcost, other.weapon);
 
-			if (!other.button7 || other.semiuse || other.isBuying) {
+			if (!other.button7 || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 				return;
 			}
 
-			other.semiuse = true;
+			other.semi_actions |= SEMIACTION_USE;
 
 			// Player doesn't have enough points. Abort.
 			if (other.points < wcost) {
 				centerprint(other, STR_NOTENOUGHPOINTS);
-				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+				Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 				return;
 			}
 
 			other.weapons[0].weapon_reserve = getWeaponAmmo(other.weapon);
 
-			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			other.reload_delay = 0;
 
 			// Subtract the cost from player points.
-			addmoney(other, wcost*-1, 0);
+			Player_RemoveScore(other, wcost);
 
 			if (self.enemy) {
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
 	}
@@ -262,33 +256,30 @@ void () WallWeapon_TouchTrigger =
 
 		useprint (other, 4, self.cost, self.weapon);
 
-		if (!other.button7 || other.semiuse)
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE))
 			return;
 		if (other.points < self.cost2)
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 		else
 		{
 			other.ach_tracker_coll++;
 			other.reload_delay = 0;
-			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			//other.boughtweapon = true;
-			addmoney(other, 0 - self.cost2, FALSE);
+			Player_RemoveScore(other, self.cost2);
 			other.grenades = other.grenades | 2;
 			other.secondary_grenades = 2;
 			nzp_bettyprompt(other);
 			if (self.enemy)
 			{
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		return;
 	}
 	else if (self.weapon == W_GRENADE)
@@ -297,60 +288,54 @@ void () WallWeapon_TouchTrigger =
 			useprint (other, 3, self.cost2, self.weapon);
 		else
 			return;
-		if (!other.button7 || other.semiuse)
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE))
 			return;
 		if (other.points < self.cost)
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 		else
 		{
 			other.ach_tracker_coll++;
 			other.reload_delay = 0;
-			sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			//other.boughtweapon = true;
-			addmoney(other, 0 - self.cost, FALSE);
+			Player_RemoveScore(other, self.cost);
 			other.primary_grenades = 4;
 			if (self.enemy)
 			{
-				oldent = self;
-				self = self.enemy;
-				self.use();
-				self = oldent;
+				SUB_UseTargets();
 			}
 		}
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		return;
 	}
 	else if (self.weapon == W_BOWIE)
 	{
-		if (!other.bowie) {
-			useprint(other, 3, self.cost2, self.weapon);
+		if (!other.has_bowie_knife) {
+			useprint(other, 4, self.cost2, self.weapon);
 			if (other.button7)
 			{
 				if (other.points < self.cost2) {
 					centerprint(other, STR_NOTENOUGHPOINTS);
-					sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+					Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					return;
 				} else {
 					W_HideCrosshair(other);
-					addmoney(other, -self.cost2, FALSE);
-					sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+					Player_RemoveScore(other, self.cost2);
+					Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					other.ach_tracker_coll++;
 					if (self.enemy)
 					{
-						oldent = self;
-						self = self.enemy;
-						self.use();
-						self = oldent;
+						SUB_UseTargets();
 					}
 					entity tempz;
 					tempz = self;
 					self = other;
-					Set_W_Frame(15, 30, 2.75, 0, 0, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_BOTH);
-					self.bowie = 1;
+					Set_W_Frame(15, 30, 2.75, 0, 0, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_BOTH, true);
+					self.has_bowie_knife = true;
 				}
 			}
 		}
@@ -362,28 +347,23 @@ void () WallWeapon_TouchTrigger =
 		//centerprint(other, self.message);
       	useprint (other, 4, self.cost, self.weapon);
 
-		if (!other.button7 || other.semiuse) {
+		if (!other.button7 || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 
-		other.semiuse = 1;
+		other.semi_actions |= SEMIACTION_USE;
 		if (other.points < self.cost) {
 			centerprint (other, STR_NOTENOUGHPOINTS);
-			sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
-
-		other.semiuse = true;
 		other.ach_tracker_coll++;
 
-		sound(other, 0, "sounds/misc/ching.wav", 1, 1);
+		Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		other.reload_delay = 0;
-		addmoney(other, -1*self.cost, 0);
+		Player_RemoveScore(other, self.cost);
 		if (self.enemy) {
-			oldent = self;
-			self = self.enemy;
-			self.use();
-			self = oldent;
+			SUB_UseTargets();
 		}
 		tempe = self;
 		self = other;
@@ -444,9 +424,8 @@ void() buy_weapon =
 	self.touch = WallWeapon_TouchTrigger;
 	
 	self.think = WallWeapon_LinkChalk;
+	self.message = "";
 	self.nextthink = time + 0.2; 
 
 	ach_tracker_col2++;
-	
-	precache_sound("sounds/misc/ching.wav");
 };

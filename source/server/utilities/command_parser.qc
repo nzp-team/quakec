@@ -5,7 +5,7 @@
     commands, and a table storing command information. Modeled after
     pr_cmds.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@
 */
 
 void(vector where, float type) Spawn_Powerup;
+void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore;
 
 // Whether the command prohibits client-sending.
 float client_parse_override;
@@ -43,7 +44,7 @@ float client_parse_override;
 float(string params) Command_give =
 {
 	// Anti-Cheat in Co-Op.
-	if (player_count && cheats_have_been_activated == false) {
+	if (player_count > 1 && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue Give in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -68,7 +69,7 @@ float(string params) Command_give =
 float(string params) Command_addmoney =
 {
 	// Anti-Cheat in Co-Op.
-	if (player_count && cheats_have_been_activated == false) {
+	if (player_count > 1 && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue Add Money in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -84,7 +85,7 @@ float(string params) Command_addmoney =
     }
 
     // Assign points to the player.
-    addmoney(self, point_value, 0);
+    Player_ChangeScore(self, point_value, false);
 
     return COMMAND_SUCCESS;
 }
@@ -108,7 +109,7 @@ float(string params) Command_softrestart =
 float(string params) Command_godmode =
 {
 	// Anti-Cheat in Co-Op.
-	if (player_count && cheats_have_been_activated == false) {
+	if (player_count > 1 && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue God Mode in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -124,7 +125,7 @@ float(string params) Command_godmode =
 float(string params) Command_noclip =
 {
 	// Anti-Cheat in Co-Op.
-	if (player_count && cheats_have_been_activated == false) {
+	if (player_count > 1 && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue No-Clip in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -147,7 +148,7 @@ float(string params) Command_noclip =
 float(string params) Command_powerup =
 {
 	// Anti-Cheat in Co-Op.
-	if (player_count && cheats_have_been_activated == false) {
+	if (player_count > 1 && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue spawn_pu in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -169,7 +170,7 @@ float(string params) Command_powerup =
 float(string params) Command_tracedmgmultiplier =
 {
 	// Anti-Cheat in Co-Op.
-	if (player_count && cheats_have_been_activated == false) {
+	if (player_count > 1 && cheats_have_been_activated == false) {
 		bprint(PRINT_HIGH, "Someone tried to issue sv_tracedmgmultiplier in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
@@ -195,9 +196,26 @@ float(string params) Command_say =
 {	
 	// Grab parameters.
     tokenize(params);
-	string value = argv(0);
+	string first_word = argv(0);
 
 #ifdef FTE
+
+	if (cvar("sv_enablechatplugins")) {
+		// Support for custom chat commands.
+		for (float i = 0; i < plugin_commands.length; i++) {
+			// Command names match
+			if (first_word == plugin_commands[i].command_name) {
+				// Return description if no params are given
+				if (argv(1) == "" && plugin_commands[i].requires_arguments == true) {
+					CSQC_SendChatMessageToPlayer(255, plugin_commands[i].command_description, self);
+				} else {
+					plugin_commands[i].command_function(argv(1));
+				}
+
+				return COMMAND_SUCCESS;
+			}
+		}
+	}
 
 	CSQC_SendChatMessage(self.playernum, params);
 
@@ -301,3 +319,9 @@ void(string command_string) SV_ParseClientCommand =
 
 #endif // FTE
 };
+
+#ifndef FTE
+
+void() ParseClientCommand = {SV_ParseClientCommand(CMD_STRING);}
+
+#endif // FTE

@@ -3,7 +3,7 @@
 
 	misc map entity spawn and logic
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -53,7 +53,7 @@ void() radioPlay =
 	self.health = 1;
 
 	if (self.radioState == 1) {
-		sound (self, CHAN_ITEM, self.tune, 1, ATTN_NORM);
+		Sound_PlaySound(self, self.tune, SOUND_TYPE_ENV_IMPORTANT, SOUND_PRIORITY_PLAYALWAYS);
 
 
 		if (!(self.spawnflags & SPAWNFLAG_RADIO_PLAYONCE))
@@ -69,7 +69,7 @@ void() radioPlay =
 
 		self.think = radioPlay;
 	} else if (self.radioState == 0) {
-		sound (self, CHAN_ITEM, "sounds/null.wav", 1, ATTN_NONE);
+		sound(self, CHAN_ITEM, "sounds/null.wav", 1, ATTN_NONE);
 		self.nextthink = 0;
 		self.think = SUB_Null;
 	}
@@ -79,7 +79,7 @@ void() radio_hit =
 {
 	self.health = 1;
 
-	sound (self, CHAN_ITEM, "sounds/misc/radio.wav", 1, ATTN_NORM);
+	Sound_PlaySound(self, "sounds/misc/radio.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 	self.nextthink = time + 1;
 	self.think = radioPlay;
 	
@@ -90,12 +90,18 @@ void() radio_hit =
 
 	if (self.spawnflags & SPAWNFLAG_RADIO_PLAYONCE)
 		self.takedamage = DAMAGE_NO;
+
+	SUB_UseTargets();
 }
 
 void() item_radio = 
 {
-	precache_model ("models/props/radio.mdl");
-	precache_sound ("sounds/misc/radio.wav");
+	if (!self.model) self.model = "models/props/radio.mdl";
+	if (!self.mins) self.mins = '-8 -8 -4';
+	if (!self.maxs) self.maxs = '8 8 4';
+	
+	precache_model (self.model);
+	precache_sound("sounds/misc/radio.wav");
 
 	// Backwards compatibility
 	if (!self.tune) {
@@ -103,18 +109,17 @@ void() item_radio =
 		self.length = 10.1;
 	}
 
-	precache_sound (self.tune);
+	precache_sound(self.tune);
 	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything
 	self.solid=SOLID_BBOX;
 	self.classname = "item_radio";
-	setmodel (self, "models/props/radio.mdl");
-	setsize (self, '-8 -8 -4', '8 8 4');
+	setmodel (self, self.model);
+	setsize (self, self.mins, self.maxs);
 
 	self.takedamage = DAMAGE_YES;
 	self.health = 1;
 	self.radioState = 0;
 	self.th_die = radio_hit;
-	self.th_diewunder = SUB_Null;
 };
 
 /* ================
@@ -126,8 +131,9 @@ void() teddy_spawn =
 	precache_model ("models/props/teddy.mdl");
 
 	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything
-	self.solid=SOLID_BBOX;
+	self.solid = SOLID_BBOX;
 	self.classname = "teddy_spawn";
+	self.noise = Compat_ConvertOldAssetPath(self.noise);
 	setmodel (self, "models/props/teddy.mdl");
 	setsize (self, '-8 -8 -4', '8 8 4');
 
@@ -135,11 +141,8 @@ void() teddy_spawn =
 	self.health = 0;
 	self.th_die = teddy_react;
 	
-	if (self.noise) {
-		// FIXME: make a convert_old_sound_path function like we do for models.
-		if (self.noise == "misc/buy.wav") self.noise = "sounds/misc/buy.wav";
-		precache_sound (self.noise);
-	}
+	if (self.noise)
+		precache_sound(self.noise);
 };
 
 /* ==================
@@ -256,14 +259,21 @@ void() misc_model_think =
 
 void() misc_model = 
 {
-    if (!self.mdl || self.mdl == "") {
-		// NZP: Check for .model instead
-		if (!self.model || self.model == "")
-        	objerror("Model not defined");
-	} else {
-		// Convert to .model instead of .mdl
+	// NZ:P Edit -- We use .model instead of .mdl, but keep
+	// compatibility with progs_dump's .mdl
+	if (self.mdl != "")
 		self.model = self.mdl;
+
+	// NZ:P Edit -- No model specified, use our missing/replacement
+	// model.
+	if (self.model == "") {
+		if (cvar("developer"))
+			bprint(PRINT_HIGH, "+ [DEV-INFO]: misc_model without model set. Fix this!\n");
+
+		self.model = "models/missing_model.mdl";
 	}
+		
+	self.oldmodel = self.model;
 
 	//
 	// Set default stats.
@@ -316,7 +326,7 @@ void() misc_model =
 
     // Make static (not animate) if not given a frame range, and not affected by gravity
     // also remains active if it has a targetname (so it can be killtargeted/toggled)
-    if (!self.last_frame && !(self.spawnflags & 1) && !(self.spawnflags & MISC_MODEL_SOLID) && !self.targetname)
+    if (!self.last_frame && !(self.spawnflags & 1) && !(self.spawnflags & MISC_MODEL_SOLID) && !self.targetname && self.classname != "place_model")
 		makestatic(self);
 
 	// if it as a custom animation range
@@ -335,7 +345,8 @@ void() misc_model =
 	else    
 		self.state = STATE_INVISIBLE;
 
-	misc_model_use();
+	if (self.classname != "place_model")
+		misc_model_use();
 };
 
 //
@@ -344,8 +355,10 @@ void() misc_model =
 //
 void() place_model =
 {  
+	self.classname = "place_model";
+	
 	// Grab an updated model path.
-	self.model = convert_old_asset_path(self.model);
+	self.model = Compat_ConvertOldAssetPath(self.model);
   
 	// Convert the VEC_HULL bounds to match mdlsz.
 	self.mdlsz = '64 64 88';
@@ -372,7 +385,10 @@ void() place_model =
 #define SPAWNFLAG_COUNTER_RESETONFIRE 		2
 void() game_counter_increment =
 {
-	self.frags++;
+	if (global_triggerstate == TRIGGERSTATE_OFF)
+		self.frags--;
+	else
+		self.frags++;
 
 	if (self.frags == self.health) {
 		SUB_UseTargets();

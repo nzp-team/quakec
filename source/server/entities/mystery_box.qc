@@ -3,7 +3,7 @@
 
 	Mystery Box Entity Logic
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -86,7 +86,7 @@ inline void() MBOX_Reset =
 // Plays the open animation for the Mystery Box,
 // frames 9-12.
 //
-void() MBOX_PlayCloseAnimation  = [9, MBOX_CloseAnimation2 ] { self.frame = 9; MBOX_UpdateGlowFrame(); sound (self, CHAN_ITEM, mystery_box_close_sound, 1, ATTN_NORM); Light_None(self); };
+void() MBOX_PlayCloseAnimation  = [9, MBOX_CloseAnimation2 ] { self.frame = 9; MBOX_UpdateGlowFrame(); Sound_PlaySound(self, mystery_box_close_sound, SOUND_TYPE_ENV_MUSIC, SOUND_PRIORITY_PLAYALWAYS); Light_None(self); };
 void() MBOX_CloseAnimation2 = [10, MBOX_CloseAnimation3 ] { self.frame = 10; MBOX_UpdateGlowFrame(); };
 void() MBOX_CloseAnimation3 = [10, MBOX_CloseAnimation4 ] { self.frame = 11; MBOX_UpdateGlowFrame(); };
 void() MBOX_CloseAnimation4 = [10, MBOX_Reset           ] { self.frame = 12; MBOX_UpdateGlowFrame(); };
@@ -101,6 +101,7 @@ void(entity ent) MBOX_FreeEnt =
 	ent.classname = "freeMboxEntity";
 	ent.touch = SUB_Null;
 	ent.think = SUB_Null;
+	ent.scale = 1;
     ent.effects = 0;
 	ent.frame = 0;
 
@@ -237,6 +238,10 @@ void() findboxspot =
 	setmodel (newspot, mystery_box_model);
 	newspot.frame = 0;
 	setsize (newspot, VEC_HULL2_MIN, VEC_HULL2_MAX);
+
+	// Scale down for NZ:P Beta
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		newspot.scale = 0.75;
 }
 
 //
@@ -276,6 +281,10 @@ void() MBOX_FindNewSpot =
 	setmodel(new_box, mystery_box_model);
 	setsize(new_box, VEC_HULL2_MIN, VEC_HULL2_MAX);
 
+	// Scale down for NZ:P Beta
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		new_box.scale = 0.75;
+
 	// Spawn the Box Glow if permitted
 	if (!(new_box.spawnflags & MBOX_SPAWNFLAG_NOLIGHT))
 	{
@@ -299,7 +308,7 @@ void() MBOX_FindNewSpot =
 	// Spawn some sparkles so it doesn't just "appear"
 	SpawnSpark(new_box.origin, 0.75);
 	// "Woosh" Effect
-	sound(new_box, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NORM);
+	Sound_PlaySound(new_box, "sounds/pu/drop.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 }
 
 //
@@ -312,7 +321,7 @@ void() MBOX_StopFlying =
 	// Spark Effect
 	SpawnSpark(self.origin, 0.75);
 	// "Woosh" Effect
-	sound(self, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NORM);
+	Sound_PlaySound(self, "sounds/pu/drop.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 	// Disappear!
 	self.model = "models/props/teddy.mdl";
 	setmodel(self, self.model);
@@ -376,9 +385,9 @@ void() MBOX_FlyAway =
 void() MBOX_Leave =
 {
 	// Broadcast the laughter
-	sound(self, CHAN_ITEM, "sounds/pu/byebye.wav", 1, ATTN_NONE);
+	Sound_PlaySound(world, "sounds/pu/byebye.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 	// "Woosh" Effect
-	sound(self, CHAN_AUTO, "sounds/pu/drop.wav", 1, ATTN_NORM);
+	Sound_PlaySound(self, "sounds/pu/drop.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 	// Spark Effect
 	SpawnSpark(self.origin, 0.75);
 	// Turn off Light & Glow
@@ -428,10 +437,12 @@ void() MBOX_TeddyLeave =
 void() MBOX_PresentTeddy =
 {
 	// Return the Player's points.
-	addmoney(self.owner.owner, mystery_box_cost, 0);
+	Player_AddScore(self.owner.owner, mystery_box_cost, false);
+
 	// Broadcast the bad luck.
-	sound(self, CHAN_ITEM, "sounds/misc/buy.wav", 1, ATTN_NONE);
-	sound(self, 2, "sounds/misc/giggle.wav", 1, ATTN_NONE);
+	Sound_PlaySound(self, "sounds/misc/buy.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(self, "sounds/misc/giggle.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+
 	// Linger for 2 seconds, and then fly away.
 	self.think = MBOX_TeddyLeave;
 	self.nextthink = time + 2;
@@ -501,7 +512,6 @@ void() Float_Change =
 			return;
 		}
 		else {
-			addmoney(self.owner.owner, mystery_box_cost, 0);
 			self.model = "models/props/teddy.mdl";
 			setmodel(self, self.model);
 			self.angles_y = self.angles_y - 90;
@@ -590,7 +600,14 @@ void() Create_Floating_Weapon =
 	gun.movetype = MOVETYPE_NOCLIP;
 	gun.solid = SOLID_NOT;
 	makevectors(self.angles);
-	gun.velocity = v_up*15;
+
+	// Float up less in NZ:P Beta, and scale down.
+	if (map_compatibility_mode == MAP_COMPAT_BETA) {
+		gun.velocity = v_up*10;
+		gun.scale = 0.75;
+	} else {
+		gun.velocity = v_up*15;
+	}
 	
 	gun.owner = self;
 	self.boxweapon = gun;
@@ -605,8 +622,8 @@ void() Create_Floating_Weapon =
 void() mystery_box_tp_spot = 
 {
 	precache_model ("models/props/teddy.mdl"); 
-	precache_sound ("sounds/pu/byebye.wav");
-	precache_sound ("sounds/misc/giggle.wav");
+	precache_sound("sounds/pu/byebye.wav");
+	precache_sound("sounds/misc/giggle.wav");
 	
 	self.solid=SOLID_TRIGGER;
 	self.classname = "mystery_box_tp_spot";
@@ -664,15 +681,15 @@ void() MBOX_Touch =
 		useprint (other, 7, 0, self.boxweapon.weapon);
 	}
 	
-	if (other.button7 && !other.semiuse)
+	if (other.button7 && !(other.semi_actions & SEMIACTION_USE))
 	{
-		other.semiuse = true;
+		other.semi_actions |= SEMIACTION_USE;
 		if (!self.boxstatus)
 		{
 			if (other.points >= mystery_box_cost)
 			{					
-				sound (self, CHAN_ITEM, mystery_box_open_sound, 1, ATTN_NORM);
-				addmoney(other, -mystery_box_cost, FALSE);
+				Sound_PlaySound(self, mystery_box_open_sound, SOUND_TYPE_ENV_MUSIC, SOUND_PRIORITY_PLAYALWAYS);
+				Player_RemoveScore(other, mystery_box_cost);
 				self.boxstatus = 1;
 				self.owner = other;
 				MBOX_PlayOpenAnimation();
@@ -682,7 +699,7 @@ void() MBOX_Touch =
 			}
 			else {
         		centerprint (other, STR_NOTENOUGHPOINTS);
-				sound(other, 0, "sounds/misc/denybuy.wav", 1, 1);
+				Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			}
 		}
 		if (self.boxstatus == 2)
@@ -691,7 +708,7 @@ void() MBOX_Touch =
 			{
 				other.reload_delay = 0;
 				self.owner = world;
-				sound(self, 0,"sounds/misc/ching.wav", 1, 1);
+				Sound_PlaySound(self, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 				tempe = self;
 				self = other;
 

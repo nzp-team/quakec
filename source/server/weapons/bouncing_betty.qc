@@ -3,7 +3,7 @@
 
 	Core logic for the "Bouncing Betty" grenade.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -124,6 +124,8 @@ void() Betty_Drop =
 	self.animend = W_PlayTakeOut;
 	self.callfuncat = 0;
 	self.isBuying = false;  
+
+	nzp_rumble(self, 1000, 1200, 75);
 }
 
 //
@@ -139,15 +141,15 @@ void() Betty_CheckForRelease =
 		if(self.grenade_delay < time)
 			self.grenade_delay = time + 0.05;
 		self.isBuying = true;
-		Set_W_Frame (18, 23, 0.3, 5, GRENADE, Betty_Drop, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
-		sound (self, CHAN_WEAPON, "sounds/weapons/grenade/throw.wav", 1, ATTN_NORM);
+		Set_W_Frame (13, 19, 0.3, 5, GRENADE, Betty_Drop, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT, true);
+		Sound_PlaySound(self, "sounds/weapons/grenade/throw.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
 		self.throw_delay = time + 0.9;
 	}
     // Keep holding it
 	else {    
 		self.isBuying = true;
-		Set_W_Frame (18, 18, 0, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
+		Set_W_Frame (13, 13, 0, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT, true);
 	}	
 }
 
@@ -163,16 +165,14 @@ void() W_PrimeBetty =
 
 	// Prevent the Player from Sprinting and also avoid issues with
 	// the equipment being completely cancelled..
-	if (self.sprinting)
-		W_SprintStop();
+	W_SprintStop();
 
 	W_HideCrosshair(self);
 
     // Play the "prime" animation for the betty viewmodel.
-	Set_W_Frame (0, 18, 1, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT);
+	Set_W_Frame (0, 13, 1, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT, true);
 
     // Subtract a betty from our inventory, set up delays, prevent use spam.
 	self.secondary_grenades -= 1;
-	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.seminade = true;
+	self.grenade_delay = self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
 }

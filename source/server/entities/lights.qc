@@ -3,7 +3,7 @@
 
 	Spawns and handles Quake's lights and torches
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -61,8 +61,10 @@ void() LS_Setup =
 void() L_Setup =
 {
     // If it's not vanilla ZHLT, cut it off.
-    if (self.style > 12)
-       return;
+    if (self.style > 12 || !self.targetname) {
+        remove(self);
+        return;
+    }
 
     // Set the Light to be Off if the spawnflag is set.
     /*if ((self.spawnflags & LIGHT_SPAWNFLAG_STARTOFF)) {

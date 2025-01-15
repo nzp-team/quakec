@@ -1,0 +1,35 @@
+#pragma noref 1
+#pragma target fte_5768
+#pragma progs_dat "../build/fte/csprogs.dat"
+
+#pragma includedir "../source/client/"
+#pragma includedir "../source/shared/"
+#pragma includedir "../source/menu/"
+
+#includelist
+defs/fte.qc
+defs/menu_defs.qc
+shared_defs.qc
+draw.qc
+
+sui_sys.qc
+m_menu.qc
+menu_paus.qc     // Pause Menu
+menu_opts.qc     // Options Menu
+menu_vide.qc     // Video Menu
+menu_audi.qc     // Audio Menu
+menu_ctrl.qc     // Control Menu
+menu_gpad.qc     // Gamepad Menu
+menu_bind.qc     // Bindings Menu
+
+sound_enhanced.qc
+weapon_stats.qc
+defs/custom.qc
+achievements.qc
+hud.qc
+chat.qc
+view_model.qc
+particles.qc
+chasecam.qc
+main.qc
+#endlist

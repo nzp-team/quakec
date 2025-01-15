@@ -3,7 +3,7 @@
 
 	HUD Drawing Code
 
-	Copyright (C) 2021-2022 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -24,6 +24,9 @@
 		Boston, MA  02111-1307, USA
 
 */			
+
+float(string bind) Key_IsControllerGlyph;
+void(vector position, string bind, vector scale) Key_DrawControllerGlyph;
 
 // vid_ultrawide_limiter
 #define ULTRAWIDE_OFFSET 		250
@@ -83,16 +86,12 @@ void(float width, float height) HUD_Health =
 
 void(float width, float height) HUD_Ammo =
 {
-	local float ammo, curmag, benis, benis2;
+	float ammo, curmag;
 	string ammostring, ammostring_1, ammostring_2;
 	vector color;
 	
 	curmag = getstatf(STAT_CURRENTMAG);		
 	ammo = getstatf(STAT_AMMO);	
-	
-	benis = strlen(ftos(ammo));
-	benis2 = strlen(ftos(curmag));
-	benis = benis + benis2;
 	
 	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_CURRENTMAG), true))
 		color = [215/255, 0, 0];
@@ -109,16 +108,16 @@ void(float width, float height) HUD_Ammo =
 		float curmag2 = getstatf(STAT_CURRENTMAG2);
 		
 		ammostring = strcat(ftos(curmag2), " ", ftos(curmag), "/", ftos(ammo));
-		float x2 = (g_width - GetUltraWideOffset()) - 62 - stringwidth(ammostring, 0, [12, 12]);
-		drawstring([x2, g_height - 29], ammostring, [12, 12], [1,1,1], 1, 0);
+		float x2 = (g_width - GetUltraWideOffset()) - 62 - getTextWidth(ammostring, 12);
+		Draw_String([x2, g_height - 29], ammostring, [12, 12], [1,1,1], 1, 0);
 	} else {
 		ammostring_1 = ftos(curmag);
 		ammostring_2 = strcat("/", ftos(ammo));
 		string weapon_ammo_string = strcat(ftos(curmag), "/", ftos(ammo));
-		float x = (g_width - GetUltraWideOffset())  - 62 - stringwidth(weapon_ammo_string, 0, [12, 12]);
+		float x = (g_width - GetUltraWideOffset())  - 62 - getTextWidth(weapon_ammo_string, 12);
 
-		drawstring([x, g_height - 29], ammostring_1, [12, 12], color, 1, 0);
-		drawstring([x + stringwidth(ammostring_1, 0, [12, 12]), g_height - 29], ammostring_2, [12, 12], color_2, 1, 0);
+		Draw_String([x, g_height - 29], ammostring_1, [12, 12], color, 1, 0);
+		Draw_String([x + getTextWidth(ammostring_1, 12), g_height - 29], ammostring_2, [12, 12], color_2, 1, 0);
 	}
 }
 
@@ -188,8 +187,8 @@ void() HUD_AmmoString =
 		}
 	}
 
-	float x = (g_width/2) - (stringwidth(message, 0, [12, 12])/2);
-	drawstring([x, g_height/2 + 40, 0], message, [12, 12, 0], textcolor, ammoopac, 0);
+	float x = (g_width/2) - (getTextWidth(message, 12)/2);
+	Draw_String([x, g_height/2 + 40, 0], message, [12, 12, 0], textcolor, ammoopac, 0);
 }
 
 /*******************
@@ -238,7 +237,7 @@ void(float amount, float playernum) RegisterPointChange =
 	}
 
 	// determine the width of the text string
-	point_elements[index].string_width = stringwidth(point_elements[index].text_string, 0, [12, 12]);
+	point_elements[index].string_width = getTextWidth(point_elements[index].text_string, 12);
 
 	// generate a velocity
 	point_elements[index].y_velocity = random()/4;
@@ -259,7 +258,7 @@ void(float amount, float playernum) RegisterPointChange =
 
 	// set our x and y positions
 	point_elements[index].x_position = 0;
-	point_elements[index].y_position = (g_height - 90) - (25*(playernum - 1));
+	point_elements[index].y_position = (g_height - 90) - (25 * (playernum - 1));
 
 	// start with an opacity of 1
 	point_elements[index].opacity = 1;
@@ -297,7 +296,7 @@ void(float pwidth, float width, float height, float playernum) PointUpdate =
 		}
 
 		if (point_elements[i].difference != 0 && point_elements[i].opacity > 0) {
-			drawstring([pwidth - point_elements[i].string_width - point_elements[i].x_position, 
+			Draw_String([pwidth - point_elements[i].string_width - point_elements[i].x_position, 
 			point_elements[i].y_position], point_elements[i].text_string, [12, 12], 
 			POINT_DIFF_COLOR, point_elements[i].opacity, 0);
 		}
@@ -316,10 +315,10 @@ void(float width, float height) HUD_Points =
 
 	for (int i = 3; i >= 0; i = i - 1)
 	{
-		float player_number = getplayerkeyfloat(i, "viewentity");
+		float player_number = getplayerkeyfloat(i, "client_index");
 		entity client = findfloat(world, playernum, player_number);
 
-		if (client == world || client.movetype == MOVETYPE_BOUNCE)
+		if ((client == world || !client.classname) && !client.is_spectator)
 			continue;
 
 		switch(i) {
@@ -329,18 +328,18 @@ void(float width, float height) HUD_Points =
 			default: TEXTCOLOR = [1, 1, 1]; break;
 		}
 
-		pointwidth = stringwidth(ftos(client.points), 0, [12, 12]);
+		pointwidth = getTextWidth(ftos(client.points), 12);
 		x = (99 - pointwidth)/2 + GetUltraWideOffset();
 
-		if ((i + 1) == getstatf(STAT_PLAYERNUM)) {
+		if (player_number == getstatf(STAT_PLAYERNUM)) {
 			drawpic([3 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
-			drawstring([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
+			Draw_String([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		} else {
 			drawpic([-7 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback_condensed.tga", [96, 24], [1,1,1], 1);
-			drawstring([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
+			Draw_String([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		}
 
-		PointUpdate(x + 70, width, height, i + 1);
+		PointUpdate(x + 70, width, height, player_number);
 	}
 }
 
@@ -357,7 +356,7 @@ void(float width, float height) HUD_CharacterName =
 		alpha = (nameprint_time - time);
 	}
 
-	drawstring([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], getstats(STAT_PLAYERNAME), [12, 12], [1, 1, 1], alpha, 0);
+	Draw_String([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], character_name, [12, 12], [1, 1, 1], alpha, 0);
 }
 
 /*******************
@@ -386,11 +385,11 @@ void(float width, float height) HUD_Grenades =
 		betties_text_color = [1, 1, 1];
 
 	drawpic([g_width - 3 - 56 - GetUltraWideOffset(), g_height - 50], "gfx/hud/frag.tga", [32, 32], [1, 1, 1], 1);
-	drawstring([g_width - 3 - 38 - GetUltraWideOffset(), g_height - 29], ftos(grenades), [12, 12], grenade_text_color, 1, 0);
+	Draw_String([g_width - 3 - 38 - GetUltraWideOffset(), g_height - 29], ftos(grenades), [12, 12], grenade_text_color, 1, 0);
 
 	if (betties != -1) {
 		drawpic([g_width - 3 - 28 - GetUltraWideOffset(), g_height - 50], "gfx/hud/betty.tga", [32, 32], [1, 1, 1], 1);
-		drawstring([g_width - 3 - 10 - GetUltraWideOffset(), g_height - 29], ftos(betties), [12, 12], betties_text_color, 1, 0);
+		Draw_String([g_width - 3 - 10 - GetUltraWideOffset(), g_height - 29], ftos(betties), [12, 12], betties_text_color, 1, 0);
 	}
 }
 
@@ -443,8 +442,8 @@ void(float width, float height) HUD_Rounds =
 			ralpha = 1;
 		}
 
-		pwidth = stringwidth("Round", 0, [24, 24])/2;
-		drawstring([(g_width/2) - pwidth, g_height/2 - 70], "Round", [24, 24], [1, rcolor, rcolor], ralpha, 0);
+		pwidth = getTextWidth("Round", 24)/2;
+		Draw_String([(g_width/2) - pwidth, g_height/2 - 70], "Round", [24, 24], [1, rcolor, rcolor], ralpha, 0);
 
 		rcolor -= frametime/2.5;
 		if (rcolor < 0) {
@@ -463,10 +462,10 @@ void(float width, float height) HUD_Rounds =
 			}
 		}
 
-		drawstring([3 + GetUltraWideOffset(), g_height/2 + 24], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
-		drawstring([3 + GetUltraWideOffset(), g_height/2 + 36], location, [12, 12], [1, 1, 1], localpha, 0);
-		drawstring([3 + GetUltraWideOffset(), g_height/2 + 48], date, [12, 12], [1, 1, 1], localpha, 0);
-		drawstring([3 + GetUltraWideOffset(), g_height/2 + 60], person, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 24], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 36], location, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 48], date, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 60], person, [12, 12], [1, 1, 1], localpha, 0);
 	}
 
 	if (rounds_change == 1)//this is the rounds icon at the middle of the screen
@@ -780,6 +779,7 @@ void(float width, float height) HUD_Rounds =
 	else if (rounds_change == 7)//blink white while fading back
 	{
 		stopwatch_round_isactive = true;
+		stopwatch_round_hr = stopwatch_round_min = stopwatch_round_sec = 0;
 		if (!color_shift_init)
 		{
 			color_shift_end[0] = 107;
@@ -929,19 +929,41 @@ void(float width, float height) HUD_Rounds =
 
 void(float width, float height) HUD_Useprint =
 {
-	string usestring, usebutton, usespace;
+	string usestring, usespace;
 	string usecost;
 	float print_width, x, button_width;
 	
 	usestring = "";
 	usespace = "";
 	usecost = "";
-		
-	tokenize(findkeysforcommand("+button7"));
-	usebutton = strtoupper(keynumtostring(stof(argv(0))));
 
-	for(float i = 0; i < strlen(usebutton); i++) {
-		usespace = strcat(usespace, " ");
+	string usebutton = "";
+    float argc = tokenize(findkeysforcommandex("+button7"));
+
+    for (int i = 0; i < argc; i++) {
+        usebutton = strtoupper(argv(i));
+        float bind_is_gamepad = Key_IsControllerGlyph(usebutton);
+
+        if (bind_is_gamepad && last_input_was_gamepad)
+            break;
+        else if (!bind_is_gamepad && !last_input_was_gamepad)
+            break;
+    }
+
+    if (usebutton == "")
+        usebutton = "UNBOUND";
+
+	// If this is a gamepad button, the space we want to reserve
+	// in the usestring should be a fixed width.
+	if (Key_IsControllerGlyph(usebutton)) {
+		usespace = " ";
+	} 
+	// Scale the space in the usestring for the bind according to
+	// the bind's name.
+	else {
+		for(float i = 0; i < strlen(usebutton); i++) {
+			usespace = strcat(usespace, " ");
+		}
 	}
 
 	switch (useprint_type) {
@@ -949,95 +971,99 @@ void(float width, float height) HUD_Useprint =
 			usestring = "";
 			break;
 		case 1://door
-			usestring = strcat("Hold ",usespace, " to open Door");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to open Door");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 2://debris
-			usestring = strcat("Hold ",usespace, " to remove Debris");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to remove Debris");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 3://ammo
-			usestring = strcat("Hold ",usespace, " to buy Ammo for ", GetWeaponName(useprint_weapon));
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to buy Ammo for ", GetWeaponName(useprint_weapon));
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 4://weapon
-			usestring = strcat("Hold ",usespace, " to buy ", GetWeaponName(useprint_weapon));
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to buy ", GetWeaponName(useprint_weapon));
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 5://window
-			usestring = strcat("Hold ",usespace, " to Rebuild Barrier");
+			usestring = strcat("Hold  ",usespace, " to Rebuild Barrier");
 			break;
 		case 6://box
-			usestring = strcat("Hold ",usespace, " for Mystery Box");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " for Mystery Box");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 7://box take
-			usestring = strcat("Hold ",usespace, " for ", GetWeaponName(useprint_weapon));
+			usestring = strcat("Hold  ",usespace, " for ", GetWeaponName(useprint_weapon));
 			break;
 		case 8://power
 			usestring = "The Power must be Activated first";
 			break;
 		case 9://perk
-			usestring = strcat("Hold ",usespace, " to buy ", GetPerkName(useprint_weapon));
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to buy ", GetPerkName(useprint_weapon));
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 10://turn on power
-			usestring = strcat("Hold ",usespace, " to Turn On the Power");
+			usestring = strcat("Hold  ",usespace, " to Turn On the Power");
 			break;
 		case 11://turn on trap
-			usestring = strcat("Hold ",usespace, " to Activate the Trap");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to Activate the Trap");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 12://packapunch
-			usestring = strcat("Hold ",usespace, " to Pack-a-Punch");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ",usespace, " to Pack-a-Punch");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 13://revive
-			usestring = strcat("Hold ",usespace, " to Revive Player");
+			usestring = strcat("Hold  ",usespace, " to Revive Player");
 			break;
 		case 14://use teleporter (free)
-			usestring = strcat("Hold ", usespace, " to use Teleporter");
+			usestring = strcat("Hold  ", usespace, " to use Teleporter");
 			break;
 		case 15://use teleporter (cost)
-			usestring = strcat("Hold ", usespace, " to use Teleporter");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ", usespace, " to use Teleporter");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 16://tp cooldown
 			usestring = "Teleporter is cooling down";
 			break;
 		case 17://link
-			usestring = strcat("Hold ", usespace, " to initate link to pad");
+			usestring = strcat("Hold  ", usespace, " to initate link to pad");
 			break;
 		case 18://no link
 			usestring = "Link not active";
 			break;
 		case 19://finish link
-			usestring = strcat("Hold ", usespace, " to link pad with core");
+			usestring = strcat("Hold  ", usespace, " to link pad with core");
 			break;
 		case 20://buyable ending
-			usestring = strcat("Hold ", usespace, " to End the Game");
-			usecost = strcat("[Cost:", ftos(useprint_cost), "]");
+			usestring = strcat("Hold  ", usespace, " to End the Game");
+			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		default:
 			usestring = "This should not happen you dum fuck"; //yikes
 			break;
 	}
 
-	print_width = stringwidth (usestring, 0, [12, 12]);
+	print_width = getTextWidth(usestring, 12);
 	x = (width - print_width)/2;
-	drawstring([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
+	Draw_String([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
 
 	// Draw "Cost" text.
 	if (usecost != "") {
-		float cost_width = stringwidth(usecost, 0, [12, 12]);
+		float cost_width = getTextWidth(usecost, 12);
 		float x3 = (width - cost_width)/2;
-		drawstring([x3, g_height/2 + 78, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
+		Draw_String([x3, g_height/2 + 84, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
 	}
 
-	// Draw highlighted usebutton (or button icon in the future)
+	// Draw highlighted usebutton
 	if (substring(usestring, 0, 4) == "Hold") {
-		button_width = x + stringwidth ("Hold ", 0, [12, 12, 0]);
-		drawstring([button_width, g_height/2 + 65, 0], usebutton, [12, 12, 0], [1, 1, 0], 1, 0);
+		button_width = x + getTextWidth("Hold ", 12);
+
+		if (Key_IsControllerGlyph(usebutton))
+			Key_DrawControllerGlyph([button_width - 5, g_height/2 + 62], usebutton, [18, 18]);
+		else
+			Draw_String([button_width, g_height/2 + 65, 0], usebutton, [12, 12, 0], [1, 1, 0], 1, 0);
 	}
 }
 
@@ -1047,11 +1073,57 @@ void(float width, float height) HUD_Useprint =
 
 int perk_order[9];
 int current_perk_order;
+
+void() UpdatePerks = 
+{
+	float new_perks = getstatf(STAT_PERKS);
+
+	if (perks == new_perks)
+		return;
+
+	float s;
+
+	// avoids out of bounds err - moto
+	if (new_perks == 0)
+		current_perk_order = 0;
+
+	for(float i = 1; i < 129; i *= 2) {
+		if (new_perks & i && !(perks & i)) {
+			perk_order[current_perk_order] = i;
+			current_perk_order += 1;
+		}
+	}
+
+	for(float i = 1; i < 129; i *= 2) {
+		if (perks & i && !(new_perks & i)) 
+		{
+			for(s = 0; s < 8; s++) 
+			{
+				if (perk_order[s] == i) 
+				{
+					perk_order[s] = 0;
+					while (perk_order[s+1]) 
+					{
+						perk_order[s] = perk_order[s+1];
+						perk_order[s+1] = 0;
+					}
+					break;
+				}
+			}
+		}
+	}
+	
+	perks = new_perks;
+}
+
 	
 void(float width, float height) HUD_Perks =
 {
 	float scale;
 	float x, y;
+
+	// Update Perk Order.
+	UpdatePerks();
 	
 	scale = 32;
 
@@ -1115,8 +1187,8 @@ void(float width, float height) HUD_Weaponstring =
 {
 	string weaponstring; 
 	weaponstring = GetWeaponName(getstatf(STAT_ACTIVEWEAPON));
-	float x = g_width - 62 - stringwidth(weaponstring, 0, [12, 12]);
-	drawstring([x - GetUltraWideOffset(), g_height - 49], weaponstring, [12, 12], [1, 1, 1], 1, 0);
+	float x = g_width - 62 - getTextWidth(weaponstring, 12);
+	Draw_String([x - GetUltraWideOffset(), g_height - 49], weaponstring, [12, 12], [1, 1, 1], 1, 0);
 }
 
 /*********************
@@ -1126,30 +1198,52 @@ void(float width, float height) HUD_Weaponstring =
 void(float width, float height) HUD_BouncingBetty =
 {
 	float top_x, bot_x, but_x;
-	string betty_key;
-	string betty_space;
+	string betty_key = "";
+	string betty_space = "";
 	string activate_string, activate_string2;
 
-	tokenize(findkeysforcommand("impulse 33"));
-	betty_key = strtoupper(keynumtostring(stof(argv(0))));
+	float argc = tokenize(findkeysforcommandex("impulse 33"));
 
-	betty_space = "";
-	for(float i = 0; i < strlen(betty_key); i++) {
-		betty_space = strcat(betty_space, " ");
+	for (int i = 0; i < argc; ++i)
+	{
+		betty_key = strtoupper(argv(i));
+		float bind_is_gamepad = Key_IsControllerGlyph(betty_key);
+
+		if (bind_is_gamepad && last_input_was_gamepad)
+			break;
+		else if (!bind_is_gamepad && !last_input_was_gamepad)
+			break;
+	}
+
+	// If this is a gamepad button, the space we want to reserve
+	// in the betty string should be a fixed width.
+	if (Key_IsControllerGlyph(betty_key)) {
+		betty_space = "  ";
+	} 
+	// Scale the space in the betty string for the bind according to
+	// the bind's name.
+	else {
+		for(float i = 0; i < strlen(betty_key); i++) {
+			betty_space = strcat(betty_space, " ");
+		}
 	}
 
 	activate_string = strcat("Press ", betty_space, " to place a");
 	activate_string2 = "Bouncing Betty";
 
-	top_x = (g_width/2) - (stringwidth(activate_string, 0, [12, 12])/2);
-	bot_x = (g_width/2) - (stringwidth(activate_string2, 0, [12, 12])/2);
+	top_x = (g_width/2) - (getTextWidth(activate_string, 12)/2);
+	bot_x = (g_width/2) - (getTextWidth(activate_string2, 12)/2);
 
-	drawstring([top_x, g_height - 303], activate_string, [12, 12], [1, 1, 1], 1, 0); 
-	drawstring([bot_x, g_height - 289], activate_string2, [12, 12], [1, 1, 1], 1, 0); 
+	Draw_String([top_x, g_height - 303], activate_string, [12, 12], [1, 1, 1], 1, 0); 
+	Draw_String([bot_x, g_height - 289], activate_string2, [12, 12], [1, 1, 1], 1, 0); 
 
 	// Draw the highlighted button
-	but_x = top_x + stringwidth("Press ", 0, [12, 12, 0]);
-	drawstring([but_x, g_height - 303], betty_key, [12, 12], [1, 1, 0], 1, 0); 
+	but_x = top_x + getTextWidth("Press ", 12);
+
+	if (Key_IsControllerGlyph(betty_key))
+		Key_DrawControllerGlyph([but_x - 5, g_height - 308], betty_key, [18, 18]);
+	else
+		Draw_String([but_x, g_height - 303], betty_key, [12, 12], [1, 1, 0], 1, 0); 
 }
 
 /*******************
@@ -1176,9 +1270,8 @@ void(float width, float height) HUD_Progressbar =
 
 	drawfill ([bar_x - 1, bar_y - 1, 0], [bar_width+2, bar_height, 0], [0, 0, 0], 0.4, 0);
 	drawfill ([bar_x, bar_y, 0], [bar_width * percent, bar_height-2, 0], [1, 1, 1], 0.4, 0);
-	
-	float x = (g_width/2) - (stringwidth("Reviving...", 0, [12, 12])/2);
-	drawstring([x, g_height - 105], "Reviving...", [12, 12], [1, 1, 1], 1, 0); 
+	float x = (g_width/2) - (getTextWidth("Reviving...", 12)/2);
+	Draw_String([x, g_height - 105], "Reviving...", [12, 12], [1, 1, 1], 1, 0); 
 }
 
 /*******************
@@ -1216,6 +1309,49 @@ void() Draw_Crosshair =
 		drawfill('0 0 0',  [g_width/2 - g_height/2, g_height, 0], '0 0 0', 1, 0);
 		drawpic([(g_width/2 - g_height/2),0,0], "gfx/hud/scope_nb.tga", [g_height, g_height, 1], [1,1,1], 1);
 		drawfill([(g_width/2 + g_height/2),0,0],  [g_width, g_height, 0], '0 0 0', 1, 0);
+
+		// Draw "Hold Breath" text if we aren't already doing so and we don't have Deadshot Daiquiri.
+		if (sniper_hold_breath != true && !(getstatf(STAT_PERKS) & P_DEAD)) {
+			// Grab the bind for Sprint/Hold Breath
+			string breath_button = "";
+			string space_width = "";
+
+			float argc = tokenize(findkeysforcommandex("impulse 23"));
+			for (int i = 0; i < argc; i++) {
+			    breath_button = strtoupper(argv(i));
+			    float bind_is_gamepad = Key_IsControllerGlyph(breath_button);
+
+			    if (bind_is_gamepad && last_input_was_gamepad)
+			        break;
+			    else if (!bind_is_gamepad && !last_input_was_gamepad)
+			        break;
+			}
+
+			if (breath_button == "")
+				breath_button = "UNBOUND";
+
+			string breath_button_string = "  ";
+
+			// If this is a gamepad button, the space we want to reserve
+			// in the string should be a fixed width.
+			if (!Key_IsControllerGlyph(breath_button)) {
+				breath_button_string = breath_button;
+			} 
+
+			string breath_string = strcat("Hold ", breath_button_string, " to steady");
+			float print_width = getTextWidth(breath_string, 12);
+			float x = (g_width - print_width)/2;
+			Draw_String([x, 65, 0], breath_string, [12, 12, 0], [1, 1, 1], 1, 0);
+
+			// Draw highlighted button
+			float button_width = x + getTextWidth("Hold ", 12);
+
+			if (Key_IsControllerGlyph(breath_button))
+				Key_DrawControllerGlyph([button_width - 5, 62], breath_button, [18, 18]);
+			else
+				Draw_String([button_width, 65, 0], breath_button, [12, 12, 0], [1, 1, 0], 1, 0);
+		}
+
 		return;
 	}
 
@@ -1263,25 +1399,6 @@ void() Draw_Crosshair =
 	if (getstatf(STAT_HEALTH) < 1)
 		return;
 
-	if (crosshair_spread_time > time && crosshair_spread_time)
-    {
-        cur_spread = cur_spread + 10;
-		if (cur_spread >= CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)))
-			cur_spread = CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE));
-		
-		if (!croshhairmoving)
-			cur_spread *= 1/2;
-    }
-    else if (crosshair_spread_time < time && crosshair_spread_time)
-    {
-        cur_spread = cur_spread - 0.25;
-		if (cur_spread <= 0)
-		{
-			cur_spread = 0;
-			crosshair_spread_time = 0;
-		}
-    }
-
 	// Standard crosshair (+)
 	if (crosshair_value == 1) {
 		int x_value, y_value;
@@ -1308,8 +1425,8 @@ void() Draw_Crosshair =
 	}
 	// Area of Effect (o)
 	else if (crosshair_value == 2) {
-		float circle_offset = stringwidth("O", 0, [14, 14])/2;
-		drawstring([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [14, 14], crosshair_color, 1, 0);
+		float circle_offset = getTextWidth("O", 14)/2;
+		Draw_String([g_width/2 - circle_offset, g_height/2 - circle_offset], "O", [14, 14], crosshair_color, 1, 0);
 	}
 	// Dot crosshair (.)
 	else if (crosshair_value == 3) {
@@ -1364,23 +1481,40 @@ void() HUD_Powerups =
 	}
 }
 
-void() HUD_Broadcast = {
+void() HUD_Broadcast = 
+{
+	// broadcast_num refers to the playernum of the client. This
+	// does NOT correspond to player key indexes, so we need to
+	// grab the player with the matching playernum and use infokeys.
+	entity player_target = findfloat(world, playernum, broadcast_num);
+	string broadcast_name = infokey(player_target, INFOKEY_P_NAME);
 
 	string broadcast_msg = "";
-	float health = getstatf(STAT_HEALTH);
-	
+
 	switch(broadcast_type) {
-		case 2: broadcast_msg = strcat(broadcast_string, " needs to be revived"); break;
-		case 3: broadcast_msg = strcat(broadcast_string, " is reviving you"); break;
-		default: break;
+		case CSQC_BROADCAST_PLAYERDOWNED:
+			broadcast_msg = strcat(broadcast_name, " needs to be revived");
+			break;
+		case CSQC_BROADCAST_BEINGREVIVED:
+			broadcast_msg = strcat(broadcast_name, " is reviving you");
+			break;
+		case CSQC_BROADCAST_REVIVINGPLAYER:
+			broadcast_msg = strcat("Reviving ", broadcast_name);
+			break;
+		case CSQC_BROADCAST_NONE:
+			broadcast_msg = "";
+			break;
+		default:
+			broadcast_msg = "Bad broadcast.";
+			break;
 	}
 
-	float print_width = stringwidth (broadcast_msg, 0, [0.015*g_width, 0.015*g_width, 0]);
+	float print_width = getTextWidth(broadcast_msg, 0.015*g_width);
 	float x = (g_width - print_width)/2;
 
 	if (broadcast_msg != "")
-		drawstring([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
-}
+		Draw_String([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
+};
 
 void() HUD_Scores =
 {
@@ -1390,16 +1524,16 @@ void() HUD_Scores =
 	if(serverkey("constate") != "disconnected")
 	{
 		// Headers
-		drawstring([g_width/2 + 15, 175], "Points", [12, 12], TEXTCOLOR, 1, 0); 
-		drawstring([g_width/2 + 170, 175], "Kills", [12, 12], TEXTCOLOR, 1, 0); 
+		Draw_String([g_width/2 + 15, 175], "Points", [12, 12], TEXTCOLOR, 1, 0); 
+		Draw_String([g_width/2 + 170, 175], "Kills", [12, 12], TEXTCOLOR, 1, 0); 
 	
 		for (int i = 0; i < 4; i = i + 1)
 		{
-			float player_number = getplayerkeyfloat(i, "viewentity");
+			float player_number = getplayerkeyfloat(i, "client_index");
 			entity client = findfloat(world, playernum, player_number);
 
-			if (client == world || client.movetype == MOVETYPE_BOUNCE)
-				break;
+			if ((client == world || !client.classname) && !client.is_spectator)
+				continue;
 			
 			switch(i) {
 				case 1: TEXTCOLOR = TEXT_LIGHTBLUE; break;
@@ -1426,17 +1560,17 @@ void() HUD_Scores =
 			
 			// Name
 			string player_name = getplayerkeyvalue(i, "name");
-			drawstring([g_width/2 - 245, 200 + (30 * i)], player_name, [12, 12], TEXTCOLOR, 1, 0); 
+			Draw_String([g_width/2 - 245, 200 + (30 * i)], player_name, [12, 12], TEXTCOLOR, 1, 0); 
 
 			// Points
-			float point_width = stringwidth(ftos(client.points), 0, [12, 12]);
+			float point_width = getTextWidth(ftos(client.points), 12);
 			float point_x = ((g_width/2) - (point_width)/2) + 52;
-			drawstring([point_x, 200 + (30 * i)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0); 
+			Draw_String([point_x, 200 + (30 * i)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0); 
 
 			// Kills
-			float kill_width = stringwidth(ftos(client.points), 0, [12, 12]);
+			float kill_width = getTextWidth(ftos(client.kills), 12);
 			float kill_x = ((g_width/2) - (kill_width)/2) + 210;
-			drawstring([kill_x, 200 + (30 * i)], ftos(client.kills), [12, 12], TEXTCOLOR, 1, 0); 
+			Draw_String([kill_x, 200 + (30 * i)], ftos(client.kills), [12, 12], TEXTCOLOR, 1, 0); 
 		}
 	}
 }
@@ -1453,53 +1587,98 @@ void() HUD_Endgame = {
 
 	survive = strcat("You Survived ", ftos(rounds), round);
 
-	float game_over_width = stringwidth(game_over, 0, [24, 24]);
-	drawstring([g_width/2 - game_over_width/2, 100], game_over, [24, 24], [1, 1, 1], 1, 0);
+	float game_over_width = getTextWidth(game_over, 24);
+	Draw_String([g_width/2 - game_over_width/2, 100], game_over, [24, 24], [1, 1, 1], 1, 0);
 
-	float survive_width = stringwidth(survive, 0, [18, 18]);
-	drawstring([g_width/2 - survive_width/2, 135], survive, [18, 18], [1, 1, 1], 1, 0);
+	float survive_width = getTextWidth(survive, 18);
+	Draw_String([g_width/2 - survive_width/2, 135], survive, [18, 18], [1, 1, 1], 1, 0);
 
 	HUD_Scores();
 }
 
-float oldfade_alpha;
-void() HUD_Fade = 
+//
+// HUD_Screenflash()
+// Screen fade in and out behaviors.
+//
+void() HUD_Screenflash = 
 {  
-	float alpha;
-	
-	if (fade_type == 1) {
-		alpha = cos(fade_time - time);
-			if (oldfade_alpha > 0.95)
-			alpha = 1;
-			
-			alpha = invertfloat(alpha);
-						
-		drawfill ([0, 0, 0], [g_width, g_height, 0], [0, 0, 0], alpha, 0);	// background
-		oldfade_alpha = alpha;
+	vector color = '0 0 0';
+	float flash_alpha = 0;
+
+	// Obtain the flash color
+	switch(screenflash_color) {
+		case SCREENFLASH_COLOR_BLACK: color = '0 0 0'; break;
+		case SCREENFLASH_COLOR_WHITE: color = '1 1 1'; break;
+		default: color = '1 0 0'; break;
 	}
-	else if (fade_type == 2) {
-		alpha = sin(((fade_time - time) * 2));
-		if (oldfade_alpha > 0.95)
-			alpha = 1;
-				
-		drawfill ([0, 0, 0], [g_width, g_height, 0], [0, 0, 0], alpha, 0);	// background
-		oldfade_alpha = alpha;
+
+	float percentage_complete = screenflash_worktime / (screenflash_duration - screenflash_starttime);
+
+	// Fade Out
+	if (screenflash_type == SCREENFLASH_FADE_OUT) {
+		flash_alpha = invertfloat(percentage_complete);
 	}
+	// Fade In
+	else if (screenflash_type == SCREENFLASH_FADE_IN) {
+		flash_alpha = percentage_complete;
+	}
+	// Fade In + Fade Out
+	else {
+		// Fade In
+		if (percentage_complete < 0.5) {
+			flash_alpha = percentage_complete;
+		} 
+		// Fade Out
+		else {
+			flash_alpha = invertfloat(percentage_complete);
+		}
+	}
+
+	screenflash_worktime += frametime;
+	drawfill ([0, 0], [g_width, g_height, 0], color, flash_alpha, 0);
 }
 
-void(float width, float height) HUD_ScrollText = {
-	float print_width = stringwidth (scrolltext, 0, [12, 12, 0]);
-	float x = (width - print_width)/2;
+//
+// HUD_MaxAmmo(width, height)
+// Displays the "Max Ammo!" text on the HUD.
+//
+void(float width, float height) HUD_MaxAmmo =
+{
+	string maxammo_string = "Max Ammo!";
 
-	drawstring([x, scrollheight*height, 0], scrolltext, [12, 12, 0], [1, 1, 1], scrollopacity, 0); //low
-	if (scrollheight > 0.70) {
-		scrollheight -= frametime/10;
-		if (scrollopacity > 0)
-			scrollopacity -= frametime;
-	} else {
-		stext = 0;
+	float start_y = 70;
+	float end_y = 55;
+	float diff_y = end_y - start_y;
+
+	float text_alpha = 1;
+
+	float string_width = getTextWidth(maxammo_string, 14);
+	float pos_x = (width - string_width)/2;
+	float pos_y;
+
+	float start_time, end_time;
+
+	// For the first 0.5s, stay still while we fade in
+	if (hud_maxammo_endtime > time + 1.5) {
+		start_time = hud_maxammo_starttime;
+		end_time = hud_maxammo_starttime + 0.5;
+
+		text_alpha = (time - start_time) / (end_time - start_time);
+		pos_y = start_y;
 	}
-}
+	// For the remaining 1.5s, fade out while we fly upwards.
+	else {
+		start_time = hud_maxammo_starttime + 0.5;
+		end_time = hud_maxammo_endtime;
+
+		float percent_time = (time - start_time) / (end_time - start_time);
+
+		pos_y = start_y + diff_y * percent_time;
+		text_alpha = 1 - percent_time;
+	}
+
+	Draw_String([pos_x, pos_y, 0], maxammo_string, [14, 14], [1, 1, 1], text_alpha, 0);
+};
 
 float achievement_init;
 float achievement_ypos;
@@ -1519,8 +1698,8 @@ void(float width, float height) HUD_Achievements = {
 	}
 
 
-	drawstring([0.2*width, achievement_ypos*height, 0], "ACHIEVEMENT GET!", [0.015*width, 0.015*width, 0], [1, 1, 0], 1, 0);
-	drawstring([0.2*width, achievement_desc_ypos*height, 0], achievements[active_achievement].name, [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	Draw_String([0.2*width, achievement_ypos*height, 0], "ACHIEVEMENT GET!", [0.015*width, 0.015*width, 0], [1, 1, 0], 1, 0);
+	Draw_String([0.2*width, achievement_desc_ypos*height, 0], achievements[active_achievement].name, [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
 	drawpic([0.005*width, achievement_img_ypos*height,0], achievements[active_achievement].img, [0.16*width, 0.08*width, 0], [1,1,1], 1);
 
 	if (achievement_time <= 120) {
@@ -1548,43 +1727,109 @@ void(float width, float height) HUD_Achievements = {
 	}
 }
 
-string(float index) GetButtonString =
+void(float x_position, float y_position, string command, string action) HUD_DrawWaypointModeString =
 {
-	// place holder
-	if (index == 100)
-		return "LMOUSE";
-	else if (index == 101)
-		return "RMOUSE";
+	string bind_button = "";
+	string bind_space = "";
 
-	tokenize(findkeysforcommand(buttonBind[index]));
-	string temps = strtoupper(keynumtostring(stof(argv(0))));
+	float argc = tokenize(findkeysforcommandex(command));
 
-	return temps;
-}
+    for (int i = 0; i < argc; i++) {
+        bind_button = strtoupper(argv(i));
+        float bind_is_gamepad = Key_IsControllerGlyph(bind_button);
+
+        if (bind_is_gamepad && last_input_was_gamepad)
+            break;
+        else if (!bind_is_gamepad && !last_input_was_gamepad)
+            break;
+    }
+
+	if (bind_button == "")
+		bind_button = "UNBOUND";
+
+	// If this is a gamepad button, the space we want to reserve
+	// in the usestring should be a fixed width.
+	if (Key_IsControllerGlyph(bind_button)) {
+		bind_space = " ";
+	} 
+	// Scale the space in the usestring for the bind according to
+	// the bind's name.
+	else {
+		for(float i = 0; i < strlen(bind_button); i++) {
+			bind_space = strcat(bind_space, "  ");
+		}
+	}
+
+	string tooltip = sprintf("Press %s to %s", bind_space, action);
+	float bind_x = x_position + getTextWidth("Press ", 12);
+
+	Draw_String([x_position, y_position], tooltip, [12, 12], [1, 1, 1], 1, 0);
+
+	if (Key_IsControllerGlyph(bind_button)) {
+		Key_DrawControllerGlyph([bind_x - 5, y_position], bind_button, [15, 15]);
+	} else {
+		// FTE likes to use MOUSE1 and MOUSE2 for LMOUSE and RMOUSE respectively, which is obtuse.
+		string bind_display = "";
+		switch(bind_button) {
+			case "MOUSE1": bind_display = "LMOUSE"; break;
+			case "MOUSE2": bind_display = "RMOUSE"; break;
+			default: bind_display = bind_button; break;
+		}
+
+		Draw_String([bind_x, y_position, 0], bind_display, [12, 12, 0], [1, 1, 0], 1, 0);
+	}
+};
 
 void(float width, float height) HUD_Waypoint =
 {
-	drawstring([0.015*width, 0.015*height, 0], "WAYPOINT MODE", [0.030*width, 0.030*width, 0], [1, 1, 1], 1, 0);
-	drawfill([0.015*width, 0.035*height + height*0.035, 0], [strlen("WAYPOINT MODE")*0.030*width, 0.005*width, 0], [1, 1,1], 1, 0);
-	drawstring([0.015*width, 0.095*height, 0], strcat("Press ", GetButtonString(100), " to Create a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.125*height, 0], strcat("Press ", GetButtonString(9), " to Select a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.155*height, 0], strcat("Press ", GetButtonString(101), " to Link a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.185*height, 0], strcat("Press ", GetButtonString(11), " to Remove a Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.215*height, 0], strcat("Press ", GetButtonString(7), " to Move a Waypoint Here"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.245*height, 0], strcat("Press ", GetButtonString(10), " to Create a Special Waypoint"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.275*height, 0], strcat("Press ", "=", " to load map waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawstring([0.015*width, 0.305*height, 0], strcat("Press ", "-", " to save current waypoints"), [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
+	drawfill([0, 4], [450, 190], [0, 0, 0], 0.75, 0);
+
+	Draw_String([5, 8], "WAYPOINT MODE", [18, 18], [1, 1, 1], 1, 0);
+	Draw_String([5, 30], "Create/Tweak Pathfind Nodes for Zombie AI", [12, 12], [1, 1, 0], 1, 0);
+	Draw_String([5, 45], "(If you don't know what you're doing, you probably shouldn't be here!)", [10, 10], [1, 1, 1], 1, 0);
+
+	drawfill([5, 60], [440, 3], [0.3, 0.3, 0.3], 1, 0);
+
+	HUD_DrawWaypointModeString(5, 70, "+attack", "Create a Waypoint");
+	HUD_DrawWaypointModeString(5, 85, "+button7", "Select a Waypoint");
+	HUD_DrawWaypointModeString(5, 100, "+button8", "Link a Waypoint");
+	HUD_DrawWaypointModeString(5, 115, "+button6", "Remove a Waypoint");
+	HUD_DrawWaypointModeString(5, 130, "+button4", "Move selected Waypoint Here");
+	HUD_DrawWaypointModeString(5, 145, "+button5", "Create a (Special) Waypoint");
+	HUD_DrawWaypointModeString(5, 160, "impulse 22", "Load Map's Waypoints");
+	HUD_DrawWaypointModeString(5, 175, "impulse 24", "Save current Waypoints");
+}
+
+void(float width, float height) HUD_Spectator =
+{
+	drawfill([0, 4], [250, 60], [0, 0, 0], 0.75, 0);
+	Draw_String([5, 8], "SPECTATING", [18, 18], [1, 1, 1], 1, 0);
+	Draw_String([5, 30], "You will spawn next Round", [12, 12], [1, 1, 0], 1, 0);
+	Draw_String([5, 45], "(Fly around or go grab a snack!)", [10, 10], [1, 1, 1], 1, 0);
+	drawfill([5, 60], [240, 3], [0.3, 0.3, 0.3], 1, 0);
 }
 
 void(float width, float height) HUD_PlayerNames =
 {
 	for (float i = 3; i >= 0; i = i - 1) {
-		if ((i+1) == getstatf(STAT_PLAYERNUM))
+		float player_number = getplayerkeyfloat(i, "client_index");
+
+		if (player_number == getstatf(STAT_PLAYERNUM))
 			continue;
-		
-		float player_number = getplayerkeyfloat(i, "viewentity");
 
 		string text = getplayerkeyvalue(i, "name");
+		entity client = findfloat(world, playernum, player_number);
+
+		if (client == world || !client.classname || client.is_spectator)
+			continue;
+
+		// Append "[CHAT] " to the player name if the user is in message mode
+		if (client.is_in_menu == 2)
+			text = strcat("[CHAT] ", text);
+		// Similarly, append "[PAUSED] " to the player name if the user is paused
+		else if (client.is_in_menu == 1)
+			text = strcat("[PAUSED] ", text);
+
 		entity plr = findfloat(world, playernum, player_number);
 		vector player_origin = plr.origin + '0 0 48';
 		vector screen_position = project(player_origin);
@@ -1593,7 +1838,7 @@ void(float width, float height) HUD_PlayerNames =
 		if (player_origin == '0 0 48')
 			continue;
 
-		screen_position_x -= stringwidth(text, 0, [8, 8])/2;
+		screen_position_x -= getTextWidth(text, 8)/2;
 
 		switch(i) {
 			case 1: text_color = TEXT_LIGHTBLUE; break;
@@ -1603,29 +1848,53 @@ void(float width, float height) HUD_PlayerNames =
 		}
 
 		if (screen_position_z > 0)
-			drawstring(screen_position, text, [8, 8], text_color, 1, 0);
+			Draw_String(screen_position, text, [8, 8], text_color, 1, 0);
 	}
 }
 
 void(float width, float height) HUD_ReviveIcons =
 {
-	for (float i = 0; i < active_revive_icons; i++) {
-		if (revive_icons[i].draw == true) {
-			revive_icons[i].timer += frametime;
-			vector revive_origin;
-			revive_origin_x = revive_icons[i].org[0];
-			revive_origin_y = revive_icons[i].org[1];
-			revive_origin_z = revive_icons[i].org[2];
-			vector screen_position = project(revive_origin);
-			screen_position_x -= (32)/2;
+	for (float i = 3; i >= 0; i = i - 1) {
+		float player_index = i;
 
-			if (screen_position_z > 0) {
-				// being revived
-				if (revive_icons[i].state == 2)
-					drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1,1], 1);
-				else {
-					drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1 - (revive_icons[i].timer/30),0], 1);
-				}
+		// Don't render our own Icon.
+		if (player_index + 1 == getstatf(STAT_PLAYERNUM))
+			continue;
+
+		// Player is not in Last Stand.
+		if (revive_icons[player_index].state <= 0)
+			continue;
+
+		// Player is not being actively revived, so the
+		// Revive Icon should grow more and more red over time.
+		if (revive_icons[player_index].state == 1)
+			revive_icons[player_index].timer += frametime;
+		
+		float player_number = getplayerkeyfloat(i, "client_index");
+
+		//string text = getplayerkeyvalue(i, "name");
+		entity client = findfloat(world, playernum, player_number);
+
+		// Client does not exist.
+		if (client == world || !client.classname || client.is_spectator)
+			continue;
+
+		entity plr = findfloat(world, playernum, player_number);
+		vector player_origin = plr.origin + '0 0 32';
+		vector screen_position = project(player_origin);
+		screen_position_x -= (32)/2;
+
+		if (player_origin == '0 0 32')
+			continue;
+
+		if (screen_position_z > 0) {
+			// Client is actively being revived, render white.
+			if (revive_icons[i].state == 2) {
+				drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1,1], 1);
+			} 
+			// Draw with a yellow->red hue.
+			else {
+				drawpic(screen_position, "gfx/hud/revive_icon.tga", [32, 32, 1], [1,1 - (revive_icons[i].timer/30),0], 1);
 			}
 		}
 	}
@@ -1647,7 +1916,7 @@ void(float width, float height) HUD_StopWatch =
 
 	stopwatch = strcat(hr, ":", min, ":", sec);
 
-	drawstring([width - (strlen(stopwatch) * 12) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
+	Draw_String([width - (getTextWidth(stopwatch, 12)) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
 }
 
 void(float width, float height) HUD_RoundStopWatch =
@@ -1667,8 +1936,43 @@ void(float width, float height) HUD_RoundStopWatch =
 
 	stopwatch = strcat(hr, ":", min, ":", sec);
 
-	drawstring([width - (strlen(stopwatch) * 12) - 2, 16], stopwatch, [12, 12], [1, 1, 1], 1, 0);
+	Draw_String([width - (getTextWidth(stopwatch, 12)) - 2, 16], stopwatch, [12, 12], [1, 1, 1], 1, 0);
 }
+
+/*******************
+*  HUD Debug Info  *
+*******************/
+
+// set from CSQC_Ent_Update
+vector player_velocity;
+
+void(float width, float height) HUD_PlayerDebugInfo =
+{
+	static float lastupstime;
+	static float lastups;
+
+	if (!cvar("scr_playerdebuginfo"))
+		return;
+
+	if ((time - lastupstime) >= 1.0 / 20)
+	{
+		lastups = vlen(player_velocity);
+		lastupstime = time;
+	}
+
+	vector pos = [cvar("scr_playerdebuginfo_x"), cvar("scr_playerdebuginfo_y")];
+	pos.x += GetUltraWideOffset();
+
+	drawfill(pos - [8, 8], [128, 192], [0, 0, 0], 0.75, 0);
+
+	Draw_FancyFloat(pos, "Speed:", lastups, "qu/s");
+
+	if (cvar("scr_playerdebuginfo") >= 2)
+	{
+		Draw_FancyVector(pos + [0, 36], "Angles:", getproperty(VF_ANGLES));
+		Draw_FancyVector(pos + [0, 106], "Origin:", getproperty(VF_ORIGIN));
+	}
+};
 
 /*******************
 *     HUD Draw     *
@@ -1679,10 +1983,13 @@ void(float width, float height) HUD_Draw =
 	if (cvar("cl_cinematic"))
 		return;
 
-	HUD_Achievements(width, height);
-
+	if (getstatf(STAT_SPECTATING)) {
+		HUD_Rounds(width, height);
+		HUD_Spectator(width, height);
+		return;
+	}
 	
-	if (!getstatf(STAT_SPECTATING) && (getstatf(STAT_HEALTH) > 1) && !score_show)
+	if ((getstatf(STAT_HEALTH) > 1) && !score_show && !game_over)
 	{
 		Draw_Crosshair();
 
@@ -1694,7 +2001,7 @@ void(float width, float height) HUD_Draw =
 			HUD_Progressbar(width, height);
 			HUD_Powerups();
 
-            if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "")
+            if (cl_viewent.modelindex != 0)
 			    HUD_AmmoString();
 
 			if (nameprint_time > time)
@@ -1707,7 +2014,7 @@ void(float width, float height) HUD_Draw =
 			{
                 HUD_Grenades(width, height);
 
-                if (vmodel.model == GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), FALSE) && vmodel.model != "") {
+                if (cl_viewent.modelindex != 0) {
                     HUD_Ammo(width, height);
 				    HUD_Weaponstring(width, height);
                 }
@@ -1719,12 +2026,8 @@ void(float width, float height) HUD_Draw =
 			if (Hitmark_time > time)
 				HUD_Hitmark();
 
-			if (stext) {
-				HUD_ScrollText(width, height);
-			} else {
-				scrollopacity = 1;
-				scrollheight = 0.80;
-			}
+			if (hud_maxammo_endtime > time)
+				HUD_MaxAmmo(width, height);
 
 			HUD_PlayerNames(width, height);
 			HUD_ReviveIcons(width, height);
@@ -1749,43 +2052,11 @@ void(float width, float height) HUD_Draw =
 		
 	if (score_show)
 		HUD_Scores();
+
+	HUD_Achievements(width, height);
+
+	HUD_PlayerDebugInfo(width, height);
 		
-	if (fade_time > time)
-		HUD_Fade();
-}
-
-void UpdatePerks(float newperks) {
-	float s;
-
-	// avoids out of bounds err - moto
-	if (newperks == 0)
-		current_perk_order = 0;
-
-	for(float i = 1; i < 129; i *= 2) {
-		if (newperks & i && !(perks & i)) {
-			perk_order[current_perk_order] = i;
-			current_perk_order += 1;
-		}
-	}
-
-	for(float i = 1; i < 129; i *= 2) {
-		if (perks & i && !(newperks & i)) 
-		{
-			for(s = 0; s < 8; s++) 
-			{
-				if (perk_order[s] == i) 
-				{
-					perk_order[s] = 0;
-					while (perk_order[s+1]) 
-					{
-						perk_order[s] = perk_order[s+1];
-						perk_order[s+1] = 0;
-					}
-					break;
-				}
-			}
-		}
-	}
-	
-	perks = newperks;
+	if (screenflash_duration > time)
+		HUD_Screenflash();
 }

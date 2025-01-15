@@ -3,7 +3,7 @@
 
 	Core logic for the Wunderwaffe special weapon.
 
-	Copyright (C) 2021-2023 NZ:P Team
+	Copyright (C) 2021-2024 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -49,6 +49,7 @@ void(vector pos) tesla_spark = {
 	local entity lightning = spawn();
 	setmodel(lightning, "models/sprites/lightning.spr");
 	setorigin(lightning, pos);
+    lightning.effects = EF_FULLBRIGHT;
 	lightning.think = tesla_spark_think;
 	lightning.nextthink = time + 0.05;
 	lightning.ltime = time + 1;
@@ -61,12 +62,15 @@ void(vector pos) tesla_spark = {
 void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float do_arc) tesla_damage = {
     // set lib models to null
 	// (if we remove them RelinkZombies will cry)
-	// if (hit_ent.head)
-	// 	setmodel(hit_ent.head, "");
-	// if (hit_ent.larm)
-	// 	setmodel(hit_ent.larm, "");
-	// if (hit_ent.rarm)
-	// 	setmodel(hit_ent.rarm, "");
+    if (!hit_ent.th_diewunder)
+        return;
+
+	if (hit_ent.head)
+		setmodel(hit_ent.head, "");
+	if (hit_ent.larm)
+		setmodel(hit_ent.larm, "");
+	if (hit_ent.rarm)
+		setmodel(hit_ent.rarm, "");
 
     hit_ent.velocity.x = 0;
     hit_ent.velocity.y = 0;
@@ -76,16 +80,13 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
 		self.state = self.hop_step = 0;
 	}
 
-    // // change classname so it can't be re-targted
-	// hit_ent.classname = "wunder";
-
-    if(arc_owner != world) {
+    if(arc_owner != world && hit_ent.aistatus == "1") {
         arc_owner.tesla_n_kills += 1;
         
         // 50 points for waffe kills
         if(arc_owner.classname == "player") {
             arc_owner.kills += 1;
-            addmoney(arc_owner, 50, true);
+            Player_AddScore(arc_owner, DMG_SCORE_TESLA, true);
         }
     }
 
@@ -332,10 +333,7 @@ void() W_FireTesla =
                 float damage = lerp(0, 75, lerp_frac);
                 // print("Giving player ",ftos(damage), " damage.\n");
 
-                if (other.perks & P_JUG)
-    				DamageHandler(ent, self, damage, S_ZAPPER);
-	    		else
-		    		DamageHandler(ent, self, damage, S_ZAPPER);
+                DamageHandler(ent, self, damage, DMG_TYPE_ELECTRICTRAP);
                 // ----------------------------------------
             }
 
