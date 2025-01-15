@@ -419,8 +419,12 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.stance = readbyte();
 		self.points = readfloat();	// FIXME: this should be made a short, but I know we use price of 1 for some test maps, so I can't do /10 *10 shenanigans.
 		self.kills = readshort();
+		self.headshots = readshort();
+		self.downs = readshort();
+		self.revives = readshort();
 		self.is_in_menu = readbyte();
 		self.is_spectator = readbyte();
+		self.ping = readshort();
 
 		// set for HUD_PlayerDebugInfo
 		player_velocity = self.velocity;

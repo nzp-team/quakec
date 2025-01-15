@@ -310,8 +310,16 @@ float 	map_compatibility_mode;
 #define STAT_WEAPONSKIN 		68
 #define STAT_PERKS				69
 
+// Misc. player statistics
 .float playernum;
 .float is_spectator;
+.float ping;
+.float kills;
+.float headshots;
+.float downs;
+.float revives;
+.float points;
+
 float game_over;
 
 #ifdef FTE

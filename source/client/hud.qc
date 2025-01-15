@@ -1516,16 +1516,56 @@ void() HUD_Broadcast =
 		Draw_String([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
 };
 
+void(float y_pos) HUD_DrawMoneyBackDisplay =
+{
+	int i;
+
+	// Center moneyback
+	drawpic([g_width/2 - 48, y_pos], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+	// Left
+	for(i = 0; i < 3; i++) {
+		drawpic([(g_width/2 - 48) - (70 * (i + 1)), y_pos], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+	}
+	// Right
+	for(i = 0; i < 3; i++) {
+		drawpic([(g_width/2 - 48) + (70 * (i + 1)), y_pos], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+	}
+};
+
 void() HUD_Scores =
 {
-	int j;
 	vector TEXTCOLOR = [1, 1, 1];
+
+	float header_x_start = -75;
+	float header_x_increment = 65;
+	float scoreboard_text_size = 10;
+	float header_x_pos = header_x_start;
 	
 	if(serverkey("constate") != "disconnected")
 	{
-		// Headers
-		Draw_String([g_width/2 + 15, 175], "Points", [12, 12], TEXTCOLOR, 1, 0); 
-		Draw_String([g_width/2 + 170, 175], "Kills", [12, 12], TEXTCOLOR, 1, 0); 
+		Draw_String([5, g_height - scoreboard_text_size - 5], sprintf("Nazi Zombies: Portable %s", build_datetime), [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0);
+
+		// Scoreboard header
+		drawfill([g_width/2 - 271, 177], [270 * 2 + 2, 1], [0.2, 0.2, 0.2], 1, 0);
+		drawfill([g_width/2 - 271, 178 + scoreboard_text_size + 4], [270 * 2 + 2, 1], [0.2, 0.2, 0.2], 1, 0);
+		drawfill([g_width/2 - 271, 178], [1, scoreboard_text_size + 4], [0.2, 0.2, 0.2], 1, 0);
+		drawfill([g_width/2 + 270, 178], [1, scoreboard_text_size + 4], [0.2, 0.2, 0.2], 1, 0);
+		drawfill([g_width/2 - 270, 178], [270 * 2, scoreboard_text_size + 4], [0, 0, 0], 0.80, 0);
+
+		// Name
+		string map_name = serverkey("mapname_pretty");
+		Draw_String([g_width/2 - 265, 180], map_name, [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+
+		Draw_String([g_width/2 + (header_x_pos - getTextWidth("Score", scoreboard_text_size)/2), 180], "Score", [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+		header_x_pos += header_x_increment;
+		Draw_String([g_width/2 + (header_x_pos - getTextWidth("Kills", scoreboard_text_size)/2), 180], "Kills", [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+		header_x_pos += header_x_increment;
+		Draw_String([g_width/2 + (header_x_pos - getTextWidth("Downs", scoreboard_text_size)/2), 180], "Downs", [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+		header_x_pos += header_x_increment;
+		Draw_String([g_width/2 + (header_x_pos - getTextWidth("Revives", scoreboard_text_size)/2), 180], "Revives", [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+		header_x_pos += header_x_increment;
+		Draw_String([g_width/2 + (header_x_pos - getTextWidth("Headshots", scoreboard_text_size)/2), 180], "Headshots", [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+		header_x_pos += header_x_increment;
 	
 		for (int i = 0; i < 4; i = i + 1)
 		{
@@ -1542,35 +1582,87 @@ void() HUD_Scores =
 				default: TEXTCOLOR = [1, 1, 1]; break;
 			}
 
-			//
-			// Since positioning is center-aligned, we need to be careful how we do our X and Y
-			// pos. to keep things looking nicely centered and even with different aspect ratios.
-			//
+			float y_pos = (scoreboard_text_size + 5) * i;
 
-			// Center moneyback
-			drawpic([g_width/2 - 48,  195 + (30 * i)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
+			// Fill
+			drawfill([g_width/2 - 270, 195 + y_pos], [270 * 2, scoreboard_text_size + 5], [0, 0, 0], 0.80, 0);
+			drawfill([g_width/2 + (header_x_start - header_x_increment/2), 195 + y_pos], [header_x_increment, scoreboard_text_size + 5], [0.3, 0, 0], 0.15, 0);
+			drawfill([g_width/2 + ((header_x_start + header_x_increment*2) - header_x_increment/2), 195 + y_pos], [header_x_increment, scoreboard_text_size + 5], [0.3, 0, 0], 0.15, 0);
+			drawfill([g_width/2 + ((header_x_start + header_x_increment*4) - header_x_increment/2), 195 + y_pos], [header_x_increment, scoreboard_text_size + 5], [0.3, 0, 0], 0.15, 0);
+
+			// Top
+			if (i == 0)
+				drawfill([g_width/2 - 271, 194 + y_pos], [270 * 2 + 2, 1], [0.2, 0.2, 0.2], 1, 0); 
+
+			// Bottom
+			if (player_count == i + 1)
+				drawfill([g_width/2 - 271, 195 + y_pos + scoreboard_text_size + 4], [270 * 2 + 2, 1], [0.2, 0.2, 0.2], 1, 0);
+
 			// Left
-			for(j = 0; j < 3; j++) {
-				drawpic([(g_width/2 - 48) - (70 * (j+1)),  195 + (30 * i)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
-			}
-			// Right
-			for(j = 0; j < 3; j++) {
-				drawpic([(g_width/2 - 48) + (70 * (j+1)),  195 + (30 * i)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
-			}
+			drawfill([g_width/2 - 271, 194 + y_pos], [1, scoreboard_text_size + 6], [0.2, 0.2, 0.2], 1, 0);
+
+			// Right			
+			drawfill([g_width/2 + 270, 194 + y_pos], [1, scoreboard_text_size + 6], [0.2, 0.2, 0.2], 1, 0);
+
+			header_x_pos = header_x_start;
 			
 			// Name
 			string player_name = getplayerkeyvalue(i, "name");
-			Draw_String([g_width/2 - 245, 200 + (30 * i)], player_name, [12, 12], TEXTCOLOR, 1, 0); 
+			Draw_String([g_width/2 - 265, 197 + y_pos], player_name, [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
 
-			// Points
-			float point_width = getTextWidth(ftos(client.points), 12);
-			float point_x = ((g_width/2) - (point_width)/2) + 52;
-			Draw_String([point_x, 200 + (30 * i)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0); 
+			// Score
+			string score_string = ftos(client.points);
+			Draw_String([g_width/2 + (header_x_pos - getTextWidth(score_string, scoreboard_text_size)/2), 197 + y_pos], score_string, [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+			header_x_pos += header_x_increment;
 
 			// Kills
-			float kill_width = getTextWidth(ftos(client.kills), 12);
-			float kill_x = ((g_width/2) - (kill_width)/2) + 210;
-			Draw_String([kill_x, 200 + (30 * i)], ftos(client.kills), [12, 12], TEXTCOLOR, 1, 0); 
+			string kills_string = ftos(client.kills);
+			Draw_String([g_width/2 + (header_x_pos - getTextWidth(kills_string, scoreboard_text_size)/2), 197 + y_pos], kills_string, [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+			header_x_pos += header_x_increment;
+
+			// Downs
+			string downs_string = ftos(client.downs);
+			Draw_String([g_width/2 + (header_x_pos - getTextWidth(downs_string, scoreboard_text_size)/2), 197 + y_pos], downs_string, [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+			header_x_pos += header_x_increment;
+
+			// Revives
+			string revives_string = ftos(client.revives);
+			Draw_String([g_width/2 + (header_x_pos - getTextWidth(revives_string, scoreboard_text_size)/2), 197 + y_pos], revives_string, [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+			header_x_pos += header_x_increment;
+
+			// Headshots
+			string headshots_string = ftos(client.headshots);
+			Draw_String([g_width/2 + (header_x_pos - getTextWidth(headshots_string, scoreboard_text_size)/2), 197 + y_pos], headshots_string, [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
+			
+			// Ping
+			float ping_num_bars;
+			vector ping_bar_color = [0, 1, 0];
+
+			if (client.ping < 100) {
+				ping_num_bars = 4;
+			} else if (client.ping < 200) {
+				ping_num_bars = 3;
+			} else if (client.ping < 300) {
+				ping_num_bars = 2;
+				ping_bar_color = [1, 0.5, 0];
+			} else {
+				ping_num_bars = 1;
+				ping_bar_color = [1, 0, 0];
+			}
+
+			header_x_pos += 5 + header_x_increment/2;
+			float ping_bar_width = 2;
+			float ping_bar_height = 4;
+			float ping_bar_height_increment = 2;
+
+			string ping_string = sprintf("%dms", client.ping);
+			Draw_String([g_width/2 + ((header_x_pos + 28) - getTextWidth(ping_string, scoreboard_text_size - 2)/2), 199 + y_pos], ping_string, [scoreboard_text_size - 2, scoreboard_text_size - 2], TEXTCOLOR, 1, 0); 
+
+			for(float bars = ping_num_bars; bars > 0; bars--) {
+				drawfill([g_width/2 + header_x_pos, 197 + y_pos + (11 - ping_bar_height)], [ping_bar_width, ping_bar_height], ping_bar_color, 1, 0);
+				ping_bar_height += ping_bar_height_increment;
+				header_x_pos += 3;
+			}
 		}
 	}
 }

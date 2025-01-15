@@ -409,6 +409,27 @@ void() worldspawn =
 
 	// Update the cvar for the server.
 	cvar_set("sv_gravity", ftos(sv_gravity * world.gravity));
+
+#ifdef FTE
+
+	// We need to get the currently loaded map's pretty name
+	// (if it exists) so we can send it to clients or broadcast
+	// it.
+	string mapname_pretty;
+	float map_txt_file = fopen(sprintf("maps/%s.txt", mapname), FILE_READ);
+
+	if (map_txt_file == -1) {
+		mapname_pretty = mapname;
+	} else {
+		mapname_pretty = strtrim((fgets(map_txt_file)));
+		fclose(map_txt_file);
+	}
+
+	cvar_set("mapname_pretty", mapname_pretty);
+	localcmd(sprintf("serverinfo mapname_pretty %s\n", mapname_pretty));
+
+#endif // FTE
+
 }
 
 void() SpectatorConnect =

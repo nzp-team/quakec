@@ -100,14 +100,11 @@ entity local_client;
 .vector new_ofs;
 
 //money
-.float points;
 .float cost;
 .float cost2;
 
 //stats
 .float score;
-.float kills;
-.float headshots;
 
 #ifdef FTE
 

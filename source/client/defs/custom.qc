@@ -126,8 +126,6 @@ float screenflash_worktime;
 float screenflash_starttime;
 
 .float stance;
-.float points;
-.float kills;
 
 vector camang;		// used for punches
 

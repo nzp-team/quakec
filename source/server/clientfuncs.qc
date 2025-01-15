@@ -542,6 +542,8 @@ Player_SendEntity
 =================
 */
 float Player_SendEntity( entity ePVEnt, float flChanged ) {
+	self.ping = infokeyf(self, "ping");
+
     WriteByte( MSG_ENTITY, 1 );
     WriteCoord( MSG_ENTITY, self.origin_x ); // Position X
     WriteCoord( MSG_ENTITY, self.origin_y ); // Position Y
@@ -560,8 +562,12 @@ float Player_SendEntity( entity ePVEnt, float flChanged ) {
 	WriteByte( MSG_ENTITY, self.stance ); // Player Stance
 	WriteFloat( MSG_ENTITY, self.points ); // Player Score
 	WriteShort( MSG_ENTITY, self.kills ); // Player Kills
+	WriteShort( MSG_ENTITY, self.headshots ); // Player Headshots
+	WriteShort( MSG_ENTITY, self.downs ); // Player Downs
+	WriteShort( MSG_ENTITY, self.revives ); // Player Revives
 	WriteByte( MSG_ENTITY, self.is_in_menu ); // Player is in a Menu State
 	WriteByte( MSG_ENTITY, self.is_spectator ); // Player is spectating
+	WriteShort( MSG_ENTITY, self.ping ); // Player's latency to the server in ms
     return TRUE;
 }
 
