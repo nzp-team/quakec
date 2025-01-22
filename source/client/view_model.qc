@@ -175,7 +175,7 @@ void(entity viewent) ViewModel_Animate =
         // If we switched to a different weapon model, 
         // make sure to update the HUD.
         if (getmodelindex(GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), false)) == viewent.modelindex)
-            HUD_Change_time = time + 6;
+            HUD_Change_time = time + 7;
 
         // Update the skin.
         viewent.skin = getstatf(STAT_WEAPONSKIN);

@@ -45,12 +45,36 @@ string(string img) getImage = {
 	return strcat(huddir, img);
 }
 
+//
+// HUD_GetAlphaForWeaponObjects()
+// Used for objects on the ammo-corner, where
+// they linger for X seconds and then fade after.
+//
+float() HUD_GetAlphaForWeaponObjects =
+{
+	if (HUD_Change_time <= time)
+		return 0;
+	else if (HUD_Change_time - time > 1)
+		return 1;
+	else
+		return (HUD_Change_time - time);
+};
+
+//
+// HUD_DrawStringWithBackdrop(position, text, size, rgb, alpha, drawflag)
+// Wrapper for Draw_String that also drawfills with cl_textopacity.
+//
+void(vector position, string text, vector size, vector rgb, float alpha, float drawflag) HUD_DrawStringWithBackdrop =
+{
+	drawfill([position_x - 4, position_y - 4], [getTextWidth(text, size_x) + 6, size_y + 6], [0, 0, 0], cvar("cl_textopacity") * alpha, 0);
+	Draw_String(position, text, size, rgb, alpha, drawflag);
+}
 
 /*******************
 *    HUD_Health   *
 *******************/
 
-void(float width, float height) HUD_Health = 
+void() HUD_Health = 
 {
 	float health;
 	float max_health;	
@@ -75,7 +99,7 @@ void(float width, float height) HUD_Health =
 			return;
 		float color = 255.0 + modifier;
     
-		drawpic([0,0,0], "gfx/hud/blood.tga", [width, height, 0], [10,0,0], alpha/2000); // naievil -- alpha factor division here makes it easy to use legacy code
+		drawpic([0,0,0], "gfx/hud/blood.tga", [g_width, g_height, 0], [10,0,0], alpha/2000); // naievil -- alpha factor division here makes it easy to use legacy code
 	}
 	
 }
@@ -84,8 +108,13 @@ void(float width, float height) HUD_Health =
 *    HUD_Ammo      *
 *******************/
 
-void(float width, float height) HUD_Ammo =
+void() HUD_Ammo =
 {
+	if (cl_viewent.modelindex == 0)
+	 	return;
+
+	float alpha = HUD_GetAlphaForWeaponObjects();
+
 	float ammo, curmag;
 	string ammostring, ammostring_1, ammostring_2;
 	vector color;
@@ -103,21 +132,19 @@ void(float width, float height) HUD_Ammo =
 	else
 		color_2 = [1, 1, 1];
 
-
 	if (IsDualWeapon(getstatf(STAT_ACTIVEWEAPON))) {
 		float curmag2 = getstatf(STAT_CURRENTMAG2);
 		
 		ammostring = strcat(ftos(curmag2), " ", ftos(curmag), "/", ftos(ammo));
 		float x2 = (g_width - GetUltraWideOffset()) - 62 - getTextWidth(ammostring, 12);
-		Draw_String([x2, g_height - 29], ammostring, [12, 12], [1,1,1], 1, 0);
+		HUD_DrawStringWithBackdrop([x2, g_height - 29], ammostring, [12, 12], [1,1,1], alpha, 0);
 	} else {
 		ammostring_1 = ftos(curmag);
 		ammostring_2 = strcat("/", ftos(ammo));
 		string weapon_ammo_string = strcat(ftos(curmag), "/", ftos(ammo));
 		float x = (g_width - GetUltraWideOffset())  - 62 - getTextWidth(weapon_ammo_string, 12);
-
-		Draw_String([x, g_height - 29], ammostring_1, [12, 12], color, 1, 0);
-		Draw_String([x + getTextWidth(ammostring_1, 12), g_height - 29], ammostring_2, [12, 12], color_2, 1, 0);
+		HUD_DrawStringWithBackdrop([x, g_height - 29], ammostring_1, [12, 12], color, alpha, 0);
+		HUD_DrawStringWithBackdrop([x + getTextWidth(ammostring_1, 12), g_height - 29], ammostring_2, [12, 12], color_2, alpha, 0);
 	}
 }
 
@@ -128,6 +155,9 @@ void(float width, float height) HUD_Ammo =
 float ammoopac, ammoloop;
 void() HUD_AmmoString =
 {
+	if (cl_viewent.modelindex == 0)
+		return;
+
 	vector 	textcolor = [1, 1, 1];
 	string 	message = "";
 	float	reserve_is_low;
@@ -188,7 +218,7 @@ void() HUD_AmmoString =
 	}
 
 	float x = (g_width/2) - (getTextWidth(message, 12)/2);
-	Draw_String([x, g_height/2 + 40, 0], message, [12, 12, 0], textcolor, ammoopac, 0);
+	HUD_DrawStringWithBackdrop([x, g_height/2 + 40, 0], message, [12, 12, 0], textcolor, ammoopac, 0);
 }
 
 /*******************
@@ -271,7 +301,7 @@ void(float amount, float playernum) RegisterPointChange =
 	active_point_elements++;
 }
 
-void(float pwidth, float width, float height, float playernum) PointUpdate = 
+void(float pwidth, float playernum) PointUpdate = 
 {
 	if (active_point_elements == 0)
 		return;
@@ -307,10 +337,10 @@ void(float pwidth, float width, float height, float playernum) PointUpdate =
 	}
 }
 
-void(float width, float height) HUD_Points =
+void() HUD_Points =
 {
 	float pointlength = 0, increm = 10, pointwidth = 0, x = 0;
-	float backwidth = 0.8*width;
+	float backwidth = 0.8*g_width;
 	vector TEXTCOLOR = '0 0 0';
 
 	for (int i = 3; i >= 0; i = i - 1)
@@ -333,13 +363,13 @@ void(float width, float height) HUD_Points =
 
 		if (player_number == getstatf(STAT_PLAYERNUM)) {
 			drawpic([3 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback.tga", [96, 24], [1,1,1], 1);
-			Draw_String([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
+			HUD_DrawStringWithBackdrop([x, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		} else {
 			drawpic([-7 + GetUltraWideOffset(), g_height - 97 - (i * 25)], "gfx/hud/moneyback_condensed.tga", [96, 24], [1,1,1], 1);
-			Draw_String([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
+			HUD_DrawStringWithBackdrop([x - 9, g_height - 92 - (i * 25)], ftos(client.points), [12, 12], TEXTCOLOR, 1, 0);
 		}
 
-		PointUpdate(x + 70, width, height, player_number);
+		PointUpdate(x + 70, player_number);
 	}
 }
 
@@ -347,26 +377,29 @@ void(float width, float height) HUD_Points =
 *    HUD_CharacterName  *
 ************************/
 
-void(float width, float height) HUD_CharacterName =
+void() HUD_CharacterName =
 {
+	if (nameprint_time <= time)
+		return;
+
 	float x = 100 + GetUltraWideOffset();
 	float alpha = 1;
 
 	if (nameprint_time - 1 < time) {
 		alpha = (nameprint_time - time);
 	}
-
-	Draw_String([x, height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], character_name, [12, 12], [1, 1, 1], alpha, 0);
+	HUD_DrawStringWithBackdrop([x, g_height - 92 - ((getstatf(STAT_PLAYERNUM) - 1) * 25)], character_name, [12, 12], [1, 1, 1], alpha, 0);
 }
 
 /*******************
 *    HUD_Grenades  *
 *******************/
 
-void(float width, float height) HUD_Grenades =
+void() HUD_Grenades =
 {
 	float grenades;
 	float betties;
+	float alpha = HUD_GetAlphaForWeaponObjects();
 
 	vector grenade_text_color;
 	vector betties_text_color;
@@ -384,18 +417,22 @@ void(float width, float height) HUD_Grenades =
 	else
 		betties_text_color = [1, 1, 1];
 
-	drawpic([g_width - 3 - 56 - GetUltraWideOffset(), g_height - 50], "gfx/hud/frag.tga", [32, 32], [1, 1, 1], 1);
-	Draw_String([g_width - 3 - 38 - GetUltraWideOffset(), g_height - 29], ftos(grenades), [12, 12], grenade_text_color, 1, 0);
+	drawpic([g_width - 3 - 56 - GetUltraWideOffset(), g_height - 50], "gfx/hud/frag.tga", [32, 32], [1, 1, 1], alpha);
+	HUD_DrawStringWithBackdrop([g_width - 3 - 38 - GetUltraWideOffset(), g_height - 29], ftos(grenades), [12, 12], grenade_text_color, alpha, 0);
 
 	if (betties != -1) {
-		drawpic([g_width - 3 - 28 - GetUltraWideOffset(), g_height - 50], "gfx/hud/betty.tga", [32, 32], [1, 1, 1], 1);
-		Draw_String([g_width - 3 - 10 - GetUltraWideOffset(), g_height - 29], ftos(betties), [12, 12], betties_text_color, 1, 0);
+		drawpic([g_width - 3 - 28 - GetUltraWideOffset(), g_height - 50], "gfx/hud/betty.tga", [32, 32], [1, 1, 1], alpha);
+		HUD_DrawStringWithBackdrop([g_width - 3 - 10 - GetUltraWideOffset(), g_height - 29], ftos(betties), [12, 12], betties_text_color, alpha, 0);
 	}
 }
 
 /*******************
 *    HUD_Rounds    *
 *******************/
+
+// This is 107 on Vril Engine, but since our RGB mode is different
+// in FTE we tone it down considerably to still look blood-red.
+#define ROUND_RED_SHIFT		20
 
 float 	color_shift[3];
 float 	color_shift_end[3];
@@ -412,7 +449,7 @@ float round_center_y;
 float pwidth;
 float rcolor, rinit, ralpha, localpha;
 
-void(float width, float height) HUD_Rounds =
+void() HUD_Rounds =
 {	
 	float roundheight = 65;
 	float roundwidth = 15;
@@ -480,7 +517,7 @@ void(float width, float height) HUD_Rounds =
 		round_center_x = g_width/2 - 6;
 		round_center_y = g_height/2 - 36;
 		
-		drawpic([round_center_x,round_center_y,0], sb_round[0], [roundwidth, roundheight], [107/255,1/255], alphabling/255);
+		drawpic([round_center_x,round_center_y,0], sb_round[0], [roundwidth, roundheight], [ROUND_RED_SHIFT/255,1/255], alphabling/255);
 	}
 	else if (rounds_change == 2)//this is the rounds icon moving from middle
 	{
@@ -488,10 +525,10 @@ void(float width, float height) HUD_Rounds =
 		float round_center_y_offset = 0;
 		float round_center_x_offset = 0;
 				
-		drawpic([round_center_x + round_center_x_offset,round_center_y + round_center_y_offset,0], sb_round[0], [roundwidth,roundheight, 1], [107/255,(1/255),0], 1);
+		drawpic([round_center_x + round_center_x_offset,round_center_y + round_center_y_offset,0], sb_round[0], [roundwidth,roundheight, 1], [ROUND_RED_SHIFT/255,(1/255),0], 1);
 		
-		round_center_x = round_center_x - (((229/108)*2 - 0.2)*((width - GetUltraWideOffset())/480)/8) * (frametime*250);
-		round_center_y = round_center_y + ((2*(height/272))/8) * (frametime*250);
+		round_center_x = round_center_x - (((229/108)*2 - 0.2)*((g_width - GetUltraWideOffset())/480)/8) * (frametime*250);
+		round_center_y = round_center_y + ((2*(g_height/272))/8) * (frametime*250);
 
 		if (round_center_x <= 3 + GetUltraWideOffset())
 			round_center_x = 3 + GetUltraWideOffset();
@@ -503,7 +540,7 @@ void(float width, float height) HUD_Rounds =
 		stopwatch_round_isactive = false;
 		if (!color_shift_init)
 		{
-			color_shift[0] = 107;
+			color_shift[0] = ROUND_RED_SHIFT;
 			color_shift[1] = 1;
 			color_shift[2] = 0;
 			for (i = 0; i < 3; i = i + 1)
@@ -528,15 +565,15 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5 + GetUltraWideOffset(),height - roundheight, 0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+					drawpic([5 + GetUltraWideOffset(), g_height - roundheight, 0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 					
-					savex = x_offset + (10*width/480);
-					x_offset = x_offset + (10*width/480);
+					savex = x_offset + (10*g_width/480);
+					x_offset = x_offset + (10*g_width/480);
 					continue;
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+					drawpic([5 + savex + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 					continue;
 				}
 				if (i > 4)
@@ -544,9 +581,9 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
-				x_offset = x_offset +  roundwidth + (3*width/480);
+				x_offset = x_offset +  roundwidth + (3*g_width/480);
 			}
 		}
 		else
@@ -554,26 +591,26 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num, roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[2]], [roundwidth_num, roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 								
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[2] = 0;
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+			drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
-			x_offset = x_offset +  roundwidth_num - (8*width/480);
+			x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 		}
 	}
 	else if (rounds_change == 4)//blink white
@@ -599,15 +636,15 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 
-					savex = x_offset + (10*width/480);
-					x_offset = x_offset + (10*width/480);
+					savex = x_offset + (10*g_width/480);
+					x_offset = x_offset + (10*g_width/480);
 					continue;
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + savex + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 
 					continue;
 				}
@@ -616,9 +653,9 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-					drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
+					drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
 
-				x_offset = x_offset +  roundwidth + (3*width/480);
+				x_offset = x_offset +  roundwidth + (3*g_width/480);
 			}
 		}
 		else
@@ -626,26 +663,26 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 					
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[2] = 0;
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 				
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+			drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 			
-			x_offset = x_offset +  roundwidth_num - (8*width/480);
+			x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 		}
 		
 		if (endroundchange == 0) {
@@ -665,15 +702,15 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 
-					savex = x_offset + (10*width/480);
-					x_offset = x_offset + (10*width/480);
+					savex = x_offset + (10*g_width/480);
+					x_offset = x_offset + (10*g_width/480);
 					continue;
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + savex + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 					continue;
 				}
 				if (i > 4)
@@ -681,9 +718,9 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
+				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
 
-				x_offset = x_offset +  roundwidth + (3*width/480);
+				x_offset = x_offset +  roundwidth + (3*g_width/480);
 			}
 		}
 		else
@@ -691,26 +728,26 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[2] = 0;
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+			drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
-			x_offset = x_offset +  roundwidth_num - (8*width/480);
+			x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 		}
 	}
 	else if (rounds_change == 6)//blink white while fading back
@@ -727,15 +764,15 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 								
-					savex = x_offset + (10*width/480);
-					x_offset = x_offset + (10*width/480);
+					savex = x_offset + (10*g_width/480);
+					x_offset = x_offset + (10*g_width/480);
 					continue;
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
+					drawpic([5 + savex + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [1,1,1], blinking/255);
 
 					continue;
 				}
@@ -744,9 +781,9 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
+				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [1,1,1], blinking/255);
 
-				x_offset = x_offset +  roundwidth + (3*width/480);
+				x_offset = x_offset +  roundwidth + (3*g_width/480);
 			}
 		}
 		else
@@ -754,26 +791,26 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 				
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[2] = 0;
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
+			drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [1,1,1], blinking/255);
 
-			x_offset = x_offset +  roundwidth_num - (8*width/480);
+			x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 		}
 	}
 	else if (rounds_change == 7)//blink white while fading back
@@ -782,7 +819,7 @@ void(float width, float height) HUD_Rounds =
 		stopwatch_round_hr = stopwatch_round_min = stopwatch_round_sec = 0;
 		if (!color_shift_init)
 		{
-			color_shift_end[0] = 107;
+			color_shift_end[0] = ROUND_RED_SHIFT;
 			color_shift_end[1] = 1;
 			color_shift_end[2] = 0;
 			for (i = 0; i < 3; i = i + 1)
@@ -806,15 +843,15 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+					drawpic([5 + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
-					savex = x_offset + (10*width/480);
-					x_offset = x_offset + (10*width/480);
+					savex = x_offset + (10*g_width/480);
+					x_offset = x_offset + (10*g_width/480);
 					continue;
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+					drawpic([5 + savex + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
 					continue;
 				}
@@ -823,9 +860,9 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
-				x_offset = x_offset +  roundwidth + (3*width/480);
+				x_offset = x_offset +  roundwidth + (3*g_width/480);
 			}
 		}
 		else
@@ -833,31 +870,31 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2+x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([2+x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[2] = 0;
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2+x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+				drawpic([2+x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[1] = 0;
 
 			num[0] = rounds - num[2]*100 - num[1]*10;
-			drawpic([2+x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
+			drawpic([2+x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [color_shift[0]/255,color_shift[1]/255,color_shift[2]/255], 1);
 
-			x_offset = x_offset +  roundwidth_num - (8*width/480);
+			x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 		}
 	}
 	else
 	{
-		color_shift[0] = 107;
+		color_shift[0] = ROUND_RED_SHIFT;
 		color_shift[1] = 1;
 		color_shift[2] = 0;
 		color_shift_init = 0;
@@ -868,15 +905,15 @@ void(float width, float height) HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5 + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [107/255,1/255,0], 1);
+					drawpic([5 + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
 
-					savex = x_offset + (10*width/480);
-					x_offset = x_offset + (10*width/480);
+					savex = x_offset + (10*g_width/480);
+					x_offset = x_offset + (10*g_width/480);
 					continue;
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [107/255,1/255,0], 1);
+					drawpic([5 + savex + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
 
 					continue;
 				}
@@ -885,9 +922,9 @@ void(float width, float height) HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [107/255,1/255,0], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
 
-				x_offset = x_offset +  roundwidth + (3*width/480);
+				x_offset = x_offset +  roundwidth + (3*g_width/480);
 			}
 		}
 		else
@@ -895,18 +932,18 @@ void(float width, float height) HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
 
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[2] = 0;
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
 
-				x_offset = x_offset +  roundwidth_num - (8*width/480);
+				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
 			else
 				num[1] = 0;
@@ -916,9 +953,9 @@ void(float width, float height) HUD_Rounds =
 			if(rounds == 0)
 				return;
 			
-			drawpic([2 + x_offset + GetUltraWideOffset(), height - roundheight - (4*height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [107/255,1/255,0], 1);
+			drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
 
-			x_offset = x_offset +  roundwidth_num - (8*width/480);
+			x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 		}
 	}
 }
@@ -927,8 +964,11 @@ void(float width, float height) HUD_Rounds =
 *    HUD_Useprint  *
 *******************/
 
-void(float width, float height) HUD_Useprint =
+void() HUD_Useprint =
 {
+	if (useprint_time <= time) 
+		return;
+
 	string usestring, usespace;
 	string usecost;
 	float print_width, x, button_width;
@@ -1046,14 +1086,14 @@ void(float width, float height) HUD_Useprint =
 	}
 
 	print_width = getTextWidth(usestring, 12);
-	x = (width - print_width)/2;
-	Draw_String([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
+	x = (g_width - print_width)/2;
+	HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
 
 	// Draw "Cost" text.
 	if (usecost != "") {
 		float cost_width = getTextWidth(usecost, 12);
-		float x3 = (width - cost_width)/2;
-		Draw_String([x3, g_height/2 + 84, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
+		float x3 = (g_width - cost_width)/2;
+		HUD_DrawStringWithBackdrop([x3, g_height/2 + 84, 0], usecost, [12, 12, 0], [1, 1, 1], 1, 0);
 	}
 
 	// Draw highlighted usebutton
@@ -1117,7 +1157,7 @@ void() UpdatePerks =
 }
 
 	
-void(float width, float height) HUD_Perks =
+void() HUD_Perks =
 {
 	float scale;
 	float x, y;
@@ -1183,20 +1223,49 @@ void(float width, float height) HUD_Perks =
 *    HUD Weapons   *
 *******************/
 
-void(float width, float height) HUD_Weaponstring =
+float weapon_name_time;
+string weapon_name_last;
+
+void() HUD_WeaponString =
 {
-	string weaponstring; 
-	weaponstring = GetWeaponName(getstatf(STAT_ACTIVEWEAPON));
-	float x = g_width - 62 - getTextWidth(weaponstring, 12);
-	Draw_String([x - GetUltraWideOffset(), g_height - 49], weaponstring, [12, 12], [1, 1, 1], 1, 0);
+	if (cl_viewent.modelindex == 0)
+		return;
+
+	string weapon_name = GetWeaponName(getstatf(STAT_ACTIVEWEAPON));
+
+	// If the string matches our last store, bail out.
+	if (weapon_name == weapon_name_last && weapon_name_time <= time) {
+		return;
+	} else if (weapon_name != weapon_name_last) {
+		// three seconds: one for display, two for fade out.
+		weapon_name_time = time + 3;
+
+		// Update last string storage.
+		weapon_name_last = weapon_name;
+	}
+
+	float weapon_name_alpha;
+
+	if (weapon_name_time - time > 2) {
+		weapon_name_alpha = 1;
+	} else {
+		weapon_name_alpha = (weapon_name_time - time)/2;	
+	}
+
+	float x = g_width - 62 - getTextWidth(weapon_name, 12);
+
+	HUD_DrawStringWithBackdrop([x - GetUltraWideOffset(), g_height - 49], weapon_name, [12, 12], [1, 1, 1], weapon_name_alpha, 0);
 }
 
 /*********************
 * HUD Bouncing Betty *
 *********************/
 
-void(float width, float height) HUD_BouncingBetty =
+void() HUD_BouncingBetty =
 {
+	if (bettyprompt_time <= time)
+		return;
+
 	float top_x, bot_x, but_x;
 	string betty_key = "";
 	string betty_space = "";
@@ -1234,8 +1303,8 @@ void(float width, float height) HUD_BouncingBetty =
 	top_x = (g_width/2) - (getTextWidth(activate_string, 12)/2);
 	bot_x = (g_width/2) - (getTextWidth(activate_string2, 12)/2);
 
-	Draw_String([top_x, g_height - 303], activate_string, [12, 12], [1, 1, 1], 1, 0); 
-	Draw_String([bot_x, g_height - 289], activate_string2, [12, 12], [1, 1, 1], 1, 0); 
+	HUD_DrawStringWithBackdrop([top_x, g_height - 303], activate_string, [12, 12], [1, 1, 1], 1, 0); 
+	HUD_DrawStringWithBackdrop([bot_x, g_height - 289], activate_string2, [12, 12], [1, 1, 1], 1, 0); 
 
 	// Draw the highlighted button
 	but_x = top_x + getTextWidth("Press ", 12);
@@ -1250,7 +1319,7 @@ void(float width, float height) HUD_BouncingBetty =
 * HUD Progress Bar *
 *******************/
 
-void(float width, float height) HUD_Progressbar =
+void() HUD_Progressbar =
 {
 	float percent = getstatf(STAT_PROGRESSBAR);
 
@@ -1265,13 +1334,14 @@ void(float width, float height) HUD_Progressbar =
 
 	float bar_width = 200;
 	float bar_height = 12;
-	float bar_x = (width - bar_width)/2;
-	float bar_y = height*0.75;
+	float bar_x = (g_width - bar_width)/2;
+	float bar_y = g_height*0.75;
 
 	drawfill ([bar_x - 1, bar_y - 1, 0], [bar_width+2, bar_height, 0], [0, 0, 0], 0.4, 0);
 	drawfill ([bar_x, bar_y, 0], [bar_width * percent, bar_height-2, 0], [1, 1, 1], 0.4, 0);
 	float x = (g_width/2) - (getTextWidth("Reviving...", 12)/2);
-	Draw_String([x, g_height - 105], "Reviving...", [12, 12], [1, 1, 1], 1, 0); 
+
+	HUD_DrawStringWithBackdrop([x, g_height - 105], "Reviving...", [12, 12], [1, 1, 1], 1, 0); 
 }
 
 /*******************
@@ -1280,7 +1350,20 @@ void(float width, float height) HUD_Progressbar =
 
 void() HUD_Hitmark =
 {
-	drawpic([g_width/2 - 12, g_height/2 - 12], "gfx/hud/hit_marker.tga", [24, 24], [1,1,1], 1);
+	if (hitmark_time <= time || cvar("cl_hitmarkers") == 0)
+		return;
+
+	float hitmark_alpha = 1;
+	vector hitmark_color = [1, 1, 1];
+	
+	if (hitmark_type == 1) {
+		hitmark_alpha = (hitmark_time - time) * 5;
+		hitmark_color = [0.75, 0, 0];
+	} else {
+		hitmark_alpha = (hitmark_time - time) * 3.3;
+	}
+
+	drawpic([g_width/2 - 10, g_height/2 - 10], "gfx/hud/hit_marker.tga", [20, 20], hitmark_color, hitmark_alpha);
 }
 
 /*******************
@@ -1293,7 +1376,7 @@ float crosshair_offset_step;
 float crosshair_opacity;
 vector crosshair_color;
 
-void() Draw_Crosshair =
+void() HUD_Crosshair =
 {
 	if (cvar("cl_crosshair_debug")) {
 		drawline(2, [g_width/2, g_height/2, 0], [0, g_height, 0], [1, 0, 0], 0.5);
@@ -1483,6 +1566,9 @@ void() HUD_Powerups =
 
 void() HUD_Broadcast = 
 {
+	if (broadcast_time <= time)
+		return;
+
 	// broadcast_num refers to the playernum of the client. This
 	// does NOT correspond to player key indexes, so we need to
 	// grab the player with the matching playernum and use infokeys.
@@ -1509,11 +1595,12 @@ void() HUD_Broadcast =
 			break;
 	}
 
-	float print_width = getTextWidth(broadcast_msg, 0.015*g_width);
+	float print_width = getTextWidth(broadcast_msg, 12);
 	float x = (g_width - print_width)/2;
 
-	if (broadcast_msg != "")
-		Draw_String([x, g_height/2, 0], broadcast_msg, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
+	if (broadcast_msg != "") {
+		HUD_DrawStringWithBackdrop([x, g_height/2, 0], broadcast_msg, [12, 12], [1, 1, 1], 1, 0);
+	}
 };
 
 void(float y_pos) HUD_DrawMoneyBackDisplay =
@@ -1680,12 +1767,10 @@ void() HUD_Endgame = {
 	survive = strcat("You Survived ", ftos(rounds), round);
 
 	float game_over_width = getTextWidth(game_over, 24);
-	Draw_String([g_width/2 - game_over_width/2, 100], game_over, [24, 24], [1, 1, 1], 1, 0);
+	HUD_DrawStringWithBackdrop([g_width/2 - game_over_width/2, 100], game_over, [24, 24], [1, 1, 1], 1, 0);
 
 	float survive_width = getTextWidth(survive, 18);
-	Draw_String([g_width/2 - survive_width/2, 135], survive, [18, 18], [1, 1, 1], 1, 0);
-
-	HUD_Scores();
+	HUD_DrawStringWithBackdrop([g_width/2 - survive_width/2, 135], survive, [18, 18], [1, 1, 1], 1, 0);
 }
 
 //
@@ -1694,6 +1779,9 @@ void() HUD_Endgame = {
 //
 void() HUD_Screenflash = 
 {  
+	if (screenflash_duration <= time)
+		return;
+
 	vector color = '0 0 0';
 	float flash_alpha = 0;
 
@@ -1734,8 +1822,11 @@ void() HUD_Screenflash =
 // HUD_MaxAmmo(width, height)
 // Displays the "Max Ammo!" text on the HUD.
 //
-void(float width, float height) HUD_MaxAmmo =
+void() HUD_MaxAmmo =
 {
+	if (hud_maxammo_endtime <= time)
+		return;
+
 	string maxammo_string = "Max Ammo!";
 
 	float start_y = 70;
@@ -1745,7 +1836,7 @@ void(float width, float height) HUD_MaxAmmo =
 	float text_alpha = 1;
 
 	float string_width = getTextWidth(maxammo_string, 14);
-	float pos_x = (width - string_width)/2;
+	float pos_x = (g_width - string_width)/2;
 	float pos_y;
 
 	float start_time, end_time;
@@ -1769,7 +1860,7 @@ void(float width, float height) HUD_MaxAmmo =
 		text_alpha = 1 - percent_time;
 	}
 
-	Draw_String([pos_x, pos_y, 0], maxammo_string, [14, 14], [1, 1, 1], text_alpha, 0);
+	HUD_DrawStringWithBackdrop([pos_x, pos_y, 0], maxammo_string, [14, 14], [1, 1, 1], text_alpha, 0);
 };
 
 float achievement_init;
@@ -1777,7 +1868,7 @@ float achievement_ypos;
 float achievement_desc_ypos;
 float achievement_img_ypos;
 float achievement_time;
-void(float width, float height) HUD_Achievements = {
+void() HUD_Achievements = {
 	if (active_achievement == -1)
 		return;
 
@@ -1790,9 +1881,9 @@ void(float width, float height) HUD_Achievements = {
 	}
 
 
-	Draw_String([0.2*width, achievement_ypos*height, 0], "ACHIEVEMENT GET!", [0.015*width, 0.015*width, 0], [1, 1, 0], 1, 0);
-	Draw_String([0.2*width, achievement_desc_ypos*height, 0], achievements[active_achievement].name, [0.015*width, 0.015*width, 0], [1, 1, 1], 1, 0);
-	drawpic([0.005*width, achievement_img_ypos*height,0], achievements[active_achievement].img, [0.16*width, 0.08*width, 0], [1,1,1], 1);
+	Draw_String([0.2*g_width, achievement_ypos*g_height, 0], "ACHIEVEMENT GET!", [0.015*g_width, 0.015*g_width, 0], [1, 1, 0], 1, 0);
+	Draw_String([0.2*g_width, achievement_desc_ypos*g_height, 0], achievements[active_achievement].name, [0.015*g_width, 0.015*g_width, 0], [1, 1, 1], 1, 0);
+	drawpic([0.005*g_width, achievement_img_ypos*g_height,0], achievements[active_achievement].img, [0.16*g_width, 0.08*g_width, 0], [1,1,1], 1);
 
 	if (achievement_time <= 120) {
 		achievement_ypos 		+= (frametime*0.15);
@@ -1872,9 +1963,9 @@ void(float x_position, float y_position, string command, string action) HUD_Draw
 	}
 };
 
-void(float width, float height) HUD_Waypoint =
+void() HUD_Waypoint =
 {
-	drawfill([0, 4], [450, 190], [0, 0, 0], 0.75, 0);
+	drawfill([0, 4], [450, 190], [0, 0, 0], cvar("cl_textopacity"), 0);
 
 	Draw_String([5, 8], "WAYPOINT MODE", [18, 18], [1, 1, 1], 1, 0);
 	Draw_String([5, 30], "Create/Tweak Pathfind Nodes for Zombie AI", [12, 12], [1, 1, 0], 1, 0);
@@ -1892,16 +1983,16 @@ void(float width, float height) HUD_Waypoint =
 	HUD_DrawWaypointModeString(5, 175, "impulse 24", "Save current Waypoints");
 }
 
-void(float width, float height) HUD_Spectator =
+void() HUD_Spectator =
 {
-	drawfill([0, 4], [250, 60], [0, 0, 0], 0.75, 0);
+	drawfill([0, 4], [250, 60], [0, 0, 0], cvar("cl_textopacity"), 0);
 	Draw_String([5, 8], "SPECTATING", [18, 18], [1, 1, 1], 1, 0);
 	Draw_String([5, 30], "You will spawn next Round", [12, 12], [1, 1, 0], 1, 0);
 	Draw_String([5, 45], "(Fly around or go grab a snack!)", [10, 10], [1, 1, 1], 1, 0);
 	drawfill([5, 60], [240, 3], [0.3, 0.3, 0.3], 1, 0);
 }
 
-void(float width, float height) HUD_PlayerNames =
+void() HUD_PlayerNames =
 {
 	for (float i = 3; i >= 0; i = i - 1) {
 		float player_number = getplayerkeyfloat(i, "client_index");
@@ -1939,12 +2030,13 @@ void(float width, float height) HUD_PlayerNames =
 			default: break;
 		}
 
-		if (screen_position_z > 0)
-			Draw_String(screen_position, text, [8, 8], text_color, 1, 0);
+		if (screen_position_z > 0) {
+			HUD_DrawStringWithBackdrop(screen_position, text, [8, 8], text_color, 1, 0);
+		}
 	}
 }
 
-void(float width, float height) HUD_ReviveIcons =
+void() HUD_ReviveIcons =
 {
 	for (float i = 3; i >= 0; i = i - 1) {
 		float player_index = i;
@@ -1992,7 +2084,7 @@ void(float width, float height) HUD_ReviveIcons =
 	}
 }
 
-void(float width, float height) HUD_StopWatch =
+void() HUD_StopWatch =
 {
 	string sec, min, hr;
 	string stopwatch;
@@ -2007,11 +2099,10 @@ void(float width, float height) HUD_StopWatch =
 	if (stopwatch_hr < 10) hr = strcat("0", ftos(stopwatch_hr)); else hr = ftos(stopwatch_hr);
 
 	stopwatch = strcat(hr, ":", min, ":", sec);
-
-	Draw_String([width - (getTextWidth(stopwatch, 12)) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
+	HUD_DrawStringWithBackdrop([g_width - (getTextWidth(stopwatch, 12)) - 2, 2], stopwatch, [12, 12], TEXT_ORANGE, 1, 0);
 }
 
-void(float width, float height) HUD_RoundStopWatch =
+void() HUD_RoundStopWatch =
 {
 	string sec, min, hr;
 	string stopwatch;
@@ -2027,8 +2118,7 @@ void(float width, float height) HUD_RoundStopWatch =
 	if (stopwatch_round_hr < 10) hr = strcat("0", ftos(stopwatch_round_hr)); else hr = ftos(stopwatch_round_hr);
 
 	stopwatch = strcat(hr, ":", min, ":", sec);
-
-	Draw_String([width - (getTextWidth(stopwatch, 12)) - 2, 16], stopwatch, [12, 12], [1, 1, 1], 1, 0);
+	HUD_DrawStringWithBackdrop([g_width - (getTextWidth(stopwatch, 12)) - 2, 16], stopwatch, [12, 12], [1, 1, 1], 1, 0);
 }
 
 /*******************
@@ -2038,7 +2128,7 @@ void(float width, float height) HUD_RoundStopWatch =
 // set from CSQC_Ent_Update
 vector player_velocity;
 
-void(float width, float height) HUD_PlayerDebugInfo =
+void() HUD_PlayerDebugInfo =
 {
 	static float lastupstime;
 	static float lastups;
@@ -2066,89 +2156,204 @@ void(float width, float height) HUD_PlayerDebugInfo =
 	}
 };
 
-/*******************
-*     HUD Draw     *
-*******************/
-
-void(float width, float height) HUD_Draw = 
+//
+// HUD_DrawElementsForEndGame()
+// Heads-Up Display draw logic for when the server
+// is in its "GAME OVER" state.
+//
+void() HUD_DrawElementsForEndGame =
 {
-	if (cvar("cl_cinematic"))
-		return;
+	// Draws our "GAME OVER" text.
+	HUD_Endgame();
 
-	if (getstatf(STAT_SPECTATING)) {
-		HUD_Rounds(width, height);
-		HUD_Spectator(width, height);
-		return;
-	}
-	
-	if ((getstatf(STAT_HEALTH) > 1) && !score_show && !game_over)
-	{
-		Draw_Crosshair();
+	// Draws the scoreboard.
+	HUD_Scores();
+};
 
-		if (!cvar("waypoint_mode")) {
-			HUD_Health(width, height);
-			HUD_Points(width, height);
-			HUD_Rounds(width, height);
-			HUD_Perks(width, height);
-			HUD_Progressbar(width, height);
-			HUD_Powerups();
-
-            if (cl_viewent.modelindex != 0)
-			    HUD_AmmoString();
-
-			if (nameprint_time > time)
-				HUD_CharacterName(width, height);
-
-			if (bettyprompt_time > time)
-				HUD_BouncingBetty(width, height);
-		
-			if (HUD_Change_time > time)
-			{
-                HUD_Grenades(width, height);
-
-                if (cl_viewent.modelindex != 0) {
-                    HUD_Ammo(width, height);
-				    HUD_Weaponstring(width, height);
-                }
-			}
-				
-			if (useprint_time > time) 
-				HUD_Useprint(width, height);
-			
-			if (Hitmark_time > time)
-				HUD_Hitmark();
-
-			if (hud_maxammo_endtime > time)
-				HUD_MaxAmmo(width, height);
-
-			HUD_PlayerNames(width, height);
-			HUD_ReviveIcons(width, height);
-
-			if (cvar("scr_serverstopwatch")) {
-				HUD_StopWatch(width, height);
-			}
-			if (cvar("scr_serverstopwatch") >= 2) {
-				HUD_RoundStopWatch(width, height);
-			}
-		} else {
-			HUD_Waypoint(width, height);
-		}
-	}
-	
-	// Only keep broadcast messages outside in case they are important
-	if (broadcast_time > time)
-		HUD_Broadcast();
-	
-	if (game_over)
-		HUD_Endgame();
-		
-	if (score_show)
+//
+// HUD_DrawElementsForSpectator()
+// Heads-Up Display draw logic for Spectators.
+//
+void() HUD_DrawElementsForSpectator =
+{
+	// If the scoreboard is open, only draw it and nothing else.
+	if (score_show) {
 		HUD_Scores();
+		return;
+	}
 
-	HUD_Achievements(width, height);
+	// Networked names for all players.
+	HUD_PlayerNames();
 
-	HUD_PlayerDebugInfo(width, height);
-		
-	if (screenflash_duration > time)
+	// Draws the current round.
+	HUD_Rounds();
+
+	// Draws all player's points.
+	HUD_Points();
+
+	// Draws Power-Up status.
+	HUD_Powerups();
+	HUD_MaxAmmo();
+
+	// "You are Spectating" message.
+	HUD_Spectator();
+};
+
+//
+// HUD_DrawElementsForWaypointMode()
+// Heads-Up Display draw logic when in Waypoint Mode.
+//
+void() HUD_DrawElementsForWaypointMode =
+{
+	// Waypoint Mode tutorial.
+	HUD_Waypoint();
+
+	//
+	// Everything below should be debug or cvar-related.
+	//
+
+	// Player origin, angles, etc. for debugging if cvar is enabled.
+	HUD_PlayerDebugInfo();
+};
+
+//
+// HUD_DrawElementsForPlayer()
+// Heads-Up Display draw logic during normal play.
+//
+void() HUD_DrawElementsForPlayer =
+{
+	// We shouldn't draw anything during the game intro fade.
+	if (screenflash_color == SCREENFLASH_COLOR_BLACK && screenflash_duration > time) {
 		HUD_Screenflash();
-}
+		return;
+	}
+
+	// Blood filter on screen to indicate health.
+	HUD_Health();
+
+	// Networked names for all players.
+	HUD_PlayerNames();
+
+	// If the scoreboard is open, only draw it and nothing else.
+	if (score_show) {
+		HUD_Scores();
+		return;
+	}
+	// Additionally, bail here if cl_cinematic is set.
+	else if (cvar("cl_cinematic")) {
+		return;
+	}
+
+	// Crosshair for Player weapons.
+	HUD_Crosshair();
+
+	// Being scoped-in hides all low-priority elements.
+	if (getstatf(STAT_WEAPONZOOM) != 2 || zoom_2_time >= time) {
+		// "Low Ammo", "No Ammo", etc.
+		HUD_AmmoString();
+
+		// Draws all player's points.
+		HUD_Points();
+
+		// Draws the current player's character name.
+		HUD_CharacterName();
+
+		// Draws the current player's Perk-A-Cola loadout.
+		HUD_Perks();
+
+		// Draws Power-Up status.
+		HUD_Powerups();
+		HUD_MaxAmmo();
+
+		// Draws the current round.
+		HUD_Rounds();
+
+		// Draw the player's Bouncing Betties and Grenades.
+		HUD_Grenades();
+
+		// Draws the player's magazine and reserve count.
+		HUD_Ammo();
+
+		// Draws the name of the player's active weapon.
+		HUD_WeaponString();
+
+		// "Hold F to use" triggered strings.
+		HUD_Useprint();
+
+		// Bouncing Betty tutorial.		
+		HUD_BouncingBetty();
+
+		// Revive status progress bar.
+		HUD_Progressbar();
+	}
+
+	// Visual hit Feedback. 
+	HUD_Hitmark();
+
+	// Black/White/etc. total screen flashes.
+	HUD_Screenflash();
+
+	//
+	// Everything below should always have maximum priority.
+	//
+
+	// Revive indicator for Players in Last Stand.
+	HUD_ReviveIcons();
+
+	// "X" needs to be revived, or other important messages.
+	HUD_Broadcast();
+
+	//
+	// Everything below should be debug or cvar-related.
+	//
+
+	// Total gametime stopwatch for Speedruns.
+	if (cvar("scr_serverstopwatch")) {
+		HUD_StopWatch();
+	}
+
+	// Active round stopwatch for Speedruns.
+	if (cvar("scr_serverstopwatch") >= 2) {
+		HUD_RoundStopWatch();
+	}
+
+	// Player origin, angles, etc. for debugging if cvar is enabled.
+	HUD_PlayerDebugInfo();
+};
+
+//
+// HUD_DrawElements(width, height)
+// Redirects to Heads-Up Display draw lists depending on
+// client and game state.
+//
+void() HUD_DrawElements = 
+{
+	//
+	// Game Over Sequence
+	//
+	if (in_endgame_sequence) {
+		HUD_DrawElementsForEndGame();
+		return;
+	}
+
+	//
+	// Spectator Mode
+	//
+	if (getstatf(STAT_SPECTATING)) {
+		HUD_DrawElementsForSpectator();
+		return;
+	}
+
+	//
+	// Waypoint Mode
+	//
+	if (cvar("waypoint_mode")) {
+		HUD_DrawElementsForWaypointMode();
+		return;
+	}
+
+	//
+	// Standard Play
+	//
+	HUD_DrawElementsForPlayer();
+};

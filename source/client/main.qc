@@ -162,6 +162,8 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(cl_controllerglyphs, "xbox");
 	autocvar(in_rumbleenabled, 1);
 	autocvar(in_aimassist, 0);
+	autocvar(cl_hitmarkers, 1);
+	autocvar(cl_textopacity, 0.20);
 
 	autocvar(scr_playerdebuginfo, 0);
 	autocvar(scr_playerdebuginfo_x, 64);
@@ -806,8 +808,7 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	{
 		// sorta-nasty hack: flashes should still draw if we're
 		// drawing the menu.
-		if (screenflash_duration > time)
-			HUD_Screenflash();
+		HUD_Screenflash();
 
 		setlocaluserinfo(0, "in_menu", "1");
 
@@ -818,7 +819,7 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	else
 	{
 		setcursormode(FALSE);
-		HUD_Draw(g_width, g_height);
+		HUD_DrawElements();
 		Chat_Draw();
 		setlocaluserinfo(0, "in_menu", "0");
 	}
@@ -1024,7 +1025,6 @@ noref void() CSQC_Parse_Event =
 			break;
 		case CSQC_EVENT_ROUNDCHANGE:
 			rounds = readbyte();
-			HUD_Change_time = time + 6;
 			break;
 		case CSQC_EVENT_BROADCASTMESSAGE:
 			broadcast_type = readbyte();
@@ -1086,7 +1086,7 @@ noref void() CSQC_Parse_Event =
 			Chat_Register(sender, player_id, message);
 			break;
 		case EVENT_ENDGAME:
-			game_over = true;
+			in_endgame_sequence = true;
 			break;
 		case EVENT_DOUBLETAPUPDATE:
 			double_tap_version = readbyte();
@@ -1106,8 +1106,18 @@ noref void() CSQC_Parse_Event =
 					rounds_change = var_1;
 					break;
 				case 3:
-					if (Hitmark_time < time)
-						Hitmark_time = time + 0.2;
+					if (hitmark_ignore_time > time)
+						return;
+
+					hitmark_type = var_1;
+
+					// Red
+					if (hitmark_type == 1) {
+						hitmark_time = time + 0.2;
+						hitmark_ignore_time = time + 0.2;
+					} else {
+						hitmark_time = time + 0.3;
+					}
 					break;
 				case 5:
 					recoil_kick_time = time + 70/getWeaponRecoilReturn(getstatf(STAT_ACTIVEWEAPON));

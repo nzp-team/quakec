@@ -221,6 +221,27 @@ void(entity who, float weapon) CL_SendWeaponFire =
 	self.recoil_delay = 60/recoil_return_time + time;
 }
 
+//
+// nzp_hitmarker(who)
+// Tells client to draw hitmarker for "who". death_marker
+// indicates a red hitmarker.
+//
+void(entity who, float death_marker) nzp_hitmarker =
+{
+
+#ifdef FTE
+		
+	SetUpdate(who, UT_HM, death_marker, 0, 0);
+		
+#else
+
+	msg_entity = who;
+	WriteByte(MSG_ONE, SVC_HITMARK);
+		
+#endif // FTE
+
+};
+
 #ifdef FTE
 
 //

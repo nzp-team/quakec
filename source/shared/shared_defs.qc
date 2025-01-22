@@ -320,7 +320,7 @@ float 	map_compatibility_mode;
 .float revives;
 .float points;
 
-float game_over;
+float in_endgame_sequence;
 
 #ifdef FTE
 .float is_in_menu;

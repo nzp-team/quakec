@@ -548,7 +548,7 @@ void(float order, vector minmaxsteps, string cvar_s, float is_int, float no_text
 		if (is_int)
 			sui_text(position + [175, 0, 0], MENU_TEXT_MEDIUM, ftos(rint(current)), [1, 1, 1], 1, 0);
 		else
-			sui_text(position + [175, 0, 0], MENU_TEXT_MEDIUM, ftos(current), [1, 1, 1], 1, 0);
+			sui_text(position + [175, 0, 0], MENU_TEXT_MEDIUM, sprintf("%.2f", current), [1, 1, 1], 1, 0);
 	}
 };
 
@@ -871,6 +871,7 @@ void(vector size) root_menu =
 		case MENU_CONTROL: Menu_Control(); break;
 		case MENU_GAMEPAD: Menu_Gamepad(); break;
 		case MENU_BINDINGS: Menu_Bindings(); break;
+		case MENU_ACCESSIBILITY: Menu_Accessibility(); break;
 
 		default: break;
 	}
