@@ -152,11 +152,12 @@ void() EndGameSetup =
 		players = find(players, classname, "player");
 	}
 
-	if (!game_over) {
+	if (in_endgame_sequence == false) {
 		Rounds_PlayTransition("sounds/music/end.wav");
 		NotifyGameEnd();
 	}
-	game_over = true;
+
+	in_endgame_sequence = true;
 	Player_RemoveScore(self, self.points);
 	Player_AddScore(self, self.score, false);
 	for (float i = 0; i < MAX_PLAYER_WEAPONS; ++i)
@@ -233,6 +234,7 @@ void(entity attacker, float d_style) DieHandler =
 
     if (attacker.classname == "player") {
 		attacker.kills++;
+		nzp_hitmarker(attacker, true);
 
 		float points_earned = 0;
 		switch(d_style) {
@@ -283,6 +285,7 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 
 		if (attacker.classname == "player" && (victim.health - damage) > 0 && d_style != DMG_TYPE_OTHER) {
 			Player_AddScore(attacker, DMG_SCORE_STDDAMAGE, true);
+			nzp_hitmarker(attacker, false);
         }
 
 		victim.health = victim.health - damage;

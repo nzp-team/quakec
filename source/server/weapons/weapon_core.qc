@@ -394,6 +394,8 @@ void(float side) W_Reload =
 	if (self.zoom == 2)
 		return;
 
+	SetUpdate(self, UT_HUD, 7, 0, 0);
+
 	if (GetFiretype(self.weapon) == FIRETYPE_FLAME)
 		return;
 	
@@ -864,16 +866,6 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 
 		hit_ent.washit = 1;
 		hit_ent.hitamount = hit_ent.hitamount + f_damage;
-		
-		SetUpdate(self, UT_HM, 0, 0, 0);
-		
-#ifndef FTE
-
-		msg_entity = self;
-		WriteByte(MSG_ONE, SVC_HITMARK);
-		
-#endif // FTE
-
 	} else {
 
 #ifndef FTE
@@ -1182,7 +1174,7 @@ void(float side) W_Fire =
 		Sound_PlaySound(self, "sounds/weapons/papfire.wav", SOUND_TYPE_WEAPON_PACK, SOUND_PRIORITY_PLAYALWAYS);
 	}
 	
-	SetUpdate(self, UT_HUD, 6, 0, 0);
+	SetUpdate(self, UT_HUD, 7, 0, 0);
 	SetUpdate(self, UT_CROSSHAIR, 5, 0, 0);
 	
 
@@ -1214,7 +1206,7 @@ void() WeaponCore_Melee =
 	// Do not trigger if we're Aiming down the Sight, or
 	// already melee-ing, or doing some other action.
 	if (self.knife_delay > time || self.new_anim_stop ||
-	self.new_anim2_stop || self.zoom || game_over)
+	self.new_anim2_stop || self.zoom || in_endgame_sequence)
 		return;
 
 	// Perform the third person animation if standing
@@ -1446,7 +1438,7 @@ void() W_ThrowGrenade =
 	modelname = GetWeaponModel(self.weapon, 0);
 	Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH, false);
 
-	SetUpdate(self, UT_HUD, 6, 0, 0);
+	SetUpdate(self, UT_HUD, 7, 0, 0);
 }
 
 void() checkHold =

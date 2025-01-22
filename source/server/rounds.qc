@@ -311,7 +311,7 @@ void() NewRound =
 
 void() Round_Core =
 {
-	if (game_over)
+	if (in_endgame_sequence)
 		return;
 
 	if (round_changetime) {

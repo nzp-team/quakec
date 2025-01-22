@@ -218,6 +218,8 @@ void() m_init =
 	autocvar(nzp_uivolume, 1);
 	autocvar(nzp_bgmvolume, 1);
 	autocvar(vid_ultrawide_limiter, 0);
+	autocvar(cl_hitmarkers, 1);
+	autocvar(cl_textopacity, 0.20);
 
 	music_duration_time = 0;
 	menu_changetime = 0;

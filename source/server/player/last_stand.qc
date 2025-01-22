@@ -214,7 +214,7 @@ void(entity client) LastStand_KillPlayer =
 	// If we are in the middle of the Game Over
 	// sequence, we should not allow a bleed
 	// out to override it.
-	if (!game_over)
+	if (in_endgame_sequence == false)
 		startspectate();
 
     self = old_self;

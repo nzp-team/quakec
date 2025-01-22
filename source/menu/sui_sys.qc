@@ -448,6 +448,9 @@ void() _sui_menukey_downarrow =
 		case MENU_BINDINGS:
 			_hover_actions[0] = Menu_Bindings_GetNextButton(current_hovered_option);
 			break;
+		case MENU_ACCESSIBILITY:
+			_hover_actions[0] = Menu_Accessibility_GetNextButton(current_hovered_option);
+			break;
 		default:
 			break;
 	}
@@ -513,6 +516,9 @@ void() _sui_menukey_uparrow =
 			break;
 		case MENU_BINDINGS:
 			_hover_actions[0] = Menu_Bindings_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_ACCESSIBILITY:
+			_hover_actions[0] = Menu_Accessibility_GetPreviousButton(current_hovered_option);
 			break;
 		default:
 			break;
