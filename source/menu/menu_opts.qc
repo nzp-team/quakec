@@ -1,4 +1,4 @@
-string menu_opts_buttons[5] = {"om_video", "om_audio", "om_binds", "om_console", "om_back"};
+string menu_opts_buttons[6] = {"om_video", "om_audio", "om_binds", "om_acces", "om_console", "om_back"};
 
 string(string prev_id) Menu_Options_GetNextButton =
 {
