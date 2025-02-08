@@ -343,7 +343,7 @@ void() HUD_Points =
 	float backwidth = 0.8*g_width;
 	vector TEXTCOLOR = '0 0 0';
 
-	for (int i = 3; i >= 0; i = i - 1)
+	for (int i = 7; i >= 0; i = i - 1)
 	{
 		float player_number = getplayerkeyfloat(i, "client_index");
 		entity client = findfloat(world, playernum, player_number);
@@ -1994,7 +1994,7 @@ void() HUD_Spectator =
 
 void() HUD_PlayerNames =
 {
-	for (float i = 3; i >= 0; i = i - 1) {
+	for (float i = 7; i >= 0; i = i - 1) {
 		float player_number = getplayerkeyfloat(i, "client_index");
 
 		if (player_number == getstatf(STAT_PLAYERNUM))
@@ -2038,7 +2038,7 @@ void() HUD_PlayerNames =
 
 void() HUD_ReviveIcons =
 {
-	for (float i = 3; i >= 0; i = i - 1) {
+	for (float i = 7; i >= 0; i = i - 1) {
 		float player_index = i;
 
 		// Don't render our own Icon.
