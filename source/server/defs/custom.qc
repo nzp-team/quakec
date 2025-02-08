@@ -99,9 +99,10 @@ entity local_client;
 .float changestance;
 .vector new_ofs;
 
-//money
+// Point Cost Values
 .float cost;
 .float cost2;
+.float pap_cost;
 
 //stats
 .float score;

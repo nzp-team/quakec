@@ -162,7 +162,7 @@ void () WallWeapon_TouchTrigger =
 				is_pap = false;
 
 			// Set the cost and weapon value (for useprint).
-			wcost = (is_pap) ? 4500 : self.cost2;
+			wcost = (is_pap) ? self.pap_cost : self.cost2;
 			float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
 
 			useprint(other, 3, wcost, wep);
@@ -218,7 +218,7 @@ void () WallWeapon_TouchTrigger =
 		if (other.currentammo < getWeaponAmmo(other.weapon)) {
 
 			// Set the cost and weapon value (for useprint).
-			wcost = (IsPapWeapon(other.weapon)) ? 4500 : self.cost2;
+			wcost = (IsPapWeapon(other.weapon)) ? self.pap_cost : self.cost2;
 
 			useprint(other, 3, wcost, other.weapon);
 
@@ -407,6 +407,10 @@ void() WallWeapon_LinkChalk =
 void() buy_weapon =
 {
 	InitTrigger ();
+
+	// Default Pack-A-Punch Ammo Cost
+	if (!self.pap_cost)
+		self.pap_cost = 4500;
 
 	string weaponname = GetWeaponModel (self.weapon, 0);
 	if (weaponname != "")
