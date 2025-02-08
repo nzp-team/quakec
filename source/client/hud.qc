@@ -1654,7 +1654,7 @@ void() HUD_Scores =
 		Draw_String([g_width/2 + (header_x_pos - getTextWidth("Headshots", scoreboard_text_size)/2), 180], "Headshots", [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
 		header_x_pos += header_x_increment;
 	
-		for (int i = 0; i < 4; i = i + 1)
+		for (int i = 0; i < 8; i = i + 1)
 		{
 			float player_number = getplayerkeyfloat(i, "client_index");
 			entity client = findfloat(world, playernum, player_number);
