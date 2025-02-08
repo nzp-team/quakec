@@ -784,6 +784,7 @@ void(float scan, string command) _sui_do_keybind =
 	}
 	string keyname = keynumtostring(scan);
 	_sui_unbind(command);
+	localcmd(sprintf("unbind %s\n", keyname));
 	localcmd(sprintf("bind %s %s\n", keyname, command));
 	_sui_binding_command = "";
 	_sui_binding_command_name = "";

@@ -981,13 +981,14 @@ void() HUD_Useprint =
     float argc = tokenize(findkeysforcommandex("+button7"));
 
     for (int i = 0; i < argc; i++) {
-        usebutton = strtoupper(argv(i));
-        float bind_is_gamepad = Key_IsControllerGlyph(usebutton);
+		string temp_button = strtoupper(argv(i));
+        float bind_is_gamepad = Key_IsControllerGlyph(temp_button);
 
+		// Always display the last button in the last.
         if (bind_is_gamepad && last_input_was_gamepad)
-            break;
+            usebutton = temp_button;
         else if (!bind_is_gamepad && !last_input_was_gamepad)
-            break;
+            usebutton = temp_button;
     }
 
     if (usebutton == "")
@@ -1273,16 +1274,16 @@ void() HUD_BouncingBetty =
 
 	float argc = tokenize(findkeysforcommandex("impulse 33"));
 
-	for (int i = 0; i < argc; ++i)
-	{
-		betty_key = strtoupper(argv(i));
-		float bind_is_gamepad = Key_IsControllerGlyph(betty_key);
+	for (int i = 0; i < argc; i++) {
+		string temp_button = strtoupper(argv(i));
+        float bind_is_gamepad = Key_IsControllerGlyph(temp_button);
 
-		if (bind_is_gamepad && last_input_was_gamepad)
-			break;
-		else if (!bind_is_gamepad && !last_input_was_gamepad)
-			break;
-	}
+		// Always display the last button in the last.
+        if (bind_is_gamepad && last_input_was_gamepad)
+            betty_key = temp_button;
+        else if (!bind_is_gamepad && !last_input_was_gamepad)
+            betty_key = temp_button;
+    }
 
 	// If this is a gamepad button, the space we want to reserve
 	// in the betty string should be a fixed width.
@@ -1401,13 +1402,14 @@ void() HUD_Crosshair =
 
 			float argc = tokenize(findkeysforcommandex("impulse 23"));
 			for (int i = 0; i < argc; i++) {
-			    breath_button = strtoupper(argv(i));
-			    float bind_is_gamepad = Key_IsControllerGlyph(breath_button);
+				string temp_button = strtoupper(argv(i));
+				float bind_is_gamepad = Key_IsControllerGlyph(temp_button);
 
-			    if (bind_is_gamepad && last_input_was_gamepad)
-			        break;
-			    else if (!bind_is_gamepad && !last_input_was_gamepad)
-			        break;
+				// Always display the last button in the last.
+				if (bind_is_gamepad && last_input_was_gamepad)
+					breath_button = temp_button;
+				else if (!bind_is_gamepad && !last_input_was_gamepad)
+					breath_button = temp_button;
 			}
 
 			if (breath_button == "")
@@ -1917,15 +1919,16 @@ void(float x_position, float y_position, string command, string action) HUD_Draw
 
 	float argc = tokenize(findkeysforcommandex(command));
 
-    for (int i = 0; i < argc; i++) {
-        bind_button = strtoupper(argv(i));
-        float bind_is_gamepad = Key_IsControllerGlyph(bind_button);
+	for (int i = 0; i < argc; i++) {
+		string temp_button = strtoupper(argv(i));
+		float bind_is_gamepad = Key_IsControllerGlyph(temp_button);
 
-        if (bind_is_gamepad && last_input_was_gamepad)
-            break;
-        else if (!bind_is_gamepad && !last_input_was_gamepad)
-            break;
-    }
+		// Always display the last button in the last.
+		if (bind_is_gamepad && last_input_was_gamepad)
+			bind_button = temp_button;
+		else if (!bind_is_gamepad && !last_input_was_gamepad)
+			bind_button = temp_button;
+	}
 
 	if (bind_button == "")
 		bind_button = "UNBOUND";

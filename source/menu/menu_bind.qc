@@ -3,7 +3,7 @@ string menu_bind_buttons[13] = {"bm_jump", "bm_spri", "bm_crou", "bm_wnex", "bm_
 
 float(float keynum) Menu_Bindings_IsGamepad =
 {
-    if (keynum >= 816 && keynum <= 839)
+    if (keynum >= 768 && keynum <= 839)
         return true;
 
     return false;
@@ -19,16 +19,16 @@ void(float order, string command) Menu_Bindings_PrintBindForCommand =
 
     string bind = "";
     float argc = tokenize(findkeysforcommandex(command));
-
     for (int i = 0; i < argc; i++) {
-        bind = strtoupper(argv(i));
-        float bind_is_gamepad = Menu_Bindings_IsGamepad(stringtokeynum(bind));
+		string temp_button = strtoupper(argv(i));
+		float bind_is_gamepad = Menu_Bindings_IsGamepad(stringtokeynum(temp_button));
 
-        if (bind_is_gamepad && last_input_was_gamepad)
-            break;
-        else if (!bind_is_gamepad && !last_input_was_gamepad)
-            break;
-    }
+		// Always display the last button in the last.
+		if (bind_is_gamepad && last_input_was_gamepad)
+			bind = temp_button;
+		else if (!bind_is_gamepad && !last_input_was_gamepad)
+			bind = temp_button;
+	}
 
     if (bind == "")
         bind = "UNBOUND";
