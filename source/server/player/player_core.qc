@@ -431,6 +431,48 @@ void() Player_UpdateProgressBar =
 	}
 };
 
+//
+// Player_UseprintWithWait(who, type, cost, weapon)
+// For avoiding issues with overlapping bounding boxes for specific
+// machines.
+//
+.entity last_looked_ent;
+.float last_looked_time;
+void(entity who, entity active_ent, float type, float cost, float weapon) Player_UseprintWithWait =
+{
+	// Small delay before we can interact with a new entity to
+	// mitigate overlapping bboxes causing problems.
+	if (who.last_looked_time >= time && active_ent != who.last_looked_ent)
+		return false;
+
+	if (who.last_looked_time < time) {
+		who.last_looked_time = time + 0.15;
+		who.last_looked_ent = active_ent;
+	}
+
+	if (who.last_looked_ent == active_ent)
+		useprint(who, type, cost, weapon);
+};
+
+//
+// Player_UseButtonPressed(who, active_ent)
+// Logic for checking if the use button is pressed
+// and appropriate conditions are met for validity.
+//
+float(entity who, entity active_ent) Player_UseButtonPressed =
+{
+	// Small delay before we can interact with a new entity to
+	// mitigate overlapping bboxes causing problems.
+	if (who.last_looked_time >= time && active_ent != who.last_looked_ent)
+		return false;
+
+	if (who.button7) {
+		return true;
+	}
+
+	return false;
+};
+
 void() PlayerJump =
 {
 	if (!(self.flags & FL_ONGROUND) 
@@ -771,13 +813,7 @@ void() PlayerPostThink =
 		else
 			self.facingenemy = false;
 
-#ifndef FTE
-		// 1/4 of a second is enough of a delay to not kill the effect.
-		player_trace_time = time + 0.25;
-#else
-		// FTE's server rate is already slower, no real need to delay this.
 		player_trace_time = time + 0.05;
-#endif // FTE
 	}
 };
 
@@ -862,6 +898,7 @@ void() PlayerSpawn =
 	self.classname = "player";
 	self.solid = SOLID_BBOX;
 	self.flags = FL_CLIENT;
+	self.last_looked_time = 0;
 
 	self.onfire = false;
 	self.fire_timeout = 0;

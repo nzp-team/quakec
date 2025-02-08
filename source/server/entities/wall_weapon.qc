@@ -165,9 +165,9 @@ void () WallWeapon_TouchTrigger =
 			wcost = (is_pap) ? self.pap_cost : self.cost2;
 			float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
 
-			useprint(other, 3, wcost, wep);
+			Player_UseprintWithWait(other, self, 3, wcost, wep);
 
-			if (!other.button7 || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
+			if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 				return;
 			}
 
@@ -220,9 +220,9 @@ void () WallWeapon_TouchTrigger =
 			// Set the cost and weapon value (for useprint).
 			wcost = (IsPapWeapon(other.weapon)) ? self.pap_cost : self.cost2;
 
-			useprint(other, 3, wcost, other.weapon);
+			Player_UseprintWithWait(other, self, 3, wcost, other.weapon);
 
-			if (!other.button7 || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
+			if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 				return;
 			}
 
@@ -254,9 +254,9 @@ void () WallWeapon_TouchTrigger =
 		if (other.grenades & 2)
 			return;
 
-		useprint (other, 4, self.cost, self.weapon);
+		Player_UseprintWithWait(other, self, 4, self.cost, self.weapon);
 
-		if (!other.button7 || (other.semi_actions & SEMIACTION_USE))
+		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE))
 			return;
 		if (other.points < self.cost2)
 		{
@@ -285,10 +285,10 @@ void () WallWeapon_TouchTrigger =
 	else if (self.weapon == W_GRENADE)
 	{
 		if (other.primary_grenades < 4)
-			useprint (other, 3, self.cost2, self.weapon);
+			Player_UseprintWithWait(other, self, 3, self.cost2, self.weapon);
 		else
 			return;
-		if (!other.button7 || (other.semi_actions & SEMIACTION_USE))
+		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE))
 			return;
 		if (other.points < self.cost)
 		{
@@ -315,8 +315,8 @@ void () WallWeapon_TouchTrigger =
 	else if (self.weapon == W_BOWIE)
 	{
 		if (!other.has_bowie_knife) {
-			useprint(other, 4, self.cost2, self.weapon);
-			if (other.button7)
+			Player_UseprintWithWait(other, self, 4, self.cost2, self.weapon);
+			if (Player_UseButtonPressed(other, self))
 			{
 				if (other.points < self.cost2) {
 					centerprint(other, STR_NOTENOUGHPOINTS);
@@ -345,9 +345,9 @@ void () WallWeapon_TouchTrigger =
 		entity tempe;
 
 		//centerprint(other, self.message);
-      	useprint (other, 4, self.cost, self.weapon);
+      	Player_UseprintWithWait(other, self, 4, self.cost, self.weapon);
 
-		if (!other.button7 || (other.semi_actions & SEMIACTION_USE)) {
+		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 

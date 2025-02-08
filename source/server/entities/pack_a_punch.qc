@@ -264,7 +264,7 @@ void() PAP_Touch =
     
 	// Power is not turned on.
 	if (self.requirespower == true && !isPowerOn) {
-		useprint (other, 8, 0, 0);
+		Player_UseprintWithWait(other, self, 8, 0, 0);
 		return;
 	}
   
@@ -274,14 +274,14 @@ void() PAP_Touch =
 			return;
 		}
 
-		useprint (other, 12, self.cost, 5);
+		Player_UseprintWithWait(other, self, 12, self.cost, 5);
 
 		// Player has enough points, begin Upgrade process
-		if (other.points >= self.cost && other.button7 && other.weapon) {
+		if (other.points >= self.cost && Player_UseButtonPressed(other, self) && other.weapon) {
 			PAP_UpgradeWeapon(self, other);
 		} 
 		// They're broke! Notify.
-		else if (other.button7 && other.weapon && !(other.semi_actions & SEMIACTION_USE)) {
+		else if (Player_UseButtonPressed(other, self) && other.weapon && !(other.semi_actions & SEMIACTION_USE)) {
 			other.semi_actions |= SEMIACTION_USE;
 			centerprint (other, STR_NOTENOUGHPOINTS);
 			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
@@ -297,9 +297,9 @@ void() PAP_Touch =
 
 #endif // FTE
 
-		useprint (other, 7, 0, EqualPapWeapon(self.weapon));
+		Player_UseprintWithWait(other, self, 7, 0, EqualPapWeapon(self.weapon));
 
-		if (other.button7) {
+		if (Player_UseButtonPressed(other, self)) {
  			entity tempe = self;
  			self = other;
 			Weapon_GiveWeapon(EqualPapWeapon(tempe.weapon), 0, 0);

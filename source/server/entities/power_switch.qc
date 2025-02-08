@@ -92,8 +92,8 @@ void() Power_Touch =
 	entity tempe;
 	entity old_self;
 
-	useprint (other, 10, 0, 0);
-	if (other.button7 && !isPowerOn) {
+	Player_UseprintWithWait(other, self, 10, 0, 0);
+	if (Player_UseButtonPressed(other, self) && !isPowerOn) {
 
         // Animate the handle programmatically.
         if (!(self.spawnflags & POWER_SPAWNFLAG_NOHANDLE))

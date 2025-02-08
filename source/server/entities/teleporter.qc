@@ -213,21 +213,21 @@ void() teleport_pad_touch =
 		return;
 
 	if (!isPowerOn) {
-     	useprint(other, 8, 0, 0);
+     	Player_UseprintWithWait(other, self, 8, 0, 0);
     	return;
     } 
 
 	if (self.host.waitLink) {
-		useprint(other, 19, 0, 0);
+		Player_UseprintWithWait(other, self, 19, 0, 0);
 
-		if (other.button7) {
+		if (Player_UseButtonPressed(other, self)) {
 			self.host.isLinked = true;
 			self.host.waitLink = false;
 			Sound_PlaySound(self, "sounds/weapons/tesla/switchon.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		}
 	} else {
 		if (self.host.mode == 2) {
-			useprint(other, 18, 0, 0);
+			Player_UseprintWithWait(other, self, 18, 0, 0);
 		}
 	}
 }
@@ -236,9 +236,9 @@ void() teleporter_link_touch =
 {
 
 	if (!self.waitLink)
-		useprint(other, 17, 0, 0);
+		Player_UseprintWithWait(other, self, 17, 0, 0);
 
-	if (other.button7) {
+	if (Player_UseButtonPressed(other, self)) {
 		local entity en;
 
 		en = find(world, targetname, self.target2);
@@ -253,7 +253,7 @@ void() teleport_touch =
 	entity tempe;
 
 	if (self.cooldown) {
-		useprint(other, 16, 0, 0);
+		Player_UseprintWithWait(other, self, 16, 0, 0);
 		return;
 	}
 
@@ -261,7 +261,7 @@ void() teleport_touch =
 		return;
   
   	if (!isPowerOn) {
-     	useprint(other, 8, 0, 0);
+     	Player_UseprintWithWait(other, self, 8, 0, 0);
     	return;
     } 
 
@@ -271,12 +271,12 @@ void() teleport_touch =
 	}
     
 	if (!self.cost)
-  		useprint(other, 14, 0, 0);
+  		Player_UseprintWithWait(other, self, 14, 0, 0);
 	else
-		useprint(other, 15, self.cost, 0);
+		Player_UseprintWithWait(other, self, 15, self.cost, 0);
 	
 
-	if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+	if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 		other.semi_actions |= SEMIACTION_USE;
 		
 		if (other.points < self.cost) {

@@ -60,12 +60,7 @@ void() print_need_power =
 {
 	if(other.classname == "player" && !other.downed)
 	{
-		/*if (self.owner.message)
-			centerprint(other, self.owner.message);
-		else
-			centerprint(other, "Power must be activated first");*/
-		
-		useprint (other, 8, 0, 0);
+		Player_UseprintWithWait(other, self, 8, 0, 0);
 	}
 
 };
@@ -191,11 +186,7 @@ void() door_fire =
 		{
 			if(other.classname == "player" && !other.downed)
 			{
-				/*if (self.message)
-					centerprint(other, self.message);
-				else
-					centerprint(other, "Power must be activated first");*/
-				useprint (other, 8, 0, 0);
+				Player_UseprintWithWait(other, self, 8, 0, 0);
 				return;
 			}
 		}
@@ -258,17 +249,13 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		{
 			if(other.classname == "player" && !other.downed)
 			{
-				/*if (self.message)
-					centerprint(other, self.message);
-				else
-					centerprint(other, "Power must be activated first");*/
-				useprint (other, 8, 0, 0);
+				Player_UseprintWithWait(other, self, 8, 0, 0);
 				return;
 			}
 		}
 	}
 
-	if (other.button7 && !(other.semi_actions & SEMIACTION_USE))
+	if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE))
 	{
 		other.semi_actions |= SEMIACTION_USE;
 		if (other.points >= self.cost)
@@ -311,18 +298,14 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 			}
 		}
 	}
-	else if (!other.button7)
+	else if (!Player_UseButtonPressed(other, self))
 	{
 		if(other.classname == "player" && !other.downed)
 		{
-			/*if (!self.message)
-				centerprint3(other, "press use to open door for ", b = ftos (self.cost), " points\n");
-			else
-				centerprint (other, self.message);*/
 			if (self.spawnflags & DOOR_DEBRIS)
-				useprint (other, 2, self.cost, 0);
+				Player_UseprintWithWait(other, self, 2, self.cost, 0);
 			else
-				useprint (other, 1, self.cost, 0);
+				Player_UseprintWithWait(other, self, 1, self.cost, 0);
 			return;
 		}
 	}	

@@ -356,10 +356,10 @@ void() LastStand_TouchReviveTrigger =
     // No one is actively reviving the downed team mate.
     if (self.owner.beingrevived == false) {
         // Hold F to revive...
-        useprint(other, 13, 0, 0);
+        Player_UseprintWithWait(other, self, 13, 0, 0);
 
         // Kick-off the revive sequence.
-        if (other.button7) {
+        if (Player_UseButtonPressed(other, self)) {
 			// Revive time should be significantly shorter with
 			// Quick Revive.
 			float revive_time = 4;

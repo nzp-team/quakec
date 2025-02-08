@@ -668,7 +668,7 @@ void() MBOX_Touch =
 		return;
 		
 	if (!self.boxstatus) {
-		useprint (other, 6, mystery_box_cost, 0);
+		Player_UseprintWithWait(other, self, 6, mystery_box_cost, 0);
 	}
 	if (self.boxstatus == 2 && self.owner == other) {
 
@@ -678,10 +678,10 @@ void() MBOX_Touch =
 
 #endif // FTE
 
-		useprint (other, 7, 0, self.boxweapon.weapon);
+		Player_UseprintWithWait(other, self, 7, 0, self.boxweapon.weapon);
 	}
 	
-	if (other.button7 && !(other.semi_actions & SEMIACTION_USE))
+	if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE))
 	{
 		other.semi_actions |= SEMIACTION_USE;
 		if (!self.boxstatus)

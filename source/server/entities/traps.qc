@@ -236,14 +236,14 @@ void() zapper_touch =
 	}
 
 	if (self.requirespower == true && !isPowerOn) {
-		useprint (other, 8, 0, 0);
+		Player_UseprintWithWait (other, self, 8, 0, 0);
 		return;
 	}	
 
 	if (self.state == 0) {
-		useprint (other, 11, self.cost, self.weapon);
+		Player_UseprintWithWait (other, self, 11, self.cost, self.weapon);
 
-		if (!other.button7 || (other.semi_actions & SEMIACTION_USE)) {
+		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 

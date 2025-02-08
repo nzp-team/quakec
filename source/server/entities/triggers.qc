@@ -229,7 +229,7 @@ void() trigger_interact_touch =
 	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
 		return;
 
-	if (other.button7) {
+	if (Player_UseButtonPressed(other, self)) {
 		if (self.noise)
 			Sound_PlaySound(other, self.noise, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		multi_trigger();

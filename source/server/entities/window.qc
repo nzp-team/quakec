@@ -326,9 +326,9 @@ void() window_touch =
 		// cypress (09 dec 2023) -- support for limited barricade health.
 		if(self.health < self.health_delay)
 		{
-			useprint (other, 5, 0, 0);
+			Player_UseprintWithWait(other, self, 5, 0, 0);
 			
-			if(other.button7)
+			if(Player_UseButtonPressed(other, self))
 			{
 				if(self.rebuild_time < time)
 				{

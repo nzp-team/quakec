@@ -339,7 +339,7 @@ void() button_touch =
 			centerprint(other,ftos(self.cost));
 			centerprint(other,"]\n");
 
-			if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+			if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 				other.semi_actions |= SEMIACTION_USE;
 				if(other.points >= self.cost) {
 					self.enemy = other;
@@ -414,9 +414,9 @@ void() touch_ending =
 	if (other.classname != "player" || self.activated)
 		return;
 	
-	useprint(other, 20, self.cost, 0);
+	Player_UseprintWithWait(other, self, 20, self.cost, 0);
 
-	if (other.button7) {
+	if (Player_UseButtonPressed(other, self)) {
 
 		if (other.points < self.cost)
 			return;

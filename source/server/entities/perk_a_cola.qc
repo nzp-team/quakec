@@ -246,7 +246,7 @@ void() touch_perk =
 	  
 	// Power's off! Nothing to do here.
 	if (self.requirespower == true && !isPowerOn) {
-		useprint (other, 8, 0, 0);
+		useprint(other, 8, 0, 0);
 		return;
 	}
 
@@ -272,9 +272,9 @@ void() touch_perk =
 			price = self.cost;
 
 		// sequence = perk ID in client
-		useprint(other, 9, price, self.sequence);
+		Player_UseprintWithWait(other, self, 9, price, self.sequence);
 
-		if (other.points >= price && other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+		if (other.points >= price && Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 			Player_RemoveScore(other, price);
 
 			// Play the sound of the bottle "vending"
@@ -316,7 +316,7 @@ void() touch_perk =
 				Perk_MachineGoAway();
 
 			other.semi_actions |= SEMIACTION_USE;
-		} else if (other.button7 && !(other.semi_actions & SEMIACTION_USE)) {
+		} else if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 			// We tried to use, but we don't have the cash..
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
