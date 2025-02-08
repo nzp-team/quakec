@@ -2027,6 +2027,10 @@ void() HUD_PlayerNames =
 			case 1: text_color = TEXT_LIGHTBLUE; break;
 			case 2: text_color = TEXT_ORANGE; break;
 			case 3: text_color = TEXT_GREEN; break;
+			case 4: break;
+			case 5: text_color = TEXT_RED; break;
+			case 6: text_color = TEXT_YELLOW; break;
+			case 7: text_color = TEXT_PURPLE; break;
 			default: break;
 		}
 
@@ -2041,8 +2045,10 @@ void() HUD_ReviveIcons =
 	for (float i = 7; i >= 0; i = i - 1) {
 		float player_index = i;
 
+		float player_number = getplayerkeyfloat(i, "client_index");
+
 		// Don't render our own Icon.
-		if (player_index + 1 == getstatf(STAT_PLAYERNUM))
+		if (player_number == getstatf(STAT_PLAYERNUM))
 			continue;
 
 		// Player is not in Last Stand.
@@ -2053,8 +2059,6 @@ void() HUD_ReviveIcons =
 		// Revive Icon should grow more and more red over time.
 		if (revive_icons[player_index].state == 1)
 			revive_icons[player_index].timer += frametime;
-		
-		float player_number = getplayerkeyfloat(i, "client_index");
 
 		//string text = getplayerkeyvalue(i, "name");
 		entity client = findfloat(world, playernum, player_number);
