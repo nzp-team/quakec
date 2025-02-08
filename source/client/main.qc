@@ -156,7 +156,6 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	registercommand("promptjoin");
 	registercommand("showscores");
 
-	cvar_set("sv_cheats", ftos(1));
 	cvar_set("r_fb_models", ftos(0));
 	autocvar(r_viewmodel_default_fov, 70);
 	autocvar(cl_controllerglyphs, "xbox");
