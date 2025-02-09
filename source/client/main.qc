@@ -1129,6 +1129,9 @@ noref void() CSQC_Parse_Event =
 			break;
 		case EVENT_REVIVECHANGE:
 			float revivechange_player_index = readbyte() - 1; // playernum starts at one.
+			if (revivechange_player_index < 0) 
+				return;
+
 			float state = readbyte();
 			revive_icons[revivechange_player_index].state = state;
 			break;
