@@ -280,31 +280,37 @@ void(float side) W_Give_Ammo =
 	if (self.weapons[0].weapon_reserve == 0)
 		return;
 
-	float ammo_shot, max_mag, loadammo;
+	float ammo_needed, max_mag, loadammo;
 	
 	max_mag = getWeaponMag(self.weapon);
 
+	// Determine how much ammo is needed to reload the selected side
 	if (side == S_LEFT) {
-		ammo_shot = max_mag - self.weapons[0].weapon_magazine_left;
+		ammo_needed = max_mag - self.weapons[0].weapon_magazine_left;
 	} else {
-		ammo_shot = max_mag - self.weapons[0].weapon_magazine;
+		ammo_needed = max_mag - self.weapons[0].weapon_magazine;
 	}
-	if (ammo_shot < self.weapons[0].weapon_reserve)
+
+	// Ensure we don't take more ammo than is in the reserve
+	if (ammo_needed > self.weapons[0].weapon_reserve)
 	{
-    	self.weapons[0].weapon_reserve = self.weapons[0].weapon_reserve - ammo_shot;
+		loadammo = self.weapons[0].weapon_reserve;
       
-		loadammo = max_mag;
+		// Deplete reserve
+		self.weapons[0].weapon_reserve = 0;
 	}
 	else
 	{
-		loadammo = self.weapons[0].weapon_magazine + self.weapons[0].weapon_reserve;
-		self.weapons[0].weapon_reserve = 0;
+		// Load the ammo needed to fill the magazine, and subtract it from the reserve
+		loadammo = ammo_needed;
+		self.weapons[0].weapon_reserve -= ammo_needed;
 	}
 
+	// Apply ammo load to the correct side
 	if (side == S_LEFT) {
-		self.weapons[0].weapon_magazine_left = loadammo;
+		self.weapons[0].weapon_magazine_left += loadammo;
 	} else {
-		self.weapons[0].weapon_magazine = loadammo;
+		self.weapons[0].weapon_magazine += loadammo;
 	}
 };
 
