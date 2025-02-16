@@ -160,45 +160,38 @@ void() HUD_AmmoString =
 
 	vector 	textcolor = [1, 1, 1];
 	string 	message = "";
-	float	reserve_is_low;
+	float	reserve_is_empty;
 	float	mag_is_low;
 
 	// Is the Reserve low?
-	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_AMMO), false)) {
-		reserve_is_low = true;
-	} else {
-		reserve_is_low = false;
-	}
+	reserve_is_empty = getstatf(STAT_AMMO) <= 0;
 
 	// Is the Magazine low?
-	if (W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_CURRENTMAG), true)) {
-		mag_is_low = true;
-	} else {
-		mag_is_low = false;
-	}
+	mag_is_low = W_IsLowAmmo(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_CURRENTMAG), true);
 
-	// Nothing to do.
-	if (mag_is_low == false && reserve_is_low == false) {
+	// When the mag isn't low, there's nothing to do here.
+	if (mag_is_low == false) {
 		ammoopac = 1;
 		ammoloop = 0;
 		return;
 	} else {
-		// Display Reload text if the mag is low but reserve is not.
-		if (mag_is_low == true && reserve_is_low == false) {
-			message = "Reload";
-			textcolor = [1, 1, 1];
-		}
-		// Report NO AMMO if both are empty
-		else if (getstatf(STAT_CURRENTMAG) <= 0 && getstatf(STAT_AMMO) <= 0)
+		// Report NO AMMO if both current mag and reserve are empty
+		if (getstatf(STAT_CURRENTMAG) <= 0 && reserve_is_empty == true)
 		{
 			message = "NO AMMO";
 			textcolor = [215/255, 0, 0];
 		}
 		// Display LOW AMMO if mag is low and reserve is empty
-		else if (mag_is_low == true && getstatf(STAT_AMMO) <= 0)
+		else if (reserve_is_empty == true)
 		{
 			message = "LOW AMMO";
-			textcolor = [219/255, 203/255, 19/255];	
+			textcolor = [219/255, 203/255, 19/255];
+		}
+		// Otherwise, just display reload text
+		else
+		{
+            message = "Reload";
+            textcolor = [1, 1, 1];
 		}
 	}
 
