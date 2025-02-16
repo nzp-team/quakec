@@ -401,8 +401,9 @@ void() trigger_awardpoints =
 //
 
 // NZ:P START -- Spawnflags for not hurting clients and not hurting AI
-#define HURT_SPAWNFLAG_NOAI		1
-#define HURT_SPAWNFLAG_NOCLIENT	2
+#define HURT_SPAWNFLAG_NOAI			1		// Does not affect AI
+#define HURT_SPAWNFLAG_NOCLIENT		2		// Does not affect clients (players)
+#define HURT_SPAWNFLAG_DIEINSTANTLY	4		// Player will instantly die and spectate, regardless of other conditions
 // NZ:P END
 
 void() hurt_on =
@@ -416,10 +417,15 @@ void() hurt_touch =
 	if ((other.classname == "player" && !(self.spawnflags & HURT_SPAWNFLAG_NOCLIENT)) ||
 	(other.aistatus == "1" && !(self.spawnflags & HURT_SPAWNFLAG_NOAI)))
 	{
-		self.solid = SOLID_NOT;
-		DamageHandler(other, self, self.dmg, DMG_TYPE_OTHER);
-		self.think = hurt_on;
-		self.nextthink = time + 1;
+		if ((self.spawnflags & HURT_SPAWNFLAG_DIEINSTANTLY) && other.classname == "player") {
+			LastStand_Begin(other);
+			LastStand_KillPlayer(other);
+		} else {
+			self.solid = SOLID_NOT;
+			DamageHandler(other, self, self.dmg, DMG_TYPE_OTHER);
+			self.think = hurt_on;
+			self.nextthink = time + 1;
+		}
 
 		if (self.message)
 			centerprint(other, strcat(self.message, "\n"));
