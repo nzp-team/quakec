@@ -618,9 +618,9 @@ float(float wep) getWeaponMag =
 		case W_IMPELLER:
 			return 64;
 		case W_GEWEHR:
-			return 12;
-		case W_COMPRESSOR:
 			return 10;
+		case W_COMPRESSOR:
+			return 12;
 		case W_KAR_SCOPE:
 			return 5;
 		case W_HEADCRACKER:
