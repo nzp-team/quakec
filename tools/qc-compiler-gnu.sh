@@ -1,31 +1,62 @@
 #!/usr/bin/env bash
+set -e errexit
 
-FTEQCC=fteqcc-cli-lin
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+QUAKEC_ROOT=$(dirname "${SCRIPT_DIR}")
+QUAKEC_LOG="/tmp/qc.log"
+
+FTEQCC="fteqcc-cli-lin"
+RC="0"
 
 # Switch to macOS fteqcc binary if on that platform.
-if [[ "$OSTYPE" == "darwin"* ]]; then
-	FTEQCC=fteqcc-cli-mac
+if [[ "${OSTYPE}" == "darwin"* ]]; then
+	FTEQCC="fteqcc-cli-mac"
 fi
 
-cd ../
+function setup()
+{
+	cd "${QUAKEC_ROOT}"
+	echo "[INFO]: Generating Hash Table"
+	local command="python3 bin/qc_hash_generator.py -i tools/asset_conversion_table.csv -o source/server/hash_table.qc"
+	echo "[${command}]"
+	$command
+	echo "---------------"
 
-# generate hash table
-echo "Generating Hash Table.."
-python3 bin/qc_hash_generator.py -i tools/asset_conversion_table.csv -o source/server/hash_table.qc
+	mkdir -p build/{fte,standard}
+}
 
-# create build directories
-mkdir -p build/{fte,standard}
+function compile_progs()
+{
+	local src_file="$1"
+	local name="$2"
+	local flags="$3"
+	local failure="1"
 
-cd bin/
+	echo "[INFO]: Compiling using [${src_file}] (${name}).."
+	local command="bin/${FTEQCC} ${flags} -srcfile progs/${src_file}.src"
+	echo "[${command}]"
+	$command 2>&1 | tee -a "${QUAKEC_LOG}" > /dev/null
+	local return_code=$?
 
-# build..
-echo "Compiling FTE CSQC.."
-./$FTEQCC -srcfile ../progs/csqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
-echo "Compiling FTE SSQC.."
-./$FTEQCC -O3 -DFTE -srcfile ../progs/ssqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
-echo "Compiling FTE MenuQC.."
-./$FTEQCC -O3 -DFTE -srcfile ../progs/menu.src | grep -E -i "warning |error |defined |not |unknown |branches"
-echo "Compiling Standard/Id SSQC.."
-./$FTEQCC -O3 -srcfile ../progs/ssqc.src | grep -E -i "warning |error |defined |not |unknown |branches"
+	sed 's/^.\{16\}//' "${QUAKEC_LOG}" | grep -E "warning|error|defined|not|unknown|branches" || failure="0"
+	rm -rf "${QUAKEC_LOG}"
 
-echo "End of script."
+	if [[ "${failure}" -ne "0" ]]; then
+		echo "[ERROR]: FAILED to build!"
+		RC="1"
+	fi
+
+	echo "---------------"
+}
+
+function main()
+{
+	setup;
+	compile_progs "csqc" "FTE CSQC" "-DFTE"
+	compile_progs "ssqc" "FTE SSQC" "-O3 -DFTE"
+	compile_progs "menu" "FTE MenuQC" "-O3 -DFTE"
+	compile_progs "ssqc" "Vril SSQC" "-O3"
+	exit ${RC}
+}
+
+main;
