@@ -564,7 +564,7 @@ void() Load_Waypoints
 	{
 		string line;
 		line = fgets(file);
-		if not (line) {
+		if (line == "") {
 			bprint(PRINT_HIGH, "End of file\n");
 			loop = 0;
 			break;

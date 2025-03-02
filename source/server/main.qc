@@ -78,7 +78,7 @@ void() StartFrame =
 			zent = find (world, classname, "waypoint");
 			while (zent)
 			{
-				if (zent.targetname)
+				if (zent.targetname != "")
 					setmodel(zent, "models/way/normal_way_door.spr");
 				else
 					setmodel(zent, "models/way/normal_way.spr");

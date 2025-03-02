@@ -86,7 +86,7 @@ void() MapRotation_SelectNextMap =
 
     while(load_loop) {
         // End of file, use the first map in the file.
-        if not (current_map) {
+        if (current_map == "") {
             load_loop = false;
 			break;
 		}

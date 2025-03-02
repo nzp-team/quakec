@@ -67,21 +67,21 @@ void() SUB_UseTargets =
 	tempcount = 0;
 	breakthis = false;
 
-	if (self.target)
+	if (self.target != "")
 		tempcount = tempcount + 1;
-	if (self.target2)
+	if (self.target2 != "")
 		tempcount = tempcount + 1;
-	if (self.target3)
+	if (self.target3 != "")
 		tempcount = tempcount + 1;
-	if (self.target4)
+	if (self.target4 != "")
 		tempcount = tempcount + 1;
-	if (self.target5)
+	if (self.target5 != "")
 		tempcount = tempcount + 1;
-	if (self.target6)
+	if (self.target6 != "")
 		tempcount = tempcount + 1;
-	if (self.target7)
+	if (self.target7 != "")
 		tempcount = tempcount + 1;
-	if (self.target8)
+	if (self.target8 != "")
 		tempcount = tempcount + 1;
 
 	//
@@ -163,7 +163,7 @@ void() SUB_UseTargets =
 	//
 	// fire targets
 	//
-		if (tempstring)
+		if (tempstring != "")
 		{
 			act = activator;
 			t = find (world, targetname, tempstring);

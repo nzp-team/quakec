@@ -52,10 +52,10 @@ function compile_progs()
 function main()
 {
 	setup;
-	compile_progs "csqc" "FTE CSQC" "-DFTE"
-	compile_progs "ssqc" "FTE SSQC" "-O3 -DFTE"
-	compile_progs "menu" "FTE MenuQC" "-O3 -DFTE"
-	compile_progs "ssqc" "Vril SSQC" "-O3"
+	compile_progs "csqc" "FTE CSQC" "-DFTE -Wall"
+	compile_progs "ssqc" "FTE SSQC" "-O3 -DFTE -Wall"
+	compile_progs "menu" "FTE MenuQC" "-O3 -DFTE -Wall"
+	compile_progs "ssqc" "Vril SSQC" "-O3 -Wall"
 	exit ${RC}
 }
 

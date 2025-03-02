@@ -190,7 +190,7 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 	Sound_PlaySound(pap, pap.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Mapper-provided musical sting.
-	if (pap.powerup_vo)
+	if (pap.powerup_vo != "")
 		Sound_PlaySound(pap, pap.powerup_vo, SOUND_TYPE_ENV_MUSIC, SOUND_PRIORITY_PLAYALWAYS);
 
 	//
@@ -425,7 +425,7 @@ void() perk_pap =
 
 	precache_sound(self.oldmodel);
 
-	if (self.powerup_vo)
+	if (self.powerup_vo != "")
 		precache_sound(self.powerup_vo);
 
 	precache_sound("sounds/machines/papsound.wav");

@@ -855,7 +855,7 @@ void(float mbox_file) MBOX_ParseMB2File =
         file_line = fgets(mbox_file);
 
         // End of file.
-        if not (file_line) {
+        if (file_line == "") {
             finished_parsing = true;
             break;
         }

@@ -259,7 +259,7 @@ void() NewRound =
 		roundtype = 1;
 
 		string fog_value;
-		if (world.fog)
+		if (world.fog != "")
 			fog_value = strcat(world.fog, "\n");
 		else
 			fog_value = "0 0 0 0 0\n";

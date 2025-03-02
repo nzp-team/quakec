@@ -326,7 +326,7 @@ void() teleport_touch =
 	}
 
 	if (other.button1) {
-    	if (self.targetname) {
+    	if (self.targetname != "") {
       		if (self.nextthink < time)
         		return;		// not fired yet
       	}

@@ -145,33 +145,33 @@ void() trigger_activator_touch =
 	tempstring = "";
 	t = world;
 	
-	if (self.target2)
+	if (self.target2 != "")
 		tempcount =+ 1;
-	if (self.target3)
+	if (self.target3 != "")
 		tempcount =+ 1;
-	if (self.target4)
+	if (self.target4 != "")
 		tempcount =+ 1;
-	if (self.target5)
+	if (self.target5 != "")
 		tempcount =+ 1;
-	if (self.target6)
+	if (self.target6 != "")
 		tempcount =+ 1;
-	if (self.target7)
+	if (self.target7 != "")
 		tempcount =+ 1;
-	if (self.target8)
+	if (self.target8 != "")
 		tempcount =+ 1;
-	if (self.target2)
+	if (self.target2 != "")
 		tempcount = tempcount + 1;
-	if (self.target3)
+	if (self.target3 != "")
 		tempcount = tempcount + 1;
-	if (self.target4)
+	if (self.target4 != "")
 		tempcount = tempcount + 1;
-	if (self.target5)
+	if (self.target5 != "")
 		tempcount = tempcount + 1;
-	if (self.target6)
+	if (self.target6 != "")
 		tempcount = tempcount + 1;
-	if (self.target7)
+	if (self.target7 != "")
 		tempcount = tempcount + 1;
-	if (self.target8)
+	if (self.target8 != "")
 		tempcount = tempcount + 1;
 
 	while(tempcount > temptotal)
@@ -193,7 +193,7 @@ void() trigger_activator_touch =
 			tempstring = self.target7;
 		if (temptotal == 8)
 			tempstring = self.target8;
-		if (tempstring)
+		if (tempstring != "")
 		{
 			t = find (world, targetname, tempstring);
 			breakthis = 0;
@@ -230,7 +230,7 @@ void() trigger_interact_touch =
 		return;
 
 	if (Player_UseButtonPressed(other, self)) {
-		if (self.noise)
+		if (self.noise != "")
 			Sound_PlaySound(other, self.noise, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		multi_trigger();
 	}
@@ -254,7 +254,7 @@ void() teddy_react =
     
 		if (t)
 			Ent_FakeRemove(t);
-	} else if (self.target) {
+	} else if (self.target != "") {
 		SUB_UseTargets();
 	}
 
@@ -264,7 +264,7 @@ void() teddy_react =
     dummy.nextthink = time + 10;
 
 
-	if (self.noise)
+	if (self.noise != "")
     	Sound_PlaySound(dummy, self.noise, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	Ent_FakeRemove(self);
@@ -427,7 +427,7 @@ void() hurt_touch =
 			self.nextthink = time + 1;
 		}
 
-		if (self.message)
+		if (self.message != "")
 			centerprint(other, strcat(self.message, "\n"));
 	}
 
