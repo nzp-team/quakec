@@ -60,7 +60,7 @@ string UserMapNameLookup(string bsp_name) =
 		if (user_maps[i].map_name != bsp_name)
 			continue;
 
-		if (user_maps[i].map_name_pretty)
+		if (user_maps[i].map_name_pretty != "")
 			return user_maps[i].map_name_pretty;
 
 		return user_maps[i].map_name;

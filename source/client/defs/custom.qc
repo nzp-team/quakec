@@ -109,13 +109,6 @@ float sniper_hold_breath;
 
 float K_LEFTDOWN, K_RIGHTDOWN, K_BACKDOWN, K_FORWARDDOWN;
 
-#define 	P_JUG		1
-#define 	P_DOUBLE	2
-#define 	P_SPEED		4
-#define 	P_REVIVE	8
-#define 	P_FLOP		16
-#define 	P_STAMIN	32
-
 vector TEXT_LIGHTBLUE = [0, 0.46, 0.70];
 vector TEXT_ORANGE    = [0.92, 0.74, 0];
 vector TEXT_GREEN     = [0, 0.90, 0.13];

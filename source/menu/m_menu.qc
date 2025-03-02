@@ -260,7 +260,7 @@ float(float order, string id, string bsp_name, float usermap_index) Menu_MapButt
 		}
 
 		// Author/Description
-		if (user_maps[index].map_author) {
+		if (user_maps[index].map_author != "") {
 			sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_END]);
 			string author = user_maps[index].map_author;
 

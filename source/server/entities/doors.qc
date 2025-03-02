@@ -194,7 +194,7 @@ void() door_fire =
 	self.message = string_null;		// no more message
 	oself = self;
 
-	if (self.door_model_target)
+	if (self.door_model_target != "")
 	{
 		entity tempe = find(world, classname, "func_door_model");
 		if (tempe != world) {
@@ -485,7 +485,7 @@ void() LinkDoors =
 
 		if (self.health)
 			starte.health = self.health;
-		if (self.targetname)
+		if (self.targetname != "")
 			starte.targetname = self.targetname;
 		if (self.message != "")
 			starte.message = self.message;

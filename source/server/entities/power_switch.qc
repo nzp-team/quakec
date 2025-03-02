@@ -100,7 +100,7 @@ void() Power_Touch =
 		    Power_HandleFlip();
 
         // Play the sound of the Power Switch flipping
-        if (self.powerup_vo)
+        if (self.powerup_vo != "")
             Sound_PlaySound(self, self.powerup_vo, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 		isPowerOn = true;
@@ -122,7 +122,7 @@ void() Power_Touch =
 					self = old_self;
 				}
 			}
-			if (tempe.targetname) {
+			if (tempe.targetname != "") {
 				old_self = self;
 				self = tempe;
 				remove(self);
@@ -176,7 +176,7 @@ void() power_switch =
         self.box1 = '-4 0 12';
 
     // Switch Flip Sound (Spatialized)
-    if (self.powerup_vo)
+    if (self.powerup_vo != "")
         precache_sound(self.powerup_vo);
 
 	self.solid = SOLID_TRIGGER;

@@ -25,9 +25,6 @@
 
 */
 
-#define true    1
-#define false   0
-
 //
 // CSQC Particle Types
 //
@@ -108,11 +105,6 @@
 #define SCREENFLASH_FADE_INANDOUT		0
 #define SCREENFLASH_FADE_IN 			1
 #define SCREENFLASH_FADE_OUT 			2
-
-// Define our FTE platform
-#ifndef STANDARD
-#define FTE
-#endif // STANDARD
 
 // Player Hull Sizes
 // 32x32x72

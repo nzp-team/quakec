@@ -198,7 +198,7 @@ void() creator_way_touch =
 
 void () Create_New_Waypoint =
 {
-	float way_count;
+	float way_count = 0;
 	float tempf;
 	entity tempe;
 	entity new_way;
@@ -389,7 +389,7 @@ void () Link_Waypoints =
 		active_way.target7 = current_way.waynum;
 		active_way.target7 = strzone(active_way.target7);
 	}
-	else if (active_way.target8)
+	else if (active_way.target8 != __NULL__)
 	{
 		active_way.target8 = current_way.waynum;
 		active_way.target8 = strzone(active_way.target8);
@@ -588,10 +588,11 @@ void () Select_Waypoint =
 }
 entity() closestDoor =
 {
-	local float bestdist,dist;
+	float bestdist;
+	float dist = 0;
 	bestdist = 10000;
-	dist = 0;
-	local entity d,best;
+	entity d;
+	entity best = world;
 	d = find(world,classname,"door_nzp");
 	while(d)
 	{
@@ -691,7 +692,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 		dprint ("\n");
 		//current_special++;
 	}
-	if (trg)
+	if (trg != "")
 	{
 		new_way.target = trg;
 		new_way.target = strzone(new_way.target);
@@ -699,7 +700,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 		dprint (new_way.target);
 		dprint ("\n");
 	}
-	if (trg2)
+	if (trg2 != "")
 	{
 		new_way.target2 = trg2;
 		new_way.target2 = strzone(new_way.target2);
@@ -707,7 +708,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 		dprint (new_way.target2);
 		dprint ("\n");
 	}
-	if (trg3)
+	if (trg3 != "")
 	{
 		new_way.target3 = trg3;
 		new_way.target3 = strzone(new_way.target3);
@@ -715,7 +716,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 		dprint (new_way.target3);
 		dprint ("\n");
 	}
-	if (trg4)
+	if (trg4 != "")
 	{
 		new_way.target4 = trg4;
 		new_way.target4 = strzone(new_way.target4);
@@ -723,7 +724,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 		dprint (new_way.target4);
 		dprint ("\n");
 	}
-	if (trg5)
+	if (trg5 != "")
 	{
 		new_way.target5 = trg5;
 		new_way.target5 = strzone(new_way.target5);
@@ -731,7 +732,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 		dprint (new_way.target5);
 		dprint ("\n");
 	}
-	if (trg6)
+	if (trg6 != "")
 	{
 		new_way.target6 = trg6;
 		new_way.target6 = strzone(new_way.target6);
@@ -739,7 +740,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 		dprint (new_way.target6);
 		dprint ("\n");
 	}
-	if (trg7)
+	if (trg7 != "")
 	{
 		new_way.target7 = trg7;
 		new_way.target7 = strzone(new_way.target7);
@@ -747,7 +748,7 @@ void (vector here, float which, string special, string trg, string trg2, string 
 		dprint (new_way.target7);
 		dprint ("\n");
 	}
-	if (trg8)
+	if (trg8 != "")
 	{
 		new_way.target8 = trg8;
 		new_way.target8 = strzone(new_way.target8);

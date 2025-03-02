@@ -36,8 +36,6 @@ void(entity ent) MBOX_FreeEnt;
 entity() MBOX_GetFreeEnt;
 void() MBOX_Touch;
 
-#define MBOX_SPAWNFLAG_NOLIGHT 		2
-
 //
 // GameRestart_CleanPowerUps()
 // Cleans Power-Ups thrown about on the map,
@@ -208,7 +206,7 @@ void() GameRestart_ResetMysteryBox =
 				}
 
 				// Spawn the Box Glow if permitted
-				if (!(mystery_box.spawnflags & MBOX_SPAWNFLAG_NOLIGHT)) {
+				if (!(mystery_box.spawnflags & 2)) {
 					entity light = MBOX_GetFreeEnt();
 					light.classname = "mystery_glow";
 					original_box.goaldummy = light;

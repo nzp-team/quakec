@@ -427,7 +427,7 @@ void() setup_perk =
 		Turn_PerkLight_On(self);
 
 	// Perk Jingle Timer
-	if (self.powerup_vo) {
+	if (self.powerup_vo != "") {
 		self.think = Perk_Jingle;
 		self.nextthink = time + rint((random() * 30)) + 30;
 	}
@@ -510,8 +510,8 @@ float drink_skin, float perk_id) Perk_InitMachine =
 
 		precache_sound(self.oldmodel);
 		precache_sound("sounds/machines/vend.wav");
-		if (self.aistatus) { precache_sound(self.aistatus); }
-		if (self.powerup_vo) { precache_sound(self.powerup_vo); }
+		if (self.aistatus != "") { precache_sound(self.aistatus); }
+		if (self.powerup_vo != "") { precache_sound(self.powerup_vo); }
 	}
 
 	// General Machine Setup

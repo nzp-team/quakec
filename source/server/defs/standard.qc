@@ -348,12 +348,6 @@ void    (entity who, float low_frequency, float high_frequency, float duration) 
 #define     CONTENT_LAVA                -5
 #define     CONTENT_SKY                 -6
 
-//doors
-#define		STATE_TOP					0
-#define		STATE_BOTTOM				1
-#define		STATE_UP					2
-#define		STATE_DOWN					3
-
 #define     VEC_ORIGIN                  '0 0 0'
 
 // protocol bytes
