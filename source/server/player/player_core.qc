@@ -840,6 +840,16 @@ void() Player_PickSpawnPoint =
 	entity spawn_point = world;
 	float found_viable_spawn = false;
 
+#ifndef FTE
+
+	// Eliminate random spawn points during automated testing.
+	if (cvar("sys_testmode") != 0) {
+		spawn_point = find(world, classname, SPAWN_1_CLASS);
+		found_viable_spawn = true;
+	}
+
+#endif // FTE
+
 	// Assign a location
 	while(!found_viable_spawn) {
 		float index = random();
