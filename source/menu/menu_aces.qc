@@ -1,8 +1,9 @@
-string menu_accesibility_buttons[4] = {"ac_hitm", "ac_text", "ac_apply", "ac_back"};
+string menu_accesibility_buttons[5] = {"ac_hitm", "ac_text", "ac_nukefla", "ac_apply", "ac_back"};
 
 float menu_accessibility_init;
 
 float current_hitmarker;
+float current_nukeflash;
 
 string(string prev_id) Menu_Accessibility_GetNextButton =
 {
@@ -47,6 +48,7 @@ string(string next_id) Menu_Accessibility_GetPreviousButton =
 void() Menu_Accessibility_StoreCurrentSettings =
 {
     current_hitmarker = cvar("cl_hitmarkers");
+    current_nukeflash = cvar("cl_nukeflashcolor");
 }
 
 void() Menu_Accessibility_ApplySettings =
@@ -66,6 +68,13 @@ void() Menu_Accessibility_UpdateHitmarkers =
     Menu_PlaySound(MENU_SND_ENTER);
     current_hitmarker = !current_hitmarker;
     cvar_set("cl_hitmarkers", ftos(current_hitmarker));
+};
+
+void() Menu_Accessibility_UpdateNukeFlash =
+{
+    Menu_PlaySound(MENU_SND_ENTER);
+    current_nukeflash = !current_nukeflash;
+    cvar_set("cl_nukeflashcolor", ftos(current_nukeflash));
 };
 
 void() Menu_Accessibility =
@@ -89,6 +98,16 @@ void() Menu_Accessibility =
     // Text Backdrop
     Menu_Button(2, "ac_text", "TEXT BACKDROP", "Opacity of backdrop for text elements on HUD.") ? 0 : 0;
     Menu_CvarSlider(2, [0, 1, 20], "cl_textopacity", false, false);
+
+    // Nuke flash color
+    Menu_Button(3, "ac_nukefla", "NUKE FLASH COLOR", "Adjust the color of the nuke flash for better visibility.") ? Menu_Accessibility_UpdateNukeFlash() : 0;
+    string nukeflash_string = "";
+    switch(current_nukeflash) {
+        case 0: nukeflash_string = "WHITE"; break;
+        case 1: nukeflash_string = "BLACK"; break;
+        default: break;
+    }
+    Menu_DrawOptionValue(3, nukeflash_string);
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "ac_apply", "APPLY", "Save & Apply Settings.") ? Menu_Accessibility_ApplySettings() : 0;
