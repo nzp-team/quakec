@@ -14,13 +14,13 @@ CD bin/
 
 REM ****** build.. ******
 echo Compiling FTE CSQC..
-fteqcc-cli-win.exe -srcfile ../progs/csqc.src
+fteqcc-cli-win.exe -DFTE -Wall -srcfile ../progs/csqc.src
 echo Compiling FTE SSQC..
-fteqcc-cli-win.exe -O3 -DFTE -srcfile ../progs/ssqc.src
+fteqcc-cli-win.exe -O3 -DFTE -Wall -srcfile ../progs/ssqc.src
 echo Compiling FTE MenuQC..
-fteqcc-cli-win.exe -O3 -DFTE -srcfile ../progs/menu.src
+fteqcc-cli-win.exe -O3 -DFTE -Wall -srcfile ../progs/menu.src
 echo Compiling Standard/Id SSQC..
-fteqcc-cli-win.exe -O3 -srcfile ../progs/ssqc.src
+fteqcc-cli-win.exe -O3 -Wall -srcfile ../progs/ssqc.src
 
 echo End of script.
 pause
