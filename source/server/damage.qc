@@ -162,7 +162,7 @@ void() EndGameSetup =
 	Player_AddScore(self, self.score, false);
 	for (float i = 0; i < MAX_PLAYER_WEAPONS; ++i)
 	{
-		Weapon_RemoveWeapon(i);
+		Weapon_RemoveWeapon(0);
 	}
   return;
 }
