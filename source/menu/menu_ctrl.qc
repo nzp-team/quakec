@@ -1,9 +1,10 @@
-string menu_ctrl_buttons[7] = {"cm_adsm", "cm_sens", "cm_invs", "cm_gpad", "cm_bind", "cm_apply", "cm_back"};
+string menu_ctrl_buttons[8] = {"cm_adsm", "cm_sens", "cm_invs", "cm_togsp", "cm_gpad", "cm_bind", "cm_apply", "cm_back"};
 
 float menu_ctrl_init;
 
 float current_adsmode;
 float current_invert;
+float current_sprintoggle;
 
 void() Menu_Control_StoreCurrentSettings =
 {
@@ -17,6 +18,7 @@ void() Menu_Control_StoreCurrentSettings =
     }
 
     current_invert = (cvar("m_pitch") == 0.022);
+    current_sprintoggle = (cvar("togglesprint") == 1);
 };
 
 void() Menu_Control_Init =
@@ -51,6 +53,17 @@ void() Menu_Control_InvertLook =
         localcmd("m_pitch 0.022\n");
     else
         localcmd("m_pitch -0.022\n");
+};
+
+void() Menu_Control_ToggleSprint =
+{
+    Menu_PlaySound(MENU_SND_ENTER);
+    current_sprintoggle = !current_sprintoggle;
+
+    if (current_sprintoggle)
+        localcmd("togglesprint 1\n");
+    else
+        localcmd("togglesprint 0\n");
 };
 
 void() Menu_Control_ApplySettings =
@@ -129,8 +142,17 @@ void() Menu_Control =
     }
     Menu_DrawOptionValue(3, invert_string);
 
-    Menu_Button(4, "cm_gpad", "GAMEPAD", "Gamepad specific options.") ? current_menu = MENU_GAMEPAD : 0;
-    Menu_Button(5, "cm_bind", "BINDINGS", "Change Input Bindings.") ? current_menu = MENU_BINDINGS : 0;
+    Menu_Button(4, "cm_togsp", "TOGGLE SPRINT", "Toggle sprinting on press, or hold to sprint.") ? Menu_Control_ToggleSprint() : 0;
+    string sprintoggle_string = "";
+    switch(current_sprintoggle) {
+        case 0: sprintoggle_string = "HOLD"; break;
+        case 1: sprintoggle_string = "TOGGLE"; break;
+        default: break;
+    }
+    Menu_DrawOptionValue(4, sprintoggle_string);
+
+    Menu_Button(5, "cm_gpad", "GAMEPAD", "Gamepad specific options.") ? current_menu = MENU_GAMEPAD : 0;
+    Menu_Button(6, "cm_bind", "BINDINGS", "Change Input Bindings.") ? current_menu = MENU_BINDINGS : 0;
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "cm_apply", "APPLY", "Save & Apply Settings.") ? Menu_Control_ApplySettings() : 0;
