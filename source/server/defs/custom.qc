@@ -506,9 +506,7 @@ vector 	mystery_box_start_origin;
 
 .string powerup_vo;
 float instakill_finished;
-float insta_blink;
 float x2_finished;
-float x2_blink;
 float total_windows_down;
 float total_powerup_points;
 float powerup_score_threshold;
