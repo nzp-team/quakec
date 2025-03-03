@@ -100,7 +100,7 @@ void() Menu_Accessibility =
     Menu_CvarSlider(2, [0, 1, 20], "cl_textopacity", false, false);
 
     // Nuke flash color
-    Menu_Button(3, "ac_nukefla", "NUKE FLASH COLOR", "Adjust the color of the nuke flash for better visibility.") ? Menu_Accessibility_UpdateNukeFlash() : 0;
+    Menu_Button(3, "ac_nukefla", "NUKE FLASH COLOR", "Choose the color of the nuke flash.") ? Menu_Accessibility_UpdateNukeFlash() : 0;
     string nukeflash_string = "";
     switch(current_nukeflash) {
         case 0: nukeflash_string = "WHITE"; break;
