@@ -135,9 +135,16 @@ void() Menu_Maps =
 			Menu_Button(i + 1.5, "map_nzpusermaps", "USER MAPS", "View User-Created Maps.") ? current_menu = MENU_COOPUSER : 0;
 		}
 
+        if (Menu_Button(i + 2.5, "map_randommap", "RANDOM", "Feeling indecisive? Try rolling the dice."))
+        {
+            int random_map_index = rint(random() * user_maps_count);
+            Menu_Maps_LoadMap(user_maps[random_map_index].map_name);
+        }
+
         // Usermaps and back button registry
         menu_maps_buttons[i] = "map_nzpusermaps";
-        menu_maps_buttons[i + 1] = "map_back";
+        menu_maps_buttons[i + 1] = "map_randommap";
+        menu_maps_buttons[i + 2] = "map_back";
     } else {
         // calculate the amount of usermaps we can display on this page.
         int maps_on_page = 10; // default to 10, all that will fit on the UI.
@@ -154,7 +161,7 @@ void() Menu_Maps =
             // Build the map strings
             menu_maps_buttons[menu_position - 1] = sprintf("map_%s", bsp_name);
 
-            Menu_MapButton(menu_position, sprintf("map_%s", bsp_name), bsp_name, i) ? localcmd(sprintf("map %s\n", bsp_name)) : 0;
+            Menu_MapButton(menu_position, sprintf("map_%s", bsp_name), bsp_name, i) ? Menu_Maps_LoadMap(bsp_name) : 0;
         }
 
         int current_registry_position = ((i + 1) - (user_maps_page * 10)) - 1;
