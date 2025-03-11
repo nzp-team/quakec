@@ -31,6 +31,8 @@ void() MBOX_Touch;
 #define MBOX_SPAWNFLAG_NOTHERE 		1
 #define MBOX_SPAWNFLAG_NOLIGHT 		2
 
+float mystery_box_file_parsed;
+
 //
 // MBOX_UpdateGlowFrame()
 // Updates the Glow model frame to match
@@ -925,6 +927,9 @@ void(float mbox_file) MBOX_ParseMB2File =
 //
 void() MBOX_LoadData =
 {
+	if (mystery_box_file_parsed == true)
+		return;
+
     float mbox_file;
     string file_path;
 
@@ -935,6 +940,7 @@ void() MBOX_LoadData =
     if (mbox_file != -1) {
         MBOX_ParseMB2File(mbox_file);
         fclose(mbox_file);
+		mystery_box_file_parsed = true;
         return;
     }
 
@@ -945,6 +951,7 @@ void() MBOX_LoadData =
     if (mbox_file != -1) {
         MBOX_ParseMB1File(mbox_file);
         fclose(mbox_file);
+		mystery_box_file_parsed = true;
         return;
     }
 
@@ -960,6 +967,7 @@ void() MBOX_LoadData =
     
     // Close the file pointer just in case.
     fclose(mbox_file);
+	mystery_box_file_parsed = true;
 }
 
 void() mystery_box =

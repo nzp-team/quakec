@@ -32,6 +32,12 @@ void() Spawns_Init;
 void() SUB_UseTargets;
 void(entity client) LastStand_UnlinkRevivee;
 
+#ifdef QUAKEC_TEST
+
+void() Test_RunAllTests;
+
+#endif // QUAKEC_TEST
+
 #define PLAYER_START_HEALTH				100
 
 #define PLAYER_CROUCH_DIFFERENCE_HL 	25
@@ -275,6 +281,9 @@ float(float dir) checkMovement =
 //
 void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore =
 {
+	if (who.classname != "player")
+		return;
+	
 	// We shouldn't ever allow a player in Last Stand to have
 	// their score modified.
 	if (who.downed)
@@ -815,6 +824,13 @@ void() PlayerPostThink =
 
 		player_trace_time = time + 0.05;
 	}
+
+#ifdef QUAKEC_TEST
+
+	if (time_before_gamestart != 0)
+		Test_RunAllTests();
+
+#endif // QUAKEC_TEST
 };
 
 void() ClientKill = {};

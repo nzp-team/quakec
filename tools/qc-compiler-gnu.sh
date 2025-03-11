@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e errexit
+set -o errexit
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 QUAKEC_ROOT=$(dirname "${SCRIPT_DIR}")
@@ -12,6 +12,14 @@ RC="0"
 if [[ "${OSTYPE}" == "darwin"* ]]; then
 	FTEQCC="fteqcc-cli-mac"
 fi
+
+# Arguments
+while true; do
+    case "$1" in
+        -t | --test-mode ) TEST_FLAG="-DQUAKEC_TEST"; shift 1 ;;
+        * ) break ;;
+    esac
+done
 
 function setup()
 {
@@ -53,7 +61,7 @@ function main()
 {
 	setup;
 	compile_progs "csqc" "FTE CSQC" "-DFTE -Wall"
-	compile_progs "ssqc" "FTE SSQC" "-O3 -DFTE -Wall"
+	compile_progs "ssqc" "FTE SSQC" "-O3 -DFTE ${TEST_FLAG} -Wall"
 	compile_progs "menu" "FTE MenuQC" "-O3 -DFTE -Wall"
 	compile_progs "ssqc" "Vril SSQC" "-O3 -Wall"
 	exit ${RC}
