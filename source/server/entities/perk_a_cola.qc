@@ -575,7 +575,7 @@ void() perk_double =
 // Deadshot Daiquiri
 void() perk_deadshot =
 {
-	Perk_InitMachine("perk_deadshot", PERK_DEADSHOT_DEFAULT_MODEL, 2000, 2000,
+	Perk_InitMachine("perk_deadshot", PERK_DEADSHOT_DEFAULT_MODEL, 1500, 1500,
 	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 7, P_DEAD);
 };
 // naievil -- older maps compatability

@@ -138,7 +138,7 @@ void() EndRound =
 
 	rounds_change = 4;
 	SetUpdate(self, UT_ROUNDS_CHANGE, rounds_change, 0, 0);
-	if (gotdog && rounds == dogRound) {
+	if (map_has_hellhounds && rounds == dogRound) {
 		Rounds_PlayTransition("sounds/rounds/droundend.wav");
 		dogWave = false;
 	} else {
@@ -190,7 +190,7 @@ void() NewRound =
 	}
 	if (rounds != 0)
 	{
-		if (gotdog && rounds == (dogRound - 1)) {
+		if (map_has_hellhounds && rounds == (dogRound - 1)) {
 			Rounds_PlayTransition("sounds/rounds/droundstart.wav");
 			dogWave = true;
 			dog_round_count++;
@@ -203,7 +203,7 @@ void() NewRound =
 	}
 
 	// if we just had a dog round, set the next
-	if (gotdog && rounds == dogRound) {
+	if (map_has_hellhounds && rounds == dogRound) {
 		updateDogRound();
 	}
 
@@ -252,7 +252,7 @@ void() NewRound =
 	spawn_delay = 0;
 	totalpowerups = 0;
 
-	if (rounds == dogRound && gotdog) {
+	if (rounds == dogRound && map_has_hellhounds) {
 		roundtype = 2;
 		localcmd("fog 200 525 54 55 60\n");
 	} else {

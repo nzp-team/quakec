@@ -77,4 +77,13 @@ ai/zombie_core.qc
 ai/crawler_core.qc
 ai/dog_core.qc
 utilities/map_compatibility.qc
+#ifdef QUAKEC_TEST
+tests/test_math.qc
+tests/test_perksacola.qc
+tests/test_weapons.qc
+tests/test_misc_model.qc
+tests/test_score.qc
+tests/test_ai.qc
+tests/test_module.qc
+#endif
 #endlist

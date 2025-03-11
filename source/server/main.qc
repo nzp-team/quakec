@@ -135,7 +135,7 @@ void() StartFrame =
 				entity hellhound = find(world, classname, "spawn_dog");
 
 				if (hellhound != world)
-					gotdog = true;
+					map_has_hellhounds = true;
 
 				Compat_Init();
 				updateDogRound();

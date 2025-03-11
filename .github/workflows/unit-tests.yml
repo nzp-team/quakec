@@ -1,0 +1,18 @@
+name: QuakeC Unit Tests
+on: [pull_request]
+jobs:
+  Unit-Tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.10
+      options: --shm-size=8192m
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Wait for GitHub to keep up..
+        run: sleep 2s
+        shell: bash
+      - name: Run Unit Test Script
+        run: |
+          bash testing/run_unit_tests.sh
