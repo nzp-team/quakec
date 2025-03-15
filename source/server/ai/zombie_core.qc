@@ -740,6 +740,11 @@ void() zombie_attack2 =
 	{
 		if(vlen(self.enemy.origin - self.origin) < 64)
 		{
+			if (cvar("sys_testmode") == 2) {
+				self.th_die();
+				return;
+			}
+			
 			if (self.classname == "ai_dog")
 				DamageHandler (self.enemy, self, 40, DMG_TYPE_ZOMBIESWIPE);
 			else
