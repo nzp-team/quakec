@@ -1,4 +1,4 @@
-string menu_ctrl_buttons[7] = {"cm_adsm", "cm_sens", "cm_invs", "cm_gpad", "cm_bind", "cm_apply", "cm_back"};
+string menu_ctrl_buttons[8] = {"cm_adsm", "cm_sens", "cm_invs", "cm_gpad", "cm_bind", "cm_apply", "cm_back"};
 
 float menu_ctrl_init;
 

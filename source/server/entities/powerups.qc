@@ -336,7 +336,11 @@ void() PU_NukeKill =
 void() PU_Nuke =
 {
 	// Flash the screen white
-	nzp_screenflash(world, SCREENFLASH_COLOR_WHITE, 1, SCREENFLASH_FADE_INANDOUT);
+	if (cvar("cl_nukeflashcolor") == 0) {
+		nzp_screenflash(world, SCREENFLASH_COLOR_WHITE, 1, SCREENFLASH_FADE_INANDOUT);
+	} else if (cvar("cl_nukeflashcolor") == 1) {
+		nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_INANDOUT);
+	}
 
 	// if there's already one active, just increment the point multiplier
 	if (nuke_powerup_active == true) {
