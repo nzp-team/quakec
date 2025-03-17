@@ -797,7 +797,7 @@ void() PlayerPostThink =
 
 #ifdef FTE
 
-		self.dimension_hit = HITBOX_DIM_LIMBS | HITBOX_DIM_ZOMBIES;
+		self.dimension_hit |= HITBOX_DIM_LIMBS;
 
 #endif // FTE
 
@@ -805,7 +805,7 @@ void() PlayerPostThink =
 
 #ifdef FTE
 
-		self.dimension_hit = HITBOX_DIM_ZOMBIES;
+		self.dimension_hit &= ~HITBOX_DIM_LIMBS;
 
 #endif // FTE
 
@@ -933,7 +933,10 @@ void() PlayerSpawn =
 
 #ifdef FTE
 
-	self.dimension_hit = HITBOX_DIM_ZOMBIES;
+	self.dimension_hit |= HITBOX_DIM_ZOMBIES;
+	self.dimension_solid |= HITBOX_DIM_ZOMBIES;
+
+	self.dimension_hit &= ~HITBOX_DIM_LIMBS;
 
 #endif // FTE
 
