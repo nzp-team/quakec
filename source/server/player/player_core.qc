@@ -470,6 +470,14 @@ void(entity who, entity active_ent, float type, float cost, float weapon) Player
 //
 float(entity who, entity active_ent) Player_UseButtonPressed =
 {
+#ifdef QUAKEC_TEST
+
+	if (who.button7)
+		return true;
+
+	return false;
+
+#else
 	// Small delay before we can interact with a new entity to
 	// mitigate overlapping bboxes causing problems.
 	if (who.last_looked_time >= time && active_ent != who.last_looked_ent)
@@ -480,6 +488,7 @@ float(entity who, entity active_ent) Player_UseButtonPressed =
 	}
 
 	return false;
+#endif // QUAKEC_TEST
 };
 
 void() PlayerJump =
@@ -827,8 +836,9 @@ void() PlayerPostThink =
 
 #ifdef QUAKEC_TEST
 
-	if (time_before_gamestart != 0)
+	if (time_before_gamestart != 0) {
 		Test_RunAllTests();
+	}
 
 #endif // QUAKEC_TEST
 };

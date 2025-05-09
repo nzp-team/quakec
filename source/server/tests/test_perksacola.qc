@@ -26,6 +26,9 @@
 */
 float(float condition, string message) Test_Assert;
 void(string message) Test_Skip;
+void(entity object) Test_SimulateUse;
+
+// MARK: Quick Revive
 
 //
 // Test_Perks_QuickRevive_ValidatePrice()
@@ -49,6 +52,48 @@ void() Test_Perks_QuickRevive_ValidateFields =
 };
 
 //
+// Test_Perks_QuickRevive_NoCostChangeOnRestart()
+// Validates that on a Soft_Restart the price of Quick
+// Revive does not change.
+// (https://github.com/nzp-team/nzportable/issues/1116)
+//
+void() Test_Perks_QuickRevive_NoCostChangeOnRestart =
+{
+    entity perk_revive = find(world, classname, "perk_revive");
+
+    // We need to simulate buying the perk to see the cost reduction,
+    // so give us points.
+    self.points = 10000;
+    float start_score = self.points;
+
+    // Simulate purchase
+    Test_SimulateUse(perk_revive);
+
+    float score_diff_before = start_score - self.points;
+
+    Test_Assert((score_diff_before != 0), "Could not buy Quick Revive before restart!");
+
+    Soft_Restart();
+
+    // Do everything again and then assert
+    // the diffs are the same.
+    self.points = 10000;
+    start_score = self.points;
+
+    Test_SimulateUse(perk_revive);
+
+    float score_diff_after = start_score - self.points;
+
+    Test_Assert((score_diff_before != 0), "Could not buy Quick Revive after restart!");
+    Test_Assert((score_diff_before == score_diff_after), sprintf("Quick Revive price changed after Soft_Restart, expected [%d] but got [%d]!", score_diff_before, score_diff_after));
+
+    // Restart at end of test to not cause conflicts with tests ran afterwards.
+    Soft_Restart();
+};
+
+// MARK: Jugger-Nog
+
+//
 // Test_Perks_JuggerNog_ValidatePrice()
 // Spawns a Jugger-Nog machine and validates its
 // default fields.
@@ -68,6 +113,8 @@ void() Test_Perks_JuggerNog_ValidateFields =
     self = old_self;
     remove(machine);
 };
+
+// MARK: Speed Cola
 
 //
 // Test_Perks_SpeedCola_ValidatePrice()
@@ -90,6 +137,8 @@ void() Test_Perks_SpeedCola_ValidateFields =
     remove(machine);
 };
 
+// MARK: Double Tap
+
 //
 // Test_Perks_DoubleTap_ValidateFields()
 // Spawns a Double Tap machine and validates its
@@ -110,6 +159,8 @@ void() Test_Perks_DoubleTap_ValidateFields =
     self = old_self;
     remove(machine);
 };
+
+// MARK: Stamin-Up
 
 //
 // Test_Perks_StaminUp_ValidateFields()
@@ -132,6 +183,8 @@ void() Test_Perks_StaminUp_ValidateFields =
     remove(machine);
 };
 
+// MARK: PhD Flopper
+
 //
 // Test_Perks_PhDFlopper_ValidateFields()
 // Spawns a PhD Flopper machine and validates its
@@ -152,6 +205,8 @@ void() Test_Perks_PhDFlopper_ValidateFields =
     self = old_self;
     remove(machine);
 };
+
+// MARK: Deadshot Daiquiri
 
 //
 // Test_Perks_DeadshotDaiquiri_ValidateFields()
@@ -174,6 +229,8 @@ void() Test_Perks_DeadshotDaiquiri_ValidateFields =
     remove(machine);
 };
 
+// MARK: Mule Kick
+
 //
 // Test_Perks_MuleKick_ValidateFields()
 // Spawns a Deadshot Daiquiri machine and validates its
@@ -195,6 +252,8 @@ void() Test_Perks_MuleKick_ValidateFields =
     remove(machine);
 };
 
+// MARK: Random Perk
+
 //
 // Test_Perks_Random_LegacyFields()
 // Attempts to spawn a random Perk-A-Cola
@@ -212,4 +271,20 @@ void() Test_Perks_Random_LegacyFields =
     self = old_self;
 
     remove(random);
+};
+
+// MARK: Misc.
+
+//
+// Test_Perks_Drink_WorkOnReset()
+// Verifies that drinking a Perk and then
+// triggering a Soft_Restart does not
+// prevent purchase of additional Perks.
+// (https://github.com/nzp-team/nzportable/issues/1126)
+// 
+void() Test_Perks_Drink_WorkOnReset =
+{
+    self.isBuying = true;
+    Soft_Restart();
+    Test_Assert((self.isBuying == false), "isBuying state not reset!");
 };

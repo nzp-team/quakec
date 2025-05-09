@@ -171,6 +171,9 @@ void() GameRestart_ResetMysteryBox =
 	// Check if there is a Mystery Box in the map
 	entity mystery_box = find(world, classname, "mystery");
 
+	if (mystery_box.boxstatus == 0 && mystery_box.frame == 0 && mystery_box.spins == 0)
+		return;
+
 	if (mystery_box != world) {
 		mystery_box.boxstatus = 0;
 		mystery_box.frame = 0;
@@ -284,6 +287,25 @@ void() GameRestart_OpenClosedDoors =
 	}
 }
 
+//
+// GameRestart_ResetPower()
+// Turns off Power and resets Power Switch state.
+//
+void() GameRestart_ResetPower =
+{
+	entity power_switch;
+	power_switch = find(world, classname, "power_switch");
+
+	if (power_switch) {
+		isPowerOn = false;
+		power_switch.frame = 0;
+
+		if (!(power_switch.spawnflags & 1)) {
+			power_switch.boxweapon.angles = power_switch.angles;
+		}
+	}
+};
+
 void() Soft_Restart = {
 	entity who, oldself, endgame;
 	self = find(world,classname,"player");
@@ -320,6 +342,7 @@ void() Soft_Restart = {
 	GameRestart_ResetMysteryBox();		// Clean up the Mystery Box, delete floating weapon, etc.
 	GameRestart_RestoreFakeRemovals();	// Puts back everything "removed" using Ent_FakeRemove().
 	GameRestart_OpenClosedDoors(); 		// Restores doors that were previously opened in last session.
+	GameRestart_ResetPower();			// Turns off Power and resets Power Switch state.
 
 	//reset buyable ending
 	endgame = find(world, classname, "func_ending");
@@ -339,18 +362,13 @@ void() Soft_Restart = {
 		tp.think = SUB_Null;
 	}
 
-	local entity power;
-	power = find(world, classname, "power_switch");
-	if(power) {
-		isPowerOn = false;
-		power.frame = 0;
-	}
-
 	self = oldself;
 	self.downed = 0;
 	self.progress_bar = 0;
 	self.progress_bar_time = 0;
 	self.progress_bar_percent = 0;
+	self.isBuying = false;
+	self.style = 0;
 	in_endgame_sequence = false;
 	rounds = 0;
 	self.score = 0;
@@ -364,6 +382,8 @@ void() Soft_Restart = {
 	self.secondary_grenades = 0;
 	self.grenades = 1;
 	self.pri_grenade_state = 0;
+
+	player_count = 0;
 
 	InitRounds();
 	PutClientInServer();
