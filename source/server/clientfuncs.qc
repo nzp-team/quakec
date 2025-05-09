@@ -651,6 +651,13 @@ float() crandom =
 
 float(entity them, entity me) PlayerIsLooking =
 {
+
+#ifdef QUAKEC_TEST
+
+	return true;
+
+#else
+
 	float ret = false;
 	float old_solid = me.solid;
 	me.solid = SOLID_BBOX;
@@ -674,4 +681,7 @@ float(entity them, entity me) PlayerIsLooking =
 	me.solid = old_solid;
 	setorigin(me, me.origin);
 	return ret;
+
+#endif // QUAKEC_TEST
+
 };

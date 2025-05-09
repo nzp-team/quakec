@@ -474,3 +474,5 @@ void    (entity who, float low_frequency, float high_frequency, float duration) 
 #define		FILE_READ 	 				0
 #define		FILE_APPEND 				1
 #define		FILE_WRITE 					2
+
+void (string out) print = {bprint(PRINT_HIGH, out);}

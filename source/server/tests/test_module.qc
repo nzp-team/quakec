@@ -57,6 +57,28 @@ void(string message) Test_Skip =
 	skipped_message_buffer = sprintf("[SKIP]: %s\n", message);
 }
 
+void(entity object) Test_SimulateUse =
+{
+	float old_power_on = isPowerOn;
+	isPowerOn = true;
+
+	entity old_self = self;
+
+	self.button7 = true;
+	self.fire_delay = self.reload_delay = self.dive_delay = self.reload_delay = self.switch_delay = 0;
+
+	self = object;
+	other = old_self;
+	object.touch();
+	self = old_self;
+	other = world;
+
+	self.button7 = false;
+	self.semi_actions &= ~SEMIACTION_USE;
+
+	isPowerOn = old_power_on;
+}
+
 void(void() test_func, string test_name) Test_Run =
 {
 	print(sprintf("[INFO]: Running test [%s]..", test_name));
@@ -107,6 +129,7 @@ var struct {
 	{ Test_Math_ClampReturnsMin, "Test_Math_ClampReturnsMin" },
 	{ Test_Math_ClampReturnsMax, "Test_Math_ClampReturnsMax" },
 	{ Test_Perks_QuickRevive_ValidateFields, "Test_Perks_QuickRevive_ValidateFields" },
+	{ Test_Perks_QuickRevive_NoCostChangeOnRestart, "Test_Perks_QuickRevive_NoCostChangeOnRestart" },
 	{ Test_Perks_JuggerNog_ValidateFields, "Test_Perks_JuggerNog_ValidateFields" },
 	{ Test_Perks_SpeedCola_ValidateFields, "Test_Perks_SpeedCola_ValidateFields" },
 	{ Test_Perks_DoubleTap_ValidateFields, "Test_Perks_DoubleTap_ValidateFields" },
@@ -115,6 +138,7 @@ var struct {
 	{ Test_Perks_DeadshotDaiquiri_ValidateFields, "Test_Perks_DeadshotDaiquiri_ValidateFields" },
 	{ Test_Perks_Random_LegacyFields, "Test_Perks_Random_LegacyFields" },
 	{ Test_Perks_MuleKick_ValidateFields, "Test_Perks_MuleKick_ValidateFields" },
+	{ Test_Perks_Drink_WorkOnReset, "Test_Perks_Drink_WorkOnReset" },
 	{ Test_Weapons_Gewehr_MagazineSize, "Test_Weapons_Gewehr_MagazineSize" },
 	{ Test_Weapons_BowieKnife_RemovedAfterRespawn, "Test_Weapons_BowieKnife_RemovedAfterRespawn" },
 	{ Test_Weapons_HoldTwoWeapons, "Test_Weapons_HoldTwoWeapons" },
@@ -131,7 +155,8 @@ var struct {
 	{ Test_AddScore_NonClient, "Test_AddScore_NonClient" },
 	{ Test_AddScore_DamageTypes, "Test_AddScore_DamageTypes" },
 	{ Test_AddScore_MysteryBoxLeave, "Test_AddScore_MysteryBoxLeave" },
-	{ Test_AI_HellhoundsDetected, "Test_AI_HellhoundsDetected" }
+	{ Test_AI_HellhoundsDetected, "Test_AI_HellhoundsDetected" },
+	{ Test_Power_HandleResetOnRestart, "Test_Power_HandleResetOnRestart" }
 };
 
 void() Test_RunAllTests =
