@@ -1,4 +1,4 @@
-string menu_gpad_buttons[5] = {"gp_glyp", "gp_rumb", "gp_aima", "gp_apply", "gp_back"};
+string menu_gpad_buttons[7] = {"gp_glyp", "gp_rumb", "gp_aima", "gp_senx", "gp_seny", "gp_apply", "gp_back"};
 
 void() Menu_Gamepad_ApplyGlpyh =
 {
@@ -119,6 +119,12 @@ void() Menu_Gamepad =
         default: break;
     }
     Menu_DrawOptionValue(3, aa_string);
+
+    Menu_Button(4, "gp_senx", "X AXIS SENSITIVITY", "Alter X-Axis Look Sensitivity.") ? 0 : 0;
+    Menu_CvarSlider(4, [0, 4, 16], "joypitchsensitivity", false, false);
+
+    Menu_Button(5, "gp_seny", "Y AXIS SENSITIVITY", "Alter Y-Axis Look Sensitivity.") ? 0 : 0;
+    Menu_CvarSlider(5, [0, 4, 16], "joyyawsensitivity", false, false);
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "gp_apply", "APPLY", "Save & Apply Settings.") ? Menu_Gamepad_ApplySettings() : 0;
