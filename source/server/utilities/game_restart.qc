@@ -307,7 +307,7 @@ void() GameRestart_ResetPower =
 };
 
 void() Soft_Restart = {
-	entity who, oldself, endgame;
+	entity who, oldself, endgame, game_over;
 	self = find(world,classname,"player");
 	oldself = self;
 	
@@ -348,6 +348,12 @@ void() Soft_Restart = {
 	endgame = find(world, classname, "func_ending");
 	if (endgame) {
 		endgame.activated = false;
+	}
+
+	// Restart End Game sequence
+	game_over = find(world, classname, "gameover_watcher");
+	if (game_over) {
+		remove(game_over);
 	}
 
 	//reset teleporters

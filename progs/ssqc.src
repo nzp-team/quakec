@@ -85,6 +85,7 @@ tests/test_misc_model.qc
 tests/test_score.qc
 tests/test_ai.qc
 tests/test_power.qc
+tests/test_misc.qc
 tests/test_module.qc
 #endif
 #endlist
