@@ -46,6 +46,72 @@ string(string img) getImage = {
 }
 
 //
+// HUD_ResolveTextColorForPlayer(index)
+// Returns the color as a vector to use for a
+// player of the given index.
+//
+vector(float index) HUD_ResolveTextColorForPlayer =
+{
+	switch(index) {
+		case 0:
+			// White.
+			return '1 1 1';
+		case 1:
+			// Light Blue.
+			if (cvar("cl_colorblind")) {
+				return '0.39 0.76 0.93';
+			} else {
+				return '0 0.46 0.70';
+			}
+		case 2:
+			// Orange.
+			if (cvar("cl_colorblind")) {
+				return '0.93 0.42 0';
+			} else {
+				return '0.92 0.74 0';
+			}
+		case 3:
+			// Green.
+			if (cvar("cl_colorblind")) {
+				return '0 0.69 0.52';
+			} else {
+				return '0 0.90 0.13';
+			}
+		case 4:
+			// Salmon Pink.
+			if (cvar("cl_colorblind")) {
+				return '1 0.46 0.54';
+			} else {
+				return '1 0.57 0.64';
+			}
+		case 5:
+			// Magenta.
+			if (cvar("cl_colorblind")) {
+				return '0.73 0.29 0.54';
+			} else {
+				return '0.80 0.20 0.55';
+			}
+		case 6:
+			// Cyan.
+			if (cvar("cl_colorblind")) {
+				return '0.36 0.84 0.96';
+			} else {
+				return '0.42 0.82 0.82';
+			}
+		case 7:
+			// Yellow. 
+			if (cvar("cl_colorblind")) {
+				return '0.86 0.78 0.25';
+			} else {
+				return '1 0.87 0.13';
+			}
+		default:
+			// White.
+			return '1 1 1';
+	}
+};
+
+//
 // HUD_GetAlphaForWeaponObjects()
 // Used for objects on the ammo-corner, where
 // they linger for X seconds and then fade after.
@@ -336,7 +402,7 @@ void() HUD_Points =
 	float backwidth = 0.8*g_width;
 	vector TEXTCOLOR = '0 0 0';
 
-	for (int i = 3; i >= 0; i = i - 1)
+	for (int i = 7; i >= 0; i = i - 1)
 	{
 		float player_number = getplayerkeyfloat(i, "client_index");
 		entity client = findfloat(world, playernum, player_number);
@@ -344,12 +410,7 @@ void() HUD_Points =
 		if ((client == world || !client.classname) && !client.is_spectator)
 			continue;
 
-		switch(i) {
-			case 1: TEXTCOLOR = TEXT_LIGHTBLUE; break;
-			case 2: TEXTCOLOR = TEXT_ORANGE; break;
-			case 3: TEXTCOLOR = TEXT_GREEN; break;
-			default: TEXTCOLOR = [1, 1, 1]; break;
-		}
+		TEXTCOLOR = HUD_ResolveTextColorForPlayer(i);
 
 		pointwidth = getTextWidth(ftos(client.points), 12);
 		x = (99 - pointwidth)/2 + GetUltraWideOffset();
@@ -1657,12 +1718,7 @@ void() HUD_Scores =
 			if ((client == world || !client.classname) && !client.is_spectator)
 				continue;
 			
-			switch(i) {
-				case 1: TEXTCOLOR = TEXT_LIGHTBLUE; break;
-				case 2: TEXTCOLOR = TEXT_ORANGE; break;
-				case 3: TEXTCOLOR = TEXT_GREEN; break;
-				default: TEXTCOLOR = [1, 1, 1]; break;
-			}
+			TEXTCOLOR = HUD_ResolveTextColorForPlayer(i);
 
 			float y_pos = (scoreboard_text_size + 5) * i;
 
@@ -1990,7 +2046,7 @@ void() HUD_Spectator =
 
 void() HUD_PlayerNames =
 {
-	for (float i = 3; i >= 0; i = i - 1) {
+	for (float i = 7; i >= 0; i = i - 1) {
 		float player_number = getplayerkeyfloat(i, "client_index");
 
 		if (player_number == getstatf(STAT_PLAYERNUM))
@@ -2018,13 +2074,7 @@ void() HUD_PlayerNames =
 			continue;
 
 		screen_position_x -= getTextWidth(text, 8)/2;
-
-		switch(i) {
-			case 1: text_color = TEXT_LIGHTBLUE; break;
-			case 2: text_color = TEXT_ORANGE; break;
-			case 3: text_color = TEXT_GREEN; break;
-			default: break;
-		}
+		text_color = HUD_ResolveTextColorForPlayer(i);
 
 		if (screen_position_z > 0) {
 			HUD_DrawStringWithBackdrop(screen_position, text, [8, 8], text_color, 1, 0);

@@ -163,6 +163,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(in_aimassist, 0);
 	autocvar(cl_hitmarkers, 1);
 	autocvar(cl_textopacity, 0.20);
+	autocvar(cl_colorblind, 0);
 
 	autocvar(scr_playerdebuginfo, 0);
 	autocvar(scr_playerdebuginfo_x, 64);
