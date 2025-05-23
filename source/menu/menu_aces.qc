@@ -1,8 +1,9 @@
-string menu_accesibility_buttons[4] = {"ac_hitm", "ac_text", "ac_apply", "ac_back"};
+string menu_accesibility_buttons[5] = {"ac_hitm", "ac_text", "ac_color", "ac_apply", "ac_back"};
 
 float menu_accessibility_init;
 
 float current_hitmarker;
+float current_colorblind;
 
 string(string prev_id) Menu_Accessibility_GetNextButton =
 {
@@ -47,6 +48,7 @@ string(string next_id) Menu_Accessibility_GetPreviousButton =
 void() Menu_Accessibility_StoreCurrentSettings =
 {
     current_hitmarker = cvar("cl_hitmarkers");
+    current_colorblind = cvar("cl_colorblind");
 }
 
 void() Menu_Accessibility_ApplySettings =
@@ -67,6 +69,13 @@ void() Menu_Accessibility_UpdateHitmarkers =
     current_hitmarker = !current_hitmarker;
     cvar_set("cl_hitmarkers", ftos(current_hitmarker));
 };
+
+void() Menu_Accessibility_UpdateColorblindFilter =
+{
+    Menu_PlaySound(MENU_SND_ENTER);
+    current_colorblind = !current_colorblind;
+    cvar_set("cl_colorblind", ftos(current_colorblind));
+}
 
 void() Menu_Accessibility =
 {
@@ -89,6 +98,16 @@ void() Menu_Accessibility =
     // Text Backdrop
     Menu_Button(2, "ac_text", "TEXT BACKDROP", "Opacity of backdrop for text elements on HUD.") ? 0 : 0;
     Menu_CvarSlider(2, [0, 1, 20], "cl_textopacity", false, false);
+
+    // Accessible Colors
+    Menu_Button(3, "ac_color", "ACCESSIBLE COLORS", "Uses enhanced Player colors to improve visibilty.") ? Menu_Accessibility_UpdateColorblindFilter() : 0;
+    string colorblind_string = "";
+    switch(current_colorblind) {
+        case 0: colorblind_string = "DISABLED"; break;
+        case 1: colorblind_string = "ENABLED"; break;
+        default: break;
+    }
+    Menu_DrawOptionValue(3, colorblind_string);
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "ac_apply", "APPLY", "Save & Apply Settings.") ? Menu_Accessibility_ApplySettings() : 0;
