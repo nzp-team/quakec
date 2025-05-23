@@ -336,7 +336,7 @@ void() HUD_Points =
 	float backwidth = 0.8*g_width;
 	vector TEXTCOLOR = '0 0 0';
 
-	for (int i = 3; i >= 0; i = i - 1)
+	for (int i = 7; i >= 0; i = i - 1)
 	{
 		float player_number = getplayerkeyfloat(i, "client_index");
 		entity client = findfloat(world, playernum, player_number);
@@ -1649,7 +1649,7 @@ void() HUD_Scores =
 		Draw_String([g_width/2 + (header_x_pos - getTextWidth("Headshots", scoreboard_text_size)/2), 180], "Headshots", [scoreboard_text_size, scoreboard_text_size], TEXTCOLOR, 1, 0); 
 		header_x_pos += header_x_increment;
 	
-		for (int i = 0; i < 4; i = i + 1)
+		for (int i = 0; i < 8; i = i + 1)
 		{
 			float player_number = getplayerkeyfloat(i, "client_index");
 			entity client = findfloat(world, playernum, player_number);
@@ -1990,7 +1990,7 @@ void() HUD_Spectator =
 
 void() HUD_PlayerNames =
 {
-	for (float i = 3; i >= 0; i = i - 1) {
+	for (float i = 7; i >= 0; i = i - 1) {
 		float player_number = getplayerkeyfloat(i, "client_index");
 
 		if (player_number == getstatf(STAT_PLAYERNUM))
@@ -2023,6 +2023,10 @@ void() HUD_PlayerNames =
 			case 1: text_color = TEXT_LIGHTBLUE; break;
 			case 2: text_color = TEXT_ORANGE; break;
 			case 3: text_color = TEXT_GREEN; break;
+			case 4: break;
+			case 5: text_color = TEXT_RED; break;
+			case 6: text_color = TEXT_YELLOW; break;
+			case 7: text_color = TEXT_PURPLE; break;
 			default: break;
 		}
 
@@ -2034,11 +2038,13 @@ void() HUD_PlayerNames =
 
 void() HUD_ReviveIcons =
 {
-	for (float i = 3; i >= 0; i = i - 1) {
+	for (float i = 7; i >= 0; i = i - 1) {
 		float player_index = i;
 
+		float player_number = getplayerkeyfloat(i, "client_index");
+
 		// Don't render our own Icon.
-		if (player_index + 1 == getstatf(STAT_PLAYERNUM))
+		if (player_number == getstatf(STAT_PLAYERNUM))
 			continue;
 
 		// Player is not in Last Stand.
@@ -2049,8 +2055,6 @@ void() HUD_ReviveIcons =
 		// Revive Icon should grow more and more red over time.
 		if (revive_icons[player_index].state == 1)
 			revive_icons[player_index].timer += frametime;
-		
-		float player_number = getplayerkeyfloat(i, "client_index");
 
 		//string text = getplayerkeyvalue(i, "name");
 		entity client = findfloat(world, playernum, player_number);
