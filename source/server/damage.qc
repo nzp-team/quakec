@@ -274,6 +274,10 @@ void(entity attacker, float d_style) DieHandler =
 					bprint(PRINT_HIGH, "DieHandler: Received invalid style\n");
 				break;
 		}
+
+		if (cvar("sv_difficulty") == 3)
+			points_earned = floor((points_earned/10) * 0.75) * 10;
+
 		Player_AddScore(attacker, points_earned, true);
     }
 }

@@ -84,7 +84,13 @@ void(entity client) LastStand_Penalize =
 	client.perks = 0;
 
     // Set Max Health to that of without Jugger-Nog.
-	client.max_health = client.health = PLAYER_START_HEALTH;
+	switch(cvar("sv_difficulty")) {
+		case 0: client.max_health = client.health = PLAYER_START_HEALTH_NORMAL;
+		case 1: client.max_health = client.health = PLAYER_START_HEALTH_EASY;
+		case 2: client.max_health = client.health = PLAYER_START_HEALTH_HARD;
+		case 3: client.max_health = client.health = PLAYER_START_HEALTH_NIGHTMARE;
+		default: break;
+	}
 
     // Get rid of Mule Kick Weapon
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
@@ -490,6 +496,10 @@ void(entity client) LastStand_Begin =
 
 	// Initiate Self-Revive on Solo
 	if ((self.perks & P_REVIVE) && player_count == 1) {	
+		if (cvar("sv_difficulty") == 3) {
+			EndGameSetup();
+			return;
+		}
         LastStand_InitiateSoloRevive(self);
     }
     // Spawn the Revive Trigger

@@ -58,8 +58,9 @@ float(float a, float b) qc_max =
 }
 
 float() getZombieTotal = {
+	float count;
 	if (roundtype == 1) {
-		float count, multiplier;
+		float multiplier;
 		count = 24;
 
 		multiplier = qc_max(rounds/5, 1);
@@ -82,16 +83,22 @@ float() getZombieTotal = {
 			count = floor(count * 0.70);
 		else if (rounds < 6)
 			count = floor(count * 0.90);
-
-		return count;
 	} else { //dogs
 		// 2 waves
 		if (rounds <= 14)
-			return 6 * (player_count);
-
-		return 8 * (player_count);
+			count = 6 * (player_count);
+		else
+			count = 8 * (player_count);
 	}
-	return 0;
+
+	switch(cvar("sv_difficulty")) {
+		case 1: count = floor(count * 0.90); break;
+		case 2:	count = floor(count * 1.25); break;
+		case 3: count = floor(count * 1.25); break;
+		default: break;
+	}
+
+	return count;
 }
 
 //
@@ -365,7 +372,14 @@ void() InitRounds =
 	delay_at_round = 2/0.95;
 	totalpowerups = 0;
 	powerup_activate = 2000;
-	powerup_score_threshold = ((player_count + 1) * 500) + powerup_activate;
+
+	switch(cvar("sv_difficulty")) {
+		case 0: powerup_score_threshold = ((player_count + 1) * 500) + powerup_activate; break;
+		case 1: powerup_score_threshold = ((player_count) * 500) + powerup_activate; break;
+		case 2: powerup_score_threshold = ((player_count + 1) * 750) + powerup_activate;
+		case 3: powerup_score_threshold = ((player_count + 1) * 1250) + powerup_activate;
+		default: powerup_score_threshold = ((player_count + 1) * 500) + powerup_activate; break;
+	}
 
 	// cypress -- fix Soft_Restart spawning multiple 
 	// pairs of zombie spawn points.

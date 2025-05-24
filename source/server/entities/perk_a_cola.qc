@@ -36,24 +36,26 @@ void(entity person) W_HideCrosshair;
 //
 
 // Light Color Spawnflags
-#define PERK_SPAWNFLAG_NOLIGHT 		1
-#define PERK_SPAWNFLAG_REDLIGHT		2
-#define PERK_SPAWNFLAG_GREENLIGHT	4
-#define PERK_SPAWNFLAG_BLUELIGHT	8
-#define PERK_SPAWNFLAG_ORANGELIGHT	16
-#define PERK_SPAWNFLAG_PURPLELIGHT	32
-#define PERK_SPAWNFLAG_CYANLIGHT	64
-#define PERK_SPAWNFLAG_PINKLIGHT	128
-#define PERK_SPAWNFLAG_LIMELIGHT	256
-#define PERK_SPAWNFLAG_YELLOWLIGHT	512
+#define PERK_SPAWNFLAG_NOLIGHT 			1
+#define PERK_SPAWNFLAG_REDLIGHT			2
+#define PERK_SPAWNFLAG_GREENLIGHT		4
+#define PERK_SPAWNFLAG_BLUELIGHT		8
+#define PERK_SPAWNFLAG_ORANGELIGHT		16
+#define PERK_SPAWNFLAG_PURPLELIGHT		32
+#define PERK_SPAWNFLAG_CYANLIGHT		64
+#define PERK_SPAWNFLAG_PINKLIGHT		128
+#define PERK_SPAWNFLAG_LIMELIGHT		256
+#define PERK_SPAWNFLAG_YELLOWLIGHT		512
 
 // Double-Tap Damage Boost
-#define PERK_SPAWNFLAG_DOUBLETAPV1	1024
+#define PERK_SPAWNFLAG_DOUBLETAPV1		1024
 
-#define PERK_SPAWNFLAG_ALLOWPRONE	2048
-#define PERK_SPAWNFLAG_SILENTLEAVE	4096
+#define PERK_SPAWNFLAG_ALLOWPRONE		2048
+#define PERK_SPAWNFLAG_SILENTLEAVE		4096
 
-#define PERK_JUGGERNOG_HEALTH 		160
+#define PERK_JUGGERNOG_HEALTH_EASY		200
+#define PERK_JUGGERNOG_HEALTH_NORMAL 	160
+#define PERK_JUGGERNOG_HEALTH_HARD		100
 
 //
 // GivePerk(p)
@@ -83,8 +85,14 @@ void GivePerk(optional float p) {
 	self.perks = self.perks | perk;
 
 	// Instant re-gen, set health to Jugg health.
-	if (perk & P_JUG)
-		self.health = self.max_health = PERK_JUGGERNOG_HEALTH;
+	if (perk & P_JUG) {
+		switch(cvar("sv_difficulty")) {
+			case 0: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_NORMAL;
+			case 1: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_EASY;
+			case 2: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_HARD;
+			default: break;
+		}
+	}
 
 	if (self.perks == 255)
 		GiveAchievement(6, self);
@@ -246,6 +254,16 @@ void() touch_perk =
 
 	if (cvar("sv_magic") == 0) {
 		useprint(other, 21, 0, 0);
+		return;
+	}
+
+	if (self.classname == "perk_juggernog" && cvar("sv_difficulty") == 3) {
+		useprint(other, 22, 0, 0);
+		return;
+	}
+
+	if (self.classname == "perk_revive" && cvar("sv_difficulty") == 3 && player_count == 1) {
+		useprint(other, 22, 0, 0);
 		return;
 	}
 	  

@@ -125,7 +125,7 @@ void() Menu_GameSettings =
         case 0: difficulty_description = "Normal Zombies gameplay."; difficulty_string = "NORMAL"; break;
         case 1: difficulty_description = "Less & Slower Zombies. More Power-Ups. More Health."; difficulty_string = "EASY"; break;
         case 2: difficulty_description = "More & Faster Zombies. Less Power-Ups. Less Health."; difficulty_string = "HARD"; break;
-        case 3: difficulty_description = "HARD difficulty, but more-so. 1 hit KO. No Self-Revives."; difficulty_string = "NIGHTMARE"; break;
+        case 3: difficulty_description = "Hellish Zombies. Earn Less Score. Rare Power-Ups. 1 hit KO."; difficulty_string = "NIGHTMARE"; break;
         default: difficulty_description = "???"; break;
     }
     Menu_Button(2, "ge_diff", "DIFFICULTY", difficulty_description) ? Menu_GameSettings_ApplyDifficulty() : 0;

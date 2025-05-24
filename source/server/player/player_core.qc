@@ -38,7 +38,10 @@ void() Test_RunAllTests;
 
 #endif // QUAKEC_TEST
 
-#define PLAYER_START_HEALTH				100
+#define PLAYER_START_HEALTH_EASY		125
+#define PLAYER_START_HEALTH_NORMAL		100
+#define PLAYER_START_HEALTH_HARD		75
+#define PLAYER_START_HEALTH_NIGHTMARE	25
 
 #define PLAYER_CROUCH_DIFFERENCE_HL 	25
 #define PLAYER_PRONE_DIFFERENCE_HL 		23
@@ -960,7 +963,14 @@ void() PlayerSpawn =
 
 	setmodel(self, "models/player.mdl");
 	self.movetype = MOVETYPE_WALK;
-	self.max_health = self.health = PLAYER_START_HEALTH;
+
+	switch(cvar("sv_difficulty")) {
+		case 0: self.max_health = self.health = PLAYER_START_HEALTH_NORMAL;
+		case 1: self.max_health = self.health = PLAYER_START_HEALTH_EASY;
+		case 2: self.max_health = self.health = PLAYER_START_HEALTH_HARD;
+		case 3: self.max_health = self.health = PLAYER_START_HEALTH_NIGHTMARE;
+		default: break;
+	}
 	
 	// Pick an available slot from 1-8 inclusive.
 	if (!self.playernum) {
@@ -1075,7 +1085,7 @@ void() SpectatorSpawn =
 
 	setmodel(self, "models/sprites/null.spr");
 	self.movetype = MOVETYPE_NOCLIP;
-	self.max_health = self.health = PLAYER_START_HEALTH;
+	self.max_health = self.health = 100;
 	
 	self.fixangle = true;
 

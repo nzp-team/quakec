@@ -1138,6 +1138,9 @@ void() HUD_Useprint =
 		case 21: // Magic disabled
 			usestring = "...";
 			break;
+		case 22: // Jugger-Nog (NIGHTMARE)
+			usestring = "It doesn't seem to be working..";
+			break;
 		default:
 			usestring = "This should not happen you dum fuck"; //yikes
 			break;
@@ -1145,7 +1148,11 @@ void() HUD_Useprint =
 
 	print_width = getTextWidth(usestring, 12);
 	x = (g_width - print_width)/2;
-	HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
+
+	if (useprint_type == 22)
+		HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 0, 0], 1, 0);
+	else
+		HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
 
 	// Draw "Cost" text.
 	if (usecost != "") {
