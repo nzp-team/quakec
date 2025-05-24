@@ -139,12 +139,18 @@ void() EndRound =
 	rounds_change = 4;
 	SetUpdate(self, UT_ROUNDS_CHANGE, rounds_change, 0, 0);
 	if (map_has_hellhounds && rounds == dogRound) {
-		Rounds_PlayTransition("sounds/rounds/droundend.wav");
+		if (cvar("sv_fastrounds") == 0)
+			Rounds_PlayTransition("sounds/rounds/droundend.wav");
 		dogWave = false;
 	} else {
-		Rounds_PlayTransition("sounds/rounds/eround.wav");
+		if (cvar("sv_fastrounds") == 0)
+			Rounds_PlayTransition("sounds/rounds/eround.wav");
 	}
-	round_changetime = time + 10;
+
+	if (cvar("sv_fastrounds") == 0)
+		round_changetime = time + 10;
+	else
+		round_changetime = time + 0.2;
 
 	// No Perks? No Problem & Abstinence Program
 	if (rounds >= 10) {
