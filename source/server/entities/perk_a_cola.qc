@@ -243,6 +243,11 @@ void() touch_perk =
 	// Typically not allowed to purchase Perk-A-Colas while prone.
 	if (other.stance == PLAYER_STANCE_PRONE && !(self.spawnflags & PERK_SPAWNFLAG_ALLOWPRONE))
 		return;
+
+	if (cvar("sv_magic") == 0) {
+		useprint(other, 21, 0, 0);
+		return;
+	}
 	  
 	// Power's off! Nothing to do here.
 	if (self.requirespower == true && !isPowerOn) {
@@ -331,6 +336,9 @@ void() touch_perk =
 //
 void(entity who) Turn_PerkLight_On =
 {
+	if (cvar("sv_magic") == 0)
+		return;
+
 	if (who.classname == "perk_pap")
 		return;
 	
@@ -408,6 +416,9 @@ void() Perk_Jingle =
 //
 void() setup_perk =
 {
+	if (cvar("sv_magic") == 0)
+		return;
+
 	entity power = find(world, classname, "power_switch");
 
 	// Check for Power

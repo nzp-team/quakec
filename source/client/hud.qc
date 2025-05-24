@@ -1135,6 +1135,9 @@ void() HUD_Useprint =
 			usestring = strcat("Hold  ", usespace, " to End the Game");
 			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
+		case 21: // Magic disabled
+			usestring = "...";
+			break;
 		default:
 			usestring = "This should not happen you dum fuck"; //yikes
 			break;

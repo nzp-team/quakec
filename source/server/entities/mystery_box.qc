@@ -972,6 +972,11 @@ void() MBOX_LoadData =
 
 void() mystery_box =
 {
+	if (cvar("sv_magic") == 0) {
+		mystery_box_tp_spot();
+		return;
+	}
+
     // Load and cache all of the allowed weapons into the hunk.
     MBOX_LoadData();
 

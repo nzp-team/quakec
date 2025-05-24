@@ -777,6 +777,9 @@ float PU_SendEntity( entity ePVEnt, float flChanged ) {
 //
 void(vector where, float type) Spawn_Powerup =
 {
+	if (cvar("sv_magic") == 0)
+		return;
+	
 	entity 	powerup;
 	entity	sparkle;
 

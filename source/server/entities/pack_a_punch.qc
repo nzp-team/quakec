@@ -253,8 +253,12 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 //
 void() PAP_Touch =
 {
-  
 	if (other.classname != "player" || other.downed || !PlayerIsLooking(other, self)) {
+		return;
+	}
+
+	if (cvar("sv_magic") == 0) {
+		Player_UseprintWithWait(other, self, 21, 0, 0);
 		return;
 	}
 
