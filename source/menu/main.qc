@@ -70,6 +70,23 @@ string UserMapNameLookup(string bsp_name) =
 };
 
 //
+// UserMapSupportsCustomGameLookup(bsp_name)
+// Returns whether the User Map .BSP supports
+// Custom Game Settings.
+//
+float UserMapSupportsCustomGameLookup(string bsp_name) =
+{
+	for(int i = 0; i < USER_MAPS_MAX; i++) {
+		if (user_maps[i].map_name != bsp_name)
+			continue;
+
+		return user_maps[i].map_allow_game_settings;
+	}
+
+	return true;
+};
+
+//
 // Menu_MapFinder()
 // Performs a .BSP search in the maps/
 // directory and adds them to the custom
@@ -195,6 +212,7 @@ void() m_init =
 	// Same goes for menu nav sounds
 	autocvar(menu_navigatesound, "sounds/menu/navigate.wav");
 	autocvar(menu_entersound, "sounds/menu/enter.wav");
+	autocvar(menu_beepsound, "sounds/misc/talk2.wav");
 
 	// Retrieve build date
 	Menu_GetBuildDate();
@@ -221,6 +239,14 @@ void() m_init =
 	autocvar(cl_hitmarkers, 1);
 	autocvar(cl_textopacity, 0.20);
 	autocvar(cl_colorblind, 0);
+
+	autocvar(sv_gamemode, 0);
+	autocvar(sv_difficulty, 0);
+	autocvar(sv_startround, 0);
+	autocvar(sv_magic, 1);
+	autocvar(sv_headshotonly, 0);
+	autocvar(sv_maxai, 24);
+	autocvar(sv_fastrounds, 0);
 
 	music_duration_time = 0;
 	menu_changetime = 0;

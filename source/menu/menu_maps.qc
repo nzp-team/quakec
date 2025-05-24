@@ -36,8 +36,16 @@ void() Menu_Maps_PrevPage =
 
 void(string bsp_name) Menu_Maps_LoadMap =
 {
-    localcmd(sprintf("map %s\n", bsp_name)); 
-    current_menu = MENU_MAIN;
+    current_selected_bsp = bsp_name;
+    last_map_menu = current_menu;
+    cvar_set("sv_gamemode", "0");
+	cvar_set("sv_difficulty", "0");
+	cvar_set("sv_startround", "0");
+	cvar_set("sv_magic", "1");
+	cvar_set("sv_headshotonly", "0");
+	cvar_set("sv_maxai", "24");
+	cvar_set("sv_fastrounds", "0");
+    current_menu = MENU_LOBBY;
 };
 
 string(string prev_id) Menu_Maps_GetNextButton =

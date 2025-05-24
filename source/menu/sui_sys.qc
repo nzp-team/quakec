@@ -421,6 +421,12 @@ void() _sui_menukey_downarrow =
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetNextButton(current_hovered_option);
 			break;
+		case MENU_LOBBY:
+			_hover_actions[0] = Menu_Lobby_GetNextButton(current_hovered_option);
+			break;
+		case MENU_GAMESETTINGS:
+			_hover_actions[0] = Menu_GameSettings_GetNextButton(current_hovered_option);
+			break;
 
 #else
 
@@ -489,6 +495,12 @@ void() _sui_menukey_uparrow =
 		case MENU_SOLO:
 		case MENU_SOLOUSER:
 			_hover_actions[0] = Menu_Maps_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_LOBBY:
+			_hover_actions[0] = Menu_Lobby_GetPreviousButton(current_hovered_option);
+			break;
+		case MENU_GAMESETTINGS:
+			_hover_actions[0] = Menu_GameSettings_GetPreviousButton(current_hovered_option);
 			break;
 
 #else

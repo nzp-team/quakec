@@ -53,13 +53,13 @@ void() Menu_Audio =
     Menu_DrawMapPanel();
 
     Menu_Button(1, "am_maste", "MASTER VOLUME", "Volume for all Audio.") ? 0 : 0;
-    Menu_CvarSlider(1, [0, 1, 10], "volume", false, true);
+    Menu_CvarSlider(1, [0, 1, 10], "volume", false, true, false);
 
     Menu_Button(2, "am_menu", "INTERFACE VOLUME", "Volume for UI/Menus.") ? 0 : 0;
-    Menu_CvarSlider(2, [0, 1, 10], "nzp_uivolume", false, true);
+    Menu_CvarSlider(2, [0, 1, 10], "nzp_uivolume", false, true, false);
 
     Menu_Button(3, "am_bgm", "MUSIC VOLUME", "Volume for Background Music.") ? 0 : 0;
-    Menu_CvarSlider(3, [0, 1, 10], "nzp_bgmvolume", false, true);
+    Menu_CvarSlider(3, [0, 1, 10], "nzp_bgmvolume", false, true, false);
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "am_apply", "APPLY", "Save & Apply Settings.") ? Menu_Audio_ApplySettings() : 0;

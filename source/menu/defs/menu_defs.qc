@@ -8,7 +8,9 @@ string menu_background;
 float menu_changetime;
 float menu_starttime;
 
+string current_selected_bsp;
 
+float last_map_menu;
 float current_menu;
 float running_platform;
 
@@ -56,11 +58,14 @@ enum {
     MENU_BINDINGS,
     MENU_ACCESSIBILITY,
     MENU_CREDITS,
-    MENU_PAUSE
+    MENU_PAUSE,
+    MENU_LOBBY,
+    MENU_GAMESETTINGS
 };
 
 #define MENU_SND_NAVIGATE 	0
 #define MENU_SND_ENTER 		1
+#define MENU_SND_BEEP       2
 void(float type) Menu_PlaySound;
 
 #ifdef MENU
@@ -73,6 +78,8 @@ void() Menu_Coop_Browse;
 void() Menu_Coop_Direct;
 void() Menu_Coop_Create;
 void() Menu_Credits;
+void() Menu_Lobby;
+void() Menu_GameSettings;
 
 #else
 
@@ -107,6 +114,12 @@ string(string next_id) Menu_Coop_GetPreviousButton;
 
 string(string prev_id) Menu_Maps_GetNextButton;
 string(string next_id) Menu_Maps_GetPreviousButton;
+
+string(string prev_id) Menu_Lobby_GetNextButton;
+string(string next_id) Menu_Lobby_GetPreviousButton;
+
+string(string prev_id) Menu_GameSettings_GetNextButton;
+string(string next_id) Menu_GameSettings_GetPreviousButton;
 
 #else
 
