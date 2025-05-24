@@ -553,10 +553,10 @@ void() HUD_Rounds =
 			}
 		}
 
-		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 24], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
-		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 36], location, [12, 12], [1, 1, 1], localpha, 0);
-		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 48], date, [12, 12], [1, 1, 1], localpha, 0);
-		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 60], person, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([g_width - 3 - GetUltraWideOffset() - getTextWidth(chaptertitle, 12), g_height/2 + 48], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([g_width - 3 - GetUltraWideOffset() - getTextWidth(location, 12), g_height/2 + 60], location, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([g_width - 3 - GetUltraWideOffset() - getTextWidth(date, 12), g_height/2 + 72], date, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([g_width - 3 - GetUltraWideOffset() - getTextWidth(person, 12), g_height/2 + 84], person, [12, 12], [1, 1, 1], localpha, 0);
 	}
 
 	if (rounds_change == 1)//this is the rounds icon at the middle of the screen

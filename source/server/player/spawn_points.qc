@@ -35,9 +35,9 @@
 #define SPAWN_START_MAG     8
 #define SPAWN_START_AMMO    32
 
-float player_spawns[5];
-entity spawn_points[5];
-string spawn_names[4];
+float player_spawns[9];
+entity spawn_points[9];
+string spawn_names[8];
 
 //
 // Spawns_ConvertOldClassnames()
@@ -67,6 +67,14 @@ void() Spawns_ConvertOldClassnames =
 float(entity which, float units) Spawns_EntIsInRange =
 {
     float found_something = false;
+
+    for(float i = 0; i < 8; i++) {
+        if (spawn_points[i] == which)
+            continue;
+
+        if (fabs(vlen(which.origin - spawn_points[i].origin)) <= 32)
+            return true;
+    }
 
     entity ents_in_range = findradius(which.origin, units);
     while(ents_in_range != world) {
@@ -132,7 +140,7 @@ void(float ignore_first) Spawns_SetAllNonSolid =
     if (ignore_first) start = 1;
     else start = 0;
 
-    for(float i = start; i < 4; i++) {
+    for(float i = start; i < 8; i++) {
         if (spawn_points[i] == world)
             continue;
 
@@ -153,7 +161,7 @@ void(float ignore_first) Spawns_SetAllSolid =
     if (ignore_first) start = 1;
     else start = 0;
 
-    for(float i = start; i < 4; i++) {
+    for(float i = start; i < 8; i++) {
         if (spawn_points[i] == world)
             continue;
 
@@ -192,13 +200,13 @@ void(entity which) Spawns_FindViableSpawnSpot =
     //     3
     // 4 2 1
     // ---
-    // We do this for 2 cycles (64 units, 128 units, 192 units)
-    // before giving up and just setting a spawn to slot 1, but
-    // this SHOULD never happen(?!).
+    // We do this for 4 cycles (64 units, 128 units, 192 units,
+    // 256 units, 320 units) before giving up and just setting a 
+    // spawn to slot 1, but this SHOULD never happen(?!).
 
     float units = 64;
 
-    for (float i = 0; i < 2; i++) {
+    for (float i = 0; i < 4; i++) {
         // Try moving to the "left".
         if (Spawns_PerformCheck(which, start_origin, v_right, -units, trace_feet, trace_head)) {
             Spawns_SetAllSolid(true);
@@ -217,8 +225,20 @@ void(entity which) Spawns_FindViableSpawnSpot =
             return;
         }
 
+        // Now "forward" + "right".
+        if (Spawns_PerformCheck(which, start_origin, v_forward + v_right, units, trace_feet, trace_head)) {
+            Spawns_SetAllSolid(true);
+            return;
+        }
+
         // Now "back".
         if (Spawns_PerformCheck(which, start_origin, v_forward, -units, trace_feet, trace_head)) {
+            Spawns_SetAllSolid(true);
+            return;
+        }
+
+        // Now "back" + "left".
+        if (Spawns_PerformCheck(which, start_origin, v_forward + v_right, -units, trace_feet, trace_head)) {
             Spawns_SetAllSolid(true);
             return;
         }
@@ -292,7 +312,7 @@ void() Spawns_FillMissing =
     float i;
 
     // Count how many spawnpoints we have.
-    for(i = 0; i < 4; i++) {
+    for(i = 0; i < 8; i++) {
         spawn_points[i] = find(world, classname, spawn_names[i]);
         if (spawn_points[i] != world) {
             player_spawns[i] = true;
@@ -331,8 +351,8 @@ void() Spawns_FillMissing =
         player_spawns[SPAWN_PLR_LEGACY] = false;
     }
 
-    // Spawn points 2-4 if they dont exist
-    for(i = 1; i < 4; i++) {
+    // Spawn points 2-8 if they dont exist
+    for(i = 1; i < 8; i++) {
         if (player_spawns[i] == false) {
             spawn_points[i] = spawn();
             spawn_points[i].classname = spawn_names[i];
@@ -357,6 +377,10 @@ void() Spawns_SetUpClassnames =
     spawn_names[1] = SPAWN_2_CLASS;
     spawn_names[2] = SPAWN_3_CLASS;
     spawn_names[3] = SPAWN_4_CLASS;
+    spawn_names[4] = SPAWN_5_CLASS;
+    spawn_names[5] = SPAWN_6_CLASS;
+    spawn_names[6] = SPAWN_7_CLASS;
+    spawn_names[7] = SPAWN_8_CLASS;
 };
 
 //

@@ -40,6 +40,10 @@
 #define SPAWN_2_CLASS       "info_player_2_spawn"
 #define SPAWN_3_CLASS       "info_player_3_spawn"
 #define SPAWN_4_CLASS       "info_player_4_spawn"
+#define SPAWN_5_CLASS       "info_player_5_spawn"
+#define SPAWN_6_CLASS       "info_player_6_spawn"
+#define SPAWN_7_CLASS       "info_player_7_spawn"
+#define SPAWN_8_CLASS       "info_player_8_spawn"
 
 float cheats_have_been_activated;
 

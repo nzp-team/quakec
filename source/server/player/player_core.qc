@@ -881,14 +881,25 @@ void() Player_PickSpawnPoint =
 		float index = random();
 
 		// assign one of the spawnpoints
-		if (index < 0.25)
-			spawn_point = find(world, classname, SPAWN_1_CLASS);
-		else if (index < 0.50)
-			spawn_point = find(world, classname, SPAWN_2_CLASS);
-		else if (index < 0.75)
-			spawn_point = find(world, classname, SPAWN_3_CLASS);
-		else
-			spawn_point = find(world, classname, SPAWN_4_CLASS);
+		if (self.playernum < 5) {
+			if (index < 0.25)
+				spawn_point = find(world, classname, SPAWN_1_CLASS);
+			else if (index < 0.50)
+				spawn_point = find(world, classname, SPAWN_2_CLASS);
+			else if (index < 0.75)
+				spawn_point = find(world, classname, SPAWN_3_CLASS);
+			else
+				spawn_point = find(world, classname, SPAWN_4_CLASS);
+		} else {
+			if (index < 0.25)
+				spawn_point = find(world, classname, SPAWN_5_CLASS);
+			else if (index < 0.50)
+				spawn_point = find(world, classname, SPAWN_6_CLASS);
+			else if (index < 0.75)
+				spawn_point = find(world, classname, SPAWN_7_CLASS);
+			else
+				spawn_point = find(world, classname, SPAWN_8_CLASS);
+		}
 
 		float found_player_here = false;
 
@@ -951,9 +962,9 @@ void() PlayerSpawn =
 	self.movetype = MOVETYPE_WALK;
 	self.max_health = self.health = PLAYER_START_HEALTH;
 	
-	// Pick an available slot from 1-4 inclusive.
+	// Pick an available slot from 1-8 inclusive.
 	if (!self.playernum) {
-		for (float i = 1; i <= 4; i++) {
+		for (float i = 1; i <= 8; i++) {
 			entity potential_player = findfloat(world, playernum, i);
 			if (potential_player == world) {
 				self.playernum = i;

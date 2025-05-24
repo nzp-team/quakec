@@ -218,7 +218,7 @@ void() Menu_Coop_Create =
 
 	// Max players
 	Menu_Button(4, "ccm_maxplayers", "MAX PLAYERS", "Change the maximum number of players who can join your server.") ? 0 : 0;
-    Menu_CvarSlider(4, [1, 4, 3], "maxplayers", true, false);
+    Menu_CvarSlider(4, [1, 8, 7], "maxplayers", true, false);
 
 	Menu_DrawDivider(5);
 	Menu_Button(5.25, "ccm_choosemap", "CHOOSE MAP", "Select a Map to start the Game.") ? Menu_StartCoop() : 0;
