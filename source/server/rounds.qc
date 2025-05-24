@@ -372,8 +372,13 @@ void() InitRounds =
 	if (!roundinit)
 		spawnAllZombEnts();
 	
-	round_changetime = time + 3.5;
-	rounds_change = 1;
+	if (cvar("sv_startround") == 0) {
+		round_changetime = time + 3.5;
+		rounds_change = 1;
+	} else {
+		NewRound();
+	}
+
 	roundinit = 1;
 	SetUpdate(self, UT_ROUNDS_CHANGE, rounds_change, 0, 0);
 }

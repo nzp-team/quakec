@@ -145,7 +145,9 @@ void() StartFrame =
 		} else if (time_before_gamestart < time) {
 			InitRounds();
 			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
-			Rounds_PlayTransition("sounds/rounds/splash.wav");
+
+			if (cvar("sv_startround") == 0)
+				Rounds_PlayTransition("sounds/rounds/splash.wav");
 
 			entity players = find(world, classname, "player");
 			
@@ -384,7 +386,6 @@ void() worldspawn =
 	LoadWaypointData();
 
 	//set game elements
-	G_STARTROUND = 1;
 	G_PRONEPOINTS = 0;
 	G_STARTWEAPON[0] = W_COLT;
 	G_STARTWEAPON[1] = 8;

@@ -608,7 +608,6 @@ waypoint_ai waypoints[MAX_WAYPOINTS];
 .string song;
 
 //altered game elements
-float G_STARTROUND;
 float G_PRONEPOINTS;
 float G_STARTWEAPON[3];
 float G_WORLDTEXT;
