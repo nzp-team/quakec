@@ -224,6 +224,9 @@ void(entity ent) CheckRevive =
 
 void(entity attacker, float d_style) DieHandler =
 {
+	if (cvar("sv_headshotonly") == 1 && d_style != DMG_TYPE_HEADSHOT && victim.classname == "ai_zombie")
+		return;
+
     float t;
 
     t = random();
@@ -276,6 +279,9 @@ void(entity attacker, float d_style) DieHandler =
 }
 
 void(entity victim, entity attacker, float damage, float d_style) DamageHandler = {
+	if (cvar("sv_headshotonly") == 1 && d_style != DMG_TYPE_HEADSHOT && victim.classname == "ai_zombie")
+		return;
+
 	// don't do any attacking during nuke delay
 	if (d_style == DMG_TYPE_ZOMBIESWIPE && nuke_powerup_active > time)
 		return;
