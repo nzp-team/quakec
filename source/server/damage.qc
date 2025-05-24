@@ -224,7 +224,7 @@ void(entity ent) CheckRevive =
 
 void(entity attacker, float d_style) DieHandler =
 {
-	if (cvar("sv_headshotonly") == 1 && d_style != DMG_TYPE_HEADSHOT && victim.classname == "ai_zombie")
+	if (cvar("sv_headshotonly") == 1 && d_style != DMG_TYPE_HEADSHOT && self.classname == "ai_zombie")
 		return;
 
     float t;

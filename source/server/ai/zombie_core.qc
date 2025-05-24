@@ -1766,7 +1766,7 @@ void() spawnAllZombEnts =
 
 #ifdef FTE
 
-	while(i < 24)
+	while(i < cvar("sv_maxai"))
 
 #else
 
