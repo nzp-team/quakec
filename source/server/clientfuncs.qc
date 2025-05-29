@@ -484,6 +484,10 @@ void(string chaptertitle, string location, string date, string person, entity wh
 
 void (float achievement_id, optional entity who) GiveAchievement =
 {
+	return;
+
+	// Achievements have been removed, adding back TBD
+#if 0
 #ifndef FTE
 
 	// temp
@@ -495,41 +499,16 @@ void (float achievement_id, optional entity who) GiveAchievement =
 	// this is an achievement specific to an individual
 	if ((who && who != world) || player_count == 1) {
 		if (player_count == 1) who = find(world, classname, "player");
-
-#ifndef FTE
-
-		achievement(who, achievement_id);
-
-#else
-
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, CSQC_EVENT_GIVEACHIEVEMENT);
-		WriteByte(MSG_MULTICAST, achievement_id);
-		msg_entity = who;
-		multicast('0 0 0', MULTICAST_ONE);
-
-#endif // FTE
-
+		nzp_achievement(who, achievement_id);
 	} else {
-
-#ifndef FTE
-
 		entity players;
 		players = find(world, classname, "player");
 		while(players != world) {
-			achievement(players, achievement_id);
+			nzp_achievement(players, achievement_id);
 			players = find(players, classname, "player");
 		}
-
-#else
-
-		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-		WriteByte(MSG_MULTICAST, CSQC_EVENT_GIVEACHIEVEMENT);
-		WriteByte(MSG_MULTICAST, achievement_id);
-		multicast('0 0 0', MULTICAST_ALL);
-
-#endif // FTE
 	}
+#endif
 }
 
 #ifdef FTE
