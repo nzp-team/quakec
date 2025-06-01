@@ -253,7 +253,7 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 //
 void() PAP_Touch =
 {
-	if (other.classname != "player" || other.downed || !PlayerIsLooking(other, self)) {
+	if (other.classname != "player" || other.downed || !PlayerIsLooking(other, self) || game_modifier_can_packapunch == false) {
 		return;
 	}
 

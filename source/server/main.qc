@@ -29,7 +29,12 @@
 void() LS_Setup;
 void() PU_Init;
 void() Compat_Init;
+void() Gamemode_Init;
+void() Gamemode_Frame;
 void() SUB_Remove = {remove(self);}
+
+.float gungame_weapon_idx;
+.float gungame_score_threshold;
 
 //called when starting server/loading the map
 void() main =
@@ -162,6 +167,8 @@ void() StartFrame =
 			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 90, SCREENFLASH_FADE_OUT);
 		}
 	}
+
+	Gamemode_Frame();
 }
 string(string s) precache_model         = #20;
 
@@ -373,6 +380,11 @@ void() worldspawn =
 	clientstat(STAT_VIEWZOOM, EV_FLOAT, viewzoom);
 	clientstat(STAT_MAXHEALTH, EV_FLOAT, max_health);
 	clientstat(STAT_PERKS, EV_FLOAT, perks);
+	clientstat(STAT_TOTALSCORE, EV_FLOAT, score);
+
+	// Gun Game
+	clientstat(STAT_GUNGAME_IDX, EV_FLOAT, gungame_weapon_idx);
+	clientstat(STAT_GUNGAME_SCOREGOAL, EV_FLOAT, gungame_score_threshold);
 
 	autocvar(sv_enablechatplugins, 0);
 	autocvar(sv_maprotationbasename, "map_rotation");
@@ -393,6 +405,14 @@ void() worldspawn =
 	G_WORLDTEXT = 1;
 	G_PERKS = 0;
 	G_PERKPOWER = 0;
+
+	game_modifier_can_melee = true;
+    game_modifier_can_use_equipment = true;
+    game_modifier_can_earn_misc_score = true;
+	game_modifier_powerup_free_perk = false;
+	game_modifier_powerup_max_ammo = true;
+	game_modifier_powerup_weapon_upgrade = false;
+	game_modifier_can_packapunch = true;
 
 	//
 	// World Gravity Multiplier
@@ -431,6 +451,7 @@ void() worldspawn =
 
 #endif // FTE
 
+	Gamemode_Init();
 }
 
 void() SpectatorConnect =

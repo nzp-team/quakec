@@ -1209,6 +1209,9 @@ void(float side) W_Fire =
 
 void() WeaponCore_Melee =
 {
+	if (game_modifier_can_melee == false && !WepDef_IsMeleeWeapon(self.weapon))
+		return;
+
 	// Do not trigger if we're Aiming down the Sight, or
 	// already melee-ing, or doing some other action.
 	if (self.knife_delay > time || self.new_anim_stop ||
@@ -1486,6 +1489,9 @@ void() checkHold =
 
 void() W_Grenade =
 {
+	if (game_modifier_can_use_equipment == false)
+		return;
+
 	if (self.throw_delay > time || self.zoom || self.downed || self.primary_grenades < 1 || self.isBuying)
 		return;
 

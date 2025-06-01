@@ -27,6 +27,7 @@
 */
 void (float achievement_id, optional entity who) GiveAchievement;
 void(entity client) LastStand_Begin;
+void() Gamemode_GetUp;
 
 #define DMG_SCORE_HEADSHOT		100 	// Death by Headshot
 #define DMG_SCORE_MELEE			130		// Death by Melee
@@ -209,6 +210,7 @@ void () GetUp =
 	self.teslacount = 0;
 
 	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk);
+	Gamemode_GetUp();
 };
 
 // poll checking whether to see if our revive invoke is active

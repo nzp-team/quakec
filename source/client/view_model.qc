@@ -176,10 +176,10 @@ void(entity viewent) ViewModel_Animate =
         // make sure to update the HUD.
         if (getmodelindex(GetWeaponModel(getstatf(STAT_ACTIVEWEAPON), false)) == viewent.modelindex)
             HUD_Change_time = time + 7;
-
-        // Update the skin.
-        viewent.skin = getstatf(STAT_WEAPONSKIN);
     }
+
+    // Update the skin.
+    viewent.skin = getstatf(STAT_WEAPONSKIN);
 
     // Server requested a frame change
     if (new_frame != viewent.frame) {

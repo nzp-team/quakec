@@ -376,8 +376,8 @@ void() InitRounds =
 	switch(cvar("sv_difficulty")) {
 		case 0: powerup_score_threshold = ((player_count + 1) * 500) + powerup_activate; break;
 		case 1: powerup_score_threshold = ((player_count) * 500) + powerup_activate; break;
-		case 2: powerup_score_threshold = ((player_count + 1) * 750) + powerup_activate;
-		case 3: powerup_score_threshold = ((player_count + 1) * 1250) + powerup_activate;
+		case 2: powerup_score_threshold = ((player_count + 1) * 750) + powerup_activate; break;
+		case 3: powerup_score_threshold = ((player_count + 1) * 1250) + powerup_activate; break;
 		default: powerup_score_threshold = ((player_count + 1) * 500) + powerup_activate; break;
 	}
 

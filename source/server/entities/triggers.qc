@@ -378,7 +378,8 @@ void() trigger_awardpoints_touch =
 	if (other.stance != PLAYER_STANCE_PRONE && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE))
 		return;
 
-	Player_AddScore(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
+	if (game_modifier_can_earn_misc_score == true)
+		Player_AddScore(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
 
 	if (self.noise != "")
 		Sound_PlaySound(self, self.noise, SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);

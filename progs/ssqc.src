@@ -77,6 +77,8 @@ ai/zombie_core.qc
 ai/crawler_core.qc
 ai/dog_core.qc
 utilities/map_compatibility.qc
+gamemodes/gun_game.qc
+gamemodes/core.qc
 #ifdef QUAKEC_TEST
 tests/test_math.qc
 tests/test_perksacola.qc

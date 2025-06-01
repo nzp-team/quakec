@@ -85,10 +85,10 @@ void(entity client) LastStand_Penalize =
 
     // Set Max Health to that of without Jugger-Nog.
 	switch(cvar("sv_difficulty")) {
-		case 0: client.max_health = client.health = PLAYER_START_HEALTH_NORMAL;
-		case 1: client.max_health = client.health = PLAYER_START_HEALTH_EASY;
-		case 2: client.max_health = client.health = PLAYER_START_HEALTH_HARD;
-		case 3: client.max_health = client.health = PLAYER_START_HEALTH_NIGHTMARE;
+		case 0: client.max_health = client.health = PLAYER_START_HEALTH_NORMAL; break;
+		case 1: client.max_health = client.health = PLAYER_START_HEALTH_EASY; break;
+		case 2: client.max_health = client.health = PLAYER_START_HEALTH_HARD; break;
+		case 3: client.max_health = client.health = PLAYER_START_HEALTH_NIGHTMARE; break;
 		default: break;
 	}
 

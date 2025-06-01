@@ -87,9 +87,9 @@ void GivePerk(optional float p) {
 	// Instant re-gen, set health to Jugg health.
 	if (perk & P_JUG) {
 		switch(cvar("sv_difficulty")) {
-			case 0: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_NORMAL;
-			case 1: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_EASY;
-			case 2: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_HARD;
+			case 0: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_NORMAL; break;
+			case 1: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_EASY; break;
+			case 2: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_HARD; break;
 			default: break;
 		}
 	}

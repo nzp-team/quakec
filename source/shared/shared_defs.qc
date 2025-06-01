@@ -37,10 +37,12 @@
 //
 // CSQC Broadcast Messages
 //
-#define CSQC_BROADCAST_NONE				0 	// ""
-#define CSQC_BROADCAST_PLAYERDOWNED		1	// "$ needs to be revived"
-#define CSQC_BROADCAST_BEINGREVIVED		2	// "$ is reviving you"
-#define CSQC_BROADCAST_REVIVINGPLAYER	3	// "Reviving $"
+#define CSQC_BROADCAST_NONE					0 	// ""
+#define CSQC_BROADCAST_PLAYERDOWNED			1	// "$ needs to be revived"
+#define CSQC_BROADCAST_BEINGREVIVED			2	// "$ is reviving you"
+#define CSQC_BROADCAST_REVIVINGPLAYER		3	// "Reviving $"
+#define CSQC_BROADCAST_GUNGAMEADVANCEMENT	4 	// "$ ADVANCED!"
+#define CSQC_BROADCAST_GUNGAMEWINNER		5 	// "$ can Activate the Nuke!"
 
 //
 // CSQC Event Types
@@ -175,7 +177,7 @@ float 	map_compatibility_mode;
 #define W_WIDDER       34 // M1A1
 #define W_FIW          35 //upgraded flamethrower
 #define W_ARMAGEDDON   36 //Kar
-#define W_WUNDER       37
+#define W_RESERVED     37
 #define W_GIBS         38 // thompson
 #define W_SAMURAI      39 //Type
 #define W_AFTERBURNER  40 //mp40
@@ -193,8 +195,7 @@ float 	map_compatibility_mode;
 #define W_WIDOW        52 //bar
 #define W_KRAUS        53 //ballistic
 #define W_MP5K         54
-#define W_M14          55
-
+#define W_RESERVED2    55
 #define W_TESLA  	   56
 #define W_DG3    	   57
 #define W_SPRING       58
@@ -301,6 +302,10 @@ float 	map_compatibility_mode;
 #define STAT_MAXHEALTH 			67
 #define STAT_WEAPONSKIN 		68
 #define STAT_PERKS				69
+#define STAT_TOTALSCORE			70
+
+#define STAT_GUNGAME_IDX		71
+#define STAT_GUNGAME_SCOREGOAL	72
 
 // Misc. player statistics
 .float playernum;

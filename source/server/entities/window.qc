@@ -59,7 +59,7 @@ void() screen_shake =
 
 void() Window_repaired =
 {
-	if (barricade_reward_maximum > self.enemy.barricade_reward)
+	if (barricade_reward_maximum > self.enemy.barricade_reward && game_modifier_can_earn_misc_score == true)
 	{
 		Sound_PlaySound(self.enemy, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		Player_AddScore(self.enemy, 10, true);

@@ -30,6 +30,9 @@
 void(entity e) Light_None;
 void() Spawns_Init;
 void() SUB_UseTargets;
+void() Gamemode_PlayerSpawn;
+void() Gamemode_PlayerPostThink;
+void(float score_earned) Gamemode_PlayerAddScore;
 void(entity client) LastStand_UnlinkRevivee;
 
 #ifdef QUAKEC_TEST
@@ -305,6 +308,11 @@ void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore =
 	if (value > 0) {
 		who.score += value;
 		total_powerup_points += value;
+
+		entity old_self = self;
+		self = who;
+		Gamemode_PlayerAddScore(value);
+		self = old_self;
 	}
 
 	// Append the value to our current score.
@@ -837,6 +845,8 @@ void() PlayerPostThink =
 		player_trace_time = time + 0.05;
 	}
 
+	Gamemode_PlayerPostThink();
+
 #ifdef QUAKEC_TEST
 
 	if (time_before_gamestart != 0) {
@@ -965,10 +975,10 @@ void() PlayerSpawn =
 	self.movetype = MOVETYPE_WALK;
 
 	switch(cvar("sv_difficulty")) {
-		case 0: self.max_health = self.health = PLAYER_START_HEALTH_NORMAL;
-		case 1: self.max_health = self.health = PLAYER_START_HEALTH_EASY;
-		case 2: self.max_health = self.health = PLAYER_START_HEALTH_HARD;
-		case 3: self.max_health = self.health = PLAYER_START_HEALTH_NIGHTMARE;
+		case 0: self.max_health = self.health = PLAYER_START_HEALTH_NORMAL; break;
+		case 1: self.max_health = self.health = PLAYER_START_HEALTH_EASY; break;
+		case 2: self.max_health = self.health = PLAYER_START_HEALTH_HARD; break;
+		case 3: self.max_health = self.health = PLAYER_START_HEALTH_NIGHTMARE; break;
 		default: break;
 	}
 	
@@ -1068,6 +1078,8 @@ void() PlayerSpawn =
 	// to see their name.
 	if (time >= 5 && self.name != "")
 		nzp_setplayername(self, self.name);
+
+	Gamemode_PlayerSpawn();
 };
 
 void() SpectatorSpawn =

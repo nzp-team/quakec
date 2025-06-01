@@ -474,6 +474,21 @@ float isPowerOn;
 .float perk_requires_power_solo;
 .float perk_requires_power_coop;
 
+#define GAMEMODE_CLASSIC        0
+#define GAMEMODE_GRIEF          1
+#define GAMEMODE_GUNGAME        2
+#define GAMEMODE_HARDCORE       3
+#define GAMEMODE_WILDWEST       4
+#define GAMEMODE_STICKSNSTONES  5
+
+float game_modifier_can_melee;
+float game_modifier_can_use_equipment;
+float game_modifier_can_earn_misc_score;
+float game_modifier_can_packapunch;
+float game_modifier_powerup_free_perk;
+float game_modifier_powerup_max_ammo;
+float game_modifier_powerup_weapon_upgrade;
+
 // Mystery Box
 #define MAX_BOX_WEAPONS 		27
 

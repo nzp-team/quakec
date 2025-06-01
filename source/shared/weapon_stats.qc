@@ -3007,8 +3007,6 @@ float(float wep)  EqualNonPapWeapon =
 			return W_TRENCH;
 		case W_SAMURAI:
 			return W_TYPE;
-		case W_M14:
-			return W_M14;
 		case W_CUSTOM2:
 			return W_CUSTOM1;
 		case W_CUSTOM4:
@@ -3077,8 +3075,6 @@ float(float wep)  EqualPapWeapon =
 			return W_SAMURAI;
 		case W_TESLA:
 			return W_DG3;
-		case W_M14:
-			return W_M14;
 		case W_M2:
 			return W_FIW;
 		case W_BK:

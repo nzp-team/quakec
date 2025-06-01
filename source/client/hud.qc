@@ -1141,6 +1141,9 @@ void() HUD_Useprint =
 		case 22: // Jugger-Nog (NIGHTMARE)
 			usestring = "It doesn't seem to be working..";
 			break;
+		case 23: // Tactical Nuke (Gun Game)
+			usestring = strcat("Hold ", usespace, " to Drop the Nuke");
+			break;
 		default:
 			usestring = "This should not happen you dum fuck"; //yikes
 			break;
@@ -1653,6 +1656,12 @@ void() HUD_Broadcast =
 		case CSQC_BROADCAST_REVIVINGPLAYER:
 			broadcast_msg = strcat("Reviving ", broadcast_name);
 			break;
+		case CSQC_BROADCAST_GUNGAMEADVANCEMENT:
+			broadcast_msg = strcat(broadcast_name, " reached a new tier!");
+			break;
+		case CSQC_BROADCAST_GUNGAMEWINNER:
+			broadcast_msg = strcat(broadcast_name, " can Activate the Nuke!");
+			break;
 		case CSQC_BROADCAST_NONE:
 			broadcast_msg = "";
 			break;
@@ -2054,6 +2063,25 @@ void() HUD_Spectator =
 	drawfill([5, 60], [240, 3], [0.3, 0.3, 0.3], 1, 0);
 }
 
+void() HUD_GunGame =
+{
+	drawfill([g_width/2 - 318, 4], [636, 45], [0, 0, 0], cvar("cl_textopacity"), 0);
+
+	string weapon_id = "";
+	string point_info = "";
+
+	if (getstatf(STAT_GUNGAME_IDX) >= 100) {
+		weapon_id = "You've passed all weapons!";
+		point_info = "The Winner can choose to End the Game";
+	} else {
+		weapon_id = sprintf("%s [%d/32]", GetWeaponName(getstatf(STAT_ACTIVEWEAPON)), getstatf(STAT_GUNGAME_IDX) + 1);
+		point_info = sprintf("[%d] Score until next Weapon", getstatf(STAT_GUNGAME_SCOREGOAL) - getstatf(STAT_TOTALSCORE));
+	}
+
+	Draw_String([g_width/2 - getTextWidth(weapon_id, 18)/2, 8], weapon_id, [18, 18], [1, 1, 1], 1, 0);
+	Draw_String([g_width/2 - getTextWidth(point_info, 12)/2, 30], point_info, [12, 12], [1, 1, 0], 1, 0);
+}
+
 void() HUD_PlayerNames =
 {
 	for (float i = 7; i >= 0; i = i - 1) {
@@ -2338,6 +2366,11 @@ void() HUD_DrawElementsForPlayer =
 
 		// Bouncing Betty tutorial.		
 		HUD_BouncingBetty();
+
+		switch(cvar("sv_gamemode")) {
+			case 2: HUD_GunGame(); break;
+			default: break;
+		}
 
 		// Revive status progress bar.
 		HUD_Progressbar();

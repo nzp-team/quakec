@@ -24,7 +24,6 @@
 		Boston, MA  02111-1307, USA
 
 */
-
 float need_vid_reload;
 
 void() ToggleMenu =
@@ -1153,6 +1152,7 @@ noref void() CSQC_Parse_Event =
 			map_compatibility_mode = readbyte();
 			break;
 		case EVENT_WORLDDATA:
+			float gamemode = readbyte();
 			chaptertitle = readstring();
 			location = readstring();
 			date = readstring();
@@ -1160,6 +1160,14 @@ noref void() CSQC_Parse_Event =
 
 			if (chaptertitle == "")
 				chaptertitle = "'Nazi Zombies'";
+
+			if (gamemode == 2) {
+				chaptertitle = "GUN GAME";
+				location = "Cycle all Weapons to WIN!";
+				date = "";
+				person = "";
+			}
+
 			break;
 		case EVENT_PLAYERUPDATE:
 			player_count = readbyte();
