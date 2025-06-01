@@ -20,6 +20,7 @@ defs/standard.qc
 #endif
 shared_defs.qc
 defs/custom.qc
+fte_builtins.qc
 map_rotation.qc
 utilities/sound_helper.qc
 weapon_stats.qc
