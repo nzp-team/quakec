@@ -255,10 +255,12 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		}
 	}
 
+	float door_cost = floor(self.cost * game_modifier_cost_multiplier);
+
 	if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE))
 	{
 		other.semi_actions |= SEMIACTION_USE;
-		if (other.points >= self.cost)
+		if (other.points >= door_cost)
 		{
 			door_fire();
 			
@@ -285,7 +287,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 					break;
 			}
 
-			Player_RemoveScore(other, self.cost);
+			Player_RemoveScore(other, door_cost);
 			self.solid = SOLID_NOT;
 		}
 		else
@@ -303,9 +305,9 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		if(other.classname == "player" && !other.downed)
 		{
 			if (self.spawnflags & DOOR_DEBRIS)
-				Player_UseprintWithWait(other, self, 2, self.cost, 0);
+				Player_UseprintWithWait(other, self, 2, door_cost, 0);
 			else
-				Player_UseprintWithWait(other, self, 1, self.cost, 0);
+				Player_UseprintWithWait(other, self, 1, door_cost, 0);
 			return;
 		}
 	}	

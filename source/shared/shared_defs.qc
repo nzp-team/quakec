@@ -80,20 +80,22 @@
 											// <short> high_frequency
 											// <short> duration
 
-#define EVENT_UPDATE 					20
-#define EVENT_BLACKOUT 					21
-#define EVENT_WORLDDATA 				22
-#define EVENT_PLAYERUPDATE 				23
-#define EVENT_REVIVEON 					24
-#define EVENT_REVIVEOFF 				25
-#define EVENT_REVIVECHANGE 				26
-#define EVENT_WEAPONRECOIL 				27
-#define EVENT_GRENADEPULSE 				28
-#define EVENT_BETTYPROMPT 				29
-#define EVENT_CHATMESSAGE				30
-#define EVENT_DOUBLETAPUPDATE 			31
-#define EVENT_ENDGAME					32
-#define EVENT_MAPTYPE					33
+#define CSQC_EVENT_SETGAMEMODE			20 	// <byte> gamemode
+
+#define EVENT_UPDATE 					21
+#define EVENT_BLACKOUT 					22
+#define EVENT_WORLDDATA 				23
+#define EVENT_PLAYERUPDATE 				24
+#define EVENT_REVIVEON 					25
+#define EVENT_REVIVEOFF 				26
+#define EVENT_REVIVECHANGE 				27
+#define EVENT_WEAPONRECOIL 				28
+#define EVENT_GRENADEPULSE 				29
+#define EVENT_BETTYPROMPT 				30
+#define EVENT_CHATMESSAGE				31
+#define EVENT_DOUBLETAPUPDATE 			32
+#define EVENT_ENDGAME					33
+#define EVENT_MAPTYPE					34
 
 //
 // Types of screen-flashes, global.
@@ -306,6 +308,14 @@ float 	map_compatibility_mode;
 
 #define STAT_GUNGAME_IDX		71
 #define STAT_GUNGAME_SCOREGOAL	72
+
+// Game Modes
+#define GAMEMODE_CLASSIC        0
+#define GAMEMODE_GRIEF          1
+#define GAMEMODE_GUNGAME        2
+#define GAMEMODE_HARDCORE       3
+#define GAMEMODE_WILDWEST       4
+#define GAMEMODE_STICKSNSTONES  5
 
 // Misc. player statistics
 .float playernum;

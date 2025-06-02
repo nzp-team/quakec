@@ -464,7 +464,6 @@ void(string chaptertitle, string location, string date, string person, entity wh
 	if (player_count == 1) {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_WORLDDATA);
-		WriteByte(MSG_MULTICAST, cvar("sv_gamemode"));
 		WriteString(MSG_MULTICAST, chaptertitle);
 		WriteString(MSG_MULTICAST, location);
 		WriteString(MSG_MULTICAST, date);
@@ -474,7 +473,6 @@ void(string chaptertitle, string location, string date, string person, entity wh
 	} else {
 		WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 		WriteByte(MSG_MULTICAST, EVENT_WORLDDATA);
-		WriteByte(MSG_MULTICAST, cvar("sv_gamemode"));
 		WriteString(MSG_MULTICAST, chaptertitle);
 		WriteString(MSG_MULTICAST, location);
 		WriteString(MSG_MULTICAST, date);

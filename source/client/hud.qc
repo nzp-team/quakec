@@ -2301,6 +2301,54 @@ void() HUD_DrawElementsForWaypointMode =
 };
 
 //
+// HUD_DrawElementsForHardcorePlayer()
+// Heads-Up Display draw logic during Hardcore mode.
+//
+void() HUD_DrawElementsForHardcorePlayer =
+{
+	// We shouldn't draw anything during the game intro fade.
+	if (screenflash_color == SCREENFLASH_COLOR_BLACK && screenflash_duration > time) {
+		HUD_Screenflash();
+		return;
+	}
+
+	// Blood filter on screen to indicate health.
+	HUD_Health();
+
+	// If the scoreboard is open, only draw it and nothing else.
+	if (score_show) {
+		HUD_Scores();
+		return;
+	}
+	// Additionally, bail here if cl_cinematic is set.
+	else if (cvar("cl_cinematic")) {
+		return;
+	}
+
+	// Being scoped-in hides all low-priority elements.
+	if (getstatf(STAT_WEAPONZOOM) != 2 || zoom_2_time >= time) {
+		// Draws all player's points.
+		HUD_Points();
+	}
+
+	// Visual hit Feedback. 
+	HUD_Hitmark();
+
+	// Black/White/etc. total screen flashes.
+	HUD_Screenflash();
+
+	//
+	// Everything below should always have maximum priority.
+	//
+
+	// Revive indicator for Players in Last Stand.
+	HUD_ReviveIcons();
+
+	// "X" needs to be revived, or other important messages.
+	HUD_Broadcast();
+};
+
+//
 // HUD_DrawElementsForPlayer()
 // Heads-Up Display draw logic during normal play.
 //
@@ -2367,8 +2415,8 @@ void() HUD_DrawElementsForPlayer =
 		// Bouncing Betty tutorial.		
 		HUD_BouncingBetty();
 
-		switch(cvar("sv_gamemode")) {
-			case 2: HUD_GunGame(); break;
+		switch(active_gamemode) {
+			case GAMEMODE_GUNGAME: HUD_GunGame(); break;
 			default: break;
 		}
 
@@ -2438,6 +2486,14 @@ void() HUD_DrawElements =
 	//
 	if (cvar("waypoint_mode")) {
 		HUD_DrawElementsForWaypointMode();
+		return;
+	}
+
+	//
+	// Hardcore Mode has a more limited HUD
+	//
+	if (active_gamemode == GAMEMODE_HARDCORE) {
+		HUD_DrawElementsForHardcorePlayer();
 		return;
 	}
 

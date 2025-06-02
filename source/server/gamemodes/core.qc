@@ -60,6 +60,7 @@ void() Gamemode_Init =
     switch(current_gamemode) {
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_Init(); break;
+        case GAMEMODE_HARDCORE: Gamemode_Hardcore_Init(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 };
@@ -74,6 +75,7 @@ void() Gamemode_Frame =
     switch(current_gamemode) {
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_Frame(); break;
+        case GAMEMODE_HARDCORE: Gamemode_Hardcore_Frame(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 
@@ -98,6 +100,7 @@ void() Gamemode_PlayerSpawn =
     switch(current_gamemode) {
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_PlayerSpawn(); break;
+        case GAMEMODE_HARDCORE: Gamemode_Hardcore_PlayerSpawn(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 };
@@ -112,7 +115,7 @@ void() Gamemode_PlayerPostThink =
     switch(current_gamemode) {
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_PlayerPostThink(); break;
-        default: error("Received unrecognized gamemode."); break;
+        default: break;
     }
 };
 
@@ -126,7 +129,7 @@ void(float score_earned) Gamemode_PlayerAddScore =
     switch(current_gamemode) {
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_PlayerAddScore(score_earned); break;
-        default: error("Received unrecognized gamemode."); break;
+        default: break;
     }
 };
 
@@ -140,6 +143,21 @@ void() Gamemode_GetUp =
     switch(current_gamemode) {
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_GetUp(); break;
-        default: error("Received unrecognized gamemode."); break;
+        default: break;
     }
+};
+
+//
+// Gamemode_GetWeaponAmmo(weapon, ammo)
+// Called by getWeaponAmmo(), a callback to
+// modify the return value for maximum reserve ammo.
+//
+float(float weapon, float ammo) Gamemode_GetWeaponAmmo =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_HARDCORE: return Gamemode_Hardcore_GetWeaponAmmo(weapon, ammo);
+        default: return ammo;
+    }
+
+    return ammo;
 };

@@ -24,6 +24,9 @@
 		Boston, MA  02111-1307, USA
 
 */
+#ifndef CSQC
+float(float weapon, float ammo) Gamemode_GetWeaponAmmo;
+#endif
 
 string(float wep) GetWeaponName =
 {
@@ -690,115 +693,171 @@ float(float wep) getWeaponMag =
 
 float(float wep) getWeaponAmmo =
 {
+	float weapon_ammo = 0;
 
 	switch (wep)
 	{
 		case W_COLT:
-			return 80;
+			weapon_ammo = 80;
+			break;
 		case W_BIATCH:
-			return 50;
+			weapon_ammo = 50;
+			break;
 		case W_KAR:
-			return 50;
+			weapon_ammo = 50;
+			break;
     	case W_ARMAGEDDON:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_SPRING:
-			return 50;
+			weapon_ammo = 50;
+			break;
     	case W_PULVERIZER:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_THOMPSON:
-			return 200;
+			weapon_ammo = 200;
+			break;
 		case W_GIBS:
-			return 250;
+			weapon_ammo = 250;
+			break;
 		case W_357:
 		case W_KILLU:
-			return 80;
+			weapon_ammo = 80;
+			break;
 		case W_BAR:
-			return 140;
+			weapon_ammo = 140;
+			break;
 		case W_WIDOW:
-			return 180;
+			weapon_ammo = 180;
+			break;
 		case W_BROWNING:
-			return 500;
+			weapon_ammo = 500;
+			break;
 		case W_ACCELERATOR:
-			return 750;
+			weapon_ammo = 750;
+			break;
 		case W_DB:
 		case W_SAWNOFF:
 		case W_BORE:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_FG:
-			return 192;
+			weapon_ammo = 192;
+			break;
 		case W_IMPELLER:
-			return 400;
+			weapon_ammo = 400;
+			break;
 		case W_GEWEHR:
-			return 120;
+			weapon_ammo = 120;
+			break;
 		case W_COMPRESSOR:
-			return 170;
+			weapon_ammo = 170;
+			break;
 		case W_KAR_SCOPE:
-			return 50;
+			weapon_ammo = 50;
+			break;
 		case W_HEADCRACKER:
-			return 100;
+			weapon_ammo = 100;
+			break;
 		case W_M1:
-			return 128;
+			weapon_ammo = 128;
+			break;
 		case W_M1000:
-			return 150;
+			weapon_ammo = 150;
+			break;
 		case W_M1A1:
-			return 120;
+			weapon_ammo = 120;
+			break;
 		case W_WIDDER:
-			return 150;
+			weapon_ammo = 150;
+			break;
 		case W_M2:
 		case W_FIW:
-      		return 0;
+      		weapon_ammo = 0;
+			break;
 		case W_MP40:
-			return 192;
+			weapon_ammo = 192;
+			break;
 		case W_AFTERBURNER:
-			return 192;
+			weapon_ammo = 192;
+			break;
 		case W_MP5K:
-			return 120;
+			weapon_ammo = 120;
+			break;
 		case W_KOLLIDER:
-			return 200;
+			weapon_ammo = 200;
+			break;
 		case W_MG:
-			return 500;
+			weapon_ammo = 500;
+			break;
 		case W_BARRACUDA:
-			return 750;
+			weapon_ammo = 750;
+			break;
 		case W_PANZER:
-			return 20;
+			weapon_ammo = 20;
+			break;
 		case W_LONGINUS:
-			return 30;
+			weapon_ammo = 30;
+			break;
 		case W_PPSH:
-			return 355;
+			weapon_ammo = 355;
+			break;
 		case W_REAPER:
-			return 700;
+			weapon_ammo = 700;
+			break;
 		case W_PTRS:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_PENETRATOR:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_RAY:
-			return 160;
+			weapon_ammo = 160;
+			break;
 		case W_PORTER:
-			return 200;
+			weapon_ammo = 200;
+			break;
 		case W_SNUFF:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_STG:
-			return 180;
+			weapon_ammo = 180;
+			break;
 		case W_SPATZ:
-			return 300;
+			weapon_ammo = 300;
+			break;
 		case W_TRENCH:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_GUT:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_TYPE:
-			return 160;
+			weapon_ammo = 160;
+			break;
 		case W_SAMURAI:
-			return 220;
+			weapon_ammo = 220;
+			break;
 		case W_TESLA:
-			return 15;
+			weapon_ammo = 15;
+			break;
 		case W_DG3:
-			return 30;
+			weapon_ammo = 30;
+			break;
 		case W_BK:
-			return 4;
+			weapon_ammo = 4;
+			break;
 		case W_KRAUS:
-			return 9;
+			weapon_ammo = 9;
+			break;
 	}
-	return 0;
+
+#ifndef CSQC
+	weapon_ammo = Gamemode_GetWeaponAmmo(wep, weapon_ammo);
+#endif // CSQC
+
+	return weapon_ammo;
 }
 
 

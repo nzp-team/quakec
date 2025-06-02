@@ -47,6 +47,8 @@ float useprint_weapon;
 float useprint_cost;
 float useprint_time;
 
+float active_gamemode;
+
 float bettyprompt_time;
 
 float hud_maxammo_endtime;

@@ -39,6 +39,8 @@ float gungame_ran_post_init_logic;
 .float gungame_score_threshold;
 .float gungame_update_time;
 
+void() info_gungame_nukespot = {};
+
 float(float weapon_id) Gamemode_GunGame_WeaponIDIsValid =
 {
     // Non-weapons should be excluded.
@@ -269,8 +271,13 @@ void() Gamemode_GunGame_SpawnNuke =
     entity nuke = spawn();
     entity nuke_sparkle = spawn();
     entity player_1_spawn = find(world, classname, "info_player_1_spawn");
+    entity gungame_nukespot = find(world, classname, "info_gungame_nukespot");
 
-    setorigin(nuke, player_1_spawn.origin + '0 0 22');
+    if (gungame_nukespot == world)
+        setorigin(nuke, player_1_spawn.origin + '0 0 22');
+    else
+        setorigin(nuke, gungame_nukespot.origin + '0 0 22');
+    
     setorigin(nuke_sparkle, nuke.origin);
     setsize(nuke, VEC_HULL_MIN, VEC_HULL_MAX);
     setmodel(nuke, "models/pu/nuke!.mdl");

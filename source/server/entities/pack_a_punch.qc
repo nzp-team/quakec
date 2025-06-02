@@ -271,6 +271,8 @@ void() PAP_Touch =
 		Player_UseprintWithWait(other, self, 8, 0, 0);
 		return;
 	}
+
+	float pap_cost = floor(self.cost * game_modifier_cost_multiplier);
   
 	// Purchasing Machine + putting Weapon in
 	if (!self.papState) {
@@ -278,10 +280,10 @@ void() PAP_Touch =
 			return;
 		}
 
-		Player_UseprintWithWait(other, self, 12, self.cost, 5);
+		Player_UseprintWithWait(other, self, 12, pap_cost, 5);
 
 		// Player has enough points, begin Upgrade process
-		if (other.points >= self.cost && Player_UseButtonPressed(other, self) && other.weapon) {
+		if (other.points >= pap_cost && Player_UseButtonPressed(other, self) && other.weapon) {
 			PAP_UpgradeWeapon(self, other);
 		} 
 		// They're broke! Notify.

@@ -1070,6 +1070,9 @@ noref void() CSQC_Parse_Event =
 			if (cvar("in_rumbleenabled"))
 				gp_rumble(last_input_deviceid, low_frequency, high_frequency, duration);
 			break;
+		case CSQC_EVENT_SETGAMEMODE:
+			active_gamemode = readbyte();
+			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
             rec_x = readcoord()/5;
@@ -1152,22 +1155,28 @@ noref void() CSQC_Parse_Event =
 			map_compatibility_mode = readbyte();
 			break;
 		case EVENT_WORLDDATA:
-			float gamemode = readbyte();
 			chaptertitle = readstring();
 			location = readstring();
 			date = readstring();
 			person = readstring();
 
-			if (chaptertitle == "")
-				chaptertitle = "'Nazi Zombies'";
-
-			if (gamemode == 2) {
-				chaptertitle = "GUN GAME";
-				location = "Cycle all Weapons to WIN!";
-				date = "";
-				person = "";
+			switch(active_gamemode) {
+				case GAMEMODE_CLASSIC: 
+					if (chaptertitle == "")
+						chaptertitle = "'Nazi Zombies'";
+					break;
+				case GAMEMODE_GUNGAME:
+					chaptertitle = "GUN GAME";
+					location = "Cycle all Weapons to WIN!";
+					date = "";
+					person = "";
+					break;
+				case GAMEMODE_HARDCORE:
+					chaptertitle = "HARDCORE";
+					break;
+				default:
+					break;
 			}
-
 			break;
 		case EVENT_PLAYERUPDATE:
 			player_count = readbyte();

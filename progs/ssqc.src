@@ -79,6 +79,7 @@ ai/crawler_core.qc
 ai/dog_core.qc
 utilities/map_compatibility.qc
 gamemodes/gun_game.qc
+gamemodes/hardcore.qc
 gamemodes/core.qc
 #ifdef QUAKEC_TEST
 tests/test_math.qc

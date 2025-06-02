@@ -159,6 +159,7 @@ void() StartFrame =
 			while(players != world) {
 				if (players.name != "")
 					nzp_setplayername(players, players.name);
+				nzp_setclientmode(cvar("sv_gamemode"));
 
 				players = find(players, classname, "player");
 			}
@@ -389,6 +390,13 @@ void() worldspawn =
 	autocvar(sv_enablechatplugins, 0);
 	autocvar(sv_maprotationbasename, "map_rotation");
 	autocvar(sv_maprotationmode, 0);
+	autocvar(sv_gamemode, 0);
+	autocvar(sv_difficulty, 0);
+	autocvar(sv_startround, 0);
+	autocvar(sv_magic, 1);
+	autocvar(sv_headshotonly, 0);
+	autocvar(sv_maxai, 24);
+	autocvar(sv_fastrounds, 0);
 
 #endif // FTE
 
@@ -413,6 +421,8 @@ void() worldspawn =
 	game_modifier_powerup_max_ammo = true;
 	game_modifier_powerup_weapon_upgrade = false;
 	game_modifier_can_packapunch = true;
+	game_modifier_perk_purchase_limit = 8;
+	game_modifier_cost_multiplier = 1;
 
 	//
 	// World Gravity Multiplier

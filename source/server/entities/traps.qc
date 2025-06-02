@@ -240,22 +240,24 @@ void() zapper_touch =
 		return;
 	}	
 
+	float trap_cost = floor(self.cost * game_modifier_cost_multiplier);
+
 	if (self.state == 0) {
-		Player_UseprintWithWait (other, self, 11, self.cost, self.weapon);
+		Player_UseprintWithWait (other, self, 11, trap_cost, self.weapon);
 
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 
 		other.semi_actions |= SEMIACTION_USE;
-		if (other.points < self.cost) {
+		if (other.points < trap_cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 
 		zapper_start(self.zappername);
-		Player_RemoveScore(other, self.cost);
+		Player_RemoveScore(other, trap_cost);
 	}
 }
 

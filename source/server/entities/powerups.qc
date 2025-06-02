@@ -107,6 +107,7 @@ string(string file) PU_ResolveVOPath =
 
 	switch(cvar("sv_gamemode")) {
 		case GAMEMODE_GUNGAME: path = strcat("sounds/modes/gungame/", file); break;
+		case GAMEMODE_HARDCORE: path = strcat("sounds/modes/hardcore/", file); break;
 		default: path = strcat("sounds/pu/", file); break;
 	}
 

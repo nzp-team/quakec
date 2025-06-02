@@ -502,6 +502,25 @@ float(entity who, entity active_ent) Player_UseButtonPressed =
 #endif // QUAKEC_TEST
 };
 
+//
+// Player_GetNumPerks(who)
+// Returns the quantity of Perk-A-Colas
+// a Client currently has.
+//
+float(entity who) Player_GetNumPerks =
+{
+	float num_perks = 0;
+	if (who.perks & 0x01) num_perks++;
+    if (who.perks & 0x02) num_perks++;
+    if (who.perks & 0x04) num_perks++;
+    if (who.perks & 0x08) num_perks++;
+    if (who.perks & 0x10) num_perks++;
+    if (who.perks & 0x20) num_perks++;
+    if (who.perks & 0x40) num_perks++;
+    if (who.perks & 0x80) num_perks++;
+	return num_perks;
+};
+
 void() PlayerJump =
 {
 	if (!(self.flags & FL_ONGROUND) 
@@ -1050,6 +1069,10 @@ void() PlayerSpawn =
 	self.stamina = 3;
 	self.reviving = 0;
 	self.perks = G_PERKS;
+
+	// Make sure we send the gamemode to the Client
+	// before drawing introduction text.
+	nzp_setclientmode(cvar("sv_gamemode"));
 	
 #ifdef FTE
 

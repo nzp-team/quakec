@@ -1014,7 +1014,7 @@ void() mystery_box =
     mystery_box_glow_model = self.weapon2model;
     mystery_box_open_sound = self.oldmodel;
     mystery_box_close_sound = self.powerup_vo;
-    mystery_box_cost = self.cost;
+    mystery_box_cost = floor(self.cost * game_modifier_cost_multiplier);
 
 	precache_model(mystery_box_model);
 

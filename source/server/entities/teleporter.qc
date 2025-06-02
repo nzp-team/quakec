@@ -269,23 +269,25 @@ void() teleport_touch =
 		teleporter_link_touch();
 		return;
 	}
+
+	float teleporter_cost = floor(self.cost * game_modifier_cost_multiplier);
     
 	if (!self.cost)
   		Player_UseprintWithWait(other, self, 14, 0, 0);
 	else
-		Player_UseprintWithWait(other, self, 15, self.cost, 0);
+		Player_UseprintWithWait(other, self, 15, teleporter_cost, 0);
 	
 
 	if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 		other.semi_actions |= SEMIACTION_USE;
 		
-		if (other.points < self.cost) {
+		if (other.points < teleporter_cost) {
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
 		}
 
-		Player_RemoveScore(other, self.cost);
+		Player_RemoveScore(other, teleporter_cost);
 
 		SUB_UseTargets();
 

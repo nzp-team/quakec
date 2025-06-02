@@ -413,15 +413,17 @@ void() touch_ending =
 {
 	if (other.classname != "player" || self.activated)
 		return;
+
+	float ending_cost = floor(self.cost * game_modifier_cost_multiplier);
 	
-	Player_UseprintWithWait(other, self, 20, self.cost, 0);
+	Player_UseprintWithWait(other, self, 20, ending_cost, 0);
 
 	if (Player_UseButtonPressed(other, self)) {
 
-		if (other.points < self.cost)
+		if (other.points < ending_cost)
 			return;
 
-		Player_RemoveScore(other, self.cost);
+		Player_RemoveScore(other, ending_cost);
 
 		entity tempe;
 		entity players = find(world, classname, "player");

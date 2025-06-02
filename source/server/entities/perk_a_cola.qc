@@ -252,6 +252,10 @@ void() touch_perk =
 	if (other.stance == PLAYER_STANCE_PRONE && !(self.spawnflags & PERK_SPAWNFLAG_ALLOWPRONE))
 		return;
 
+	// Perk Purchase Limit met
+	if (Player_GetNumPerks(other) >= game_modifier_perk_purchase_limit)
+		return;
+
 	if (cvar("sv_magic") == 0) {
 		useprint(other, 21, 0, 0);
 		return;
@@ -289,10 +293,10 @@ void() touch_perk =
 
 		// Check if we're playing in Co-Op, adjust price if so.
 		if (player_count > 1)
-			price = self.cost2;
+			price = floor(self.cost2 * game_modifier_cost_multiplier);
 		// Nope, use normal/solo cost.
 		else
-			price = self.cost;
+			price = floor(self.cost * game_modifier_cost_multiplier);
 
 		// sequence = perk ID in client
 		Player_UseprintWithWait(other, self, 9, price, self.sequence);
