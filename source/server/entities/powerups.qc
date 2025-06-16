@@ -335,7 +335,7 @@ void() PU_NukeKill =
 //
 void() PU_Nuke =
 {
-	// Flash the screen white
+	// Flash the screen based on the users preference
 	nzp_screenflash(world, SCREENFLASH_COLOR_RESPECT_USER, 1, SCREENFLASH_FADE_INANDOUT);
 
 	// if there's already one active, just increment the point multiplier
