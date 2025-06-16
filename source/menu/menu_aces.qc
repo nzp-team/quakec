@@ -1,4 +1,4 @@
-string menu_accesibility_buttons[6] = {"ac_hitm", "ac_text", "ac_color", "ac_apply", "ac_back", "ac_screenflash"};
+string menu_accesibility_buttons[6] = {"ac_hitm", "ac_text", "ac_color", "ac_screenflash", "ac_apply", "ac_back"};
 
 float menu_accessibility_init;
 
