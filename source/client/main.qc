@@ -1059,8 +1059,8 @@ noref void() CSQC_Parse_Event =
 			break;
 		case CSQC_EVENT_SCREENFLASH:
 			screenflash_color = readbyte();
-			if (screenflash_color == SCREENFLASH_COLOR_RESPECT_USER) {
-				screenflash_color = cvar("scr_flashmode");
+			if (screenflash_color == SCREENFLASH_COLOR_WHITE && cvar("scr_whiteflash") == 1) {
+				screenflash_color = SCREENFLASH_COLOR_BLACK;
 			}
 			screenflash_duration = time + readbyte();
 			screenflash_type = readbyte();
