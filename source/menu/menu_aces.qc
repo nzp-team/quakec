@@ -1,9 +1,10 @@
-string menu_accesibility_buttons[5] = {"ac_hitm", "ac_text", "ac_color", "ac_apply", "ac_back"};
+string menu_accesibility_buttons[6] = {"ac_hitm", "ac_text", "ac_color", "ac_whiteflash", "ac_apply", "ac_back"};
 
 float menu_accessibility_init;
 
 float current_hitmarker;
 float current_colorblind;
+float current_whiteflash;
 
 string(string prev_id) Menu_Accessibility_GetNextButton =
 {
@@ -49,6 +50,7 @@ void() Menu_Accessibility_StoreCurrentSettings =
 {
     current_hitmarker = cvar("cl_hitmarkers");
     current_colorblind = cvar("cl_colorblind");
+    current_whiteflash = cvar("scr_whiteflash");
 }
 
 void() Menu_Accessibility_ApplySettings =
@@ -75,6 +77,13 @@ void() Menu_Accessibility_UpdateColorblindFilter =
     Menu_PlaySound(MENU_SND_ENTER);
     current_colorblind = !current_colorblind;
     cvar_set("cl_colorblind", ftos(current_colorblind));
+}
+
+void() Menu_Accessibility_UpdateWhiteFlash =
+{
+    Menu_PlaySound(MENU_SND_ENTER);
+    current_whiteflash = !current_whiteflash;
+    cvar_set("scr_whiteflash", ftos(current_whiteflash));
 }
 
 void() Menu_Accessibility =
@@ -108,6 +117,16 @@ void() Menu_Accessibility =
         default: break;
     }
     Menu_DrawOptionValue(3, colorblind_string);
+
+    // Screen Flashes
+    Menu_Button(4, "ac_screenflash", "WHITE SCREEN FLASHES", "Choose the color of white screen flashes.") ? Menu_Accessibility_UpdateWhiteFlash() : 0;
+    string whiteflash_string = "";
+    switch(current_whiteflash) {
+        case 0: whiteflash_string = "WHITE"; break;
+        case 1: whiteflash_string = "BLACK"; break;
+        default: break;
+    }
+    Menu_DrawOptionValue(4, whiteflash_string);
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "ac_apply", "APPLY", "Save & Apply Settings.") ? Menu_Accessibility_ApplySettings() : 0;
