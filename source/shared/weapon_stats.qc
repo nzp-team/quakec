@@ -3762,6 +3762,9 @@ void(float weptype) precache_extra =
 		case W_BETTY:
 			precache_model("models/weapons/grenade/g_betty.mdl");
 			break;
+		case W_BOWIE:
+			precache_sound("sounds/weapons/knife/bowie.wav");
+			break;
 	}
 }
 
@@ -4676,8 +4679,8 @@ float(float weapon) WepDef_GetWeaponMeleeRange =
 // FIXME -- data-drive these.
 #define MELEE_BOWIE_FIRST_FRAME_NORMAL 	0
 #define MELEE_BOWIE_LAST_FRAME_NORMAL	3
-#define MELEE_BOWIE_FIRST_FRAME_LUNGED	4
-#define MELEE_BOWIE_LAST_FRAME_LUNGED	10
+#define MELEE_BOWIE_FIRST_FRAME_LUNGED	5
+#define MELEE_BOWIE_LAST_FRAME_LUNGED	15
 #define MELEE_BOWIE_DURATION_NORMAL		0.65
 #define MELEE_BOWIE_DURATION_LUNGED		1.0
 #define MELEE_BOWIE_VIEWMODEL_PATH 		"models/weapons/knife/v_bowie.mdl"
