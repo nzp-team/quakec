@@ -1177,6 +1177,12 @@ noref void() CSQC_Parse_Event =
 				case GAMEMODE_HARDCORE:
 					chaptertitle = "HARDCORE";
 					break;
+				case GAMEMODE_STICKSNSTONES:
+					chaptertitle = "STICKS & STONES";
+					location = "Ballistic Knife FTW!";
+					date = "";
+					person = "";
+					break;
 				default:
 					break;
 			}

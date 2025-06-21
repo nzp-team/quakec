@@ -42,6 +42,7 @@ float() Gamemode_IsPartyMode =
 {
     switch(current_gamemode) {
         case GAMEMODE_GUNGAME: return true;
+        case GAMEMODE_STICKSNSTONES: return true;
         default: return false;
     }
 
@@ -61,6 +62,7 @@ void() Gamemode_Init =
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_Init(); break;
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_Init(); break;
+        case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_Init(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 };
@@ -76,6 +78,7 @@ void() Gamemode_Frame =
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_Frame(); break;
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_Frame(); break;
+        case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_Frame(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 
@@ -101,6 +104,7 @@ void() Gamemode_PlayerSpawn =
         case GAMEMODE_CLASSIC: break;
         case GAMEMODE_GUNGAME: Gamemode_GunGame_PlayerSpawn(); break;
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_PlayerSpawn(); break;
+        case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_PlayerSpawn(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 };
@@ -160,4 +164,36 @@ float(float weapon, float ammo) Gamemode_GetWeaponAmmo =
     }
 
     return ammo;
+};
+
+void(entity attacker, float death_style) Gamemode_DieHandler =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_DieHandler(attacker, death_style); break;
+        default: break;
+    }
+};
+
+void(entity client) Gamemode_DrinkPerk =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_DrinkPerk(client); break;
+        default: break;
+    }
+}
+
+void(entity client, float weapon) Gamemode_BuyWeapon =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_BuyWeapon(client, weapon); break;
+        default: break;
+    }
+}
+
+void() Gamemode_LastStand =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_LastStand(); break;
+        default: break;
+    }
 };

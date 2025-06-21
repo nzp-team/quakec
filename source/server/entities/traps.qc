@@ -256,6 +256,9 @@ void() zapper_touch =
 			return;
 		}
 
+		if (cvar("sv_gamemode") == GAMEMODE_STICKSNSTONES)
+			Sound_PlaySound(other, "sounds/modes/sticks/trap.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+
 		zapper_start(self.zappername);
 		Player_RemoveScore(other, trap_cost);
 	}

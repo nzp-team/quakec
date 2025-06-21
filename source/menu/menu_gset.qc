@@ -108,7 +108,8 @@ void() Menu_GameSettings =
     string gamemode_string = "";
     switch(cvar("sv_gamemode")) {
         case 0: gamemode_description = "Classic Round-Based Zombies."; gamemode_string = "CLASSIC"; break;
-        case 1: gamemode_description = "Compete in Teams to outlive your opponents."; gamemode_string = "GRIEF"; break;
+        case 1: localcmd("sv_gamemode 2\n"); break;
+        //case 1: gamemode_description = "Compete in Teams to outlive your opponents."; gamemode_string = "GRIEF"; break;
         case 2: gamemode_description = "Race to earn Score to cycle through Weaponry."; gamemode_string = "GUN GAME"; break;
         case 3: gamemode_description = "No HUD? Two Perks? 150% Item Cost? No Problem."; gamemode_string = "HARDCORE"; break;
         case 4: gamemode_description = "Fight like it's Western America in the 1910's."; gamemode_string = "WILD WEST"; break;

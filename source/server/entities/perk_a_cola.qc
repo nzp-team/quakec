@@ -28,6 +28,7 @@
 float backupWepSkin;
 float sound_perk_delay; 
 void(entity person) W_HideCrosshair;
+void(entity client) Gamemode_DrinkPerk;
 
 //
 // --------------------
@@ -131,6 +132,8 @@ void DrinkPerk() {
 	if (self.style == P_DOUBLE) {
 		nzp_setdoubletapver(self, self.has_doubletap_damage_buff);
 	}
+
+	Gamemode_DrinkPerk(self);
 }
 
 //

@@ -483,6 +483,7 @@ float game_modifier_powerup_max_ammo;
 float game_modifier_powerup_weapon_upgrade;
 float game_modifier_perk_purchase_limit;
 float game_modifier_cost_multiplier;
+float game_modifier_grenades_explode_on_contact;
 
 // Mystery Box
 #define MAX_BOX_WEAPONS 		27

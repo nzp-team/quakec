@@ -27,6 +27,7 @@
 */
 
 void() W_PlayTakeOut;
+void(entity client, float weapon) Gamemode_BuyWeapon;
 
 // =================================
 // Wall Chalk Functionality
@@ -205,6 +206,8 @@ void () WallWeapon_TouchTrigger =
 			if (self.enemy) {
 				SUB_UseTargets();
 			}
+
+			Gamemode_BuyWeapon(other, self.weapon);
 		}
 	} else 
 	// Universal Ammo buy
@@ -282,6 +285,7 @@ void () WallWeapon_TouchTrigger =
 			{
 				SUB_UseTargets();
 			}
+			Gamemode_BuyWeapon(other, self.weapon);
 		}
 		other.semi_actions |= SEMIACTION_USE;
 		return;
@@ -313,6 +317,7 @@ void () WallWeapon_TouchTrigger =
 			{
 				SUB_UseTargets();
 			}
+			Gamemode_BuyWeapon(other, self.weapon);
 		}
 		other.semi_actions |= SEMIACTION_USE;
 		return;
@@ -343,6 +348,7 @@ void () WallWeapon_TouchTrigger =
 					self = other;
 					Set_W_Frame(16, 43, 2.75, 0, 0, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_BOTH, true);
 					self.has_bowie_knife = true;
+					Gamemode_BuyWeapon(self, tempz.weapon);
 				}
 			}
 		}
@@ -379,6 +385,8 @@ void () WallWeapon_TouchTrigger =
 		Weapon_GiveWeapon(tempe.weapon, 0, 0);
 
 		self = tempe;
+
+		Gamemode_BuyWeapon(other, self.weapon);
 	}
 
 	if (other.ach_tracker_coll == ach_tracker_col2) {

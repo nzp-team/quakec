@@ -28,6 +28,7 @@
 void (float achievement_id, optional entity who) GiveAchievement;
 void(entity client) LastStand_Begin;
 void() Gamemode_GetUp;
+void(entity attacker, float death_style) Gamemode_DieHandler;
 
 #define DMG_SCORE_HEADSHOT		100 	// Death by Headshot
 #define DMG_SCORE_MELEE			130		// Death by Melee
@@ -281,6 +282,8 @@ void(entity attacker, float d_style) DieHandler =
 			points_earned = floor((points_earned/10) * 0.75) * 10;
 
 		Player_AddScore(attacker, points_earned, true);
+
+		Gamemode_DieHandler(attacker, d_style);
     }
 }
 

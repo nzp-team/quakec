@@ -81,6 +81,7 @@ ai/dog_core.qc
 utilities/map_compatibility.qc
 gamemodes/gun_game.qc
 gamemodes/hardcore.qc
+gamemodes/sticks_and_stones.qc
 gamemodes/core.qc
 #ifdef QUAKEC_TEST
 tests/test_math.qc

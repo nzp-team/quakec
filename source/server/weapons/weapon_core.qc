@@ -1382,6 +1382,12 @@ void() NadeStraighten =
 };
 void() Velocity_reduce =
 {
+	// If explode-on-contact is on, just explode here..
+	if (game_modifier_grenades_explode_on_contact) {
+		GrenadeExplode();
+		return;
+	}
+
 	// Do one (1) damage on monster contact, to kill when Insta-Kill is active.
 	if (other.flags & FL_MONSTER)
 		DamageHandler(other, self.owner, 1, DMG_TYPE_OTHER);

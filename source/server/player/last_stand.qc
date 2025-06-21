@@ -28,6 +28,7 @@
 #define LASTSTAND_DEATH_TIMER       30
 
 void() W_TakeOut;
+void() Gamemode_LastStand;
 
 //
 // LastStand_SoloRevive()
@@ -523,6 +524,8 @@ void(entity client) LastStand_Begin =
 
 	// Play Last Stand Animation
 	PAnim_GetDown();
+
+	Gamemode_LastStand();
 
     self = old_self;
 };
