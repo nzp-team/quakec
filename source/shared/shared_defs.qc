@@ -139,6 +139,7 @@ float 	map_compatibility_mode;
 #define FIRETYPE_RAYBEAM	4
 #define FIRETYPE_TESLA		5
 #define FIRETYPE_FLAME		6
+#define FIRETYPE_BLADE		7
 
 //nzp weapon defines
 //id list

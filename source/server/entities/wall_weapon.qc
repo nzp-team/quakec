@@ -332,6 +332,7 @@ void () WallWeapon_TouchTrigger =
 					W_HideCrosshair(other);
 					Player_RemoveScore(other, wcost);
 					Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
+					Sound_PlaySound(other, "sounds/weapons/knife/bowie.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 					other.ach_tracker_coll++;
 					if (self.enemy)
 					{
@@ -340,7 +341,7 @@ void () WallWeapon_TouchTrigger =
 					entity tempz;
 					tempz = self;
 					self = other;
-					Set_W_Frame(15, 30, 2.75, 0, 0, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_BOTH, true);
+					Set_W_Frame(16, 43, 2.75, 0, 0, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_BOTH, true);
 					self.has_bowie_knife = true;
 				}
 			}

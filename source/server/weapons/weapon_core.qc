@@ -1117,6 +1117,9 @@ void(float side) W_Fire =
 		case FIRETYPE_FLAME:
 			W_FireFlame();
 			break;
+		case FIRETYPE_BLADE:
+			W_FireBlade();
+			break;
 		default: break;
 	}
 

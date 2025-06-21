@@ -265,6 +265,9 @@ float(float wep) GetFiretype =
 		case W_TESLA:
 		case W_DG3:
 			return FIRETYPE_TESLA;
+		case W_BK:
+		case W_KRAUS:
+			return FIRETYPE_BLADE;
     }
 
     return 0;
@@ -2586,49 +2589,49 @@ float(float wep, float frametype, optional float z) GetFrame =
 			}
 			break;
 		case W_BK:
-		case W_KRAUS:
-			switch (frametype)
-			{
-				case FIRE_START:
-					return 28;
-				case FIRE_END:
-					return 32;
-				case RELOAD_START:
-					return 33;
-				case RELOAD_END:
-					return 46;
-				case SPRINT_IN_START:
-					return 51;
-				case SPRINT_IN_END:
-					return 53;
-				case SPRINT_START:
-					return 54;
-				case SPRINT_END:
-					return 61;
-				case SPRINT_OUT_START:
-					return 62;
-				case SPRINT_OUT_END:
-					return 64;
-				case TAKE_OUT_START:
-					return 4;
-				case TAKE_OUT_END:
-					return 6;
-				case PUT_OUT_START:
-					return 47;
-				case PUT_OUT_END:
-					return 50;
-				case RELOAD_CANCEL:
-					return 41;
-				case MELEE_NORMAL_START:
-					return 8;
-				case MELEE_NORMAL_END:
-					return 13;
-				case MELEE_LUNGED_START:
-					return 14;
-				case MELEE_LUNGED_END:
-					return 24;
-			}
-			break;
+        case W_KRAUS:
+            switch (frametype)
+            {
+                case FIRE_START:
+                    return 22;
+                case FIRE_END:
+                    return 26;
+                case RELOAD_START:
+                    return 26;
+                case RELOAD_END:
+                    return 37;
+                case SPRINT_IN_START:
+                    return 37;
+                case SPRINT_IN_END:
+                    return 39;
+                case SPRINT_START:
+                    return 42;
+                case SPRINT_END:
+                    return 46;
+                case SPRINT_OUT_START:
+                    return 39;
+                case SPRINT_OUT_END:
+                    return 41;
+                case TAKE_OUT_START:
+                    return 39;
+                case TAKE_OUT_END:
+                    return 41;
+                case PUT_OUT_START:
+                    return 37;
+                case PUT_OUT_END:
+                    return 39;
+                case RELOAD_CANCEL:
+                    return 32;
+                case MELEE_NORMAL_START:
+                    return 0;
+                case MELEE_NORMAL_END:
+                    return 8;
+                case MELEE_LUNGED_START:
+                    return 9;
+                case MELEE_LUNGED_END:
+                    return 21;
+            }
+            break;
 	}
 
     return 0;
@@ -2829,10 +2832,10 @@ string(float wep, float gorvmodel) GetWeaponModel =
     return ("");
 }
 
-string(float wep) GetWeapon2Model =
+string(float weapon, float has_bowie_knife) GetWeapon2Model =
 {
 
-	switch (wep)
+	switch (weapon)
 	{
 		case W_BIATCH:
 			return ("models/weapons/m1911/v_biatch_left.mdl");		
@@ -2841,6 +2844,12 @@ string(float wep) GetWeapon2Model =
 			return ("models/weapons/kar/v_karscope.mdl");
     	case W_SNUFF:
 			return ("models/weapons/sawnoff/v_snuff_left.mdl");
+		case W_BK:
+		case W_KRAUS:
+			if (has_bowie_knife)
+				return ("models/weapons/bk/v_blade_bowie.mdl");
+			else
+				return ("models/weapons/bk/v_blade_knife.mdl");
 		default:
 			return "";
     }
@@ -3147,7 +3156,7 @@ float(float wep)  EqualPapWeapon =
 
 float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeaponSound =
 {
-	if (anim_style == KNIFE) {
+	if (anim_style == KNIFE && wep != W_BK && wep != W_KRAUS) {
 		if (curweaponframe == 6) {
 			self.punchangle_x = -2;
 			self.punchangle_y = -5;	
@@ -3587,7 +3596,7 @@ float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 			return false;
 		case W_BK:
 		case W_KRAUS:
-			if (curweaponframe == 41) {
+			if (curweaponframe == 32) {
 				Sound_PlaySound(self, "sounds/weapons/ballknife/insert.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 				return true;
 			}
@@ -3808,6 +3817,9 @@ void(float weptype) precache_extra =
 			break;
 		case W_BK:
 		case W_KRAUS:
+			precache_model("models/weapons/bk/blade.mdl");
+			precache_model("models/weapons/bk/v_blade_bowie.mdl");
+			precache_model("models/weapons/bk/v_blade_knife.mdl");
 			precache_sound("sounds/weapons/ballknife/shoot.wav");
 			precache_sound("sounds/weapons/ballknife/insert.wav");
 			break;
@@ -3816,6 +3828,9 @@ void(float weptype) precache_extra =
 			break;
 		case W_BETTY:
 			precache_model("models/weapons/grenade/g_betty.mdl");
+			break;
+		case W_BOWIE:
+			precache_sound("sounds/weapons/knife/bowie.wav");
 			break;
 	}
 }
@@ -4731,8 +4746,8 @@ float(float weapon) WepDef_GetWeaponMeleeRange =
 // FIXME -- data-drive these.
 #define MELEE_BOWIE_FIRST_FRAME_NORMAL 	0
 #define MELEE_BOWIE_LAST_FRAME_NORMAL	3
-#define MELEE_BOWIE_FIRST_FRAME_LUNGED	4
-#define MELEE_BOWIE_LAST_FRAME_LUNGED	10
+#define MELEE_BOWIE_FIRST_FRAME_LUNGED	5
+#define MELEE_BOWIE_LAST_FRAME_LUNGED	15
 #define MELEE_BOWIE_DURATION_NORMAL		0.65
 #define MELEE_BOWIE_DURATION_LUNGED		1.0
 #define MELEE_BOWIE_VIEWMODEL_PATH 		"models/weapons/knife/v_bowie.mdl"
@@ -4992,6 +5007,9 @@ float WepDef_GetWeaponCrosshairType(float weapon)
 		case W_TESLA:
 		case W_DG3:
 			return 2;
+		case W_BK:
+		case W_KRAUS:
+			return 3;
 		case W_PANZER:
 		case W_LONGINUS:
 			return 0;
