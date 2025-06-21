@@ -46,6 +46,8 @@ function build_quakec()
 
     echo "[INFO]: Moving QuakeC to game download.."
     cp "${REPO_PWD}/build/fte/qwprogs.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
+    cp "${REPO_PWD}/build/fte/csprogs.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
+    cp "${REPO_PWD}/build/fte/menu.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
 }
 
 function run_test()
