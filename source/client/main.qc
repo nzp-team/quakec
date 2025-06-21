@@ -460,6 +460,7 @@ noref void(float isnew) CSQC_Ent_Update =
 		if (isnew == TRUE) {
 			self.classname = "item_powerup";
 			self.solid = SOLID_NOT;
+			self.effects = EF_FULLBRIGHT;
 			self.predraw = PU_PreDraw;
 			self.drawmask = MASK_ENGINE;
 		}
@@ -1180,6 +1181,12 @@ noref void() CSQC_Parse_Event =
 				case GAMEMODE_STICKSNSTONES:
 					chaptertitle = "STICKS & STONES";
 					location = "Ballistic Knife FTW!";
+					date = "";
+					person = "";
+					break;
+				case GAMEMODE_WILDWEST:
+					chaptertitle = "WILD WEST";
+					location = "It's a stand-off!";
 					date = "";
 					person = "";
 					break;

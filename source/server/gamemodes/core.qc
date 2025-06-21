@@ -63,6 +63,7 @@ void() Gamemode_Init =
         case GAMEMODE_GUNGAME: Gamemode_GunGame_Init(); break;
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_Init(); break;
         case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_Init(); break;
+        case GAMEMODE_WILDWEST: Gamemode_WW_Init(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 };
@@ -79,6 +80,7 @@ void() Gamemode_Frame =
         case GAMEMODE_GUNGAME: Gamemode_GunGame_Frame(); break;
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_Frame(); break;
         case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_Frame(); break;
+        case GAMEMODE_WILDWEST: Gamemode_WW_Frame(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 
@@ -105,6 +107,7 @@ void() Gamemode_PlayerSpawn =
         case GAMEMODE_GUNGAME: Gamemode_GunGame_PlayerSpawn(); break;
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_PlayerSpawn(); break;
         case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_PlayerSpawn(); break;
+        case GAMEMODE_WILDWEST: Gamemode_WW_PlayerSpawn(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 };
@@ -164,6 +167,16 @@ float(float weapon, float ammo) Gamemode_GetWeaponAmmo =
     }
 
     return ammo;
+};
+
+float(float damage) Gamemode_GetWeaponDamage =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_WILDWEST: return Gamemode_WW_GetWeaponDamage(damage);
+        default: return damage;
+    }
+
+    return damage;
 };
 
 void(entity attacker, float death_style) Gamemode_DieHandler =

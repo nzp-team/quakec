@@ -1330,7 +1330,7 @@ void() Zombie_Death =
 	
 	if(self.outside == false && self.electro_targeted == false)
 	{
-		if (totalpowerups < POWERUPS_PER_ROUND)
+		if (totalpowerups < POWERUPS_PER_ROUND && cvar("sv_magic") != 0)
 		{
 			if (total_powerup_points >= powerup_score_threshold)
 			{

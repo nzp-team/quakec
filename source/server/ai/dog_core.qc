@@ -226,7 +226,7 @@ void() Dog_Death_Tesla = {
 	// TODO - place tesla spark correctly
 	tesla_spark(self.origin);
 
-	if(rounds == dogRound && Remaining_Zombies == 0) {
+	if(rounds == dogRound && Remaining_Zombies == 0 && cvar("sv_magic") != 0) {
 		Spawn_Powerup(self.origin, PU_MAXAMMO);
 	}
 

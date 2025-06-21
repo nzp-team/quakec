@@ -109,6 +109,7 @@ string(string file) PU_ResolveVOPath =
 		case GAMEMODE_GUNGAME: path = strcat("sounds/modes/gungame/", file); break;
 		case GAMEMODE_HARDCORE: path = strcat("sounds/modes/hardcore/", file); break;
 		case GAMEMODE_STICKSNSTONES: path = strcat("sounds/modes/sticks/", file); break;
+		case GAMEMODE_WILDWEST: path = strcat("sounds/modes/wildwest/", file); break;
 		default: path = strcat("sounds/pu/", file); break;
 	}
 
@@ -918,9 +919,6 @@ float PU_SendEntity( entity ePVEnt, float flChanged ) {
 //
 void(vector where, float type) Spawn_Powerup =
 {
-	if (cvar("sv_magic") == 0)
-		return;
-
 	entity 	powerup;
 	entity	sparkle;
 

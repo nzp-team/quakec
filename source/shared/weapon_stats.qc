@@ -26,6 +26,7 @@
 */
 #ifndef CSQC
 float(float weapon, float ammo) Gamemode_GetWeaponAmmo;
+float(float damage) Gamemode_GetWeaponDamage;
 #endif
 
 string(float wep) GetWeaponName =
@@ -152,9 +153,9 @@ string(float wep) GetWeaponName =
 	}
 }
 
-string(float perk) GetPerkName =
+string(float item) GetItemName =
 {
-	switch (perk)
+	switch (item)
 	{
 		case 1:
 			return "Quick Revive";
@@ -172,6 +173,14 @@ string(float perk) GetPerkName =
 			return "Deadshot Daiquiri";
 		case 8:
 			return "Mule Kick";
+		case 9:
+			return "Nuke Drop";
+		case 10:
+			return "Perk Drop";
+		case 11:
+			return "Damage Upgrade";
+		case 12:
+			return "Ammo Drop";
 		default:
 			return "NULL";
 	}
@@ -866,107 +875,156 @@ float(float wep) getWeaponAmmo =
 
 float(float wep) getWeaponDamage =
 {
+	float weapon_damage = 0;
 
 	switch (wep)
 	{
 		case W_COLT:
-			return 20;
+			weapon_damage = 20;
+			break;
 		case W_BIATCH:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_KAR:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_ARMAGEDDON:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_SPRING:
-			return 105;
+			weapon_damage = 105;
+			break;
 		case W_PULVERIZER:
-			return 210;
+			weapon_damage = 210;
+			break;
 		case W_THOMPSON:
-			return 120;
+			weapon_damage = 120;
+			break;
 		case W_GIBS:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_357:
 		case W_KILLU:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_BAR:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_WIDOW:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			return 130;
+			weapon_damage = 130;
+			break;
 		case W_DB:
 		case W_SAWNOFF:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_BORE:
-			return 380;
+			weapon_damage = 380;
+			break;
 		case W_FG:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_IMPELLER:
-			return 110;
+			weapon_damage = 110;
+			break;
 		case W_GEWEHR:
-			return 90;
+			weapon_damage = 90;
+			break;
 		case W_COMPRESSOR:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_KAR_SCOPE:
-			return 800;
+			weapon_damage = 800;
+			break;
 		case W_HEADCRACKER:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_M1:
-			return 105;
+			weapon_damage = 105;
+			break;
 		case W_M1000:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_M1A1:
-			return 120;
+			weapon_damage = 120;
+			break;
 		case W_WIDDER:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_MP40:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_AFTERBURNER:
-			return 200;
+			weapon_damage = 200;
 		case W_MP5K:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_KOLLIDER:
-			return 140;
+			weapon_damage = 140;
 		case W_MG:
+			break;
 		case W_BARRACUDA:
-			return 130;
+			weapon_damage = 130;
+			break;
 		case W_PANZER:
-			return 600;
+			weapon_damage = 600;
+			break;
 		case W_LONGINUS:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_PPSH:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_REAPER:
-			return 150;
+			weapon_damage = 150;
+			break;
 		case W_PTRS:
 		case W_PENETRATOR:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_RAY:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_PORTER:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_SNUFF:
-			return 240;
+			weapon_damage = 240;
+			break;
 		case W_STG:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_SPATZ:
-			return 150;
+			weapon_damage = 150;
+			break;
 		case W_TRENCH:
-			return 160;
+			weapon_damage = 160;
+			break;
 		case W_GUT:
-			return 240;
+			weapon_damage = 240;
+			break;
 		case W_TYPE:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_SAMURAI:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_BK:
-			return 500;
+			weapon_damage = 500;
+			break;
 		case W_KRAUS:
-			return 1000;
+			weapon_damage = 1000;
+			break;
     }
 
-    return 0;
+#ifndef CSQC
+	weapon_damage = Gamemode_GetWeaponDamage(weapon_damage);
+#endif // CSQC
+
+    return weapon_damage;
 }
 
 float(float wep) GetWeaponShotcount =

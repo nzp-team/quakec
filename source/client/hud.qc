@@ -1095,7 +1095,7 @@ void() HUD_Useprint =
 			usestring = "The Power must be Activated first";
 			break;
 		case 9://perk
-			usestring = strcat("Hold  ",usespace, " to buy ", GetPerkName(useprint_weapon));
+			usestring = strcat("Hold  ",usespace, " to buy ", GetItemName(useprint_weapon));
 			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 10://turn on power

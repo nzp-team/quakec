@@ -155,7 +155,7 @@ void(entity source_ent, string path, float type, float priority) Sound_PlaySound
             }
             break;
         case SOUND_TYPE_MUSIC_ROUND:
-            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.85, 0);
+            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.65, 0);
             break;
         case SOUND_TYPE_WEAPON_FIRE:
             PLAYSOUND(source_ent, CHAN_AUTO, path, 0.80, 2);

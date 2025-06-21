@@ -173,7 +173,16 @@ void() Gamemode_GunGame_PlayerPostThink =
         next_weapon = GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx + 1]);
     }
 
-    centerprint(self, sprintf("[%d/32]: %s\nNeed [%d] More Score to Advance\nNext Weapon: %s", self.gungame_weapon_idx + 1, GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx]), self.gungame_score_threshold - self.score, next_weapon));
+    string centerprint_text = "";
+    centerprint_text = strcat("[", ftos(self.gungame_weapon_idx + 1));
+    centerprint_text = strcat(centerprint_text, "/32]: ");
+    centerprint_text = strcat(centerprint_text, GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx]));
+    centerprint_text = strcat(centerprint_text, "\nNeed [");
+    centerprint_text = strcat(centerprint_text, ftos(self.gungame_score_threshold - self.score));
+    centerprint_text = strcat(centerprint_text, "] More Score to Advance\nNext Weapon: ");
+    centerprint_text = strcat(centerprint_text, next_weapon);
+
+    centerprint(self, centerprint_text);
 #endif // FTE
 };
 
