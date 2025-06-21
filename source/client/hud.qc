@@ -553,10 +553,10 @@ void() HUD_Rounds =
 			}
 		}
 
-		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 24], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
-		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 36], location, [12, 12], [1, 1, 1], localpha, 0);
-		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 48], date, [12, 12], [1, 1, 1], localpha, 0);
-		Draw_String([3 + GetUltraWideOffset(), g_height/2 + 60], person, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([g_width - 3 - GetUltraWideOffset() - getTextWidth(chaptertitle, 12), g_height/2 + 48], chaptertitle, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([g_width - 3 - GetUltraWideOffset() - getTextWidth(location, 12), g_height/2 + 60], location, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([g_width - 3 - GetUltraWideOffset() - getTextWidth(date, 12), g_height/2 + 72], date, [12, 12], [1, 1, 1], localpha, 0);
+		Draw_String([g_width - 3 - GetUltraWideOffset() - getTextWidth(person, 12), g_height/2 + 84], person, [12, 12], [1, 1, 1], localpha, 0);
 	}
 
 	if (rounds_change == 1)//this is the rounds icon at the middle of the screen
@@ -1095,7 +1095,7 @@ void() HUD_Useprint =
 			usestring = "The Power must be Activated first";
 			break;
 		case 9://perk
-			usestring = strcat("Hold  ",usespace, " to buy ", GetPerkName(useprint_weapon));
+			usestring = strcat("Hold  ",usespace, " to buy ", GetItemName(useprint_weapon));
 			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 10://turn on power
@@ -1135,6 +1135,15 @@ void() HUD_Useprint =
 			usestring = strcat("Hold  ", usespace, " to End the Game");
 			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
+		case 21: // Magic disabled
+			usestring = "...";
+			break;
+		case 22: // Jugger-Nog (NIGHTMARE)
+			usestring = "It doesn't seem to be working..";
+			break;
+		case 23: // Tactical Nuke (Gun Game)
+			usestring = strcat("Hold ", usespace, " to Drop the Nuke");
+			break;
 		default:
 			usestring = "This should not happen you dum fuck"; //yikes
 			break;
@@ -1142,7 +1151,11 @@ void() HUD_Useprint =
 
 	print_width = getTextWidth(usestring, 12);
 	x = (g_width - print_width)/2;
-	HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
+
+	if (useprint_type == 22)
+		HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 0, 0], 1, 0);
+	else
+		HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
 
 	// Draw "Cost" text.
 	if (usecost != "") {
@@ -1643,6 +1656,12 @@ void() HUD_Broadcast =
 		case CSQC_BROADCAST_REVIVINGPLAYER:
 			broadcast_msg = strcat("Reviving ", broadcast_name);
 			break;
+		case CSQC_BROADCAST_GUNGAMEADVANCEMENT:
+			broadcast_msg = strcat(broadcast_name, " reached a new tier!");
+			break;
+		case CSQC_BROADCAST_GUNGAMEWINNER:
+			broadcast_msg = strcat(broadcast_name, " can Activate the Nuke!");
+			break;
 		case CSQC_BROADCAST_NONE:
 			broadcast_msg = "";
 			break;
@@ -2044,6 +2063,25 @@ void() HUD_Spectator =
 	drawfill([5, 60], [240, 3], [0.3, 0.3, 0.3], 1, 0);
 }
 
+void() HUD_GunGame =
+{
+	drawfill([g_width/2 - 318, 4], [636, 45], [0, 0, 0], cvar("cl_textopacity"), 0);
+
+	string weapon_id = "";
+	string point_info = "";
+
+	if (getstatf(STAT_GUNGAME_IDX) >= 100) {
+		weapon_id = "You've passed all weapons!";
+		point_info = "The Winner can choose to End the Game";
+	} else {
+		weapon_id = sprintf("%s [%d/32]", GetWeaponName(getstatf(STAT_ACTIVEWEAPON)), getstatf(STAT_GUNGAME_IDX) + 1);
+		point_info = sprintf("[%d] Score until next Weapon", getstatf(STAT_GUNGAME_SCOREGOAL) - getstatf(STAT_TOTALSCORE));
+	}
+
+	Draw_String([g_width/2 - getTextWidth(weapon_id, 18)/2, 8], weapon_id, [18, 18], [1, 1, 1], 1, 0);
+	Draw_String([g_width/2 - getTextWidth(point_info, 12)/2, 30], point_info, [12, 12], [1, 1, 0], 1, 0);
+}
+
 void() HUD_PlayerNames =
 {
 	for (float i = 7; i >= 0; i = i - 1) {
@@ -2263,6 +2301,54 @@ void() HUD_DrawElementsForWaypointMode =
 };
 
 //
+// HUD_DrawElementsForHardcorePlayer()
+// Heads-Up Display draw logic during Hardcore mode.
+//
+void() HUD_DrawElementsForHardcorePlayer =
+{
+	// We shouldn't draw anything during the game intro fade.
+	if (screenflash_color == SCREENFLASH_COLOR_BLACK && screenflash_duration > time) {
+		HUD_Screenflash();
+		return;
+	}
+
+	// Blood filter on screen to indicate health.
+	HUD_Health();
+
+	// If the scoreboard is open, only draw it and nothing else.
+	if (score_show) {
+		HUD_Scores();
+		return;
+	}
+	// Additionally, bail here if cl_cinematic is set.
+	else if (cvar("cl_cinematic")) {
+		return;
+	}
+
+	// Being scoped-in hides all low-priority elements.
+	if (getstatf(STAT_WEAPONZOOM) != 2 || zoom_2_time >= time) {
+		// Draws all player's points.
+		HUD_Points();
+	}
+
+	// Visual hit Feedback. 
+	HUD_Hitmark();
+
+	// Black/White/etc. total screen flashes.
+	HUD_Screenflash();
+
+	//
+	// Everything below should always have maximum priority.
+	//
+
+	// Revive indicator for Players in Last Stand.
+	HUD_ReviveIcons();
+
+	// "X" needs to be revived, or other important messages.
+	HUD_Broadcast();
+};
+
+//
 // HUD_DrawElementsForPlayer()
 // Heads-Up Display draw logic during normal play.
 //
@@ -2328,6 +2414,11 @@ void() HUD_DrawElementsForPlayer =
 
 		// Bouncing Betty tutorial.		
 		HUD_BouncingBetty();
+
+		switch(active_gamemode) {
+			case GAMEMODE_GUNGAME: HUD_GunGame(); break;
+			default: break;
+		}
 
 		// Revive status progress bar.
 		HUD_Progressbar();
@@ -2395,6 +2486,14 @@ void() HUD_DrawElements =
 	//
 	if (cvar("waypoint_mode")) {
 		HUD_DrawElementsForWaypointMode();
+		return;
+	}
+
+	//
+	// Hardcore Mode has a more limited HUD
+	//
+	if (active_gamemode == GAMEMODE_HARDCORE) {
+		HUD_DrawElementsForHardcorePlayer();
 		return;
 	}
 

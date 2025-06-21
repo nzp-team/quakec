@@ -78,6 +78,28 @@ void(float order) Menu_DrawDivider =
 	sui_fill(position, [285, 2], [0.2, 0.2, 0.2], 1, 0);
 };
 
+#ifdef MENU
+
+//
+// Menu_DrawMapPreview()
+// Draws the Map preview seen in the
+// Pre-Game menu.
+//
+string UserMapNameLookup(string bsp_name);
+void() Menu_DrawMapPreview =
+{
+	string map_preview_name = UserMapNameLookup(current_selected_bsp);
+	sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_CENTER]);
+
+	// Map thumbnail
+	sui_fill([150, 100], [228, 130], [0.4, 0.4, 0.4], 1, 0);
+	sui_pic([150, 100], [225, 127], strcat("menu/custom/", current_selected_bsp, ".png"), [1, 1, 1], 1, 0);
+
+	sui_text([150, 152], MENU_TEXT_MEDIUM, map_preview_name, [1, 1, 0], 1, 0);
+};
+
+#endif // MENU
+
 //
 // Menu_SocialBadge(order, id, text, index)
 // Displays a social badge with a URL
@@ -523,11 +545,11 @@ void(vector pos, vector size, vector minmaxsteps, string cvar_s, string name, st
 };
 
 //
-// Menu_CvarSlider(order, minmaxsteps, cvar_s, is_int, no_text)
+// Menu_CvarSlider(order, minmaxsteps, cvar_s, is_int, no_text, zero_is_one)
 // Draws a Slider at the given order position
 // that controls a cvar.
 //
-void(float order, vector minmaxsteps, string cvar_s, float is_int, float no_text) Menu_CvarSlider =
+void(float order, vector minmaxsteps, string cvar_s, float is_int, float no_text, float zero_is_one) Menu_CvarSlider =
 {
 	float current = cvar(cvar_s);
 	float old = current;
@@ -545,10 +567,15 @@ void(float order, vector minmaxsteps, string cvar_s, float is_int, float no_text
 	}
 
 	if (!no_text) {
+		float number_to_draw = current;
+
+		if (number_to_draw == 0 && zero_is_one == true)
+			number_to_draw = 1;
+
 		if (is_int)
-			sui_text(position + [175, 0, 0], MENU_TEXT_MEDIUM, ftos(rint(current)), [1, 1, 1], 1, 0);
+			sui_text(position + [175, 0, 0], MENU_TEXT_MEDIUM, ftos(rint(number_to_draw)), [1, 1, 1], 1, 0);
 		else
-			sui_text(position + [175, 0, 0], MENU_TEXT_MEDIUM, sprintf("%.2f", current), [1, 1, 1], 1, 0);
+			sui_text(position + [175, 0, 0], MENU_TEXT_MEDIUM, sprintf("%.2f", number_to_draw), [1, 1, 1], 1, 0);
 	}
 };
 
@@ -833,6 +860,7 @@ void(float type) Menu_PlaySound =
 
 	if (type == MENU_SND_NAVIGATE) sound = cvar_string("menu_navigatesound");
 	else if (type == MENU_SND_ENTER) sound = cvar_string("menu_entersound");
+	else if (type == MENU_SND_BEEP) sound = cvar_string("menu_beepsound");
 
 	localsound(sound, 0, cvar("nzp_uivolume"));
 };
@@ -858,6 +886,8 @@ void(vector size) root_menu =
 		case MENU_COOPSTOCK: menu_map_mode = MAP_COOPSTOCK; Menu_Maps(); break;
 		case MENU_COOPUSER: menu_map_mode = MAP_COOPUSER; Menu_Maps(); break;
 		case MENU_CREDITS: Menu_Credits(); break;
+		case MENU_LOBBY: Menu_Lobby(); break;
+		case MENU_GAMESETTINGS: Menu_GameSettings(); break;
 
 #else
 

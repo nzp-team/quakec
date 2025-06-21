@@ -37,10 +37,12 @@
 //
 // CSQC Broadcast Messages
 //
-#define CSQC_BROADCAST_NONE				0 	// ""
-#define CSQC_BROADCAST_PLAYERDOWNED		1	// "$ needs to be revived"
-#define CSQC_BROADCAST_BEINGREVIVED		2	// "$ is reviving you"
-#define CSQC_BROADCAST_REVIVINGPLAYER	3	// "Reviving $"
+#define CSQC_BROADCAST_NONE					0 	// ""
+#define CSQC_BROADCAST_PLAYERDOWNED			1	// "$ needs to be revived"
+#define CSQC_BROADCAST_BEINGREVIVED			2	// "$ is reviving you"
+#define CSQC_BROADCAST_REVIVINGPLAYER		3	// "Reviving $"
+#define CSQC_BROADCAST_GUNGAMEADVANCEMENT	4 	// "$ ADVANCED!"
+#define CSQC_BROADCAST_GUNGAMEWINNER		5 	// "$ can Activate the Nuke!"
 
 //
 // CSQC Event Types
@@ -78,20 +80,22 @@
 											// <short> high_frequency
 											// <short> duration
 
-#define EVENT_UPDATE 					20
-#define EVENT_BLACKOUT 					21
-#define EVENT_WORLDDATA 				22
-#define EVENT_PLAYERUPDATE 				23
-#define EVENT_REVIVEON 					24
-#define EVENT_REVIVEOFF 				25
-#define EVENT_REVIVECHANGE 				26
-#define EVENT_WEAPONRECOIL 				27
-#define EVENT_GRENADEPULSE 				28
-#define EVENT_BETTYPROMPT 				29
-#define EVENT_CHATMESSAGE				30
-#define EVENT_DOUBLETAPUPDATE 			31
-#define EVENT_ENDGAME					32
-#define EVENT_MAPTYPE					33
+#define CSQC_EVENT_SETGAMEMODE			20 	// <byte> gamemode
+
+#define EVENT_UPDATE 					21
+#define EVENT_BLACKOUT 					22
+#define EVENT_WORLDDATA 				23
+#define EVENT_PLAYERUPDATE 				24
+#define EVENT_REVIVEON 					25
+#define EVENT_REVIVEOFF 				26
+#define EVENT_REVIVECHANGE 				27
+#define EVENT_WEAPONRECOIL 				28
+#define EVENT_GRENADEPULSE 				29
+#define EVENT_BETTYPROMPT 				30
+#define EVENT_CHATMESSAGE				31
+#define EVENT_DOUBLETAPUPDATE 			32
+#define EVENT_ENDGAME					33
+#define EVENT_MAPTYPE					34
 
 //
 // Types of screen-flashes, global.
@@ -176,7 +180,7 @@ float 	map_compatibility_mode;
 #define W_WIDDER       34 // M1A1
 #define W_FIW          35 //upgraded flamethrower
 #define W_ARMAGEDDON   36 //Kar
-#define W_WUNDER       37
+#define W_RESERVED     37
 #define W_GIBS         38 // thompson
 #define W_SAMURAI      39 //Type
 #define W_AFTERBURNER  40 //mp40
@@ -194,8 +198,7 @@ float 	map_compatibility_mode;
 #define W_WIDOW        52 //bar
 #define W_KRAUS        53 //ballistic
 #define W_MP5K         54
-#define W_M14          55
-
+#define W_RESERVED2    55
 #define W_TESLA  	   56
 #define W_DG3    	   57
 #define W_SPRING       58
@@ -302,6 +305,18 @@ float 	map_compatibility_mode;
 #define STAT_MAXHEALTH 			67
 #define STAT_WEAPONSKIN 		68
 #define STAT_PERKS				69
+#define STAT_TOTALSCORE			70
+
+#define STAT_GUNGAME_IDX		71
+#define STAT_GUNGAME_SCOREGOAL	72
+
+// Game Modes
+#define GAMEMODE_CLASSIC        0
+#define GAMEMODE_GRIEF          1
+#define GAMEMODE_GUNGAME        2
+#define GAMEMODE_HARDCORE       3
+#define GAMEMODE_WILDWEST       4
+#define GAMEMODE_STICKSNSTONES  5
 
 // Misc. player statistics
 .float playernum;

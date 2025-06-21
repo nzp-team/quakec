@@ -33,6 +33,8 @@
 #define PU_DOUBLEPTS		2
 #define PU_CARPENTER		3
 #define PU_MAXAMMO			4
+#define PU_FREEPERK			5
+#define PU_UPGRADEWEAPON	6
 
 #define PU_OFFSET_QK		'0 0 12'
 #define PU_OFFSET_HL		'0 0 14'
@@ -95,6 +97,26 @@ entity() PU_GetFreeEnt =
 };
 
 //
+// PU_ResolveVOPath(file)
+// Helper for gamemode-specific Power-Up VO
+// paths.
+//
+string(string file) PU_ResolveVOPath =
+{
+	string path = "";
+
+	switch(cvar("sv_gamemode")) {
+		case GAMEMODE_GUNGAME: path = strcat("sounds/modes/gungame/", file); break;
+		case GAMEMODE_HARDCORE: path = strcat("sounds/modes/hardcore/", file); break;
+		case GAMEMODE_STICKSNSTONES: path = strcat("sounds/modes/sticks/", file); break;
+		case GAMEMODE_WILDWEST: path = strcat("sounds/modes/wildwest/", file); break;
+		default: path = strcat("sounds/pu/", file); break;
+	}
+
+	return path;
+};
+
+//
 // PU_AddToStruct(id, model_path, voiceover_path)
 // Adds the Power-Up and info to the powerup struct
 //
@@ -104,9 +126,11 @@ PU_AddToStruct =
 	if (id > MAX_POWERUPS - 1)
 		return;
 
+	string voiceover_path_full = PU_ResolveVOPath(voiceover_path);
+
 	// Precache Model and VO
 	precache_model(model_path);
-	precache_sound(voiceover_path);
+	precache_sound(voiceover_path_full);
 
 	// Populate the Struct at Index
 	powerup_array[powerup_count].id = id;
@@ -247,11 +271,13 @@ void() PU_NukeFinalize =
 	}
 	
 	// award points
-	players = find(world,classname,"player");
-	while(players)
-	{
-		Player_AddScore(players, 400 * nuke_powerups_activated, true);
-		players = find(players,classname,"player");
+	if (game_modifier_can_earn_misc_score == true) {
+		players = find(world,classname,"player");
+		while(players)
+		{
+			Player_AddScore(players, 400 * nuke_powerups_activated, true);
+			players = find(players,classname,"player");
+		}
 	}
 
 	nuke_powerup_active = false;
@@ -389,10 +415,12 @@ void() PU_CarpenterFinalize =
 	entity players = find(world, classname, "player");
 
 	// Reward Players with Points
-	while(players) {
-		Player_AddScore(players, 200, true);
+	if (game_modifier_can_earn_misc_score) {
+		while(players) {
+			Player_AddScore(players, 200, true);
 
-		players = find(players, classname, "player");
+			players = find(players, classname, "player");
+		}
 	}
 
 	entity windows = find(world, classname, "window");
@@ -521,6 +549,33 @@ float() PU_CarpenterRequirement =
 }
 
 //
+// PU_MaxAmmoRequirement()
+// Requirements for Max Ammo Power-Up.
+//
+float() PU_MaxAmmoRequirement =
+{
+	return game_modifier_powerup_max_ammo;
+}
+
+//
+// PU_FreePerkRequirement()
+// Requirements for Free Perk Power-Up.
+//
+float() PU_FreePerkRequirement =
+{
+	return game_modifier_powerup_free_perk;
+}
+
+//
+// PU_UpgradeWeaponRequirement()
+// Requirements for Weapon Upgrade Power-Up
+//
+float() PU_UpgradeWeaponRequirement =
+{
+	return game_modifier_powerup_weapon_upgrade;
+}
+
+//
 // PU_MaxAmmo()
 // Max Ammo Power-Up Function
 //
@@ -564,6 +619,88 @@ void() PU_MaxAmmo =
 };
 
 //
+// PU_FreePerk()
+// Free Perk Power-Up Function
+//
+void() PU_FreePerk =
+{
+	entity players;
+	entity tempe;
+
+	self.oldmodel = "sounds/machines/perk_drink.wav";
+	self.weapon2model = "models/machines/v_perk.mdl";
+	self.weapon_animduration = 0;
+	self.weapon2_animduration = 31;
+	
+	players = find(world, classname, "player");
+
+	while(players) {
+
+		if (players.downed || players.perks >= 255) {
+			players = find(players, classname, "player");
+			continue;
+		}
+
+		float perk_to_give = 0;
+		float found_perk_for_player = false;
+
+		while(!found_perk_for_player) {
+			float perk_rand = random();
+
+			if (perk_rand < (1/8) && !(players.perks & P_REVIVE)) { self.sequence = 1; perk_to_give = P_REVIVE; }
+			else if (perk_rand < (2/8) && !(players.perks & P_JUG)) { self.sequence = 2; perk_to_give = P_JUG; }
+			else if (perk_rand < (3/8) && !(players.perks & P_SPEED)) { self.sequence = 3; perk_to_give = P_SPEED; }
+			else if (perk_rand < (4/8) && !(players.perks & P_DOUBLE)) { self.sequence = 4; perk_to_give = P_DOUBLE; }
+			else if (perk_rand < (5/8) && !(players.perks & P_STAMIN)) { self.sequence = 5; perk_to_give = P_STAMIN; }
+			else if (perk_rand < (6/8) && !(players.perks & P_FLOP)) { self.sequence = 6; perk_to_give = P_FLOP; }
+			else if (perk_rand < (7/8) && !(players.perks & P_DEAD)) { self.sequence = 7; perk_to_give = P_DEAD; }
+			else if (!(players.perks & P_MULE) && cvar("sv_gamemode") != 2) { self.sequence = 8; perk_to_give = P_MULE; }
+
+			if (perk_to_give != 0)
+				found_perk_for_player = true;
+		}
+
+		players.style = perk_to_give;
+		players.usedent = self;
+
+		tempe = self;
+		self = players;
+		DrinkPerk();
+		self = tempe;
+
+		players = find(players, classname, "player");
+	}
+};
+
+//
+// PU_WeaponUpgrade()
+// Weapon Upgrade Power-Up Function
+//
+void() PU_WeaponUpgrade =
+{
+	entity players = find(world, classname, "player");
+	while(players != world) {
+		float current_weapon = players.weapons[0].weapon_id;
+
+		// Already upgraded, don't bother.
+		if (EqualPapWeapon(current_weapon) == current_weapon) {
+			players = find(players, classname, "player");
+			continue;
+		}
+
+		entity old_self = self;
+		self = players;
+		W_SprintStop();
+        W_AimOut();
+		Weapon_AssignWeapon(0, EqualPapWeapon(current_weapon), 0, 0);
+		Weapon_SwapWeapons(true);
+		self = old_self;
+
+		players = find(players, classname, "player");
+	}
+};
+
+//
 // PU_NullRequirement()
 // Power-Up has no requirements. Always return true.
 //
@@ -588,16 +725,20 @@ void() PU_Init =
 	}
 
 	// Just add all of them for now
-	PU_AddToStruct(PU_NUKE, 		"models/pu/nuke!.mdl",		"sounds/pu/kaboom.wav",			PU_Nuke,			
-					PU_NullRequirement		);
-	PU_AddToStruct(PU_INSTAKILL, 	"models/pu/instakill!.mdl",	"sounds/pu/insta_kill.wav", 	PU_InstaKill,	
-					PU_NullRequirement		);
-	PU_AddToStruct(PU_DOUBLEPTS, 	"models/pu/x2!.mdl",		"sounds/pu/double_points.wav",	PU_DoublePoints,	
-					PU_NullRequirement		);
-	PU_AddToStruct(PU_CARPENTER,	"models/pu/carpenter!.mdl",	"sounds/pu/carpenter.wav",		PU_Carpenter,	
-					PU_CarpenterRequirement	);
-	PU_AddToStruct(PU_MAXAMMO,		"models/pu/maxammo!.mdl",	"sounds/pu/maxammo.wav", 		PU_MaxAmmo,		
-					PU_NullRequirement		);
+	PU_AddToStruct(PU_NUKE, 		"models/pu/nuke!.mdl",			"kaboom.wav",			PU_Nuke,			
+					PU_NullRequirement			);
+	PU_AddToStruct(PU_INSTAKILL, 	"models/pu/instakill!.mdl",		"insta_kill.wav", 		PU_InstaKill,	
+					PU_NullRequirement			);
+	PU_AddToStruct(PU_DOUBLEPTS, 	"models/pu/x2!.mdl",			"double_points.wav",	PU_DoublePoints,	
+					PU_NullRequirement			);
+	PU_AddToStruct(PU_CARPENTER,	"models/pu/carpenter!.mdl",		"carpenter.wav",		PU_Carpenter,	
+					PU_CarpenterRequirement		);
+	PU_AddToStruct(PU_MAXAMMO,		"models/pu/maxammo!.mdl",		"maxammo.wav", 			PU_MaxAmmo,		
+					PU_MaxAmmoRequirement		);
+	PU_AddToStruct(PU_FREEPERK, 	"models/pu/perkbottle!.mdl",	"free_perk.wav", 		PU_FreePerk,
+					PU_FreePerkRequirement		);
+	PU_AddToStruct(PU_UPGRADEWEAPON,"models/pu/pack!.mdl",			"upgrade.wav",			PU_WeaponUpgrade,
+					PU_UpgradeWeaponRequirement	);
 
 	// Nuke requires an extra Precache
 	precache_sound("sounds/pu/nuke.wav");
@@ -663,7 +804,8 @@ void() PU_Flash =
 //
 void() PU_PlayVO =
 {
-	Sound_PlaySound(world, self.powerup_vo, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_ALLOWSKIP);
+	string sound_path = PU_ResolveVOPath(self.powerup_vo);
+	Sound_PlaySound(world, sound_path, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_ALLOWSKIP);
 	PU_FreeEnt(self);
 };
 

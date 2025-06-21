@@ -24,7 +24,6 @@
 		Boston, MA  02111-1307, USA
 
 */
-
 float need_vid_reload;
 
 void() ToggleMenu =
@@ -461,6 +460,7 @@ noref void(float isnew) CSQC_Ent_Update =
 		if (isnew == TRUE) {
 			self.classname = "item_powerup";
 			self.solid = SOLID_NOT;
+			self.effects = EF_FULLBRIGHT;
 			self.predraw = PU_PreDraw;
 			self.drawmask = MASK_ENGINE;
 		}
@@ -1074,6 +1074,9 @@ noref void() CSQC_Parse_Event =
 			if (cvar("in_rumbleenabled"))
 				gp_rumble(last_input_deviceid, low_frequency, high_frequency, duration);
 			break;
+		case CSQC_EVENT_SETGAMEMODE:
+			active_gamemode = readbyte();
+			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;
             rec_x = readcoord()/5;
@@ -1161,8 +1164,35 @@ noref void() CSQC_Parse_Event =
 			date = readstring();
 			person = readstring();
 
-			if (chaptertitle == "")
-				chaptertitle = "'Nazi Zombies'";
+			switch(active_gamemode) {
+				case GAMEMODE_CLASSIC: 
+					if (chaptertitle == "")
+						chaptertitle = "'Nazi Zombies'";
+					break;
+				case GAMEMODE_GUNGAME:
+					chaptertitle = "GUN GAME";
+					location = "Cycle all Weapons to WIN!";
+					date = "";
+					person = "";
+					break;
+				case GAMEMODE_HARDCORE:
+					chaptertitle = "HARDCORE";
+					break;
+				case GAMEMODE_STICKSNSTONES:
+					chaptertitle = "STICKS & STONES";
+					location = "Ballistic Knife FTW!";
+					date = "";
+					person = "";
+					break;
+				case GAMEMODE_WILDWEST:
+					chaptertitle = "WILD WEST";
+					location = "It's a stand-off!";
+					date = "";
+					person = "";
+					break;
+				default:
+					break;
+			}
 			break;
 		case EVENT_PLAYERUPDATE:
 			player_count = readbyte();

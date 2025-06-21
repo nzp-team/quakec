@@ -24,6 +24,10 @@
 		Boston, MA  02111-1307, USA
 
 */
+#ifndef CSQC
+float(float weapon, float ammo) Gamemode_GetWeaponAmmo;
+float(float damage) Gamemode_GetWeaponDamage;
+#endif
 
 string(float wep) GetWeaponName =
 {
@@ -149,9 +153,9 @@ string(float wep) GetWeaponName =
 	}
 }
 
-string(float perk) GetPerkName =
+string(float item) GetItemName =
 {
-	switch (perk)
+	switch (item)
 	{
 		case 1:
 			return "Quick Revive";
@@ -169,6 +173,14 @@ string(float perk) GetPerkName =
 			return "Deadshot Daiquiri";
 		case 8:
 			return "Mule Kick";
+		case 9:
+			return "Nuke Drop";
+		case 10:
+			return "Perk Drop";
+		case 11:
+			return "Damage Upgrade";
+		case 12:
+			return "Ammo Drop";
 		default:
 			return "NULL";
 	}
@@ -693,221 +705,326 @@ float(float wep) getWeaponMag =
 
 float(float wep) getWeaponAmmo =
 {
+	float weapon_ammo = 0;
 
 	switch (wep)
 	{
 		case W_COLT:
-			return 80;
+			weapon_ammo = 80;
+			break;
 		case W_BIATCH:
-			return 50;
+			weapon_ammo = 50;
+			break;
 		case W_KAR:
-			return 50;
+			weapon_ammo = 50;
+			break;
     	case W_ARMAGEDDON:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_SPRING:
-			return 50;
+			weapon_ammo = 50;
+			break;
     	case W_PULVERIZER:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_THOMPSON:
-			return 200;
+			weapon_ammo = 200;
+			break;
 		case W_GIBS:
-			return 250;
+			weapon_ammo = 250;
+			break;
 		case W_357:
 		case W_KILLU:
-			return 80;
+			weapon_ammo = 80;
+			break;
 		case W_BAR:
-			return 140;
+			weapon_ammo = 140;
+			break;
 		case W_WIDOW:
-			return 180;
+			weapon_ammo = 180;
+			break;
 		case W_BROWNING:
-			return 500;
+			weapon_ammo = 500;
+			break;
 		case W_ACCELERATOR:
-			return 750;
+			weapon_ammo = 750;
+			break;
 		case W_DB:
 		case W_SAWNOFF:
 		case W_BORE:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_FG:
-			return 192;
+			weapon_ammo = 192;
+			break;
 		case W_IMPELLER:
-			return 400;
+			weapon_ammo = 400;
+			break;
 		case W_GEWEHR:
-			return 120;
+			weapon_ammo = 120;
+			break;
 		case W_COMPRESSOR:
-			return 170;
+			weapon_ammo = 170;
+			break;
 		case W_KAR_SCOPE:
-			return 50;
+			weapon_ammo = 50;
+			break;
 		case W_HEADCRACKER:
-			return 100;
+			weapon_ammo = 100;
+			break;
 		case W_M1:
-			return 128;
+			weapon_ammo = 128;
+			break;
 		case W_M1000:
-			return 150;
+			weapon_ammo = 150;
+			break;
 		case W_M1A1:
-			return 120;
+			weapon_ammo = 120;
+			break;
 		case W_WIDDER:
-			return 150;
+			weapon_ammo = 150;
+			break;
 		case W_M2:
 		case W_FIW:
-      		return 0;
+      		weapon_ammo = 0;
+			break;
 		case W_MP40:
-			return 192;
+			weapon_ammo = 192;
+			break;
 		case W_AFTERBURNER:
-			return 192;
+			weapon_ammo = 192;
+			break;
 		case W_MP5K:
-			return 120;
+			weapon_ammo = 120;
+			break;
 		case W_KOLLIDER:
-			return 200;
+			weapon_ammo = 200;
+			break;
 		case W_MG:
-			return 500;
+			weapon_ammo = 500;
+			break;
 		case W_BARRACUDA:
-			return 750;
+			weapon_ammo = 750;
+			break;
 		case W_PANZER:
-			return 20;
+			weapon_ammo = 20;
+			break;
 		case W_LONGINUS:
-			return 30;
+			weapon_ammo = 30;
+			break;
 		case W_PPSH:
-			return 355;
+			weapon_ammo = 355;
+			break;
 		case W_REAPER:
-			return 700;
+			weapon_ammo = 700;
+			break;
 		case W_PTRS:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_PENETRATOR:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_RAY:
-			return 160;
+			weapon_ammo = 160;
+			break;
 		case W_PORTER:
-			return 200;
+			weapon_ammo = 200;
+			break;
 		case W_SNUFF:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_STG:
-			return 180;
+			weapon_ammo = 180;
+			break;
 		case W_SPATZ:
-			return 300;
+			weapon_ammo = 300;
+			break;
 		case W_TRENCH:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_GUT:
-			return 60;
+			weapon_ammo = 60;
+			break;
 		case W_TYPE:
-			return 160;
+			weapon_ammo = 160;
+			break;
 		case W_SAMURAI:
-			return 220;
+			weapon_ammo = 220;
+			break;
 		case W_TESLA:
-			return 15;
+			weapon_ammo = 15;
+			break;
 		case W_DG3:
-			return 30;
+			weapon_ammo = 30;
+			break;
 		case W_BK:
-			return 4;
+			weapon_ammo = 4;
+			break;
 		case W_KRAUS:
-			return 9;
+			weapon_ammo = 9;
+			break;
 	}
-	return 0;
+
+#ifndef CSQC
+	weapon_ammo = Gamemode_GetWeaponAmmo(wep, weapon_ammo);
+#endif // CSQC
+
+	return weapon_ammo;
 }
 
 
 float(float wep) getWeaponDamage =
 {
+	float weapon_damage = 0;
 
 	switch (wep)
 	{
 		case W_COLT:
-			return 20;
+			weapon_damage = 20;
+			break;
 		case W_BIATCH:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_KAR:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_ARMAGEDDON:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_SPRING:
-			return 105;
+			weapon_damage = 105;
+			break;
 		case W_PULVERIZER:
-			return 210;
+			weapon_damage = 210;
+			break;
 		case W_THOMPSON:
-			return 120;
+			weapon_damage = 120;
+			break;
 		case W_GIBS:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_357:
 		case W_KILLU:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_BAR:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_WIDOW:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_BROWNING:
 		case W_ACCELERATOR:
-			return 130;
+			weapon_damage = 130;
+			break;
 		case W_DB:
 		case W_SAWNOFF:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_BORE:
-			return 380;
+			weapon_damage = 380;
+			break;
 		case W_FG:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_IMPELLER:
-			return 110;
+			weapon_damage = 110;
+			break;
 		case W_GEWEHR:
-			return 90;
+			weapon_damage = 90;
+			break;
 		case W_COMPRESSOR:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_KAR_SCOPE:
-			return 800;
+			weapon_damage = 800;
+			break;
 		case W_HEADCRACKER:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_M1:
-			return 105;
+			weapon_damage = 105;
+			break;
 		case W_M1000:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_M1A1:
-			return 120;
+			weapon_damage = 120;
+			break;
 		case W_WIDDER:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_MP40:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_AFTERBURNER:
-			return 200;
+			weapon_damage = 200;
 		case W_MP5K:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_KOLLIDER:
-			return 140;
+			weapon_damage = 140;
 		case W_MG:
+			break;
 		case W_BARRACUDA:
-			return 130;
+			weapon_damage = 130;
+			break;
 		case W_PANZER:
-			return 600;
+			weapon_damage = 600;
+			break;
 		case W_LONGINUS:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_PPSH:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_REAPER:
-			return 150;
+			weapon_damage = 150;
+			break;
 		case W_PTRS:
 		case W_PENETRATOR:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_RAY:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_PORTER:
-			return 1000;
+			weapon_damage = 1000;
+			break;
 		case W_SNUFF:
-			return 240;
+			weapon_damage = 240;
+			break;
 		case W_STG:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_SPATZ:
-			return 150;
+			weapon_damage = 150;
+			break;
 		case W_TRENCH:
-			return 160;
+			weapon_damage = 160;
+			break;
 		case W_GUT:
-			return 240;
+			weapon_damage = 240;
+			break;
 		case W_TYPE:
-			return 100;
+			weapon_damage = 100;
+			break;
 		case W_SAMURAI:
-			return 200;
+			weapon_damage = 200;
+			break;
 		case W_BK:
-			return 500;
+			weapon_damage = 500;
+			break;
 		case W_KRAUS:
-			return 1000;
+			weapon_damage = 1000;
+			break;
     }
 
-    return 0;
+#ifndef CSQC
+	weapon_damage = Gamemode_GetWeaponDamage(weapon_damage);
+#endif // CSQC
+
+    return weapon_damage;
 }
 
 float(float wep) GetWeaponShotcount =
@@ -3016,8 +3133,6 @@ float(float wep)  EqualNonPapWeapon =
 			return W_TRENCH;
 		case W_SAMURAI:
 			return W_TYPE;
-		case W_M14:
-			return W_M14;
 		case W_CUSTOM2:
 			return W_CUSTOM1;
 		case W_CUSTOM4:
@@ -3086,8 +3201,6 @@ float(float wep)  EqualPapWeapon =
 			return W_SAMURAI;
 		case W_TESLA:
 			return W_DG3;
-		case W_M14:
-			return W_M14;
 		case W_M2:
 			return W_FIW;
 		case W_BK:

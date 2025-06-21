@@ -23,6 +23,8 @@ menu_aces.qc     // Accessibility Menu
 menu_cred.qc     // Credits Menu
 menu_load.qc     // Loading Screen
 menu_coop.qc     // Co-op Menu
+menu_gset.qc     // Game Settings
+menu_loby.qc     // Lobby Menu
 
 main.qc
 #endlist

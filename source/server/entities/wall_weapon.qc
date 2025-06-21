@@ -27,6 +27,7 @@
 */
 
 void() W_PlayTakeOut;
+void(entity client, float weapon) Gamemode_BuyWeapon;
 
 // =================================
 // Wall Chalk Functionality
@@ -163,6 +164,7 @@ void () WallWeapon_TouchTrigger =
 
 			// Set the cost and weapon value (for useprint).
 			wcost = (is_pap) ? self.pap_cost : self.cost2;
+			wcost *= game_modifier_cost_multiplier;
 			float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
 
 			Player_UseprintWithWait(other, self, 3, wcost, wep);
@@ -204,6 +206,8 @@ void () WallWeapon_TouchTrigger =
 			if (self.enemy) {
 				SUB_UseTargets();
 			}
+
+			Gamemode_BuyWeapon(other, self.weapon);
 		}
 	} else 
 	// Universal Ammo buy
@@ -219,6 +223,7 @@ void () WallWeapon_TouchTrigger =
 
 			// Set the cost and weapon value (for useprint).
 			wcost = (IsPapWeapon(other.weapon)) ? self.pap_cost : self.cost2;
+			wcost *= game_modifier_cost_multiplier;
 
 			Player_UseprintWithWait(other, self, 3, wcost, other.weapon);
 
@@ -254,11 +259,13 @@ void () WallWeapon_TouchTrigger =
 		if (other.grenades & 2)
 			return;
 
-		Player_UseprintWithWait(other, self, 4, self.cost, self.weapon);
+		wcost = floor(self.cost * game_modifier_cost_multiplier);
+
+		Player_UseprintWithWait(other, self, 4, wcost, self.weapon);
 
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE))
 			return;
-		if (other.points < self.cost2)
+		if (other.points < wcost)
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
@@ -270,7 +277,7 @@ void () WallWeapon_TouchTrigger =
 			other.reload_delay = 0;
 			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			//other.boughtweapon = true;
-			Player_RemoveScore(other, self.cost2);
+			Player_RemoveScore(other, wcost);
 			other.grenades = other.grenades | 2;
 			other.secondary_grenades = 2;
 			nzp_bettyprompt(other);
@@ -278,19 +285,21 @@ void () WallWeapon_TouchTrigger =
 			{
 				SUB_UseTargets();
 			}
+			Gamemode_BuyWeapon(other, self.weapon);
 		}
 		other.semi_actions |= SEMIACTION_USE;
 		return;
 	}
 	else if (self.weapon == W_GRENADE)
 	{
+		wcost = floor(self.cost2 * game_modifier_cost_multiplier);
 		if (other.primary_grenades < 4)
-			Player_UseprintWithWait(other, self, 3, self.cost2, self.weapon);
+			Player_UseprintWithWait(other, self, 3, wcost, self.weapon);
 		else
 			return;
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE))
 			return;
-		if (other.points < self.cost)
+		if (other.points < wcost)
 		{
 			centerprint(other, STR_NOTENOUGHPOINTS);
 			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
@@ -302,29 +311,31 @@ void () WallWeapon_TouchTrigger =
 			other.reload_delay = 0;
 			Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			//other.boughtweapon = true;
-			Player_RemoveScore(other, self.cost);
+			Player_RemoveScore(other, wcost);
 			other.primary_grenades = 4;
 			if (self.enemy)
 			{
 				SUB_UseTargets();
 			}
+			Gamemode_BuyWeapon(other, self.weapon);
 		}
 		other.semi_actions |= SEMIACTION_USE;
 		return;
 	}
 	else if (self.weapon == W_BOWIE)
 	{
+		wcost = floor(self.cost2 * game_modifier_cost_multiplier);
 		if (!other.has_bowie_knife) {
-			Player_UseprintWithWait(other, self, 4, self.cost2, self.weapon);
+			Player_UseprintWithWait(other, self, 4, wcost, self.weapon);
 			if (Player_UseButtonPressed(other, self))
 			{
-				if (other.points < self.cost2) {
+				if (other.points < wcost) {
 					centerprint(other, STR_NOTENOUGHPOINTS);
 					Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					return;
 				} else {
 					W_HideCrosshair(other);
-					Player_RemoveScore(other, self.cost2);
+					Player_RemoveScore(other, wcost);
 					Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					Sound_PlaySound(other, "sounds/weapons/knife/bowie.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 					other.ach_tracker_coll++;
@@ -337,6 +348,7 @@ void () WallWeapon_TouchTrigger =
 					self = other;
 					Set_W_Frame(16, 43, 2.75, 0, 0, W_PlayTakeOut, "models/weapons/knife/v_bowie.mdl", false, S_BOTH, true);
 					self.has_bowie_knife = true;
+					Gamemode_BuyWeapon(self, tempz.weapon);
 				}
 			}
 		}
@@ -344,16 +356,17 @@ void () WallWeapon_TouchTrigger =
 	else if (self.weapon != 99)
 	{
 		entity tempe;
+		wcost = floor(self.cost * game_modifier_cost_multiplier);
 
 		//centerprint(other, self.message);
-      	Player_UseprintWithWait(other, self, 4, self.cost, self.weapon);
+      	Player_UseprintWithWait(other, self, 4, wcost, self.weapon);
 
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE)) {
 			return;
 		}
 
 		other.semi_actions |= SEMIACTION_USE;
-		if (other.points < self.cost) {
+		if (other.points < wcost) {
 			centerprint (other, STR_NOTENOUGHPOINTS);
 			Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 			return;
@@ -362,7 +375,7 @@ void () WallWeapon_TouchTrigger =
 
 		Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		other.reload_delay = 0;
-		Player_RemoveScore(other, self.cost);
+		Player_RemoveScore(other, wcost);
 		if (self.enemy) {
 			SUB_UseTargets();
 		}
@@ -372,6 +385,8 @@ void () WallWeapon_TouchTrigger =
 		Weapon_GiveWeapon(tempe.weapon, 0, 0);
 
 		self = tempe;
+
+		Gamemode_BuyWeapon(other, self.weapon);
 	}
 
 	if (other.ach_tracker_coll == ach_tracker_col2) {

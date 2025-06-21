@@ -106,7 +106,7 @@ void() Menu_Accessibility =
 
     // Text Backdrop
     Menu_Button(2, "ac_text", "TEXT BACKDROP", "Opacity of backdrop for text elements on HUD.") ? 0 : 0;
-    Menu_CvarSlider(2, [0, 1, 20], "cl_textopacity", false, false);
+    Menu_CvarSlider(2, [0, 1, 20], "cl_textopacity", false, false, false);
 
     // Accessible Colors
     Menu_Button(3, "ac_color", "ACCESSIBLE COLORS", "Uses enhanced Player colors to improve visibilty.") ? Menu_Accessibility_UpdateColorblindFilter() : 0;

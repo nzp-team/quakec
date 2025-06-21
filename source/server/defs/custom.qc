@@ -40,6 +40,10 @@
 #define SPAWN_2_CLASS       "info_player_2_spawn"
 #define SPAWN_3_CLASS       "info_player_3_spawn"
 #define SPAWN_4_CLASS       "info_player_4_spawn"
+#define SPAWN_5_CLASS       "info_player_5_spawn"
+#define SPAWN_6_CLASS       "info_player_6_spawn"
+#define SPAWN_7_CLASS       "info_player_7_spawn"
+#define SPAWN_8_CLASS       "info_player_8_spawn"
 
 float cheats_have_been_activated;
 
@@ -470,6 +474,17 @@ float isPowerOn;
 .float perk_requires_power_solo;
 .float perk_requires_power_coop;
 
+float game_modifier_can_melee;
+float game_modifier_can_use_equipment;
+float game_modifier_can_earn_misc_score;
+float game_modifier_can_packapunch;
+float game_modifier_powerup_free_perk;
+float game_modifier_powerup_max_ammo;
+float game_modifier_powerup_weapon_upgrade;
+float game_modifier_perk_purchase_limit;
+float game_modifier_cost_multiplier;
+float game_modifier_grenades_explode_on_contact;
+
 // Mystery Box
 #define MAX_BOX_WEAPONS 		27
 
@@ -604,7 +619,6 @@ waypoint_ai waypoints[MAX_WAYPOINTS];
 .string song;
 
 //altered game elements
-float G_STARTROUND;
 float G_PRONEPOINTS;
 float G_STARTWEAPON[3];
 float G_WORLDTEXT;

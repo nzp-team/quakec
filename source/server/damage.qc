@@ -27,6 +27,8 @@
 */
 void (float achievement_id, optional entity who) GiveAchievement;
 void(entity client) LastStand_Begin;
+void() Gamemode_GetUp;
+void(entity attacker, float death_style) Gamemode_DieHandler;
 
 #define DMG_SCORE_HEADSHOT		100 	// Death by Headshot
 #define DMG_SCORE_MELEE			130		// Death by Melee
@@ -209,6 +211,7 @@ void () GetUp =
 	self.teslacount = 0;
 
 	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk);
+	Gamemode_GetUp();
 };
 
 // poll checking whether to see if our revive invoke is active
@@ -224,6 +227,9 @@ void(entity ent) CheckRevive =
 
 void(entity attacker, float d_style) DieHandler =
 {
+	if (cvar("sv_headshotonly") == 1 && d_style != DMG_TYPE_HEADSHOT && self.classname == "ai_zombie")
+		return;
+
     float t;
 
     t = random();
@@ -271,11 +277,20 @@ void(entity attacker, float d_style) DieHandler =
 					bprint(PRINT_HIGH, "DieHandler: Received invalid style\n");
 				break;
 		}
+
+		if (cvar("sv_difficulty") == 3)
+			points_earned = floor((points_earned/10) * 0.75) * 10;
+
 		Player_AddScore(attacker, points_earned, true);
+
+		Gamemode_DieHandler(attacker, d_style);
     }
 }
 
 void(entity victim, entity attacker, float damage, float d_style) DamageHandler = {
+	if (cvar("sv_headshotonly") == 1 && d_style != DMG_TYPE_HEADSHOT && victim.classname == "ai_zombie")
+		return;
+
 	// don't do any attacking during nuke delay
 	if (d_style == DMG_TYPE_ZOMBIESWIPE && nuke_powerup_active > time)
 		return;

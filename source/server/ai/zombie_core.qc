@@ -647,9 +647,21 @@ void()	zombie_run8		=[	$run8,		zombie_run9	] 	{Zombie_Walk(13); self.frame = 99;
 void()	zombie_run9		=[	$run9,		zombie_run10	] 	{Zombie_Walk(13); self.frame = 100;Zombie_Think();};
 void()	zombie_run10		=[	$run10,	Zombie_Walk_Setup	] 	{Zombie_Walk(13); self.frame = 101;Zombie_Think();};
 
+float() Zombie_RunAtEndOfRound =
+{
+	switch(cvar("sv_difficulty")) {
+		case 0: return 4;
+		case 1: return 10;
+		case 2: return 2;
+		case 3: return 1;
+	}
+
+	return 4;
+};
+
 void() Zombie_Walk_Setup = 
 {
-	if(Remaining_Zombies == 1 && rounds >= 4)
+	if(Remaining_Zombies == 1 && rounds >= Zombie_RunAtEndOfRound())
 	{
 		self.walktype = 5;
 	}
@@ -1294,6 +1306,17 @@ void(entity ent) Zombie_Death_Cleanup = {
 	Remaining_Zombies = Remaining_Zombies - 1;
 }
 
+float() Zombie_PowerUpDropPercentage =
+{
+	switch(cvar("sv_difficulty")) {
+		case 0: return 0.02;
+		case 1: return 0.04;
+		case 2: return 0;
+		case 3: return 0;
+	}
+
+	return 0.02;
+}
 
 void() Zombie_Death =
 {
@@ -1307,7 +1330,7 @@ void() Zombie_Death =
 	
 	if(self.outside == false && self.electro_targeted == false)
 	{
-		if (totalpowerups < POWERUPS_PER_ROUND)
+		if (totalpowerups < POWERUPS_PER_ROUND && cvar("sv_magic") != 0)
 		{
 			if (total_powerup_points >= powerup_score_threshold)
 			{
@@ -1315,7 +1338,7 @@ void() Zombie_Death =
 				powerup_activate *= 1.14;
 				powerup_score_threshold = total_powerup_points + powerup_activate;
 			}
-			else if (random () <= 0.02)
+			else if (random () <= Zombie_PowerUpDropPercentage())
 				Spawn_Powerup(self.origin, -1);
 		}
 	}
@@ -1730,13 +1753,37 @@ void(entity szombie)  SetUpHitBoxes =
 	self = oldself;
 };
 
+float() Zombie_BasicWalkChance =
+{
+	switch(cvar("sv_difficulty")) {
+		case 0: return 35;
+		case 1: return 50;
+		case 2: return 20;
+		case 3: return -1;
+	}
+
+	return 35;
+}
+
+float() Zombie_JogWalkChance =
+{
+	switch(cvar("sv_difficulty")) {
+		case 0: return 70;
+		case 1: return 60;
+		case 2: return 50;
+		case 3: return -1;
+	}
+
+	return 70;
+}
+
 void(entity szombie) SetZombieWalk =
 {	
 	float zombie_move_speed_threshold = (rounds - 1) * 8;
-	float walktype_chance = rint((random() * 35)) + zombie_move_speed_threshold;
+	float walktype_chance = rint((random() * Zombie_BasicWalkChance())) + zombie_move_speed_threshold;
 
 	// Walking Zombie
-	if (walktype_chance <= 35) {
+	if (walktype_chance <= Zombie_BasicWalkChance()) {
 		float which_walk_anim = random();
 
 		if (which_walk_anim < 0.33)
@@ -1747,7 +1794,7 @@ void(entity szombie) SetZombieWalk =
 			szombie.walktype = 3;
 	}
 	// Jogging Zombie
-	else if (walktype_chance <= 70) {
+	else if (walktype_chance <= Zombie_JogWalkChance()) {
 		szombie.walktype = 4;
 	} 
 	// Sprinting Zombie
@@ -1766,7 +1813,7 @@ void() spawnAllZombEnts =
 
 #ifdef FTE
 
-	while(i < 24)
+	while(i < cvar("sv_maxai"))
 
 #else
 

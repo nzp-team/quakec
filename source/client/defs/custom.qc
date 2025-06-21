@@ -47,6 +47,8 @@ float useprint_weapon;
 float useprint_cost;
 float useprint_time;
 
+float active_gamemode;
+
 float bettyprompt_time;
 
 float hud_maxammo_endtime;
@@ -67,11 +69,13 @@ float broadcast_num;
 
 string character_name;
 
+#define MAX_REVIVE_ICONS	16
+
 var struct revive_s {
 	float draw;
 	float timer;
 	float state;
-} revive_icons[4]; // MAX_CLIENTS
+} revive_icons[MAX_REVIVE_ICONS];
 
 float weaponframetime;
 float weapon2frametime;

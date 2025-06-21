@@ -63,4 +63,16 @@ void(entity client, float achievement_id) nzp_achievement =
 	multicast('0 0 0', MULTICAST_ONE);
 };
 
+//
+// nzp_setclientmode(gamemode)
+// Sends info to Client about the current Game Mode
+//
+void(float gamemode) nzp_setclientmode =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_SETGAMEMODE);
+	WriteByte(MSG_MULTICAST, gamemode);
+	multicast('0 0 0', MULTICAST_ALL);
+};
+
 #endif // FTE

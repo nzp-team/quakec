@@ -30,6 +30,9 @@
 void(entity e) Light_None;
 void() Spawns_Init;
 void() SUB_UseTargets;
+void() Gamemode_PlayerSpawn;
+void() Gamemode_PlayerPostThink;
+void(float score_earned) Gamemode_PlayerAddScore;
 void(entity client) LastStand_UnlinkRevivee;
 
 #ifdef QUAKEC_TEST
@@ -38,7 +41,10 @@ void() Test_RunAllTests;
 
 #endif // QUAKEC_TEST
 
-#define PLAYER_START_HEALTH				100
+#define PLAYER_START_HEALTH_EASY		125
+#define PLAYER_START_HEALTH_NORMAL		100
+#define PLAYER_START_HEALTH_HARD		75
+#define PLAYER_START_HEALTH_NIGHTMARE	25
 
 #define PLAYER_CROUCH_DIFFERENCE_HL 	25
 #define PLAYER_PRONE_DIFFERENCE_HL 		23
@@ -302,6 +308,11 @@ void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore =
 	if (value > 0) {
 		who.score += value;
 		total_powerup_points += value;
+
+		entity old_self = self;
+		self = who;
+		Gamemode_PlayerAddScore(value);
+		self = old_self;
 	}
 
 	// Append the value to our current score.
@@ -489,6 +500,25 @@ float(entity who, entity active_ent) Player_UseButtonPressed =
 
 	return false;
 #endif // QUAKEC_TEST
+};
+
+//
+// Player_GetNumPerks(who)
+// Returns the quantity of Perk-A-Colas
+// a Client currently has.
+//
+float(entity who) Player_GetNumPerks =
+{
+	float num_perks = 0;
+	if (who.perks & 0x01) num_perks++;
+    if (who.perks & 0x02) num_perks++;
+    if (who.perks & 0x04) num_perks++;
+    if (who.perks & 0x08) num_perks++;
+    if (who.perks & 0x10) num_perks++;
+    if (who.perks & 0x20) num_perks++;
+    if (who.perks & 0x40) num_perks++;
+    if (who.perks & 0x80) num_perks++;
+	return num_perks;
 };
 
 void() PlayerJump =
@@ -834,6 +864,8 @@ void() PlayerPostThink =
 		player_trace_time = time + 0.05;
 	}
 
+	Gamemode_PlayerPostThink();
+
 #ifdef QUAKEC_TEST
 
 	if (time_before_gamestart != 0) {
@@ -881,14 +913,25 @@ void() Player_PickSpawnPoint =
 		float index = random();
 
 		// assign one of the spawnpoints
-		if (index < 0.25)
-			spawn_point = find(world, classname, SPAWN_1_CLASS);
-		else if (index < 0.50)
-			spawn_point = find(world, classname, SPAWN_2_CLASS);
-		else if (index < 0.75)
-			spawn_point = find(world, classname, SPAWN_3_CLASS);
-		else
-			spawn_point = find(world, classname, SPAWN_4_CLASS);
+		if (self.playernum < 5) {
+			if (index < 0.25)
+				spawn_point = find(world, classname, SPAWN_1_CLASS);
+			else if (index < 0.50)
+				spawn_point = find(world, classname, SPAWN_2_CLASS);
+			else if (index < 0.75)
+				spawn_point = find(world, classname, SPAWN_3_CLASS);
+			else
+				spawn_point = find(world, classname, SPAWN_4_CLASS);
+		} else {
+			if (index < 0.25)
+				spawn_point = find(world, classname, SPAWN_5_CLASS);
+			else if (index < 0.50)
+				spawn_point = find(world, classname, SPAWN_6_CLASS);
+			else if (index < 0.75)
+				spawn_point = find(world, classname, SPAWN_7_CLASS);
+			else
+				spawn_point = find(world, classname, SPAWN_8_CLASS);
+		}
 
 		float found_player_here = false;
 
@@ -949,11 +992,18 @@ void() PlayerSpawn =
 
 	setmodel(self, "models/player.mdl");
 	self.movetype = MOVETYPE_WALK;
-	self.max_health = self.health = PLAYER_START_HEALTH;
+
+	switch(cvar("sv_difficulty")) {
+		case 0: self.max_health = self.health = PLAYER_START_HEALTH_NORMAL; break;
+		case 1: self.max_health = self.health = PLAYER_START_HEALTH_EASY; break;
+		case 2: self.max_health = self.health = PLAYER_START_HEALTH_HARD; break;
+		case 3: self.max_health = self.health = PLAYER_START_HEALTH_NIGHTMARE; break;
+		default: break;
+	}
 	
-	// Pick an available slot from 1-4 inclusive.
+	// Pick an available slot from 1-8 inclusive.
 	if (!self.playernum) {
-		for (float i = 1; i <= 4; i++) {
+		for (float i = 1; i <= 8; i++) {
 			entity potential_player = findfloat(world, playernum, i);
 			if (potential_player == world) {
 				self.playernum = i;
@@ -1019,6 +1069,10 @@ void() PlayerSpawn =
 	self.stamina = 3;
 	self.reviving = 0;
 	self.perks = G_PERKS;
+
+	// Make sure we send the gamemode to the Client
+	// before drawing introduction text.
+	nzp_setclientmode(cvar("sv_gamemode"));
 	
 #ifdef FTE
 
@@ -1040,14 +1094,15 @@ void() PlayerSpawn =
 
 #endif // FTE
 
-	if (G_STARTROUND != 1) {
-		rounds = G_STARTROUND - 1;
-	}
+	rounds = cvar("sv_startround") - 1;
+	if (rounds < 0) rounds = 0;
 
 	// Make sure players joining after game start are still allowed
 	// to see their name.
 	if (time >= 5 && self.name != "")
 		nzp_setplayername(self, self.name);
+
+	Gamemode_PlayerSpawn();
 };
 
 void() SpectatorSpawn =
@@ -1065,7 +1120,7 @@ void() SpectatorSpawn =
 
 	setmodel(self, "models/sprites/null.spr");
 	self.movetype = MOVETYPE_NOCLIP;
-	self.max_health = self.health = PLAYER_START_HEALTH;
+	self.max_health = self.health = 100;
 	
 	self.fixangle = true;
 

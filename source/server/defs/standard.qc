@@ -276,6 +276,7 @@ void    (entity who, float version)                                             
 void    (entity who, float color, float duration, float type)                                   nzp_screenflash     = #507;
 void    (entity who, float state)                                                               nzp_lockviewmodel   = #508;
 void    (entity who, float low_frequency, float high_frequency, float duration)                 nzp_rumble          = #509;
+void    (float gamemode)                                                                        nzp_setclientmode   = #510;
 
 //
 // constants
