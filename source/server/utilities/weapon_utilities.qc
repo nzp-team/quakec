@@ -201,7 +201,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
     }
 
 	self.switch_delay = self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + (duration - 0.1);
-	self.weapon2model = GetWeapon2Model(self.weapon);
+	self.weapon2model = GetWeapon2Model(self.weapon, self.has_bowie_knife);
 
     W_AimOut();
     Set_W_Frame(start_frame, end_frame, playback_duration, 0, 0, end_function, GetWeaponModel(self.weapon, 0), false, S_BOTH, false);

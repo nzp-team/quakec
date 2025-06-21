@@ -1014,7 +1014,7 @@ void() PlayerSpawn =
 	}
 
 	self.weaponmodel = GetWeaponModel(self.weapon, 0);// Give weapon model
-	self.weapon2model = GetWeapon2Model(self.weapon);
+	self.weapon2model = GetWeapon2Model(self.weapon, self.has_bowie_knife);
 
 	self.stamina = 3;
 	self.reviving = 0;

@@ -192,7 +192,6 @@ float(string path) model_should_hide_weapon2 =
 	switch(path) {
 		case "models/weapons/grenade/v_grenade.mdl":
 		case "models/weapons/grenade/v_betty.mdl":
-		case "models/weapons/bk/v_bk.mdl":
 		case "models/weapons/knife/v_bowie.mdl":
 		case "models/weapons/knife/v_knife.mdl":
 		case "models/weapons/morphine/v_morphine.mdl":
