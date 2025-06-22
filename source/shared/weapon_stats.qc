@@ -959,12 +959,15 @@ float(float wep) getWeaponDamage =
 			break;
 		case W_AFTERBURNER:
 			weapon_damage = 200;
+			break;
 		case W_MP5K:
 			weapon_damage = 100;
 			break;
 		case W_KOLLIDER:
 			weapon_damage = 140;
+			break;
 		case W_MG:
+			weapon_damage = 130;
 			break;
 		case W_BARRACUDA:
 			weapon_damage = 130;
