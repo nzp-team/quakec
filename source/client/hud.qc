@@ -1609,29 +1609,76 @@ void() HUD_Crosshair =
 	}
 }
 
+// Blink values for powerups, should be client-side.
+float 	instakill_blink;
+float 	x2_blink;
+
+//
+// HUD_PowerUpBlink(blink_delay, powerup_endtime)
+// Determines whether or not the Power-Up HUD icon should be
+// visible.
+// 
+float(__inout float blink_delay, float powerup_endtime) HUD_PowerUpBlink =
+{
+	// Powerup is already expired
+	if (powerup_endtime < servertime) { return false; }
+
+	// If there's less than five seconds remaining,
+	// blink every 0.2s.
+	if (powerup_endtime < servertime + 5) {
+		if (blink_delay < servertime - 0.2)
+			blink_delay = servertime + 0.2;
+	}
+	// If there's less than 10 seconds remaining,
+	// blink every 0.4s.
+	else if (powerup_endtime < servertime + 10) {
+		if (blink_delay < servertime - 0.4)
+			blink_delay = servertime + 0.4;
+	}
+
+	return blink_delay < servertime;
+};
+
+//
+// HUD_Powerups()
+// Draws powerups (Instakill, Double Points) to
+// the screen. Correctly handles blink delay.
+// 
 void() HUD_Powerups =
 {
-	float count = 0;
+	float y = g_height - 38;
+	float scale = 32;
 
-	// horrible way to offset check :)))))))))))))))))) :DDDDDDDD XOXO
+	// Get both the time left and the state of our powerups:
+	// Instakill first...
+	float instakill_end_time = getstatf(STAT_INSTA);
+	float instakill_active = instakill_end_time > servertime;
+	float instakill_opacity = HUD_PowerUpBlink(instakill_blink, instakill_end_time);
 
-	if (getstatf(STAT_X2))
-		count++;
+	// ...and Double Points next.
+	float x2_end_time = getstatf(STAT_X2);
+	float x2_active = x2_end_time > servertime;
+	float x2_opacity = HUD_PowerUpBlink(x2_blink, x2_end_time);
 
-	if (getstatf(STAT_INSTA))
-		count++;
-
-	// both are avail draw fixed order
-	if (count == 2) {
-		drawpic([g_width/2 - (2 + 32), g_height - 38], "gfx/hud/2x.tga", [32, 32], [1, 1, 1], 1);
-		drawpic([g_width/2 + 2, g_height - 38], "gfx/hud/in_kill.tga", [32, 32], [1, 1, 1], 1);
+	// If both of our powerups are active...
+	if (x2_active && instakill_active) {
+		// We'll want to draw whatever powerup has less time first
+		// (since that's the one that we obtained first).
+		if (instakill_end_time < x2_end_time) {
+			drawpic([g_width/2 - (2 + 32), y], "gfx/hud/in_kill.tga", [scale, scale], [1, 1, 1], instakill_opacity);
+			drawpic([g_width/2 + 2, y], "gfx/hud/2x.tga", [scale, scale], [1, 1, 1], x2_opacity);
+		} else {
+			drawpic([g_width/2 - (2 + 32), y], "gfx/hud/2x.tga", [scale, scale], [1, 1, 1], x2_opacity);
+			drawpic([g_width/2 + 2, y], "gfx/hud/in_kill.tga", [scale, scale], [1, 1, 1], instakill_opacity);
+		}
 	} else {
-		if (getstatf(STAT_X2))
-			drawpic([g_width/2 - 16, g_height - 38], "gfx/hud/2x.tga", [32, 32], [1, 1, 1], 1);
-		else if (getstatf(STAT_INSTA))
-			drawpic([g_width/2 - 16, g_height - 38], "gfx/hud/in_kill.tga", [32, 32], [1, 1, 1], 1);
+		if (instakill_active) {
+			drawpic([g_width/2 - 16, y], "gfx/hud/in_kill.tga", [scale, scale], [1, 1, 1], instakill_opacity);
+		} else if (x2_active) {
+			drawpic([g_width/2 - 16, y], "gfx/hud/2x.tga", [scale, scale], [1, 1, 1], x2_opacity);
+		}
 	}
-}
+};
 
 void() HUD_Broadcast = 
 {

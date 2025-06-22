@@ -1683,44 +1683,11 @@ void () Impulse_Functions =
 	self.impulse = 0;
 };
 
-//
-// WeaponCore_PowerUpBlink(blink_delay, powerup_endtime)
-// Determines whether or not the Power-Up HUD icon should be
-// visible.
-// FIXME: This should be moved out of weapon_core, ideally.
-//
-float(__inout float blink_delay, float powerup_endtime) WeaponCore_PowerUpBlink =
-{
-	// If the Power-Up is still active
-	if (powerup_endtime >= time) {
-		float should_be_visible = false;
-
-		// If there's less than five seconds remaining,
-		// blink every 0.2s.
-		if (powerup_endtime < time + 5) {
-			if (blink_delay < time - 0.2)
-				blink_delay = time + 0.2;
-		}
-		// If there's less than 10 seconds remaining,
-		// blink every 0.4s.
-		else if (powerup_endtime < time + 10) {
-			if (blink_delay < time - 0.4)
-				blink_delay = time + 0.4;
-		}
-
-		if (blink_delay < time)
-			return true;
-	}
-
-	// End of the line, return false.
-	return false;
-};
-
 void() CheckPlayer = 
 {
-	// Update Power-Up blinking
-	self.insta_icon = WeaponCore_PowerUpBlink(insta_blink, instakill_finished);
-	self.x2_icon = WeaponCore_PowerUpBlink(x2_blink, x2_finished);
+	// Update clients with powerup times
+	self.insta_icon = instakill_finished;
+	self.x2_icon = x2_finished;
 
 	CheckRevive(self);
 
