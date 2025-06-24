@@ -73,9 +73,8 @@ void() Gamemode_GunGame_GenerateWeaponList =
 {
     for (float i = 0; i < GUNGAME_MAX_WEAPONS; i++) {
         float found_eligible_weapon = false;
-        float tries = 0;
 
-        while (!found_eligible_weapon && tries < 1000) {
+        while (!found_eligible_weapon) {
             float weapon_id = rint(random() * 59);
             float final_id = EqualNonPapWeapon(weapon_id);
 
@@ -83,7 +82,6 @@ void() Gamemode_GunGame_GenerateWeaponList =
                 gungame_weapon_pool[i] = final_id;
                 found_eligible_weapon = true;
             }
-            tries++;
         }
     }
 };
