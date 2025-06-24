@@ -53,7 +53,7 @@ float(float weapon_id, float current_index) Gamemode_GunGame_WeaponIDIsValid =
     if (weapon_id == W_M2)
         return false;
 
-    // Don't allow duplicates in the last 2 weapons only
+    // Prevent duplicates if the weapon appeared in the previous 2 slots
     float prev1 = current_index - 1;
     float prev2 = current_index - 2;
 
