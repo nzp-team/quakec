@@ -41,7 +41,7 @@ float gungame_ran_post_init_logic;
 
 void() info_gungame_nukespot = {};
 
-float(float weapon_id) Gamemode_GunGame_WeaponIDIsValid =
+float(float weapon_id, float current_index) Gamemode_GunGame_WeaponIDIsValid =
 {
     // Non-weapons should be excluded.
     if (weapon_id == W_NOWEP || weapon_id == W_GRENADE ||
@@ -53,9 +53,16 @@ float(float weapon_id) Gamemode_GunGame_WeaponIDIsValid =
     if (weapon_id == W_M2)
         return false;
 
-    // Don't allow duplicates.
-    for (float i = 0; i < GUNGAME_MAX_WEAPONS; i++) {
-        if (gungame_weapon_pool[i] == weapon_id)
+    // Prevent duplicates if the weapon appeared in the previous 2 slots
+    float prev1 = current_index - 1;
+    float prev2 = current_index - 2;
+
+    if (prev1 >= 0 && prev1 < GUNGAME_MAX_WEAPONS) {
+        if (gungame_weapon_pool[prev1] == weapon_id)
+            return false;
+    }
+    if (prev2 >= 0 && prev2 < GUNGAME_MAX_WEAPONS) {
+        if (gungame_weapon_pool[prev2] == weapon_id)
             return false;
     }
 
@@ -69,9 +76,10 @@ void() Gamemode_GunGame_GenerateWeaponList =
 
         while (!found_eligible_weapon) {
             float weapon_id = rint(random() * 59);
+            float final_id = EqualNonPapWeapon(weapon_id);
 
-            if (Gamemode_GunGame_WeaponIDIsValid(weapon_id)) {
-                gungame_weapon_pool[i] = EqualNonPapWeapon(weapon_id);
+            if (Gamemode_GunGame_WeaponIDIsValid(final_id, i)) {
+                gungame_weapon_pool[i] = final_id;
                 found_eligible_weapon = true;
             }
         }
