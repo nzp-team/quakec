@@ -88,6 +88,7 @@ gamemodes/core.qc
 tests/test_math.qc
 tests/test_perksacola.qc
 tests/test_weapons.qc
+tests/test_rounds.qc
 tests/test_misc_model.qc
 tests/test_score.qc
 tests/test_ai.qc
