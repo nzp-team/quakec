@@ -659,6 +659,11 @@ void(string perk_classname, void() spawnfunc) Perk_RandomAssign =
 	else {
 		setorigin(machine, self.origin);
 		machine.angles = self.angles;
+
+		// .oldorigin is used by resets or updates, we do not
+		// want to teleport the machine back to its idle state
+		// whenever a client joins.
+		machine.oldorigin = machine.origin;
 	}
 }
 
