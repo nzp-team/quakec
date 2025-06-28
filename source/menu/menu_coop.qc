@@ -226,6 +226,8 @@ void() Menu_Coop_Create =
 	Menu_Button(-1, "ccm_back", "BACK", "Return to Co-Op Menu.") ? current_menu = MENU_COOP : 0;
 
 	sui_pop_frame();
+
+	cvar_set("maxclients", cvar_string("maxplayers"));
 };
 
 void() Menu_Coop_EnterCreate =
