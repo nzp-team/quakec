@@ -273,6 +273,46 @@ void() Test_Perks_Random_LegacyFields =
     remove(random);
 };
 
+//
+// Test_Perks_Random_ResetDoesNotTeleport()
+// Asserts that if GameRestart_ResetPerkaColas() is called,
+// machines set by perk_random are not teleported to
+// their original positions.
+// (https://github.com/nzp-team/nzportable/issues/1186)
+//
+void() Test_Perks_Random_ResetDoesNotTeleport =
+{
+    entity deadshot, random;
+    entity old_self = self;
+
+    // Spawn Deadshot Daiquiri at world origin
+    deadshot = spawn();
+    self = deadshot;
+    perk_deadshot();
+    setorigin(self, '0 0 0');
+
+    // Spawn a perk_random at client's origin
+    random = spawn();
+    self = random;
+    self.spawnflags = SPAWNFLAG_PERKRANDOM_DEADSHOT; // Put Deadshot Daiquiri here!
+    perk_random();
+    setorigin(random, old_self.origin);
+
+    // Activate perk_random
+    Perk_RandomDecide();
+
+    // Call GameRestart_ResetPerkaColas, Deadshot Daiquiri should not
+    // be reset to world origin..
+    GameRestart_ResetPerkaColas();
+
+    Test_Assert((deadshot.origin != '0 0 0'), "Deadshot Daiquiri was moved to world origin!");
+
+    self = old_self;
+
+    remove(deadshot);
+    remove(random);
+};
+
 // MARK: Misc.
 
 //
