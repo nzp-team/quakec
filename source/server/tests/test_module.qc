@@ -157,7 +157,8 @@ var struct {
 	{ Test_AddScore_MysteryBoxLeave, "Test_AddScore_MysteryBoxLeave" },
 	{ Test_AI_HellhoundsDetected, "Test_AI_HellhoundsDetected" },
 	{ Test_Power_HandleResetOnRestart, "Test_Power_HandleResetOnRestart" },
-	{ Test_EndGame_CounterResetsOnRestart, "Test_EndGame_CounterResetsOnRestart" }
+	{ Test_EndGame_CounterResetsOnRestart, "Test_EndGame_CounterResetsOnRestart" },
+	{ Test_Rounds_NewClientsDontCauseReset, "Test_Rounds_NewClientsDontCauseReset" }
 };
 
 void() Test_RunAllTests =

@@ -1094,8 +1094,9 @@ void() PlayerSpawn =
 
 #endif // FTE
 
-	rounds = cvar("sv_startround") - 1;
-	if (rounds < 0) rounds = 0;
+	if (!rounds) {
+		rounds = clamp(cvar("sv_startround") - 1, 0, 1000);
+	}
 
 	// Make sure players joining after game start are still allowed
 	// to see their name.
