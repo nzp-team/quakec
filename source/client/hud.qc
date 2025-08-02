@@ -1570,10 +1570,12 @@ void() HUD_Crosshair =
 		vector crossSize = [1, 5];
 		vector screenSize = [g_width, g_height];
 
-		drawfill(screenSize / 2 - [crossSize.x, +crossSize.y * 2 + crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // top
-		drawfill(screenSize / 2 - [crossSize.x, -crossSize.y * 1 - crosshair_offset_step + 2], crossSize, crosshair_color, crosshair_opacity, 0); // bottom
-		drawfill(screenSize / 2 - [+crossSize.y * 2 + crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // right
-		drawfill(screenSize / 2 - [-crossSize.y * 1 - crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // left
+		float center_adjust = (crossSize.x - 1) * 0.5;
+
+		drawfill(screenSize / 2 - [center_adjust + crossSize.y + crosshair_offset_step, center_adjust], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // Left
+		drawfill(screenSize / 2 - [center_adjust - crossSize.x - crosshair_offset_step, center_adjust], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // Right
+		drawfill(screenSize / 2 - [center_adjust, center_adjust + crossSize.y + crosshair_offset_step], [crossSize.x, crossSize.y], crosshair_color, crosshair_opacity, 0); // Top
+		drawfill(screenSize / 2 - [center_adjust, center_adjust - crossSize.x - crosshair_offset_step], [crossSize.x, crossSize.y], crosshair_color, crosshair_opacity, 0); // Bottom
 	}
 	// Area of Effect (o)
 	else if (crosshair_value == 2) {
@@ -1602,10 +1604,12 @@ void() HUD_Crosshair =
 		vector crossSize2 = [1, 5];
 		vector screenSize3 = [g_width, g_height];
 
-		drawfill(screenSize3 / 2 - [crossSize2.x, +crossSize2.y * 2 + crosshair_offset_step], crossSize2, crosshair_color, crosshair_opacity, 0); // top
-		drawfill(screenSize3 / 2 - [crossSize2.x, -crossSize2.y * 1 - crosshair_offset_step + 2], crossSize2, crosshair_color, crosshair_opacity, 0); // bottom
-		drawfill(screenSize3 / 2 - [+crossSize2.y * 2 + crosshair_offset_step, crossSize2.x], [crossSize2.y, crossSize2.x], crosshair_color, crosshair_opacity, 0); // right
-		drawfill(screenSize3 / 2 - [-crossSize2.y * 1 - crosshair_offset_step, crossSize2.x], [crossSize2.y, crossSize2.x], crosshair_color, crosshair_opacity, 0); // left
+		float center_adjust2 = (crossSize2.x - 1) * 0.5;
+
+		drawfill(screenSize3 / 2 - [center_adjust2 + crossSize2.y + crosshair_offset_step, center_adjust2], [crossSize2.y, crossSize2.x], crosshair_color, crosshair_opacity, 0); // Left
+		drawfill(screenSize3 / 2 - [center_adjust2 - crossSize2.x - crosshair_offset_step, center_adjust2], [crossSize2.y, crossSize2.x], crosshair_color, crosshair_opacity, 0); // Right
+		drawfill(screenSize3 / 2 - [center_adjust2, center_adjust2 + crossSize2.y + crosshair_offset_step], [crossSize2.x, crossSize2.y], crosshair_color, crosshair_opacity, 0); // Top
+		drawfill(screenSize3 / 2 - [center_adjust2, center_adjust2 - crossSize2.x - crosshair_offset_step], [crossSize2.x, crossSize2.y], crosshair_color, crosshair_opacity, 0); // Bottom
 	}
 }
 
