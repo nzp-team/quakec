@@ -1615,13 +1615,13 @@ void() HUD_Crosshair =
 
 		if (crosshair_pulse_grenade) {
 			crosshair_offset_step = 0;
-			cur_spread = 12;
+			cur_spread = 2;
 		}
 
 		crosshair_pulse_grenade = false;
 
 		int crosshair_offset2;	
-		crosshair_offset2 = 3 + cur_spread;
+		crosshair_offset2 = 12 + cur_spread;
 		crosshair_offset_step += (crosshair_offset2 - crosshair_offset_step) * 0.05;
 
 		length = 5; // crosshair arm length
