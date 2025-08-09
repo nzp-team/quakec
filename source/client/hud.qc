@@ -1558,8 +1558,8 @@ void() HUD_Crosshair =
 
 	// Standard crosshair (+)
 	if (crosshair_value == 1) {
-		x_center = g_width/2;
-		y_center = g_height/2;
+		x_center = g_width/2 - 1; // left side of center line
+		y_center = g_height/2 - 1; // top side of center line
 
 		crosshair_offset = CrossHairWeapon(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)) + cur_spread;
 			
@@ -1610,8 +1610,8 @@ void() HUD_Crosshair =
 	}
 	// Grenade crosshair
 	else if (crosshair_value == 4) {
-		x_center = g_width/2;
-		y_center = g_height/2;
+		x_center = g_width/2 - 1; // left side of center line
+		y_center = g_height/2 - 1; // top side of center line
 
 		if (crosshair_pulse_grenade) {
 			crosshair_offset_step = 0;
