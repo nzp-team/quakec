@@ -889,8 +889,26 @@ noref float(float evtype, float scanx, float chary, float devid) CSQC_InputEvent
 		return FALSE;
 
 	// Ignore subtle (drift-y) joystick axes
-	if (evtype == IE_JOYAXIS && devid > 0 && fabs(chary) < 0.1) {
-		return FALSE;
+	if (evtype == IE_JOYAXIS && devid > 0)
+	{
+		if (scanx == 0)
+		{
+			K_LEFTDOWN = (chary < -0.1);
+			K_RIGHTDOWN = (chary > 0.1);
+			return FALSE;
+		}
+
+		if (scanx == 1)
+		{
+			K_FORWARDDOWN = (chary < -0.1);
+			K_BACKDOWN = (chary > 0.1);
+			return FALSE;
+		}
+
+		if (fabs(chary) < 0.1)
+		{
+			return FALSE;
+		}
 	}
 
 	last_input_deviceid = devid;
