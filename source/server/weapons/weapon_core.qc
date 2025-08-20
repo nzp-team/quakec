@@ -1795,13 +1795,13 @@ void() CheckPlayer =
 			self.dive = 0;
 		}
 
-		if (dist + 64 > 176 && !(self.perks & P_FLOP)) {
-			float height = dist + 64;
-			float damage = height*(0.68);
-
+        float height = dist + 64;
+		if (height > 176 && !(self.perks & P_FLOP)) {
+			float over = height - 176;
+            float damage = over * 0.68;
 			if (damage > 98) damage = 98;
 			
-			DamageHandler (self, other, damage, DMG_TYPE_OTHER);	
+			DamageHandler (self, other, damage, DMG_TYPE_OTHER); 
 
 			if (self.health <= 5)
 				GiveAchievement(7, self);	
