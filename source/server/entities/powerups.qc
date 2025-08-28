@@ -392,7 +392,7 @@ void() PU_Nuke =
 void() PU_InstaKill =
 {
 	instakill_finished = time + 30;
-	other.insta_icon = true;
+	other.insta_icon = instakill_finished;
 };
 
 //
@@ -402,7 +402,7 @@ void() PU_InstaKill =
 void() PU_DoublePoints =
 {
 	x2_finished = time + 30;
-	other.x2_icon = true;
+	other.x2_icon = x2_finished;
 };
 
 //
