@@ -5095,3 +5095,24 @@ vector(float weapon) WepDef_GetLeftFlashOffset =
     }
     return [0, 0, 0];
 }
+
+//
+// WepDef_WeaponSecondaryModelIsAttachment(weapon)
+// Returns TRUE if a weapon's secondary model is
+// an attachment as opposed to something else
+// (akimbo).
+//
+float(float weapon) WepDef_WeaponSecondaryModelIsAttachment =
+{
+	switch(weapon) {
+		case W_KAR_SCOPE:
+		case W_HEADCRACKER:
+		case W_BK:
+		case W_KRAUS:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}

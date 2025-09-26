@@ -2008,6 +2008,8 @@ void(entity where) spawn_a_zombieB =
 	if (map_compatibility_mode == MAP_COMPAT_BETA)
 		szombie.head.scale = szombie.larm.scale = szombie.rarm.scale = szombie.scale = 0.73;
 
+	szombie.head.flags = szombie.larm.flags = szombie.rarm.flags = FL_MONSTER;
+
 	// set up timer for next spawn
 	zombie_spawn_timer = zombie_spawn_delay + time;
 
