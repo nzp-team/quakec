@@ -665,6 +665,7 @@ void() PU_FreePerk =
 
 		tempe = self;
 		self = players;
+		W_SprintStop();
 		DrinkPerk();
 		self = tempe;
 
