@@ -242,7 +242,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 
 noref void() CSQC_WorldLoaded =
 {
-	if (need_vid_reload == true) {
+	if (need_vid_reload == true || platform_is_web == true) {
 		need_vid_reload = false;
 		localcmd("vid_reload\n");
 	}
