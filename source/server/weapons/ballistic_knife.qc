@@ -32,15 +32,19 @@ void(entity victim) Blade_Damage =
     float damage_type = 0;
     float damage_region = 0;
 
+	entity damage_target = victim;
+
     switch(victim.classname) {
 		case "ai_zombie_head":
             damage_region = HEAD_X;
             damage_type = DMG_TYPE_HEADSHOT;
+			damage_target = victim.owner;
 			break;
 		case "ai_zombie_larm":
 		case "ai_zombie_rarm":
             damage_region = LIMBS_X;
             damage_type = DMG_TYPE_OTHER;
+			damage_target = victim.owner;
 			break;
 		case "ai_zombie":
 			if (trace_endpos_z < victim.origin_z) {
@@ -58,7 +62,7 @@ void(entity victim) Blade_Damage =
 			break;
 	}
 
-    DamageHandler(victim, self.owner, getWeaponDamage(self.weapon) * getWeaponMultiplier(self.weapon, damage_region), damage_type);
+    DamageHandler(damage_target, self.owner, getWeaponDamage(self.weapon) * getWeaponMultiplier(self.weapon, damage_region), damage_type);
     self.angles_y = 180;
 };
 
@@ -146,6 +150,8 @@ void() Blade_Impact =
     self.effects = EF_FULLBRIGHT;
     self.think = Blade_Die;
     self.nextthink = time + 60;
+
+	setorigin(self, self.origin);
 };
 
 //
