@@ -556,7 +556,6 @@ float drink_skin, float perk_id) Perk_InitMachine =
 	setmodel(self, self.model);
 	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.oldorigin = self.origin;
-	self.finalangle = self.angles;
 	self.door_model_name = self.model;
 	self.classname = perk_classname;
 	self.touch = touch_perk;
