@@ -132,9 +132,9 @@ void(string perk_classname) GameRestart_TurnPerkOff =
 		Light_None(tempe);
 
 		tempe.velocity = '0 0 0';
-		tempe.angles = tempe.finalangle;
 		tempe.touch = touch_perk;
 		tempe.perk_purchase_count = 0;
+		// angles are already set
 
 		// Run our initial setup function
 		tempe.think = setup_perk;
