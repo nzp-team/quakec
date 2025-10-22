@@ -301,9 +301,9 @@ void() Test_Perks_Random_ResetDoesNotTeleport =
     // Activate perk_random
     Perk_RandomDecide();
 
-    // Call GameRestart_ResetPerkaColas, Deadshot Daiquiri should not
+    // Call Soft_Restart, Deadshot Daiquiri should not
     // be reset to world origin..
-    GameRestart_ResetPerkaColas();
+	Soft_Restart();
 
     Test_Assert((deadshot.origin != '0 0 0'), "Deadshot Daiquiri was moved to world origin!");
 
@@ -327,4 +327,46 @@ void() Test_Perks_Drink_WorkOnReset =
     self.isBuying = true;
     Soft_Restart();
     Test_Assert((self.isBuying == false), "isBuying state not reset!");
+};
+
+//
+// Test_Perks_Random_AnglesAreCorrect()
+// Asserts that if GameRestart_ResetPerkaColas() is called,
+// machine angles are not set incorrectly.
+// (https://github.com/nzp-team/nzportable/issues/1193)
+//
+void() Test_Perks_Random_AnglesAreCorrect =
+{
+    entity flopper, random;
+    entity old_self = self;
+
+    // Spawn PHD Flopper at some origin
+    flopper = spawn();
+    self = flopper;
+    perk_flopper();
+    setorigin(self, '20 20 20');
+
+    // Spawn a perk_random at client's origin
+    random = spawn();
+    self = random;
+    self.spawnflags = SPAWNFLAG_PERKRANDOM_PHDFLOPPER; // Put PHD Flopper here!
+	// Change angles slightly to detect changes after Soft_Restart
+	self.angles_x += 20; 
+    perk_random();
+    setorigin(random, old_self.origin);
+
+    // Activate perk_random
+    Perk_RandomDecide();
+	// Call Soft_Restart, PHD Flopper should have
+	// the correct angles
+    Soft_Restart();
+	
+	entity machine = find(world, classname, "perk_flopper");
+
+    Test_Assert((random.angles == machine.angles), "Random Perk machine angles are incorrect!");
+
+    self = old_self;
+
+    remove(flopper);
+    remove(random);
 };

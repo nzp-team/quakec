@@ -138,6 +138,7 @@ var struct {
 	{ Test_Perks_DeadshotDaiquiri_ValidateFields, "Test_Perks_DeadshotDaiquiri_ValidateFields" },
 	{ Test_Perks_Random_LegacyFields, "Test_Perks_Random_LegacyFields" },
 	{ Test_Perks_Random_ResetDoesNotTeleport, "Test_Perks_Random_ResetDoesNotTeleport" },
+	{ Test_Perks_Random_AnglesAreCorrect, "Test_Perks_Random_AnglesAreCorrect" },
 	{ Test_Perks_MuleKick_ValidateFields, "Test_Perks_MuleKick_ValidateFields" },
 	{ Test_Perks_Drink_WorkOnReset, "Test_Perks_Drink_WorkOnReset" },
 	{ Test_Weapons_Gewehr_MagazineSize, "Test_Weapons_Gewehr_MagazineSize" },
