@@ -29,6 +29,7 @@
 
 void() W_TakeOut;
 void() Gamemode_LastStand;
+float(float current_max_health, float current_perks) Gamemode_GetMaxHealthForPlayer;
 
 //
 // LastStand_SoloRevive()
@@ -93,6 +94,8 @@ void(entity client) LastStand_Penalize =
 		default: break;
 	}
 
+	client.max_health = client.health = Gamemode_GetMaxHealthForPlayer(client.max_health, client.perks);
+
     // Get rid of Mule Kick Weapon
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
 		if (client.weapons[i].is_mulekick_weapon == true) {
@@ -120,6 +123,7 @@ void(entity client) LastStand_AssignWeapon =
     self = client;
 
     client.weaponbk = self.weapon;
+	client.tierbk = self.weapons[0].weapon_tier;
 	client.currentammobk = self.weapons[0].weapon_reserve;
 	client.currentmagbk = self.weapons[0].weapon_magazine;
 	client.currentmagbk2 = self.weapons[0].weapon_magazine_left;
@@ -146,6 +150,7 @@ void(entity client) LastStand_AssignWeapon =
 		}
 
 		self.weaponbk = self.weapon;
+		self.tierbk = self.weapons[0].weapon_tier;
 		self.currentammobk = self.weapons[0].weapon_reserve;
 		self.currentmagbk = self.weapons[0].weapon_magazine;
 		self.currentmagbk2 = self.weapons[0].weapon_magazine_left;
@@ -190,9 +195,9 @@ void(entity client) LastStand_AssignWeapon =
 		}
 	} else {
 		if (player_count == 1) {
-			Weapon_AssignWeapon(0, W_BIATCH, 6, 12);
+			Weapon_AssignWeapon(0, W_BIATCH, 6, 12, 0);
 		} else {
-			Weapon_AssignWeapon(0, W_COLT, 8, 16);
+			Weapon_AssignWeapon(0, W_COLT, 8, 16, 0);
 		}
 	}
 

@@ -83,6 +83,7 @@ gamemodes/gun_game.qc
 gamemodes/hardcore.qc
 gamemodes/wild_west.qc
 gamemodes/sticks_and_stones.qc
+gamemodes/festive.qc
 gamemodes/core.qc
 #ifdef QUAKEC_TEST
 tests/test_math.qc

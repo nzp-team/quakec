@@ -75,4 +75,47 @@ void(float gamemode) nzp_setclientmode =
 	multicast('0 0 0', MULTICAST_ALL);
 };
 
+//
+// nzp_getmonthofyear()
+// Returns the current month (1-12) of the year
+// according to the local clock (not internet synced).
+// sv_spoofmonth will be returned instead if non-zero. 
+//
+float() nzp_getmonthofyear =
+{
+	if (cvar("sv_spoofmonth") != 0)
+		return cvar("sv_spoofmonth");
+
+	// Luckily, FTE has a built-in for this.
+	return stof(strftime(true, "%m"));
+};
+
+//
+// nzp_setroundcolor(requested_colors)
+// Tells all clients in the server to use this
+// color for the Round icon on the HUD.
+//
+void(vector requested_colors) nzp_setroundcolor =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_SETROUNDCOLOR);
+	WriteByte(MSG_MULTICAST, requested_colors[0]);
+	WriteByte(MSG_MULTICAST, requested_colors[1]);
+	WriteByte(MSG_MULTICAST, requested_colors[2]);
+	multicast('0 0 0', MULTICAST_ALL);
+};
+
+//
+// nzp_setperkorientation(orientation)
+// Tells all clients in the server which draw
+// preset to use for Perk-A-Colas on the HUD.
+//
+void(float orientation) nzp_setperkorientation =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_SETPERKMODE);
+	WriteByte(MSG_MULTICAST, orientation);
+	multicast('0 0 0', MULTICAST_ALL);
+};
+
 #endif // FTE

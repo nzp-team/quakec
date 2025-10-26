@@ -484,10 +484,6 @@ void() HUD_Grenades =
 *    HUD_Rounds    *
 *******************/
 
-// This is 107 on Vril Engine, but since our RGB mode is different
-// in FTE we tone it down considerably to still look blood-red.
-#define ROUND_RED_SHIFT		20
-
 float 	color_shift[3];
 float 	color_shift_end[3];
 float 	color_shift_steps[3];
@@ -518,6 +514,11 @@ void() HUD_Rounds =
 	int num[3];
 	x_offset = 0;
 	savex = 0;
+
+	vector round_colors;
+	round_colors[0] = hud_round_color[0];
+	round_colors[1] = hud_round_color[1];
+	round_colors[2] = hud_round_color[2];
 
 	for (float j = 0; j < 10; j++) {
 		if (j < 5) {
@@ -571,7 +572,7 @@ void() HUD_Rounds =
 		round_center_x = g_width/2 - 6;
 		round_center_y = g_height/2 - 36;
 		
-		drawpic([round_center_x,round_center_y,0], sb_round[0], [roundwidth, roundheight], [ROUND_RED_SHIFT/255,1/255], alphabling/255);
+		drawpic([round_center_x,round_center_y,0], sb_round[0], [roundwidth, roundheight], [round_colors[0]/255, round_colors[1]/255, round_colors[2]/255], alphabling/255);
 	}
 	else if (rounds_change == 2)//this is the rounds icon moving from middle
 	{
@@ -579,7 +580,7 @@ void() HUD_Rounds =
 		float round_center_y_offset = 0;
 		float round_center_x_offset = 0;
 				
-		drawpic([round_center_x + round_center_x_offset,round_center_y + round_center_y_offset,0], sb_round[0], [roundwidth,roundheight, 1], [ROUND_RED_SHIFT/255,(1/255),0], 1);
+		drawpic([round_center_x + round_center_x_offset,round_center_y + round_center_y_offset,0], sb_round[0], [roundwidth,roundheight, 1], [round_colors[0]/255, round_colors[1]/255, round_colors[2]/255], 1);
 		
 		round_center_x = round_center_x - (((229/108)*2 - 0.2)*((g_width - GetUltraWideOffset())/480)/8) * (frametime*250);
 		round_center_y = round_center_y + ((2*(g_height/272))/8) * (frametime*250);
@@ -594,9 +595,9 @@ void() HUD_Rounds =
 		stopwatch_round_isactive = false;
 		if (!color_shift_init)
 		{
-			color_shift[0] = ROUND_RED_SHIFT;
-			color_shift[1] = 1;
-			color_shift[2] = 0;
+			color_shift[0] = round_colors[0];
+			color_shift[1] = round_colors[1];
+			color_shift[2] = round_colors[2];
 			for (i = 0; i < 3; i = i + 1)
 			{
 				color_shift_end[i] = 255;
@@ -873,9 +874,9 @@ void() HUD_Rounds =
 		stopwatch_round_hr = stopwatch_round_min = stopwatch_round_sec = 0;
 		if (!color_shift_init)
 		{
-			color_shift_end[0] = ROUND_RED_SHIFT;
-			color_shift_end[1] = 1;
-			color_shift_end[2] = 0;
+			color_shift_end[0] = round_colors[0];
+			color_shift_end[1] = round_colors[1];
+			color_shift_end[2] = round_colors[2];
 			for (i = 0; i < 3; i = i + 1)
 			{
 				color_shift[i] = 255;
@@ -948,9 +949,9 @@ void() HUD_Rounds =
 	}
 	else
 	{
-		color_shift[0] = ROUND_RED_SHIFT;
-		color_shift[1] = 1;
-		color_shift[2] = 0;
+		color_shift[0] = round_colors[0];
+		color_shift[1] = round_colors[1];
+		color_shift[2] = round_colors[2];
 		color_shift_init = 0;
 		alphabling = 0;
 		if (rounds > 0 && rounds < 11)
@@ -959,7 +960,7 @@ void() HUD_Rounds =
 			{
 				if (i == 4)
 				{
-					drawpic([5 + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
+					drawpic([5 + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [round_colors[0]/255, round_colors[1]/255, round_colors[2]/255], 1);
 
 					savex = x_offset + (10*g_width/480);
 					x_offset = x_offset + (10*g_width/480);
@@ -967,7 +968,7 @@ void() HUD_Rounds =
 				}
 				if (i == 9)
 				{
-					drawpic([5 + savex + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
+					drawpic([5 + savex + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[4], [roundwidth_4,roundheight_4, 1], [round_colors[0]/255, round_colors[1]/255, round_colors[2]/255], 1);
 
 					continue;
 				}
@@ -976,7 +977,7 @@ void() HUD_Rounds =
 				else
 					icon_num = i;
 
-				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
+				drawpic([5 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round[icon_num], [roundwidth,roundheight, 1], [round_colors[0]/255, round_colors[1]/255, round_colors[2]/255], 1);
 
 				x_offset = x_offset +  roundwidth + (3*g_width/480);
 			}
@@ -986,7 +987,7 @@ void() HUD_Rounds =
 			if (rounds >= 100)
 			{
 				num[2] = (int)(rounds/100);
-				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[2]], [roundwidth_num,roundheight_num, 1], [round_colors[0]/255, round_colors[1]/255, round_colors[2]/255], 1);
 
 				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
@@ -995,7 +996,7 @@ void() HUD_Rounds =
 			if (rounds >= 10)
 			{
 				num[1] = (int)((rounds - num[2]*100)/10);
-				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
+				drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[1]], [roundwidth_num,roundheight_num, 1], [round_colors[0]/255, round_colors[1]/255, round_colors[2]/255], 1);
 
 				x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 			}
@@ -1007,7 +1008,7 @@ void() HUD_Rounds =
 			if(rounds == 0)
 				return;
 			
-			drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [ROUND_RED_SHIFT/255,1/255,0], 1);
+			drawpic([2 + x_offset + GetUltraWideOffset(), g_height - roundheight - (4*g_height/272),0], sb_round_num[num[0]], [roundwidth_num,roundheight_num, 1], [round_colors[0]/255, round_colors[1]/255, round_colors[2]/255], 1);
 
 			x_offset = x_offset +  roundwidth_num - (8*g_width/480);
 		}
@@ -1074,11 +1075,11 @@ void() HUD_Useprint =
 			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 3://ammo
-			usestring = strcat("Hold  ",usespace, " to buy Ammo for ", GetWeaponName(useprint_weapon));
+			usestring = strcat("Hold  ",usespace, " to buy Ammo for ", getstats(STAT_WEAPONNAMETOUCH));
 			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 4://weapon
-			usestring = strcat("Hold  ",usespace, " to buy ", GetWeaponName(useprint_weapon));
+			usestring = strcat("Hold  ",usespace, " to buy ", getstats(STAT_WEAPONNAMETOUCH));
 			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 5://window
@@ -1089,7 +1090,7 @@ void() HUD_Useprint =
 			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 			break;
 		case 7://box take
-			usestring = strcat("Hold  ",usespace, " for ", GetWeaponName(useprint_weapon));
+			usestring = strcat("Hold  ",usespace, " for ", getstats(STAT_WEAPONNAMETOUCH));
 			break;
 		case 8://power
 			usestring = "The Power must be Activated first";
@@ -1224,14 +1225,53 @@ void() UpdatePerks =
 	perks = new_perks;
 }
 
-	
-void() HUD_Perks =
+void() HUD_DrawPerksCenter =
+{
+	float scale;
+	float gap;
+	float x, y;
+
+	// Double-Tap can have 2 icons depending on
+	// machine-specified version.
+	string double_tap_icon;
+	if (double_tap_version == 1) // damage buffed
+		double_tap_icon = "gfx/hud/double2.tga";
+	else // just rof
+		double_tap_icon = "gfx/hud/double.tga";
+
+	scale = 24;
+	gap = 2;
+
+	y = g_height - scale - 2;
+
+	float num_perks = 0;
+	for (float i = 0; i < 8; i++)
+	{
+		if (perk_order[i] != 0)
+			num_perks++;
+	}
+
+	float total_width = (num_perks * (scale + gap)) - gap;
+	x = (g_width / 2) - (total_width / 2);
+
+	for (float i = 0; i < 8; i++)
+	{
+		if (perk_order[i] == P_JUG)      drawpic([x, y], "gfx/hud/jug.tga",    [scale, scale], [1,1,1], 1);
+		if (perk_order[i] == P_DOUBLE)   drawpic([x, y], double_tap_icon,      [scale, scale], [1,1,1], 1);
+		if (perk_order[i] == P_SPEED)    drawpic([x, y], "gfx/hud/speed.tga",  [scale, scale], [1,1,1], 1);
+		if (perk_order[i] == P_REVIVE)   drawpic([x, y], "gfx/hud/revive.tga", [scale, scale], [1,1,1], 1);
+		if (perk_order[i] == P_FLOP)     drawpic([x, y], "gfx/hud/flopper.tga",[scale, scale], [1,1,1], 1);
+		if (perk_order[i] == P_STAMIN)   drawpic([x, y], "gfx/hud/stamin.tga", [scale, scale], [1,1,1], 1);
+		if (perk_order[i] == P_DEAD)     drawpic([x, y], "gfx/hud/dead.tga",   [scale, scale], [1,1,1], 1);
+		if (perk_order[i] == P_MULE)     drawpic([x, y], "gfx/hud/mule.tga",   [scale, scale], [1,1,1], 1);
+		x += scale + gap;
+	}
+}
+
+void() HUD_DrawPerksDefault =
 {
 	float scale;
 	float x, y;
-
-	// Update Perk Order.
-	UpdatePerks();
 	
 	scale = 32;
 
@@ -1253,14 +1293,14 @@ void() HUD_Perks =
 	// overlayed below the first column.
 	for (float i = 4; i < 8; i++) {
 		if (perk_order[i]) {
-			if (perk_order[i] == P_JUG) {drawpic([x, y], "gfx/hud/jug.tga", [scale, scale], [1,1,1], 1);}
-			if (perk_order[i] == P_DOUBLE) {drawpic([x, y], double_tap_icon, [scale, scale, 1], [1,1,1], 1);}
-			if (perk_order[i] == P_SPEED) {drawpic([x, y], "gfx/hud/speed.tga", [scale, scale, 1], [1,1,1], 1);}
-			if (perk_order[i] == P_REVIVE) {drawpic([x, y], "gfx/hud/revive.tga", [scale, scale, 1], [1,1,1], 1);}
-			if (perk_order[i] == P_FLOP) {drawpic([x, y], "gfx/hud/flopper.tga", [scale, scale, 1], [1,1,1], 1);}
-			if (perk_order[i] == P_STAMIN) {drawpic([x, y], "gfx/hud/stamin.tga", [scale, scale, 1], [1,1,1], 1);}
-			if (perk_order[i] == P_DEAD) {drawpic([x, y], "gfx/hud/dead.tga", [scale, scale, 1], [1,1,1], 1);}
-			if (perk_order[i] == P_MULE) {drawpic([x, y], "gfx/hud/mule.tga", [scale, scale, 1], [1,1,1], 1);}
+		if (perk_order[i] == P_JUG) {drawpic([x, y], "gfx/hud/jug.tga", [scale, scale], [1,1,1], 1);}
+		if (perk_order[i] == P_DOUBLE) {drawpic([x, y], double_tap_icon, [scale, scale], [1,1,1], 1);}
+		if (perk_order[i] == P_SPEED) {drawpic([x, y], "gfx/hud/speed.tga", [scale, scale], [1,1,1], 1);}
+		if (perk_order[i] == P_REVIVE) {drawpic([x, y], "gfx/hud/revive.tga", [scale, scale], [1,1,1], 1);}
+		if (perk_order[i] == P_FLOP) {drawpic([x, y], "gfx/hud/flopper.tga", [scale, scale], [1,1,1], 1);}
+		if (perk_order[i] == P_STAMIN) {drawpic([x, y], "gfx/hud/stamin.tga", [scale, scale], [1,1,1], 1);}
+		if (perk_order[i] == P_DEAD) {drawpic([x, y], "gfx/hud/dead.tga", [scale, scale], [1,1,1], 1);}
+		if (perk_order[i] == P_MULE) {drawpic([x, y], "gfx/hud/mule.tga", [scale, scale], [1,1,1], 1);}
 		}
 		y += scale;
 	}
@@ -1285,6 +1325,21 @@ void() HUD_Perks =
 		}
 		y += scale;
 	}
+};
+	
+void() HUD_Perks =
+{
+	// Update Perk Order.
+	UpdatePerks();
+
+	switch(hud_perk_orientation) {
+		case HUD_PERK_ORI_CW:
+			HUD_DrawPerksCenter();
+			break;
+		default:
+			HUD_DrawPerksDefault();
+			break;
+	}
 }
 
 /*******************
@@ -1299,7 +1354,28 @@ void() HUD_WeaponString =
 	if (cl_viewent.modelindex == 0)
 		return;
 
-	string weapon_name = GetWeaponName(getstatf(STAT_ACTIVEWEAPON));
+	string weapon_name = getstats(STAT_WEAPONNAME);
+	vector weapon_name_color = [1, 1, 1];
+
+	switch(getstatf(STAT_WEAPONTIER)) {
+		case 0:
+			weapon_name_color = TEXT_RED;
+			break;
+		case 1:
+			weapon_name_color = TEXT_LIGHTBLUE;
+			break;
+		case 2:
+			weapon_name_color = TEXT_PURPLE;
+			break;
+		case 3:
+			weapon_name_color = TEXT_ORANGE;
+			break;
+		default:
+			break;
+	}
+
+	if (EqualNonPapWeapon(getstatf(STAT_ACTIVEWEAPON)) == W_RAY || EqualNonPapWeapon(getstatf(STAT_ACTIVEWEAPON)) == W_TESLA)
+		weapon_name_color = TEXT_YELLOW;
 
 	// If the string matches our last store, bail out.
 	if (weapon_name == weapon_name_last && weapon_name_time <= time) {
@@ -1322,7 +1398,7 @@ void() HUD_WeaponString =
 
 	float x = g_width - 62 - getTextWidth(weapon_name, 12);
 
-	HUD_DrawStringWithBackdrop([x - GetUltraWideOffset(), g_height - 49], weapon_name, [12, 12], [1, 1, 1], weapon_name_alpha, 0);
+	HUD_DrawStringWithBackdrop([x - GetUltraWideOffset(), g_height - 49], weapon_name, [12, 12], weapon_name_color, weapon_name_alpha, 0);
 }
 
 /*********************
@@ -1612,6 +1688,10 @@ void() HUD_Crosshair =
 void() HUD_Powerups =
 {
 	float count = 0;
+	float y = g_height - 38;
+
+	if (hud_perk_orientation == HUD_PERK_ORI_CW)
+		y -= 30;
 
 	// horrible way to offset check :)))))))))))))))))) :DDDDDDDD XOXO
 
@@ -1623,13 +1703,13 @@ void() HUD_Powerups =
 
 	// both are avail draw fixed order
 	if (count == 2) {
-		drawpic([g_width/2 - (2 + 32), g_height - 38], "gfx/hud/2x.tga", [32, 32], [1, 1, 1], 1);
-		drawpic([g_width/2 + 2, g_height - 38], "gfx/hud/in_kill.tga", [32, 32], [1, 1, 1], 1);
+		drawpic([g_width/2 - (2 + 32), y], "gfx/hud/2x.tga", [32, 32], [1, 1, 1], 1);
+		drawpic([g_width/2 + 2, y], "gfx/hud/in_kill.tga", [32, 32], [1, 1, 1], 1);
 	} else {
 		if (getstatf(STAT_X2))
-			drawpic([g_width/2 - 16, g_height - 38], "gfx/hud/2x.tga", [32, 32], [1, 1, 1], 1);
+			drawpic([g_width/2 - 16, y], "gfx/hud/2x.tga", [32, 32], [1, 1, 1], 1);
 		else if (getstatf(STAT_INSTA))
-			drawpic([g_width/2 - 16, g_height - 38], "gfx/hud/in_kill.tga", [32, 32], [1, 1, 1], 1);
+			drawpic([g_width/2 - 16, y], "gfx/hud/in_kill.tga", [32, 32], [1, 1, 1], 1);
 	}
 }
 
@@ -1888,16 +1968,42 @@ void() HUD_Screenflash =
 	drawfill ([0, 0], [g_width, g_height, 0], color, flash_alpha, 0);
 }
 
+string(float powerup_id) HUD_GetToastForPowerUp =
+{
+	switch(powerup_id) {
+		case PU_NUKE:
+			return "Ka-Boom!";
+		case PU_INSTAKILL:
+			return "Insta-kill!";
+		case PU_DOUBLEPTS:
+			return "Double Points!";
+		case PU_CARPENTER:
+			return "Carpenter!";
+		case PU_MAXAMMO:
+			return "Max Ammo!";
+		case PU_FREEPERK:
+			return "Random Perk!";
+		case PU_UPGRADEWEAPON:
+			return "Weapon Upgrade!";
+		case PU_BONUSPOINTS:
+			return "Bonus Points!";
+		default:
+			return "";
+	}
+
+	return "";
+}
+
 //
-// HUD_MaxAmmo(width, height)
+// HUD_PowerUpToast(width, height)
 // Displays the "Max Ammo!" text on the HUD.
 //
-void() HUD_MaxAmmo =
+void() HUD_PowerUpToast =
 {
-	if (hud_maxammo_endtime <= time)
+	if (hud_toast_endtime <= time)
 		return;
 
-	string maxammo_string = "Max Ammo!";
+	string toast_string = HUD_GetToastForPowerUp(hud_toast_puid);
 
 	float start_y = 70;
 	float end_y = 55;
@@ -1905,24 +2011,24 @@ void() HUD_MaxAmmo =
 
 	float text_alpha = 1;
 
-	float string_width = getTextWidth(maxammo_string, 14);
+	float string_width = getTextWidth(toast_string, 14);
 	float pos_x = (g_width - string_width)/2;
 	float pos_y;
 
 	float start_time, end_time;
 
 	// For the first 0.5s, stay still while we fade in
-	if (hud_maxammo_endtime > time + 1.5) {
-		start_time = hud_maxammo_starttime;
-		end_time = hud_maxammo_starttime + 0.5;
+	if (hud_toast_endtime > time + 1.5) {
+		start_time = hud_toast_starttime;
+		end_time = hud_toast_starttime + 0.5;
 
 		text_alpha = (time - start_time) / (end_time - start_time);
 		pos_y = start_y;
 	}
 	// For the remaining 1.5s, fade out while we fly upwards.
 	else {
-		start_time = hud_maxammo_starttime + 0.5;
-		end_time = hud_maxammo_endtime;
+		start_time = hud_toast_starttime + 0.5;
+		end_time = hud_toast_endtime;
 
 		float percent_time = (time - start_time) / (end_time - start_time);
 
@@ -1930,7 +2036,7 @@ void() HUD_MaxAmmo =
 		text_alpha = 1 - percent_time;
 	}
 
-	HUD_DrawStringWithBackdrop([pos_x, pos_y, 0], maxammo_string, [14, 14], [1, 1, 1], text_alpha, 0);
+	HUD_DrawStringWithBackdrop([pos_x, pos_y, 0], toast_string, [14, 14], [1, 1, 1], text_alpha, 0);
 };
 
 float achievement_init;
@@ -2074,7 +2180,7 @@ void() HUD_GunGame =
 		weapon_id = "You've passed all weapons!";
 		point_info = "The Winner can choose to End the Game";
 	} else {
-		weapon_id = sprintf("%s [%d/32]", GetWeaponName(getstatf(STAT_ACTIVEWEAPON)), getstatf(STAT_GUNGAME_IDX) + 1);
+		weapon_id = sprintf("%s [%d/32]", getstats(STAT_WEAPONNAME), getstatf(STAT_GUNGAME_IDX) + 1);
 		point_info = sprintf("[%d] Score until next Weapon", getstatf(STAT_GUNGAME_SCOREGOAL) - getstatf(STAT_TOTALSCORE));
 	}
 
@@ -2277,7 +2383,7 @@ void() HUD_DrawElementsForSpectator =
 
 	// Draws Power-Up status.
 	HUD_Powerups();
-	HUD_MaxAmmo();
+	HUD_PowerUpToast();
 
 	// "You are Spectating" message.
 	HUD_Spectator();
@@ -2395,7 +2501,7 @@ void() HUD_DrawElementsForPlayer =
 
 		// Draws Power-Up status.
 		HUD_Powerups();
-		HUD_MaxAmmo();
+		HUD_PowerUpToast();
 
 		// Draws the current round.
 		HUD_Rounds();

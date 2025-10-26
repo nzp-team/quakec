@@ -56,7 +56,7 @@ void() Test_Weapons_Gewehr_MagazineSize =
 void() Test_Weapons_DualWield_ReloadLowReserveRightLeft =
 {
     Weapon_RemoveWeapon(0);
-    Weapon_GiveWeapon(W_BIATCH, 0, 0);
+    Weapon_GiveWeapon(W_BIATCH, 0, 0, 0);
 
     self.weapons[0].weapon_magazine = 3;
     self.weapons[0].weapon_magazine_left = 1;
@@ -81,7 +81,7 @@ void() Test_Weapons_DualWield_ReloadLowReserveRightLeft =
 void() Test_Weapons_DualWield_ReloadLowReserveLeftRight =
 {
     Weapon_RemoveWeapon(0);
-    Weapon_GiveWeapon(W_BIATCH, 0, 0);
+    Weapon_GiveWeapon(W_BIATCH, 0, 0, 0);
 
     self.weapons[0].weapon_magazine = 3;
     self.weapons[0].weapon_magazine_left = 1;
@@ -116,8 +116,8 @@ void() Test_Weapons_BowieKnife_RemovedAfterRespawn =
 //
 void() Test_Weapons_HoldTwoWeapons =
 {
-    Weapon_GiveWeapon(W_COLT, 0, 0);
-    Weapon_GiveWeapon(W_GEWEHR, 0, 0);
+    Weapon_GiveWeapon(W_COLT, 0, 0, 0);
+    Weapon_GiveWeapon(W_GEWEHR, 0, 0, 0);
 
     Test_Assert((self.weapons[0].weapon_id != 0), "No weapon in slot zero!");
     Test_Assert((self.weapons[1].weapon_id != 0), "No weapon in slot one!");
@@ -134,9 +134,9 @@ void() Test_Weapons_HoldThreeWeapons =
 {
     GivePerk(P_MULE);
 
-    Weapon_GiveWeapon(W_COLT, 0, 0);
-    Weapon_GiveWeapon(W_GEWEHR, 0, 0);
-    Weapon_GiveWeapon(W_KAR, 0, 0);
+    Weapon_GiveWeapon(W_COLT, 0, 0, 0);
+    Weapon_GiveWeapon(W_GEWEHR, 0, 0, 0);
+    Weapon_GiveWeapon(W_KAR, 0, 0, 0);
 
     Test_Assert((self.weapons[0].weapon_id != 0), "No weapon in slot zero!");
     Test_Assert((self.weapons[1].weapon_id != 0), "No weapon in slot one!");
@@ -157,7 +157,7 @@ void() Test_Weapons_UpgradedSound =
     float weapon_list[] = { W_DG3, W_PORTER, W_FIW };
 
     for (float i = 0; i < weapon_list.length; i++) {
-        Test_Assert((WepDef_DoesNotPlayUpgradedSound(weapon_list[i]) == true), sprintf("Weapon [%s] plays an upgraded sound!", GetWeaponName(weapon_list[i])));
+        Test_Assert((WepDef_DoesNotPlayUpgradedSound(weapon_list[i]) == true), sprintf("Weapon [%s] plays an upgraded sound!", GetWeaponName(weapon_list[i], -1)));
     }
 
 	return false;
@@ -174,7 +174,7 @@ void() Test_Weapons_ShotgunPenetration =
     float weapon_list[] = { W_DB, W_BORE, W_SAWNOFF, W_SNUFF, W_TRENCH, W_GUT };
 
     for (float i = 0; i < weapon_list.length; i++) {
-        Test_Assert((getWeaponPenetration(weapon_list[i], 2) != 0), sprintf("Weapon [%s] not correctly penetrating!", GetWeaponName(weapon_list[i])));
+        Test_Assert((getWeaponPenetration(weapon_list[i], 2) != 0), sprintf("Weapon [%s] not correctly penetrating!", GetWeaponName(weapon_list[i], -1)));
     }
 };
 
@@ -211,7 +211,7 @@ void() Test_Weapons_WunderWaffe_FireAtBarrel =
     explosive_barrel();
     self = old_self;
 
-    Weapon_GiveWeapon(W_TESLA, 0, 0);
+    Weapon_GiveWeapon(W_TESLA, 0, 0, 0);
     W_FireTesla();
 
     float kills_post = self.kills;

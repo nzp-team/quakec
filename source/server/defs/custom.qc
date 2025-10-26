@@ -46,6 +46,7 @@
 #define SPAWN_8_CLASS       "info_player_8_spawn"
 
 float cheats_have_been_activated;
+float current_month_of_year;
 
 // cypress - NOTE
 // on/off are inverted compared to goldsrc for
@@ -140,7 +141,7 @@ entity local_client;
 													// prohibits sprinting.
 .float speed_penalty_time;							// A timer for how long speed_penalty is applied for.
 
-float sprint_max_time = 4.0;
+float sprint_max_time;
 .float sprinting;
 .float weaponskin;
 .float stamina;
@@ -176,6 +177,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float progress_bar_time;
 .float progress_bar_percent;
 .float weaponbk;
+.float tierbk;
 .float currentmag;
 .float currentmag2;
 .float currentmagbk;
@@ -214,6 +216,7 @@ var struct guninventory_struct
 	float 	weapon_magazine_left;
 	float 	weapon_reserve;
 	float 	weapon_skin;
+	float 	weapon_tier;
 	float 	is_mulekick_weapon;
 };
 
@@ -254,6 +257,7 @@ void Set_W_Frame (float startframe, float endframe, float duration, float funcca
 .float anim_weapon2_time;
 .float weaponframe_end;
 .float weapon2frame_end;
+.float weapon_tier;
 .float callfuncat;
 .float callfuncat2;
 .float new_anim_stop;
@@ -479,11 +483,19 @@ float game_modifier_can_use_equipment;
 float game_modifier_can_earn_misc_score;
 float game_modifier_can_packapunch;
 float game_modifier_powerup_free_perk;
+float game_modifier_powerup_free_perk_is_rare;
 float game_modifier_powerup_max_ammo;
 float game_modifier_powerup_weapon_upgrade;
+float game_modifier_powerup_bonus_points;
+float game_modifier_powerup_toast_for_all;
 float game_modifier_perk_purchase_limit;
 float game_modifier_cost_multiplier;
 float game_modifier_grenades_explode_on_contact;
+float game_modifier_packapunch_uses_tiers;
+float game_modifier_packapunch_is_instant;
+float game_modifier_maxammo_fills_magazine;
+string game_modifier_hellhound_fog_color;
+string game_modifier_default_fog_color;
 
 // Mystery Box
 #define MAX_BOX_WEAPONS 		27
@@ -513,9 +525,10 @@ vector 	mystery_box_start_origin;
 
 #ifdef FTE
 
-//powerups
 .float x2_icon;
 .float insta_icon;
+.string	Weapon_Name;
+.string	Weapon_Name_Touch;
 
 #endif // FTE
 

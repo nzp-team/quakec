@@ -62,7 +62,7 @@ void(entity victim) Blade_Damage =
 			break;
 	}
 
-    DamageHandler(damage_target, self.owner, getWeaponDamage(self.weapon) * getWeaponMultiplier(self.weapon, damage_region), damage_type);
+    DamageHandler(damage_target, self.owner, getWeaponDamage(self.weapon, self.weapons[0].weapon_tier) * getWeaponMultiplier(self.weapon, self.perks, damage_region), damage_type);
     self.angles_y = 180;
 };
 

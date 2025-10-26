@@ -29,6 +29,9 @@ float backupWepSkin;
 float sound_perk_delay; 
 void(entity person) W_HideCrosshair;
 void(entity client) Gamemode_DrinkPerk;
+float(entity client, float current_price) Gamemode_GetPerkMachinePrice;
+float(float current_max_health, float current_perks) Gamemode_GetMaxHealthForPlayer;
+string(string taunt) Gamemode_GetGoodByeTaunt;
 
 //
 // --------------------
@@ -94,6 +97,8 @@ void GivePerk(optional float p) {
 			default: break;
 		}
 	}
+
+	self.max_health = self.health = Gamemode_GetMaxHealthForPlayer(self.max_health, self.perks);
 
 	if (self.perks == 255)
 		GiveAchievement(6, self);
@@ -212,7 +217,9 @@ void() Perk_MachineGoAwayForReal =
 	self.movetype = MOVETYPE_NOCLIP;
 	self.velocity = v_up * 7;
 
-	Sound_PlaySound(world, "sounds/pu/byebye.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+	string taunt = "sounds/pu/byebye.wav";
+	taunt = Gamemode_GetGoodByeTaunt(taunt);
+	Sound_PlaySound(world, taunt, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Do our silly little animation for 6 seconds
 	self.ltime = time + 6;
@@ -300,6 +307,8 @@ void() touch_perk =
 		// Nope, use normal/solo cost.
 		else
 			price = floor(self.cost * game_modifier_cost_multiplier);
+
+		price = Gamemode_GetPerkMachinePrice(other, price);
 
 		// sequence = perk ID in client
 		Player_UseprintWithWait(other, self, 9, price, self.sequence);

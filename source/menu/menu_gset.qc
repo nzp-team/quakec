@@ -47,7 +47,7 @@ void() Menu_GameSettings_ApplyGameMode =
     float current_gamemode = cvar("sv_gamemode");
     current_gamemode += 1;
 
-    if (current_gamemode > 5)
+    if (current_gamemode > 6)
         current_gamemode = 0;
 
     cvar_set("sv_gamemode", ftos(current_gamemode));
@@ -114,6 +114,7 @@ void() Menu_GameSettings =
         case 3: gamemode_description = "No HUD? Two Perks? 150% Item Cost? No Problem."; gamemode_string = "HARDCORE"; break;
         case 4: gamemode_description = "Ole Fashioned stand-off between you and the Dead."; gamemode_string = "WILD WEST"; break;
         case 5: gamemode_description = "Knives-and-Nades only. Grenades Explode on Contact."; gamemode_string = "STICKS & STONES"; break;
+        case 6: gamemode_description = "The cycle continues. Old meets new in this Cold War inspired mode!"; gamemode_string = "FEVER"; break;
         default: gamemode_description = "???"; break;
     }
     Menu_Button(1, "ge_mode", "GAME MODE", gamemode_description) ? Menu_GameSettings_ApplyGameMode() : 0;

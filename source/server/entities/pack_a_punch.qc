@@ -162,32 +162,49 @@ void() PAP_SendWeaponOut =
 };
 
 //
-// PAP_UpgradeWeapon(pap, buyer)
+// PAP_UpgradeWeapon(pap, buyer, machine_cost)
 // Prepares a weapon for Upgrade and initiates Player
 // animation.
 //
-void(entity pap, entity buyer) PAP_UpgradeWeapon =
+void(entity pap, entity buyer, float machine_cost) PAP_UpgradeWeapon =
 {
    	entity tempe;
 
 	tempe = self;
 	self = buyer;
 
-	Player_RemoveScore(self, pap.cost);
+	Player_RemoveScore(self, machine_cost);
+
+	// Instant Pack-A-Punch -- just take their money and assign their weapon.
+	if (game_modifier_packapunch_is_instant) {
+		float instant_weapon_tier = 0;
+
+		if (game_modifier_packapunch_uses_tiers) {
+			instant_weapon_tier = buyer.weapons[0].weapon_tier + 1;
+		}
+
+		// Spawn Upgrade Spark if permitted
+    	if (!(pap.spawnflags & PAP_SPAWNFLAG_NOSPARK))
+        	SpawnSpark(pap.box2, 0.75);
+
+		Sound_PlaySound(pap, pap.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+		Weapon_AssignWeapon(0, EqualPapWeapon(buyer.weapon), 0, 0, instant_weapon_tier);
+		return;
+	}
 
 	// Spawn Upgrade Spark if permitted
     if (!(pap.spawnflags & PAP_SPAWNFLAG_NOSPARK))
         SpawnSpark(pap.box2, 3.5);
+
+	// Give a nice blue glow and play upgrade sound
+    Light_Cyan(pap, false);
+	Sound_PlaySound(pap, pap.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Machine is using the flag, so spawn it in.
 	if ((pap.spawnflags & PAP_SPAWNFLAG_USEFLAG)) {
 		pap.boxweapon.think = PAP_FlagMoveUp;
 		pap.boxweapon.nextthink = time + 0.05;
 	}
-
-	// Give a nice blue glow and play upgrade sound
-    Light_Cyan(pap, false);
-	Sound_PlaySound(pap, pap.oldmodel, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// Mapper-provided musical sting.
 	if (pap.powerup_vo != "")
@@ -230,16 +247,14 @@ void(entity pap, entity buyer) PAP_UpgradeWeapon =
 
 	pap.weapon = self.weapon;
 
+	if (game_modifier_packapunch_uses_tiers)
+		pap.boxstatus = buyer.weapons[0].weapon_tier + 1;
+
 	Weapon_RemoveWeapon(0);
 	W_HideCrosshair(self);
 	Set_W_Frame (0, 39, 2.0, 0, 0, W_PutOutHack, "models/machines/v_pap.mdl", true, S_BOTH, true);
 	self.weapon2model = "";
-
-#ifndef FTE
-
 	self.Weapon_Name = "";
-
-#endif // FTE
 
 	self = tempe;
 
@@ -273,10 +288,20 @@ void() PAP_Touch =
 	}
 
 	float pap_cost = floor(self.cost * game_modifier_cost_multiplier);
+
+	if (game_modifier_packapunch_uses_tiers) {
+		if (other.weapons[0].weapon_tier == 1) {
+			pap_cost *= 3;
+		} else if (other.weapons[0].weapon_tier == 2) {
+			pap_cost *= 6;
+		}
+	}
   
 	// Purchasing Machine + putting Weapon in
 	if (!self.papState) {
-		if (IsPapWeapon(other.weapon) == 1) {
+		if (IsPapWeapon(other.weapon) && game_modifier_packapunch_uses_tiers == false) {
+			return;
+		} else if (game_modifier_packapunch_uses_tiers == true && other.weapons[0].weapon_tier >= 3) {
 			return;
 		}
 
@@ -284,7 +309,7 @@ void() PAP_Touch =
 
 		// Player has enough points, begin Upgrade process
 		if (other.points >= pap_cost && Player_UseButtonPressed(other, self) && other.weapon) {
-			PAP_UpgradeWeapon(self, other);
+			PAP_UpgradeWeapon(self, other, pap_cost);
 		} 
 		// They're broke! Notify.
 		else if (Player_UseButtonPressed(other, self) && other.weapon && !(other.semi_actions & SEMIACTION_USE)) {
@@ -296,19 +321,13 @@ void() PAP_Touch =
 
 	// Claiming upgraded Weapon
 	else if (self.papState == 2 && self.host == other) {
-
-#ifndef FTE
-
-		other.Weapon_Name_Touch = GetWeaponName(EqualPapWeapon(self.weapon));
-
-#endif // FTE
-
+		other.Weapon_Name_Touch = GetWeaponName(EqualPapWeapon(self.weapon), -1);
 		Player_UseprintWithWait(other, self, 7, 0, EqualPapWeapon(self.weapon));
 
 		if (Player_UseButtonPressed(other, self)) {
  			entity tempe = self;
  			self = other;
-			Weapon_GiveWeapon(EqualPapWeapon(tempe.weapon), 0, 0);
+			Weapon_GiveWeapon(EqualPapWeapon(tempe.weapon), 0, 0, tempe.boxstatus);
 			self = tempe;
 
 			// Prep Pack-A-Punch to Upgrade again

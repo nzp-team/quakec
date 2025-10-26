@@ -28,6 +28,7 @@
 
 void() W_PlayTakeOut;
 void(entity client, float weapon) Gamemode_BuyWeapon;
+float(float current_cost, float weapon_cost, float weapon_id, float is_upgraded, float weapon_tier) Gamemode_GetCostForWeaponAmmo;
 
 // =================================
 // Wall Chalk Functionality
@@ -144,13 +145,7 @@ void () WallWeapon_TouchTrigger =
 	}
 
 	if (self.weapon != 99) {
-
-#ifndef FTE
-
-		other.Weapon_Name_Touch = GetWeaponName(self.weapon);
-
-#endif // FTE
-
+		other.Weapon_Name_Touch = GetWeaponName(self.weapon, -1);
 		float slot;
 
 		// Player has this weapon in any of their slots, PaP'd or not.
@@ -164,6 +159,7 @@ void () WallWeapon_TouchTrigger =
 
 			// Set the cost and weapon value (for useprint).
 			wcost = (is_pap) ? self.pap_cost : self.cost2;
+			wcost = Gamemode_GetCostForWeaponAmmo(wcost, self.cost, other.weapons[slot].weapon_id, is_pap, other.weapons[slot - 1].weapon_tier);
 			wcost *= game_modifier_cost_multiplier;
 			float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
 
@@ -212,12 +208,7 @@ void () WallWeapon_TouchTrigger =
 	} else 
 	// Universal Ammo buy
 	{
-
-#ifndef FTE
-
-		other.Weapon_Name_Touch = GetWeaponName(other.weapon);
-
-#endif // FTE
+		other.Weapon_Name_Touch = GetWeaponName(other.weapon, -1);
 
 		if (other.currentammo < getWeaponAmmo(other.weapon)) {
 
@@ -382,7 +373,7 @@ void () WallWeapon_TouchTrigger =
 		tempe = self;
 		self = other;
 
-		Weapon_GiveWeapon(tempe.weapon, 0, 0);
+		Weapon_GiveWeapon(tempe.weapon, 0, 0, 0);
 
 		self = tempe;
 

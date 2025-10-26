@@ -273,11 +273,11 @@ void() Gamemode_WW_Frame =
 
 void() Gamemode_WW_PlayerSpawn =
 {
-    Weapon_AssignWeapon(0, W_SAWNOFF, 0, 0);
-    Weapon_GiveWeapon(W_357, 0, 0);
+    Weapon_AssignWeapon(0, W_SAWNOFF, 0, 0, 0);
+    Weapon_GiveWeapon(W_357, 0, 0, 0);
 };
 
-float(float weapon_damage) Gamemode_WW_GetWeaponDamage =
+float(float weapon_damage, float weapon_id, float weapon_tier) Gamemode_WW_GetWeaponDamage =
 {
     return weapon_damage + ((weapon_damage * 0.15) * self.ww_upgrade_tier);
 };

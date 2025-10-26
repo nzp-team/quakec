@@ -27,6 +27,8 @@
 
 #define ZOMBIE_DAMAGE_THROUGH_WINDOW 		60
 
+float(float current_health, float current_round) Gamemode_GetZombieHealthForRound;
+
 void() Zombie_Walk_Setup;
 void() crawler_rip_board1;
 void() crawler_da1;
@@ -1578,6 +1580,8 @@ void() set_z_health =
 			i--;
 		}
 	}
+
+	z_health = Gamemode_GetZombieHealthForRound(z_health, rounds);
 };
 
 //

@@ -1,10 +1,11 @@
-string menu_accesibility_buttons[6] = {"ac_hitm", "ac_text", "ac_color", "ac_whiteflash", "ac_apply", "ac_back"};
+string menu_accesibility_buttons[7] = {"ac_hitm", "ac_text", "ac_color", "ac_whiteflash", "ac_monthspoof", "ac_apply", "ac_back"};
 
 float menu_accessibility_init;
 
 float current_hitmarker;
 float current_colorblind;
 float current_whiteflash;
+float current_monthspoof;
 
 string(string prev_id) Menu_Accessibility_GetNextButton =
 {
@@ -51,6 +52,7 @@ void() Menu_Accessibility_StoreCurrentSettings =
     current_hitmarker = cvar("cl_hitmarkers");
     current_colorblind = cvar("cl_colorblind");
     current_whiteflash = cvar("scr_whiteflash");
+    current_monthspoof = cvar("sv_spoofmonth");
 }
 
 void() Menu_Accessibility_ApplySettings =
@@ -84,6 +86,14 @@ void() Menu_Accessibility_UpdateWhiteFlash =
     Menu_PlaySound(MENU_SND_ENTER);
     current_whiteflash = !current_whiteflash;
     cvar_set("scr_whiteflash", ftos(current_whiteflash));
+}
+
+void() Menu_Accessibility_UpdateMonthSpoof =
+{
+    Menu_PlaySound(MENU_SND_ENTER);
+    current_monthspoof++;
+    if (current_monthspoof > 12) current_monthspoof = 0;
+    cvar_set("sv_spoofmonth", ftos(current_monthspoof));
 }
 
 void() Menu_Accessibility =
@@ -127,6 +137,27 @@ void() Menu_Accessibility =
         default: break;
     }
     Menu_DrawOptionValue(4, whiteflash_string);
+
+    // Month Spoof
+    Menu_Button(5, "ac_monthspoof", "MONTH SPOOF", "Lie to the game about the current Month, if you are host.") ? Menu_Accessibility_UpdateMonthSpoof() : 0;
+    string month_string = "";
+    switch(current_monthspoof) {
+        case 0: month_string = "REAL TIME"; break;
+        case 1: month_string = "JANUARY"; break;
+        case 2: month_string = "FEBRUARY"; break;
+        case 3: month_string = "MARCH"; break;
+        case 4: month_string = "APRIL"; break;
+        case 5: month_string = "MAY"; break;
+        case 6: month_string = "JUNE"; break;
+        case 7: month_string = "JULY"; break;
+        case 8: month_string = "AUGUST"; break;
+        case 9: month_string = "SEPTEMBER"; break;
+        case 10: month_string = "OCTOBER"; break;
+        case 11: month_string = "NOVEMBER"; break;
+        case 12: month_string = "DECEMBER"; break;
+        default: break;
+    }
+    Menu_DrawOptionValue(5, month_string);
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "ac_apply", "APPLY", "Save & Apply Settings.") ? Menu_Accessibility_ApplySettings() : 0;
