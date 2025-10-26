@@ -157,6 +157,7 @@ void() game_songtriggered =
 
 void() game_songplay =
 {
+	self.classname = "game_songplay";
 	self.use = game_songtriggered;
 };
 
@@ -196,6 +197,8 @@ void() trigger_song = { remove(self); }
 .vector	centeroffset;
 .float	count;						// for counting triggers
 .float	cnt; 						// misc flag
+.float 	gamemode_limiter;
+.float 	month_limiter;
 
 void() misc_model_use = 
 {
@@ -259,6 +262,21 @@ void() misc_model_think =
 
 void() misc_model = 
 {
+	// NZ:P Edit -- Allow only spawning for specific modes or
+	// months of the year.
+	if (self.gamemode_limiter != 0) {
+		if (self.gamemode_limiter != cvar("sv_gamemode")) {
+			return;
+		}
+	}
+
+	if (self.month_limiter != 0) {
+#ifdef FTE
+		if (nzp_getmonthofyear() != self.month_limiter)
+#endif // FTE
+		return;
+	}
+
 	// NZ:P Edit -- We use .model instead of .mdl, but keep
 	// compatibility with progs_dump's .mdl
 	if (self.mdl != "")

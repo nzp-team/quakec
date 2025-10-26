@@ -168,6 +168,9 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	autocvar(scr_playerdebuginfo_x, 64);
 	autocvar(scr_playerdebuginfo_y, 6);
 
+	hud_round_color = '20 0 0';
+	hud_perk_orientation = HUD_PERK_ORI_DEFAULT;
+
 	// Runtime check if we're running this in WebASM/WebGL.
 	if (cvar_string("sys_platform") == "Web")
 		platform_is_web = true;
@@ -176,6 +179,7 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 
 	if (platform_is_web) {
 		cvar_set("com_protocolname", "NZP-REBOOT-WEB");
+		hud_round_color = '107 0 0';
 	}
 
 	// cvars for custom settings
@@ -1049,9 +1053,10 @@ noref void() CSQC_Parse_Event =
 			broadcast_time = time + readbyte();
 			broadcast_num = readbyte();
 			break;
-		case CSQC_EVENT_MAXAMMOTEXT:
-			hud_maxammo_endtime = time + 2;
-			hud_maxammo_starttime = time;
+		case CSQC_EVENT_POWERUPTOAST:
+			hud_toast_puid = readbyte();
+			hud_toast_endtime = time + 2;
+			hud_toast_starttime = time;
 			break;
 		case CSQC_EVENT_MUSICSTREAM:
 			string track_name = readstring();
@@ -1094,6 +1099,14 @@ noref void() CSQC_Parse_Event =
 			break;
 		case CSQC_EVENT_SETGAMEMODE:
 			active_gamemode = readbyte();
+			break;
+		case CSQC_EVENT_SETROUNDCOLOR:
+			hud_round_color[0] = readbyte();
+			hud_round_color[1] = readbyte();
+			hud_round_color[2] = readbyte();
+			break;
+		case CSQC_EVENT_SETPERKMODE:
+			hud_perk_orientation = readbyte();
 			break;
 		case EVENT_WEAPONRECOIL:
 			local vector rec;

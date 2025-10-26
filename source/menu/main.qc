@@ -248,6 +248,8 @@ void() m_init =
 	autocvar(sv_maxai, 24);
 	autocvar(sv_fastrounds, 0);
 
+	autocvar(sv_spoofmonth, 0);
+
 	music_duration_time = 0;
 	menu_changetime = 0;
 };

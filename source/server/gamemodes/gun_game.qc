@@ -148,7 +148,7 @@ void() Gamemode_GunGame_Frame =
         if (players.gungame_update_time < time) {
             entity old_self = self;
             self = players;
-            Weapon_GiveWeapon(gungame_weapon_pool[self.gungame_weapon_idx], 0, 0);
+            Weapon_GiveWeapon(gungame_weapon_pool[self.gungame_weapon_idx], 0, 0, 0);
             Weapon_RemoveWeapon(1);
             self = old_self;
             players.gungame_update_time = 9999999999;
@@ -161,7 +161,7 @@ void() Gamemode_GunGame_Frame =
 void() Gamemode_GunGame_PlayerSpawn =
 {
     Weapon_RemoveWeapon(0);
-    Weapon_GiveWeapon(gungame_weapon_pool[self.gungame_weapon_idx], 0, 0);
+    Weapon_GiveWeapon(gungame_weapon_pool[self.gungame_weapon_idx], 0, 0, 0);
 
     // Initialize the score threshold only if
     // this is their first spawn.
@@ -178,13 +178,13 @@ void() Gamemode_GunGame_PlayerPostThink =
     if (self.gungame_weapon_idx + 1 == GUNGAME_MAX_WEAPONS) {
         next_weapon = "WIN";
     } else {
-        next_weapon = GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx + 1]);
+        next_weapon = GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx + 1], -1);
     }
 
     string centerprint_text = "";
     centerprint_text = strcat("[", ftos(self.gungame_weapon_idx + 1));
     centerprint_text = strcat(centerprint_text, "/32]: ");
-    centerprint_text = strcat(centerprint_text, GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx]));
+    centerprint_text = strcat(centerprint_text, GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx], -1));
     centerprint_text = strcat(centerprint_text, "\nNeed [");
     centerprint_text = strcat(centerprint_text, ftos(self.gungame_score_threshold - self.score));
     centerprint_text = strcat(centerprint_text, "] More Score to Advance\nNext Weapon: ");

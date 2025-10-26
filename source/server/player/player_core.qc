@@ -33,6 +33,7 @@ void() SUB_UseTargets;
 void() Gamemode_PlayerSpawn;
 void() Gamemode_PlayerPostThink;
 void(float score_earned) Gamemode_PlayerAddScore;
+float(float current_max_health, float current_perks) Gamemode_GetMaxHealthForPlayer;
 void(entity client) LastStand_UnlinkRevivee;
 
 #ifdef QUAKEC_TEST
@@ -958,7 +959,7 @@ void() Player_PickSpawnPoint =
 	self.angles = spawn_point.angles;
 
 	// Assign their starting weapon
-	Weapon_AssignWeapon(0, spawn_point.weapon, spawn_point.currentmag, spawn_point.currentammo);
+	Weapon_AssignWeapon(0, spawn_point.weapon, spawn_point.currentmag, spawn_point.currentammo, 0);
 
 	// Activate anything the Spawn was targeting
 	entity tempe = self;
@@ -1000,6 +1001,8 @@ void() PlayerSpawn =
 		case 3: self.max_health = self.health = PLAYER_START_HEALTH_NIGHTMARE; break;
 		default: break;
 	}
+
+	self.max_health = self.health = Gamemode_GetMaxHealthForPlayer(self.max_health, self.perks);
 	
 	// Pick an available slot from 1-8 inclusive.
 	if (!self.playernum) {
@@ -1087,12 +1090,13 @@ void() PlayerSpawn =
 
 #else 
 
-	self.Weapon_Name = GetWeaponName(self.weapon);
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
 	self.Flash_Size = GetWeaponFlash_Size(self.weapon);
 	self.ADS_Offset = GetWeaponADSOfs(self.weapon);
 
 #endif // FTE
+
+	self.Weapon_Name = GetWeaponName(self.weapon, self.weapons[0].weapon_tier);
 
 	if (!rounds) {
 		rounds = clamp(cvar("sv_startround") - 1, 0, 1000);

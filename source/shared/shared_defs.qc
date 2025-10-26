@@ -64,7 +64,7 @@
 											// <byte> broadcast_time
 											// <byte> player_number
 
-#define CSQC_EVENT_MAXAMMOTEXT			14	// NO DATA.
+#define CSQC_EVENT_POWERUPTOAST			14	// NO DATA.
 
 #define CSQC_EVENT_MUSICSTREAM			15	// <string> track_name
 
@@ -82,20 +82,33 @@
 
 #define CSQC_EVENT_SETGAMEMODE			20 	// <byte> gamemode
 
-#define EVENT_UPDATE 					21
-#define EVENT_BLACKOUT 					22
-#define EVENT_WORLDDATA 				23
-#define EVENT_PLAYERUPDATE 				24
-#define EVENT_REVIVEON 					25
-#define EVENT_REVIVEOFF 				26
-#define EVENT_REVIVECHANGE 				27
-#define EVENT_WEAPONRECOIL 				28
-#define EVENT_GRENADEPULSE 				29
-#define EVENT_BETTYPROMPT 				30
-#define EVENT_CHATMESSAGE				31
-#define EVENT_DOUBLETAPUPDATE 			32
-#define EVENT_ENDGAME					33
-#define EVENT_MAPTYPE					34
+#define CSQC_EVENT_SETROUNDCOLOR		21  // <byte> red
+											// <byte> green
+											// <byte> blue
+
+#define CSQC_EVENT_SETPERKMODE			22 	// <byte> orientation
+
+#define EVENT_UPDATE 					23
+#define EVENT_BLACKOUT 					24
+#define EVENT_WORLDDATA 				25
+#define EVENT_PLAYERUPDATE 				26
+#define EVENT_REVIVEON 					27
+#define EVENT_REVIVEOFF 				28
+#define EVENT_REVIVECHANGE 				29
+#define EVENT_WEAPONRECOIL 				30
+#define EVENT_GRENADEPULSE 				31
+#define EVENT_BETTYPROMPT 				32
+#define EVENT_CHATMESSAGE				33
+#define EVENT_DOUBLETAPUPDATE 			34
+#define EVENT_ENDGAME					35
+#define EVENT_MAPTYPE					36
+
+//
+// Perk-A-Cola draw presets
+//
+
+#define HUD_PERK_ORI_DEFAULT			0
+#define HUD_PERK_ORI_CW					1
 
 //
 // Types of screen-flashes, global.
@@ -130,6 +143,19 @@
 // map compatibility
 #define MAP_COMPAT_BETA     1
 float 	map_compatibility_mode;
+
+//
+// Power-Up IDs
+//
+
+#define PU_NUKE				0
+#define PU_INSTAKILL		1
+#define PU_DOUBLEPTS		2
+#define PU_CARPENTER		3
+#define PU_MAXAMMO			4
+#define PU_FREEPERK			5
+#define PU_UPGRADEWEAPON	6
+#define PU_BONUSPOINTS		7
 
 // Weapon Firetype definitions
 #define FIRETYPE_FULLAUTO	0
@@ -306,9 +332,12 @@ float 	map_compatibility_mode;
 #define STAT_WEAPONSKIN 		68
 #define STAT_PERKS				69
 #define STAT_TOTALSCORE			70
+#define STAT_WEAPONNAME			71
+#define STAT_WEAPONNAMETOUCH	72
+#define STAT_WEAPONTIER			73
 
-#define STAT_GUNGAME_IDX		71
-#define STAT_GUNGAME_SCOREGOAL	72
+#define STAT_GUNGAME_IDX		74
+#define STAT_GUNGAME_SCOREGOAL	75
 
 // Game Modes
 #define GAMEMODE_CLASSIC        0
@@ -317,6 +346,7 @@ float 	map_compatibility_mode;
 #define GAMEMODE_HARDCORE       3
 #define GAMEMODE_WILDWEST       4
 #define GAMEMODE_STICKSNSTONES  5
+#define GAMEMODE_FESTIVE 		6
 
 // Misc. player statistics
 .float playernum;

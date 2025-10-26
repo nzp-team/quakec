@@ -54,6 +54,9 @@ void(float direct_impact) Ray_BeamExplode =
 		raybeam_damage_max = 1800;
 	}
 
+	raybeam_damage_min = Gamemode_GetWeaponDamage(raybeam_damage_min, self.weapon, self.boxstatus);
+	raybeam_damage_max = Gamemode_GetWeaponDamage(raybeam_damage_max, self.weapon, self.boxstatus);
+
 	// Apply the Damage.
 	DamgageExplode(self, self.owner, raybeam_damage_max,
                    raybeam_damage_min, raybeam_damage_radius);
@@ -136,6 +139,7 @@ void() W_FireRay =
 	porter.owner = self;
 	porter.movetype = MOVETYPE_FLY;
 	porter.weapon = self.weapon;
+	porter.boxstatus = self.weapons[0].weapon_tier;
 	porter.solid = SOLID_BBOX;
 	porter.classname = "projectile_raybeam";
 

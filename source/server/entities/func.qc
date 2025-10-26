@@ -442,6 +442,10 @@ void() touch_ending =
 
 void() func_ending =
 {  
+	if (!self.model)
+		return;
+	//	objerror("ERROR: func_model expects a model. Removing.");
+
 	precache_model (self.model);
 	
 	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything

@@ -32,6 +32,7 @@ void() Compat_Init;
 void() Gamemode_Init;
 void() Gamemode_Frame;
 void() SUB_Remove = {remove(self);}
+string(string current_tune) Gamemode_GetSplashTune;
 
 .float gungame_weapon_idx;
 .float gungame_score_threshold;
@@ -151,8 +152,11 @@ void() StartFrame =
 			InitRounds();
 			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
 
-			if (cvar("sv_startround") == 0)
-				Rounds_PlayTransition("sounds/rounds/splash.wav");
+			if (cvar("sv_startround") == 0) {
+				string splash_tune = "sounds/rounds/splash.wav";
+				splash_tune = Gamemode_GetSplashTune(splash_tune);
+				Rounds_PlayTransition(splash_tune);
+			}
 
 			entity players = find(world, classname, "player");
 			
@@ -382,6 +386,9 @@ void() worldspawn =
 	clientstat(STAT_MAXHEALTH, EV_FLOAT, max_health);
 	clientstat(STAT_PERKS, EV_FLOAT, perks);
 	clientstat(STAT_TOTALSCORE, EV_FLOAT, score);
+	clientstat(STAT_WEAPONNAME, EV_STRING, Weapon_Name);
+	clientstat(STAT_WEAPONNAMETOUCH, EV_STRING, Weapon_Name_Touch);
+	clientstat(STAT_WEAPONTIER, EV_FLOAT, weapon_tier);
 
 	// Gun Game
 	clientstat(STAT_GUNGAME_IDX, EV_FLOAT, gungame_weapon_idx);
@@ -397,6 +404,10 @@ void() worldspawn =
 	autocvar(sv_headshotonly, 0);
 	autocvar(sv_maxai, 24);
 	autocvar(sv_fastrounds, 0);
+
+	autocvar(sv_spoofmonth, 0);
+
+	current_month_of_year = nzp_getmonthofyear();
 
 #endif // FTE
 
@@ -420,10 +431,19 @@ void() worldspawn =
 	game_modifier_powerup_free_perk = false;
 	game_modifier_powerup_max_ammo = true;
 	game_modifier_powerup_weapon_upgrade = false;
+	game_modifier_powerup_bonus_points = false;
+	game_modifier_powerup_toast_for_all = false;
 	game_modifier_can_packapunch = true;
 	game_modifier_grenades_explode_on_contact = false;
+	game_modifier_packapunch_uses_tiers = false;
+	game_modifier_packapunch_is_instant = false;
+	game_modifier_maxammo_fills_magazine = false;
+	game_modifier_hellhound_fog_color = "200 525 54 55 60";
+	game_modifier_default_fog_color = world.fog;
 	game_modifier_perk_purchase_limit = 8;
 	game_modifier_cost_multiplier = 1;
+
+	sprint_max_time = 4.0;
 
 	//
 	// World Gravity Multiplier

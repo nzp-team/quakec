@@ -24,6 +24,14 @@
 		Boston, MA  02111-1307, USA
 
 */
+float(float current_count, float current_round, float round_type, float current_player_count) Gamemode_GetZombieTotalForRound;
+string(string current_tune) Gamemode_GetEndRoundTune;
+string(string current_tune) Gamemode_GetStartRoundTune;
+string(string current_tune) Gamemode_GetEndSpecialRoundTune;
+string(string current_tune) Gamemode_GetStartSpecialRoundTune;
+string(string current_taunt) Gamemode_GetHellhoundTaunt;
+float(float current_delay) Gamemode_GetRoundDelay;
+
 void() SUB_UseTargets;
 float() spawn_a_dogA;
 void() zapper_cooldown;
@@ -91,6 +99,8 @@ float() getZombieTotal = {
 			count = 8 * (player_count);
 	}
 
+	count = Gamemode_GetZombieTotalForRound(count, rounds, roundtype, player_count);
+
 	switch(cvar("sv_difficulty")) {
 		case 1: count = floor(count * 0.90); break;
 		case 2:	count = floor(count * 1.25); break;
@@ -132,6 +142,8 @@ void() PlayerSpawn;
 
 void() EndRound =
 {
+	string end_round_tune = "";
+
 	entity who = find(world,classname,"spectator");
 	while(who != world)
 	{
@@ -145,19 +157,25 @@ void() EndRound =
 
 	rounds_change = 4;
 	SetUpdate(self, UT_ROUNDS_CHANGE, rounds_change, 0, 0);
+
 	if (map_has_hellhounds && rounds == dogRound) {
-		if (cvar("sv_fastrounds") == 0)
-			Rounds_PlayTransition("sounds/rounds/droundend.wav");
+		end_round_tune = "sounds/rounds/droundend.wav";
+		end_round_tune = Gamemode_GetEndSpecialRoundTune(end_round_tune);
 		dogWave = false;
 	} else {
-		if (cvar("sv_fastrounds") == 0)
-			Rounds_PlayTransition("sounds/rounds/eround.wav");
+		end_round_tune = "sounds/rounds/eround.wav";
+		end_round_tune = Gamemode_GetEndRoundTune(end_round_tune);
 	}
+
+	if (cvar("sv_fastrounds") == 0)
+		Rounds_PlayTransition(end_round_tune);
 
 	if (cvar("sv_fastrounds") == 0)
 		round_changetime = time + 10;
 	else
 		round_changetime = time + 0.2;
+
+	round_changetime = Gamemode_GetRoundDelay(round_changetime);
 
 	// No Perks? No Problem & Abstinence Program
 	if (rounds >= 10) {
@@ -192,6 +210,8 @@ void() EndRound =
 
 void() NewRound =
 {
+	string new_round_tune = "";
+
 	entity tempe;
 	round_changetime = 0;
 	spawn_time = time + 5;
@@ -204,12 +224,23 @@ void() NewRound =
 	if (rounds != 0)
 	{
 		if (map_has_hellhounds && rounds == (dogRound - 1)) {
-			Rounds_PlayTransition("sounds/rounds/droundstart.wav");
+			new_round_tune = "sounds/rounds/droundstart.wav";
+			new_round_tune = Gamemode_GetStartSpecialRoundTune(new_round_tune);
 			dogWave = true;
 			dog_round_count++;
+
+			string hellhound_taunt = "";
+			hellhound_taunt = Gamemode_GetHellhoundTaunt(hellhound_taunt);
+			if (hellhound_taunt != "") {
+				Sound_PlaySound(world, hellhound_taunt, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+			}
 		} else {
-			Rounds_PlayTransition("sounds/rounds/nround.wav");
+			new_round_tune = "sounds/rounds/nround.wav";
+			new_round_tune = Gamemode_GetStartRoundTune(new_round_tune);
 		}
+
+		Rounds_PlayTransition(new_round_tune);
+
 		rounds_change = 6;
 		SetUpdate(self, UT_ROUNDS_CHANGE, rounds_change, 0, 0);
 		blink_return = time + 2;
@@ -265,15 +296,17 @@ void() NewRound =
 	spawn_delay = 0;
 	totalpowerups = 0;
 
+	string fog_value = "";
 	if (rounds == dogRound && map_has_hellhounds) {
 		roundtype = 2;
-		localcmd("fog 200 525 54 55 60\n");
+
+		fog_value = strcat(game_modifier_hellhound_fog_color, "\n");
+		localcmd(strcat("fog ", fog_value));
 	} else {
 		roundtype = 1;
 
-		string fog_value;
-		if (world.fog != "")
-			fog_value = strcat(world.fog, "\n");
+		if (game_modifier_default_fog_color != "")
+			fog_value = strcat(game_modifier_default_fog_color, "\n");
 		else
 			fog_value = "0 0 0 0 0\n";
 

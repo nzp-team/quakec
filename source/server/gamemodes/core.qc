@@ -64,6 +64,7 @@ void() Gamemode_Init =
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_Init(); break;
         case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_Init(); break;
         case GAMEMODE_WILDWEST: Gamemode_WW_Init(); break;
+        case GAMEMODE_FESTIVE: Gamemode_Festive_Init(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 };
@@ -81,6 +82,7 @@ void() Gamemode_Frame =
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_Frame(); break;
         case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_Frame(); break;
         case GAMEMODE_WILDWEST: Gamemode_WW_Frame(); break;
+        case GAMEMODE_FESTIVE: Gamemode_Festive_Frame(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 
@@ -108,6 +110,7 @@ void() Gamemode_PlayerSpawn =
         case GAMEMODE_HARDCORE: Gamemode_Hardcore_PlayerSpawn(); break;
         case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_PlayerSpawn(); break;
         case GAMEMODE_WILDWEST: Gamemode_WW_PlayerSpawn(); break;
+        case GAMEMODE_FESTIVE: Gamemode_Festive_PlayerSpawn(); break;
         default: error("Received unrecognized gamemode."); break;
     }
 };
@@ -141,6 +144,21 @@ void(float score_earned) Gamemode_PlayerAddScore =
 };
 
 //
+// Gamemode_ScoreForDamage(current_earned_score, damage_style)
+// Called before assigning appropriate score to players
+// for dealing damage.
+//
+float(float current_earned_score, float damage_style) Gamemode_ScoreForDamage =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_ScoreForDamage(current_earned_score, damage_style);
+        default: break;
+    }
+
+    return current_earned_score;
+};
+
+//
 // Gamemode_GetUp()
 // Called at LastStand_GetUp(), a callback for
 // logic when a player is revived.
@@ -163,16 +181,18 @@ float(float weapon, float ammo) Gamemode_GetWeaponAmmo =
 {
     switch(current_gamemode) {
         case GAMEMODE_HARDCORE: return Gamemode_Hardcore_GetWeaponAmmo(weapon, ammo);
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetWeaponAmmo(weapon, ammo);
         default: return ammo;
     }
 
     return ammo;
 };
 
-float(float damage) Gamemode_GetWeaponDamage =
+float(float damage, float weapon_id, float weapon_tier) Gamemode_GetWeaponDamage =
 {
     switch(current_gamemode) {
-        case GAMEMODE_WILDWEST: return Gamemode_WW_GetWeaponDamage(damage);
+        case GAMEMODE_WILDWEST: return Gamemode_WW_GetWeaponDamage(damage, weapon_id, weapon_tier);
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetWeaponDamage(damage, weapon_id, weapon_tier);
         default: return damage;
     }
 
@@ -210,3 +230,173 @@ void() Gamemode_LastStand =
         default: break;
     }
 };
+
+float(float current_melee_damage, float weapon, float has_bowie) Gamemode_CalculateMeleeDamage =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_CalculateMeleeDamage(current_melee_damage, weapon, has_bowie);
+        default: break;
+    }
+
+    return current_melee_damage;
+}
+
+float(float current_count, float current_round, float round_type, float current_player_count) Gamemode_GetZombieTotalForRound =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetZombieTotalForRound(current_count, current_round, round_type, current_player_count);
+        default: break;
+    }
+
+    return current_count;
+}
+
+float(float current_health, float current_round) Gamemode_GetZombieHealthForRound =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetZombieHealthForRound(current_health, current_round);
+        default: break;
+    }
+
+    return current_health;
+}
+
+float(entity client, float current_price) Gamemode_GetPerkMachinePrice =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetPerkMachinePrice(client, current_price);
+        default: break;
+    }
+
+    return current_price;
+}
+
+float(float current_multiplier, float current_perks, float weapon, float location) Gamemode_GetWeaponLimbMultiplier =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetWeaponLimbMultiplier(current_multiplier, current_perks, weapon, location);
+        default: break;
+    }
+
+    return current_multiplier;
+}
+
+float(float current_cost, float weapon_cost, float weapon_id, float is_upgraded, float weapon_tier) Gamemode_GetCostForWeaponAmmo =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetCostForWeaponAmmo(current_cost, weapon_cost, weapon_id, is_upgraded, weapon_tier);
+        default: break;
+    }
+
+    return current_cost;
+}
+
+float(float current_max_health, float current_perks) Gamemode_GetMaxHealthForPlayer =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetMaxHealthForPlayer(current_max_health, current_perks);
+        default: break;
+    }
+
+    return current_max_health;
+}
+
+float(float current_dist, string ai_classname) Gamemode_GetAIWalkSpeed =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetAIWalkSpeed(current_dist, ai_classname);
+        default: break;
+    }
+
+    return current_dist;
+}
+
+float(float current_health_delay, float current_perks) Gamemode_GetHealthRegenDelayForPlayer =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetHealthRegenDelayForPlayer(current_health_delay, current_perks);
+        default: break;
+    }
+
+    return current_health_delay;
+}
+
+string(string current_tune) Gamemode_GetSplashTune =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetSplashTune(current_tune);
+        default: break;
+    }
+
+    return current_tune; 
+}
+
+string(string current_tune) Gamemode_GetStartRoundTune =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetStartRoundTune(current_tune);
+        default: break;
+    }
+
+    return current_tune; 
+}
+
+string(string current_tune) Gamemode_GetEndSpecialRoundTune =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetEndSpecialRoundTune(current_tune);
+        default: break;
+    }
+
+    return current_tune;
+}
+
+string(string current_tune) Gamemode_GetStartSpecialRoundTune =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetStartSpecialRoundTune(current_tune);
+        default: break;
+    }
+
+    return current_tune; 
+}
+
+string(string current_taunt) Gamemode_GetHellhoundTaunt =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetHellhoundTaunt(current_taunt);
+        default: break;
+    }
+
+    return current_taunt; 
+}
+
+string(string current_tune) Gamemode_GetEndRoundTune =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetEndRoundTune(current_tune);
+        default: break;
+    }
+
+    return current_tune;
+}
+
+float(float current_delay) Gamemode_GetRoundDelay =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetRoundDelay(current_delay);
+        default: break;
+    }
+
+    return current_delay;
+}
+
+string(string taunt) Gamemode_GetGoodByeTaunt =
+{
+    switch(current_gamemode) {
+        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetGoodByeTaunt(taunt);
+        default: break;
+    }
+
+    return taunt;
+}
