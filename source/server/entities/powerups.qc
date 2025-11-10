@@ -25,16 +25,8 @@
 
 */
 
-#define MAX_POWERUPS		8
+#define MAX_POWERUPS		12
 #define POWERUPS_PER_ROUND	4
-
-#define PU_NUKE				0
-#define PU_INSTAKILL		1
-#define PU_DOUBLEPTS		2
-#define PU_CARPENTER		3
-#define PU_MAXAMMO			4
-#define PU_FREEPERK			5
-#define PU_UPGRADEWEAPON	6
 
 #define PU_OFFSET_QK		'0 0 12'
 #define PU_OFFSET_HL		'0 0 14'
@@ -110,6 +102,7 @@ string(string file) PU_ResolveVOPath =
 		case GAMEMODE_HARDCORE: path = strcat("sounds/modes/hardcore/", file); break;
 		case GAMEMODE_STICKSNSTONES: path = strcat("sounds/modes/sticks/", file); break;
 		case GAMEMODE_WILDWEST: path = strcat("sounds/modes/wildwest/", file); break;
+		case GAMEMODE_FESTIVE: path = strcat("sounds/modes/festive/", file); break;
 		default: path = strcat("sounds/pu/", file); break;
 	}
 
@@ -563,7 +556,18 @@ float() PU_MaxAmmoRequirement =
 //
 float() PU_FreePerkRequirement =
 {
-	return game_modifier_powerup_free_perk;
+	if (game_modifier_powerup_free_perk == false)
+		return false;
+
+	if (game_modifier_powerup_free_perk_is_rare) {
+		if (rounds < 15)
+			return false;
+
+		if (random() < 0.25)
+			return false;
+	}
+	
+	return true;
 }
 
 //
@@ -573,6 +577,15 @@ float() PU_FreePerkRequirement =
 float() PU_UpgradeWeaponRequirement =
 {
 	return game_modifier_powerup_weapon_upgrade;
+}
+
+//
+// PU_BonusPointsRequirement()
+// Requirements for Bonus Points Power-Up
+//
+float() PU_BonusPointsRequirement =
+{
+	return game_modifier_powerup_bonus_points;
 }
 
 //
@@ -592,6 +605,15 @@ void() PU_MaxAmmo =
 			// Fill all weapons
 			for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
 				players.weapons[i].weapon_reserve = getWeaponAmmo(players.weapons[i].weapon_id);
+
+				// Some game configurations support also filling the magazine..
+				if (game_modifier_maxammo_fills_magazine) {
+					players.weapons[i].weapon_magazine = getWeaponMag(players.weapons[i].weapon_id);
+
+					if (IsDualWeapon(players.weapons[i].weapon_id)) {
+						players.weapons[i].weapon_magazine_left = getWeaponMag(players.weapons[i].weapon_id);
+					}
+				}
 			}
 			// Give Grenades
 			players.primary_grenades = 4;
@@ -610,9 +632,6 @@ void() PU_MaxAmmo =
 			W_Reload(S_BOTH);
 			self = tempe;
 		}
-
-		// MAX AMMO! text
-		nzp_maxammo();
 
 		players = find(players, classname, "player");
 	}
@@ -665,6 +684,7 @@ void() PU_FreePerk =
 
 		tempe = self;
 		self = players;
+		W_SprintStop();
 		DrinkPerk();
 		self = tempe;
 
@@ -681,21 +701,37 @@ void() PU_WeaponUpgrade =
 	entity players = find(world, classname, "player");
 	while(players != world) {
 		float current_weapon = players.weapons[0].weapon_id;
+		float current_weapon_tier = players.weapons[0].weapon_tier;
 
 		// Already upgraded, don't bother.
 		if (EqualPapWeapon(current_weapon) == current_weapon) {
-			players = find(players, classname, "player");
-			continue;
+			if (!(game_modifier_packapunch_uses_tiers == true && current_weapon_tier < 3)) {
+				players = find(players, classname, "player");
+				continue;
+			}
 		}
 
 		entity old_self = self;
 		self = players;
 		W_SprintStop();
         W_AimOut();
-		Weapon_AssignWeapon(0, EqualPapWeapon(current_weapon), 0, 0);
+		Weapon_AssignWeapon(0, EqualPapWeapon(current_weapon), 0, 0, current_weapon_tier + 1);
 		Weapon_SwapWeapons(true);
 		self = old_self;
 
+		players = find(players, classname, "player");
+	}
+};
+
+//
+// PU_BonusPoints()
+// Bonus Points Power-Up Function
+//
+void() PU_BonusPoints =
+{
+	entity players = find(world, classname, "player");
+	while(players != world) {
+		Player_AddScore(players, 500, true);
 		players = find(players, classname, "player");
 	}
 };
@@ -739,6 +775,8 @@ void() PU_Init =
 					PU_FreePerkRequirement		);
 	PU_AddToStruct(PU_UPGRADEWEAPON,"models/pu/pack!.mdl",			"upgrade.wav",			PU_WeaponUpgrade,
 					PU_UpgradeWeaponRequirement	);
+	PU_AddToStruct(PU_BONUSPOINTS,  "models/pu/points!.mdl",		"bonus_points.wav",		PU_BonusPoints,
+					PU_BonusPointsRequirement );
 
 	// Nuke requires an extra Precache
 	precache_sound("sounds/pu/nuke.wav");
@@ -868,6 +906,14 @@ void() PU_Touch =
 
 		// Run Power-Up function
 		PU_LogicFunction(self.walktype);
+
+#ifdef FTE
+		if (game_modifier_powerup_toast_for_all == true || self.walktype == PU_MAXAMMO)
+			nzp_poweruptoast(self.walktype);
+#else
+		if (self.walktype == PU_MAXAMMO)
+			nzp_poweruptoast();
+#endif // FTE
 	}
 };
 

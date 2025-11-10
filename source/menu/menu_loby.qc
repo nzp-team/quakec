@@ -117,6 +117,7 @@ void() Menu_Lobby =
         case 3: gamemode = "HARDCORE"; break;
         case 4: gamemode = "WILD WEST"; break;
         case 5: gamemode = "STICKS & STONES"; break;
+        case 6: gamemode = "FEVER"; break;
         default: gamemode = "???"; break;
     }
 

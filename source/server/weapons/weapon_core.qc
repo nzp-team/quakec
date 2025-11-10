@@ -847,21 +847,21 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 
 		switch(hit_ent.classname) {
 			case "ai_zombie_head":
-				f_damage = damage*getWeaponMultiplier(self.weapon, HEAD_X);
+				f_damage = damage*getWeaponMultiplier(self.weapon, self.perks, HEAD_X);
 				hit_ent.hit_region = HIT_REGION_HEAD;
 				break;
 			case "ai_zombie_larm":
 			case "ai_zombie_rarm":
-				f_damage = damage*getWeaponMultiplier(self.weapon, LIMBS_X);
+				f_damage = damage*getWeaponMultiplier(self.weapon, self.perks, LIMBS_X);
 				hit_ent.hit_region = HIT_REGION_ARM;
 				break;
 			case "ai_zombie":
 				if (trace_endpos_z < hit_ent.origin_z) {
-					f_damage = damage*getWeaponMultiplier(self.weapon, LOWER_TORSO_X);
+					f_damage = damage*getWeaponMultiplier(self.weapon, self.perks, LOWER_TORSO_X);
 					hit_ent.hit_region = HIT_REGION_TORSO_LOWER;
 				}
 				else {
-					f_damage = damage*getWeaponMultiplier(self.weapon, UPPER_TORSO_X);
+					f_damage = damage*getWeaponMultiplier(self.weapon, self.perks, UPPER_TORSO_X);
 					hit_ent.hit_region = HIT_REGION_TORSO_UPPER;
 				}
 				break;
@@ -1035,7 +1035,7 @@ void(float side) W_Fire =
 	}
 	
 	//get some basic info
-	damage = getWeaponDamage(self.weapon);
+	damage = getWeaponDamage(self.weapon, self.weapons[0].weapon_tier);
 
 	if (global_trace_damage_multiplier != 0)
 		damage *= global_trace_damage_multiplier;

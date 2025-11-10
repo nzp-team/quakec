@@ -54,6 +54,9 @@ void(float direct_impact) Ray_BeamExplode =
 		raybeam_damage_max = 1800;
 	}
 
+	raybeam_damage_min = Gamemode_GetWeaponDamage(raybeam_damage_min, self.weapon, self.boxstatus);
+	raybeam_damage_max = Gamemode_GetWeaponDamage(raybeam_damage_max, self.weapon, self.boxstatus);
+
 	// Apply the Damage.
 	DamgageExplode(self, self.owner, raybeam_damage_max,
                    raybeam_damage_min, raybeam_damage_radius);
@@ -136,6 +139,7 @@ void() W_FireRay =
 	porter.owner = self;
 	porter.movetype = MOVETYPE_FLY;
 	porter.weapon = self.weapon;
+	porter.boxstatus = self.weapons[0].weapon_tier;
 	porter.solid = SOLID_BBOX;
 	porter.classname = "projectile_raybeam";
 
@@ -189,16 +193,7 @@ void() W_FireRay =
     // final setup!
 	porter.origin = self.origin + self.view_ofs;
 	porter.origin += v_forward * 0;
-
-	// Start at the barrel offset if not ADS
-	if (self.zoom == 0) {
-		makevectors(self.v_angle);
-		// Y, Z, X
-		vector ads_pos = GetWeaponFlash_Offset(self.weapon);
-		porter.origin += v_right * (ads_pos.x/1000);
-    	porter.origin += v_up * (ads_pos.y/1000);
-    	porter.origin += v_forward * (ads_pos.z/1000);
-	}
+	porter.scale = 0.33;
 
 	setorigin(porter, porter.origin);
 

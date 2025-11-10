@@ -29,6 +29,8 @@ void (float achievement_id, optional entity who) GiveAchievement;
 void(entity client) LastStand_Begin;
 void() Gamemode_GetUp;
 void(entity attacker, float death_style) Gamemode_DieHandler;
+float(float current_earned_score, float damage_style) Gamemode_ScoreForDamage;
+float(float current_health_delay, float current_perks) Gamemode_GetHealthRegenDelayForPlayer;
 
 #define DMG_SCORE_HEADSHOT		100 	// Death by Headshot
 #define DMG_SCORE_MELEE			130		// Death by Melee
@@ -210,7 +212,7 @@ void () GetUp =
 	
 	self.teslacount = 0;
 
-	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk);
+	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk, self.tierbk);
 	Gamemode_GetUp();
 };
 
@@ -281,7 +283,7 @@ void(entity attacker, float d_style) DieHandler =
 		if (cvar("sv_difficulty") == 3)
 			points_earned = floor((points_earned/10) * 0.75) * 10;
 
-		Player_AddScore(attacker, points_earned, true);
+		Player_AddScore(attacker, Gamemode_ScoreForDamage(points_earned, d_style), true);
 
 		Gamemode_DieHandler(attacker, d_style);
     }
@@ -299,7 +301,7 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 	if (victim.classname == "ai_zombie" || victim.classname == "ai_dog") {
 
 		if (attacker.classname == "player" && (victim.health - damage) > 0 && d_style != DMG_TYPE_OTHER) {
-			Player_AddScore(attacker, DMG_SCORE_STDDAMAGE, true);
+			Player_AddScore(attacker, Gamemode_ScoreForDamage(DMG_SCORE_STDDAMAGE, d_style), true);
 			nzp_hitmarker(attacker, false);
         }
 
@@ -331,16 +333,20 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 
 		// Determine how long to wait before regenerating based on our Health ratio
 		float ratio = victim.health / victim.max_health;
+		float health_delay_s = 0;
 
 		// Badly hurt = longer delay.
 		if (ratio <= 0.2) {
-			victim.health_delay = time + 5;
+			health_delay_s = 5;
 
 			// We're really low, so let's regen REALLY slow.
 			victim.health_was_very_low = true;
 		} else {
-			victim.health_delay = time + 2.4;
+			health_delay_s = 2.4;
 		}
+
+		health_delay_s = Gamemode_GetHealthRegenDelayForPlayer(health_delay_s, victim.perks);
+		victim.health_delay = time + health_delay_s;
 
 		// shake the camera on impact
 		vector distance;
@@ -473,11 +479,11 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			
 				if (final_damage < other.health)
 				{
-					Player_AddScore(self, DMG_SCORE_STDDAMAGE, false);
+					Player_AddScore(self, Gamemode_ScoreForDamage(DMG_SCORE_STDDAMAGE, 0), false);
 				}
 				else if (final_damage > other.health)
 				{
-					Player_AddScore(self, DMG_SCORE_STDDAMAGE, false);
+					Player_AddScore(self, Gamemode_ScoreForDamage(DMG_SCORE_STDDAMAGE, 0), false);
 				}
 				else
 				{

@@ -26,6 +26,7 @@
 
 */
 
+float(float current_earned_score, float damage_style) Gamemode_ScoreForDamage;
 
 // 
 // Think function for tesla spark sprite spawned at zombie torso
@@ -86,7 +87,7 @@ void(entity hit_ent, entity arc_parent, entity arc_owner, float arc_num, float d
         // 50 points for waffe kills
         if(arc_owner.classname == "player") {
             arc_owner.kills += 1;
-            Player_AddScore(arc_owner, DMG_SCORE_TESLA, true);
+            Player_AddScore(arc_owner, Gamemode_ScoreForDamage(DMG_SCORE_TESLA, DMG_TYPE_TESLA), true);
         }
     }
 

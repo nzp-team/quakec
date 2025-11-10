@@ -97,7 +97,7 @@ void() Gamemode_Sticks_Frame =
 
 void() Gamemode_Sticks_PlayerSpawn =
 {
-	Weapon_AssignWeapon(0, W_BK, 0, 0);
+	Weapon_AssignWeapon(0, W_BK, 0, 0, 0);
 };
 
 void(entity attacker, float death_style) Gamemode_Sticks_DieHandler =

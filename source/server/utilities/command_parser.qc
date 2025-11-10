@@ -52,7 +52,7 @@ float(string params) Command_give =
 	float wep = stof(argv(1));
 
 	if (wep) {
-		Weapon_GiveWeapon(wep, 0, 0);
+		Weapon_GiveWeapon(wep, 0, 0, 0);
 
         return COMMAND_SUCCESS;
     }

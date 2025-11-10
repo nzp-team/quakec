@@ -29,6 +29,8 @@ void(float type) Zombie_PlaySoundType;
 void() LinkZombiesHitbox;
 entity() Dog_FindEnemy;
 
+float(float current_dist, string ai_classname) Gamemode_GetAIWalkSpeed;
+
 void() path_corner_touch =
 {
 	self.origin_z = self.origin_z + 32;
@@ -800,6 +802,8 @@ void(float dist) Inside_Walk = {
 
 .float droptime;
 void(float dist) Zombie_Walk =  {
+	dist = Gamemode_GetAIWalkSpeed(dist, self.classname);
+
 	//Resetting velocity from last frame (except for vertical)
 	self.velocity_x = 0;
 	self.velocity_y = 0;
