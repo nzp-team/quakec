@@ -29,6 +29,7 @@ clientfuncs.qc
 hash_table.qc
 dummies.qc
 rounds.qc
+ai/zoning_core.qc
 main.qc
 plugins/plugin_mapvote.qc
 plugins/plugin_core.qc

@@ -523,6 +523,23 @@ string 	mystery_box_close_sound;
 entity 	mystery_boxes[16];
 vector 	mystery_box_start_origin;
 
+// Zoning
+#define MAX_ZONES			32
+
+var struct zone_struct
+{
+	string 	name;
+	float 	id;
+	string 	targets;
+	string 	fog_value;
+	float 	num_adj_zones;
+	float 	adj_zone_id [MAX_ZONES];
+	float 	num_brushes;
+	vector	brush_mins [MAX_ZONES];
+	vector	brush_maxs [MAX_ZONES];
+
+} stored_zones[MAX_ZONES] = {};
+
 #ifdef FTE
 
 .float x2_icon;
