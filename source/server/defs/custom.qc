@@ -525,6 +525,7 @@ vector 	mystery_box_start_origin;
 
 // Zoning
 #define MAX_ZONES			32
+#define MAX_ZONE_BRUSHES	8
 
 var struct zone_struct
 {
@@ -535,8 +536,8 @@ var struct zone_struct
 	float 	num_adj_zones;
 	float 	adj_zone_id [MAX_ZONES];
 	float 	num_brushes;
-	vector	brush_mins [MAX_ZONES];
-	vector	brush_maxs [MAX_ZONES];
+	vector	brush_mins [MAX_ZONE_BRUSHES];
+	vector	brush_maxs [MAX_ZONE_BRUSHES];
 
 } stored_zones[MAX_ZONES] = {};
 
