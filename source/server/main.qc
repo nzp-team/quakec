@@ -104,6 +104,7 @@ void() StartFrame =
 
 	if (roundinit) {
 		Round_Core();
+		Zoning_CheckZones();
 
 		if (ai_delay_time < time) {
 			Do_Zombie_AI ();
