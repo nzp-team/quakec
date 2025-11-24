@@ -541,10 +541,7 @@ var struct zone_struct
 
 } stored_zones[MAX_ZONES] = {};
 
-.float zone_id;
-.float current_zone_id;
-.string current_zone_name;
-.float my_adj_zone_id [MAX_ZONES];
+.float zone;
 
 float() PollPlayersAlive;
 
