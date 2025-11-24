@@ -87,6 +87,7 @@ void(float active_zone) Zoning_DecideZombieSpawns =
                                 dprint(stored_zones[j].name);
                                 dprint("\n");
                                 dog_spawns.classname = "spawn_dog";
+                                break;
                             }
                         }
                     }
@@ -161,6 +162,7 @@ void(float active_zone) Zoning_DecideZombieSpawns =
                                 dprint(stored_zones[j].name);
                                 dprint("\n");
                                 zombie_spawns.classname = "spawn_zombie";
+                                break;
                             }
                         }
                     }
