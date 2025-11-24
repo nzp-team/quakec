@@ -48,61 +48,125 @@ void() spawn_zone =
 
 void(float active_zone) Zoning_DecideZombieSpawns =
 {
-    vector brush_mins;
-    vector brush_maxs;
-
     entity zombie_spawns;
+    entity dog_spawns;
     entity reset_spawns;
 
-    brush_mins = '0.0 0.0 0.0';
-    brush_maxs = '0.0 0.0 0.0';
-
     dprint("\n");
-    dprint("Disabling all active zombie spawns");
+    dprint("Disabling active zombie spawns");
     dprint("\n");
 
     entity players = find(world, classname, "player");
     while (players != world) 
     {
+        // if this is a dog round
+        if (roundtype == 2) {
+            dog_spawns = find(world, classname, "spawn_dog");
+            while (dog_spawns != world) {
 
-        // disable all active spawns first
-        // but not ones in other players zone or adjacent zones
-        zombie_spawns = find(world, classname, "spawn_zombie");
-        while (zombie_spawns != world) {
+                dog_spawns.classname = "dog_spawn_disabled";
 
-            if(zombie_spawns.targetname == "") {
-                // identify spawn room zombies and set their correct targets
-                zombie_spawns.targetname = stored_zones[active_zone].targets;
-            }
+                // re-enable spawns in all players current zone
+                if (stored_zones[players.zone].targets == dog_spawns.targetname) {
+                        dprint("keeping spawn in zone ");
+                        dprint(stored_zones[players.zone].name);
+                        dprint("\n");
+                        dog_spawns.classname = "spawn_dog";
+                }
 
-            zombie_spawns.classname = "spawn_zombie_disabled";
-            
-            if (stored_zones[players.zone].targets == zombie_spawns.targetname) {
-                    // don't disable this spawn
-                    dprint("keeping spawn in zone ");
-                    dprint(stored_zones[players.zone].name);
-                    dprint("\n");
-                    zombie_spawns.classname = "spawn_zombie";
-            }
+                // do the same for adjacent zones
+                for (float i = 0; i < stored_zones[players.zone].num_adj_zones; i++) {
+                    float adj_zone = stored_zones[players.zone].adj_zone_id[i];
 
-            for (float i = 0; i < stored_zones[players.zone].num_adj_zones; i++) {
-                float adj_zone = stored_zones[players.zone].adj_zone_id[i];
-
-                for (float j = 0; j < num_zones; j++) {
-                    if (stored_zones[j].id == adj_zone) {
-                        // found adjacent zone
-                        if (zombie_spawns.targetname == stored_zones[j].targets) {
-                            // don't disable these spawns either
-                            dprint("keeping spawn in zone ");
-                            dprint(stored_zones[j].name);
-                            dprint("\n");
-                            zombie_spawns.classname = "spawn_zombie";
+                    for (float j = 0; j < num_zones; j++) {
+                        if (stored_zones[j].id == adj_zone) {
+                            // found adjacent zone
+                            if (dog_spawns.targetname == stored_zones[j].targets) {
+                                // don't disable these spawns either
+                                dprint("keeping spawn in zone ");
+                                dprint(stored_zones[j].name);
+                                dprint("\n");
+                                dog_spawns.classname = "spawn_dog";
+                            }
                         }
                     }
                 }
+
+                dog_spawns = find(dog_spawns, classname, "spawn_dog");
             }
 
-            zombie_spawns = find(zombie_spawns, classname, "spawn_zombie");
+            dog_spawns = find(world, classname, "spawn_dog_disabled");
+            while (dog_spawns != world) {
+
+                // re-enable zombie spawns that match zone target in current zone 
+                if (dog_spawns.targetname == stored_zones[active_zone].targets) {
+                    dog_spawns.classname = "spawn_dog";
+                    dprint("reactivating spawn in zone ");
+                    dprint(stored_zones[active_zone].name);
+                    dprint("\n");
+                }
+
+                // re-enable zombie spawns that match adjacent zone targets
+                for (float k = 0; k < stored_zones[active_zone].num_adj_zones; k++) {
+                    float adj_zone = stored_zones[active_zone].adj_zone_id[k];
+
+                    for (float l = 0; l < num_zones; l++) {
+                        if (stored_zones[l].id == adj_zone) {
+                            // found adjacent zone
+                            if (dog_spawns.targetname == stored_zones[l].targets) {
+                                dprint("reactivating spawn in zone ");
+                                dprint(stored_zones[l].name);
+                                dprint("\n");
+                                dog_spawns.classname = "spawn_dog";
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                dog_spawns = find(dog_spawns, classname, "spawn_dog_disabled");
+            }
+        } else {
+
+            // disable all active spawns first
+            // but not ones in players zone or adjacent zones
+            zombie_spawns = find(world, classname, "spawn_zombie");
+            while (zombie_spawns != world) {
+
+                if(zombie_spawns.targetname == "") {
+                    // identify spawn room zombies and set their correct targets
+                    zombie_spawns.targetname = stored_zones[active_zone].targets;
+                }
+
+                zombie_spawns.classname = "spawn_zombie_disabled";
+                
+                // re-enable spawns in all players current zone
+                if (stored_zones[players.zone].targets == zombie_spawns.targetname) {
+                        dprint("keeping spawn in zone ");
+                        dprint(stored_zones[players.zone].name);
+                        dprint("\n");
+                        zombie_spawns.classname = "spawn_zombie";
+                }
+
+                // do the same for adjacent zones
+                for (float i = 0; i < stored_zones[players.zone].num_adj_zones; i++) {
+                    float adj_zone = stored_zones[players.zone].adj_zone_id[i];
+
+                    for (float j = 0; j < num_zones; j++) {
+                        if (stored_zones[j].id == adj_zone) {
+                            // found adjacent zone
+                            if (zombie_spawns.targetname == stored_zones[j].targets) {
+                                // don't disable these spawns either
+                                dprint("keeping spawn in zone ");
+                                dprint(stored_zones[j].name);
+                                dprint("\n");
+                                zombie_spawns.classname = "spawn_zombie";
+                            }
+                        }
+                    }
+                }
+                zombie_spawns = find(zombie_spawns, classname, "spawn_zombie");
+            }
         }
 
         zombie_spawns = find(world, classname, "spawn_zombie_disabled");
@@ -136,7 +200,6 @@ void(float active_zone) Zoning_DecideZombieSpawns =
 
             zombie_spawns = find(zombie_spawns, classname, "spawn_zombie_disabled");
         }
-
 
         players = find(players, classname, "player");
     }
@@ -185,13 +248,13 @@ float() Zoning_ReturnCurrentZone =
 
 void(float this_zone) Zoning_PrintZones =
 {
-    dprint("Current Zone: ");
-    dprint(stored_zones[this_zone].name);
-    dprint("\n");
+    bprint(PRINT_HIGH, "Current Zone: ");
+    bprint(PRINT_HIGH, stored_zones[this_zone].name);
+    bprint(PRINT_HIGH, "\n");
 
-    dprint("Previous Zone: ");
-    dprint(stored_zones[previous_zone].name);
-    dprint("\n");
+    bprint(PRINT_HIGH, "Previous Zone: ");
+    bprint(PRINT_HIGH, stored_zones[previous_zone].name);
+    bprint(PRINT_HIGH, "\n");
 
     for (float i = 0; i < stored_zones[this_zone].num_adj_zones; i++) {
 
@@ -199,15 +262,15 @@ void(float this_zone) Zoning_PrintZones =
 
         for (float k = 0; k < num_zones; k++) {
             if (stored_zones[k].id == adj_zone) {
-                dprint("Adj Zone Name: ");
-                dprint(stored_zones[k].name);
-                dprint("\n");
+                bprint(PRINT_HIGH, "Adj Zone Name: ");
+                bprint(PRINT_HIGH, stored_zones[k].name);
+                bprint(PRINT_HIGH, "\n");
                 break;
             }
         }
     }
 
-    dprint("\n");
+    bprint(PRINT_HIGH, "\n");
     return;
 }
 
