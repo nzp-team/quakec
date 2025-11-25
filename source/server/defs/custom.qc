@@ -541,7 +541,8 @@ var struct zone_struct
 
 } stored_zones[MAX_ZONES] = {};
 
-.float zone;
+.float current_zone;
+.float previous_zone;
 
 float() PollPlayersAlive;
 
