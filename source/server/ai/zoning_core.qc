@@ -35,6 +35,9 @@ float zone_timer_delay = 3;
 // zone_changed returns true if the current zone is different
 // from the previous zone
 float zone_changed;
+// the following store players current and previous zone
+.float current_zone;
+.float previous_zone;
 
 // version 1.0.0 of the zone tool does not yet strip
 // data from the map file, so we remove the entity here
@@ -147,7 +150,7 @@ void(entity players) Zoning_GetCurrentZone =
     brush_mins = '0.0 0.0 0.0';
     brush_maxs = '0.0 0.0 0.0';
 
-    // check which zone this player is currently in
+    // check which zone this player is currently in.
     // start by looking through possible zones
     for (float i = 0; i < num_zones; i++) {
         // iterate through all brushes in this zone
@@ -251,8 +254,6 @@ void(float power_flipped) Zoning_UpdateAllZones =
     if (!has_zone_file)         return;
     // is it time to check active zones?
     if (zone_timer > time)      return;
-    // is anyone even alive?
-    if (!PollPlayersAlive())    return;
 
     entity players;
 	players = find(world, classname, "player");

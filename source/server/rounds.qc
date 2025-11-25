@@ -208,6 +208,7 @@ void() EndRound =
 	}
 }
 
+void(entity players) Zoning_SetFog;
 void() NewRound =
 {
 	string new_round_tune = "";

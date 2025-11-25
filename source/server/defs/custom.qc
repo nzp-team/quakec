@@ -544,13 +544,6 @@ var struct zone_struct
 
 float has_zone_file;
 
-.float current_zone;
-.float previous_zone;
-
-void(entity players) Zoning_SetFog;
-
-float() PollPlayersAlive;
-
 #ifdef FTE
 
 .float x2_icon;
