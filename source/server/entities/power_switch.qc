@@ -84,7 +84,7 @@ void() Power_HandleFlip =
 //
 void() Power_SetZones =
 {
-	Zoning_CheckZones(1);
+	Zoning_UpdateAllZones(isPowerOn);
 }
 
 //
