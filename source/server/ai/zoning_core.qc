@@ -36,7 +36,8 @@ float zone_timer_delay = 3;
 // from the previous zone
 float zone_changed;
 
-// remove all instances of spawn_zone.. we already have the neccesary data
+// version 1.0.0 of the zone tool does not yet strip
+// data from the map file, so we remove the entity here
 void() spawn_zone =
 {
     remove(self);
@@ -44,91 +45,32 @@ void() spawn_zone =
 }
 
 //
-// Zoning_UpdateDogSpawns (players)
-// This is the same logic as 
-// Zoning_UpdateZombieSpawns
-// with dog classnames used instead
+// Zoning_UpdateSpawns (players)
+// Decides which spawns should 
+// be activated or deactivated
+// based on the players current 
+// and adjacent zones
 //
-void(entity players) Zoning_UpdateDogSpawns =
-{
-    entity dog_spawns;
-
-    dog_spawns = find(world, classname, "spawn_dog");
-    while (dog_spawns != world) {
-
-        if(dog_spawns.targetname == "") {
-            // identify spawn room dogs and set their correct targets
-            dog_spawns.targetname = stored_zones[players.current_zone].targets;
-        }
-
-        dog_spawns.classname = "spawn_dog_disabled";
-
-        // re-enable spawns in all players current zone
-        if (stored_zones[players.current_zone].targets == dog_spawns.targetname) {
-                dog_spawns.classname = "spawn_dog";
-        }
-
-        // do the same for adjacent zones
-        for (float i = 0; i < stored_zones[players.current_zone].num_adj_zones; i++) {
-            float adj_zone = stored_zones[players.current_zone].adj_zone_id[i];
-            for (float j = 0; j < num_zones; j++) {
-                if (stored_zones[j].id == adj_zone) {
-                    // found adjacent zone
-                    if (dog_spawns.targetname == stored_zones[j].targets) {
-                        // don't disable these spawns either
-                        dog_spawns.classname = "spawn_dog";
-                        break;
-                    }
-                }
-            }
-        }
-
-        dog_spawns = find(dog_spawns, classname, "spawn_dog");
-    }
-
-    dog_spawns = find(world, classname, "spawn_dog_disabled");
-    while (dog_spawns != world) {
-
-        // re-enable zombie spawns that match zone target in current zone 
-        if (dog_spawns.targetname == stored_zones[players.current_zone].targets) {
-            dog_spawns.classname = "spawn_dog";
-        }
-
-        // re-enable zombie spawns that match adjacent zone targets
-        for (float k = 0; k < stored_zones[players.current_zone].num_adj_zones; k++) {
-            float adj_zone = stored_zones[players.current_zone].adj_zone_id[k];
-
-            for (float l = 0; l < num_zones; l++) {
-                if (stored_zones[l].id == adj_zone) {
-                    // found adjacent zone
-                    if (dog_spawns.targetname == stored_zones[l].targets) {
-                        dog_spawns.classname = "spawn_dog";
-                        break;
-                    }
-                }
-            }
-        }
-
-        dog_spawns = find(dog_spawns, classname, "spawn_dog_disabled");
-    }
-
-    return;
-}
-
-//
-// Zoning_UpdateZombieSpawns (players)
-// Decides which zombies spawns
-// should be activated or deactivated
-// based on the players current and
-// adjacent zones
-//
-void(entity players) Zoning_UpdateZombieSpawns =
+void(entity players) Zoning_UpdateSpawns =
 {
     entity zombie_spawns;
 
+    string active_spawn = "";
+    string inactive_spawn = "";
+
+    if (roundtype == 2) {
+        // this is a dog round
+        active_spawn = "spawn_dog";
+        inactive_spawn = "spawn_dog_disabled";
+    } else {
+        // normal zombie round
+        active_spawn = "spawn_zombie";
+        inactive_spawn = "spawn_zombie_disabled";
+    }
+
     // first we need to check which active spawns
     // need to be kept as active
-    zombie_spawns = find(world, classname, "spawn_zombie");
+    zombie_spawns = find(world, classname, active_spawn);
     while (zombie_spawns != world) {
 
         if(zombie_spawns.targetname == "") {
@@ -137,12 +79,12 @@ void(entity players) Zoning_UpdateZombieSpawns =
         }
 
         // disable all active spawns first
-        zombie_spawns.classname = "spawn_zombie_disabled";
+        zombie_spawns.classname = inactive_spawn;
         
         // re-enable spawns in players current zone
         if (stored_zones[players.current_zone].targets == zombie_spawns.targetname) {
                 // set these spawns back to active
-                zombie_spawns.classname = "spawn_zombie";
+                zombie_spawns.classname = active_spawn;
         }
 
         // do the same for adjacent zones
@@ -153,23 +95,23 @@ void(entity players) Zoning_UpdateZombieSpawns =
                     // found adjacent zone
                     if (zombie_spawns.targetname == stored_zones[j].targets) {
                         // don't disable these spawns either
-                        zombie_spawns.classname = "spawn_zombie";
+                        zombie_spawns.classname = active_spawn;
                         break;
                     }
                 }
             }
         }
-        zombie_spawns = find(zombie_spawns, classname, "spawn_zombie");
+        zombie_spawns = find(zombie_spawns, classname, active_spawn);
     }
 
     // now we check to see if a deactivated 
     // spawn needs to be reactivated or not
-    zombie_spawns = find(world, classname, "spawn_zombie_disabled");
+    zombie_spawns = find(world, classname, inactive_spawn);
     while (zombie_spawns != world) {
 
         // re-enable zombie spawns that match zone target in current zone 
         if (zombie_spawns.targetname == stored_zones[players.current_zone].targets) {
-            zombie_spawns.classname = "spawn_zombie";
+            zombie_spawns.classname = active_spawn;
         }
 
         // re-enable zombie spawns that match adjacent zone targets
@@ -179,13 +121,13 @@ void(entity players) Zoning_UpdateZombieSpawns =
                 if (stored_zones[l].id == adj_zone) {
                     // found adjacent zone
                     if (zombie_spawns.targetname == stored_zones[l].targets) {
-                        zombie_spawns.classname = "spawn_zombie";
+                        zombie_spawns.classname = active_spawn;
                         break;
                     }
                 }
             }
         }
-        zombie_spawns = find(zombie_spawns, classname, "spawn_zombie_disabled");
+        zombie_spawns = find(zombie_spawns, classname, inactive_spawn);
     }
 
     return;
@@ -335,13 +277,7 @@ void(float power_flipped) Zoning_UpdateAllZones =
         // to decide which spawns to keep active
         // and also update the fog per player
         if (zone_changed || power_flipped) {
-            // if this is a dog round update dog spawns
-            if (roundtype == 2) {
-                Zoning_UpdateDogSpawns(players);
-            } else {
-                // not a dog round, update zombie spawns
-                Zoning_UpdateZombieSpawns(players);
-            }
+            Zoning_UpdateSpawns(players);
             Zoning_SetFog(players);
             // if the power was just turned on then 
             // we need to update regardless of if you've 
