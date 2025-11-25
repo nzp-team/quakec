@@ -526,6 +526,7 @@ vector 	mystery_box_start_origin;
 // Zoning
 #define MAX_ZONES			32
 #define MAX_ZONE_BRUSHES	8
+#define MAX_ADJ_ZONE		8
 
 var struct zone_struct
 {
@@ -534,15 +535,19 @@ var struct zone_struct
 	string 	targets;
 	string 	fog_value;
 	float 	num_adj_zones;
-	float 	adj_zone_id [MAX_ZONES];
+	float 	adj_zone_id [MAX_ADJ_ZONE];
 	float 	num_brushes;
 	vector	brush_mins [MAX_ZONE_BRUSHES];
 	vector	brush_maxs [MAX_ZONE_BRUSHES];
 
 } stored_zones[MAX_ZONES] = {};
 
+float has_zone_file;
+
 .float current_zone;
 .float previous_zone;
+
+void(entity players) Zoning_SetFog;
 
 float() PollPlayersAlive;
 
