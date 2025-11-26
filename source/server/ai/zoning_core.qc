@@ -131,8 +131,6 @@ void(entity players) Zoning_UpdateSpawns =
         }
         zombie_spawns = find(zombie_spawns, classname, inactive_spawn);
     }
-
-    return;
 }
 
 //
@@ -167,8 +165,6 @@ void(entity players) Zoning_GetCurrentZone =
             }
         }
     }
-
-    return;
 }
 
 //
@@ -217,8 +213,6 @@ void(entity players) Zoning_SetFog =
     }
 
     stuffcmd(players, strcat("fog ", fog_value));
-
-    return;
 }
 
 //
@@ -226,6 +220,7 @@ void(entity players) Zoning_SetFog =
 // Unused debug function
 // leftover in case of future bugs
 //
+#ifdef DEBUG
 void(entity players) Zoning_PrintZones =
 {
     dprint("Current Zone: ");
@@ -249,8 +244,8 @@ void(entity players) Zoning_PrintZones =
     }
 
     dprint("\n");
-    return;
 }
+#endif // DEBUG
 
 //
 // Zoning_UpdateAllZones (power_flipped)
@@ -278,8 +273,10 @@ void(float power_flipped) Zoning_UpdateAllZones =
             zone_changed = 0;
         }
 
+#ifdef DEBUG
         // debug information
-        //Zoning_PrintZones (players.current_zone);
+        Zoning_PrintZones (players.current_zone);
+#endif // DEBUG
 
         // set previous zone to current zone
         players.previous_zone = players.current_zone; 
@@ -303,7 +300,6 @@ void(float power_flipped) Zoning_UpdateAllZones =
 
         players = find(players, classname, "player");
     }
-    return;
 }
 
 //
@@ -376,8 +372,6 @@ void(float zone_file) Zoning_ParseZoneFile =
     }
 
     has_zone_file = 1;
-
-    return;
 }
 
 //
