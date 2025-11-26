@@ -867,6 +867,9 @@ void() PlayerPostThink =
 
 	Gamemode_PlayerPostThink();
 
+	// check if we need to update zones
+	Zoning_UpdateAllZones(0);
+
 #ifdef QUAKEC_TEST
 
 	if (time_before_gamestart != 0) {

@@ -78,6 +78,16 @@ void() Power_HandleFlip =
 }
 
 //
+// Power_SetZones()
+// Checks everyone's current zone
+// and updates zombie spawns
+//
+void() Power_SetZones =
+{
+	Zoning_UpdateAllZones(isPowerOn);
+}
+
+//
 // Power_Touch()
 // Power Switch touch function, triggers global activation.
 //
@@ -141,6 +151,7 @@ void() Power_Touch =
 		}
 
 		Power_ActivateLights();
+		Power_SetZones();
 		SUB_UseTargets();
 	}
 }

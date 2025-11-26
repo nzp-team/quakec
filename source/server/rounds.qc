@@ -207,7 +207,7 @@ void() EndRound =
 		triggers = find(triggers, classname, "trigger_atroundend");
 	}
 }
-
+void(entity players) Zoning_SetFog;
 void() NewRound =
 {
 	string new_round_tune = "";
@@ -283,6 +283,8 @@ void() NewRound =
 		// Reset total repaired barricades for this round
 		tempe.barricade_reward = 0;
 
+		Zoning_SetFog(tempe);	
+
 		tempe = find(tempe, classname, "player");
 	}
 
@@ -295,23 +297,6 @@ void() NewRound =
 	Current_Zombies = 0;
 	spawn_delay = 0;
 	totalpowerups = 0;
-
-	string fog_value = "";
-	if (rounds == dogRound && map_has_hellhounds) {
-		roundtype = 2;
-
-		fog_value = strcat(game_modifier_hellhound_fog_color, "\n");
-		localcmd(strcat("fog ", fog_value));
-	} else {
-		roundtype = 1;
-
-		if (game_modifier_default_fog_color != "")
-			fog_value = strcat(game_modifier_default_fog_color, "\n");
-		else
-			fog_value = "0 0 0 0 0\n";
-
-		localcmd(strcat("fog ", fog_value));
-	}
 
 	Remaining_Zombies = Total_Zombies = getZombieTotal();
 
