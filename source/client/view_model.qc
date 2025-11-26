@@ -275,6 +275,14 @@ void() ViewModel_Draw =
         cl_viewent.renderflags = cl_viewent2.renderflags = RF_VIEWMODEL;
     }
 
+    if (getstatf(STAT_VIEWMODEL_EFFECTS) & EF_FULLBRIGHT) {
+        cl_viewent.effects = EF_FULLBRIGHT;
+    }
+
+    if (getstatf(STAT_VIEWMODEL2_EFFECTS) & EF_FULLBRIGHT) {
+        cl_viewent2.effects = EF_FULLBRIGHT;
+    }
+
     // If we're zoomed in with a Sniper scope or r_drawviewmodel is false, early-out.
     if (!cvar("r_drawviewmodel") || getstatf(STAT_WEAPONZOOM) == 2 || cvar("chase_active"))
         return;
