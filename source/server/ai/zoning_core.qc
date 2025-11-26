@@ -28,9 +28,11 @@ string zone_version;
 float zone_timer;
 
 float num_zones;
-// offset zone check delay to every 3 seconds 
+// offset zone check delay to every 2.75 seconds 
 // in attempt to reduce calculation load
-float zone_timer_delay = 3;
+// tested against values produced by ai_delay_time
+// to ensure we are running seperately from pathfinding
+float zone_timer_delay = 2.75;
 // zone_changed returns true if the current zone is different
 // from the previous zone
 float zone_changed;
