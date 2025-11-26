@@ -188,20 +188,31 @@ void(entity players) Zoning_SetFog =
     Zoning_GetCurrentZone(players);
 
     // if this round is a dog round
-    if (roundtype == 2) {
+    if (rounds == dogRound && map_has_hellhounds) {
+        roundtype = 2;
         fog_value = strcat(game_modifier_hellhound_fog_color, "\n");
     } else {
-        // if it's a normal zombie round and there is 
-        // no fog value stored in this zone
-        if (stored_zones[players.current_zone].fog_value == "") {
-            if (game_modifier_default_fog_color != "")
-                        // use whole map fog if available
-                        fog_value = strcat(game_modifier_default_fog_color, "\n");
-                    else
-                        fog_value = "0 0 0 0 0\n";
+        // zombie round
+        roundtype = 1;
+        
+        if (has_zone_file) {
+            // no fog value stored in this zone
+            if (stored_zones[players.current_zone].fog_value == "") {
+                if (game_modifier_default_fog_color != "")
+                            // use whole map fog if available
+                            fog_value = strcat(game_modifier_default_fog_color, "\n");
+                        else
+                            fog_value = "0 0 0 0 0\n";
+            } else {
+                // we have custom fog for this zone
+                fog_value = strcat(stored_zones[players.current_zone].fog_value, "\n");
+            }
         } else {
-            // we have custom fog for this zone
-            fog_value = strcat(stored_zones[players.current_zone].fog_value, "\n");
+            if (game_modifier_default_fog_color != "") {
+				fog_value = strcat(game_modifier_default_fog_color, "\n");
+            } else {
+                fog_value = "0 0 0 0 0\n";
+            }
         }
     }
 
