@@ -180,9 +180,6 @@ void(entity players) Zoning_SetFog =
 
     string fog_value = "";
 
-    // get which zone this player is currently in
-    Zoning_GetCurrentZone(players);
-
     // if this round is a dog round
     if (rounds == dogRound && map_has_hellhounds) {
         roundtype = 2;
@@ -192,6 +189,9 @@ void(entity players) Zoning_SetFog =
         roundtype = 1;
         
         if (has_zone_file) {
+            // get which zone this player is currently in
+            Zoning_GetCurrentZone(players);
+
             // no fog value stored in this zone
             if (stored_zones[players.current_zone].fog_value == "") {
                 if (game_modifier_default_fog_color != "")
