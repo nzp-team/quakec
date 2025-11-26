@@ -62,77 +62,80 @@ void(entity players) Zoning_UpdateSpawns =
     string active_spawn = "";
     string inactive_spawn = "";
 
-    if (roundtype == 2) {
-        // this is a dog round
-        active_spawn = "spawn_dog";
-        inactive_spawn = "spawn_dog_disabled";
-    } else {
-        // normal zombie round
-        active_spawn = "spawn_zombie";
-        inactive_spawn = "spawn_zombie_disabled";
-    }
+    for (float w = 0; w < 2; w++) {
+        if (w == 0) {
+            // zombie spawns
+            active_spawn = "spawn_zombie";
+            inactive_spawn = "spawn_zombie_disabled";
+        } else {
+            // dog spawns
+            active_spawn = "spawn_dog";
+            inactive_spawn = "spawn_dog_disabled";
+        }
+        // first we need to check which active spawns
+        // need to be kept as active
+        zombie_spawns = find(world, classname, active_spawn);
+        while (zombie_spawns != world) {
 
-    // first we need to check which active spawns
-    // need to be kept as active
-    zombie_spawns = find(world, classname, active_spawn);
-    while (zombie_spawns != world) {
+            if(zombie_spawns.targetname == "") {
+                // this spawn doesn't have a target set
+                zombie_spawns.targetname = stored_zones[players.current_zone].targets;
+            }
 
-        if(zombie_spawns.targetname == "") {
-            // this spawn doesn't have a target set
-            zombie_spawns.targetname = stored_zones[players.current_zone].targets;
+            // disable all active spawns first
+            zombie_spawns.classname = inactive_spawn;
+            
+            // re-enable spawns in players current zone
+            if (stored_zones[players.current_zone].targets == zombie_spawns.targetname) {
+                    // set these spawns back to active
+                    zombie_spawns.classname = active_spawn;
+            }
+
+            // do the same for adjacent zones
+            for (float i = 0; i < stored_zones[players.current_zone].num_adj_zones; i++) {
+                float adj_zone = stored_zones[players.current_zone].adj_zone_id[i];
+                for (float j = 0; j < num_zones; j++) {
+                    if (stored_zones[j].id == adj_zone) {
+                        // found adjacent zone
+                        if (zombie_spawns.targetname == stored_zones[j].targets) {
+                            // don't disable these spawns either
+                            zombie_spawns.classname = active_spawn;
+                            break;
+                        }
+                    }
+                }
+            }
+            zombie_spawns = find(zombie_spawns, classname, active_spawn);
         }
 
-        // disable all active spawns first
-        zombie_spawns.classname = inactive_spawn;
-        
-        // re-enable spawns in players current zone
-        if (stored_zones[players.current_zone].targets == zombie_spawns.targetname) {
-                // set these spawns back to active
+        // now we check to see if a deactivated 
+        // spawn needs to be reactivated or not
+        zombie_spawns = find(world, classname, inactive_spawn);
+        while (zombie_spawns != world) {
+
+            // re-enable zombie spawns that match zone target in current zone 
+            if (zombie_spawns.targetname == stored_zones[players.current_zone].targets) {
                 zombie_spawns.classname = active_spawn;
-        }
+            }
 
-        // do the same for adjacent zones
-        for (float i = 0; i < stored_zones[players.current_zone].num_adj_zones; i++) {
-            float adj_zone = stored_zones[players.current_zone].adj_zone_id[i];
-            for (float j = 0; j < num_zones; j++) {
-                if (stored_zones[j].id == adj_zone) {
-                    // found adjacent zone
-                    if (zombie_spawns.targetname == stored_zones[j].targets) {
-                        // don't disable these spawns either
-                        zombie_spawns.classname = active_spawn;
-                        break;
+            // re-enable zombie spawns that match adjacent zone targets
+            for (float k = 0; k < stored_zones[players.current_zone].num_adj_zones; k++) {
+                float adj_zone = stored_zones[players.current_zone].adj_zone_id[k];
+                for (float l = 0; l < num_zones; l++) {
+                    if (stored_zones[l].id == adj_zone) {
+                        // found adjacent zone
+                        if (zombie_spawns.targetname == stored_zones[l].targets) {
+                            zombie_spawns.classname = active_spawn;
+                            break;
+                        }
                     }
                 }
             }
+            zombie_spawns = find(zombie_spawns, classname, inactive_spawn);
         }
-        zombie_spawns = find(zombie_spawns, classname, active_spawn);
+
     }
 
-    // now we check to see if a deactivated 
-    // spawn needs to be reactivated or not
-    zombie_spawns = find(world, classname, inactive_spawn);
-    while (zombie_spawns != world) {
-
-        // re-enable zombie spawns that match zone target in current zone 
-        if (zombie_spawns.targetname == stored_zones[players.current_zone].targets) {
-            zombie_spawns.classname = active_spawn;
-        }
-
-        // re-enable zombie spawns that match adjacent zone targets
-        for (float k = 0; k < stored_zones[players.current_zone].num_adj_zones; k++) {
-            float adj_zone = stored_zones[players.current_zone].adj_zone_id[k];
-            for (float l = 0; l < num_zones; l++) {
-                if (stored_zones[l].id == adj_zone) {
-                    // found adjacent zone
-                    if (zombie_spawns.targetname == stored_zones[l].targets) {
-                        zombie_spawns.classname = active_spawn;
-                        break;
-                    }
-                }
-            }
-        }
-        zombie_spawns = find(zombie_spawns, classname, inactive_spawn);
-    }
 }
 
 //
