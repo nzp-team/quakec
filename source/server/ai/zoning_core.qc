@@ -141,6 +141,7 @@ void(entity players) Zoning_UpdateSpawns =
 // inside of a global .float
 // players.current_zone
 //
+#ifdef DEBUG
 void(entity players) Zoning_GetCurrentZone =
 {
     vector brush_mins;
@@ -170,6 +171,7 @@ void(entity players) Zoning_GetCurrentZone =
 
     return;
 }
+#endif // DEBUG
 
 //
 // Zoning_SetFog (players)
@@ -277,9 +279,11 @@ void(float power_flipped) Zoning_UpdateAllZones =
         if (players.previous_zone == players.current_zone) {
             zone_changed = 0;
         }
-
+        
+#ifdef DEBUG
         // debug information
-        //Zoning_PrintZones (players.current_zone);
+        Zoning_PrintZones (players.current_zone);
+#endif // DEBUG
 
         // set previous zone to current zone
         players.previous_zone = players.current_zone; 
