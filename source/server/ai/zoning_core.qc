@@ -209,6 +209,7 @@ void(entity players) Zoning_SetFog =
                 fog_value = strcat(stored_zones[players.current_zone].fog_value, "\n");
             }
         } else {
+            // use values set for the map
             if (game_modifier_default_fog_color != "") {
 				fog_value = strcat(game_modifier_default_fog_color, "\n");
             } else {
@@ -216,7 +217,6 @@ void(entity players) Zoning_SetFog =
             }
         }
     }
-
     stuffcmd(players, strcat("fog ", fog_value));
 }
 
@@ -247,7 +247,6 @@ void(entity players) Zoning_PrintZones =
             }
         }
     }
-
     dprint("\n");
 }
 #endif // DEBUG
@@ -300,7 +299,7 @@ void(float power_flipped) Zoning_UpdateAllZones =
 
         zone_changed = 1;
 
-        // wait 3 seconds before checking again
+        // wait 2.75 seconds before checking again
         zone_timer = zone_timer_delay + time;
 
         players = find(players, classname, "player");
