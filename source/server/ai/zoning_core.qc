@@ -279,7 +279,7 @@ void(float power_flipped) Zoning_UpdateAllZones =
 
 #ifdef DEBUG
         // debug information
-        Zoning_PrintZones (players.current_zone);
+        Zoning_PrintZones (players);
 #endif // DEBUG
 
         // set previous zone to current zone
