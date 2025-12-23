@@ -524,9 +524,10 @@ entity 	mystery_boxes[16];
 vector 	mystery_box_start_origin;
 
 // Zoning
-#define MAX_ZONES			32
-#define MAX_ZONE_BRUSHES	8
-#define MAX_ADJ_ZONE		8
+#define MAX_ZONES					32
+#define MAX_ZONE_BRUSHES			8
+#define MAX_ADJ_ZONE				8
+#define MAX_ZONE_WAY_TARGETS		6
 
 var struct zone_struct
 {
@@ -539,7 +540,8 @@ var struct zone_struct
 	float 	num_brushes;
 	vector	brush_mins [MAX_ZONE_BRUSHES];
 	vector	brush_maxs [MAX_ZONE_BRUSHES];
-
+	float	num_way_targets;
+	string	way_target [MAX_ZONE_WAY_TARGETS];
 } stored_zones[MAX_ZONES] = {};
 
 float has_zone_file;

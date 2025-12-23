@@ -236,6 +236,7 @@ void() door_fire =
 	self = oself;
 	
 	SUB_UseTargets();
+	Zoning_UpdateAllZones(true);
 };
 
 void() cost_door =

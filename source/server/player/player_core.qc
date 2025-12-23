@@ -868,7 +868,7 @@ void() PlayerPostThink =
 	Gamemode_PlayerPostThink();
 
 	// check if we need to update zones
-	Zoning_UpdateAllZones(0);
+	Zoning_UpdateAllZones(false);
 
 #ifdef QUAKEC_TEST
 
@@ -1185,6 +1185,8 @@ void() PutClientInServer =
 #endif // FTE
 
 	GameRestart_ResetPerkaColas();
+
+	Zoning_SpawnEnts();
 };
 
 void() RestartDedicatedServer =

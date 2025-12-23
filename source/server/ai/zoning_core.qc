@@ -40,12 +40,63 @@ float zone_changed;
 .float current_zone;
 .float previous_zone;
 
-// version 1.0.0 of the zone tool does not yet strip
+// version 1.1.0 of the zone tool does not yet strip
 // data from the map file, so we remove the entity here
 void() spawn_zone =
 {
     remove(self);
     return;
+}
+
+float(float adj_zone, float match) Zoning_IsOpen =
+{
+    entity door;
+    door = find(world, wayTarget, stored_zones[adj_zone].way_target[match]);
+    if (door != world) {
+        if (door.state == STATE_BOTTOM) {
+            dprint("door closed in ");
+            dprint(stored_zones[adj_zone].name);
+            dprint("\n");
+            return 0;
+        } 
+    }
+
+    return 1;
+}
+
+//
+// Zoning_CheckDoors (players, adj_zone)
+//
+float(entity players, float adj_zone) Zoning_CheckDoors =
+{
+    float can_spawn = 1;
+
+    // if either zone has no wayTargets, update zombie spawns
+    if (stored_zones[adj_zone].num_way_targets == 0 || stored_zones[players.current_zone].num_way_targets == 0) {
+        return 1;
+    }
+    // if a wayTarget exists, let's find a door
+    for (float i = 0; i < stored_zones[adj_zone].num_way_targets; i++) {
+
+        for (float j = 0; j < stored_zones[players.current_zone].num_way_targets; j++) {
+            if (stored_zones[players.current_zone].way_target[i] == stored_zones[adj_zone].way_target[i]) {
+                if (stored_zones[adj_zone].way_target[j] != "") {
+                    can_spawn = Zoning_IsOpen(adj_zone, i);
+                }
+            }
+            /*
+            // reversed to catch all cases
+            if (stored_zones[players.current_zone].way_target[j] == stored_zones[adj_zone].way_target[i]) {
+                if (stored_zones[adj_zone].way_target[j] != "") {
+                    can_spawn = Zoning_IsOpen(adj_zone, i);
+                }
+            }
+            */
+        }
+
+    }
+
+    return can_spawn;
 }
 
 //
@@ -88,6 +139,9 @@ void(entity players) Zoning_UpdateSpawns =
             // re-enable spawns in players current zone
             if (stored_zones[players.current_zone].targets == zombie_spawns.targetname) {
                     // set these spawns back to active
+                    dprint("keeping spawn in current ");
+                    dprint(stored_zones[players.current_zone].name);
+                    dprint("\n");
                     zombie_spawns.classname = active_spawn;
             }
 
@@ -98,9 +152,14 @@ void(entity players) Zoning_UpdateSpawns =
                     if (stored_zones[j].id == adj_zone) {
                         // found adjacent zone
                         if (zombie_spawns.targetname == stored_zones[j].targets) {
-                            // don't disable these spawns either
-                            zombie_spawns.classname = active_spawn;
-                            break;
+                            // check if door has been opened or not
+                            if (Zoning_CheckDoors(players, j) == 1) {
+                                // don't disable these spawns either
+                                dprint("keeping spawn active in zone ");
+                                dprint(stored_zones[j].name);
+                                dprint("\n");
+                                zombie_spawns.classname = active_spawn;
+                            }
                         }
                     }
                 }
@@ -115,6 +174,9 @@ void(entity players) Zoning_UpdateSpawns =
 
             // re-enable zombie spawns that match zone target in current zone 
             if (zombie_spawns.targetname == stored_zones[players.current_zone].targets) {
+                dprint("re-activating current spawn in ");
+                dprint(stored_zones[players.current_zone].name);
+                dprint("\n");
                 zombie_spawns.classname = active_spawn;
             }
 
@@ -123,19 +185,21 @@ void(entity players) Zoning_UpdateSpawns =
                 float adj_zone = stored_zones[players.current_zone].adj_zone_id[k];
                 for (float l = 0; l < num_zones; l++) {
                     if (stored_zones[l].id == adj_zone) {
-                        // found adjacent zone
+                        // found adjacent zone                       
                         if (zombie_spawns.targetname == stored_zones[l].targets) {
-                            zombie_spawns.classname = active_spawn;
-                            break;
+                            if(Zoning_CheckDoors(players, l) == 1) {
+                                dprint("re-activating adj spawn in ");
+                                dprint(stored_zones[l].name);
+                                dprint("\n");
+                                zombie_spawns.classname = active_spawn;
+                            }
                         }
                     }
                 }
             }
             zombie_spawns = find(zombie_spawns, classname, inactive_spawn);
         }
-
     }
-
 }
 
 //
@@ -152,6 +216,18 @@ void(entity players) Zoning_GetCurrentZone =
     brush_mins = '0.0 0.0 0.0';
     brush_maxs = '0.0 0.0 0.0';
 
+    float player_x = players.origin[0];
+    float player_y = players.origin[1];
+    float player_z = players.origin[2];
+
+    dprint("player origin: ");
+    dprint(ftos(player_x));
+    dprint(" ");
+    dprint(ftos(player_y));
+    dprint(" ");
+    dprint(ftos(player_z));
+    dprint("\n");
+
     // check which zone this player is currently in.
     // start by looking through possible zones
     for (float i = 0; i < num_zones; i++) {
@@ -160,14 +236,206 @@ void(entity players) Zoning_GetCurrentZone =
             brush_mins = stored_zones[i].brush_mins[k];
             brush_maxs = stored_zones[i].brush_maxs[k];
             // check to see if there's a player inside of a known brush
-            if (players.origin_x >= brush_mins_x && players.origin_x <= brush_maxs_x) {
-                if (players.origin_y >= brush_mins_y && players.origin_y <= brush_maxs_y) {
-                    if (players.origin_z >= brush_mins_z && players.origin_z <= brush_maxs_z) {
+            if (player_x >= brush_mins[0] && player_x <= brush_maxs[0]) {
+                if (player_y >= brush_mins[1] && player_y <= brush_maxs[1]) {
+                    if (player_z >= brush_mins[2] && player_z <= brush_maxs[2]) {
+                        dprint ("current brush mins ");
+                        dprint(ftos(brush_mins[0]));
+                        dprint(" ");
+                        dprint(ftos(brush_mins[1]));
+                        dprint(" ");
+                        dprint(ftos(brush_mins[2]));
+                        dprint("\n");
+                        dprint ("current brush maxs  ");
+                        dprint(ftos(brush_maxs[0]));
+                        dprint(" ");
+                        dprint(ftos(brush_maxs[1]));
+                        dprint(" ");
+                        dprint(ftos(brush_maxs[2]));
+                        dprint("\n");
+                        dprint("zone name ");
+                        dprint(stored_zones[i].name);
+                        dprint("\n");
                         players.current_zone = i;
                         break;
                     }
                 }
             }
+        }
+    }
+}
+
+void() Zoning_SpawnEnts =
+{
+    vector brush_mins;
+    vector brush_maxs;
+
+    vector plot_point;
+
+    float j = 0;
+
+    brush_mins = '0.0 0.0 0.0';
+    brush_maxs = '0.0 0.0 0.0';
+    
+    plot_point = '0.0 0.0 0.0';
+
+    for (float i = 0; i < num_zones; i++) {
+        for (float k = 0; k < stored_zones[i].num_brushes; k++) {
+
+            brush_mins = stored_zones[i].brush_mins[k];
+            brush_maxs = stored_zones[i].brush_maxs[k];
+
+            dprint("spawning info for zone ");
+            dprint(stored_zones[i].name);    
+            dprint("\n");
+            dprint("num_brushes ");
+            dprint(ftos(stored_zones[i].num_brushes));
+            dprint("\n");
+
+            dprint("mins ");
+            dprint(ftos(brush_mins[0]));
+            dprint(" ");
+            dprint(ftos(brush_mins[1]));
+            dprint(" ");
+            dprint(ftos(brush_mins[2]));
+            dprint("\n");
+            dprint("maxs ");
+            dprint(ftos(brush_maxs[0]));
+            dprint(" ");
+            dprint(ftos(brush_maxs[1]));
+            dprint(" ");
+            dprint(ftos(brush_maxs[2]));
+            dprint("\n");
+
+            // min x 
+            // min y
+            // min z
+
+            plot_point[0] = brush_mins[0];
+            plot_point[1] = brush_mins[1];
+            plot_point[2] = brush_mins[2];
+
+            entity zone_view;
+            zone_view = spawn();
+
+            setorigin(zone_view, plot_point);
+            zone_view.solid = SOLID_NOT;
+            setmodel(zone_view, "models/pu/instakill!.mdl");
+            zone_view.classname = "zone_view";
+	        zone_view.effects = EF_FULLBRIGHT;
+
+            // min x 
+            // max y
+            // min z
+
+            plot_point[0] = brush_mins[0];
+            plot_point[1] = brush_maxs[1];
+            plot_point[2] = brush_mins[2];
+
+            zone_view = spawn();
+
+            setorigin(zone_view, plot_point);
+            zone_view.solid = SOLID_NOT;
+            setmodel(zone_view, "models/pu/x2!.mdl");
+            zone_view.classname = "zone_view";
+	        zone_view.effects = EF_FULLBRIGHT;
+
+            // min x 
+            // min y
+            // max z
+
+            plot_point[0] = brush_mins[0];
+            plot_point[1] = brush_mins[1];
+            plot_point[2] = brush_maxs[2];
+
+            zone_view = spawn();
+
+            setorigin(zone_view, plot_point);
+            zone_view.solid = SOLID_NOT;
+            setmodel(zone_view, "models/pu/pack!.mdl");
+            zone_view.classname = "zone_view";
+	        zone_view.effects = EF_FULLBRIGHT;
+
+            // max x 
+            // min y
+            // min z
+
+            plot_point[0] = brush_maxs[0];
+            plot_point[1] = brush_mins[1];
+            plot_point[2] = brush_mins[2];
+
+            zone_view = spawn();
+
+            setorigin(zone_view, plot_point);
+            zone_view.solid = SOLID_NOT;
+            setmodel(zone_view, "models/pu/points!.mdl");
+            zone_view.classname = "zone_view";
+	        zone_view.effects = EF_FULLBRIGHT;
+
+            // max x 
+            // max y
+            // max z
+
+            plot_point[0] = brush_maxs[0];
+            plot_point[1] = brush_maxs[1];
+            plot_point[2] = brush_maxs[2];
+
+            zone_view = spawn();
+
+            setorigin(zone_view, plot_point);
+            zone_view.solid = SOLID_NOT;
+            setmodel(zone_view, "models/pu/nuke!.mdl");
+            zone_view.classname = "zone_view";
+	        zone_view.effects = EF_FULLBRIGHT;
+
+            // max x 
+            // max y
+            // min z
+
+            plot_point[0] = brush_maxs[0];
+            plot_point[1] = brush_maxs[1];
+            plot_point[2] = brush_mins[2];
+
+            zone_view = spawn();
+
+            setorigin(zone_view, plot_point);
+            zone_view.solid = SOLID_NOT;
+            setmodel(zone_view, "models/pu/carpenter!.mdl");
+            zone_view.classname = "zone_view";
+	        zone_view.effects = EF_FULLBRIGHT;
+
+
+            // min x 
+            // max y
+            // max z
+
+            plot_point[0] = brush_mins[0];
+            plot_point[1] = brush_maxs[1];
+            plot_point[2] = brush_maxs[2];
+
+            zone_view = spawn();
+
+            setorigin(zone_view, plot_point);
+            zone_view.solid = SOLID_NOT;
+            setmodel(zone_view, "models/pu/maxammo!.mdl");
+            zone_view.classname = "zone_view";
+	        zone_view.effects = EF_FULLBRIGHT;
+
+            // max x 
+            // min y
+            // max z
+
+            plot_point[0] = brush_maxs[0];
+            plot_point[1] = brush_mins[1];
+            plot_point[2] = brush_maxs[2];
+
+            zone_view = spawn();
+
+            setorigin(zone_view, plot_point);
+            zone_view.solid = SOLID_NOT;
+            setmodel(zone_view, "models/pu/perkbottle!.mdl");
+            zone_view.classname = "zone_view";
+	        zone_view.effects = EF_FULLBRIGHT;
         }
     }
 }
@@ -243,11 +511,36 @@ void(entity players) Zoning_PrintZones =
                 dprint("Adj Zone Name: ");
                 dprint(stored_zones[k].name);
                 dprint("\n");
-                break;
             }
         }
     }
     dprint("\n");
+
+    entity zombies = find (world, classname, "spawn_zombie");
+    while (zombies != world) {
+        for (float i = 0; i < num_zones; i++) {
+            if(stored_zones[i].targets == zombies.targetname) {
+                dprint("spawn active in zone ");
+                dprint(stored_zones[i].name);
+                dprint("\n");
+                break;
+            }
+        }
+        zombies = find(zombies, classname, "spawn_zombie");
+    }
+
+    zombies = find (world, classname, "spawn_zombie_disabled");
+    while (zombies != world) {
+        for (float i = 0; i < num_zones; i++) {
+            if(stored_zones[i].targets == zombies.targetname) {
+                dprint("spawn INACTIVE in zone ");
+                dprint(stored_zones[i].name);
+                dprint("\n");
+                break;
+            }
+        }
+        zombies = find(zombies, classname, "spawn_zombie_disabled");
+    }
 }
 #endif // DEBUG
 
@@ -257,7 +550,7 @@ void(entity players) Zoning_PrintZones =
 // on a timer set for ~3 seconds
 // which fires spawn and fog logic
 //
-void(float power_flipped) Zoning_UpdateAllZones =
+void(float force_update) Zoning_UpdateAllZones =
 {
     // do we have a zone file?
     if (!has_zone_file)         return;
@@ -277,25 +570,25 @@ void(float power_flipped) Zoning_UpdateAllZones =
             zone_changed = 0;
         }
 
+        // if the zone has changed then we want
+        // to decide which spawns to keep active
+        // and also update the fog per player
+        if (zone_changed || force_update) {
+            Zoning_UpdateSpawns(players);
+            Zoning_SetFog(players);
+            // if the power was just turned on then 
+            // we need to update regardless of if you've 
+            // changed zones or not. also applies to doors being purchased
+            force_update = 0;
+        }
+
 #ifdef DEBUG
         // debug information
         Zoning_PrintZones (players);
 #endif // DEBUG
 
         // set previous zone to current zone
-        players.previous_zone = players.current_zone; 
-
-        // if the zone has changed then we want
-        // to decide which spawns to keep active
-        // and also update the fog per player
-        if (zone_changed || power_flipped) {
-            Zoning_UpdateSpawns(players);
-            Zoning_SetFog(players);
-            // if the power was just turned on then 
-            // we need to update regardless of if you've 
-            // changed zones or not
-            power_flipped = 0;
-        }
+        players.previous_zone = players.current_zone;
 
         zone_changed = 1;
 
@@ -355,21 +648,34 @@ void(float zone_file) Zoning_ParseZoneFile =
             }
             // number of brushes in this zone
             h = fgets(zone_file);
-            stored_zones[i].num_brushes = stof(strzone(strtrim(h)));
+            float num_zone_brushes = stof(strzone(strtrim(h)));
+            stored_zones[i].num_brushes = num_zone_brushes;
+
             // all brush mins/maxs
-            for (float k = 0; k < stored_zones[i].num_brushes; k++) {
+            for (float k = 0; k < num_zone_brushes; k++) {
                 h = fgets(zone_file);
                 string brush_mins = strzone(strtrim(h));
                 vector brush_mins_vec = stov(brush_mins);
-                stored_zones[i].brush_mins[k][0] = brush_mins_vec_x;
-                stored_zones[i].brush_mins[k][1] = brush_mins_vec_y;
-                stored_zones[i].brush_mins[k][2] = brush_mins_vec_z;
+                stored_zones[i].brush_mins[k][0] = brush_mins_vec[0];
+                stored_zones[i].brush_mins[k][1] = brush_mins_vec[1];
+                stored_zones[i].brush_mins[k][2] = brush_mins_vec[2];
                 h = fgets(zone_file);
                 string brush_maxs = strzone(strtrim(h));
                 vector brush_maxs_vec = stov(brush_maxs);
-                stored_zones[i].brush_maxs[k][0] = brush_maxs_vec_x;
-                stored_zones[i].brush_maxs[k][1] = brush_maxs_vec_y;
-                stored_zones[i].brush_maxs[k][2] = brush_maxs_vec_z;
+                stored_zones[i].brush_maxs[k][0] = brush_maxs_vec[0];
+                stored_zones[i].brush_maxs[k][1] = brush_maxs_vec[1];
+                stored_zones[i].brush_maxs[k][2] = brush_maxs_vec[2];
+            }
+
+            if (zone_version != "1.0.0") {
+                // number of wayTargets
+                h = fgets(zone_file);
+                stored_zones[i].num_way_targets = stof(strzone(strtrim(h)));
+                // wayTargets in this zone
+                for (float l = 0; l < stored_zones[i].num_way_targets; l++) {
+                    h = fgets(zone_file);
+                    stored_zones[i].way_target[l] = strzone(strtrim(h));
+                }
             }
         }
         parsing = 0;
