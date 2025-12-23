@@ -54,9 +54,6 @@ float(float adj_zone, float match) Zoning_IsOpen =
     door = find(world, wayTarget, stored_zones[adj_zone].way_target[match]);
     if (door != world) {
         if (door.state == STATE_BOTTOM) {
-            dprint("door closed in ");
-            dprint(stored_zones[adj_zone].name);
-            dprint("\n");
             return 0;
         } 
     }
@@ -139,9 +136,6 @@ void(entity players) Zoning_UpdateSpawns =
             // re-enable spawns in players current zone
             if (stored_zones[players.current_zone].targets == zombie_spawns.targetname) {
                     // set these spawns back to active
-                    dprint("keeping spawn in current ");
-                    dprint(stored_zones[players.current_zone].name);
-                    dprint("\n");
                     zombie_spawns.classname = active_spawn;
             }
 
@@ -155,9 +149,6 @@ void(entity players) Zoning_UpdateSpawns =
                             // check if door has been opened or not
                             if (Zoning_CheckDoors(players, j) == 1) {
                                 // don't disable these spawns either
-                                dprint("keeping spawn active in zone ");
-                                dprint(stored_zones[j].name);
-                                dprint("\n");
                                 zombie_spawns.classname = active_spawn;
                             }
                         }
@@ -174,9 +165,6 @@ void(entity players) Zoning_UpdateSpawns =
 
             // re-enable zombie spawns that match zone target in current zone 
             if (zombie_spawns.targetname == stored_zones[players.current_zone].targets) {
-                dprint("re-activating current spawn in ");
-                dprint(stored_zones[players.current_zone].name);
-                dprint("\n");
                 zombie_spawns.classname = active_spawn;
             }
 
@@ -188,9 +176,6 @@ void(entity players) Zoning_UpdateSpawns =
                         // found adjacent zone                       
                         if (zombie_spawns.targetname == stored_zones[l].targets) {
                             if(Zoning_CheckDoors(players, l) == 1) {
-                                dprint("re-activating adj spawn in ");
-                                dprint(stored_zones[l].name);
-                                dprint("\n");
                                 zombie_spawns.classname = active_spawn;
                             }
                         }
@@ -220,14 +205,6 @@ void(entity players) Zoning_GetCurrentZone =
     float player_y = players.origin[1];
     float player_z = players.origin[2];
 
-    dprint("player origin: ");
-    dprint(ftos(player_x));
-    dprint(" ");
-    dprint(ftos(player_y));
-    dprint(" ");
-    dprint(ftos(player_z));
-    dprint("\n");
-
     // check which zone this player is currently in.
     // start by looking through possible zones
     for (float i = 0; i < num_zones; i++) {
@@ -239,23 +216,6 @@ void(entity players) Zoning_GetCurrentZone =
             if (player_x >= brush_mins[0] && player_x <= brush_maxs[0]) {
                 if (player_y >= brush_mins[1] && player_y <= brush_maxs[1]) {
                     if (player_z >= brush_mins[2] && player_z <= brush_maxs[2]) {
-                        dprint ("current brush mins ");
-                        dprint(ftos(brush_mins[0]));
-                        dprint(" ");
-                        dprint(ftos(brush_mins[1]));
-                        dprint(" ");
-                        dprint(ftos(brush_mins[2]));
-                        dprint("\n");
-                        dprint ("current brush maxs  ");
-                        dprint(ftos(brush_maxs[0]));
-                        dprint(" ");
-                        dprint(ftos(brush_maxs[1]));
-                        dprint(" ");
-                        dprint(ftos(brush_maxs[2]));
-                        dprint("\n");
-                        dprint("zone name ");
-                        dprint(stored_zones[i].name);
-                        dprint("\n");
                         players.current_zone = i;
                         break;
                     }
@@ -267,6 +227,7 @@ void(entity players) Zoning_GetCurrentZone =
 
 void() Zoning_SpawnEnts =
 {
+#ifdef DEBUG
     vector brush_mins;
     vector brush_maxs;
 
@@ -438,6 +399,7 @@ void() Zoning_SpawnEnts =
 	        zone_view.effects = EF_FULLBRIGHT;
         }
     }
+#endif
 }
 
 //
