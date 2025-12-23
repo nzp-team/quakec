@@ -151,6 +151,8 @@ void            end_sys_globals;						// flag for structure dumping
 .string			Weapon_Name;
 .string			Weapon_Name_Touch;
 .float          currentmag2;
+.float			viewmodel_effects;
+.float			viewmodel2_effects;
 .float          maxspeed;
 .float     		facingenemy;
 .float          scale;

@@ -188,6 +188,8 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float weapon2frame;
 .float reloadinterupted;
 .float hitcount;
+.float viewmodel_effects;
+.float viewmodel2_effects;
 
 #ifdef FTE
 
