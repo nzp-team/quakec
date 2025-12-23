@@ -970,6 +970,17 @@ void(float side) W_Fire =
 	if (GetFiretype(self.weapon) == FIRETYPE_FLAME && self.cooldown)
 		return;
 
+	// Cheat: keep ammo topped up.
+	if (self.cheat_infiniteammo) {
+		self.weapons[0].weapon_reserve = getWeaponAmmo(self.weapon);
+		self.weapons[0].weapon_magazine = getWeaponMag(self.weapon);
+		if (IsDualWeapon(self.weapon))
+			self.weapons[0].weapon_magazine_left = getWeaponMag(self.weapon);
+		self.primary_grenades = 4;
+		if (self.grenades & 2)
+			self.secondary_grenades = 2;
+	}
+
 	if (self.switch_delay > time || self.dive || self.isBuying)
 		return;
 
@@ -1172,10 +1183,12 @@ void(float side) W_Fire =
 	Sound_PlaySound(self, soundname, SOUND_TYPE_WEAPON_FIRE, SOUND_PRIORITY_PLAYALWAYS);
 
 	if (side == S_RIGHT) {
-		self.weapons[0].weapon_magazine = self.weapons[0].weapon_magazine - 1;
+		if (!self.cheat_infiniteammo)
+			self.weapons[0].weapon_magazine = self.weapons[0].weapon_magazine - 1;
 		self.fire_delay = delay + time;
 	} else {
-		self.weapons[0].weapon_magazine_left = self.weapons[0].weapon_magazine_left - 1;
+		if (!self.cheat_infiniteammo)
+			self.weapons[0].weapon_magazine_left = self.weapons[0].weapon_magazine_left - 1;
 		self.fire_delay2 = delay + time;
 	}
 

@@ -5,7 +5,7 @@
     commands, and a table storing command information. Modeled after
     pr_cmds.
 
-	Copyright (C) 2021-2024 NZ:P Team
+	Copyright (C) 2021-2026 NZ:P Team
 
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -73,21 +73,24 @@ float(string params) Command_addmoney =
 		bprint(PRINT_HIGH, "Someone tried to issue Add Money in a Co-Op match. Nice try!\n");
 		return COMMAND_FAILURE;
 	}
-
+	// No parameter provided -> print a helpful message and fail.
+	if (argv(0) == "") {
+		sprint(self, 1, "Usage: addmoney <point_value>\n  Adds <point_value> amount of points to your score.\n");
+		return COMMAND_FAILURE;
+	}
     // Grab parameters.
     tokenize(params);
     float point_value = stof(argv(0));
 
     // Safety checks
-    if (point_value == 0) {
-        sprint(self, 1, "Command_addmoney: <point_value> is either zero or blank string. Failing.\n");
-        return COMMAND_FAILURE;
+    if (point_value <= 0 && argv(0) != "0" && argv(0) != "0.0") {
+		sprint(self, 1, "Command_addmoney: <point_value> is either zero or lower or blank string. Failing.\n");
+		return COMMAND_FAILURE;
     }
 
-    // Assign points to the player.
-    Player_ChangeScore(self, point_value, false);
+	Player_ChangeScore(self, point_value, false);
 
-    return COMMAND_SUCCESS;
+	return COMMAND_SUCCESS;
 }
 
 //
@@ -189,6 +192,40 @@ float(string params) Command_tracedmgmultiplier =
 }
 
 //
+// Command_infammo()
+// Toggles Infinite Ammo.
+//
+float(string params) Command_infammo =
+{
+	// Anti-Cheat in Co-Op.
+	if (player_count > 1 && cheats_have_been_activated == false) {
+		bprint(PRINT_HIGH, "Someone tried to issue Infinite Ammo in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
+	self.cheat_infiniteammo = !self.cheat_infiniteammo;
+
+	if (self.cheat_infiniteammo) {
+		// Fill all weapons/reserves immediately so it feels instant.
+		for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+			self.weapons[i].weapon_reserve = getWeaponAmmo(self.weapons[i].weapon_id);
+			self.weapons[i].weapon_magazine = getWeaponMag(self.weapons[i].weapon_id);
+			if (IsDualWeapon(self.weapons[i].weapon_id))
+				self.weapons[i].weapon_magazine_left = getWeaponMag(self.weapons[i].weapon_id);
+		}
+		self.primary_grenades = 4;
+		if (self.grenades & 2)
+			self.secondary_grenades = 2;
+
+		sprint(self, 1, "Infinite Ammo: ON\n");
+	} else {
+		sprint(self, 1, "Infinite Ammo: OFF\n");
+	}
+
+	return COMMAND_SUCCESS;
+}
+
+//
 // Command_say()
 // Sends message via CSQC to other clients (FTE-only)
 //
@@ -244,6 +281,7 @@ var struct {
     {"give", Command_give, true, "Usage: give <weapon number>\n  Gives `weapon` of index.\n"},
 	{"qc_soft_restart", Command_softrestart, false, "Executes the Soft_Restart QuakeC function. Useful for debugging its functionality.\n"},
 	{"god", Command_godmode, false, "Toggles God Mode.\n"},
+	{"infammo", Command_infammo, false, "Toggles Infinite Ammo.\n"},
 	{"noclip", Command_noclip, false, "Toggles No Clip.\n"},
 	{"sv_tracedmgmultiplier", Command_tracedmgmultiplier, true, "Multiplies damage output with weapons that fire Traces.\n"},
 	{"spawn_pu", Command_powerup, true, "Usage: spawn_pu <powerup>\n  Spawns a Power-Up of a given ID in front of you. -1 for random.\n"},
