@@ -26,6 +26,13 @@
 */
 float need_vid_reload;
 
+// Commands that should be forwarded to the server when typed in the client
+string server_forward_commands[] = {
+	"addmoney",
+	"infammo",
+	"spawn_pu"
+};
+
 void() ToggleMenu =
 {
 	if (serverkey("constate") != "disconnected")
@@ -154,6 +161,10 @@ noref void(float apiver, string enginename, float enginever) CSQC_Init =
 	registercommand("togglemenu");
 	registercommand("promptjoin");
 	registercommand("showscores");
+	// Register server-forwarded commands for console autocomplete
+	for (float _i = 0; _i < server_forward_commands.length; _i++) {
+		registercommand(server_forward_commands[_i]);
+	}
 
 	cvar_set("r_fb_models", ftos(0));
 	autocvar(r_viewmodel_default_fov, 70);
@@ -850,6 +861,13 @@ noref float(string cmd) CSQC_ConsoleCommand =
 				score_show = TRUE;
 			return TRUE;
 		default:
+		// If this matches a known server-only command, forward it to server.
+		for (float _i = 0; _i < server_forward_commands.length; _i++) {
+			if (argv(0) == server_forward_commands[_i]) {
+				localcmd(sprintf("cmd %s\n", cmd));
+				return TRUE;
+			}
+		}
 			return FALSE;
 	}
 	return FALSE;
