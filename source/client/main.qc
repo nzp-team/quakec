@@ -30,6 +30,7 @@ float need_vid_reload;
 string server_forward_commands[] = {
 	"addmoney",
 	"infammo",
+	"spawn_pu"
 };
 
 void() ToggleMenu =
