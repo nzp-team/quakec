@@ -54,6 +54,17 @@ void() DelayThink =
 	remove(self);
 };
 
+void() RoundDelayThink =
+{
+	if (rounds < self.weapon) {
+		self.nextthink = time + 2;
+	} else {
+		activator = self.enemy;
+		SUB_UseTargets();
+		remove(self);
+	}
+};
+
 float global_triggerstate;
 
 void() SUB_UseTargets =
@@ -145,6 +156,32 @@ void() SUB_UseTargets =
 			t.classname = "DelayedUse";
 			t.nextthink = time + self.delay;
 			t.think = DelayThink;
+			t.enemy = activator;
+			t.message = self.message;
+			t.killtarget = self.killtarget;
+			t.triggerstate = self.triggerstate;
+			t.target = self.target;
+			t.target2 = self.target2;
+			t.target3 = self.target3;
+			t.target4 = self.target4;
+			t.target5 = self.target5;
+			t.target6 = self.target6;
+			t.target7 = self.target7;
+			t.target8 = self.target8;
+			return;
+		}
+
+	//
+	// delay for X rounds
+	//
+		if (self.round_delay)
+		{
+			// create a temp object to fire at a later time
+			t = spawn();
+			t.classname = "DelayedUse";
+			t.weapon = self.round_delay + rounds;
+			t.nextthink = time + 2;
+			t.think = RoundDelayThink;
 			t.enemy = activator;
 			t.message = self.message;
 			t.killtarget = self.killtarget;

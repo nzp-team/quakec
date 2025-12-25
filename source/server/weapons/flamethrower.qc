@@ -70,6 +70,19 @@ void() Flame_Touch =
 		Flame_Linger(self.origin, self);
 		remove(self);
 	} 
+	// Support for func_button
+	if (target.classname == "func_button" && target.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE) {
+		entity old_self;
+
+		old_self = self;
+		self = target;
+		self.health -= 50;
+		self.enemy = old_self.owner;
+
+		if (self.health < 0)
+			self.th_die();
+		self = old_self;
+	}
 	// Some other entity
 	else {
 		// Only impact monsters (this also serves as a limb skip :D)

@@ -166,6 +166,7 @@ float 	map_compatibility_mode;
 #define FIRETYPE_TESLA		5
 #define FIRETYPE_FLAME		6
 #define FIRETYPE_BLADE		7
+#define FIRETYPE_RAYLASER	8
 
 //nzp weapon defines
 //id list
@@ -229,6 +230,8 @@ float 	map_compatibility_mode;
 #define W_DG3    	   57
 #define W_SPRING       58
 #define W_PULVERIZER   59
+#define W_RAYMK2	   60
+#define W_PORTERMK2	   61
 
 //Custom Weapons
 //FIXME - use array?

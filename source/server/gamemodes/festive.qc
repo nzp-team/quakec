@@ -95,7 +95,7 @@ void() Gamemode_Festive_AmmoCrateTouch =
             break;
     }
 
-    if (EqualNonPapWeapon(other.weapon) == W_RAY || EqualNonPapWeapon(other.weapon) == W_TESLA)
+    if (EqualNonPapWeapon(other.weapon) == W_RAY || EqualNonPapWeapon(other.weapon) == W_TESLA || EqualNonPapWeapon(other.weapon) == W_RAYMK2)
         ammo_cost = 10000;
 
     other.Weapon_Name_Touch = GetWeaponName(other.weapon, -1);
@@ -396,7 +396,7 @@ float(float damage, float weapon_id, float weapon_tier) Gamemode_Festive_GetWeap
 
 float(float current_cost, float weapon_cost, float weapon_id, float is_upgraded, float weapon_tier) Gamemode_Festive_GetCostForWeaponAmmo =
 {
-    if (EqualNonPapWeapon(weapon_id) == W_RAY || EqualNonPapWeapon(weapon_id) == W_TESLA)
+    if (EqualNonPapWeapon(weapon_id) == W_RAY || EqualNonPapWeapon(weapon_id) == W_TESLA || EqualNonPapWeapon(weapon_id) == W_RAYMK2)
         return 10000;
 
     if (is_upgraded) {

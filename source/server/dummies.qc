@@ -51,6 +51,7 @@ void() info_player_6_spawn 		= {};
 void() info_player_7_spawn 		= {};
 void() info_player_8_spawn 		= {};
 void() info_null = {remove(self);};
+void() info_texlights = {remove(self);};
 
 void() zombie_horde_point 		= {};
 

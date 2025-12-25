@@ -1374,7 +1374,7 @@ void() HUD_WeaponString =
 			break;
 	}
 
-	if (EqualNonPapWeapon(getstatf(STAT_ACTIVEWEAPON)) == W_RAY || EqualNonPapWeapon(getstatf(STAT_ACTIVEWEAPON)) == W_TESLA)
+	if (EqualNonPapWeapon(getstatf(STAT_ACTIVEWEAPON)) == W_RAY || EqualNonPapWeapon(getstatf(STAT_ACTIVEWEAPON)) == W_TESLA || EqualNonPapWeapon(getstatf(STAT_ACTIVEWEAPON)) == W_RAYMK2)
 		weapon_name_color = TEXT_YELLOW;
 
 	// If the string matches our last store, bail out.

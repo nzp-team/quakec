@@ -165,6 +165,12 @@ string(float wep, float weapon_tier) GetWeaponName =
 		case W_PORTER:
 			weapon_name = "Porter's X2 Ray Gun";
 			break;
+		case W_RAYMK2:
+			weapon_name = "Ray Gun Mark II";
+			break;
+		case W_PORTERMK2:
+			weapon_name = "Porter's Mark II Ray Gun";
+			break;
 		case W_SAWNOFF:
 			weapon_name = "Sawed-Off Shotgun";
 			break;
@@ -342,6 +348,9 @@ float(float wep) GetFiretype =
 		case W_RAY:
 		case W_PORTER:
 			return FIRETYPE_RAYBEAM;
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			return FIRETYPE_RAYLASER;
 		case W_SAWNOFF:
 		case W_SNUFF:
 			return FIRETYPE_SEMIAUTO;
@@ -672,6 +681,16 @@ float(float wep, float current_perks, float type) getWeaponMultiplier =
 				case LIMBS_X: 		multiplier = 1; break;
 			}
 			break;
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			switch (type)
+			{
+				case HEAD_X:		multiplier = 21.7; break;
+				case UPPER_TORSO_X:	multiplier = 1; break;
+				case LOWER_TORSO_X:	multiplier = 1; break;
+				case LIMBS_X: 		multiplier = 1; break;
+			}
+			break;
 	}
 
 	multiplier = Gamemode_GetWeaponLimbMultiplier(multiplier, current_perks, wep, type);
@@ -768,6 +787,10 @@ float(float wep) getWeaponMag =
 			return 20;
 		case W_PORTER:
 			return 40;
+		case W_RAYMK2:
+			return 21;
+		case W_PORTERMK2:
+			return 42;
 		case W_STG:
 			return 30;
 		case W_SPATZ:
@@ -917,6 +940,12 @@ float(float wep) getWeaponAmmo =
 			break;
 		case W_PORTER:
 			weapon_ammo = 200;
+			break;
+		case W_RAYMK2:
+			weapon_ammo = 162;
+			break;
+		case W_PORTERMK2:
+			weapon_ammo = 201;
 			break;
 		case W_SNUFF:
 			weapon_ammo = 60;
@@ -1077,10 +1106,14 @@ float(float wep, float weapon_tier) getWeaponDamage =
 			weapon_damage = 1000;
 			break;
 		case W_RAY:
-			weapon_damage = 1000;
-			break;
 		case W_PORTER:
 			weapon_damage = 1000;
+			break;
+		case W_RAYMK2:
+			weapon_damage = 2300;
+			break;
+		case W_PORTERMK2:
+			weapon_damage = 4600;
 			break;
 		case W_SNUFF:
 			weapon_damage = 240;
@@ -1255,6 +1288,11 @@ float(float wep, float penetration_times) getWeaponPenetration =
 			if (penetration_times >= 2)
 				return 0;
 			return 0.8;
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			if (penetration_times >= 3)
+				return 0;
+			return 1;
 		default:
 			return 0;
     }
@@ -1560,6 +1598,16 @@ float(float wep, float delaytype) getWeaponDelay =
 				return 1.0;
 			else if (delaytype == TAKEOUT)
 				return 0.3;
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			if (delaytype == RELOAD)
+				return 2.98;
+			else if (delaytype == FIRE)
+				return 0.20;
+			else if (delaytype == PUTOUT)
+				return 0.4;
+			else if (delaytype == TAKEOUT)
+				return 0.5;
 		case W_SAWNOFF:
 			if (delaytype == RELOAD)
 				return 2.65;
@@ -1698,6 +1746,8 @@ float GetWeaponWalkSpeed(float perks, float weapon)
 		case W_IMPELLER:
 		case W_RAY:
 		case W_PORTER:
+		case W_RAYMK2:
+		case W_PORTERMK2:
 		case W_TESLA:
 		case W_DG3:
 		case W_MP5K:
@@ -1802,6 +1852,9 @@ vector GetWeaponADSOfs(float wep) =
 		case W_RAY:
 		case W_PORTER:
 			return [-12700, 2086.9, -1000];
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			return [-10663, 1760, -10000];
 		case W_GEWEHR:
 		case W_COMPRESSOR:
 			return [-5150, 5200, -2990];
@@ -2607,6 +2660,42 @@ float(float wep, float frametype, optional float z) GetFrame =
 					return 53;
 			}
 			break;
+		case W_RAYMK2:
+    	case W_PORTERMK2:
+			switch (frametype)
+			{
+				case FIRE_START:
+					return 1;
+				case FIRE_END:
+					return 2;
+				case RELOAD_START:
+					return 3;
+				case RELOAD_END:
+					return 21;
+				case SPRINT_IN_START:
+					return 22;
+				case SPRINT_IN_END:
+					return 24;
+				case SPRINT_START:
+					return 24;
+				case SPRINT_END:
+					return 24;
+				case SPRINT_OUT_START:
+					return 24;
+				case SPRINT_OUT_END:
+					return 25;
+				case TAKE_OUT_START:
+					return 28;
+				case TAKE_OUT_END:
+					return 30;
+				case PUT_OUT_START:
+					return 26;
+				case PUT_OUT_END:
+					return 28;
+				case RELOAD_CANCEL:
+					return 18;
+			}
+			break;
 		case W_STG:
    	 	case W_SPATZ:
 			switch (frametype)
@@ -2921,6 +3010,12 @@ string(float wep, float gorvmodel) GetWeaponModel =
 				return ("models/weapons/ray/g_ray.mdl");
 			else
 				return ("models/weapons/ray/v_ray.mdl");
+		case W_RAYMK2:
+    	case W_PORTERMK2:
+			if (gorvmodel)
+				return ("models/weapons/ray2/g_ray2.mdl");
+			else
+				return ("models/weapons/ray2/v_ray2.mdl");
 		case W_SAWNOFF:
 			if (gorvmodel)
 				return ("models/weapons/sawnoff/g_sawnoff.mdl");
@@ -2999,6 +3094,9 @@ string(float weapon, float has_bowie_knife) GetWeapon2Model =
 				return ("models/weapons/bk/v_blade_bowie.mdl");
 			else
 				return ("models/weapons/bk/v_blade_knife.mdl");
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			return ("models/weapons/ray2/v_ray2_energy.mdl");
 		default:
 			return "";
     }
@@ -3072,6 +3170,9 @@ string(float wep) GetWeaponSound =
 		case W_RAY:
     	case W_PORTER:
 			return "sounds/weapons/raygun/shoot.wav";
+		case W_RAYMK2:
+    	case W_PORTERMK2:
+			return "sounds/weapons/raygun/shoot.wav";
 		case W_SAWNOFF:
     	case W_SNUFF:
 			return "sounds/weapons/shotgun/shoot.wav";
@@ -3141,6 +3242,7 @@ float(float wep) IsPapWeapon = {
 		case W_REAPER:
 		case W_PENETRATOR:
 		case W_PORTER:
+		case W_PORTERMK2:
 		case W_SNUFF:
 		case W_SPATZ:
 		case W_GUT:
@@ -3216,6 +3318,8 @@ float(float wep)  EqualNonPapWeapon =
 			return W_PTRS;
 		case W_PORTER:
 			return W_RAY;
+		case W_PORTERMK2:
+			return W_RAYMK2;
 		case W_SNUFF:
 			return W_SAWNOFF;
 		case W_SPATZ:
@@ -3282,6 +3386,8 @@ float(float wep)  EqualPapWeapon =
 			return W_PENETRATOR;
 		case W_RAY:
 			return W_PORTER;
+		case W_RAYMK2:
+			return W_PORTERMK2;
 		case W_SAWNOFF:
 			return W_SNUFF;
 		case W_STG:
@@ -3670,6 +3776,22 @@ float(float wep, float anim_style, float dualwep, float curweaponframe)	PlayWeap
 				return true;
 			}
 			return false;
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			if (curweaponframe == 4) {
+				Sound_PlaySound(self, "sounds/weapons/raygun/open.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
+				return true;
+			} else if (curweaponframe == 10) {
+				Sound_PlaySound(self, "sounds/weapons/raygun/out.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
+				return true;
+			} else if (curweaponframe == 17) {
+				Sound_PlaySound(self, "sounds/weapons/raygun/in.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
+				return true;
+			} else if (curweaponframe == 18) {
+				Sound_PlaySound(self, "sounds/weapons/raygun/close.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
+				return true;
+			}
+			return false;
 		case W_STG:
 		case W_SPATZ:
 			if (curweaponframe == 15) {
@@ -3931,6 +4053,15 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/raygun/shoot.wav");
 			precache_model("models/misc/raybeam.mdl");
 			break;
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			precache_sound("sounds/weapons/raygun/open.wav");
+			precache_sound("sounds/weapons/raygun/out.wav");
+			precache_sound("sounds/weapons/raygun/in.wav");
+			precache_sound("sounds/weapons/raygun/close.wav");
+			precache_sound("sounds/weapons/raygun/shoot.wav");
+			precache_model("models/misc/raybeam.mdl");
+			break;
 		case W_STG:
 		case W_SPATZ:
 			precache_sound ("sounds/weapons/stg/magout.wav");
@@ -4067,6 +4198,10 @@ float(float wep) getWeaponRecoilReturn =
 			return 0;
 		case W_PORTER:
 			return 0;
+		case W_RAYMK2:
+			return 0;
+		case W_PORTERMK2:
+			return 0;
 		case W_SAWNOFF:
 			return 1000;
 		case W_SNUFF:
@@ -4161,6 +4296,10 @@ float(float weapon, float stance) CrossHairWeapon =
 		case W_PORTER:
 			crosshair_spread = 5;
 			break;
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			crosshair_spread = 5;
+			break;
 		case W_PANZER:
 		case W_LONGINUS:
 		case W_TESLA:
@@ -4249,6 +4388,10 @@ float(float weapon, float stance) CrossHairMaxSpread =
 		case W_WIDDER:
 		case W_RAY:
 		case W_PORTER:
+			crosshair_spread = 35;
+			break;
+		case W_RAYMK2:
+		case W_PORTERMK2:
 			crosshair_spread = 35;
 			break;
 		case W_PANZER:
@@ -4614,6 +4757,9 @@ vector (float wep) GetWeaponFlash_Offset =
 			case W_RAY:
 			case W_PORTER:
 				return [12566, -6463, 49165];
+			case W_RAYMK2:
+			case W_PORTERMK2:
+				return [59811, -10698, 6142];
 			default:
 				return [5488, -2742, 35300];
 		}
@@ -4693,6 +4839,9 @@ float (float wep) GetWeaponFlash_Size = {
 		case W_RAY:
 		case W_PORTER:
 			return 10;
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			return 10;
 		default:
 			return 5;
 	}
@@ -4766,6 +4915,9 @@ float(float wep) GetWeaponZoomAmount =
 			return 10;
 		case W_RAY:
 		case W_PORTER:
+			return 5;
+		case W_RAYMK2:
+		case W_PORTERMK2:
 			return 5;
 		default: return 0;
 	}
@@ -5062,7 +5214,8 @@ float(float weapon) WepDef_DoesNotPlayUpgradedSound =
 	switch(weapon) {
 		case W_DG3:
 		case W_PORTER:
-    case W_FIW:
+		case W_PORTERMK2:
+    	case W_FIW:
 			return true;
 		default:
 			return false;
@@ -5206,10 +5359,54 @@ float(float weapon) WepDef_WeaponSecondaryModelIsAttachment =
 		case W_HEADCRACKER:
 		case W_BK:
 		case W_KRAUS:
+		case W_RAYMK2:
+		case W_PORTERMK2:
 			return true;
 		default:
 			return false;
 	}
 
 	return false;
+}
+
+//
+// WepDef_WeaponModelIsUnlit(weapon)
+// Returns TRUE if a weapon's model should be unlit
+// (full-bright).
+//
+float(float weapon) WepDef_WeaponModelIsUnlit =
+{
+	return false;
+}
+
+//
+// WepDef_Weapon2ModelIsUnlit(weapon)
+// Returns TRUE if a weapon's 2nd model should be unlit
+// (full-bright).
+//
+float(float weapon) WepDef_Weapon2ModelIsUnlit =
+{
+	switch(weapon) {
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			return true;
+	}
+
+	return false;
+}
+
+//
+// WepDef_GetWeaponBurstCount(weapon)
+// Returns number of times the weapon fires with
+// a single trigger pull.
+//
+float(float weapon) WepDef_GetWeaponBurstCount =
+{
+	switch(weapon) {
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			return 3;
+	}
+
+	return 0;
 }

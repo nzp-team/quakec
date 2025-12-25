@@ -42,18 +42,6 @@ void() Power_ActivateLights =
 		Turn_PerkLight_On(tempe);
 		tempe = findfloat (tempe, requirespower, 1);
 	}
-
-	// Light Styles
-	tempe = find(world, classname, "light");
-	while(tempe)
-	{
-		if (tempe.spawnflags & LIGHT_SPAWNFLAG_STARTOFF) {
-			tempe.style = tempe.score;
-			LS_Setup();
-		}
-
-		tempe = find(tempe, classname, "light");
-	}
 } 
 
 //
@@ -96,7 +84,7 @@ void() Power_Touch =
 	if (other.classname != "player" || other.downed)
 		return;
 
-	if (isPowerOn == true)
+	if (isPowerOn == true || self.activated == true)
     	return;
 	
 	entity tempe;
@@ -113,8 +101,17 @@ void() Power_Touch =
         if (self.powerup_vo != "")
             Sound_PlaySound(self, self.powerup_vo, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
+		if (self.oldmodel != "")
+			Sound_PlaySound(world, self.oldmodel, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+		SUB_UseTargets();
+
+		activated_power_switches++;
+		self.activated = true;
+
+		// Only turn the Power on when all switches are activated.
+		if (activated_power_switches != num_power_switches)
+			return;
 		isPowerOn = true;
-		Sound_PlaySound(world, self.oldmodel, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 
         // Trigger all doors that are marked as requiring power.
 		tempe = find (world, classname, "door_nzp");
@@ -152,7 +149,6 @@ void() Power_Touch =
 
 		Power_ActivateLights();
 		Power_SetZones();
-		SUB_UseTargets();
 	}
 }
 
@@ -216,4 +212,5 @@ void() power_switch =
 
     // Set the global flag that indicates the Power isn't on
     isPowerOn = false;
+	num_power_switches++;
 }
