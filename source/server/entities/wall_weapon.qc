@@ -132,6 +132,8 @@ void() weapon_wall =
 // Weapon Buy Trigger Functionality
 // =================================
 
+#define SPAWNFLAG_BUYWEAPON_STARTINACTIVE		1
+
 //
 // WallWeapon_TouchTrigger()
 // Rough and bloaty logic for the process of purchasing
@@ -202,7 +204,7 @@ void () WallWeapon_TouchTrigger =
 			// Subtract the cost from player points.
 			Player_RemoveScore(other, wcost);
 
-			if (self.enemy) {
+			if (self.enemy || self.target2 != "") {
 				SUB_UseTargets();
 			}
 
@@ -242,7 +244,7 @@ void () WallWeapon_TouchTrigger =
 			// Subtract the cost from player points.
 			Player_RemoveScore(other, wcost);
 
-			if (self.enemy) {
+			if (self.enemy || self.target2 != "") {
 				SUB_UseTargets();
 			}
 		}
@@ -275,7 +277,7 @@ void () WallWeapon_TouchTrigger =
 			other.grenades = other.grenades | 2;
 			other.secondary_grenades = 2;
 			nzp_bettyprompt(other);
-			if (self.enemy)
+			if (self.enemy || self.target2 != "")
 			{
 				SUB_UseTargets();
 			}
@@ -307,7 +309,7 @@ void () WallWeapon_TouchTrigger =
 			//other.boughtweapon = true;
 			Player_RemoveScore(other, wcost);
 			other.primary_grenades = 4;
-			if (self.enemy)
+			if (self.enemy || self.target2 != "")
 			{
 				SUB_UseTargets();
 			}
@@ -333,7 +335,7 @@ void () WallWeapon_TouchTrigger =
 					Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 					Sound_PlaySound(other, "sounds/weapons/knife/bowie.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 					other.ach_tracker_coll++;
-					if (self.enemy)
+					if (self.enemy || self.target2 != "")
 					{
 						SUB_UseTargets();
 					}
@@ -370,7 +372,7 @@ void () WallWeapon_TouchTrigger =
 		Sound_PlaySound(other, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		other.reload_delay = 0;
 		Player_RemoveScore(other, wcost);
-		if (self.enemy) {
+		if (self.enemy || self.target2 != "") {
 			SUB_UseTargets();
 		}
 		tempe = self;
@@ -411,6 +413,16 @@ void() WallWeapon_LinkChalk =
 }
 
 //
+// WallWeapon_EnableTouch()
+// Triggered by external ents, enables
+// ability to use Trigger.
+//
+void() WallWeapon_EnableTouch =
+{
+	self.touch = WallWeapon_TouchTrigger;
+};
+
+//
 // buy_weapon()
 // Quake Spawn Function for Weapon Trigger.
 //
@@ -435,7 +447,11 @@ void() buy_weapon =
 		precache_model (weaponname);
 	
 	precache_extra (self.weapon);
-	self.touch = WallWeapon_TouchTrigger;
+
+	if (!(self.spawnflags & SPAWNFLAG_BUYWEAPON_STARTINACTIVE))
+		self.touch = WallWeapon_TouchTrigger;
+	else
+		self.use = WallWeapon_EnableTouch;
 	
 	self.think = WallWeapon_LinkChalk;
 	self.message = "";
