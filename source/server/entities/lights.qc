@@ -26,10 +26,10 @@
 */
 
 #define LIGHT_SPAWNFLAG_STARTOFF        1               // Light starts turned off but can be triggered
-                                                        // On via Power Switch.
+                                                        // targetted.
 
 #define LIGHT_SPAWNFLAG_STARTON         2               // Opposite of STARTOFF, light turns Off when
-                                                        // Power is On.
+                                                        // targetted.
 
 //
 // LS_Setup()
@@ -55,24 +55,42 @@ void() LS_Setup =
 }
 
 //
+// L_Toggle()
+// Sets OFF lights to ON and vice versa.
+//
+void() L_Toggle =
+{
+    // Turn the light ON if it was set to start OFF
+    if (self.spawnflags & LIGHT_SPAWNFLAG_STARTOFF)
+		lightstyle(self.style, self.aistatus);
+    // Turn the light OFF if it was set to start ON
+	else
+		lightstyle(self.style, "a");
+};
+
+//
 // L_Setup()
 // Initialization for Lights.
 //
 void() L_Setup =
 {
-    // If it's not vanilla ZHLT, cut it off.
-    if (self.style > 12 || !self.targetname) {
-        remove(self);
-        return;
-    }
+    if (!self.targetname) {
+		remove(self);
+		return;
+	}
+	
+    // Reserved internally for toggled lights.
+	if (self.style >= 32)
+	{
+		self.use = L_Toggle;
 
-    // Set the Light to be Off if the spawnflag is set.
-    /*if ((self.spawnflags & LIGHT_SPAWNFLAG_STARTOFF)) {
-        // Store the other value for later.
-        //self.score = self.style;
-        lightstyle(self.style, "a");
-    }*/
-}
+        // Set the Light to be Off if the spawnflag is set.
+		if (self.spawnflags & LIGHT_SPAWNFLAG_STARTOFF)
+			lightstyle(self.style, "a");
+		else
+			lightstyle(self.style, self.aistatus);
+ 	}
+};
 
 //
 // --------------------
@@ -85,7 +103,7 @@ void()  light               =           // Basic Light
 void()  light_fluoro        =           // Light with hum ambient
 {   L_Setup();                                                              }
 void()  light_environment   =           // Sun cast from Sky
-{   makestatic(self);                                                       }
+{   L_Setup();                                                              }
 void()  light_fluorospark   =           // Light with buzz ambient
 {   L_Setup();                                                              }
 void()  light_globe         =           // Light with visible globe

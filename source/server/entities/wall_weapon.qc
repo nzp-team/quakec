@@ -70,6 +70,9 @@ void() WallWeapon_Use =
 		case 30: // Springfield
 			setmodel(self.enemy, GetWeaponModel(W_SPRING, 1));
 			break;
+		case 31: // Mark 2
+			setmodel(self.enemy, GetWeaponModel(W_RAYMK2, 1));
+			break;
 		default:
 			setmodel(self.enemy, GetWeaponModel(self.sequence + 1, 1));
 			break;

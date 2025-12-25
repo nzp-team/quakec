@@ -48,6 +48,11 @@ void() ambient_use =
 			sound(self, CHAN_VOICE, self.message, self.health, self.stance);
 			ambientsound(self.origin, self.message, self.health, self.stance);
 		}
+
+		if (self.spawnflags & AMBIENT_SOUND_START_SILENT) {
+			return;
+		}
+		
 		self.team = 0;
 	}
 	else
@@ -136,6 +141,7 @@ void() ambient_bgm =
 	self.message = self.noise2;
 	// backwards compatibility
 	if (!self.message) self.message = "sounds/ambience/amb_loop.wav";
+	precache_sound(self.message);
 	// call ambient_generic()
 	ambient_generic();
 }

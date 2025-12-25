@@ -611,6 +611,9 @@ void(entity ent) Ent_FakeRemove =
 	ent.bbmins = ent.mins;
 	ent.bbmaxs = ent.maxs;
 	ent.sprintflag = ent.solid;
+	ent.use = SUB_Null;
+	ent.think = SUB_Null;
+	ent.nextthink = 0;
 
 	ent.solid = SOLID_NOT;
 	setsize(ent, '0 0 0', '0 0 0');

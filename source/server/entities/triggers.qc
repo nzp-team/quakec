@@ -224,6 +224,8 @@ void() trigger_activator =
 	self.touch = trigger_activator_touch;
 }
 
+#define SPAWNFLAG_TRIGGERINTERACT_STARTINACTIVE	1
+
 void() trigger_interact_touch =
 {
 	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
@@ -236,10 +238,24 @@ void() trigger_interact_touch =
 	}
 }
 
+void() trigger_interact_activate =
+{
+	self.touch = trigger_interact_touch;
+}
+
 void() trigger_interact =
 {
+	if (self.noise != "") {
+		precache_sound(self.noise);
+	}
+	
 	InitTrigger();
-	self.touch = trigger_interact_touch;
+
+	if (self.spawnflags & SPAWNFLAG_TRIGGERINTERACT_STARTINACTIVE) {
+		self.use = trigger_interact_activate;
+	} else {
+		self.touch = trigger_interact_touch;
+	}
 }
 
 /* ===================

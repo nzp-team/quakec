@@ -213,6 +213,9 @@ void (float animation_type, void(optional float t) end_function, float playback_
 //
 void Weapon_SwapWeapons(float play_animation)
 {
+	if (self.weapon_burst_count > 0 && !self.weapon_burst_override)
+		return;
+
  	float weapon_count = 0;
 
  	// Un-zoom camera

@@ -299,6 +299,7 @@ void() GameRestart_ResetPower =
 	if (power_switch) {
 		isPowerOn = false;
 		power_switch.frame = 0;
+		power_switch.activated = false;
 
 		if (!(power_switch.spawnflags & 1)) {
 			power_switch.boxweapon.angles = power_switch.angles;

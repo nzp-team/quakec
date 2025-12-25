@@ -29,12 +29,31 @@
 // func_illusionary
 // =================================
 
+#define SPAWNFLAG_FUNCILLUSIONARY_STARTHIDDEN 	1
+
+void() func_illusionary_show =
+{
+	setmodel(self, self.oldmodel);
+#ifdef FTE
+
+	HalfLife_DoRender();
+	
+#endif // FTE
+};
+
 void() func_illusionary =
 {
 	self.angles = '0 0 0';
 	self.movetype = MOVETYPE_NONE;
 	self.solid = SOLID_NOT;
 	setmodel (self, self.model);
+
+	if (self.spawnflags & SPAWNFLAG_FUNCILLUSIONARY_STARTHIDDEN) {
+		self.use = func_illusionary_show;
+		self.oldmodel = self.model;
+		setmodel(self, "");
+		return;
+	}
 
 #ifdef FTE
 
@@ -276,6 +295,8 @@ void() func_train =
 // func_button
 // =================================
 
+#define SPAWNFLAG_FUNCBUTTON_FIREDAMAGE		1
+
 void() button_wait;
 void() button_return;
 
@@ -376,6 +397,7 @@ void() func_button =
 
 	self.blocked = button_blocked;
 	self.use = button_use;
+	self.classname = "func_button";
 	
 	if (self.health) {
 		self.max_health = self.health;

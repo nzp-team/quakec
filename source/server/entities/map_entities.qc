@@ -429,3 +429,82 @@ void() game_counter =
 	// Every time its triggered, increment.
 	self.use = game_counter_increment;
 }
+
+#define SCREENFLASH_SPAWNFLAG_ENDROUND	1
+
+void() removeZombie;
+void() game_screenflash_fire =
+{
+	if (self.noise != "")
+		Sound_PlaySound(world, self.noise, SOUND_TYPE_MUSIC_ROUND, SOUND_PRIORITY_PLAYALWAYS);
+
+	// End the round if requested
+	if (self.spawnflags & SCREENFLASH_SPAWNFLAG_ENDROUND) {
+		entity old_self = self;
+		entity monsters = find(world, classname, "ai_zombie");
+		while(monsters != world) {
+			self = monsters;
+			self.th_die();
+			monsters = find(monsters, classname, "ai_zombie");
+		}
+		monsters = find(world, classname, "ai_dog");
+		while(monsters != world) {
+			self = monsters;
+			self.th_die();
+			monsters = find(monsters, classname, "ai_dog");
+		}
+		self = old_self;
+		Remaining_Zombies = Current_Zombies = Total_Zombies = 0;
+		EndRound();
+		round_changetime = time + self.currentammo;
+	}
+
+	nzp_screenflash(world, self.weapon, self.ltime, SCREENFLASH_FADE_INANDOUT);
+};
+
+void() game_screenflash =
+{
+	// Trigger Sound
+	if (self.noise != "")
+		precache_sound(self.noise);
+
+	self.use = game_screenflash_fire;
+};
+
+#define SPAWNFLAG_SPAWNPU_SPAWN_ON_PLAYER	1
+
+void() spawn_pu_use =
+{
+	if (self.spawnflags & SPAWNFLAG_SPAWNPU_SPAWN_ON_PLAYER) {
+		// We can just spawn on any active player, it's fine.
+		entity random_player = find(world, classname, "player");
+
+		if (random_player != world)
+			Spawn_Powerup(random_player.origin, self.spawn_id);
+	} else {
+		Spawn_Powerup(self.origin, self.spawn_id);
+	}
+};
+
+void() spawn_pu =
+{
+	self.classname = "spawn_pu";
+	self.use = spawn_pu_use;
+};
+
+void() info_changesky_use =
+{
+	// Evil..
+	string command = "sky ";
+	command = strcat(command, self.name);
+	localcmd(strcat(command, "\n"));
+};
+
+void() info_changesky =
+{
+	if (!self.name)
+		objerror("[ERROR]: info_changesky entity with no skybox definition!\n");
+
+	self.classname = "info_changesky";
+	self.use = info_changesky_use;
+};

@@ -64,6 +64,7 @@ float 	framecount;
 
 float music_override;
 
+.float 	round_delay;
 .float	recoil_delay;
 .float 	cur_spread;
 
@@ -190,6 +191,10 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float hitcount;
 .float viewmodel_effects;
 .float viewmodel2_effects;
+.float weapon_burst_count;
+.float weapon_burst_override;
+.float weapon_autoreload_pending;
+.float weapon2_autoreload_pending;
 
 #ifdef FTE
 
@@ -470,6 +475,8 @@ float crandom();
 #define PERK_MULEKICK_DEFAULT_MODEL		"models/machines/quake_scale/mulekick.mdl"
 
 float isPowerOn;
+float num_power_switches;
+float activated_power_switches;
 .float isBuying; // naievil -- used for checking if a perk is being consumed, limits glitching
 .float perks;
 .float perk_delay;

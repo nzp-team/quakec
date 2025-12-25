@@ -23,8 +23,6 @@
 		59 Temple Place - Suite 330
 		Boston, MA  02111-1307, USA
 */
-
-string zone_version;
 float zone_timer;
 
 float num_zones;
@@ -570,19 +568,23 @@ void(float force_update) Zoning_UpdateAllZones =
 void(float zone_file) Zoning_ParseZoneFile =
 {
     string h;
+    string zone_firstline;
     string zone_header;
+    string zone_version;
     float parsing = 1;
 
     while (parsing) {
         // read the header to validate that
         // this is a zone file
         h = fgets(zone_file);
-        zone_header = substring(h, 0, 17);
+        zone_firstline = strzone(h);
+        zone_header = strzone(substring(zone_firstline, 0, 17));
         if (zone_header != "zone_file_version") {
             parsing = 0;
         }
+
         // version of the zone file
-        zone_version = substring(h, 19, 23);
+        zone_version = strzone(substring(zone_firstline, 19, 24));
         // number of zones in map
         h = fgets(zone_file);
         num_zones = stof(substring(h, 17, 20));
@@ -610,11 +612,9 @@ void(float zone_file) Zoning_ParseZoneFile =
             }
             // number of brushes in this zone
             h = fgets(zone_file);
-            float num_zone_brushes = stof(strzone(strtrim(h)));
-            stored_zones[i].num_brushes = num_zone_brushes;
-
+            stored_zones[i].num_brushes = stof(strzone(strtrim(h)));
             // all brush mins/maxs
-            for (float k = 0; k < num_zone_brushes; k++) {
+            for (float k = 0; k < stored_zones[i].num_brushes; k++) {
                 h = fgets(zone_file);
                 string brush_mins = strzone(strtrim(h));
                 vector brush_mins_vec = stov(brush_mins);
@@ -632,12 +632,16 @@ void(float zone_file) Zoning_ParseZoneFile =
             if (zone_version != "1.0.0") {
                 // number of wayTargets
                 h = fgets(zone_file);
-                stored_zones[i].num_way_targets = stof(strzone(strtrim(h)));
+                string num_way_targets = strzone(strtrim(h));
+                stored_zones[i].num_way_targets = stof(num_way_targets);
                 // wayTargets in this zone
                 for (float l = 0; l < stored_zones[i].num_way_targets; l++) {
                     h = fgets(zone_file);
                     stored_zones[i].way_target[l] = strzone(strtrim(h));
                 }
+            } else {
+                stored_zones[i].num_way_targets = 0;
+                stored_zones[i].way_target[0] = "";
             }
         }
         parsing = 0;

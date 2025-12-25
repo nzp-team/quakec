@@ -59,6 +59,7 @@ entities/wall_weapon.qc
 weapons/frames_core.qc
 weapons/rocket_launcher.qc
 weapons/ray_gun.qc
+weapons/ray_gun_mk2.qc
 weapons/ballistic_knife.qc
 weapons/tesla.qc
 weapons/flamethrower.qc

@@ -89,6 +89,18 @@ void() ReturnWeaponModel =
 		self.weapon2model = "models/weapons/kar/v_karscope.mdl";
 	}
 
+	if (WepDef_WeaponModelIsUnlit(self.weapon)) {
+		self.viewmodel_effects += EF_FULLBRIGHT;
+	} else {
+		self.viewmodel_effects = 0;
+	}
+
+	if (WepDef_Weapon2ModelIsUnlit(self.weapon)) {
+		self.viewmodel2_effects += EF_FULLBRIGHT;
+	} else {
+		self.viewmodel2_effects = 0;
+	}
+
 	// Always try to reload after any action.
 	if (self.weapons[0].weapon_magazine == 0 && self.weapons[0].weapon_reserve != 0)
 		W_Reload(S_RIGHT);
@@ -397,7 +409,7 @@ void(float side) W_AdvanceAnim =
 
 void(float side) W_Reload =
 {
-	if (self.zoom == 2)
+	if (self.zoom == 2 || self.weapon_burst_count > 0)
 		return;
 
 	SetUpdate(self, UT_HUD, 7, 0, 0);
@@ -428,6 +440,8 @@ void(float side) W_Reload =
 	}
 
 	self.zoom = false;
+	self.weapon_autoreload_pending = false;
+	self.weapon2_autoreload_pending = false;
 
 	W_AimOut();
 	W_SprintStop();
@@ -595,15 +609,14 @@ void() WeaponCore_CheckForReload =
 	float wep_nex_mag2 = self.weapons[1].weapon_magazine_left;
 	float wep_nex_res = self.weapons[1].weapon_reserve;
 
-	// Check if left weapon needs reloaded
-	if (!wep_cur_mag2 && IsDualWeapon(self.weapon)) {
-		W_Reload(S_LEFT);
-	}
+    // Mark that we should auto-reload once reload_delay permits it.
+    if (!wep_cur_mag && wep_cur_res) {
+        self.weapon_autoreload_pending = TRUE;
+    }
 
-	// Check if right weapon needs reloaded
-	if (!wep_cur_mag && wep_cur_res) {
-		W_Reload(S_RIGHT);
-	}
+    if (!wep_cur_mag2 && IsDualWeapon(self.weapon) && wep_cur_res) {
+        self.weapon2_autoreload_pending = TRUE;
+    }
 
 	// Check if a weapon swap is necessary
 	if (!wep_cur_mag && !wep_cur_res && !wep_cur_mag2 &&
@@ -832,6 +845,10 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 			self = oldself;
 			return;
 		} else if (hit_ent.solid == SOLID_BSP) {
+			// Button only accepts Fire damage
+			if (hit_ent.classname == "func_button" && (hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE))
+				return;
+
 			oldself = self;
 			self = hit_ent;
 			self.health -= damage;
@@ -964,28 +981,40 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 
 }
 
+void(float side) W_Fire;
+void(float side) W_Fire_Burst =
+{
+    self.weapon_burst_override = true;
+    W_Fire(side);
+    self.weapon_burst_override = false;
+}
 
 void(float side) W_Fire =
 {
 	if (GetFiretype(self.weapon) == FIRETYPE_FLAME && self.cooldown)
 		return;
 
-	if (self.switch_delay > time || self.dive || self.isBuying)
+	if (self.dive || self.isBuying)
 		return;
 
-	//First check that we can actualy fire
-	if (side == S_RIGHT &&
-		(time < self.fire_delay ||
-		self.new_anim_stop ||
-		self.reload_delay > time || !self.weapons[0].weapon_magazine)) {
+	// Prevent the player from spamming the fire button to interrupt a burst.
+	// If the burst is in progress, ignore new fire inputs.
+	if (self.weapon_burst_count > 0 && !self.weapon_burst_override)
 		return;
-	}
 
-	if (side == S_LEFT &&
-		(time < self.fire_delay2 ||
-		self.new_anim2_stop ||
-		self.reload_delay2 > time)) {
-		return;
+	// First check that we can actually fire
+	if (!self.weapon_burst_override) {
+		if (side == S_RIGHT &&
+			(time < self.fire_delay ||
+			self.new_anim_stop ||
+			self.reload_delay > time || !self.weapons[0].weapon_magazine))
+			return;
+
+		if (side == S_LEFT &&
+			(time < self.fire_delay2 ||
+			self.new_anim2_stop ||
+			self.reload_delay2 > time))
+			return;
 	}
 
 	if (self.sprinting) {
@@ -1002,6 +1031,9 @@ void(float side) W_Fire =
 	string soundname;
 	float spread;
 	float delay;
+
+	// track whether we should run the reload logic after this shot
+    float do_check_reload = true;
 
 	//Update the basic vectors
 	makevectors(self.v_angle);
@@ -1072,7 +1104,9 @@ void(float side) W_Fire =
 	}
 
 	// Check if weapon is semi-automatic and if it is, if it's ready to be fired.
-	if (Weapon_IsSemiAutomatic(self.weapon)) {
+	// Only enforce the semi-auto lock on initial trigger pulls, not during burst
+	// fire.
+	if (!self.weapon_burst_override && Weapon_IsSemiAutomatic(self.weapon)) {
 		if (side == S_RIGHT) {
 			if (self.semi_actions & SEMIACTION_FIRE_RIGHT) return;
 			self.semi_actions |= SEMIACTION_FIRE_RIGHT;
@@ -1110,6 +1144,9 @@ void(float side) W_Fire =
 			break;
 		case FIRETYPE_RAYBEAM:
 			W_FireRay();
+			break;
+		case FIRETYPE_RAYLASER:
+			W_FireRay2();
 			break;
 		case FIRETYPE_TESLA:
 			W_FireTesla();
@@ -1166,18 +1203,54 @@ void(float side) W_Fire =
 		Set_W_Frame (startframe, endframe, delay, 0, FIRE, W_LoadAmmo, modelname, FALSE, side, false);
 		self.NeedLoad = true;
 	} else {
-		Set_W_Frame (startframe, endframe, delay, 0, FIRE, WeaponCore_CheckForReload, modelname, FALSE, side, false);
+		// Set up for burst-firing 
+		float burst_count = WepDef_GetWeaponBurstCount(self.weapon);
+
+		if (burst_count > 1) {
+			if (!self.weapon_burst_override) {
+				self.weapon_burst_count = burst_count - 1;  // first shot already fired
+			} else if (self.weapon_burst_count > 0) {
+				self.weapon_burst_count -= 1;
+			}
+
+			if (self.weapon_burst_count > 0) {
+				// More burst shots remain
+				Set_W_Frame(startframe, endframe, delay, 0, FIRE, W_Fire_Burst, modelname, FALSE, side, false);
+				do_check_reload = false; // don’t auto-reload mid-burst
+				self.switch_delay = self.knife_delay = self.sprint_delay = self.grenade_delay = delay + time;
+			} else {
+				// Final shot
+				self.weapon_burst_count = 0;
+				Set_W_Frame(startframe, endframe, delay, 0, FIRE, SUB_Null, modelname, FALSE, side, false);
+				self.switch_delay = self.knife_delay = self.sprint_delay = self.grenade_delay = delay + time;
+			}
+		} else {
+			Set_W_Frame(startframe, endframe, delay, 0, FIRE, SUB_Null, modelname, FALSE, side, false);
+		}
 	}
 
 	Sound_PlaySound(self, soundname, SOUND_TYPE_WEAPON_FIRE, SOUND_PRIORITY_PLAYALWAYS);
 
 	if (side == S_RIGHT) {
 		self.weapons[0].weapon_magazine = self.weapons[0].weapon_magazine - 1;
-		self.fire_delay = delay + time;
 	} else {
 		self.weapons[0].weapon_magazine_left = self.weapons[0].weapon_magazine_left - 1;
-		self.fire_delay2 = delay + time;
 	}
+
+	// Cooldowns only for initial trigger pull, not follow-up burst shots
+	if (!self.weapon_burst_override) {
+		if (side == S_RIGHT) {
+			self.fire_delay  = delay + time;
+			self.reload_delay = delay + time;
+		} else {
+			self.fire_delay2  = delay + time;
+			self.reload_delay2 = delay + time;
+		}
+	}
+
+	if (do_check_reload) {
+        WeaponCore_CheckForReload();
+    }
 
 	if (IsPapWeapon(self.weapon) && !WepDef_DoesNotPlayUpgradedSound(self.weapon)) {
 		Sound_PlaySound(self, "sounds/weapons/papfire.wav", SOUND_TYPE_WEAPON_PACK, SOUND_PRIORITY_PLAYALWAYS);
@@ -2193,8 +2266,20 @@ void() WeaponCore_ClientLogic =
 		self.semi_actions &= ~SEMIACTION_GRENADE;
 	}
 
+	// Automatic Reloading
+	if (self.weapon_autoreload_pending) {
+		W_Reload(S_RIGHT);
+	}
+
+	// Left Automatic Reloading
+	if (self.weapon2_autoreload_pending) {
+		W_Reload(S_LEFT);
+	}
+
 	// Reload Button Pressed
 	if (self.button5) {
+		self.weapon_autoreload_pending = false;
+		self.weapon2_autoreload_pending = false;
 		W_Reload(S_BOTH);
 	}
 
