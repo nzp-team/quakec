@@ -77,16 +77,18 @@ float(entity players, float adj_zone) Zoning_CheckDoors =
             if (stored_zones[players.current_zone].way_target[i] == stored_zones[adj_zone].way_target[i]) {
                 if (stored_zones[adj_zone].way_target[j] != "") {
                     can_spawn = Zoning_IsOpen(adj_zone, i);
+                    return can_spawn;
                 }
             }
-            /*
+            
             // reversed to catch all cases
             if (stored_zones[players.current_zone].way_target[j] == stored_zones[adj_zone].way_target[i]) {
                 if (stored_zones[adj_zone].way_target[j] != "") {
                     can_spawn = Zoning_IsOpen(adj_zone, i);
+                    return can_spawn;
                 }
             }
-            */
+            
         }
 
     }
@@ -279,6 +281,7 @@ void() Zoning_SpawnEnts =
 
             setorigin(zone_view, plot_point);
             zone_view.solid = SOLID_NOT;
+            precache_model("models/pu/instakill!.mdl");
             setmodel(zone_view, "models/pu/instakill!.mdl");
             zone_view.classname = "zone_view";
 	        zone_view.effects = EF_FULLBRIGHT;
@@ -295,6 +298,7 @@ void() Zoning_SpawnEnts =
 
             setorigin(zone_view, plot_point);
             zone_view.solid = SOLID_NOT;
+            precache_model("models/pu/x2!.mdl");
             setmodel(zone_view, "models/pu/x2!.mdl");
             zone_view.classname = "zone_view";
 	        zone_view.effects = EF_FULLBRIGHT;
@@ -311,6 +315,7 @@ void() Zoning_SpawnEnts =
 
             setorigin(zone_view, plot_point);
             zone_view.solid = SOLID_NOT;
+            precache_model("models/pu/pack!.mdl");
             setmodel(zone_view, "models/pu/pack!.mdl");
             zone_view.classname = "zone_view";
 	        zone_view.effects = EF_FULLBRIGHT;
@@ -327,6 +332,7 @@ void() Zoning_SpawnEnts =
 
             setorigin(zone_view, plot_point);
             zone_view.solid = SOLID_NOT;
+            precache_model("models/pu/points!.mdl");
             setmodel(zone_view, "models/pu/points!.mdl");
             zone_view.classname = "zone_view";
 	        zone_view.effects = EF_FULLBRIGHT;
@@ -343,6 +349,7 @@ void() Zoning_SpawnEnts =
 
             setorigin(zone_view, plot_point);
             zone_view.solid = SOLID_NOT;
+            precache_model("models/pu/nuke!.mdl");
             setmodel(zone_view, "models/pu/nuke!.mdl");
             zone_view.classname = "zone_view";
 	        zone_view.effects = EF_FULLBRIGHT;
@@ -359,6 +366,7 @@ void() Zoning_SpawnEnts =
 
             setorigin(zone_view, plot_point);
             zone_view.solid = SOLID_NOT;
+            precache_model("models/pu/carpenter!.mdl");
             setmodel(zone_view, "models/pu/carpenter!.mdl");
             zone_view.classname = "zone_view";
 	        zone_view.effects = EF_FULLBRIGHT;
@@ -376,6 +384,7 @@ void() Zoning_SpawnEnts =
 
             setorigin(zone_view, plot_point);
             zone_view.solid = SOLID_NOT;
+            precache_model("models/pu/maxammo!.mdl");
             setmodel(zone_view, "models/pu/maxammo!.mdl");
             zone_view.classname = "zone_view";
 	        zone_view.effects = EF_FULLBRIGHT;
@@ -392,6 +401,7 @@ void() Zoning_SpawnEnts =
 
             setorigin(zone_view, plot_point);
             zone_view.solid = SOLID_NOT;
+            precache_model("models/pu/perkbottle!.mdl");
             setmodel(zone_view, "models/pu/perkbottle!.mdl");
             zone_view.classname = "zone_view";
 	        zone_view.effects = EF_FULLBRIGHT;
@@ -456,6 +466,8 @@ void(entity players) Zoning_SetFog =
 #ifdef DEBUG
 void(entity players) Zoning_PrintZones =
 {
+    dprint("====================");
+    dprint("\n");
     dprint("Current Zone: ");
     dprint(stored_zones[players.current_zone].name);
     dprint("\n");
@@ -474,6 +486,8 @@ void(entity players) Zoning_PrintZones =
             }
         }
     }
+    dprint("\n");
+    dprint("====================");
     dprint("\n");
 
     entity zombies = find (world, classname, "spawn_zombie");
