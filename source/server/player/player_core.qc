@@ -1185,8 +1185,6 @@ void() PutClientInServer =
 #endif // FTE
 
 	GameRestart_ResetPerkaColas();
-
-	Zoning_SpawnEnts();
 };
 
 void() RestartDedicatedServer =

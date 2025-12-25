@@ -418,6 +418,7 @@ void() worldspawn =
 
 	LoadWaypointData();
 	Zoning_LoadData();
+	Zoning_SpawnEnts();
 
 	//set game elements
 	G_PRONEPOINTS = 0;
