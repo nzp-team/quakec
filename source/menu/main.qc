@@ -107,28 +107,11 @@ void() Menu_MapFinder =
 	maps = search_begin("maps/*.bsp", 0, 0);
 	user_maps_count = search_getsize(maps);
 
-	//custom_map_pages = ceil(map_count/10);
-
-	//float stock_step_back; // So stock maps aren't appended to user maps..
 	for (float i = 0; i < user_maps_count; i++) {
-		//float index = i - stock_step_back;
 		float index = i;
 
 		user_maps[index].occupied = TRUE;
 		user_maps[index].map_name = strip_custominfo(search_getfilename(maps, i));
-
-		// float is_stock;
-		// for(int j = 0; j < stock_maps.length; j++) {
-		// 	if (user_maps[index].map_name == stock_maps[j].bsp_name) {
-		// 		stock_step_back++;
-		// 		is_stock = true;
-		// 		break;
-		// 	}
-		// }
-
-		// // Don't bother occupying if this map is built in.
-		// if (is_stock)
-		// 	return;
 
 		float settings = fopen(strcat("maps/", user_maps[index].map_name, ".txt"), FILE_READ);
 		if (settings != -1) {
@@ -148,7 +131,6 @@ void() Menu_MapFinder =
 		}
 		
 	}
-	//user_maps_count -= stock_step_back;
 
 	search_end(maps);
 };

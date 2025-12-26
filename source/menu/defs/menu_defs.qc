@@ -167,16 +167,28 @@ var struct
 float user_maps_count;
 float user_maps_page;
 
+// Different categories for maps
+#define MAP_CATEGORY_USER       0
+#define MAP_CATEGORY_WAW        1
+#define MAP_CATEGORY_NZP        2
+#define MAP_CATEGORY_NZPBETA    3
+#define MAP_CATEGORY_BLACKOPSDS 4
+
 // Built-in (stock) maps, array_index
 // is populated later.
 var struct
 {
     string bsp_name;
+    float map_category;
     float array_index;
 } stock_maps[] =
 {
-    {"ndu", 0},
-    {"nzp_warehouse", 0},
-    {"nzp_warehouse2", 0},
-    {"christmas_special", 0}
+    {"ndu", MAP_CATEGORY_WAW, 0},
+    {"nzp_warehouse2", MAP_CATEGORY_NZP, 0},
+    {"nzp_xmas2", MAP_CATEGORY_NZP, 0},
+    {"nzp_warehouse", MAP_CATEGORY_NZPBETA, 0},
+    {"christmas_special", MAP_CATEGORY_NZPBETA, 0},
+    {"lexi_house", MAP_CATEGORY_BLACKOPSDS, 0},
+    {"lexi_temple", MAP_CATEGORY_BLACKOPSDS, 0},
+    {"lexi_overlook", MAP_CATEGORY_BLACKOPSDS, 0},
 };
