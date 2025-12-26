@@ -15,6 +15,9 @@ void() Menu_Maps_Init =
     user_maps_page = 0;
 
     for(int i = 0; i < stock_maps.length; i++) {
+        if (stock_maps[i].bsp_name == "")
+            continue;
+        
         for(int j = 0; j < user_maps_count; j++) {
             if (user_maps[j].map_name == stock_maps[i].bsp_name)
                 stock_maps[i].array_index = j;
@@ -129,11 +132,19 @@ void() Menu_Maps =
 
     // Stock Maps
     if (menu_map_mode == MAP_SOLOSTOCK || menu_map_mode == MAP_COOPSTOCK) {
-        for(i = 0; i < stock_maps.length; i++) {
-            // Build the map strings
-            menu_maps_buttons[i] = sprintf("map_%s", stock_maps[i].bsp_name);
+        int blank_map_spots = 0;
 
-            Menu_MapButton(i + 1, sprintf("map_%s", stock_maps[i].bsp_name), stock_maps[i].bsp_name, -1) ? Menu_Maps_LoadMap(stock_maps[i].bsp_name) : 0;
+        for(i = 0; i < stock_maps.length; i++) {
+            if (stock_maps[i].bsp_name == "") {
+                blank_map_spots++;
+                Menu_DrawDivider(i + 1.25);
+                continue;
+            }
+
+            // Build the map strings
+            menu_maps_buttons[i - blank_map_spots] = sprintf("map_%s", stock_maps[i].bsp_name);
+
+            Menu_MapButton(i + 1, sprintf("map_%s", stock_maps[i].bsp_name), stock_maps[i].bsp_name, stock_maps[i].map_category, -1) ? Menu_Maps_LoadMap(stock_maps[i].bsp_name) : 0;
         }
         Menu_DrawDivider(i + 1.25);
 
@@ -169,7 +180,17 @@ void() Menu_Maps =
             // Build the map strings
             menu_maps_buttons[menu_position - 1] = sprintf("map_%s", bsp_name);
 
-            Menu_MapButton(menu_position, sprintf("map_%s", bsp_name), bsp_name, i) ? Menu_Maps_LoadMap(bsp_name) : 0;
+            // Kind of a hack but whatever..
+            // Make sure we keep the correct badge when viewing
+            // official maps in the user maps menu.
+            float map_category = MAP_CATEGORY_USER;
+            for(int j = 0; j < stock_maps.length; j++) {
+                if (user_maps[i].map_name == stock_maps[j].bsp_name) {
+                    map_category = stock_maps[j].map_category;
+                }
+            }
+
+            Menu_MapButton(menu_position, sprintf("map_%s", bsp_name), bsp_name, map_category, i) ? Menu_Maps_LoadMap(bsp_name) : 0;
         }
 
         int current_registry_position = ((i + 1) - (user_maps_page * 10)) - 1;

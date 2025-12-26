@@ -220,12 +220,12 @@ void(float order, string bind) Menu_DrawOptionKey =
 };
 
 //
-// Menu_MapButton(order, id, bsp_name)
+// Menu_MapButton(order, id, bsp_name, map_category, usermap_index)
 // Displays a fancy menu option that loads
 // and draws the details for the given
 // .BSP.
 //
-float(float order, string id, string bsp_name, float usermap_index) Menu_MapButton =
+float(float order, string id, string bsp_name, float map_category, float usermap_index) Menu_MapButton =
 {
 	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
 
@@ -280,6 +280,22 @@ float(float order, string id, string bsp_name, float usermap_index) Menu_MapButt
 		for(i = 0; i < 8; i++) {
 			sui_text([150, 30 + (i * 14)], MENU_TEXT_SMALL, user_maps[index].map_desc[i], [1, 1, 1], 1, 0);
 		}
+
+		// Map Badge
+		string badge_name = "";
+		vector coords_size = [0.25, 0.5];
+		vector coords_pos = [0, 0];
+
+		switch(map_category) {
+			case MAP_CATEGORY_NZPBETA: coords_pos = [0, 0]; badge_name = "NZ:P BETA (2011)"; break;
+			case MAP_CATEGORY_WAW: coords_pos = [0.25, 0]; badge_name = "WORLD AT WAR"; break;
+			case MAP_CATEGORY_NZP: coords_pos = [0, 0.5]; badge_name = "NZ:P ORIGINAL"; break;
+			case MAP_CATEGORY_BLACKOPSDS: coords_pos = [0.25, 0.5]; badge_name = "BLACK OPS (DS)"; break;
+			case MAP_CATEGORY_USER: coords_pos = [0.5, 0]; badge_name = "USERMAP"; break;
+		}
+
+		sui_text([30 + (getTextWidth(badge_name, MENU_TEXT_SUPERSMALL_x)/2), 5], MENU_TEXT_SUPERSMALL, badge_name, [1, 1, 0], 1, 0);
+		sui_subpic([12, 4], [20, 20], "gfx/menu/map_badges", [1, 1, 1], coords_pos, coords_size, 1, 0);
 
 		// Author/Description
 		if (user_maps[index].map_author != "") {
