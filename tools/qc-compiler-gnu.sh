@@ -24,13 +24,46 @@ done
 function setup()
 {
 	cd "${QUAKEC_ROOT}"
+
+	generate_asset_hashtable;
+
+	if [[ -n "${TEST_FLAG}" ]]; then
+		generate_test_list;
+	fi
+
+	mkdir -p build/{fte,standard}
+}
+
+function generate_asset_hashtable()
+{
 	echo "[INFO]: Generating Hash Table"
 	local command="python3 bin/qc_hash_generator.py -i tools/asset_conversion_table.csv -o source/server/hash_table.qc"
 	echo "[${command}]"
 	$command
 	echo "---------------"
+}
 
-	mkdir -p build/{fte,standard}
+function generate_test_list()
+{
+	echo "[INFO]: Running in Unit Test mode, generating unit test list.."
+
+	rm -rf source/server/tests/test_list.qc
+
+	unit_tests=$(grep -r "void() Test_" source/server/tests/ --exclude="test_module.qc")
+
+	i=1;
+	while read test_line; do 
+		unit_test_name=$(echo ${test_line} | awk '{print $2}')
+		echo "#append unit_test_funcs FUNC(${unit_test_name})" >> source/server/tests/test_list.qc
+		i=$(($i+1)); 
+	done <<< "$unit_tests"
+
+	echo "#define FUNC(name) {name, #name}," >> source/server/tests/test_list.qc
+	echo "var struct { void() test_func; string test_name; } qc_unit_tests[] = {" >> source/server/tests/test_list.qc
+	echo "unit_test_funcs" >> source/server/tests/test_list.qc
+	echo "};" >> source/server/tests/test_list.qc
+	echo "#undef FUNC" >> source/server/tests/test_list.qc
+	echo "---------------"
 }
 
 function compile_progs()

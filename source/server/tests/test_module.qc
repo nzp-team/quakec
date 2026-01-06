@@ -117,52 +117,6 @@ void() Test_PrintSummary =
 	localcmd("quit\n");
 };
 
-//
-// Test Table
-// Add unit tests to this table for them to be
-// executed during Pull Request testing.
-//
-var struct {
-	void()					test_func;
-	string 					test_name;
-} qc_unit_tests[] = {
-	{ Test_Math_ClampReturnsMin, "Test_Math_ClampReturnsMin" },
-	{ Test_Math_ClampReturnsMax, "Test_Math_ClampReturnsMax" },
-	{ Test_Perks_QuickRevive_ValidateFields, "Test_Perks_QuickRevive_ValidateFields" },
-	{ Test_Perks_QuickRevive_NoCostChangeOnRestart, "Test_Perks_QuickRevive_NoCostChangeOnRestart" },
-	{ Test_Perks_JuggerNog_ValidateFields, "Test_Perks_JuggerNog_ValidateFields" },
-	{ Test_Perks_SpeedCola_ValidateFields, "Test_Perks_SpeedCola_ValidateFields" },
-	{ Test_Perks_DoubleTap_ValidateFields, "Test_Perks_DoubleTap_ValidateFields" },
-	{ Test_Perks_StaminUp_ValidateFields, "Test_Perks_StaminUp_ValidateFields" },
-	{ Test_Perks_PhDFlopper_ValidateFields, "Test_Perks_PhDFlopper_ValidateFields" },
-	{ Test_Perks_DeadshotDaiquiri_ValidateFields, "Test_Perks_DeadshotDaiquiri_ValidateFields" },
-	{ Test_Perks_Random_LegacyFields, "Test_Perks_Random_LegacyFields" },
-	{ Test_Perks_Random_ResetDoesNotTeleport, "Test_Perks_Random_ResetDoesNotTeleport" },
-	{ Test_Perks_Random_AnglesAreCorrect, "Test_Perks_Random_AnglesAreCorrect" },
-	{ Test_Perks_MuleKick_ValidateFields, "Test_Perks_MuleKick_ValidateFields" },
-	{ Test_Perks_Drink_WorkOnReset, "Test_Perks_Drink_WorkOnReset" },
-	{ Test_Weapons_Gewehr_MagazineSize, "Test_Weapons_Gewehr_MagazineSize" },
-	{ Test_Weapons_BowieKnife_RemovedAfterRespawn, "Test_Weapons_BowieKnife_RemovedAfterRespawn" },
-	{ Test_Weapons_HoldTwoWeapons, "Test_Weapons_HoldTwoWeapons" },
-	{ Test_Weapons_HoldThreeWeapons, "Test_Weapons_HoldThreeWeapons" },
-	{ Test_Weapons_UpgradedSound, "Test_Weapons_UpgradedSound" },
-	{ Test_Weapons_ShotgunPenetration, "Test_Weapons_ShotgunPenetration" },
-	{ Test_Weapons_WunderWaffe_UpgradedReserve, "Test_Weapons_WunderWaffe_UpgradedReserve" },
-	{ Test_Weapons_WunderWaffe_FireAtBarrel, "Test_Weapons_WunderWaffe_FireAtBarrel" },
-	{ Test_WallWeapons_Message, "Test_WallWeapons_Message" },
-	{ Test_WallWeapons_ActivatesAllTargets, "Test_WallWeapons_ActivatesAllTargets" },
-	{ Test_Weapons_DualWield_ReloadLowReserveRightLeft, "Test_Weapons_DualWield_ReloadLowReserveRightLeft" },
-	{ Test_Weapons_DualWield_ReloadLowReserveLeftRight, "Test_Weapons_DualWield_ReloadLowReserveLeftRight" },
-	{ Test_misc_model_ModelNotHiddenByDefault, "Test_misc_model_ModelNotHiddenByDefault" },
-	{ Test_AddScore_NonClient, "Test_AddScore_NonClient" },
-	{ Test_AddScore_DamageTypes, "Test_AddScore_DamageTypes" },
-	{ Test_AddScore_MysteryBoxLeave, "Test_AddScore_MysteryBoxLeave" },
-	{ Test_AI_HellhoundsDetected, "Test_AI_HellhoundsDetected" },
-	{ Test_Power_HandleResetOnRestart, "Test_Power_HandleResetOnRestart" },
-	{ Test_EndGame_CounterResetsOnRestart, "Test_EndGame_CounterResetsOnRestart" },
-	{ Test_Rounds_NewClientsDontCauseReset, "Test_Rounds_NewClientsDontCauseReset" }
-};
-
 void() Test_RunAllTests =
 {
 	if (tests_starttime != 0)

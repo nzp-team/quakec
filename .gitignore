@@ -1,5 +1,6 @@
 build/*
 source/server/hash_table.qc
+source/server/tests/test_list.qc
 bin/fteqcc.log
 *.DS_Store
 conhistory.txt

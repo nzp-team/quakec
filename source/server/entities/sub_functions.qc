@@ -229,7 +229,7 @@ void() SUB_UseTargets =
 					t.classname = "spawn_dog";
 				if (self.use != SUB_Null)
 				{
-					global_triggerstate = self.triggerstate;
+					global_triggerstate = other.triggerstate;
 
 					if (self.use)
 						self.use();
