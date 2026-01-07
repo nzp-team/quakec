@@ -111,7 +111,7 @@ void() Menu_Gamepad =
     }
     Menu_DrawOptionValue(2, rumble_string);
 
-    Menu_Button(3, "gp_aima", "AIM ASSIST", "Toggle Camera Aim Assist.") ? Menu_Gamepad_ApplyAimAssist() : 0;
+    Menu_Button(3, "gp_aima", "AIM ASSIST", "Toggle Aim Sensitivity+Snapping Assist.") ? Menu_Gamepad_ApplyAimAssist() : 0;
     string aa_string = "";
     switch(cvar("in_aimassist")) {
         case 0: aa_string = "DISABLED"; break;
