@@ -246,7 +246,7 @@ void() Menu_Video =
     // Max FPS
     if (cvar("vid_vsync") == 0) {
         Menu_Button(4, "vm_maxps", "MAX FPS", "Configure Maximum FPS Value.") ? 0 : 0;
-        Menu_CvarSlider(4, [10, 500, 490], "cl_maxfps", true, false, false);
+        Menu_CvarSlider(4, "vm_maxps", [10, 500, 490], "cl_maxfps", true, false, false);
     } else {
         Menu_GreyButton(4, "[VSYNC ON] MAX FPS");
     }
@@ -260,11 +260,11 @@ void() Menu_Video =
 
     // Field of View
     Menu_Button(6, "vm_fov", "FIELD OF VIEW", "Change Camera Field of View.") ? 0 : 0;
-    Menu_CvarSlider(6, [10, 150, 140], "fov", true, false, false);
+    Menu_CvarSlider(6, "vm_fov", [10, 150, 140], "fov", true, false, false);
 
     // Gamma
     Menu_Button(7, "vm_gamma", "GAMMA", "Adjust game Black Level.") ? 0 : 0;
-    Menu_CvarSlider(7, [0.3, 2, 17], "gamma", false, true, false);
+    Menu_CvarSlider(7, "vm_gamma", [0.3, 2, 17], "gamma", false, true, false);
 
     // Ultrawide Mode
     Menu_Button(8, "vm_uwide", "ULTRAWIDE MODE", "Condenses HUD closer to center of Display.") ? Menu_Video_UpdateUltrawide() : 0;

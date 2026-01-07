@@ -68,6 +68,9 @@ enum {
 #define MENU_SND_BEEP       2
 void(float type) Menu_PlaySound;
 
+void() Menu_LeftArrowPressed;
+void() Menu_RightArrowPressed;
+
 #ifdef MENU
 
 void() Menu_Main;

@@ -135,7 +135,7 @@ void() Menu_GameSettings =
 
     // Start Round
     Menu_Button(3, "ge_rond", "START ROUND", "Round to begin the Game on.") ? 0 : 0;
-    Menu_CvarSlider(3, [0, 50, 10], "sv_startround", true, false, true);
+    Menu_CvarSlider(3, "ge_rond", [0, 50, 10], "sv_startround", true, false, true);
 
     // Magic
     string magic_string = "";
@@ -159,7 +159,7 @@ void() Menu_GameSettings =
 
     // Horde Size
     Menu_Button(6, "ge_hord", "HORDE SIZE", "Maximum Zombies that can Active at once.") ? 0 : 0;
-    Menu_CvarSlider(6, [2, 64, 31], "sv_maxai", true, false, false);
+    Menu_CvarSlider(6, "ge_hord", [2, 64, 31], "sv_maxai", true, false, false);
 
     // Fast Rounds
     string fast_string = "";

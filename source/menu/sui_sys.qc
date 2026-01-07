@@ -180,6 +180,8 @@ void() sui_reset_frame =
 // solution but in this highly imperative world of QuakeC we can live with it
 
 float _holding_click;
+float _holding_leftarrow;
+float _holding_rightarrow;
 vector _cursor_click;
 vector _cursor_position;
 vector _cursor_relative_click;
@@ -241,6 +243,8 @@ void() sui_reset_actions =
 	_release_action_count = 0;
 	_last_clicked_action_count = 0;
 	_holding_click = FALSE;
+	_holding_leftarrow = FALSE;
+	_holding_rightarrow = FALSE;
 };
 
 // Per frame reset?
@@ -388,6 +392,26 @@ void(vector pos) _sui_mouse_move =
 	if (!_hover_action_count)
 		last_hovered_id = "";
 };
+
+void() _sui_menukey_leftarrow =
+{
+	if (_holding_leftarrow == FALSE)
+	{
+		// Send a signal for the button press
+		Menu_LeftArrowPressed();
+	}
+	_holding_leftarrow = TRUE;
+}
+
+void() _sui_menukey_rightarrow =
+{
+	if (_holding_rightarrow == FALSE)
+	{
+		// Send a signal for the button press
+		Menu_RightArrowPressed();
+	}
+	_holding_rightarrow = TRUE;
+}
 
 void() _sui_menukey_downarrow =
 {
@@ -599,6 +623,8 @@ void() _sui_mouse1_up =
 	_release_action_count = _hold_action_count;
 	_hold_action_count = 0;
 	_holding_click = FALSE;
+	_holding_leftarrow = FALSE;
+	_holding_rightarrow = FALSE;
 };
 
 // HACK!
@@ -854,6 +880,16 @@ float(float evtype, float scanx, float chary, float devid) sui_input_event =
 			_sui_menukey_enter();
 			return TRUE;
 		}
+		else if (scanx == K_LEFTARROW || scanx == K_GP_DPAD_LEFT)
+		{
+			_sui_menukey_leftarrow();
+			return TRUE;
+		}
+		else if (scanx == K_RIGHTARROW || scanx == K_GP_DPAD_RIGHT)
+		{
+			_sui_menukey_rightarrow();
+			return TRUE;
+		}
 		else
 		{
 			if ((scanx == K_ESCAPE || scanx == K_BACKSPACE) && _sui_binding_command != "")
@@ -872,6 +908,15 @@ float(float evtype, float scanx, float chary, float devid) sui_input_event =
 		{
 			_sui_mouse1_up();
 			return TRUE;
+		}
+		else
+		{
+			_holding_leftarrow = FALSE;
+			_holding_rightarrow = FALSE;
+
+			// Let the engine still handle it's own
+			// input events on normal key releases.
+			return FALSE;
 		}
 	default: 
 		return FALSE;
