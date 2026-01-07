@@ -173,20 +173,3 @@ float hide_viewmodel;
 vector playerOrigin;
 vector playerOriginOld;
 vector playerVelocity;
-
-//
-// List of Zombie limb meshes for custom skinning
-//
-string zombie_skins[] =
-{
-	"models/ai/zb%.mdl",
-	"models/ai/zbc%.mdl",
-	"models/ai/zcfull.mdl",
-	"models/ai/zhc^.mdl",
-	"models/ai/zalc(.mdl",
-	"models/ai/zarc(.mdl",
-	"models/ai/zfull.mdl",
-	"models/ai/zh^.mdl",
-	"models/ai/zal(.mdl", 
-	"models/ai/zar(.mdl"
-};

@@ -47,13 +47,6 @@ void() ToggleMenu =
 	}
 }
 
-float(float isnew) SetZombieSkinning =
-{
-	self.drawmask = MASK_ENGINE;
-	setcustomskin(self, __NULL__, sprintf("replace \"\" \"models/ai/zfull.mdl_%d.pcx\"\n", self.skin));
-	return PREDRAW_NEXT;
-};
-
 //
 // GenerateAlphaTransparencyQ3Shaders()
 // What a mouth-full! Anyway, NZ:P supports
@@ -720,6 +713,180 @@ void() Camera_SniperSway =
 
 float gamepad_enabled;
 
+vector cam_snap_difference;
+float pressed_zoom_in;
+
+#define CAMERA_AIM_SNAP_MAX_DIST        1024    // hard cutoff (quake units)
+
+// score weighting (higher DOT_WEIGHT = more center preference)
+#define CAMERA_AIM_SNAP_DOT_WEIGHT      2.0
+#define CAMERA_AIM_SNAP_DIST_WEIGHT     1.0
+
+#define CAMERA_AIM_SNAP_NEAR_DIST    128
+#define CAMERA_AIM_SNAP_FAR_DIST     1024
+
+#define CAMERA_AIM_SNAP_NEAR_DOT     0.980   // yaw cone, near (looser)
+#define CAMERA_AIM_SNAP_FAR_DOT      0.9998  // yaw cone, far (tighter)
+
+#define CAMERA_AIM_SNAP_NEAR_PITCH   13      // near = allow more vertical slop
+#define CAMERA_AIM_SNAP_FAR_PITCH    8       // far  = be stricter
+
+float Camera_InFront(vector ent1_origin, vector ent2_origin, vector client_view_angles)
+{
+    vector to3d = ent2_origin - ent1_origin;
+
+    // Distance for scaling (use horizontal distance so stairs/height don't distort t)
+    vector to2d = to3d;
+    to2d[2] = 0;
+
+    float dist = vlen(to2d);
+    if (dist < 1)
+        return true;
+
+    // normalize distance t in [0..1]
+    float t = (dist - CAMERA_AIM_SNAP_NEAR_DIST)
+            / (CAMERA_AIM_SNAP_FAR_DIST - CAMERA_AIM_SNAP_NEAR_DIST);
+    if (t < 0) t = 0;
+    if (t > 1) t = 1;
+
+    vector yaw_angles = client_view_angles;
+    yaw_angles[0] = 0;
+    yaw_angles[2] = 0;
+    makevectors(yaw_angles);
+
+    vector dir2d = normalize(to2d);
+    float dotp = dotproduct(dir2d, v_forward);
+
+    float yaw_threshold = CAMERA_AIM_SNAP_NEAR_DOT
+                        + t * (CAMERA_AIM_SNAP_FAR_DOT - CAMERA_AIM_SNAP_NEAR_DOT);
+
+    if (dotp <= yaw_threshold)
+        return false;
+
+    vector dir3d = normalize(to3d);
+    vector targ_ang = vectoangles(dir3d);
+    targ_ang[0] *= -1;
+
+    float pitch_tol = CAMERA_AIM_SNAP_NEAR_PITCH
+                    + t * (CAMERA_AIM_SNAP_FAR_PITCH - CAMERA_AIM_SNAP_NEAR_PITCH);
+
+    float dpitch = fabs(angledelta(targ_ang[0] - client_view_angles[0]));
+    if (dpitch > pitch_tol)
+        return false;
+
+    return true;
+}
+
+float Camera_YawDot(vector from_origin, vector to_origin, vector client_view_angles)
+{
+    vector to = to_origin - from_origin;
+    to[2] = 0;
+
+    if (vlen(to) < 1)
+        return 1;
+
+    vector dir = normalize(to);
+
+    vector yaw_angles = client_view_angles;
+    yaw_angles[0] = 0;
+    yaw_angles[2] = 0;
+    makevectors(yaw_angles);
+
+    return dotproduct(dir, v_forward);
+}
+
+void(vector client_view_angles) Camera_AimSnap =
+{
+    float zoom_value = getstatf(STAT_WEAPONZOOM);
+
+	if (!(gamepad_enabled && cvar("in_aimassist") == 1))
+		return;
+
+    if (zoom_value == 1 || zoom_value == 2) {
+        if (pressed_zoom_in == false) {
+            pressed_zoom_in = true;
+        } else {
+            return;
+        }
+    } else {
+        pressed_zoom_in = false;
+        return;
+    }
+
+    //print("snap start\n");
+
+    entity best_ai = world;
+    float best_score = -999999;
+    vector best_target_origin = [0, 0, 0];
+
+    vector client_origin = getproperty(VF_ORIGIN);
+
+    // Iterate over all of our AI meshes.
+    for (int i = 0; i < zombie_snap_struct.length; i++) {
+        float model_index = getmodelindex(zombie_snap_struct[i].model_path);
+
+        entity snap_ai = findfloat(world, modelindex, model_index);
+        while (snap_ai != world) {
+
+            // use the same target point for gating + snapping
+			vector snap_offset = (getstatf(STAT_PERKS) & P_DEAD) ? zombie_snap_struct[i].deadshot_snap_offset : zombie_snap_struct[i].snap_offset;
+            vector target_origin = snap_ai.origin + snap_offset;
+
+            // Hard max distance cutoff
+            float dist = vlen(target_origin - client_origin);
+            if (dist > CAMERA_AIM_SNAP_MAX_DIST) {
+                snap_ai = findfloat(snap_ai, modelindex, model_index);
+                continue;
+            }
+
+            // Gate: in-front + pitch sanity
+            if (Camera_InFront(client_origin, target_origin, client_view_angles)) {
+
+                // LOS must be clear
+                traceline(target_origin, client_origin, true, world);
+                if (trace_fraction >= 1) {
+                    float dotp = Camera_YawDot(client_origin, target_origin, client_view_angles);
+
+                    float dist01 = 1 - (dist / CAMERA_AIM_SNAP_MAX_DIST);
+                    if (dist01 < 0) dist01 = 0;
+
+                    // prefer centered, then closeness
+                    float score = (dotp * CAMERA_AIM_SNAP_DOT_WEIGHT)
+                                + (dist01 * CAMERA_AIM_SNAP_DIST_WEIGHT);
+
+                    // Pick best
+                    if (score > best_score) {
+                        best_score = score;
+                        best_ai = snap_ai;
+                        best_target_origin = target_origin;
+                        //print(sprintf("best score=%f dot=%f dist=%f org=[%v]\n", score, dotp, dist, target_origin));
+                    }
+                }
+            }
+
+            snap_ai = findfloat(snap_ai, modelindex, model_index);
+        }
+    }
+
+    if (best_ai != world) {
+        vector distance_vector = best_target_origin - client_origin;
+        distance_vector = normalize(distance_vector);
+
+        vector distance_angles = vectoangles(distance_vector);
+        distance_angles[0] += (distance_angles[0] > 180) ? -360 : 0;
+        distance_angles[0] *= -1;
+
+        if (distance_angles[0] < -70 || distance_angles[0] > 80)
+            return;
+
+        cam_snap_difference = distance_angles - client_view_angles;
+        //print(sprintf("cam_snap_difference: [%v]\n", cam_snap_difference));
+    }
+
+    //print("snap end\n");
+};
+
+
 // CALLED EVERY CLIENT RENDER FRAME
 float pap_flash_alternate;
 noref void(float width, float height, float menushown) CSQC_UpdateView =
@@ -798,6 +965,12 @@ noref void(float width, float height, float menushown) CSQC_UpdateView =
 	camang[0] += sniper_sway[0];
 	camang[1] += sniper_sway[1];
 	camang[2] += sniper_sway[2];
+
+	Camera_AimSnap(camang);
+
+	camang[0] += cam_snap_difference[0];
+	camang[1] += cam_snap_difference[1];
+	camang[2] += cam_snap_difference[2];
 
 	setviewprop(VF_ANGLES, camang);
 
@@ -1020,6 +1193,7 @@ noref void() CSQC_Input_Frame =
 {
 	input_angles += gun_kick;
 	input_angles += sniper_sway;
+	input_angles += cam_snap_difference;
 }
 
 #define DEG2RAD(x)	(x * M_PI / 180.f)
