@@ -118,7 +118,7 @@ void() Menu_Control =
     Menu_DrawOptionValue(1, ads_string);
 
     Menu_Button(2, "cm_sens", "SENSITIVITY", "Alter Look Sensitivity.") ? 0 : 0;
-    Menu_CvarSlider(2, [1, 10, 10], "sensitivity", false, false, false);
+    Menu_CvarSlider(2, "cm_sens", [1, 10, 10], "sensitivity", false, false, false);
 
     Menu_Button(3, "cm_invs", "INVERT LOOK", "Invert Y-Axis Camera Input.") ? Menu_Control_InvertLook() : 0;
     string invert_string = "";
