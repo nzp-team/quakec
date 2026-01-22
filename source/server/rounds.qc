@@ -253,6 +253,20 @@ void() NewRound =
 
 	rounds = rounds + 1;
 
+	if (cvar("sys_testmode") == 2) {
+		if (rounds >= 100) {
+			localcmd("quit\n");
+		} else if (rounds % 5 == 0) {
+#ifdef FTE
+			print(sprintf("  + Reached round [%d]\n", rounds));
+#endif
+		}
+	}
+
+	if (rounds >= 100 && cvar("sys_testmode") == 2) {
+		localcmd("quit\n");	
+	}
+
 #ifdef FTE
 
 	// FTE-Specific - alert CSQC of the round increment for HUD display
