@@ -959,6 +959,11 @@ void() MBOX_LoadData =
         mystery_box_weapons[i].weapon_id = MBOX_GetWeaponIDFromMB1(i);
         mystery_box_weapons[i].allowed = true;
         mystery_box_weapons[i].rarity = -1;
+
+		// .. except the Mk II
+		if (mystery_box_weapons[i].weapon_id == W_RAYMK2) {
+			mystery_box_weapons[i].allowed = false;
+		}
     }
 
     // Precache it all.
