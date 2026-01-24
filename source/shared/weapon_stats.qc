@@ -5278,6 +5278,7 @@ float(string weapon) WepDef_GetWeaponIDFromName =
 		case "wunderwaffe": return W_TESLA;
 		case "mp5k": return W_MP5K;
 		case "springfield": return W_SPRING;
+		case "ray_gun_2": return W_RAYMK2;
 		default: return W_NOWEP;
 	}
 	return W_COLT;

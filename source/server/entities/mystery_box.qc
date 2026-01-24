@@ -757,6 +757,7 @@ float MBOX_GetWeaponIDFromMB1(float mbox_id) =
         case 24: return W_TYPE;
         case 25: return W_MP5K;
         case 26: return W_SPRING;
+		case 27: return W_RAYMK2;
         default: return W_COLT;
     }
     return W_COLT;
