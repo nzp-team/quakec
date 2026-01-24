@@ -507,7 +507,7 @@ string game_modifier_hellhound_fog_color;
 string game_modifier_default_fog_color;
 
 // Mystery Box
-#define MAX_BOX_WEAPONS 		27
+#define MAX_BOX_WEAPONS 		28
 
 .float 	boxstatus;
 .entity boxweapon;
