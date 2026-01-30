@@ -312,6 +312,11 @@ float 	map_compatibility_mode;
 #define 	P_DEAD 		64
 #define 	P_MULE 		128
 
+// all perks
+#define     P_ALL            (P_JUG | P_DOUBLE | P_SPEED | P_REVIVE | P_FLOP | P_STAMIN | P_DEAD | P_MULE)
+// all perks useful in Gun Game (all but no mule kick)
+#define     P_ALL_GUNGAME    (P_JUG | P_DOUBLE | P_SPEED | P_REVIVE | P_FLOP | P_STAMIN | P_DEAD)
+
 #define STAT_VIEWZOOM 			21
 
 #define STAT_CURRENTMAG         50

@@ -655,7 +655,11 @@ void() PU_FreePerk =
 
 	while(players) {
 
-		if (players.downed || players.perks >= 255) {
+		// don't to anything if any of these conditions is true
+		//  1. player is down
+		//  2. player has already all perks
+		//  3. player has all perks useful for Gun Game mode (all but mule kick)
+		if (players.downed || players.perks >= P_ALL || (cvar("sv_gamemode") == GAMEMODE_GUNGAME && players.perks >= P_ALL_GUNGAME)) {
 			players = find(players, classname, "player");
 			continue;
 		}
@@ -673,7 +677,7 @@ void() PU_FreePerk =
 			else if (perk_rand < (5/8) && !(players.perks & P_STAMIN)) { self.sequence = 5; perk_to_give = P_STAMIN; }
 			else if (perk_rand < (6/8) && !(players.perks & P_FLOP)) { self.sequence = 6; perk_to_give = P_FLOP; }
 			else if (perk_rand < (7/8) && !(players.perks & P_DEAD)) { self.sequence = 7; perk_to_give = P_DEAD; }
-			else if (!(players.perks & P_MULE) && cvar("sv_gamemode") != 2) { self.sequence = 8; perk_to_give = P_MULE; }
+			else if (!(players.perks & P_MULE) && cvar("sv_gamemode") != GAMEMODE_GUNGAME) { self.sequence = 8; perk_to_give = P_MULE; }
 
 			if (perk_to_give != 0)
 				found_perk_for_player = true;
