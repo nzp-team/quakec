@@ -1627,11 +1627,16 @@ void() HUD_Crosshair =
 	if (getstatf(STAT_HEALTH) < 1)
 		return;
 
+	int x_value, y_value;
+	int x_center, y_center;
+	int crosshair_offset;
+	int length, thick, center_adjust, offset;
+
 	// Standard crosshair (+)
 	if (crosshair_value == 1) {
-		int x_value, y_value;
-		int crosshair_offset;
-			
+		x_center = g_width/2 - 1; // left side of center line
+		y_center = g_height/2 - 1; // top side of center line
+
 		crosshair_offset = CrossHairWeapon(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)) + cur_spread;
 			
 		if (CrossHairMaxSpread(getstatf(STAT_ACTIVEWEAPON), getstatf(STAT_PLAYERSTANCE)) < crosshair_offset)
@@ -1643,13 +1648,31 @@ void() HUD_Crosshair =
 		crosshair_offset_step += (crosshair_offset - crosshair_offset_step) * 0.5;
 
 		// Creds to heartologic for some actually good crosshair position stuff.
-		vector crossSize = [1, 5];
-		vector screenSize = [g_width, g_height];
 
-		drawfill(screenSize / 2 - [crossSize.x, +crossSize.y * 2 + crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // top
-		drawfill(screenSize / 2 - [crossSize.x, -crossSize.y * 1 - crosshair_offset_step + 2], crossSize, crosshair_color, crosshair_opacity, 0); // bottom
-		drawfill(screenSize / 2 - [+crossSize.y * 2 + crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // right
-		drawfill(screenSize / 2 - [-crossSize.y * 1 - crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // left
+		length = 5; // crosshair arm length
+		thick = 1; // crosshair arm thickness
+		center_adjust = (thick - 1) / 0.5; // center adjustment
+		offset = floor(crosshair_offset_step + 0.5); // round crosshair spread step to nearest pixel
+
+		// Left
+		x_value = x_center - center_adjust - length - offset;
+		y_value = y_center - center_adjust;
+		drawfill([x_value, y_value], [length, thick], crosshair_color, crosshair_opacity, 0);
+
+		// Right
+		x_value = x_center - center_adjust + thick + offset;
+		y_value = y_center - center_adjust;
+		drawfill([x_value, y_value], [length, thick], crosshair_color, crosshair_opacity, 0);
+
+		// Top
+		x_value = x_center - center_adjust;
+		y_value = y_center - center_adjust - length - offset;
+		drawfill([x_value, y_value], [thick, length], crosshair_color, crosshair_opacity, 0);
+
+		// Bottom
+		x_value = x_center - center_adjust;
+		y_value = y_center - center_adjust + thick + offset;
+		drawfill([x_value, y_value], [thick, length], crosshair_color, crosshair_opacity, 0);
 	}
 	// Area of Effect (o)
 	else if (crosshair_value == 2) {
@@ -1663,25 +1686,44 @@ void() HUD_Crosshair =
 	}
 	// Grenade crosshair
 	else if (crosshair_value == 4) {
+		x_center = g_width/2 - 1; // left side of center line
+		y_center = g_height/2 - 1; // top side of center line
+
 		if (crosshair_pulse_grenade) {
 			crosshair_offset_step = 0;
-			cur_spread = 12;
+			cur_spread = 2;
 		}
 
 		crosshair_pulse_grenade = false;
 
 		int crosshair_offset2;	
-		crosshair_offset2 = 3 + cur_spread;
+		crosshair_offset2 = 12 + cur_spread;
 		crosshair_offset_step += (crosshair_offset2 - crosshair_offset_step) * 0.05;
 
-		// Creds to heartologic for some actually good crosshair position stuff.
-		vector crossSize2 = [1, 5];
-		vector screenSize3 = [g_width, g_height];
+		length = 5; // crosshair arm length
+		thick = 1; // crosshair arm thickness
+		center_adjust = (thick - 1) / 0.5; // center adjustment
+		offset = floor(crosshair_offset_step + 0.5); // round crosshair spread step to nearest pixel
 
-		drawfill(screenSize3 / 2 - [crossSize2.x, +crossSize2.y * 2 + crosshair_offset_step], crossSize2, crosshair_color, crosshair_opacity, 0); // top
-		drawfill(screenSize3 / 2 - [crossSize2.x, -crossSize2.y * 1 - crosshair_offset_step + 2], crossSize2, crosshair_color, crosshair_opacity, 0); // bottom
-		drawfill(screenSize3 / 2 - [+crossSize2.y * 2 + crosshair_offset_step, crossSize2.x], [crossSize2.y, crossSize2.x], crosshair_color, crosshair_opacity, 0); // right
-		drawfill(screenSize3 / 2 - [-crossSize2.y * 1 - crosshair_offset_step, crossSize2.x], [crossSize2.y, crossSize2.x], crosshair_color, crosshair_opacity, 0); // left
+		// Left
+		x_value = x_center - center_adjust - length - offset;
+		y_value = y_center - center_adjust;
+		drawfill([x_value, y_value], [length, thick], crosshair_color, crosshair_opacity, 0);
+
+		// Right
+		x_value = x_center - center_adjust + thick + offset;
+		y_value = y_center - center_adjust;
+		drawfill([x_value, y_value], [length, thick], crosshair_color, crosshair_opacity, 0);
+
+		// Top
+		x_value = x_center - center_adjust;
+		y_value = y_center - center_adjust - length - offset;
+		drawfill([x_value, y_value], [thick, length], crosshair_color, crosshair_opacity, 0);
+
+		// Bottom
+		x_value = x_center - center_adjust;
+		y_value = y_center - center_adjust + thick + offset;
+		drawfill([x_value, y_value], [thick, length], crosshair_color, crosshair_opacity, 0);
 	}
 }
 
