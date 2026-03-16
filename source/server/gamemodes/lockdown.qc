@@ -25,6 +25,9 @@
 
 */
 
+float lock_ran_post_init_logic;
+float lock_ran_endgame;
+
 void() Gamemode_Lockdown_Init =
 {
     // enable the free perk and weapon upgrade drops
@@ -32,12 +35,27 @@ void() Gamemode_Lockdown_Init =
     game_modifier_powerup_weapon_upgrade = true;
     game_modifier_powerup_random_weapon = true;
 
-	// precache laugh
-	precache_sound("sounds/modes/lockdown/laugh.wav");
+	// precache audio
+    precache_sound("sounds/modes/lockdown/intro.wav");
+    precache_sound("sounds/modes/lockdown/carpenter.wav");
+	precache_sound("sounds/modes/lockdown/double_points.wav");
+	precache_sound("sounds/modes/lockdown/free_perk.wav");
+	precache_sound("sounds/modes/lockdown/insta_kill.wav");
+	precache_sound("sounds/modes/lockdown/kaboom.wav");
+	precache_sound("sounds/modes/lockdown/maxammo.wav");
+	precache_sound("sounds/modes/lockdown/random_weapon.wav");
+	precache_sound("sounds/modes/lockdown/upgrade.wav");
+    precache_sound("sounds/modes/lockdown/lose.wav");
 };
 
 void() Gamemode_Lockdown_Frame =
 {
+    // Intro voiceline
+    if (lock_ran_post_init_logic == false) {
+        Sound_PlaySound(world, "sounds/modes/lockdown/intro.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+        lock_ran_post_init_logic = true;
+    }
+
     // Disable Doors
     entity doors = find(world, classname, "door_nzp");
     while(doors != world) {
@@ -58,6 +76,12 @@ void() Gamemode_Lockdown_Frame =
             remove(doors.trigger_field);
 
         doors = find(doors, classname, "door_nzp_cost");
+    }
+
+    // Losing voiceline
+    if ((find(world, classname, "gameover_watcher")) && lock_ran_endgame == false) {
+        lock_ran_endgame = true;
+        Sound_PlaySound(world, "sounds/modes/lockdown/intro.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
     }
 };
 
