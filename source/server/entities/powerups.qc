@@ -103,6 +103,7 @@ string(string file) PU_ResolveVOPath =
 		case GAMEMODE_STICKSNSTONES: path = strcat("sounds/modes/sticks/", file); break;
 		case GAMEMODE_WILDWEST: path = strcat("sounds/modes/wildwest/", file); break;
 		case GAMEMODE_FESTIVE: path = strcat("sounds/modes/festive/", file); break;
+		case GAMEMODE_LOCKDOWN: path = strcat("sounds/modes/lockdown/", file); break;
 		default: path = strcat("sounds/pu/", file); break;
 	}
 
@@ -589,6 +590,15 @@ float() PU_BonusPointsRequirement =
 }
 
 //
+// PU_RandomWeaponRequirement()
+// Requirements for Random Weapon Power-Up
+//
+float() PU_RandomWeaponRequirement =
+{
+	return game_modifier_powerup_random_weapon;
+}
+
+//
 // PU_MaxAmmo()
 // Max Ammo Power-Up Function
 //
@@ -636,6 +646,50 @@ void() PU_MaxAmmo =
 		players = find(players, classname, "player");
 	}
 };
+
+//
+// PU_RandomWeapon()
+// Random Weapon Power-Up Function
+//
+void() PU_RandomWeapon =
+{
+	entity players = find(world, classname, "player");
+	while(players != world) {
+		float random_weapon_id = -1;
+		float valid_weapon_found = false;
+
+		while(!valid_weapon_found) {
+			random_weapon_id = rint(random() * 59);
+
+			// skip bad weapons
+			if (random_weapon_id == W_NOWEP || random_weapon_id == W_GRENADE 
+				|| random_weapon_id == W_BETTY || random_weapon_id == W_BOWIE
+				|| random_weapon_id == W_RESERVED || random_weapon_id == W_RESERVED2)
+				continue;
+			
+			// skip if they already have this weapon or an equivalent
+			if (EqualNonPapWeapon(players.weapons[0].weapon_id) == EqualNonPapWeapon(random_weapon_id) ||
+				EqualNonPapWeapon(players.weapons[1].weapon_id) == EqualNonPapWeapon(random_weapon_id) ||
+				EqualNonPapWeapon(players.weapons[2].weapon_id) == EqualNonPapWeapon(random_weapon_id))
+				continue;
+
+			
+			valid_weapon_found = true;
+		}
+
+		// assign and sweap weapon
+		entity old_self = self;
+		self = players;
+		W_SprintStop();
+		W_AimOut();
+		Weapon_GiveWeapon(EqualNonPapWeapon(random_weapon_id), 0, 0, 0);
+		Weapon_AssignWeapon(0, EqualNonPapWeapon(random_weapon_id), 0, 0, 0);
+		Weapon_SwapWeapons(true);
+		self = old_self;
+
+		players = find(players, classname, "player");
+	}
+}
 
 //
 // PU_FreePerk()
@@ -781,6 +835,8 @@ void() PU_Init =
 					PU_UpgradeWeaponRequirement	);
 	PU_AddToStruct(PU_BONUSPOINTS,  "models/pu/points!.mdl",		"bonus_points.wav",		PU_BonusPoints,
 					PU_BonusPointsRequirement );
+	PU_AddToStruct(PU_RANDOMWEAPON,  "models/weapons/mp40/g_mp40.mdl",		"upgrade.wav",		PU_RandomWeapon,
+					PU_RandomWeaponRequirement );
 
 	// Nuke requires an extra Precache
 	precache_sound("sounds/pu/nuke.wav");

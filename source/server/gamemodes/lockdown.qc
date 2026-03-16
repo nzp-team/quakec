@@ -30,6 +30,7 @@ void() Gamemode_Lockdown_Init =
     // enable the free perk and weapon upgrade drops
     game_modifier_powerup_free_perk = true;
     game_modifier_powerup_weapon_upgrade = true;
+    game_modifier_powerup_random_weapon = true;
 
 	// precache laugh
 	precache_sound("sounds/modes/lockdown/laugh.wav");
