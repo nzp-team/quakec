@@ -81,7 +81,7 @@ void() Gamemode_Lockdown_Frame =
     // Losing voiceline
     if ((find(world, classname, "gameover_watcher")) && lock_ran_endgame == false) {
         lock_ran_endgame = true;
-        Sound_PlaySound(world, "sounds/modes/lockdown/intro.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+        Sound_PlaySound(world, "sounds/modes/lockdown/lose.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
     }
 };
 
