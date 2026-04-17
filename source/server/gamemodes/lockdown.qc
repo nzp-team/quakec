@@ -27,6 +27,7 @@
 
 float lock_ran_post_init_logic;
 float lock_ran_endgame;
+float lock_last_perk_shuffle_round;
 
 void() Gamemode_Lockdown_RandomizePerkLocations =
 {
@@ -226,6 +227,21 @@ void() Gamemode_Lockdown_Frame =
         Gamemode_Lockdown_RandomizePerkLocations();
 
         lock_ran_post_init_logic = true;
+    }
+    
+    // Every 5 rounds, reroll the perks to help the player
+    // progress in the game
+    if (floor(rounds / 5) * 5 == rounds) {
+        // Prevents the perks from shuffling all round
+        if (rounds != lock_last_perk_shuffle_round) {
+            lock_last_perk_shuffle_round = rounds;
+
+            // Avoid running on round 0 & round 1 since we run on
+            // game start anyways
+            if (rounds > 0 && rounds != 1) {
+                Gamemode_Lockdown_RandomizePerkLocations();
+            }
+        }
     }
 
     // Disable Doors
