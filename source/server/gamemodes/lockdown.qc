@@ -28,6 +28,123 @@
 float lock_ran_post_init_logic;
 float lock_ran_endgame;
 
+void() Gamemode_Lockdown_RandomizePerkLocations =
+{
+    entity perks[32];
+    vector positions[32];
+    vector angs[32];
+
+    float count;
+    count = 0;
+
+    entity e;
+
+    // Collect all perk machines
+    e = find(world, classname, "perk_revive");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_revive");
+    }
+
+    e = find(world, classname, "perk_juggernog");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_juggernog");
+    }
+
+    e = find(world, classname, "perk_speed");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_speed");
+    }
+
+    e = find(world, classname, "perk_double");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_double");
+    }
+
+    e = find(world, classname, "perk_flopper");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_flopper");
+    }
+
+    e = find(world, classname, "perk_staminup");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_staminup");
+    }
+
+    e = find(world, classname, "perk_deadshot");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_deadshot");
+    }
+
+    e = find(world, classname, "perk_mule");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_mule");
+    }
+
+    e = find(world, classname, "perk_pap");
+    while (e != world) {
+        perks[count] = e;
+        positions[count] = e.origin;
+        angs[count] = e.angles;
+        count = count + 1;
+        e = find(e, classname, "perk_pap");
+    }
+
+    // Shuffle positions of all perks
+    float i;
+    for (i = count - 1; i > 0; i = i - 1) {
+        float j;
+        j = floor(random() * (i + 1));
+
+        vector tmp_v;
+        tmp_v = positions[i];
+        positions[i] = positions[j];
+        positions[j] = tmp_v;
+
+        tmp_v = angs[i];
+        angs[i] = angs[j];
+        angs[j] = tmp_v;
+    }
+
+    // Apply shuffled positions
+    for (i = 0; i < count; i = i + 1) {
+        setorigin(perks[i], positions[i]);
+        perks[i].angles = angs[i];
+        perks[i].oldorigin = perks[i].origin;
+    }
+}
+
 void() Gamemode_Lockdown_Init =
 {
     // enable the free perk and weapon upgrade drops
@@ -52,7 +169,11 @@ void() Gamemode_Lockdown_Frame =
 {
     // Intro voiceline
     if (lock_ran_post_init_logic == false) {
+        // Play intro voiceline
         Sound_PlaySound(world, "sounds/modes/lockdown/intro.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+        // Randomize perk locations
+        Gamemode_Lockdown_RandomizePerkLocations();
+
         lock_ran_post_init_logic = true;
     }
 
