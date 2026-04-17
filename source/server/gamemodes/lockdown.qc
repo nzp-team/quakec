@@ -139,6 +139,57 @@ void() Gamemode_Lockdown_RandomizePerkLocations =
 
     // Apply shuffled positions
     for (i = 0; i < count; i = i + 1) {
+        entity p;
+        p = perks[i];
+
+        setorigin(p, positions[i]);
+        p.angles = angs[i];
+        p.oldorigin = p.origin;
+
+        // Fix Pack-a-Punch attachments or they'll
+        // float in their old locations (which is obviously incorrect!)
+        if (p.classname == "perk_pap") {
+            makevectors(p.angles);
+
+            vector newpos;
+
+            // Move roller
+            if (p.active_door) {
+                entity roller;
+                roller = p.active_door;
+
+                newpos = p.origin;
+                newpos = newpos + v_right * p.box1_y;
+                newpos = newpos + v_forward * p.box1_x;
+                newpos = newpos + v_up * p.box1_z;
+
+                setorigin(roller, newpos);
+                roller.angles = p.angles;
+            }
+
+            // Move flag
+            if (p.boxweapon) {
+                entity flag;
+                flag = p.boxweapon;
+
+                newpos = p.origin;
+                newpos = newpos + v_right * p.box3_y;
+                newpos = newpos + v_forward * p.box3_x;
+                newpos = newpos + v_up * p.box3_z;
+
+                setorigin(flag, newpos);
+                flag.angles = p.angles;
+            }
+
+            // Recalculate spark offset
+            vector tempv;
+            tempv = p.origin;
+            tempv = tempv + v_right * p.box2_y;
+            tempv = tempv + v_forward * p.box2_x;
+            tempv = tempv + v_up * p.box2_z;
+            p.box2 = tempv;
+        }
+
         setorigin(perks[i], positions[i]);
         perks[i].angles = angs[i];
         perks[i].oldorigin = perks[i].origin;
