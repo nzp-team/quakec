@@ -28,99 +28,44 @@
 float lock_ran_post_init_logic;
 float lock_ran_endgame;
 float lock_last_perk_shuffle_round;
+entity lock_perks[32];
+vector lock_positions[32];
+vector lock_angs[32];
+
+float(float count, string cvar) Gamemode_Lockdown_CollectPerks =
+{
+    entity e;
+
+    e = find(world, classname, cvar);
+    while (e != world) {
+        lock_perks[count] = e;
+        lock_positions[count] = e.origin;
+        lock_angs[count] = e.angles;
+        count = count + 1;
+
+        e = find(e, classname, cvar);
+    }
+
+    return count;
+};
 
 void() Gamemode_Lockdown_RandomizePerkLocations =
 {
-    entity perks[32];
-    vector positions[32];
-    vector angs[32];
-
     float count;
     count = 0;
 
     entity e;
 
     // Collect all perk machines
-    e = find(world, classname, "perk_revive");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_revive");
-    }
-
-    e = find(world, classname, "perk_juggernog");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_juggernog");
-    }
-
-    e = find(world, classname, "perk_speed");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_speed");
-    }
-
-    e = find(world, classname, "perk_double");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_double");
-    }
-
-    e = find(world, classname, "perk_flopper");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_flopper");
-    }
-
-    e = find(world, classname, "perk_staminup");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_staminup");
-    }
-
-    e = find(world, classname, "perk_deadshot");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_deadshot");
-    }
-
-    e = find(world, classname, "perk_mule");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_mule");
-    }
-
-    e = find(world, classname, "perk_pap");
-    while (e != world) {
-        perks[count] = e;
-        positions[count] = e.origin;
-        angs[count] = e.angles;
-        count = count + 1;
-        e = find(e, classname, "perk_pap");
-    }
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_revive");
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_juggernog");
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_speed");
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_double");
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_flopper");
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_staminup");
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_deadshot");
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_mule");
+    count = Gamemode_Lockdown_CollectPerks(count, "perk_pap");
 
     // Shuffle positions of all perks
     float i;
@@ -129,22 +74,22 @@ void() Gamemode_Lockdown_RandomizePerkLocations =
         j = floor(random() * (i + 1));
 
         vector tmp_v;
-        tmp_v = positions[i];
-        positions[i] = positions[j];
-        positions[j] = tmp_v;
+        tmp_v = lock_positions[i];
+        lock_positions[i] = lock_positions[j];
+        lock_positions[j] = tmp_v;
 
-        tmp_v = angs[i];
-        angs[i] = angs[j];
-        angs[j] = tmp_v;
+        tmp_v = lock_angs[i];
+        lock_angs[i] = lock_angs[j];
+        lock_angs[j] = tmp_v;
     }
 
     // Apply shuffled positions
     for (i = 0; i < count; i = i + 1) {
         entity p;
-        p = perks[i];
+        p = lock_perks[i];
 
-        setorigin(p, positions[i]);
-        p.angles = angs[i];
+        setorigin(p, lock_positions[i]);
+        p.angles = lock_angs[i];
         p.oldorigin = p.origin;
 
         // Fix Pack-a-Punch attachments or they'll
@@ -191,9 +136,9 @@ void() Gamemode_Lockdown_RandomizePerkLocations =
             p.box2 = tempv;
         }
 
-        setorigin(perks[i], positions[i]);
-        perks[i].angles = angs[i];
-        perks[i].oldorigin = perks[i].origin;
+        setorigin(lock_perks[i], lock_positions[i]);
+        lock_perks[i].angles = lock_angs[i];
+        lock_perks[i].oldorigin = lock_perks[i].origin;
     }
 }
 
