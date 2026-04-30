@@ -368,7 +368,7 @@ void(float score_earned) Gamemode_GunGame_PlayerAddScore =
 float(float current_earned_score, float damage_style) Gamemode_GunGame_ScoreForDamage =
 {
 
-    // possible fix for PHD Flopper give points toward your weapon
+    // possible fix for PHD Flopper giving points toward your weapon
     switch(damage_style) {
         case DMG_TYPE_GRENADE:
             return 0;
@@ -380,7 +380,7 @@ float(float current_earned_score, float damage_style) Gamemode_GunGame_ScoreForD
 void(entity attacker, float death_style) Gamemode_GunGame_DieHandler =
 {
 
-    // possible fix for PHD Flopper give points toward your weapon
+    // possible fix for PHD Flopper giving points toward your weapon
     switch(death_style) {
         case DMG_TYPE_GRENADE:
             return 0;
