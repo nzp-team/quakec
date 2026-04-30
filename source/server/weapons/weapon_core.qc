@@ -1841,8 +1841,8 @@ void() CheckPlayer =
 		traceline(self.origin, self.origin + (v_up * -40), 0, self);
 
 		if (trace_ent.classname == "player") {
-			DamageHandler(self, trace_ent, 100000, DMG_TYPE_OTHER);
-			DamageHandler(trace_ent, self, 100000, DMG_TYPE_OTHER);
+			DamageHandler(self, trace_ent, 100000, DMG_TYPE_FLOPPER);
+			DamageHandler(trace_ent, self, 100000, DMG_TYPE_FLOPPER);
 		}
 	}
 	
@@ -1874,7 +1874,7 @@ void() CheckPlayer =
             float damage = over * 0.68;
 			if (damage > 98) damage = 98;
 			
-			DamageHandler (self, other, damage, DMG_TYPE_OTHER); 
+			DamageHandler (self, other, damage, DMG_TYPE_FLOPPER); 
 
 			if (self.health <= 5)
 				GiveAchievement(7, self);	

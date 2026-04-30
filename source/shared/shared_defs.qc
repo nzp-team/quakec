@@ -301,6 +301,7 @@ float 	map_compatibility_mode;
 #define DMG_TYPE_ZOMBIESWIPE	9  		// Zombie-inflicted: Any attack on Player
 #define DMG_TYPE_ELECTRICTRAP	10 		// Trap-inflicted: Electric trap damage
 #define DMG_TYPE_OTHER 			11 		// For use with misc. damage infliction
+#define DMG_TYPE_FLOPPER		12		// Player-inflicted: PhD Flopper explosion
 
 //Perk types
 #define 	P_JUG		1
