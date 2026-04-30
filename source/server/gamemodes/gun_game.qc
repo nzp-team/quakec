@@ -370,7 +370,7 @@ float(float current_earned_score, float damage_style) Gamemode_GunGame_ScoreForD
 
     // possible fix for PHD Flopper giving points toward your weapon
     switch(damage_style) {
-        case DMG_TYPE_GRENADE:
+        case DMG_TYPE_OTHER:
             return 0;
     }
 
@@ -382,7 +382,7 @@ void(entity attacker, float death_style) Gamemode_GunGame_DieHandler =
 
     // possible fix for PHD Flopper giving points toward your weapon
     switch(death_style) {
-        case DMG_TYPE_GRENADE:
+        case DMG_TYPE_OTHER:
             return 0;
     }
 };
