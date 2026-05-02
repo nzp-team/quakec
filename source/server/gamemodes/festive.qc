@@ -215,6 +215,8 @@ float(float current_earned_score, float damage_style) Gamemode_Festive_ScoreForD
         case DMG_TYPE_GRENADE:
         case DMG_TYPE_TESLA:
             return 90;
+        case DMG_TYPE_FLOPPER:
+            return 90;
     }
 
     return current_earned_score;

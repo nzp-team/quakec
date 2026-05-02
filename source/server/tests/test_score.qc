@@ -55,7 +55,8 @@ void() Test_AddScore_DamageTypes =
         DMG_TYPE_GRENADE, 
         DMG_TYPE_EXPLOSIVE,
         DMG_TYPE_LOWERTORSO,
-        DMG_TYPE_UPPERTORSO
+        DMG_TYPE_UPPERTORSO,
+        DMG_TYPE_FLOPPER
     };
 
     float scores[] = {
@@ -66,7 +67,8 @@ void() Test_AddScore_DamageTypes =
         DMG_SCORE_GRENADE,
         DMG_SCORE_EXPLOSIVE,
         DMG_SCORE_LOWERTORSO,
-        DMG_SCORE_UPPERTORSO
+        DMG_SCORE_UPPERTORSO,
+        DMG_SCORE_FLOPPER
     };
 
     for (float i = 0; i < styles.length; i++) {
