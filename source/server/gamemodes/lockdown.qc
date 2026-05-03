@@ -32,18 +32,18 @@ entity lock_perks[32];
 vector lock_positions[32];
 vector lock_angs[32];
 
-float(float count, string cvar) Gamemode_Lockdown_CollectPerks =
+float(float count, string ent_classname) Gamemode_Lockdown_CollectPerks =
 {
     entity e;
 
-    e = find(world, classname, cvar);
+    e = find(world, classname, ent_classname);
     while (e != world) {
         lock_perks[count] = e;
         lock_positions[count] = e.origin;
         lock_angs[count] = e.angles;
         count = count + 1;
 
-        e = find(e, classname, cvar);
+        e = find(e, classname, ent_classname);
     }
 
     return count;
@@ -151,14 +151,6 @@ void() Gamemode_Lockdown_Init =
 
 	// precache audio
     precache_sound("sounds/modes/lockdown/intro.wav");
-    precache_sound("sounds/modes/lockdown/carpenter.wav");
-	precache_sound("sounds/modes/lockdown/double_points.wav");
-	precache_sound("sounds/modes/lockdown/free_perk.wav");
-	precache_sound("sounds/modes/lockdown/insta_kill.wav");
-	precache_sound("sounds/modes/lockdown/kaboom.wav");
-	precache_sound("sounds/modes/lockdown/maxammo.wav");
-	precache_sound("sounds/modes/lockdown/random_weapon.wav");
-	precache_sound("sounds/modes/lockdown/upgrade.wav");
     precache_sound("sounds/modes/lockdown/lose.wav");
 };
 
@@ -168,8 +160,6 @@ void() Gamemode_Lockdown_Frame =
     if (lock_ran_post_init_logic == false) {
         // Play intro voiceline
         Sound_PlaySound(world, "sounds/modes/lockdown/intro.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
-        // Randomize perk locations
-        Gamemode_Lockdown_RandomizePerkLocations();
 
         lock_ran_post_init_logic = true;
     }

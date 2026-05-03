@@ -1397,7 +1397,7 @@ noref void() CSQC_Parse_Event =
 					break;
 				case GAMEMODE_LOCKDOWN:
 					chaptertitle = "LOCKDOWN";
-					location = "Don't open the damn door!";
+					location = "";
 					date = "";
 					person = "";
 					break;
