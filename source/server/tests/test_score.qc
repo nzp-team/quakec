@@ -113,3 +113,39 @@ void() Test_AddScore_MysteryBoxLeave =
     remove(mystery_box_ent);
     remove(owner_ent);
 };
+
+
+//
+// Test_AddScore_PhD_GunGame()
+// Asserts we are giving correct amount
+// of score for every AI damage type.
+// Should return 0
+// (https://github.com/nzp-team/nzportable/issues/1363)
+//
+void() Test_AddScore_PhD_GunGame =
+{
+    float score_pre = self.points;
+
+    Gamemode_GunGame_DieHandler(self, DMG_TYPE_FLOPPER);
+
+    float score_post = self.points;
+    float score_delta = score_post - score_pre;
+
+    
+
+    Test_Assert((score_delta == 0), sprintf("Unexpected score earned, expected 0 but got [%d]!", score_delta));
+};
+
+//
+// Test_AddScore_PhD_Festive()
+// Asserts we are giving correct amount
+// of score for every AI damage type.
+// Should return 90
+// (https://github.com/nzp-team/nzportable/issues/1363)
+//
+void() Test_AddScore_PhD_Festive =
+{
+    float pointsEarned = Gamemode_Festive_ScoreForDamage(DMG_SCORE_FLOPPER, DMG_TYPE_FLOPPER);
+
+    Test_Assert((pointsEarned == 90), sprintf("Unexpected score earned, expected 90 but got [%d]!", pointsEarned));
+};
