@@ -118,7 +118,7 @@ void() Test_AddScore_MysteryBoxLeave =
 //
 // Test_AddScore_PhD_GunGame()
 // Asserts we are giving correct amount
-// of score for every AI damage type.
+// of score for PhD Flopper in gun game
 // Should return 0
 // (https://github.com/nzp-team/nzportable/issues/1363)
 //
@@ -139,7 +139,7 @@ void() Test_AddScore_PhD_GunGame =
 //
 // Test_AddScore_PhD_Festive()
 // Asserts we are giving correct amount
-// of score for every AI damage type.
+// of score for PhD Flopper in Festive
 // Should return 90
 // (https://github.com/nzp-team/nzportable/issues/1363)
 //
