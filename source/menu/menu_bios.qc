@@ -26,7 +26,7 @@ var struct
     {
         "TANK DEMPSEY",
         "VERRUCKT",
-        "0.tga",
+        "portait_0.tga",
         [0, 0],
         {
             "Great American Hero: Tank Dempsey is a legend among men. Rigid",
@@ -51,7 +51,7 @@ var struct
     {
         "??????????",
         "??????",
-        "0.tga",
+        "portrait_0.tga",
         [0.5, 0],
         {
             "???",
@@ -76,7 +76,7 @@ var struct
     {
         "??????????",
         "??????",
-        "0.tga",
+        "portrait_0.tga",
         [0, 0.5],
         {
             "???",
@@ -101,7 +101,7 @@ var struct
     {
         "??????????",
         "??????",
-        "0.tga",
+        "portrait_0.tga",
         [0.5, 0.5],
         {
             "???",
@@ -126,7 +126,7 @@ var struct
     {
         "??????????",
         "??????",
-        "1.tga",
+        "portrait_1.tga",
         [0, 0],
         {
             "???",
@@ -151,7 +151,7 @@ var struct
     {
         "??????????",
         "??????",
-        "1.tga",
+        "portrait_1.tga",
         [0, 0],
         {
             "???",
@@ -176,7 +176,7 @@ var struct
     {
         "??????????",
         "??????",
-        "1.tga",
+        "portrait_1.tga",
         [0, 0],
         {
             "???",
@@ -201,7 +201,7 @@ var struct
     {
         "??????????",
         "??????",
-        "1.tga",
+        "portrait_1.tga",
         [0, 0],
         {
             "???",
@@ -226,7 +226,7 @@ var struct
     {
         "??????????",
         "??????",
-        "2.tga",
+        "portrait_2.tga",
         [0, 0],
         {
             "???",
@@ -251,7 +251,7 @@ var struct
     {
         "??????????",
         "??????",
-        "2.tga",
+        "portrait_2.tga",
         [0, 0],
         {
             "???",
@@ -276,7 +276,7 @@ var struct
     {
         "??????????",
         "??????",
-        "2.tga",
+        "portrait_2.tga",
         [0, 0],
         {
             "???",
@@ -301,7 +301,7 @@ var struct
     {
         "??????????",
         "??????",
-        "2.tga",
+        "portrait_2.tga",
         [0, 0],
         {
             "???",
