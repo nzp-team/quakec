@@ -25,6 +25,7 @@ menu_load.qc     // Loading Screen
 menu_coop.qc     // Co-op Menu
 menu_gset.qc     // Game Settings
 menu_loby.qc     // Lobby Menu
+menu_bios.qc     // Character Bios
 
 main.qc
 #endlist
