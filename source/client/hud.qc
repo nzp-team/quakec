@@ -1519,9 +1519,19 @@ float cur_spread;
 float crosshair_offset_step;
 float crosshair_opacity;
 vector crosshair_color;
+float crosshair_weapon;
 
 void() HUD_Crosshair =
 {
+	float active_weapon = getstatf(STAT_ACTIVEWEAPON);
+
+	// Reset crosshair state when swapping weapons.
+	if (active_weapon != crosshair_weapon) {
+		crosshair_weapon = active_weapon;
+		cur_spread = 0;
+		crosshair_offset_step = CrossHairWeapon(active_weapon, getstatf(STAT_PLAYERSTANCE));
+	}
+
 	if (cvar("cl_crosshair_debug")) {
 		drawline(2, [g_width/2, g_height/2, 0], [0, g_height, 0], [1, 0, 0], 0.5);
 		drawline(2, [g_width/2, g_height/2, 0], [g_width, 0, 0], [0, 1, 1], 0.5);
