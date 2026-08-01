@@ -274,6 +274,23 @@ void() Test_Weapons_WunderWaffe_UpgradedReserve =
 };
 
 //
+// Test_Weapons_FeverWallAmmoUsesRefillCost()
+// Ensures Fever mode preserves a wall weapon's configured ammo refill cost
+// instead of replacing it with the weapon purchase cost.
+// (https://github.com/nzp-team/nzportable/issues/1323)
+//
+void() Test_Weapons_FeverWallAmmoUsesRefillCost =
+{
+    float ammo_cost = 500;
+    float weapon_cost = 10000;
+
+    Test_Assert(
+        Gamemode_Festive_GetCostForWeaponAmmo(ammo_cost, weapon_cost, W_DB, false, 0) == ammo_cost,
+        "Fever mode replaced the wall ammo refill cost with the weapon purchase cost!"
+    );
+};
+
+//
 // Test_Weapons_WunderWaffe_FireAtBarrel()
 // Simulates firing the DG-2 at an explosive barrel
 // and validates it does not count as a kill and
