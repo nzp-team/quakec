@@ -177,6 +177,41 @@ void() Test_Weapons_RayGunClassification =
 };
 
 //
+// Test_Weapons_BurstCannotBeInterruptedBySwap()
+// Ensures a weapon swap cannot replace the animation callback responsible for
+// completing a burst and leave the player permanently action-locked.
+// (https://github.com/nzp-team/nzportable/issues/1342)
+//
+void() Test_Weapons_BurstCannotBeInterruptedBySwap =
+{
+	float old_weapon1 = self.weapons[1].weapon_id;
+	float old_burst_count = self.weapon_burst_count;
+	float old_semi_actions = self.semi_actions;
+	float old_switch_delay = self.switch_delay;
+	float old_is_buying = self.isBuying;
+	float old_downed = self.downed;
+
+	self.weapons[1].weapon_id = W_COLT;
+	self.weapon_burst_count = 2;
+	self.semi_actions &= ~SEMIACTION_WEAPONSWAP;
+	self.switch_delay = 0;
+	self.isBuying = false;
+	self.downed = false;
+
+	W_PutOut();
+
+	Test_Assert(!(self.semi_actions & SEMIACTION_WEAPONSWAP), "Weapon swap started during an active burst!");
+	Test_Assert((self.weapon_burst_count == 2), "Weapon swap interrupted the active burst!");
+
+	self.weapons[1].weapon_id = old_weapon1;
+	self.weapon_burst_count = old_burst_count;
+	self.semi_actions = old_semi_actions;
+	self.switch_delay = old_switch_delay;
+	self.isBuying = old_is_buying;
+	self.downed = old_downed;
+};
+
+//
 // Test_MysteryBox_RayGunsAreMutuallyExclusive()
 // Ensures a player carrying either Ray Gun variant cannot receive another.
 //
