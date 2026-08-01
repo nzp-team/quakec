@@ -95,3 +95,40 @@ void() Test_Player_DownedDisconnectUnlinksReviver =
 	remove(downed_client);
 	remove(reviver);
 };
+
+//
+// Test_Player_AlternateReviveRemovesBleedoutTimers()
+// Ensures alternate revive paths can remove every stale bleed-out timer for
+// the revived player.
+// (https://github.com/nzp-team/nzportable/issues/1402)
+//
+void() Test_Player_AlternateReviveRemovesBleedoutTimers =
+{
+	entity downed_client = spawn();
+	entity other_client = spawn();
+	entity first_trigger = spawn();
+	entity stale_trigger = spawn();
+	entity other_trigger = spawn();
+
+	downed_client.classname = "player";
+	other_client.classname = "player";
+	first_trigger.classname = stale_trigger.classname = other_trigger.classname = "revive_trigger";
+	first_trigger.owner = stale_trigger.owner = downed_client;
+	other_trigger.owner = other_client;
+
+	LastStand_RemoveReviveTriggers(downed_client);
+
+	entity trigger = find(world, classname, "revive_trigger");
+	float other_trigger_found = false;
+	while (trigger != world) {
+		Test_Assert((trigger.owner != downed_client), "Revived client retained a bleed-out timer!");
+		if (trigger == other_trigger)
+			other_trigger_found = true;
+		trigger = find(trigger, classname, "revive_trigger");
+	}
+	Test_Assert(other_trigger_found, "Another client's bleed-out timer was removed!");
+
+	remove(other_trigger);
+	remove(downed_client);
+	remove(other_client);
+};
