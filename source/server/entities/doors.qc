@@ -47,7 +47,6 @@ float DOOR_POWER = 64;
 .float delay;
 .void() think1;
 .vector finaldest;
-.entity trigger_field;
 .float wait;
 .float speed;
 .vector pos1;
@@ -234,8 +233,6 @@ void() door_fire =
 		self = self.enemy;
 	} while ( (self != starte) && (self != world) );
 	self = oself;
-	
-	SUB_UseTargets();
 	Zoning_UpdateAllZones(true);
 };
 
@@ -319,7 +316,15 @@ void() door_use =
 
 	oself = self;
 	self = self.owner;
-	if (self.cost)
+
+	// Target chains can point back to an already-opening door.  Stop there so
+	// reciprocal door links do not recursively fire forever.
+	if (self.state == STATE_TOP || self.state == STATE_UP) {
+		self = oself;
+		return;
+	}
+
+	if (self.cost && other.classname == "player")
 		cost_door();
 	else
 		door_fire ();

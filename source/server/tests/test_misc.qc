@@ -54,3 +54,62 @@ void() Test_EndGame_CounterResetsOnRestart =
     // Game Over Watcher should be despawned.
     Test_Assert((gameover_watcher == world), "Game Over Watcher still exists!");
 };
+
+//
+// Test_Door_FakeRemoveDoorDisablesTriggerField()
+// A killtargeted buyable door must not leave its interaction volume behind.
+//
+void() Test_Door_FakeRemoveDoorDisablesTriggerField =
+{
+    entity door = spawn();
+    entity trigger = spawn();
+
+    door.trigger_field = trigger;
+    door.solid = SOLID_BSP;
+    trigger.solid = SOLID_TRIGGER;
+
+    Ent_FakeRemove(door);
+
+    Test_Assert(door.entity_removed, "Door was not fake removed!");
+    Test_Assert(trigger.entity_removed, "Door trigger field was not fake removed!");
+    Test_Assert(trigger.solid == SOLID_NOT, "Door trigger field remained interactive!");
+
+    remove(trigger);
+    remove(door);
+};
+
+//
+// Test_Door_TriggeredCostDoorOpensOnce()
+// Priced doors activated by another map entity should open without charging a
+// player, and should not recursively loop.
+// (https://github.com/nzp-team/nzportable/issues/1374)
+//
+void() Test_Door_TriggeredCostDoorOpensOnce =
+{
+    entity door = spawn();
+    entity source = spawn();
+    entity old_self = self;
+    entity old_other = other;
+
+    door.owner = door;
+    door.enemy = door;
+    door.classname = "door_nzp_cost";
+    door.cost = 100;
+    door.state = STATE_BOTTOM;
+    door.speed = 100;
+    door.pos1 = door.pos2 = door.origin;
+
+    self = door;
+    other = source;
+
+    door_use();
+    Test_Assert((door.state == STATE_UP || door.state == STATE_TOP), "A targeted cost door did not open!");
+
+    door_use();
+    Test_Assert((door.state == STATE_UP || door.state == STATE_TOP), "An opening door was activated again!");
+
+    self = old_self;
+    other = old_other;
+    remove(source);
+    remove(door);
+};

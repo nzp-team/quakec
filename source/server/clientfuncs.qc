@@ -605,6 +605,12 @@ void(vector org) Effect_Fire =
 // "Removes" an entity that is placed back on restart.
 void(entity ent) Ent_FakeRemove =
 {
+	// Doors use a separate trigger volume for their interaction prompt.  Hiding
+	// only the brush leaves that volume active, so killtargeted doors can still
+	// be bought even though they are no longer visible.
+	if (ent.trigger_field && !ent.trigger_field.entity_removed)
+		Ent_FakeRemove(ent.trigger_field);
+
 	ent.entity_removed = true;
 	ent.oldmodel = ent.model;
 	ent.oldorigin = ent.origin;
