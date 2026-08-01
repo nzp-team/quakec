@@ -370,3 +370,22 @@ void() Test_Perks_Random_AnglesAreCorrect =
     remove(flopper);
     remove(random);
 };
+
+//
+// Test_Perks_ReloadWhileBuyingPerk_Blocked()
+// Asserts that triggering a reload while isBuying is true
+// does not overwrite animation or softlock isBuying state.
+// (https://github.com/nzp-team/nzportable/issues/1437)
+//
+void() Test_Perks_ReloadWhileBuyingPerk_Blocked =
+{
+    self.isBuying = true;
+    self.weapons[0].weapon_magazine = 3;
+
+    W_Reload(S_BOTH);
+
+    Test_Assert((self.isBuying == true), "isBuying state was modified by W_Reload!");
+    Test_Assert((self.weapons[0].weapon_magazine == 3), "Reload animation started while isBuying was true!");
+
+    self.isBuying = false;
+};
