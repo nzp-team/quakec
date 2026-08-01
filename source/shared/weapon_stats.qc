@@ -5243,6 +5243,25 @@ float(float weapon) WepDef_OnlyOneAllowed =
 }
 
 //
+// WepDef_IsRayGun(weapon)
+// Returns true for weapons in the Ray Gun family.
+//
+float(float weapon) WepDef_IsRayGun =
+{
+	switch(weapon) {
+		case W_RAY:
+		case W_PORTER:
+		case W_RAYMK2:
+		case W_PORTERMK2:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
 // WepDef_GetWeaponIDFromName(weapon)
 // Takes a string input and returns the weapon ID
 // from the associated string. Will be deprecated

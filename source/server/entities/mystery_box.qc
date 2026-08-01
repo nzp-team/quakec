@@ -132,6 +132,27 @@ entity() MBOX_GetFreeEnt =
 };
 
 //
+// MBOX_CanPlayerReceiveWeapon(user, weapon_id)
+// Player-level checks for whether a weapon is allowed in the
+// Mystery Box.
+//
+float(entity user, float weapon_id) MBOX_CanPlayerReceiveWeapon =
+{
+	if (Weapon_PlayerHasWeapon(user, weapon_id, true))
+		return false;
+
+	if (!WepDef_IsRayGun(weapon_id))
+		return true;
+
+	for (float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
+		if (WepDef_IsRayGun(user.weapons[i].weapon_id))
+			return false;
+	}
+
+	return true;
+};
+
+//
 // MBOX_GetRandomBoxWeapon(user)
 // Returns a weapon from the Mystery Box allow-list
 // that the user is not holding.
@@ -143,7 +164,7 @@ float(entity user) MBOX_GetRandomBoxWeapon =
     float weapon_allowed = mystery_box_weapons[weapon_index].allowed && 
 							!mystery_box_weapons[weapon_index].already_obtained;
 
-    if (weapon_allowed == true && !Weapon_PlayerHasWeapon(user, weapon_id, true))
+    if (weapon_allowed == true && MBOX_CanPlayerReceiveWeapon(user, weapon_id))
         return weapon_id;
     else
         return MBOX_GetRandomBoxWeapon(user);
@@ -829,6 +850,13 @@ float() MBOX_GetUnusedWeaponID =
     return 0;
 }
 
+// The Mark II is opt-in: allow lists must name it explicitly, and deny
+// lists must not add it merely because it was omitted.
+float(float is_allow_not_deny, float weapon_id) MBOX_WeaponAllowedByDefault =
+{
+	return !is_allow_not_deny && weapon_id != W_RAYMK2;
+}
+
 //
 // MBOX_ParseMB2File(mbox_file)
 // Parses the current .mb2 file and loads it
@@ -911,7 +939,7 @@ void(float mbox_file) MBOX_ParseMB2File =
         // been used.
         weapon_id = MBOX_GetUnusedWeaponID();
         mystery_box_weapons[i].weapon_id = weapon_id;
-        mystery_box_weapons[i].allowed = !is_allow_not_deny;
+		mystery_box_weapons[i].allowed = MBOX_WeaponAllowedByDefault(is_allow_not_deny, weapon_id);
     }
 
     // Precache the allowed weapons
