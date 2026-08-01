@@ -412,7 +412,7 @@ float(float current_cost, float weapon_cost, float weapon_id, float is_upgraded,
         }
     }
 
-    return weapon_cost;
+    return current_cost;
 }
 
 float(float weapon, float ammo) Gamemode_Festive_GetWeaponAmmo =
