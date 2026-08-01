@@ -48,6 +48,22 @@
 
 void(vector where, float time_alive) SpawnSpark;
 
+vector(float slot) Teleporter_PlayerOffset =
+{
+	switch(slot) {
+		case 0:
+			return '20 20 0';
+		case 1:
+			return '-20 20 0';
+		case 2:
+			return '20 -20 0';
+		case 3:
+			return '-20 -20 0';
+	}
+
+	return '0 0 0';
+}
+
 void() teleporter_cooldown =
 {
 	self.activated = false;
@@ -68,7 +84,8 @@ void() start_cooldown =
 
 void() teleport_entities_back =
 {
-    entity en, player; 
+	entity en, player;
+	vector destination;
 	en = find(world, targetname, self.target2);
 
     SUB_UseTargets();
@@ -80,28 +97,12 @@ void() teleport_entities_back =
         if (self.entities[i].classname == "player") {
             player = self.entities[i];
 
-            setorigin(player, en.origin);
+			destination = en.origin + Teleporter_PlayerOffset(self.iszomb);
+			if (self.isTimed || en.classname == "func_teleporter_pad")
+				destination += '0 0 40';
 
-            if (self.isTimed || en.classname == "func_teleporter_pad") {
-                setorigin(player, player.origin + '0 0 40');
-            }
-
-            switch(self.iszomb) {
-                case 0:
-                    player.origin += '20 0 0';
-                    break;
-                case 1:
-                    player.origin -= '20 0 0';
-                    break;
-                case 2:
-                    player.origin += '0 20 0';
-                    break;
-                case 3:
-                    player.origin -= '0 20 0';
-                    break;
-                default:
-                    break;
-            }
+			// setorigin relinks the player's collision bounds at the spaced position.
+			setorigin(player, destination);
 
             player.fire_delay = player.fire_delay2 = 
             player.reload_delay = player.reload_delay2 =
@@ -131,38 +132,22 @@ void() teleport_entities_back =
 
 void(entity who) teleport_entity =
 {
-    entity en; 
+	entity en;
+	vector destination;
 	en = find(world, targetname, self.target2);
   
   
     SUB_UseTargets ();
         
-    setorigin (who, who.tele_target.origin);
+	destination = who.tele_target.origin + Teleporter_PlayerOffset(self.iszomb);
+	if (self.isTimed || en.classname == "func_teleporter_pad")
+		destination += '0 0 40';
 
-	if (self.isTimed || en.classname == "func_teleporter_pad") {
-		setorigin(who, who.origin + '0 0 40');
-	}
+	// Apply the final position through setorigin so each player is relinked apart.
+	setorigin(who, destination);
 
 	// Prohibit taking fall damage
 	who.oldz = who.origin_z;
-
-    switch(self.iszomb) {
-        case 0:
-            who.origin += '20 0 0';
-            break;
-        case 1:
-            who.origin -= '20 0 0';
-            break;
-        case 2:
-            who.origin += '0 20 0';
-            break;
-        case 3:
-            who.origin -= '0 20 0';
-            break;
-        default:
-            bprint(PRINT_HIGH, "cheater!!\n");
-            break;
-    }
 
     who.fire_delay = who.fire_delay2 = who.reload_delay = who.reload_delay2 = 2.0 + time;
 	who.speed_penalty = 0.75;
