@@ -257,6 +257,25 @@ void() LastStand_ReviveTriggerFollow =
 };
 
 //
+// LastStand_RemoveReviveTriggers(client)
+// Removes any bleed-out timers owned by a revived client. Normally the
+// trigger removes itself after a manual revive, but alternate revive paths
+// (such as the upgraded Ballistic Knife) need to clean it up explicitly.
+//
+void(entity client) LastStand_RemoveReviveTriggers =
+{
+	entity revive_trigger = find(world, classname, "revive_trigger");
+	while (revive_trigger != world) {
+		entity next_trigger = find(revive_trigger, classname, "revive_trigger");
+
+		if (revive_trigger.owner == client)
+			remove(revive_trigger);
+
+		revive_trigger = next_trigger;
+	}
+};
+
+//
 // LastStand_UnlinkRevivee(client)
 // Reviving has stopped, revert the state of
 // both clients where necessary.
