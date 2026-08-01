@@ -55,7 +55,13 @@ void() MapRotation_GetRandomMap =
     // Grab a random map file
 	maps = search_begin("maps/*.bsp", 0, 0);
 	map_count = search_getsize(maps);
-    map_index = rint(random() * map_count);
+
+    if (map_count <= 0) {
+        search_end(maps);
+        return;
+    }
+
+    map_index = bound(0, floor(random() * map_count), map_count - 1);
 
     map_path = search_getfilename(maps, map_index);
 	map_name = substring(map_path, 5, strlen(map_path)); // maps/
