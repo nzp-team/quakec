@@ -253,7 +253,7 @@ void() W_PutOut =
 {
 	// We don't hold more than one weapon
 	if (self.weapons[1].weapon_id == 0 || self.downed ||
-	self.switch_delay > time || self.isBuying)
+	self.switch_delay > time || self.weapon_burst_count > 0 || self.isBuying)
 		return;
 
 	float duration = getWeaponDelay(self.weapon, PUTOUT);
