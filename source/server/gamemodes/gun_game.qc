@@ -365,12 +365,10 @@ void(float score_earned) Gamemode_GunGame_PlayerAddScore =
     }
 };
 
-void(entity attacker, float death_style) Gamemode_GunGame_DieHandler =
+float(float current_earned_score, float damage_style) Gamemode_GunGame_ScoreForDamage =
 {
+    if (damage_style == DMG_TYPE_FLOPPER)
+        return 0;
 
-    // possible fix for PHD Flopper giving points toward your weapon
-    switch(death_style) {
-        case DMG_TYPE_FLOPPER:
-            return 0;
-    }
+    return current_earned_score;
 };
