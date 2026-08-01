@@ -117,23 +117,19 @@ void() Test_AddScore_MysteryBoxLeave =
 
 //
 // Test_AddScore_PhD_GunGame()
-// Asserts we are giving correct amount
-// of score for PhD Flopper in gun game
-// Should return 0
+// Asserts PhD Flopper damage does not award score
+// toward weapon progression in Gun Game.
 // (https://github.com/nzp-team/nzportable/issues/1363)
 //
 void() Test_AddScore_PhD_GunGame =
 {
-    float score_pre = self.points;
+    float old_gamemode = current_gamemode;
+    current_gamemode = GAMEMODE_GUNGAME;
 
-    Gamemode_GunGame_DieHandler(self, DMG_TYPE_FLOPPER);
+    float points_earned = Gamemode_ScoreForDamage(DMG_SCORE_FLOPPER, DMG_TYPE_FLOPPER);
 
-    float score_post = self.points;
-    float score_delta = score_post - score_pre;
-
-    
-
-    Test_Assert((score_delta == 0), sprintf("Unexpected score earned, expected 0 but got [%d]!", score_delta));
+    current_gamemode = old_gamemode;
+    Test_Assert((points_earned == 0), sprintf("Unexpected score earned, expected 0 but got [%d]!", points_earned));
 };
 
 //
