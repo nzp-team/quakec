@@ -374,29 +374,24 @@ void(entity who, float preferred_stance, float play_animation) Player_SetStance 
 		height_diff_prone = PLAYER_PRONE_DIFFERENCE_HL;
 	}
 
-	// Prone while standing? Lower to crouch + prone height.
-	if (who.stance == PLAYER_STANCE_STAND && preferred_stance == PLAYER_STANCE_PRONE)
-		who.new_ofs_z = who.view_ofs_z - (height_diff_crouch + height_diff_prone);
+	// Derive the target height for stances from the standing view height.
+	float standing_view_height;
+	if (map_compatibility_mode == MAP_COMPAT_BETA)
+		standing_view_height = VIEW_OFS_QK[2];
+	else
+		standing_view_height = VIEW_OFS_HL[2];
 
-	// Prone while crouching? Lower to prone height.
-	else if (who.stance == PLAYER_STANCE_CROUCH && preferred_stance == PLAYER_STANCE_PRONE)
-		who.new_ofs_z = who.view_ofs_z - height_diff_prone;
-
-	// Crouch while proning? Raise to crouch height/take away prone difference.
-	else if (who.stance == PLAYER_STANCE_PRONE && preferred_stance == PLAYER_STANCE_CROUCH)
-		who.new_ofs_z = who.view_ofs_z + height_diff_prone;
-
-	// Crouch while standing? Lower to crouch height.
-	else if (who.stance == PLAYER_STANCE_STAND && preferred_stance == PLAYER_STANCE_CROUCH)
-		who.new_ofs_z = who.view_ofs_z - height_diff_crouch;
-
-	// Stand while crouching? Raise to stand height/take away crouch difference.
-	else if (who.stance == PLAYER_STANCE_CROUCH && preferred_stance == PLAYER_STANCE_STAND)
-		who.new_ofs_z = who.view_ofs_z + height_diff_crouch;
-
-	// Stand while proning? Raise to stand height/take away crouch + prone difference.
-	else if (who.stance == PLAYER_STANCE_PRONE && preferred_stance == PLAYER_STANCE_STAND)
-		who.new_ofs_z = who.view_ofs_z + (height_diff_crouch + height_diff_prone);
+	switch (preferred_stance) {
+		case PLAYER_STANCE_STAND:
+			who.new_ofs_z = standing_view_height;
+			break;
+		case PLAYER_STANCE_CROUCH:
+			who.new_ofs_z = standing_view_height - height_diff_crouch;
+			break;
+		case PLAYER_STANCE_PRONE:
+			who.new_ofs_z = standing_view_height - height_diff_crouch - height_diff_prone;
+			break;
+	}
 
 	// Set the stance value
 	who.stance = preferred_stance;

@@ -65,7 +65,7 @@ void(entity object) Test_SimulateUse =
 	entity old_self = self;
 
 	self.button7 = true;
-	self.fire_delay = self.reload_delay = self.dive_delay = self.reload_delay = self.switch_delay = 0;
+	self.fire_delay = self.fire_delay2 = self.reload_delay = self.reload_delay2 = self.switch_delay = self.knife_delay = self.dive_delay = 0;
 
 	self = object;
 	other = old_self;
