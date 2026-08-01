@@ -156,8 +156,11 @@ void() Menu_Maps =
 
         if (Menu_Button(i + 2.5, "map_randommap", "RANDOM", "Feeling indecisive? Try rolling the dice."))
         {
-            int random_map_index = rint(random() * user_maps_count);
-            Menu_Maps_LoadMap(user_maps[random_map_index].map_name);
+            if (user_maps_count > 0)
+            {
+                int random_map_index = bound(0, floor(random() * user_maps_count), user_maps_count - 1);
+                Menu_Maps_LoadMap(user_maps[random_map_index].map_name);
+            }
         }
 
         // Usermaps and back button registry
