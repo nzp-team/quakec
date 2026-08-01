@@ -1188,6 +1188,23 @@ void() RestartDedicatedServer =
 	localcmd("restart\n");
 }
 
+//
+// Player_CleanupReviveOnDisconnect(client)
+// Breaks any active revive relationship before the disconnecting client's
+// player state is invalidated.
+//
+void(entity client) Player_CleanupReviveOnDisconnect =
+{
+	if (client.downed) {
+		if (client.firer != world)
+			LastStand_UnlinkRevivee(client);
+
+		DisableReviveIcon(client.playernum);
+	} else if (client.firer != world && client.firer.downed && client.firer.firer == client) {
+		LastStand_UnlinkRevivee(client.firer);
+	}
+};
+
 //called when client disconnects from the server
 void() ClientDisconnect =
 {
@@ -1195,6 +1212,7 @@ void() ClientDisconnect =
 	bprint(PRINT_HIGH, " has left the game.\n");
 	player_count--;
 	UpdatePlayerCount(player_count);
+	Player_CleanupReviveOnDisconnect(self);
 	
 	self.classname = "disconnected";
 	self.solid = SOLID_NOT;
@@ -1204,13 +1222,6 @@ void() ClientDisconnect =
 	setmodel(self, "models/sprites/null.spr");
 
 	GameRestart_ResetPerkaColas();
-
-	if (self.downed && self.firer != world) {
-		LastStand_UnlinkRevivee(self);
-		DisableReviveIcon(self.playernum);
-	} else if (self.firer != world) {
-		self.firer.beingrevived = false;
-	}
 
 #ifdef FTE
 
