@@ -409,6 +409,8 @@ void() worldspawn =
 
 	autocvar(sv_spoofmonth, 0);
 
+#endif // FTE
+
 	current_month_of_year = nzp_getmonthofyear();
 
 #endif // FTE
