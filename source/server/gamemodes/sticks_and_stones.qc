@@ -31,6 +31,7 @@ float sns_has_taunted_for_low_ammo;
 
 void() Gamemode_Sticks_Init =
 {
+	precache_model(GetWeaponModel(W_BK, false));
 	precache_extra(W_BK);
 
 	precache_sound("sounds/modes/sticks/intro.wav");

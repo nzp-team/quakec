@@ -45,6 +45,11 @@ void() Gamemode_WW_Init =
     precache_sound("sounds/modes/wildwest/nuke.wav");
     precache_sound("sounds/modes/wildwest/free_perk.wav");
 
+    precache_model(GetWeaponModel(W_357, false));
+    precache_extra(W_357);
+    precache_model(GetWeaponModel(W_SAWNOFF, false));
+    precache_extra(W_SAWNOFF);
+
     game_modifier_powerup_free_perk = true;
 };
 
