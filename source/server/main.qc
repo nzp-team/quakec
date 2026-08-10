@@ -413,8 +413,6 @@ void() worldspawn =
 
 	current_month_of_year = nzp_getmonthofyear();
 
-#endif // FTE
-
 	mappath = strcat("maps/", mapname);
 	mappath = strzone(mappath);
 
