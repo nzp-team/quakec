@@ -409,9 +409,9 @@ void() worldspawn =
 
 	autocvar(sv_spoofmonth, 0);
 
-	current_month_of_year = nzp_getmonthofyear();
-
 #endif // FTE
+
+	current_month_of_year = nzp_getmonthofyear();
 
 	mappath = strcat("maps/", mapname);
 	mappath = strzone(mappath);

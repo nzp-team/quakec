@@ -269,7 +269,7 @@ string(float num)                                                               
 string  (string s)                                                                              strtolower          = #480;
 float   (float caseinsensitive, string s)                                                       crc16               = #494;
 void    (string trackname)                                                                    	songegg             = #500;
-void    ()                                                                                   	nzp_poweruptoast         = #501;
+void    ()                                                                                   	nzp_poweruptoast    = #501;
 void    (entity who)                                                                            grenade_pulse       = #502;
 float   ()                                                                                      nzp_maxai           = #503;
 void    (entity who)                                                                            nzp_bettyprompt     = #504;
@@ -279,6 +279,9 @@ void    (entity who, float color, float duration, float type)                   
 void    (entity who, float state)                                                               nzp_lockviewmodel   = #508;
 void    (entity who, float low_frequency, float high_frequency, float duration)                 nzp_rumble          = #509;
 void    (float gamemode)                                                                        nzp_setclientmode   = #510;
+void    (vector color)                                                                          nzp_setroundcolor   = #511;
+float   ()                                                                                      nzp_getmonthofyear  = #512;
+void    (float orientation)                                                                     nzp_setperkorientation = #513;
 
 //
 // constants

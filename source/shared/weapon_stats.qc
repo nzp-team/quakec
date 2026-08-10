@@ -235,6 +235,7 @@ string(float wep, float weapon_tier) GetWeaponName =
 			weapon_name = strcat(weapon_name, " (Tier ");
 			weapon_name = strcat(weapon_name, tier_numeral);
 			weapon_name = strcat(weapon_name, ")");
+			weapon_name = strzone(weapon_name);
 		}
 	}
 
