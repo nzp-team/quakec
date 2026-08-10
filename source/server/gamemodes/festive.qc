@@ -31,6 +31,7 @@ string festive_round_color;
 
 void() Gamemode_Festive_Init =
 {
+    precache_model(GetWeaponModel(W_BOWIE, false));
     precache_sound("sounds/modes/festive/rnd_splash.wav");
     precache_sound("sounds/modes/festive/rnd_start.wav");
     precache_sound("sounds/modes/festive/rnd_end.wav");
@@ -183,19 +184,24 @@ void() Gamemode_Festive_PlayerSpawn =
     nzp_setdoubletapver(self, false);
 
     // Give the player a random starting weapon
-    float weapon_options[6] = {W_COLT, W_KAR, W_M1A1, W_SAWNOFF, W_MP40, W_GEWEHR};
     float weapon_chance = random();
+    float selected_weapon = W_COLT;
 
-    for (float i = 0; i < 6; i++) {
-        if (weapon_chance < (1/(i + 1))) {
-            Weapon_AssignWeapon(0, weapon_options[i], 0, 0, 0);
-        }
-    }
+    if (weapon_chance < (1.0 / 6.0))
+        selected_weapon = W_GEWEHR;
+    else if (weapon_chance < (1.0 / 5.0))
+        selected_weapon = W_MP40;
+    else if (weapon_chance < (1.0 / 4.0))
+        selected_weapon = W_SAWNOFF;
+    else if (weapon_chance < (1.0 / 3.0))
+        selected_weapon = W_M1A1;
+    else if (weapon_chance < (1.0 / 2.0))
+        selected_weapon = W_KAR;
 
-#ifdef FTE
+    Weapon_AssignWeapon(0, selected_weapon, 0, 0, 0);
+
     nzp_setroundcolor(stov(festive_round_color));
     nzp_setperkorientation(HUD_PERK_ORI_CW);
-#endif // FTE
 };
 
 float(float current_earned_score, float damage_style) Gamemode_Festive_ScoreForDamage =
@@ -214,6 +220,8 @@ float(float current_earned_score, float damage_style) Gamemode_Festive_ScoreForD
         case DMG_TYPE_FLAMETHROWER:
         case DMG_TYPE_GRENADE:
         case DMG_TYPE_TESLA:
+            return 90;
+        case DMG_TYPE_FLOPPER:
             return 90;
     }
 
@@ -410,7 +418,7 @@ float(float current_cost, float weapon_cost, float weapon_id, float is_upgraded,
         }
     }
 
-    return weapon_cost;
+    return current_cost;
 }
 
 float(float weapon, float ammo) Gamemode_Festive_GetWeaponAmmo =

@@ -55,7 +55,8 @@ void() Test_AddScore_DamageTypes =
         DMG_TYPE_GRENADE, 
         DMG_TYPE_EXPLOSIVE,
         DMG_TYPE_LOWERTORSO,
-        DMG_TYPE_UPPERTORSO
+        DMG_TYPE_UPPERTORSO,
+        DMG_TYPE_FLOPPER
     };
 
     float scores[] = {
@@ -66,7 +67,8 @@ void() Test_AddScore_DamageTypes =
         DMG_SCORE_GRENADE,
         DMG_SCORE_EXPLOSIVE,
         DMG_SCORE_LOWERTORSO,
-        DMG_SCORE_UPPERTORSO
+        DMG_SCORE_UPPERTORSO,
+        DMG_SCORE_FLOPPER
     };
 
     for (float i = 0; i < styles.length; i++) {
@@ -110,4 +112,36 @@ void() Test_AddScore_MysteryBoxLeave =
 
     remove(mystery_box_ent);
     remove(owner_ent);
+};
+
+
+//
+// Test_AddScore_PhD_GunGame()
+// Asserts PhD Flopper damage does not award score
+// toward weapon progression in Gun Game.
+// (https://github.com/nzp-team/nzportable/issues/1363)
+//
+void() Test_AddScore_PhD_GunGame =
+{
+    float old_gamemode = current_gamemode;
+    current_gamemode = GAMEMODE_GUNGAME;
+
+    float points_earned = Gamemode_ScoreForDamage(DMG_SCORE_FLOPPER, DMG_TYPE_FLOPPER);
+
+    current_gamemode = old_gamemode;
+    Test_Assert((points_earned == 0), sprintf("Unexpected score earned, expected 0 but got [%d]!", points_earned));
+};
+
+//
+// Test_AddScore_PhD_Festive()
+// Asserts we are giving correct amount
+// of score for PhD Flopper in Festive
+// Should return 90
+// (https://github.com/nzp-team/nzportable/issues/1363)
+//
+void() Test_AddScore_PhD_Festive =
+{
+    float pointsEarned = Gamemode_Festive_ScoreForDamage(DMG_SCORE_FLOPPER, DMG_TYPE_FLOPPER);
+
+    Test_Assert((pointsEarned == 90), sprintf("Unexpected score earned, expected 90 but got [%d]!", pointsEarned));
 };

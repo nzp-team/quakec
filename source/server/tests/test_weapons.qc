@@ -164,6 +164,91 @@ void() Test_Weapons_UpgradedSound =
 };
 
 //
+// Test_Weapons_RayGunClassification()
+// Ensures every base and upgraded Ray Gun is in the same weapon family.
+//
+void() Test_Weapons_RayGunClassification =
+{
+	Test_Assert(WepDef_IsRayGun(W_RAY), "Ray Gun is not classified as a Ray Gun!");
+	Test_Assert(WepDef_IsRayGun(W_PORTER), "Porter's X2 is not classified as a Ray Gun!");
+	Test_Assert(WepDef_IsRayGun(W_RAYMK2), "Ray Gun Mark II is not classified as a Ray Gun!");
+	Test_Assert(WepDef_IsRayGun(W_PORTERMK2), "Porter's Mark II is not classified as a Ray Gun!");
+	Test_Assert(!WepDef_IsRayGun(W_COLT), "A non-Ray Gun is classified as a Ray Gun!");
+};
+
+//
+// Test_Weapons_BurstCannotBeInterruptedBySwap()
+// Ensures a weapon swap cannot replace the animation callback responsible for
+// completing a burst and leave the player permanently action-locked.
+// (https://github.com/nzp-team/nzportable/issues/1342)
+//
+void() Test_Weapons_BurstCannotBeInterruptedBySwap =
+{
+	float old_weapon1 = self.weapons[1].weapon_id;
+	float old_burst_count = self.weapon_burst_count;
+	float old_semi_actions = self.semi_actions;
+	float old_switch_delay = self.switch_delay;
+	float old_is_buying = self.isBuying;
+	float old_downed = self.downed;
+
+	self.weapons[1].weapon_id = W_COLT;
+	self.weapon_burst_count = 2;
+	self.semi_actions &= ~SEMIACTION_WEAPONSWAP;
+	self.switch_delay = 0;
+	self.isBuying = false;
+	self.downed = false;
+
+	W_PutOut();
+
+	Test_Assert(!(self.semi_actions & SEMIACTION_WEAPONSWAP), "Weapon swap started during an active burst!");
+	Test_Assert((self.weapon_burst_count == 2), "Weapon swap interrupted the active burst!");
+
+	self.weapons[1].weapon_id = old_weapon1;
+	self.weapon_burst_count = old_burst_count;
+	self.semi_actions = old_semi_actions;
+	self.switch_delay = old_switch_delay;
+	self.isBuying = old_is_buying;
+	self.downed = old_downed;
+};
+
+//
+// Test_MysteryBox_RayGunsAreMutuallyExclusive()
+// Ensures a player carrying either Ray Gun variant cannot receive another.
+//
+void() Test_MysteryBox_RayGunsAreMutuallyExclusive =
+{
+	float old_weapon0 = self.weapons[0].weapon_id;
+	float old_weapon1 = self.weapons[1].weapon_id;
+	float old_weapon2 = self.weapons[2].weapon_id;
+
+	self.weapons[0].weapon_id = W_RAY;
+	self.weapons[1].weapon_id = W_NOWEP;
+	self.weapons[2].weapon_id = W_NOWEP;
+	Test_Assert(!MBOX_CanPlayerReceiveWeapon(self, W_RAYMK2), "Player with Ray Gun could receive Mark II!");
+
+	self.weapons[0].weapon_id = W_NOWEP;
+	self.weapons[2].weapon_id = W_PORTERMK2;
+	Test_Assert(!MBOX_CanPlayerReceiveWeapon(self, W_RAY), "Player with upgraded Mark II could receive Ray Gun!");
+	Test_Assert(MBOX_CanPlayerReceiveWeapon(self, W_COLT), "Ray Gun incorrectly blocked an unrelated weapon!");
+
+	self.weapons[0].weapon_id = old_weapon0;
+	self.weapons[1].weapon_id = old_weapon1;
+	self.weapons[2].weapon_id = old_weapon2;
+};
+
+//
+// Test_MysteryBox_MarkTwoIsOptIn()
+// Ensures an omitted Mark II remains disabled for both MB2 list modes.
+// (https://github.com/nzp-team/nzportable/issues/1348)
+//
+void() Test_MysteryBox_MarkTwoIsOptIn =
+{
+	Test_Assert(!MBOX_WeaponAllowedByDefault(true, W_RAYMK2), "Allow mode enabled an omitted Mark II!");
+	Test_Assert(!MBOX_WeaponAllowedByDefault(false, W_RAYMK2), "Deny mode enabled an omitted Mark II!");
+	Test_Assert(MBOX_WeaponAllowedByDefault(false, W_COLT), "Deny mode failed to enable an omitted normal weapon!");
+};
+
+//
 // Test_Weapons_ShotgunPenetration()
 // Validates shotgun penetration is set
 // correctly.
@@ -186,6 +271,23 @@ void() Test_Weapons_ShotgunPenetration =
 void() Test_Weapons_WunderWaffe_UpgradedReserve =
 {
     Test_Assert(getWeaponAmmo(W_DG3) == 30, "Incorrect reserve ammo!");
+};
+
+//
+// Test_Weapons_FeverWallAmmoUsesRefillCost()
+// Ensures Fever mode preserves a wall weapon's configured ammo refill cost
+// instead of replacing it with the weapon purchase cost.
+// (https://github.com/nzp-team/nzportable/issues/1323)
+//
+void() Test_Weapons_FeverWallAmmoUsesRefillCost =
+{
+    float ammo_cost = 500;
+    float weapon_cost = 10000;
+
+    Test_Assert(
+        Gamemode_Festive_GetCostForWeaponAmmo(ammo_cost, weapon_cost, W_DB, false, 0) == ammo_cost,
+        "Fever mode replaced the wall ammo refill cost with the weapon purchase cost!"
+    );
 };
 
 //
@@ -292,4 +394,3 @@ void() Test_WallWeapons_ActivatesAllTargets =
     self = old_self;
     remove(weapon);
 };
-

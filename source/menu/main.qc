@@ -31,8 +31,13 @@ string() Menu_PickBackground =
 
 	string image = "";
 
+	if (pic_count <= 0) {
+		search_end(pics);
+		return image;
+	}
+
 	while(TRUE) {
-		float entry = rint(random() * pic_count);
+		float entry = bound(0, floor(random() * pic_count), pic_count - 1);
 		string potential_image = search_getfilename(pics, entry);
 
 		string extension = strtolower(substring(potential_image, strlen(potential_image) - 3, strlen(potential_image)));
@@ -45,6 +50,8 @@ string() Menu_PickBackground =
 			break;
 		}
 	}
+
+	search_end(pics);
 
 	return image;
 };

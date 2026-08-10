@@ -364,3 +364,11 @@ void(float score_earned) Gamemode_GunGame_PlayerAddScore =
         }
     }
 };
+
+float(float current_earned_score, float damage_style) Gamemode_GunGame_ScoreForDamage =
+{
+    if (damage_style == DMG_TYPE_FLOPPER)
+        return 0;
+
+    return current_earned_score;
+};

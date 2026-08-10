@@ -73,10 +73,17 @@ void(entity client) Blade_Revive =
 	Player_AddScore(self.owner, other.requirespower, false);
 	self.owner.revives++;
 
+	// A knife can land while a manual revive is in progress. Break that link
+	// before removing its trigger so neither player retains stale revive state.
+	if (other.beingrevived)
+		LastStand_UnlinkRevivee(other);
+
     entity old_self = self;
 	self = other;
 	GetUp();
 	self = old_self;
+
+	LastStand_RemoveReviveTriggers(other);
 
 	// Remove the revive icon from above the previously downed client
 	DisableReviveIcon(other.playernum);

@@ -154,6 +154,7 @@ void(float score_earned) Gamemode_PlayerAddScore =
 float(float current_earned_score, float damage_style) Gamemode_ScoreForDamage =
 {
     switch(current_gamemode) {
+        case GAMEMODE_GUNGAME: return Gamemode_GunGame_ScoreForDamage(current_earned_score, damage_style);
         case GAMEMODE_FESTIVE: return Gamemode_Festive_ScoreForDamage(current_earned_score, damage_style);
         default: break;
     }

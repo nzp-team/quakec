@@ -157,6 +157,44 @@ void(string line_1, string line_2) Menu_DrawYesNoPanel =
 };
 
 //
+// Menu_DrawCharacterPanel()
+// Draws a ribbon over the screen used
+// for lengthy character bios.
+//
+void(string l1, string l2, string l3, string l4, string l5, string l6, string l7, string l8, string l9, string l10, string l11, string l12, string l13, string l14, string l15, string l16, string l17) Menu_DrawCharacterPanel =
+{
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+	sui_fill([0, 0], sui_current_frame_size(), [0.01, 0, 0], 0.5, 0);
+
+	// Black Fill
+	sui_fill([0, 50], [sui_current_frame_size()[0], sui_current_frame_size()[1] - 100], [0, 0, 0], 1, 0);
+
+	// Yellow borders
+	sui_fill([0, 50], [sui_current_frame_size()[0], 3], [1, 1, 0], 0.9, 0);
+	sui_fill([0, sui_current_frame_size()[1] - 53], [sui_current_frame_size()[0], 3], [1, 1, 0], 0.9, 0);
+
+	sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_START]);
+	sui_text([0, 110], MENU_TEXT_MEDIUM, l1, [1, 1, 1], 1, 0);
+	sui_text([0, 125], MENU_TEXT_MEDIUM, l2, [1, 1, 1], 1, 0);
+	sui_text([0, 140], MENU_TEXT_MEDIUM, l3, [1, 1, 1], 1, 0);
+	sui_text([0, 155], MENU_TEXT_MEDIUM, l4, [1, 1, 1], 1, 0);
+	sui_text([0, 170], MENU_TEXT_MEDIUM, l5, [1, 1, 1], 1, 0);
+	sui_text([0, 185], MENU_TEXT_MEDIUM, l6, [1, 1, 1], 1, 0);
+	sui_text([0, 200], MENU_TEXT_MEDIUM, l7, [1, 1, 1], 1, 0);
+	sui_text([0, 215], MENU_TEXT_MEDIUM, l8, [1, 1, 1], 1, 0);
+	sui_text([0, 230], MENU_TEXT_MEDIUM, l9, [1, 1, 1], 1, 0);
+	sui_text([0, 245], MENU_TEXT_MEDIUM, l10, [1, 1, 1], 1, 0);
+	sui_text([0, 260], MENU_TEXT_MEDIUM, l11, [1, 1, 1], 1, 0);
+	sui_text([0, 275], MENU_TEXT_MEDIUM, l12, [1, 1, 1], 1, 0);
+	sui_text([0, 290], MENU_TEXT_MEDIUM, l13, [1, 1, 1], 1, 0);
+	sui_text([0, 305], MENU_TEXT_MEDIUM, l14, [1, 1, 1], 1, 0);
+	sui_text([0, 320], MENU_TEXT_MEDIUM, l15, [1, 1, 1], 1, 0);
+	sui_text([0, 335], MENU_TEXT_MEDIUM, l16, [1, 1, 1], 1, 0);
+	sui_text([0, 350], MENU_TEXT_MEDIUM, l17, [1, 1, 1], 1, 0);
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+};
+
+//
 // Menu_DrawMapPanel()
 // Draws a translucent box on the right
 // side of the window to make map text easier
@@ -221,6 +259,55 @@ void(float order, string bind) Menu_DrawOptionKey =
 		sui_text(position, MENU_TEXT_MEDIUM, bind, [1, 1, 0], 1, 0);
 	}
 };
+
+//
+// Menu_BioButton(order, id, char_name, map, portrait, coords)
+// Displays a fancy menu option that loads
+// and draws the details for the given
+// character in the Bios menu.
+//
+float(float order, string id, string char_name, string map, string portrait, vector coords) Menu_BioButton =
+{
+	sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+
+	float is_hovered = sui_is_hovered(id);
+	vector text_color = is_hovered ? [1, 0, 0] : [1, 1, 1];
+	vector position = [6, 50 + (order * 25)];
+	vector bbox_pos = position - [6, 5, 0];
+	vector bbox_size = [290, 22];
+
+	if (is_hovered) {
+		// Background
+		sui_fill(bbox_pos, bbox_size, [0, 0, 0], 0.9, 0);
+		// Top
+		sui_fill(bbox_pos, [bbox_size_x, 2], [0.4, 0, 0], 1, 0);
+		// Bottom
+		sui_fill(bbox_pos + [0, bbox_size_y - 2], [bbox_size_x, 2], [0.4, 0, 0], 1, 0);
+		// Right
+		sui_fill(bbox_pos + [bbox_size_x - 2, 0], [2, bbox_size_y], [0.4, 0, 0], 1, 0);
+	}
+
+	// Character Name
+	sui_text(position - [getTextWidth(char_name, MENU_TEXT_MEDIUM_x), 0, 0] + [275, 0, 0], MENU_TEXT_MEDIUM, strtoupper(char_name), text_color, 1, 0);
+
+	if (is_hovered) {
+		sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_CENTER]);
+
+		// Character Portrait
+		sui_fill([150, -30], [264, 264], [0.4, 0.4, 0.4], 1, 0);
+		sui_subpic([150, -30], [260, 260], strcat("gfx/portraits/", portrait), [1, 1, 1], coords, [0.5, 0.5], 1, 0);
+
+		// Map
+		sui_set_align([SUI_ALIGN_CENTER, SUI_ALIGN_END]);
+		sui_text([0, -30], MENU_TEXT_MEDIUM, map, [1, 1, 0], 1, 0);
+	
+		sui_set_align([SUI_ALIGN_START, SUI_ALIGN_START]);
+	}
+
+	sui_action_element(bbox_pos, bbox_size, id, sui_noop);
+	
+	return sui_is_clicked(id);
+}
 
 //
 // Menu_MapButton(order, id, bsp_name, map_category, usermap_index)
@@ -935,6 +1022,7 @@ void(vector size) root_menu =
 		case MENU_CREDITS: Menu_Credits(); break;
 		case MENU_LOBBY: Menu_Lobby(); break;
 		case MENU_GAMESETTINGS: Menu_GameSettings(); break;
+		case MENU_BIOS: Menu_Bios(); break;
 
 #else
 

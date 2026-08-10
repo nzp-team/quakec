@@ -136,7 +136,8 @@ void() W_AimIn =
 	if (IsDualWeapon(self.weapon) ||
 		self.reload_delay > time ||
 		self.knife_delay > time ||
-		self.new_anim_stop) {		
+		self.new_anim_stop ||
+		self.isBuying) {		
 		return;
 	}
 
@@ -252,7 +253,7 @@ void() W_PutOut =
 {
 	// We don't hold more than one weapon
 	if (self.weapons[1].weapon_id == 0 || self.downed ||
-	self.switch_delay > time)
+	self.switch_delay > time || self.weapon_burst_count > 0 || self.isBuying)
 		return;
 
 	float duration = getWeaponDelay(self.weapon, PUTOUT);
@@ -409,7 +410,7 @@ void(float side) W_AdvanceAnim =
 
 void(float side) W_Reload =
 {
-	if (self.zoom == 2 || self.weapon_burst_count > 0)
+	if (self.zoom == 2 || self.weapon_burst_count > 0 || self.isBuying)
 		return;
 
 	SetUpdate(self, UT_HUD, 7, 0, 0);
@@ -1291,7 +1292,7 @@ void() WeaponCore_Melee =
 	// Do not trigger if we're Aiming down the Sight, or
 	// already melee-ing, or doing some other action.
 	if (self.knife_delay > time || self.new_anim_stop ||
-	self.new_anim2_stop || self.zoom || in_endgame_sequence)
+	self.new_anim2_stop || self.zoom || in_endgame_sequence || self.isBuying)
 		return;
 
 	// Perform the third person animation if standing
@@ -1841,8 +1842,8 @@ void() CheckPlayer =
 		traceline(self.origin, self.origin + (v_up * -40), 0, self);
 
 		if (trace_ent.classname == "player") {
-			DamageHandler(self, trace_ent, 100000, DMG_TYPE_OTHER);
-			DamageHandler(trace_ent, self, 100000, DMG_TYPE_OTHER);
+			DamageHandler(self, trace_ent, 100000, DMG_TYPE_FLOPPER);
+			DamageHandler(trace_ent, self, 100000, DMG_TYPE_FLOPPER);
 		}
 	}
 	
@@ -1874,7 +1875,7 @@ void() CheckPlayer =
             float damage = over * 0.68;
 			if (damage > 98) damage = 98;
 			
-			DamageHandler (self, other, damage, DMG_TYPE_OTHER); 
+			DamageHandler (self, other, damage, DMG_TYPE_FLOPPER); 
 
 			if (self.health <= 5)
 				GiveAchievement(7, self);	

@@ -297,8 +297,12 @@ void() touch_perk =
 	// Back up weapon skin
 	backupWepSkin = other.weaponskin;
 
-	// Don't prompt if our hands or busy or we already have the perk
-	if (!(other.perks & self.style) && other.fire_delay < time && self.perk_purchase_count < perk_purchase_limit) {
+	// Don't prompt if our hands are busy or we already have the perk
+	if (!(other.perks & self.style) &&
+		other.fire_delay < time && other.fire_delay2 < time &&
+		other.reload_delay < time && other.reload_delay2 < time &&
+		other.switch_delay < time && other.knife_delay < time &&
+		self.perk_purchase_count < perk_purchase_limit) {
 		float price;
 
 		// Check if we're playing in Co-Op, adjust price if so.

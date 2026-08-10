@@ -656,6 +656,7 @@ waypoint_ai waypoints[MAX_WAYPOINTS];
 .float oldstate;
 .float state;
 .float isopen;
+.entity trigger_field;
 
 //world
 .string chaptertitle;

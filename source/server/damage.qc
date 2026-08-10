@@ -39,6 +39,7 @@ float(float current_health_delay, float current_perks) Gamemode_GetHealthRegenDe
 #define DMG_SCORE_GRENADE		50 		// Death by Grenade.
 #define DMG_SCORE_EXPLOSIVE		60  	// Death by Explosive Weapon.
 #define DMG_SCORE_TESLA			50  	// Death by Tesla.
+#define DMG_SCORE_FLOPPER		50		// Death by PhD Flopper
 #define DMG_SCORE_STDDAMAGE		10  	// Standard Damage reward.
 
 void() Barrel_Hit;
@@ -273,6 +274,9 @@ void(entity attacker, float d_style) DieHandler =
 				break;
 			case DMG_TYPE_UPPERTORSO:
 				points_earned = DMG_SCORE_UPPERTORSO;
+				break;
+			case DMG_TYPE_FLOPPER:
+				points_earned = DMG_SCORE_FLOPPER;
 				break;
 			default:
 				if (cvar("developer"))
@@ -580,7 +584,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			} else if (inflictor.classname == "player") {
 				// phd flopper.
 				final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
-				damage_style = DMG_TYPE_GRENADE;
+				damage_style = DMG_TYPE_FLOPPER;
 			} else {
 				r = rounds;
 				multi = 1.07;

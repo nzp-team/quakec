@@ -235,6 +235,7 @@ string(float wep, float weapon_tier) GetWeaponName =
 			weapon_name = strcat(weapon_name, " (Tier ");
 			weapon_name = strcat(weapon_name, tier_numeral);
 			weapon_name = strcat(weapon_name, ")");
+			weapon_name = strzone(weapon_name);
 		}
 	}
 
@@ -5234,6 +5235,25 @@ float(float weapon) WepDef_OnlyOneAllowed =
 	switch(weapon) {
 		case W_TESLA:
 		case W_DG3:
+			return true;
+		default:
+			return false;
+	}
+
+	return false;
+}
+
+//
+// WepDef_IsRayGun(weapon)
+// Returns true for weapons in the Ray Gun family.
+//
+float(float weapon) WepDef_IsRayGun =
+{
+	switch(weapon) {
+		case W_RAY:
+		case W_PORTER:
+		case W_RAYMK2:
+		case W_PORTERMK2:
 			return true;
 		default:
 			return false;
