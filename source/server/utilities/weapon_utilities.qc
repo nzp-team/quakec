@@ -51,6 +51,9 @@ void() W_AimOut;
 void() ReturnWeaponModel;
 void(entity person) W_HideCrosshair;
 
+guninventory_struct weapon_swap_storage[MAX_PLAYER_WEAPONS];
+guninventory_struct weapon_fixup_storage[MAX_PLAYER_WEAPONS];
+
 //
 // Weapon_GetPlayerAmmoInSlot(person, slot)
 // Returns the reserve ammo the player has in a weapon slot.
@@ -224,42 +227,43 @@ void Weapon_SwapWeapons(float play_animation)
 	// Fix fire rate exploit
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = true;
 
-	// Store current weapons locally
-	guninventory_struct weapons_storage[MAX_PLAYER_WEAPONS];
+	// Store current weapons in non-local scratch space.
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++)
+		weapon_swap_storage[i].weapon_id = 0;
+
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
 		if (self.weapons[i].weapon_id != 0) {
 			weapon_count++;
-			weapons_storage[i].weapon_id = self.weapons[i].weapon_id;
-			weapons_storage[i].weapon_magazine = self.weapons[i].weapon_magazine;
-			weapons_storage[i].weapon_magazine_left = self.weapons[i].weapon_magazine_left;
-			weapons_storage[i].weapon_reserve = self.weapons[i].weapon_reserve;
-			weapons_storage[i].weapon_skin = self.weapons[i].weapon_skin;
-			weapons_storage[i].weapon_tier = self.weapons[i].weapon_tier;
-			weapons_storage[i].is_mulekick_weapon = self.weapons[i].is_mulekick_weapon;
+			weapon_swap_storage[i].weapon_id = self.weapons[i].weapon_id;
+			weapon_swap_storage[i].weapon_magazine = self.weapons[i].weapon_magazine;
+			weapon_swap_storage[i].weapon_magazine_left = self.weapons[i].weapon_magazine_left;
+			weapon_swap_storage[i].weapon_reserve = self.weapons[i].weapon_reserve;
+			weapon_swap_storage[i].weapon_skin = self.weapons[i].weapon_skin;
+			weapon_swap_storage[i].weapon_tier = self.weapons[i].weapon_tier;
+			weapon_swap_storage[i].is_mulekick_weapon = self.weapons[i].is_mulekick_weapon;
 		}
 	}
 
 	// Iterate over the player inventory and shift the array around!
 	for(float j = 0; j < weapon_count; j++) {
 		if (j != weapon_count - 1) {
-			self.weapons[j + 1].weapon_id = weapons_storage[j].weapon_id;
-			self.weapons[j + 1].weapon_magazine = weapons_storage[j].weapon_magazine;
-			self.weapons[j + 1].weapon_magazine_left = weapons_storage[j].weapon_magazine_left;
-			self.weapons[j + 1].weapon_reserve = weapons_storage[j].weapon_reserve;
-			self.weapons[j + 1].weapon_skin = weapons_storage[j].weapon_skin;
-			self.weapons[j + 1].weapon_tier = weapons_storage[j].weapon_tier;
-			self.weapons[j + 1].is_mulekick_weapon = weapons_storage[j].is_mulekick_weapon;
-		} else {
-		 	self.weapons[0].weapon_id = weapons_storage[j].weapon_id;
-			self.weapons[0].weapon_magazine = weapons_storage[j].weapon_magazine;
-			self.weapons[0].weapon_magazine_left = weapons_storage[j].weapon_magazine_left;
-			self.weapons[0].weapon_reserve = weapons_storage[j].weapon_reserve;
-			self.weapons[0].weapon_skin = weapons_storage[j].weapon_skin;
-			self.weapons[0].weapon_tier = weapons_storage[j].weapon_tier;
-			self.weapons[0].is_mulekick_weapon = weapons_storage[j].is_mulekick_weapon;
+				self.weapons[j + 1].weapon_id = weapon_swap_storage[j].weapon_id;
+				self.weapons[j + 1].weapon_magazine = weapon_swap_storage[j].weapon_magazine;
+				self.weapons[j + 1].weapon_magazine_left = weapon_swap_storage[j].weapon_magazine_left;
+				self.weapons[j + 1].weapon_reserve = weapon_swap_storage[j].weapon_reserve;
+				self.weapons[j + 1].weapon_skin = weapon_swap_storage[j].weapon_skin;
+				self.weapons[j + 1].weapon_tier = weapon_swap_storage[j].weapon_tier;
+				self.weapons[j + 1].is_mulekick_weapon = weapon_swap_storage[j].is_mulekick_weapon;
+			} else {
+				self.weapons[0].weapon_id = weapon_swap_storage[j].weapon_id;
+				self.weapons[0].weapon_magazine = weapon_swap_storage[j].weapon_magazine;
+				self.weapons[0].weapon_magazine_left = weapon_swap_storage[j].weapon_magazine_left;
+				self.weapons[0].weapon_reserve = weapon_swap_storage[j].weapon_reserve;
+				self.weapons[0].weapon_skin = weapon_swap_storage[j].weapon_skin;
+				self.weapons[0].weapon_tier = weapon_swap_storage[j].weapon_tier;
+				self.weapons[0].is_mulekick_weapon = weapon_swap_storage[j].is_mulekick_weapon;
 		}
 	}
-
 	if (play_animation == true) {
 		// Properly update the weapon ID
 		self.weapon = self.weapons[0].weapon_id;
@@ -359,8 +363,11 @@ void Weapon_AssignWeapon(float weapon_slot, float weapon_id, float weapon_mag, f
 
 	if (weapon_reserve > 0)
 		self.weapons[weapon_slot].weapon_reserve = weapon_reserve;
-	else
-		self.weapons[weapon_slot].weapon_reserve = getWeaponAmmo(self.weapons[weapon_slot].weapon_id);
+	else {
+		float assigned_weapon_id = self.weapons[weapon_slot].weapon_id;
+		float assigned_weapon_ammo = getWeaponAmmo(assigned_weapon_id);
+		self.weapons[weapon_slot].weapon_reserve = assigned_weapon_ammo;
+	}
 
 	if (weapon_slot == MULEKICK_WEAPON_SLOT - 1 && Weapon_HasNoMulekickWeapon())
 		self.weapons[weapon_slot].is_mulekick_weapon = true;
@@ -416,17 +423,19 @@ void Weapon_GiveWeapon(float weapon_id, float weapon_mag, float weapon_reserve, 
 //
 void Weapon_FixUpList()
 {
-	// Store current weapons locally
-	guninventory_struct weapons_storage[MAX_PLAYER_WEAPONS];
+	// Store current weapons in non-local scratch space.
+	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++)
+		weapon_fixup_storage[i].weapon_id = 0;
+
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
 		if (self.weapons[i].weapon_id != 0) {
-			weapons_storage[i].weapon_id = self.weapons[i].weapon_id;
-			weapons_storage[i].weapon_magazine = self.weapons[i].weapon_magazine;
-			weapons_storage[i].weapon_magazine_left = self.weapons[i].weapon_magazine_left;
-			weapons_storage[i].weapon_reserve = self.weapons[i].weapon_reserve;
-			weapons_storage[i].weapon_skin = self.weapons[i].weapon_skin;
-			weapons_storage[i].weapon_tier = self.weapons[i].weapon_tier;
-			weapons_storage[i].is_mulekick_weapon = self.weapons[i].is_mulekick_weapon;
+			weapon_fixup_storage[i].weapon_id = self.weapons[i].weapon_id;
+			weapon_fixup_storage[i].weapon_magazine = self.weapons[i].weapon_magazine;
+			weapon_fixup_storage[i].weapon_magazine_left = self.weapons[i].weapon_magazine_left;
+			weapon_fixup_storage[i].weapon_reserve = self.weapons[i].weapon_reserve;
+			weapon_fixup_storage[i].weapon_skin = self.weapons[i].weapon_skin;
+			weapon_fixup_storage[i].weapon_tier = self.weapons[i].weapon_tier;
+			weapon_fixup_storage[i].is_mulekick_weapon = self.weapons[i].is_mulekick_weapon;
 		}
 	}
 
@@ -443,14 +452,14 @@ void Weapon_FixUpList()
 
 	float weapon_index = 0;
 	for(float i = 0; i < MAX_PLAYER_WEAPONS; i++) {
-		if (weapons_storage[i].weapon_id != 0) {
-			self.weapons[weapon_index].weapon_id = weapons_storage[i].weapon_id;
-			self.weapons[weapon_index].weapon_magazine = weapons_storage[i].weapon_magazine;
-			self.weapons[weapon_index].weapon_magazine_left = weapons_storage[i].weapon_magazine_left;
-			self.weapons[weapon_index].weapon_reserve = weapons_storage[i].weapon_reserve;
-			self.weapons[weapon_index].weapon_skin = weapons_storage[i].weapon_skin;
-			self.weapons[weapon_index].weapon_tier = weapons_storage[i].weapon_tier;
-			self.weapons[weapon_index].is_mulekick_weapon = weapons_storage[i].is_mulekick_weapon;
+		if (weapon_fixup_storage[i].weapon_id != 0) {
+			self.weapons[weapon_index].weapon_id = weapon_fixup_storage[i].weapon_id;
+			self.weapons[weapon_index].weapon_magazine = weapon_fixup_storage[i].weapon_magazine;
+			self.weapons[weapon_index].weapon_magazine_left = weapon_fixup_storage[i].weapon_magazine_left;
+			self.weapons[weapon_index].weapon_reserve = weapon_fixup_storage[i].weapon_reserve;
+			self.weapons[weapon_index].weapon_skin = weapon_fixup_storage[i].weapon_skin;
+			self.weapons[weapon_index].weapon_tier = weapon_fixup_storage[i].weapon_tier;
+			self.weapons[weapon_index].is_mulekick_weapon = weapon_fixup_storage[i].is_mulekick_weapon;
 			weapon_index++;
 		}
 	}

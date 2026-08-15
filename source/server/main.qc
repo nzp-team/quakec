@@ -34,8 +34,10 @@ void() Gamemode_Frame;
 void() SUB_Remove = {remove(self);}
 string(string current_tune) Gamemode_GetSplashTune;
 
+#ifdef FTE
 .float gungame_weapon_idx;
 .float gungame_score_threshold;
+#endif
 
 //called when starting server/loading the map
 void() main =

@@ -140,10 +140,12 @@ void() Gamemode_GunGame_Frame =
         gungame_ran_post_init_logic = true;
     }
 
-    // Make sure the Player never runs out of ammo.
-    entity players = find(world, classname, "player");
-    while(players != world) {
-        players.weapons[0].weapon_reserve = getWeaponAmmo(players.weapons[0].weapon_id);
+	// Make sure the Player never runs out of ammo.
+	entity players = find(world, classname, "player");
+	while(players != world) {
+		float weapon_id = players.weapons[0].weapon_id;
+		float weapon_ammo = getWeaponAmmo(weapon_id);
+		players.weapons[0].weapon_reserve = weapon_ammo;
 
         if (players.gungame_update_time < time) {
             entity old_self = self;
@@ -172,26 +174,7 @@ void() Gamemode_GunGame_PlayerSpawn =
 
 void() Gamemode_GunGame_PlayerPostThink =
 {
-#ifndef FTE
-    string next_weapon = "";
 
-    if (self.gungame_weapon_idx + 1 == GUNGAME_MAX_WEAPONS) {
-        next_weapon = "WIN";
-    } else {
-        next_weapon = GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx + 1], -1);
-    }
-
-    string centerprint_text = "";
-    centerprint_text = strcat("[", ftos(self.gungame_weapon_idx + 1));
-    centerprint_text = strcat(centerprint_text, "/32]: ");
-    centerprint_text = strcat(centerprint_text, GetWeaponName(gungame_weapon_pool[self.gungame_weapon_idx], -1));
-    centerprint_text = strcat(centerprint_text, "\nNeed [");
-    centerprint_text = strcat(centerprint_text, ftos(self.gungame_score_threshold - self.score));
-    centerprint_text = strcat(centerprint_text, "] More Score to Advance\nNext Weapon: ");
-    centerprint_text = strcat(centerprint_text, next_weapon);
-
-    centerprint(self, centerprint_text);
-#endif // FTE
 };
 
 void(entity who) Gamemode_GunGame_AdvertiseAdvancement =
@@ -200,7 +183,7 @@ void(entity who) Gamemode_GunGame_AdvertiseAdvancement =
 	FTE_BroadcastMessage(world, CSQC_BROADCAST_GUNGAMEADVANCEMENT, 2, who.playernum);
 #else
     bprint(PRINT_HIGH, who.netname);
-    bprint(PRINT_HIGH, "ADVANCED!\n");
+    bprint(PRINT_HIGH, " reached a new tier!\n");
 #endif // FTE
 
     Sound_PlaySound(world, "sounds/pu/pickup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
@@ -334,7 +317,7 @@ void(float score_earned) Gamemode_GunGame_PlayerAddScore =
             FTE_BroadcastMessage(world, CSQC_BROADCAST_GUNGAMEWINNER, 2, self.playernum);
         #else
             bprint(PRINT_HIGH, self.netname);
-            bprint(PRINT_HIGH, "can Activate the Nuke!\n");
+            bprint(PRINT_HIGH, " can Activate the Nuke!\n");
         #endif // FTE
 
             Gamemode_GunGame_SpawnNuke();
