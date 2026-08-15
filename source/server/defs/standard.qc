@@ -99,6 +99,8 @@ void            end_sys_globals;						// flag for structure dumping
 .float          grenades;
 .float          perks;									// bit flags
 .float          takedamage;
+.float          gungame_weapon_idx;
+.float          gungame_score_threshold;
 .entity         chain;
 .float          deadflag;
 .vector         view_ofs;								// add to origin to get eye point
