@@ -35,6 +35,7 @@ void() Gamemode_PlayerPostThink;
 void(float score_earned) Gamemode_PlayerAddScore;
 float(float current_max_health, float current_perks) Gamemode_GetMaxHealthForPlayer;
 void(entity client) LastStand_UnlinkRevivee;
+void() Perk_ResetPerkaColas;
 
 #ifdef QUAKEC_TEST
 
@@ -1179,7 +1180,7 @@ void() PutClientInServer =
 
 #endif // FTE
 
-	GameRestart_ResetPerkaColas();
+	Perk_ResetPerkaColas();
 };
 
 void() RestartDedicatedServer =
@@ -1221,7 +1222,7 @@ void() ClientDisconnect =
 	self.is_spectator = false;
 	setmodel(self, "models/sprites/null.spr");
 
-	GameRestart_ResetPerkaColas();
+	Perk_ResetPerkaColas();
 
 #ifdef FTE
 
