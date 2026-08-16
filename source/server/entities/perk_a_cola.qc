@@ -183,7 +183,7 @@ void() Perk_StopLeaveAnimation =
 	self.think = SUB_Null;
 	self.nextthink = 0;
 
-	setmodel(self, ""); // We don't want to remove Revive in the event of a Soft_Restart..
+	setmodel(self, "");
 	SpawnSpark(self.origin, 0.65); // Spawn a Spark at the position
 	self.origin = self.oldvelocity; // Restore old position
 	Light_None(self); // Remove light effect
@@ -794,3 +794,49 @@ void() perk_random =
 	self.think = Perk_RandomDecide;
 	self.nextthink = time + 3;
 };
+
+//
+// Perk_TurnPerkOff()
+// Wrapper for turning off Perk lights.
+//
+void(string perk_classname) Perk_TurnPerkOff =
+{
+	entity tempe;
+
+	tempe = find(world, classname, perk_classname);
+	while(tempe != world) {
+		setmodel(tempe, tempe.door_model_name);
+		setorigin(tempe, tempe.oldorigin);
+		setsize(tempe, VEC_HULL2_MIN, VEC_HULL2_MAX);
+
+		Light_None(tempe);
+
+		tempe.velocity = '0 0 0';
+		tempe.touch = touch_perk;
+		tempe.perk_purchase_count = 0;
+		// angles are already set
+
+		// Run our initial setup function
+		tempe.think = setup_perk;
+		tempe.nextthink = time + 0.1;
+
+		tempe = find(tempe, classname, perk_classname);
+	}
+}
+
+//
+// Perk_ResetPerkaColas()
+// Make sure Perk-a-Colas are in their
+// right states.
+//
+void() Perk_ResetPerkaColas =
+{
+	Perk_TurnPerkOff("perk_revive");		// Quick Revive
+	Perk_TurnPerkOff("perk_juggernog");	// Jugger-Nog
+	Perk_TurnPerkOff("perk_speed");		// Speed Cola
+	Perk_TurnPerkOff("perk_double");		// Double Tap Root Beer
+	Perk_TurnPerkOff("perk_flopper");	// PhD Flopper
+	Perk_TurnPerkOff("perk_staminup");	// Stamin-Up
+	Perk_TurnPerkOff("perk_deadshot");	// Deadshot Daiquiri
+	Perk_TurnPerkOff("perk_mule");		// Mule Kick
+}
