@@ -45,6 +45,11 @@ float(float current_health_delay, float current_perks) Gamemode_GetHealthRegenDe
 void() Barrel_Hit;
 void() teddy_react;
 
+void() Do_Restart =
+{
+	localcmd("restart\n");
+};
+
 // Fade to black function, creates another think for restart
 void() EndGame_FadePrompt =
 {
@@ -60,7 +65,7 @@ void() EndGame_FadePrompt =
 
 #else
 
-	self.think = Soft_Restart;
+	self.think = Do_Restart;
 
 #endif // FTE
 

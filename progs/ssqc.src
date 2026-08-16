@@ -34,7 +34,6 @@ main.qc
 plugins/plugin_mapvote.qc
 plugins/plugin_core.qc
 utilities/weapon_utilities.qc
-utilities/game_restart.qc
 utilities/command_parser.qc
 player/player_core.qc
 damage.qc

@@ -183,7 +183,7 @@ void() Perk_StopLeaveAnimation =
 	self.think = SUB_Null;
 	self.nextthink = 0;
 
-	setmodel(self, ""); // We don't want to remove Revive in the event of a Soft_Restart..
+	setmodel(self, "");
 	SpawnSpark(self.origin, 0.65); // Spawn a Spark at the position
 	self.origin = self.oldvelocity; // Restore old position
 	Light_None(self); // Remove light effect

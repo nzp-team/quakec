@@ -28,34 +28,6 @@ float(float condition, string message) Test_Assert;
 void(string message) Test_Skip;
 
 //
-// Test_EndGame_CounterResetsOnRestart()
-// Validate that the End Game counter is
-// reset on Soft_Restart, so that the game
-// does not unexpectedly end.
-// (https://github.com/nzp-team/nzportable/issues/1112)
-//
-void() Test_EndGame_CounterResetsOnRestart =
-{
-    entity gameover_watcher;
-
-    // Start End Game sequence
-    EndGameSetup();
-
-    // Validate we can find "gameover_watcher"
-    gameover_watcher = find(world, classname, "gameover_watcher");
-
-    Test_Assert((gameover_watcher != world), "Could not find the Game Over Watcher!");
-
-    // Restart the level.
-    Soft_Restart();
-
-    gameover_watcher = find(world, classname, "gameover_watcher");
-
-    // Game Over Watcher should be despawned.
-    Test_Assert((gameover_watcher == world), "Game Over Watcher still exists!");
-};
-
-//
 // Test_Door_FakeRemoveDoorDisablesTriggerField()
 // A killtargeted buyable door must not leave its interaction volume behind.
 //

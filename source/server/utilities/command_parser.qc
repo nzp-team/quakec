@@ -91,18 +91,6 @@ float(string params) Command_addmoney =
 }
 
 //
-// Command_softrestart()
-// Executes the Soft_Restart QuakeC function.
-// Useful for debugging its functionality.
-//
-float(string params) Command_softrestart =
-{
-	Soft_Restart();
-
-	return COMMAND_SUCCESS;
-}
-
-//
 // Command_godmode()
 // Toggles God Mode.
 //
@@ -242,7 +230,6 @@ var struct {
 } server_commands[] = {
     {"addmoney", Command_addmoney, true, "Usage: addmoney <point_value>\n  Gives `point_value` amount of points to the client who requested it.\n"},
     {"give", Command_give, true, "Usage: give <weapon number>\n  Gives `weapon` of index.\n"},
-	{"qc_soft_restart", Command_softrestart, false, "Executes the Soft_Restart QuakeC function. Useful for debugging its functionality.\n"},
 	{"god", Command_godmode, false, "Toggles God Mode.\n"},
 	{"noclip", Command_noclip, false, "Toggles No Clip.\n"},
 	{"sv_tracedmgmultiplier", Command_tracedmgmultiplier, true, "Multiplies damage output with weapons that fire Traces.\n"},

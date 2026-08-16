@@ -26,24 +26,3 @@
 */
 float(float condition, string message) Test_Assert;
 void(string message) Test_Skip;
-
-//
-// Test_Power_HandleResetOnRestart()
-// Turns on the Power and validates the
-// Power Switch handle's angles are reset
-// on Soft_Restart.
-// (https://github.com/nzp-team/nzportable/issues/1125)
-//
-void() Test_Power_HandleResetOnRestart =
-{
-    entity power_switch = find(world, classname, "power_switch");
-
-    Test_Assert((power_switch.boxweapon.angles == power_switch.angles), "Power Switch handle angles are not correct at start of test!");
-    
-    // Simulated switch flip
-    power_switch.boxweapon.angles_x += 180;
-
-    Soft_Restart();
-
-    Test_Assert((power_switch.boxweapon.angles == power_switch.angles), "Power Switch handle angles are not correct at end of test!");
-};
