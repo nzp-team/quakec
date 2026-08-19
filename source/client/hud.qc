@@ -1645,7 +1645,8 @@ void() HUD_Crosshair =
 	if (getstatf(STAT_HEALTH) < 1)
 		return;
 	
-	if (cvar("cl_crosshairdot")){
+	//Dot + AOE doesnt look good cause AOE  crosshair isn't 100% centered
+	if (cvar("cl_crosshairdot") && crosshair_value != 2){ 
 		drawfill([g_width, g_height] / 2 - [2, 2], [4, 4], crosshair_color, crosshair_opacity, 0); // dot
 	}
 
