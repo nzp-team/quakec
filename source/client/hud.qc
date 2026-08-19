@@ -1644,6 +1644,10 @@ void() HUD_Crosshair =
 	
 	if (getstatf(STAT_HEALTH) < 1)
 		return;
+	
+	if (cvar("cl_crosshairdot")){
+		drawfill([g_width, g_height] / 2 - [2, 2], [4, 4], crosshair_color, crosshair_opacity, 0); // dot
+	}
 
 	// Standard crosshair (+)
 	if (crosshair_value == 1) {
