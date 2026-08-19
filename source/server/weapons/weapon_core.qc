@@ -325,6 +325,12 @@ void(float side) W_Give_Ammo =
 	} else {
 		self.weapons[0].weapon_magazine += loadammo;
 	}
+
+	//Fixes an issue with the raygun not showing the crosshair after reloading (still not sure of the root cause)
+	//Checks specifically for Raygun as it'd make the crosshair show up too early for certain weapons during their animations.
+	if (self.weapon == W_RAY){
+		W_ShowCrosshair(self);
+	}
 };
 
 void () W_LoadAmmo;
