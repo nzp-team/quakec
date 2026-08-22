@@ -1167,11 +1167,10 @@ void() PutClientInServer =
 	
 	if (spawn_time > time || !rounds)
 		PlayerSpawn();
+	else
+		SpectatorSpawn();
 
 #ifdef FTE
-
-	else 
-		SpectatorSpawn();
 
 	// Force the client to always be networked to other clients, even when
 	// outside of the same PVS.

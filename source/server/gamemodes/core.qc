@@ -65,7 +65,13 @@ void() Gamemode_Init =
         case GAMEMODE_STICKSNSTONES: Gamemode_Sticks_Init(); break;
         case GAMEMODE_WILDWEST: Gamemode_WW_Init(); break;
         case GAMEMODE_FESTIVE: Gamemode_Festive_Init(); break;
-        default: error("Received unrecognized gamemode."); break;
+        default:
+            // unimplemented (e.g. GRIEF) or garbage value — fall back
+            // to CLASSIC instead of error()ing out of the progs.
+            bprint(PRINT_HIGH, "[WARN]: Unrecognized gamemode, falling back to CLASSIC.\n");
+            current_gamemode = GAMEMODE_CLASSIC;
+            cvar_set("sv_gamemode", "0");
+            break;
     }
 };
 
