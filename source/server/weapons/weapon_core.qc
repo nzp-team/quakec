@@ -325,6 +325,15 @@ void(float side) W_Give_Ammo =
 	} else {
 		self.weapons[0].weapon_magazine += loadammo;
 	}
+
+	float endframe, reloadcancelframe;
+	endframe = GetFrame(self.weapon, RELOAD_END);
+	reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
+
+	//Mainly fixes an issue with the raygun not showing the crosshair after reloading (due to no cancel reload frame being added)
+	if (self.weaponframe == endframe && reloadcancelframe <= endframe){
+		W_ShowCrosshair(self);
+	}
 };
 
 void () W_LoadAmmo;
