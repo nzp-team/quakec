@@ -228,6 +228,7 @@ void() m_init =
 	autocvar(cl_hitmarkers, 1);
 	autocvar(cl_textopacity, 0.20);
 	autocvar(cl_colorblind, 0);
+	autocvar(cl_crosshairdot, 0);
 
 	autocvar(sv_gamemode, 0);
 	autocvar(sv_difficulty, 0);

@@ -1,4 +1,4 @@
-string menu_accesibility_buttons[7] = {"ac_hitm", "ac_text", "ac_color", "ac_whiteflash", "ac_monthspoof", "ac_apply", "ac_back"};
+string menu_accesibility_buttons[8] = {"ac_hitm", "ac_text", "ac_color", "ac_whiteflash", "ac_monthspoof", "ac_apply", "ac_crosshairdot", "ac_back"};
 
 float menu_accessibility_init;
 
@@ -6,6 +6,7 @@ float current_hitmarker;
 float current_colorblind;
 float current_whiteflash;
 float current_monthspoof;
+float current_crosshairdot;
 
 string(string prev_id) Menu_Accessibility_GetNextButton =
 {
@@ -53,6 +54,7 @@ void() Menu_Accessibility_StoreCurrentSettings =
     current_colorblind = cvar("cl_colorblind");
     current_whiteflash = cvar("scr_whiteflash");
     current_monthspoof = cvar("sv_spoofmonth");
+    current_crosshairdot = cvar("cl_crosshairdot");
 }
 
 void() Menu_Accessibility_ApplySettings =
@@ -72,6 +74,13 @@ void() Menu_Accessibility_UpdateHitmarkers =
     Menu_PlaySound(MENU_SND_ENTER);
     current_hitmarker = !current_hitmarker;
     cvar_set("cl_hitmarkers", ftos(current_hitmarker));
+};
+
+void() Menu_Accessibility_UpdateCrosshairDot =
+{
+    Menu_PlaySound(MENU_SND_ENTER);
+    current_crosshairdot = !current_crosshairdot;
+    cvar_set("cl_crosshairdot", ftos(current_crosshairdot));
 };
 
 void() Menu_Accessibility_UpdateColorblindFilter =
@@ -158,6 +167,15 @@ void() Menu_Accessibility =
         default: break;
     }
     Menu_DrawOptionValue(5, month_string);
+
+    Menu_Button(6, "ac_crosshairdot", "CROSSHAIR DOT", "Add a dot to the middle of the crosshair.") ? Menu_Accessibility_UpdateCrosshairDot() : 0;
+    string crosshair_string = "";
+    switch(current_crosshairdot) {
+        case 0: crosshair_string = "DISABLED"; break;
+        case 1: crosshair_string = "ENABLED"; break;
+        default: break;
+    }
+    Menu_DrawOptionValue(6, crosshair_string);
 
     Menu_DrawDivider(12.25);
     Menu_Button(-2, "ac_apply", "APPLY", "Save & Apply Settings.") ? Menu_Accessibility_ApplySettings() : 0;

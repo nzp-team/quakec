@@ -1664,6 +1664,21 @@ void() HUD_Crosshair =
 		vector crossSize = [1, 5];
 		vector screenSize = [g_width, g_height];
 
+		if (cvar("cl_crosshairdot")){ 
+			//doing all of this cause it's easier to look at & cause we don't know the size of the dot yet
+			//and doing calculations again would make it be harder to edit/test
+			local int dot_size_factor = cvar("cl_crosshairdot_size");
+
+			if (!dot_size_factor)
+				dot_size_factor = 6;
+
+			local vector dot_pos = [g_width, g_height] / 2;
+			local vector dot_size = [4 + crosshair_offset, 4 + crosshair_offset] / dot_size_factor;
+			dot_pos -= (dot_size / 2);
+
+			drawfill(dot_pos, dot_size, crosshair_color, crosshair_opacity, 0); // dot
+		}
+
 		drawfill(screenSize / 2 - [crossSize.x, +crossSize.y * 2 + crosshair_offset_step], crossSize, crosshair_color, crosshair_opacity, 0); // top
 		drawfill(screenSize / 2 - [crossSize.x, -crossSize.y * 1 - crosshair_offset_step + 2], crossSize, crosshair_color, crosshair_opacity, 0); // bottom
 		drawfill(screenSize / 2 - [+crossSize.y * 2 + crosshair_offset_step, crossSize.x], [crossSize.y, crossSize.x], crosshair_color, crosshair_opacity, 0); // right
