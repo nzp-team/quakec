@@ -454,6 +454,50 @@ float(float min, float max, vector org1, vector org2, float radius) calculate_pr
 	return proximity_value;
 };
 
+#define SPAWNFLAG_FUNCBUTTON_FIREDAMAGE		1
+#define FUNC_ALLOW_UPGRADE		1
+#define FUNC_ALLOW_BULLET		2
+#define FUNC_ALLOW_EXPLOSIVE		4
+#define FUNC_ALLOW_FIRE		6
+#define FUNC_ALLOW_RAY		8
+#define FUNC_ALLOW_MELEE		10
+
+int(int damage_type, entity hit_ent) CanAttackButton = 
+{
+	if (hit_ent.weapon == 0)
+		return true;
+
+	bprint(PRINT_HIGH, strcat("\nTEST WITH ME | ", ftos(hit_ent.weapon)));
+	bprint(PRINT_HIGH,strcat("\nI AM ALIVE!! but no pap?: ", ftos(EqualPapWeapon(self.weapons[0].weapon_id) == self.owner.weapons[0].weapon_id)));
+	bprint(PRINT_HIGH,strcat("\nWEAPON: : ", ftos(self.weapons[0].weapon_id)));
+	bprint(PRINT_HIGH,"\n");
+
+	int pap_check = false;
+	if ((hit_ent.weapon & FUNC_ALLOW_UPGRADE) && (self.weapons[0].weapon_id != EqualPapWeapon(self.weapons[0].weapon_id))){
+		bprint(PRINT_HIGH,"\nYES BUT NO PAP!");
+		bprint(PRINT_HIGH,"\n");
+		return false;
+	}else{
+		if ((hit_ent.weapon & FUNC_ALLOW_UPGRADE) && (self.weapons[0].weapon_id == EqualPapWeapon(self.weapons[0].weapon_id))){
+			pap_check = true;
+		}
+	}
+
+	int result = (hit_ent.weapon & damage_type);
+	if (result != damage_type && !pap_check) {
+		bprint(PRINT_HIGH,"\nNO BULLET!\n");
+		bprint(PRINT_HIGH,strcat("\nBULLET ALLOW DEFINE: ", ftos(damage_type)));
+		bprint(PRINT_HIGH,strcat("\nUPGRADE ALLOW DEFINE: ", ftos(damage_type)));
+		//bprint(PRINT_HIGH,strcat("\nBULLET IS FALSE: ", ftos(hit_ent.weapon & ~damage_type)));
+		bprint(PRINT_HIGH,strcat("\nBULLET IS TRUE: ", ftos(hit_ent.weapon & damage_type)));
+		bprint(PRINT_HIGH,"\n");
+		return false;
+	}
+
+	bprint(PRINT_HIGH,strcat("\nRESULTS: ", ftos(result)));
+	bprint(PRINT_HIGH,"\n");
+	return true;
+}
 void(entity inflictor, entity attacker, float damage2, float mindamage, float radius) DamgageExplode =
 {
 	float 	final_damage = 0;
@@ -463,7 +507,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 	float 	multi, r;
 	ent = findradius(inflictor.origin, radius);
 	
-	while (ent != world)
+	while (ent)
 	{
 		if(ent.classname == "player")
 		{
@@ -614,6 +658,30 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				ent.crawling = 2;
 			}	
 		}
+		else if (ent.solid == SOLID_BSP && ent.classname == "func_button"){
+			int do_not_attack = false;
+			switch(attacker.weapons[0].weapon_id){
+				case W_RAY:
+					if (CanAttackButton(FUNC_ALLOW_RAY, ent)){
+						//Not sure if this is needed, but I just copied the grenade code
+						final_damage = rounds + rint(random() * 350) + 150;
+						damage_style = DMG_TYPE_GRENADE;	
+					}else
+						do_not_attack = true;
+					break;
+				
+				case W_GRENADE:
+					if (CanAttackButton(FUNC_ALLOW_EXPLOSIVE, ent)){
+						//Not sure if this is needed, but I just copied the grenade code
+						final_damage = rounds + rint(random() * 350) + 150;
+						damage_style = DMG_TYPE_GRENADE;	
+					}else
+						do_not_attack = true;
+					break;
+			}	
+			if (do_not_attack)
+					continue;
+			} 
 
 		if (final_damage > 0) {
 			if (CanDamage (ent, inflictor))

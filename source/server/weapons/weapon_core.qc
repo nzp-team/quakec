@@ -856,8 +856,17 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 			return;
 		} else if (hit_ent.solid == SOLID_BSP) {
 			// Button only accepts Fire damage
-			if (hit_ent.classname == "func_button" && (hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE))
-				return;
+			if (hit_ent.classname == "func_button"){
+				//Compatibility
+				if (hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE){
+					return;
+				}
+
+				if (!CanAttackButton(FUNC_ALLOW_BULLET, hit_ent)){
+					return;
+				}
+
+			}
 
 			oldself = self;
 			self = hit_ent;
@@ -970,6 +979,7 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 #endif // FTE
 
 			if (trace_fraction != 1.0)
+
 				TraceAttack (Damage, dir, trace_endpos, trace_plane_normal, trace_ent, side);
 			trace_start_org = trace_endpos;
 			penetration_times++;
