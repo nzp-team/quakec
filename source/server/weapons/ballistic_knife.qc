@@ -56,6 +56,21 @@ void(entity victim) Blade_Damage =
                 damage_type = DMG_TYPE_UPPERTORSO;
 			}
 			break;
+		case "func_button":
+			if (CanAttackButton(FUNC_ALLOW_MELEE, victim, self.owner)){
+				entity oldself;
+				oldself = self;
+				self = victim;
+				self.health -= self.max_health;
+				self.enemy = oldself;
+
+				if (self.health < 0)
+					self.th_die();
+				self = oldself;
+			}
+
+			self.angles_y = 180;
+			return;
 		default:
             damage_region = LOWER_TORSO_X;
             damage_type = DMG_TYPE_LOWERTORSO;

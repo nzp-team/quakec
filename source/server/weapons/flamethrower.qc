@@ -71,7 +71,11 @@ void() Flame_Touch =
 		remove(self);
 	} 
 	// Support for func_button
-	if (target.classname == "func_button" && target.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE) {
+	if (target.classname == "func_button") {
+		if (!CanAttackButton(FUNC_ALLOW_FIRE, target, self)){
+			return;
+		}
+		
 		entity old_self;
 
 		old_self = self;

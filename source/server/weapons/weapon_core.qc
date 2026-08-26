@@ -862,7 +862,7 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 					return;
 				}
 
-				if (!CanAttackButton(FUNC_ALLOW_BULLET, hit_ent)){
+				if (!CanAttackButton(FUNC_ALLOW_BULLET, hit_ent, self)){
 					return;
 				}
 
@@ -1337,6 +1337,18 @@ void() WeaponCore_Melee =
 		// Check if this is a Zombie limb, set to the body if so
 		if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
 			trace_ent = trace_ent.owner;
+		
+		if (trace_ent.classname == "func_button" && CanAttackButton(FUNC_ALLOW_MELEE, trace_ent, self)){
+			entity oldself;
+			oldself = self;
+			self = trace_ent;
+			self.health -= self.max_health;
+			self.enemy = oldself;
+
+			if (self.health < 0)
+				self.th_die();
+			self = oldself;
+		}
 
 		// Target does not take damage -- no need to go any further
 		if (!trace_ent.takedamage && !(trace_ent.flags & FL_CLIENT)) {
@@ -1379,6 +1391,7 @@ void() WeaponCore_Melee =
 
 			// Apply damage to the entity.
 			if (trace_ent.takedamage) {
+
 				float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.has_bowie_knife);
 				DamageHandler (trace_ent, self, melee_damage, DMG_TYPE_MELEE);
 			}
