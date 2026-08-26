@@ -236,6 +236,8 @@ float(float current_melee_damage, float weapon, float has_bowie) Gamemode_Festiv
 
 float(float current_count, float current_round, float round_type, float current_player_count) Gamemode_Festive_GetZombieTotalForRound =
 {
+    float zombie_count = 0;
+    
     // Leave Hellhounds alone..
     if (round_type == 2)
         return current_count;
@@ -329,7 +331,7 @@ float(float current_count, float current_round, float round_type, float current_
             multiplier = current_round * player_weight;
         }
 
-        float zombie_count = rint(algo_magic * 6 * multiplier);
+        zombie_count = rint(algo_magic * 6 * multiplier);
     }
 
     return zombie_count;
