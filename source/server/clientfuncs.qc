@@ -237,6 +237,7 @@ void(entity who, float death_marker) nzp_hitmarker =
 
 	msg_entity = who;
 	WriteByte(MSG_ONE, SVC_HITMARK);
+	WriteByte(MSG_ONE, death_marker);
 		
 #endif // FTE
 

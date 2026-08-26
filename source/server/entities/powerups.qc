@@ -911,13 +911,8 @@ void() PU_Touch =
 		// Run Power-Up function
 		PU_LogicFunction(self.walktype);
 
-#ifdef FTE
 		if (game_modifier_powerup_toast_for_all == true || self.walktype == PU_MAXAMMO)
 			nzp_poweruptoast(self.walktype);
-#else
-		if (self.walktype == PU_MAXAMMO)
-			nzp_poweruptoast();
-#endif // FTE
 	}
 };
 
