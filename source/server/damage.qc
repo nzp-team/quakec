@@ -641,7 +641,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 		}
 		else if (ent.classname == "func_button"){
 			int do_not_attack = false;
-			
+
 			switch(inflictor.classname){
 				case "projectile_raybeam":
 					if (!CanAttackButton(FUNC_ALLOW_RAY, ent, attacker)){
@@ -667,7 +667,6 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				continue;
 			}
 			else{ //needed or else the game gets stuck into an infinite loop somehow
-				entity oldself;
 				oldself = self;
 				self = ent;
 				self.health -= self.max_health + 1;
