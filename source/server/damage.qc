@@ -456,12 +456,16 @@ float(float min, float max, vector org1, vector org2, float radius) calculate_pr
 
 int(int damage_type, entity hit_ent, entity attacker) CanAttackButton = 
 {
+	if ((hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE) && attacker.weapons[0].weapon_id != W_M2 && attacker.weapons[0].weapon_id != W_FIW){
+		return false;
+	}
+
 	//No Weapon Flags
 	if (hit_ent.weapon == 0)
 		return true;
 
 	int pap_check = false;
-	if ((hit_ent.weapon & FUNC_ALLOW_UPGRADE) && (attacker.weapons[0].weapon_id != EqualPapWeapon(attacker.weapons[0].weapon_id))){;
+	if ((hit_ent.weapon & FUNC_ALLOW_UPGRADE) && (attacker.weapons[0].weapon_id != EqualPapWeapon(attacker.weapons[0].weapon_id))){
 		return false;
 	}else{
 		if ((hit_ent.weapon & FUNC_ALLOW_UPGRADE) && (attacker.weapons[0].weapon_id == EqualPapWeapon(attacker.weapons[0].weapon_id))){
@@ -473,8 +477,9 @@ int(int damage_type, entity hit_ent, entity attacker) CanAttackButton =
 	if (result != damage_type && !pap_check) {
 		return false;
 	}else if (result != damage_type && pap_check){
-		if (hit_ent.weapon != pap_check) //if there is a upgrade flag, but it's not 100% just that, then return out
+		if (hit_ent.weapon != pap_check){ //if there is a upgrade flag, but it's not 100% just that, then return out
 			return false;
+		}
 	}
 
 	return true;

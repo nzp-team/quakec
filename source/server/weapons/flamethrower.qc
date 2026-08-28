@@ -72,7 +72,7 @@ void() Flame_Touch =
 	} 
 	// Support for func_button
 	if (target.classname == "func_button") {
-		if (!CanAttackButton(FUNC_ALLOW_FIRE, target, self)){
+		if (!CanAttackButton(FUNC_ALLOW_FIRE, target, self.owner)){
 			return;
 		}
 		
@@ -80,7 +80,7 @@ void() Flame_Touch =
 
 		old_self = self;
 		self = target;
-		self.health -= 50;
+		self.health -= self.max_health + 1;
 		self.enemy = old_self.owner;
 
 		if (self.health < 0)

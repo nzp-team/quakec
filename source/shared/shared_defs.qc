@@ -361,12 +361,13 @@ float 	map_compatibility_mode;
 
 // func_button
 #define SPAWNFLAG_FUNCBUTTON_FIREDAMAGE		1
+
 #define FUNC_ALLOW_UPGRADE		1
 #define FUNC_ALLOW_BULLET		2
 #define FUNC_ALLOW_EXPLOSIVE		4
-#define FUNC_ALLOW_FIRE		6
-#define FUNC_ALLOW_RAY		8
-#define FUNC_ALLOW_MELEE		10
+#define FUNC_ALLOW_FIRE		8
+#define FUNC_ALLOW_RAY		16
+#define FUNC_ALLOW_MELEE		32
 
 
 // Misc. player statistics
