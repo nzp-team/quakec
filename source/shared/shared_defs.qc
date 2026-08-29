@@ -367,7 +367,8 @@ float 	map_compatibility_mode;
 #define FUNC_ALLOW_EXPLOSIVE		4
 #define FUNC_ALLOW_FIRE		8
 #define FUNC_ALLOW_RAY		16
-#define FUNC_ALLOW_MELEE		32
+#define FUNC_ALLOW_ELECTRIC 	32
+#define FUNC_ALLOW_MELEE		64
 
 
 // Misc. player statistics

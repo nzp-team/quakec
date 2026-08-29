@@ -454,7 +454,7 @@ float(float min, float max, vector org1, vector org2, float radius) calculate_pr
 	return proximity_value;
 };
 
-int(int damage_type, entity hit_ent, entity attacker) CanAttackButton = 
+float(float damage_type, entity hit_ent, entity attacker) CanDamageFunc = 
 {
 	if ((hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE) && attacker.weapons[0].weapon_id != W_M2 && attacker.weapons[0].weapon_id != W_FIW){
 		return false;
@@ -464,7 +464,7 @@ int(int damage_type, entity hit_ent, entity attacker) CanAttackButton =
 	if (hit_ent.weapon == 0)
 		return true;
 
-	int pap_check = false;
+	float pap_check = false;
 	if ((hit_ent.weapon & FUNC_ALLOW_UPGRADE) && (attacker.weapons[0].weapon_id != EqualPapWeapon(attacker.weapons[0].weapon_id))){
 		return false;
 	}else{
@@ -473,17 +473,34 @@ int(int damage_type, entity hit_ent, entity attacker) CanAttackButton =
 		}
 	}
 
-	int result = (hit_ent.weapon & damage_type);
+	float result = (hit_ent.weapon & damage_type);
 	if (result != damage_type && !pap_check) {
 		return false;
 	}else if (result != damage_type && pap_check){
-		if (hit_ent.weapon != pap_check){ //if there is a upgrade flag, but it's not 100% just that, then return out
+		//do direct check so we dont trigger it when ifi it requires a upgraded flamethrower
+		//when we have a upgraded .357 
+		if (hit_ent.weapon != FUNC_ALLOW_UPGRADE){
 			return false;
 		}
 	}
 
 	return true;
 }
+
+void(entity func, entity attacker, float damage) DamageFunc =
+{
+	entity oldself;
+	oldself = self;
+	self = trace_ent;
+	self.health -= damage;
+	self.enemy = oldself;
+
+	if (self.health <= 0)
+		self.th_die();
+	
+	self = oldself;
+}
+
 void(entity inflictor, entity attacker, float damage2, float mindamage, float radius) DamgageExplode =
 {
 	float 	final_damage = 0;
@@ -645,11 +662,11 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			}	
 		}
 		else if (ent.classname == "func_button"){
-			int do_not_attack = false;
+			float do_not_attack = false;
 
 			switch(inflictor.classname){
 				case "projectile_raybeam":
-					if (!CanAttackButton(FUNC_ALLOW_RAY, ent, attacker)){
+					if (!CanDamageFunc(FUNC_ALLOW_RAY, ent, attacker)){
 						do_not_attack = true;
 					}
 					break;
@@ -657,7 +674,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				case "grenade":
 				case "rocket":
 				case "projectile_grenade":
-					if (!CanAttackButton(FUNC_ALLOW_EXPLOSIVE, ent, attacker)){
+					if (!CanDamageFunc(FUNC_ALLOW_EXPLOSIVE, ent, attacker)){
 						do_not_attack = true;
 					}
 					break;
@@ -688,8 +705,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 		if (final_damage > 0) {
 			if (CanDamage (ent, inflictor))
 				DamageHandler (ent, attacker, final_damage, damage_style);
-		}
-		
+		}		
 		ent = ent.chain;
 	}
 };

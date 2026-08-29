@@ -57,16 +57,8 @@ void(entity victim) Blade_Damage =
 			}
 			break;
 		case "func_button":
-			if (CanAttackButton(FUNC_ALLOW_MELEE, victim, self.owner)){
-				entity oldself;
-				oldself = self;
-				self = victim;
-				self.health -= self.max_health;
-				self.enemy = oldself;
-
-				if (self.health < 0)
-					self.th_die();
-				self = oldself;
+			if (CanDamageFunc(FUNC_ALLOW_MELEE, victim, self.owner)){
+				DamageFunc(victim, self.owner, victim.max_health);
 			}
 
 			self.angles_y = 180;

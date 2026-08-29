@@ -857,12 +857,12 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 		} else if (hit_ent.solid == SOLID_BSP) {
 			// Button only accepts Fire damage
 			if (hit_ent.classname == "func_button"){
-				//Compatibility
+				//fixes melee bypass
 				if (hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE){
 					return;
 				}
 
-				if (!CanAttackButton(FUNC_ALLOW_BULLET, hit_ent, self)){
+				if (!CanDamageFunc(FUNC_ALLOW_BULLET, hit_ent, self)){
 					return;
 				}
 
@@ -979,7 +979,6 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace =
 #endif // FTE
 
 			if (trace_fraction != 1.0)
-
 				TraceAttack (Damage, dir, trace_endpos, trace_plane_normal, trace_ent, side);
 			trace_start_org = trace_endpos;
 			penetration_times++;
@@ -1338,16 +1337,8 @@ void() WeaponCore_Melee =
 		if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
 			trace_ent = trace_ent.owner;
 		
-		if (trace_ent.classname == "func_button" && CanAttackButton(FUNC_ALLOW_MELEE, trace_ent, self)){
-			entity oldself;
-			oldself = self;
-			self = trace_ent;
-			self.health -= self.max_health;
-			self.enemy = oldself;
-
-			if (self.health < 0)
-				self.th_die();
-			self = oldself;
+		if (trace_ent.classname == "func_button" && CanDamageFunc(FUNC_ALLOW_MELEE, trace_ent, self)){
+			DamageFunc(trace_ent, self, trace_ent.max_health);
 		}
 
 		// Target does not take damage -- no need to go any further
@@ -1391,7 +1382,6 @@ void() WeaponCore_Melee =
 
 			// Apply damage to the entity.
 			if (trace_ent.takedamage) {
-
 				float melee_damage = WepDef_CalculateMeleeDamage(self.weapon, self.has_bowie_knife);
 				DamageHandler (trace_ent, self, melee_damage, DMG_TYPE_MELEE);
 			}

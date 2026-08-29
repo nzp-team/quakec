@@ -401,8 +401,7 @@ void() func_button =
 	if (self.health) {
 		self.max_health = self.health;
 		self.th_die = button_killed;
-		self.takedamage = DAMAGE_YES;
-		
+		self.takedamage = DAMAGE_YES;		
 	} else {
 		self.touch = button_touch;
     }

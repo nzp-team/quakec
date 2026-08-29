@@ -295,6 +295,13 @@ void() W_FireTesla =
 	self.tesla_n_kills = 0;
     
     entity hit_ent = trace_ent;
+
+    if (hit_ent.classname == "func_button"){
+        if (CanDamageFunc(FUNC_ALLOW_ELECTRIC, hit_ent, self.owner)){
+            DamageFunc(hit_ent, self.owner, hit_ent.max_health);
+        }
+    }
+
 	if(hit_ent.classname == "ai_zombie_head" || hit_ent.classname == "ai_zombie_larm" || hit_ent.classname == "ai_zombie_rarm")
 		hit_ent = hit_ent.owner;
 
