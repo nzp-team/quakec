@@ -28,9 +28,11 @@
 float festive_ran_post_init_logic;
 string festive_override_music;
 string festive_round_color;
+float festive_useprint_ammo;
 
 void() Gamemode_Festive_Init =
 {
+	festive_useprint_ammo = Useprint_Register("Hold %b to buy Ammo for %s", '1 1 1');
     precache_model(GetWeaponModel(W_BOWIE, false));
     precache_sound("sounds/modes/festive/rnd_splash.wav");
     precache_sound("sounds/modes/festive/rnd_start.wav");
@@ -99,10 +101,10 @@ void() Gamemode_Festive_AmmoCrateTouch =
     if (EqualNonPapWeapon(other.weapon) == W_RAY || EqualNonPapWeapon(other.weapon) == W_TESLA || EqualNonPapWeapon(other.weapon) == W_RAYMK2)
         ammo_cost = 10000;
 
-    other.Weapon_Name_Touch = GetWeaponName(other.weapon, -1);
+	other.useprint_touch = GetWeaponName(other.weapon, -1);
 
 	if (other.currentammo < getWeaponAmmo(other.weapon)) {
-		Player_UseprintWithWait(other, self, 3, ammo_cost, other.weapon);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, ammo_cost);
 
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 			return;
@@ -137,7 +139,8 @@ void(vector crate_origin, vector crate_angles) Gamemode_Festive_SpawnAmmoCrate =
     ammo_crate.angles = crate_angles;
     ammo_crate.scale = 2;
     ammo_crate.touch = Gamemode_Festive_AmmoCrateTouch;
-    ammo_crate.solid = SOLID_TRIGGER;
+	ammo_crate.solid = SOLID_TRIGGER;
+	ammo_crate.useprint_index_1 = festive_useprint_ammo;
     Light_Purple(ammo_crate);
 };
 

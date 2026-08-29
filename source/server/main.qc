@@ -353,10 +353,17 @@ void() precaches =
 	precache_sound("sounds/null.wav");
 }
 
+float useprint_revive;
+
 //called when map loaded
 void() worldspawn =
 {
 	precaches();
+
+	// Index zero is reserved for clearing the current prompt.
+	useprint_count = 1;
+	useprint_registration_locked = false;
+	useprint_revive = Useprint_Register("Hold %b to Revive Player", '1 1 1');
 
 	// Define all of our Light Styles
 	LS_Setup();
@@ -389,7 +396,7 @@ void() worldspawn =
 	clientstat(STAT_PERKS, EV_FLOAT, perks);
 	clientstat(STAT_TOTALSCORE, EV_FLOAT, score);
 	clientstat(STAT_WEAPONNAME, EV_STRING, Weapon_Name);
-	clientstat(STAT_WEAPONNAMETOUCH, EV_STRING, Weapon_Name_Touch);
+	clientstat(STAT_USEPRINTTOUCH, EV_STRING, useprint_touch);
 	clientstat(STAT_WEAPONTIER, EV_FLOAT, weapon_tier);
 	clientstat(STAT_VIEWMODEL_EFFECTS, EV_FLOAT, viewmodel_effects);
 	clientstat(STAT_VIEWMODEL2_EFFECTS, EV_FLOAT, viewmodel2_effects);
@@ -657,5 +664,25 @@ void() EndFrame =
 
 	if (cheats_have_been_activated == false && cvar("sv_cheats") == 1) {
 		cheats_have_been_activated = true;
+	}
+};
+
+void(void() spawnfunc) CheckSpawn =
+{
+	if (spawnfunc) {
+		if (cvar("developer")) {
+			dprint("CheckSpawn: running spawnfunc for ");
+			dprint(self.classname);
+			dprint("\n");
+		}
+
+		spawnfunc();
+	} else {
+		if (cvar("developer")) {
+			dprint("CheckSpawn: no spawnfunc defined for ");
+			dprint(self.classname);
+			dprint("\n");
+		}
+		remove(self);
 	}
 };

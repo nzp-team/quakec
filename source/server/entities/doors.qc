@@ -59,7 +59,7 @@ void() print_need_power =
 {
 	if(other.classname == "player" && !other.downed)
 	{
-		Player_UseprintWithWait(other, self, 8, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 	}
 
 };
@@ -185,7 +185,7 @@ void() door_fire =
 		{
 			if(other.classname == "player" && !other.downed)
 			{
-				Player_UseprintWithWait(other, self, 8, 0, 0);
+				Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 				return;
 			}
 		}
@@ -247,7 +247,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		{
 			if(other.classname == "player" && !other.downed)
 			{
-				Player_UseprintWithWait(other, self, 8, 0, 0);
+				Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 				return;
 			}
 		}
@@ -303,9 +303,9 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		if(other.classname == "player" && !other.downed)
 		{
 			if (self.spawnflags & DOOR_DEBRIS)
-				Player_UseprintWithWait(other, self, 2, door_cost, 0);
+				Player_UseprintWithWait(other, self, self.useprint_index_2, door_cost);
 			else
-				Player_UseprintWithWait(other, self, 1, door_cost, 0);
+				Player_UseprintWithWait(other, self, self.useprint_index_1, door_cost);
 			return;
 		}
 	}	
@@ -565,6 +565,12 @@ void() func_door_model =
 void() func_door =
 
 {
+	if (!self.useprint_string_1) self.useprint_string_1 = "Hold %b to open Door";
+	if (!self.useprint_string_2) self.useprint_string_2 = "Hold %b to remove Debris";
+	if (!self.useprint_string_3) self.useprint_string_3 = "The Power must be Activated first";
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
+	self.useprint_index_3 = Useprint_Register(self.useprint_string_3, self.useprint_color_3);
 
 	SetMovedir ();
 
@@ -626,6 +632,12 @@ void() func_door =
 
 void() func_door_nzp =
 {
+	if (!self.useprint_string_1) self.useprint_string_1 = "Hold %b to open Door";
+	if (!self.useprint_string_2) self.useprint_string_2 = "Hold %b to remove Debris";
+	if (!self.useprint_string_3) self.useprint_string_3 = "The Power must be Activated first";
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
+	self.useprint_index_3 = Useprint_Register(self.useprint_string_3, self.useprint_color_3);
 
 #ifndef FTE
 

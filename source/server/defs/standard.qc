@@ -150,7 +150,7 @@ void            end_sys_globals;						// flag for structure dumping
 .vector         Flash_Offset;
 .float 			Flash_Size;
 .string			Weapon_Name;
-.string			Weapon_Name_Touch;
+.string			useprint_touch;
 .float          currentmag2;
 .float			viewmodel_effects;
 .float			viewmodel2_effects;
@@ -243,7 +243,7 @@ vector  (entity what)                                                           
 float   (entity zombie, entity target)                                                          Do_Pathfind_psp     = #84;
 void    (string s)                                                                              Open_Waypoint       = #85;
 vector  (entity zombie,vector start,vector min, vector max)                                     Get_Next_Waypoint   = #86;
-void    (entity client, float type, float cost, float weapon)                                   useprint            = #87;
+void    (entity client, float type, float cost)                                                 useprint            = #87;
 vector  (entity zombie,vector start,vector min, vector max)                                     Get_First_Waypoint  = #88;
 void    (string s)                                                                            	Close_Waypoint      = #89;
 void    (vector start, vector min, vector max, vector end, float nomonsters, entity forent)   	tracebox            = #90;
@@ -283,6 +283,7 @@ void    (float gamemode)                                                        
 void    (vector color)                                                                          nzp_setroundcolor   = #511;
 float   ()                                                                                      nzp_getmonthofyear  = #512;
 void    (float orientation)                                                                     nzp_setperkorientation = #513;
+void    (entity client, float index, string value, vector color)                                useprint_send       = #514;
 
 //
 // constants

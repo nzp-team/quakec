@@ -90,7 +90,7 @@ void() Power_Touch =
 	entity tempe;
 	entity old_self;
 
-	Player_UseprintWithWait(other, self, 10, 0, 0);
+	Player_UseprintWithWait(other, self, self.useprint_index_1, 0);
 	if (Player_UseButtonPressed(other, self) && !isPowerOn) {
 
         // Animate the handle programmatically.
@@ -186,6 +186,9 @@ void() power_switch =
     if (self.powerup_vo != "")
         precache_sound(self.powerup_vo);
 
+	if (!self.useprint_string_1) 
+		self.useprint_string_1 = "Hold %b to Turn On the Power";
+
 	self.solid = SOLID_TRIGGER;
 	Precache_Set(self.model);
 	precache_sound(self.oldmodel);
@@ -193,6 +196,7 @@ void() power_switch =
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.classname = "power_switch";
 	self.touch = Power_Touch;
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
 
     // Spawn the Handle
     if (!(self.spawnflags & POWER_SPAWNFLAG_NOHANDLE)) {
