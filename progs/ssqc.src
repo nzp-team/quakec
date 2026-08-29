@@ -70,6 +70,7 @@ defs/standard.qc
 #endif
 shared_defs.qc
 defs/custom.qc
+useprints.qc
 fte_builtins.qc
 map_rotation.qc
 utilities/sound_helper.qc
@@ -149,6 +150,7 @@ tests/test_rounds.qc
 tests/test_game_counter.qc
 tests/test_player.qc
 tests/test_teleporter.qc
+tests/test_useprints.qc
 tests/test_list.qc
 tests/test_module.qc
 #endif

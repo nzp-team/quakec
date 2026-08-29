@@ -438,7 +438,7 @@ void() touch_ending =
 
 	float ending_cost = floor(self.cost * game_modifier_cost_multiplier);
 	
-	Player_UseprintWithWait(other, self, 20, ending_cost, 0);
+	Player_UseprintWithWait(other, self, self.useprint_index_1, ending_cost);
 
 	if (Player_UseButtonPressed(other, self)) {
 
@@ -468,6 +468,8 @@ void() func_ending =
 		return;
 	//	objerror("ERROR: func_model expects a model. Removing.");
 
+	if (!self.useprint_string_1) self.useprint_string_1 = "Hold %b to End the Game";
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
 	precache_model (self.model);
 	
 	self.movetype = MOVETYPE_NONE;	// so it doesn't get pushed by anything

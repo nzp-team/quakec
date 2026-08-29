@@ -25,6 +25,8 @@
 
 */
 
+#define USEPRINT_MAX						255
+
 //
 // CSQC Particle Types
 //
@@ -54,9 +56,10 @@
 											// <byte> optional_field
 											// <entity> optional_entity
 
-#define CSQC_EVENT_USEPRINT				11	// <byte> useprint_type
+#define CSQC_EVENT_USEPRINT				11	// <byte> useprint index
 											// <short> useprint_cost
-											// <byte> useprint_weapon
+											// Definition placeholders:
+											// %b = bound use button, %s = useprint touch text
 
 #define CSQC_EVENT_ROUNDCHANGE			12	// <byte> round
 
@@ -88,20 +91,24 @@
 
 #define CSQC_EVENT_SETPERKMODE			22 	// <byte> orientation
 
-#define EVENT_UPDATE 					23
-#define EVENT_BLACKOUT 					24
-#define EVENT_WORLDDATA 				25
-#define EVENT_PLAYERUPDATE 				26
-#define EVENT_REVIVEON 					27
-#define EVENT_REVIVEOFF 				28
-#define EVENT_REVIVECHANGE 				29
-#define EVENT_WEAPONRECOIL 				30
-#define EVENT_GRENADEPULSE 				31
-#define EVENT_BETTYPROMPT 				32
-#define EVENT_CHATMESSAGE				33
-#define EVENT_DOUBLETAPUPDATE 			34
-#define EVENT_ENDGAME					35
-#define EVENT_MAPTYPE					36
+#define CSQC_EVENT_REGISTERUSEPRINT		23	// <byte> useprint index
+											// <string> useprint text
+											// <byte> red, green, blue
+
+#define EVENT_UPDATE 					24
+#define EVENT_BLACKOUT 					25
+#define EVENT_WORLDDATA 				26
+#define EVENT_PLAYERUPDATE 				27
+#define EVENT_REVIVEON 					28
+#define EVENT_REVIVEOFF 				29
+#define EVENT_REVIVECHANGE 				30
+#define EVENT_WEAPONRECOIL 				31
+#define EVENT_GRENADEPULSE 				32
+#define EVENT_BETTYPROMPT 				33
+#define EVENT_CHATMESSAGE				34
+#define EVENT_DOUBLETAPUPDATE 			35
+#define EVENT_ENDGAME					36
+#define EVENT_MAPTYPE					37
 
 //
 // Perk-A-Cola draw presets
@@ -342,7 +349,7 @@ float 	map_compatibility_mode;
 #define STAT_PERKS				69
 #define STAT_TOTALSCORE			70
 #define STAT_WEAPONNAME			71
-#define STAT_WEAPONNAMETOUCH	72
+#define STAT_USEPRINTTOUCH		72
 #define STAT_WEAPONTIER			73
 #define STAT_VIEWMODEL_EFFECTS  74
 #define STAT_VIEWMODEL2_EFFECTS 75

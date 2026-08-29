@@ -695,11 +695,11 @@ void() MBOX_Touch =
 		return;
 		
 	if (!self.boxstatus) {
-		Player_UseprintWithWait(other, self, 6, mystery_box_cost, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, mystery_box_cost);
 	}
 	if (self.boxstatus == 2 && self.owner == other) {
-		other.Weapon_Name_Touch = GetWeaponName(self.boxweapon.weapon, -1);
-		Player_UseprintWithWait(other, self, 7, 0, self.boxweapon.weapon);
+		other.useprint_touch = GetWeaponName(self.boxweapon.weapon, -1);
+		Player_UseprintWithWait(other, self, self.useprint_index_2, 0);
 	}
 	
 	if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE))
@@ -1040,6 +1040,15 @@ void() mystery_box =
 	if (!self.powerup_vo) {
 		self.powerup_vo = "sounds/machines/mbox_close.wav";
 	}
+
+	if (!self.useprint_string_1) 
+		self.useprint_string_1 = "Hold %b for Mystery Box";
+	
+	if (!self.useprint_string_2)
+		self.useprint_string_2 = "Hold %b for %s";
+
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
 
     // Store the custom presentation as globals
     mystery_box_model = self.model;

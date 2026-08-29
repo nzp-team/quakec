@@ -375,6 +375,18 @@ float zombie_spawn_points;
 .string wayTarget;
 .entity active_door;								// Set in waypoint mode
 .string targetname;									// the name of an entitys
+.string useprint_string_1;
+.string useprint_string_2;
+.string useprint_string_3;
+.string useprint_string_4;
+.vector useprint_color_1;
+.vector useprint_color_2;
+.vector useprint_color_3;
+.vector useprint_color_4;
+.float useprint_index_1;
+.float useprint_index_2;
+.float useprint_index_3;
+.float useprint_index_4;
 entity lastspawn;									// last spawn point used by spawning code
 .entity goaldummy; 									// Used to store the origin of the zombies target
 .float goalway; 									// Used to store the origin of the zombies target
@@ -560,7 +572,7 @@ float has_zone_file;
 .float x2_icon;
 .float insta_icon;
 .string	Weapon_Name;
-.string	Weapon_Name_Touch;
+.string	useprint_touch;
 
 #endif // FTE
 

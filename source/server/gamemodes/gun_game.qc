@@ -38,6 +38,7 @@ float gungame_ran_post_init_logic;
 .float gungame_weapon_idx;
 .float gungame_score_threshold;
 .float gungame_update_time;
+float gungame_useprint_nuke;
 
 void() info_gungame_nukespot = {};
 
@@ -88,6 +89,7 @@ void() Gamemode_GunGame_GenerateWeaponList =
 
 void() Gamemode_GunGame_Init =
 {
+	gungame_useprint_nuke = Useprint_Register("Hold %b to Drop the Nuke", '1 1 1');
     // Create the list of Weapons to Cycle through.
     Gamemode_GunGame_GenerateWeaponList();
 
@@ -256,7 +258,7 @@ void() Gamemode_GunGame_NukeTouch =
     if (other != self.owner)
         return;
 
-    Player_UseprintWithWait(other, self, 23, 0, 0);
+	Player_UseprintWithWait(other, self, self.useprint_index_1, 0);
 
     if (Player_UseButtonPressed(other, self)) {
         // Flash the screen white
@@ -284,7 +286,8 @@ void() Gamemode_GunGame_SpawnNuke =
     setmodel(nuke_sparkle, "models/sprites/lightning.spr");
     nuke.solid = SOLID_TRIGGER;
     nuke.effects = EF_FULLBRIGHT;
-    nuke.owner = self;
+	nuke.owner = self;
+	nuke.useprint_index_1 = gungame_useprint_nuke;
 
     Light_Cyan(nuke_sparkle, true);
 

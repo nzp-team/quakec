@@ -326,7 +326,7 @@ void() window_touch =
 		// cypress (09 dec 2023) -- support for limited barricade health.
 		if(self.health < self.health_delay)
 		{
-			Player_UseprintWithWait(other, self, 5, 0, 0);
+			Player_UseprintWithWait(other, self, self.useprint_index_1, 0);
 			
 			if(Player_UseButtonPressed(other, self))
 			{
@@ -382,6 +382,9 @@ void() item_barricade =
 		// Set Default Stats for Compatibility
 		//
 
+		if (!self.useprint_string_1) 
+			self.useprint_string_1 = "Hold %b to Rebuild Barrier";
+
 		// Model
 		if (!self.model)
 			self.model = "models/misc/window.mdl";
@@ -419,6 +422,7 @@ void() item_barricade =
 	self.classname = "window";
 	self.touch = window_touch;
 	self.solid = SOLID_TRIGGER;
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
 
 	if (self.health != -10) {
 		self.frame = Barricade_GetFrameForHealth(self.health);

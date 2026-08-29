@@ -449,13 +449,13 @@ void() Player_UpdateProgressBar =
 };
 
 //
-// Player_UseprintWithWait(who, type, cost, weapon)
+// Player_UseprintWithWait(who, active_ent, useprint_index, cost)
 // For avoiding issues with overlapping bounding boxes for specific
 // machines.
 //
 .entity last_looked_ent;
 .float last_looked_time;
-void(entity who, entity active_ent, float type, float cost, float weapon) Player_UseprintWithWait =
+void(entity who, entity active_ent, float useprint_index, float cost) Player_UseprintWithWait =
 {
 	// Small delay before we can interact with a new entity to
 	// mitigate overlapping bboxes causing problems.
@@ -468,7 +468,7 @@ void(entity who, entity active_ent, float type, float cost, float weapon) Player
 	}
 
 	if (who.last_looked_ent == active_ent)
-		useprint(who, type, cost, weapon);
+		useprint(who, useprint_index, cost);
 };
 
 //
@@ -1086,7 +1086,7 @@ void() PlayerSpawn =
 		WorldText(world.chaptertitle, world.location, world.date, world.person, self);
 
 	ReportMapMode(map_compatibility_mode, self);
-
+	
 #else 
 
 	self.Flash_Offset = GetWeaponFlash_Offset(self.weapon);
@@ -1151,6 +1151,10 @@ void() SpectatorSpawn =
 float spawns_initialized;
 void() PutClientInServer =
 {
+	for (float i = 1; i < useprint_count; i++)
+		useprint_send(self, i, useprint_strings[i], useprint_colors[i]);
+	useprint_registration_locked = true;
+
 	// Init Spawn Points
 	if (!spawns_initialized) {
 		Spawns_Init();

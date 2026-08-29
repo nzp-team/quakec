@@ -29,9 +29,11 @@ float ww_ran_post_init_logic;
 float ww_inside_check_delay;
 
 .float ww_upgrade_tier;
+float ww_useprint_buy;
 
 void() Gamemode_WW_Init =
 {
+	ww_useprint_buy = Useprint_Register("Hold %b to buy %s", '1 1 1');
     // Disable All magic
     localcmd("sv_magic 0\n");
 
@@ -58,9 +60,10 @@ void() Gamemode_WW_NukeDrop =
     if (other.classname != "player" || other.downed)
         return;
 
-    float price = 5000;
+	float price = 5000;
 
-    Player_UseprintWithWait(other, self, 9, price, 9);
+	other.useprint_touch = self.name;
+	Player_UseprintWithWait(other, self, self.useprint_index_1, price);
 
     if (other.points >= price && Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 		Player_RemoveScore(other, price);
@@ -77,9 +80,10 @@ void() Gamemode_WW_AmmoDrop =
     if (other.classname != "player" || other.downed)
         return;
 
-    float price = 5000;
+	float price = 5000;
 
-    Player_UseprintWithWait(other, self, 9, price, 12);
+	other.useprint_touch = self.name;
+	Player_UseprintWithWait(other, self, self.useprint_index_1, price);
 
     if (other.points >= price && Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 		Player_RemoveScore(other, price);
@@ -96,9 +100,10 @@ void() Gamemode_WW_UpgrDrop =
     if (other.classname != "player" || other.downed)
         return;
 
-    float price = 5000;
+	float price = 5000;
 
-    Player_UseprintWithWait(other, self, 9, price, 11);
+	other.useprint_touch = self.name;
+	Player_UseprintWithWait(other, self, self.useprint_index_1, price);
 
     if (other.points >= price && Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 		Player_RemoveScore(other, price);
@@ -113,9 +118,10 @@ void() Gamemode_WW_PerkDrop =
     if (other.classname != "player" || other.downed)
         return;
 
-    float price = 5000;
+	float price = 5000;
 
-    Player_UseprintWithWait(other, self, 9, price, 10);
+	other.useprint_touch = self.name;
+	Player_UseprintWithWait(other, self, self.useprint_index_1, price);
 
     if (other.points >= price && Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 		Player_RemoveScore(other, price);
@@ -135,13 +141,21 @@ void() Gamemode_WW_SpawnTools =
     entity player_8_spawn = find(world, classname, "info_player_8_spawn");
 
     entity nuke_drop = spawn();
-    nuke_drop.classname = "ww_nuke_drop";
+	nuke_drop.classname = "ww_nuke_drop";
+	nuke_drop.name = "Nuke Drop";
     entity ammo_drop = spawn();
-    ammo_drop.classname = "ww_ammo_drop";
+	ammo_drop.classname = "ww_ammo_drop";
+	ammo_drop.name = "Ammo Drop";
     entity upgr_drop = spawn();
-    upgr_drop.classname = "ww_upgr_drop";
+	upgr_drop.classname = "ww_upgr_drop";
+	upgr_drop.name = "Damage Upgrade";
     entity perk_drop = spawn();
-    perk_drop.classname = "ww_perk_drop";
+	perk_drop.classname = "ww_perk_drop";
+	perk_drop.name = "Perk Drop";
+	nuke_drop.useprint_index_1 = ww_useprint_buy;
+	ammo_drop.useprint_index_1 = ww_useprint_buy;
+	upgr_drop.useprint_index_1 = ww_useprint_buy;
+	perk_drop.useprint_index_1 = ww_useprint_buy;
 
     entity nuke_sparkle = spawn();
     entity ammo_sparkle = spawn();

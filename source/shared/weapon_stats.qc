@@ -243,39 +243,6 @@ string(float wep, float weapon_tier) GetWeaponName =
 }
 #endif
 
-string(float item) GetItemName =
-{
-	switch (item)
-	{
-		case 1:
-			return "Quick Revive";
-		case 2:
-			return "Juggernog";
-		case 3:
-			return "Speed Cola";
-		case 4:
-			return "Double Tap";
-		case 5:
-			return "Stamin-Up";
-		case 6:
-			return "PhD Flopper";
-		case 7:
-			return "Deadshot Daiquiri";
-		case 8:
-			return "Mule Kick";
-		case 9:
-			return "Nuke Drop";
-		case 10:
-			return "Perk Drop";
-		case 11:
-			return "Damage Upgrade";
-		case 12:
-			return "Ammo Drop";
-		default:
-			return "NULL";
-	}
-}
-
 float(float wep) GetFiretype =
 {
 

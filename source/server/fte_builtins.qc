@@ -41,6 +41,33 @@ float NUM_FOR_EDICT(entity edict)
 }
 
 //
+// useprint_send(client, index, value, color)
+// Sends one registered useprint definition to a client.
+//
+void(entity client, float index, string value, vector color) useprint_send =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_REGISTERUSEPRINT);
+	WriteByte(MSG_MULTICAST, index);
+	WriteString(MSG_MULTICAST, value);
+	WriteByte(MSG_MULTICAST, color_x * 255);
+	WriteByte(MSG_MULTICAST, color_y * 255);
+	WriteByte(MSG_MULTICAST, color_z * 255);
+	msg_entity = client;
+	multicast('0 0 0', MULTICAST_ONE_R);
+};
+
+void(entity to, float index, float cost) useprint =
+{
+	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
+	WriteByte(MSG_MULTICAST, CSQC_EVENT_USEPRINT);
+	WriteByte(MSG_MULTICAST, index);
+	WriteShort(MSG_MULTICAST, cost);
+	msg_entity = to;
+	multicast('0 0 0', MULTICAST_ONE);
+};
+
+//
 // nzp_achievement(client, achievement_id)
 // Awards achievement by sending approval to client.
 //

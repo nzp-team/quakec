@@ -1217,8 +1217,16 @@ noref void() CSQC_Parse_Event =
 		case CSQC_EVENT_USEPRINT:
 			useprint_type = readbyte();
 			useprint_cost = readshort();
-			useprint_weapon = readbyte();
 			useprint_time = time + 0.1;
+			break;
+		case CSQC_EVENT_REGISTERUSEPRINT:
+			float useprint_index = readbyte();
+			useprint_strings[useprint_index] = readstring();
+			vector useprint_color;
+			useprint_color_x = readbyte() / 255;
+			useprint_color_y = readbyte() / 255;
+			useprint_color_z = readbyte() / 255;
+			useprint_colors[useprint_index] = useprint_color;
 			break;
 		case CSQC_EVENT_ROUNDCHANGE:
 			rounds = readbyte();

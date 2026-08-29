@@ -102,16 +102,6 @@ void(float mode, entity to) ReportMapMode = {
 	multicast('0 0 0', MULTICAST_ONE);
 }
 
-void(entity to, float type, float cost, float weapon) useprint = {
-	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
-	WriteByte(MSG_MULTICAST, CSQC_EVENT_USEPRINT);
-	WriteByte(MSG_MULTICAST, type);
-	WriteShort(MSG_MULTICAST, cost);
-	WriteByte(MSG_MULTICAST, weapon);
-	msg_entity = to;
-	multicast('0 0 0', MULTICAST_ONE);
-}
-
 void(string track_name) songegg =
 {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
@@ -653,16 +643,19 @@ float(entity them, entity me) PlayerIsLooking =
 	me.solid = SOLID_BBOX;
 	setorigin(me, me.origin);
 
-	vector source;
+	vector source, target;
 	makevectors (them.v_angle);
 	source = them.origin + them.view_ofs;
+	target = me.origin + (me.mins + me.maxs) * 0.5;
 
 	// Standard 'are we facing' test..
 	traceline(source, source + v_forward*50, 0, them);
 
 	// We're inside of an object.. is it the target?
 	if (trace_startsolid) {
-		if (v_forward*normalize(me.origin - them.origin) > 0.7)
+		// Brush entity origins are not necessarily inside their bounds (and are
+		// commonly the world origin), so face the bounds rather than me.origin.
+		if (v_forward*normalize(target - source) > 0.7)
 			ret = true;
 	} else if (trace_ent == me) {
 		ret = true;
