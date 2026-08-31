@@ -86,6 +86,101 @@ void() Test_Door_TriggeredCostDoorOpensOnce =
     remove(door);
 };
 
+//
+// Test_Door_RotatingUsesAnglesAndPreservesOrigin()
+// Verifies doors with the rotating spawnflag keeps its origin
+// and instead pivots when opened.
+// (https://github.com/nzp-team/nzportable/issues/908)
+//
+void() Test_Door_RotatingUsesAnglesAndPreservesOrigin =
+{
+	entity door = spawn();
+	entity old_self = self;
+
+	// Values from NZP_func_door.bsp.
+	door.origin = '52 -16 56';
+	door.angles = '0 0 0';
+	door.distance = 90;
+	door.spawnflags = 256;
+
+	self = door;
+	Door_SetupMovePositions();
+
+	Test_Assert(door.pos1 == '0 0 0', "Rotating door closed pose was not initialized from angles!");
+	Test_Assert(door.pos2 == '0 90 0', "Rotating door open pose did not use its angular distance!");
+	Test_Assert(door.origin == '52 -16 56', "Rotating door custom origin was moved!");
+
+	// A start-open rotating door must swap angle endpoints without moving its
+	// custom pivot.
+	door.angles = '0 0 0';
+	door.spawnflags = 256 | DOOR_START_OPEN;
+	Door_SetupMovePositions();
+
+	Test_Assert(door.angles == '0 90 0', "Start-open rotating door did not begin at its open angle!");
+	Test_Assert(door.pos1 == '0 90 0', "Start-open rotating door open pose was not swapped!");
+	Test_Assert(door.pos2 == '0 0 0', "Start-open rotating door closed pose was not swapped!");
+	Test_Assert(door.origin == '52 -16 56', "Start-open rotating door moved its custom origin!");
+
+	self = old_self;
+	remove(door);
+};
+
+//
+// Test_Door_ToggleCanCompleteMultipleCycles()
+// Verifies a door marked toggle-able can be opened, then closed,
+// then opened..
+// (https://github.com/nzp-team/nzportable/issues/1528)
+//
+void() Test_Door_ToggleCanCompleteMultipleCycles =
+{
+	entity door = spawn();
+	entity source = spawn();
+	entity old_self = self;
+	entity old_other = other;
+
+	door.owner = door;
+	door.enemy = door;
+	door.classname = "door";
+	door.spawnflags = DOOR_TOGGLE;
+	door.state = STATE_BOTTOM;
+	door.speed = 100;
+	door.wait = 3;
+	door.pos1 = '0 0 0';
+	door.pos2 = '10 0 0';
+
+	self = door;
+	other = source;
+
+	for (float cycle = 0; cycle < 2; cycle++) {
+		door_use();
+		Test_Assert(door.state == STATE_UP, "Toggle door did not begin opening!");
+
+		// Re-entry while opening must still be rejected.
+		door_use();
+		Test_Assert(door.state == STATE_UP, "Opening toggle door was activated recursively!");
+
+		setorigin(door, door.pos2);
+		door_hit_top();
+		Test_Assert(door.state == STATE_TOP, "Toggle door did not reach its open state!");
+
+		// Purchased doors become non-solid while open so the player can pass.
+		door.solid = SOLID_NOT;
+		door_use();
+		Test_Assert(door.state == STATE_DOWN, "Open toggle door did not begin closing!");
+		Test_Assert(door.solid == SOLID_BSP, "Closing toggle door did not restore BSP solidity!");
+
+		setorigin(door, door.pos1);
+		door_hit_bottom();
+		Test_Assert(door.state == STATE_BOTTOM, "Toggle door did not finish closing!");
+		Test_Assert(door.solid == SOLID_BSP, "Re-closed toggle door lost BSP solidity!");
+	}
+
+	self = old_self;
+	other = old_other;
+	remove(source);
+	remove(door);
+};
+
 float test_trigger_interact_fire_count;
 void() Test_TriggerInteract_CountUse =
 {
