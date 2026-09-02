@@ -148,6 +148,7 @@ tests/test_power.qc
 tests/test_misc.qc
 tests/test_rounds.qc
 tests/test_game_counter.qc
+tests/test_game_random.qc
 tests/test_player.qc
 tests/test_teleporter.qc
 tests/test_useprints.qc
