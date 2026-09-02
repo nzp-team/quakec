@@ -514,7 +514,7 @@ void() info_changesky =
 void() game_random_use =
 {
 	float random_chance = floor(random() * self.health) + 1;
-	string selected_targetname = strzone(strcat(strcat(self.name), "_"), ftos(random_chance));
+	string selected_targetname = strzone(strcat(strcat(self.name, "_"), ftos(random_chance)));
 
 	self.target = selected_targetname;
 	SUB_UseTargets();
