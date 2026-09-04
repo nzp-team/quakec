@@ -71,17 +71,12 @@ void() Flame_Touch =
 		remove(self);
 	} 
 	// Support for func_button
-	if (target.classname == "func_button" && target.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE) {
-		entity old_self;
-
-		old_self = self;
-		self = target;
-		self.health -= 50;
-		self.enemy = old_self.owner;
-
-		if (self.health < 0)
-			self.th_die();
-		self = old_self;
+	if (target.classname == "func_button") {
+		if (!CanDamageFunc(FUNC_ALLOW_FIRE, target, self.owner)){
+			return;
+		}
+		
+		DamageFunc(target, self.owner, 50);
 	}
 	// Some other entity
 	else {

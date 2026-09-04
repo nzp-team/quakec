@@ -856,8 +856,17 @@ void(float damage, vector dir, vector org, vector plane, entity hit_ent, float s
 			return;
 		} else if (hit_ent.solid == SOLID_BSP) {
 			// Button only accepts Fire damage
-			if (hit_ent.classname == "func_button" && (hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE))
-				return;
+			if (hit_ent.classname == "func_button"){
+				//fixes melee bypass
+				if (hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE){
+					return;
+				}
+
+				if (!CanDamageFunc(FUNC_ALLOW_BULLET, hit_ent, self)){
+					return;
+				}
+
+			}
 
 			oldself = self;
 			self = hit_ent;
@@ -1327,6 +1336,10 @@ void() WeaponCore_Melee =
 		// Check if this is a Zombie limb, set to the body if so
 		if (trace_ent.owner.head == trace_ent || trace_ent.owner.larm == trace_ent || trace_ent.owner.rarm == trace_ent)
 			trace_ent = trace_ent.owner;
+		
+		if (trace_ent.classname == "func_button" && CanDamageFunc(FUNC_ALLOW_MELEE, trace_ent, self)){
+			DamageFunc(trace_ent, self, trace_ent.max_health);
+		}
 
 		// Target does not take damage -- no need to go any further
 		if (!trace_ent.takedamage && !(trace_ent.flags & FL_CLIENT)) {

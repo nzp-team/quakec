@@ -454,6 +454,53 @@ float(float min, float max, vector org1, vector org2, float radius) calculate_pr
 	return proximity_value;
 };
 
+float(float damage_type, entity hit_ent, entity attacker) CanDamageFunc = 
+{
+	if ((hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE) && attacker.weapons[0].weapon_id != W_M2 && attacker.weapons[0].weapon_id != W_FIW){
+		return false;
+	}
+
+	//No Weapon Flags
+	if (hit_ent.weapon == 0)
+		return true;
+
+	float pap_check = false;
+	if ((hit_ent.weapon & FUNC_ALLOW_UPGRADE) && (attacker.weapons[0].weapon_id != EqualPapWeapon(attacker.weapons[0].weapon_id))){
+		return false;
+	}else{
+		if ((hit_ent.weapon & FUNC_ALLOW_UPGRADE) && (attacker.weapons[0].weapon_id == EqualPapWeapon(attacker.weapons[0].weapon_id))){
+			pap_check = true;
+		}
+	}
+
+	float result = (hit_ent.weapon & damage_type);
+	if (result != damage_type && !pap_check) {
+		return false;
+	}else if (result != damage_type && pap_check){
+		//do direct check so we dont trigger it when ifi it requires a upgraded flamethrower
+		//when we have a upgraded .357 
+		if (hit_ent.weapon != FUNC_ALLOW_UPGRADE){
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void(entity func, entity attacker, float damage) DamageFunc =
+{
+	entity oldself;
+	oldself = self;
+	self = trace_ent;
+	self.health -= damage;
+	self.enemy = oldself;
+
+	if (self.health <= 0)
+		self.th_die();
+	
+	self = oldself;
+}
+
 void(entity inflictor, entity attacker, float damage2, float mindamage, float radius) DamgageExplode =
 {
 	float 	final_damage = 0;
@@ -550,7 +597,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			teddy_react();
 			self = oldself2;
 		}
-		else if (ent.takedamage && ent.classname != "ai_zombie_head" && ent.classname != "ai_zombie_larm" && ent.classname != "ai_zombie_rarm")
+		else if (ent.takedamage && ent.classname != "func_button" && ent.classname != "ai_zombie_head" && ent.classname != "ai_zombie_larm" && ent.classname != "ai_zombie_rarm")
 		{
 			if (mapname == "ndu" && ent.classname == "ai_zombie" && inflictor.classname == "explosive_barrel") {
 				ach_tracker_barr++;
@@ -614,11 +661,51 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				ent.crawling = 2;
 			}	
 		}
+		else if (ent.classname == "func_button"){
+			float do_not_attack = false;
+
+			switch(inflictor.classname){
+				case "projectile_raybeam":
+					if (!CanDamageFunc(FUNC_ALLOW_RAY, ent, attacker)){
+						do_not_attack = true;
+					}
+					break;
+				
+				case "grenade":
+				case "rocket":
+				case "projectile_grenade":
+					if (!CanDamageFunc(FUNC_ALLOW_EXPLOSIVE, ent, attacker)){
+						do_not_attack = true;
+					}
+					break;
+				
+				default:
+					do_not_attack = true;
+					break;
+			}	
+
+			if (do_not_attack){
+				ent = ent.chain;
+				continue;
+			}
+			else{ //needed or else the game gets stuck into an infinite loop somehow
+				oldself = self;
+				self = ent;
+				self.health -= self.max_health + 1;
+				self.enemy = oldself;
+
+				if (self.health < 0)
+					self.th_die();
+				self = oldself;
+				ent = ent.chain;
+				continue;
+			}
+		} 
 
 		if (final_damage > 0) {
 			if (CanDamage (ent, inflictor))
 				DamageHandler (ent, attacker, final_damage, damage_style);
-		}
+		}		
 		ent = ent.chain;
 	}
 };

@@ -366,6 +366,18 @@ float 	map_compatibility_mode;
 #define GAMEMODE_STICKSNSTONES  5
 #define GAMEMODE_FESTIVE 		6
 
+// func_button
+#define SPAWNFLAG_FUNCBUTTON_FIREDAMAGE		1
+
+#define FUNC_ALLOW_UPGRADE		1
+#define FUNC_ALLOW_BULLET		2
+#define FUNC_ALLOW_EXPLOSIVE		4
+#define FUNC_ALLOW_FIRE		8
+#define FUNC_ALLOW_RAY		16
+#define FUNC_ALLOW_ELECTRIC 	32
+#define FUNC_ALLOW_MELEE		64
+
+
 // Misc. player statistics
 .float playernum;
 .float is_spectator;
