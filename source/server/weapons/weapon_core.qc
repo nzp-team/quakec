@@ -1642,6 +1642,18 @@ void() Change_Stance = {
 
 }
 
+
+void() Change_StanceToggle =
+{
+	if (self.downed || !(self.flags & FL_ONGROUND) || self.changestance == true || self.new_ofs_z != self.view_ofs_z)
+		return;
+
+	if (self.stance == PLAYER_STANCE_STAND)
+		Player_SetStance(self, PLAYER_STANCE_CROUCH, true);
+	else if (Player_CanStandHere(self))
+		Player_SetStance(self, PLAYER_STANCE_STAND, true);
+};
+
 void() dolphin_dive =		//naievil
 {    
 	if (self.stance != 2)
@@ -1687,6 +1699,19 @@ void() dolphin_dive =		//naievil
 	self.oldz = self.origin_z;
 	Player_SetStance(self, PLAYER_STANCE_PRONE, false);
 }
+
+void() Change_StanceProne =
+{
+	if (self.downed || !(self.flags & FL_ONGROUND) || self.changestance == true || self.new_ofs_z != self.view_ofs_z)
+		return;
+
+	if (self.sprinting) {
+		dolphin_dive();
+		return;
+	}
+
+	Player_SetStance(self, PLAYER_STANCE_PRONE, true);
+};
 
 
 void () Impulse_Functions =
@@ -1747,6 +1772,12 @@ void () Impulse_Functions =
 				dolphin_dive();
 			else
 				Change_Stance();
+			break;
+		case 31:
+			Change_StanceToggle();
+			break;
+		case 32:
+			Change_StanceProne();
 			break;
 		case 100:
 			cvar_set("waypoint_mode", "1");
@@ -2151,7 +2182,7 @@ void() WeaponCore_MeleeButtonPressed =
 	// triggers Dive-to-Prone.
 #ifndef FTE
 
-	if (self.sprinting) {
+	if (self.sprinting && self.button9) {
 		dolphin_dive();
 		return;
 	}
