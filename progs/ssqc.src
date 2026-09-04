@@ -142,6 +142,7 @@ gamemodes/core.qc
 #ifdef QUAKEC_TEST
 tests/test_math.qc
 tests/test_perksacola.qc
+tests/test_game_perk.qc
 tests/test_weapons.qc
 tests/test_misc_model.qc
 tests/test_score.qc

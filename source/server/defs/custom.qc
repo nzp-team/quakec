@@ -491,6 +491,8 @@ float num_power_switches;
 float activated_power_switches;
 .float isBuying; // naievil -- used for checking if a perk is being consumed, limits glitching
 .float perks;
+.float player_mode;
+.float perk_mask;
 .float perk_delay;
 
 .float perk_purchase_count;

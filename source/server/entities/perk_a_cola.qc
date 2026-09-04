@@ -58,6 +58,40 @@ string(string taunt) Gamemode_GetGoodByeTaunt;
 #define PERK_SPAWNFLAG_SILENTLEAVE		4096
 
 //
+// Perk_Apply(recipient, perk)
+// Applies a perk programmatically.
+//
+float(entity recipient, float perk) Perk_Apply =
+{
+	if (!perk || (recipient.perks & perk))
+		return false;
+
+	// No Perks? No Problem tracker
+	recipient.ach_tracker_npnp++;
+
+	recipient.perks = recipient.perks | perk;
+
+	// Instant re-gen, set health to Jugg health.
+	if (perk & P_JUG) {
+		float health_value = game_modifiers.gameplay.perksacola.perk_juggernog_player_health;
+		switch(cvar("sv_difficulty")) {
+			case 0: recipient.max_health = recipient.health = health_value; break;
+			case 1: recipient.max_health = recipient.health = health_value + 40; break;
+			case 2: recipient.max_health = recipient.health = health_value - 60; break;
+			default: break;
+		}
+	}
+
+	recipient.max_health = recipient.health = Gamemode_GetMaxHealthForPlayer(recipient.max_health, recipient.perks);
+
+	if (recipient.perks == P_ALL)
+		GiveAchievement(6, recipient);
+
+	sound_perk_delay = time + 4.5;
+	return true;
+};
+
+//
 // GivePerk(p)
 // Restores View Model and tells the Client to draw the Perk.
 //
@@ -69,7 +103,7 @@ void GivePerk(optional float p) {
 	if (self.style != 0) {
 		perk = self.style;
 		self.style = 0;
-	} 
+	}
 	// Next, check if a perk was explicitly set
 	else if (p) {
 		perk = p;
@@ -79,28 +113,7 @@ void GivePerk(optional float p) {
 		return;
 	}
 
-	// No Perks? No Problem tracker
-	self.ach_tracker_npnp++;
-
-	self.perks = self.perks | perk;
-
-	// Instant re-gen, set health to Jugg health.
-	if (perk & P_JUG) {
-		float health_value = game_modifiers.gameplay.perksacola.perk_juggernog_player_health;
-		switch(cvar("sv_difficulty")) {
-			case 0: self.max_health = self.health = health_value; break;
-			case 1: self.max_health = self.health = health_value + 40; break;
-			case 2: self.max_health = self.health = health_value - 60; break;
-			default: break;
-		}
-	}
-
-	self.max_health = self.health = Gamemode_GetMaxHealthForPlayer(self.max_health, self.perks);
-
-	if (self.perks == 255)
-		GiveAchievement(6, self);
-
-  	sound_perk_delay = time + 4.5;
+	Perk_Apply(self, perk);
 
 	self.isBuying = false;
 	self.weaponskin = backupWepSkin;
