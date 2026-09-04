@@ -444,6 +444,7 @@ void() worldspawn =
 	game_modifier_powerup_free_perk = false;
 	game_modifier_powerup_max_ammo = true;
 	game_modifier_powerup_weapon_upgrade = false;
+	game_modifier_powerup_random_weapon = false;
 	game_modifier_powerup_bonus_points = false;
 	game_modifier_powerup_toast_for_all = false;
 	game_modifier_can_packapunch = true;

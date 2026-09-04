@@ -507,6 +507,7 @@ float game_modifier_powerup_free_perk;
 float game_modifier_powerup_free_perk_is_rare;
 float game_modifier_powerup_max_ammo;
 float game_modifier_powerup_weapon_upgrade;
+float game_modifier_powerup_random_weapon;
 float game_modifier_powerup_bonus_points;
 float game_modifier_powerup_toast_for_all;
 float game_modifier_perk_purchase_limit;
