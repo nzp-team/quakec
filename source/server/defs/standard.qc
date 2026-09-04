@@ -112,6 +112,7 @@ void            end_sys_globals;						// flag for structure dumping
 .float 			button6;								//
 .float 			button7;								//
 .float 			button8;								//
+.float 			button9;								//
 .float          impulse;								// weapon changes
 .float          fixangle;
 .vector         v_angle;								// view / targeting angle for players
