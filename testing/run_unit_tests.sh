@@ -20,7 +20,7 @@ function setup_container()
 {
     echo "[INFO]: Installing dependancies.."
     apt update -y
-    apt install libsdl2-dev libsdl2-mixer-dev wget zip python3 python3-pip -y
+    apt install -y ffmpeg libgl1 libgl1-mesa-dri libglu1-mesa libsdl2-2.0-0 libsdl2-mixer-2.0-0 unzip wget xauth xvfb zip python3 python3-pip
     wget https://raw.githubusercontent.com/nzp-team/QCHashTableGenerator/main/requirements.txt
     pip install -r requirements.txt --break-system-packages
     rm requirements.txt
