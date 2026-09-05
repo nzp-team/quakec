@@ -262,6 +262,8 @@ vector  (string s)                                                              
 string  (string s)                                                                              strzone             = #118;
 string  (string s)                                                                              strunzone           = #119;
 string  (string s)                                                                              strtrim             = #120;
+void    (string s, ...)                                                                         print               = #339; 
+
 // 2001-09-20 QuakeC file access by FrikaC  end
 // 2001-11-15 DarkPlaces general builtin functions by Lord Havoc  start
 float(string s)                                                                                 tokenize            = #441;
@@ -285,6 +287,8 @@ void    (vector color)                                                          
 float   ()                                                                                      nzp_getmonthofyear  = #512;
 void    (float orientation)                                                                     nzp_setperkorientation = #513;
 void    (entity client, float index, string value, vector color)                                useprint_send       = #514;
+float   (optional float timetype)                                                               gettime             = #519;
+string  (string fmt, ...)                                                                       sprintf             = #627;
 
 //
 // constants
@@ -483,5 +487,3 @@ void    (entity client, float index, string value, vector color)                
 #define		FILE_READ 	 				0
 #define		FILE_APPEND 				1
 #define		FILE_WRITE 					2
-
-void (string out) print = {bprint(PRINT_HIGH, out);}
