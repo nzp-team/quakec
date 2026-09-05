@@ -20,7 +20,7 @@ function setup_container()
 {
     echo "[INFO]: Installing dependancies.."
     apt update -y
-    apt install libsdl2-dev wget zip python3 python3-pip -y
+    apt install -y ffmpeg libgl1 libgl1-mesa-dri libglu1-mesa libsdl2-2.0-0 libsdl2-mixer-2.0-0 unzip wget xauth xvfb zip python3 python3-pip
     wget https://raw.githubusercontent.com/nzp-team/QCHashTableGenerator/main/requirements.txt
     pip install -r requirements.txt --break-system-packages
     rm requirements.txt
@@ -34,7 +34,7 @@ function download_nzp()
     wget https://github.com/nzp-team/nzportable/releases/download/nightly/nzportable-linux64.zip
     mkdir nzportable-linux64
     unzip nzportable-linux64.zip -d nzportable-linux64/
-    chmod +x nzportable-linux64/nzportable64-sdl
+    chmod +x nzportable-linux64/nzportable64
 }
 
 function build_quakec()
@@ -45,9 +45,7 @@ function build_quakec()
     ${cmd}
 
     echo "[INFO]: Moving QuakeC to game download.."
-    cp "${REPO_PWD}/build/fte/qwprogs.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
-    cp "${REPO_PWD}/build/fte/csprogs.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
-    cp "${REPO_PWD}/build/fte/menu.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
+    cp "${REPO_PWD}/build/standard/progs.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
 }
 
 function run_test()
@@ -57,7 +55,7 @@ function run_test()
     
     echo "[INFO]: Running unit tests.."
     cd "${WORKING_DIRECTORY}/nzportable-linux64/"
-    local cmd="./nzportable64-sdl +map nzp_warehouse +vid_renderer headless"
+    local cmd="./nzportable64 +map nzp_warehouse +vid_renderer headless"
     ${cmd} | tee "${OUTPUT_LOG}"
 
     failed_count=$( cat "${OUTPUT_LOG}" | grep "* Failed: " | cut -c 11- || game_crashed="1" )
