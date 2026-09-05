@@ -45,9 +45,7 @@ function build_quakec()
     ${cmd}
 
     echo "[INFO]: Moving QuakeC to game download.."
-    cp "${REPO_PWD}/build/fte/qwprogs.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
-    cp "${REPO_PWD}/build/fte/csprogs.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
-    cp "${REPO_PWD}/build/fte/menu.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
+    cp "${REPO_PWD}/build/standard/progs.dat" "${WORKING_DIRECTORY}/nzportable-linux64/nzp/"
 }
 
 function run_test()
@@ -57,7 +55,7 @@ function run_test()
     
     echo "[INFO]: Running unit tests.."
     cd "${WORKING_DIRECTORY}/nzportable-linux64/"
-    local cmd="./nzportable64-sdl +map nzp_warehouse +vid_renderer headless"
+    local cmd="./nzportable64 +map nzp_warehouse +vid_renderer headless"
     ${cmd} | tee "${OUTPUT_LOG}"
 
     failed_count=$( cat "${OUTPUT_LOG}" | grep "* Failed: " | cut -c 11- || game_crashed="1" )
