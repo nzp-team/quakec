@@ -34,7 +34,7 @@ function download_nzp()
     wget https://github.com/nzp-team/nzportable/releases/download/nightly/nzportable-linux64.zip
     mkdir nzportable-linux64
     unzip nzportable-linux64.zip -d nzportable-linux64/
-    chmod +x nzportable-linux64/nzportable64-sdl
+    chmod +x nzportable-linux64/nzportable64
 }
 
 function build_quakec()
