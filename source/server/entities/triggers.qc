@@ -231,10 +231,34 @@ void() trigger_interact_touch =
 	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
 		return;
 
+	float interaction_cost = floor(self.cost * game_modifier_cost_multiplier);
+	if (self.useprint_index_1) {
+		Player_UseprintWithWait(other, self, self.useprint_index_1, interaction_cost);
+	}
+
 	if (Player_UseButtonPressed(other, self)) {
+		if (interaction_cost > 0 && other.points < interaction_cost) {
+			if (!(other.semi_actions & SEMIACTION_USE)) {
+				other.semi_actions |= SEMIACTION_USE;
+				centerprint(other, STR_NOTENOUGHPOINTS);
+				Sound_PlaySound(other, "sounds/misc/denybuy.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
+			}
+			return;
+		}
+
+		if (interaction_cost > 0)
+			Player_RemoveScore(other, interaction_cost);
+
 		if (self.noise != "")
 			Sound_PlaySound(other, self.noise, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
-		multi_trigger();
+
+		self.enemy = other;
+		activator = other;
+		SUB_UseTargets();
+
+		// Keep the brush linked, but require another entity to fire us before
+		// accepting another player interaction.
+		self.touch = SUB_Null;
 	}
 }
 
@@ -245,15 +269,17 @@ void() trigger_interact_activate =
 
 void() trigger_interact =
 {
+	if (self.useprint_string_1 != "")
+		self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+
 	if (self.noise != "") {
 		precache_sound(self.noise);
 	}
 	
 	InitTrigger();
+	self.use = trigger_interact_activate;
 
-	if (self.spawnflags & SPAWNFLAG_TRIGGERINTERACT_STARTINACTIVE) {
-		self.use = trigger_interact_activate;
-	} else {
+	if (!(self.spawnflags & SPAWNFLAG_TRIGGERINTERACT_STARTINACTIVE)) {
 		self.touch = trigger_interact_touch;
 	}
 }

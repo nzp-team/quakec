@@ -43,9 +43,10 @@ float matchmake_enabled;
 float double_tap_version;
 
 float useprint_type;
-float useprint_weapon;
 float useprint_cost;
 float useprint_time;
+string useprint_strings[256];
+vector useprint_colors[256];
 
 float active_gamemode;
 

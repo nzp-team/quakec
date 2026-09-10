@@ -198,12 +198,12 @@ void() teleport_pad_touch =
 		return;
 
 	if (!isPowerOn) {
-     	Player_UseprintWithWait(other, self, 8, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_2, 0);
     	return;
     } 
 
 	if (self.host.waitLink) {
-		Player_UseprintWithWait(other, self, 19, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, 0);
 
 		if (Player_UseButtonPressed(other, self)) {
 			self.host.isLinked = true;
@@ -212,7 +212,7 @@ void() teleport_pad_touch =
 		}
 	} else {
 		if (self.host.mode == 2) {
-			Player_UseprintWithWait(other, self, 18, 0, 0);
+			Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 		}
 	}
 }
@@ -221,7 +221,7 @@ void() teleporter_link_touch =
 {
 
 	if (!self.waitLink)
-		Player_UseprintWithWait(other, self, 17, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_4, 0);
 
 	if (Player_UseButtonPressed(other, self)) {
 		local entity en;
@@ -238,7 +238,7 @@ void() teleport_touch =
 	entity tempe;
 
 	if (self.cooldown) {
-		Player_UseprintWithWait(other, self, 16, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 		return;
 	}
 
@@ -246,7 +246,7 @@ void() teleport_touch =
 		return;
   
   	if (!isPowerOn) {
-     	Player_UseprintWithWait(other, self, 8, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_2, 0);
     	return;
     } 
 
@@ -258,9 +258,9 @@ void() teleport_touch =
 	float teleporter_cost = floor(self.cost * game_modifier_cost_multiplier);
     
 	if (!self.cost)
-  		Player_UseprintWithWait(other, self, 14, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, 0);
 	else
-		Player_UseprintWithWait(other, self, 15, teleporter_cost, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, teleporter_cost);
 	
 
 	if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
@@ -347,6 +347,18 @@ void() func_teleporter_entrance =
         self.stance = 75;
     }
 
+	if (!self.useprint_string_1) 
+		self.useprint_string_1 = "Hold %b to use Teleporter";
+
+	if (!self.useprint_string_2) 
+		self.useprint_string_2 = "The Power must be Activated first";
+
+	if (!self.useprint_string_3) 
+		self.useprint_string_3 = "Teleporter is cooling down";
+
+	if (!self.useprint_string_4) 
+		self.useprint_string_4 = "Hold %b to initate link to pad";
+
     precache_model(self.model);
 	precache_model("models/sprites/lightning.spr");
 	precache_sound("sounds/machines/elec_shock.wav");
@@ -355,6 +367,10 @@ void() func_teleporter_entrance =
 	self.movetype = MOVETYPE_NONE;
 	self.solid = SOLID_TRIGGER;
 	self.classname = "func_teleporter_entrance";
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
+	self.useprint_index_3 = Useprint_Register(self.useprint_string_3, self.useprint_color_3);
+	self.useprint_index_4 = Useprint_Register(self.useprint_string_4, self.useprint_color_4);
   	setmodel(self, self.model);
   	setsize(self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	
@@ -408,6 +424,12 @@ void() func_teleporter_timed =
 //
 void() func_teleporter_pad =
 {
+	if (!self.useprint_string_1) self.useprint_string_1 = "Hold %b to link pad with core";
+	if (!self.useprint_string_2) self.useprint_string_2 = "The Power must be Activated first";
+	if (!self.useprint_string_3) self.useprint_string_3 = "Link not active";
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
+	self.useprint_index_3 = Useprint_Register(self.useprint_string_3, self.useprint_color_3);
 	precache_model ("models/props/mainframe_pad.mdl");
 	precache_sound("sounds/weapons/tesla/switchon.wav");
 	

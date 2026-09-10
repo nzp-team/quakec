@@ -273,7 +273,7 @@ void() PAP_Touch =
 	}
 
 	if (cvar("sv_magic") == 0) {
-		Player_UseprintWithWait(other, self, 21, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_4, 0);
 		return;
 	}
 
@@ -283,7 +283,7 @@ void() PAP_Touch =
     
 	// Power is not turned on.
 	if (self.requirespower == true && !isPowerOn) {
-		Player_UseprintWithWait(other, self, 8, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 		return;
 	}
 
@@ -305,7 +305,7 @@ void() PAP_Touch =
 			return;
 		}
 
-		Player_UseprintWithWait(other, self, 12, pap_cost, 5);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, pap_cost);
 
 		// Player has enough points, begin Upgrade process
 		if (other.points >= pap_cost && Player_UseButtonPressed(other, self) && other.weapon) {
@@ -321,8 +321,8 @@ void() PAP_Touch =
 
 	// Claiming upgraded Weapon
 	else if (self.papState == 2 && self.host == other) {
-		other.Weapon_Name_Touch = GetWeaponName(EqualPapWeapon(self.weapon), -1);
-		Player_UseprintWithWait(other, self, 7, 0, EqualPapWeapon(self.weapon));
+		other.useprint_touch = GetWeaponName(EqualPapWeapon(self.weapon), -1);
+		Player_UseprintWithWait(other, self, self.useprint_index_2, 0);
 
 		if (Player_UseButtonPressed(other, self)) {
  			entity tempe = self;
@@ -433,6 +433,23 @@ void() perk_pap =
 	if (!self.oldmodel) {
 		self.oldmodel = "sounds/machines/packapunch/upgrade.wav";
 	}
+
+	if (!self.useprint_string_1) 
+		self.useprint_string_1 = "Hold %b to Pack-a-Punch";
+
+	if (!self.useprint_string_2) 
+		self.useprint_string_2 = "Hold %b for %s";
+
+	if (!self.useprint_string_3) 
+		self.useprint_string_3 = "The Power must be Activated first";
+
+	if (!self.useprint_string_4)
+		self.useprint_string_4 = "...";
+	
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
+	self.useprint_index_3 = Useprint_Register(self.useprint_string_3, self.useprint_color_3);
+	self.useprint_index_4 = Useprint_Register(self.useprint_string_4, self.useprint_color_4);
 
 	self.model = Compat_ConvertOldAssetPath(self.model);
 	self.weapon2model = Compat_ConvertOldAssetPath(self.weapon2model);

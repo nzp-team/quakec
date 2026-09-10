@@ -150,7 +150,7 @@ void () WallWeapon_TouchTrigger =
 	}
 
 	if (self.weapon != 99) {
-		other.Weapon_Name_Touch = GetWeaponName(self.weapon, -1);
+		other.useprint_touch = GetWeaponName(self.weapon, -1);
 		float slot;
 
 		// Player has this weapon in any of their slots, PaP'd or not.
@@ -162,13 +162,11 @@ void () WallWeapon_TouchTrigger =
 			if (Weapon_PlayerHasWeapon(other, self.weapon, false) == slot)
 				is_pap = false;
 
-			// Set the cost and weapon value (for useprint).
+			// Set the ammo cost for the useprint.
 			wcost = (is_pap) ? self.pap_cost : self.cost2;
 			wcost = Gamemode_GetCostForWeaponAmmo(wcost, self.cost, other.weapons[slot].weapon_id, is_pap, other.weapons[slot - 1].weapon_tier);
 			wcost *= game_modifier_cost_multiplier;
-			float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
-
-			Player_UseprintWithWait(other, self, 3, wcost, wep);
+			Player_UseprintWithWait(other, self, self.useprint_index_2, wcost);
 
 			if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 				return;
@@ -213,7 +211,7 @@ void () WallWeapon_TouchTrigger =
 	} else 
 	// Universal Ammo buy
 	{
-		other.Weapon_Name_Touch = GetWeaponName(other.weapon, -1);
+		other.useprint_touch = GetWeaponName(other.weapon, -1);
 
 		if (other.currentammo < getWeaponAmmo(other.weapon)) {
 
@@ -221,7 +219,7 @@ void () WallWeapon_TouchTrigger =
 			wcost = (IsPapWeapon(other.weapon)) ? self.pap_cost : self.cost2;
 			wcost *= game_modifier_cost_multiplier;
 
-			Player_UseprintWithWait(other, self, 3, wcost, other.weapon);
+			Player_UseprintWithWait(other, self, self.useprint_index_2, wcost);
 
 			if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
 				return;
@@ -257,7 +255,7 @@ void () WallWeapon_TouchTrigger =
 
 		wcost = floor(self.cost * game_modifier_cost_multiplier);
 
-		Player_UseprintWithWait(other, self, 4, wcost, self.weapon);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, wcost);
 
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE))
 			return;
@@ -290,7 +288,7 @@ void () WallWeapon_TouchTrigger =
 	{
 		wcost = floor(self.cost2 * game_modifier_cost_multiplier);
 		if (other.primary_grenades < 4)
-			Player_UseprintWithWait(other, self, 3, wcost, self.weapon);
+			Player_UseprintWithWait(other, self, self.useprint_index_2, wcost);
 		else
 			return;
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE))
@@ -322,7 +320,7 @@ void () WallWeapon_TouchTrigger =
 	{
 		wcost = floor(self.cost2 * game_modifier_cost_multiplier);
 		if (!other.has_bowie_knife) {
-			Player_UseprintWithWait(other, self, 4, wcost, self.weapon);
+			Player_UseprintWithWait(other, self, self.useprint_index_1, wcost);
 			if (Player_UseButtonPressed(other, self))
 			{
 				if (other.points < wcost) {
@@ -355,7 +353,7 @@ void () WallWeapon_TouchTrigger =
 		wcost = floor(self.cost * game_modifier_cost_multiplier);
 
 		//centerprint(other, self.message);
-      	Player_UseprintWithWait(other, self, 4, wcost, self.weapon);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, wcost);
 
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE)) {
 			return;
@@ -429,6 +427,10 @@ void() WallWeapon_EnableTouch =
 void() buy_weapon =
 {
 	InitTrigger ();
+	if (!self.useprint_string_1) self.useprint_string_1 = "Hold %b to buy %s";
+	if (!self.useprint_string_2) self.useprint_string_2 = "Hold %b to buy Ammo for %s";
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
 
 	// Default Pack-A-Punch Ammo Cost
 	if (!self.pap_cost)

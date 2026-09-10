@@ -387,7 +387,7 @@ void() LastStand_TouchReviveTrigger =
     // No one is actively reviving the downed team mate.
     if (self.owner.beingrevived == false) {
         // Hold F to revive...
-        Player_UseprintWithWait(other, self, 13, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_1, 0);
 
         // Kick-off the revive sequence.
         if (Player_UseButtonPressed(other, self)) {
@@ -451,7 +451,8 @@ void(entity client) LastStand_SpawnReviveTrigger =
     revive_trigger.think = LastStand_ReviveTriggerFollow;
     revive_trigger.nextthink = time + 1;
     revive_trigger.touch = LastStand_TouchReviveTrigger;
-    revive_trigger.solid = SOLID_TRIGGER;
+	revive_trigger.solid = SOLID_TRIGGER;
+	revive_trigger.useprint_index_1 = useprint_revive;
     
     setorigin(revive_trigger, client.origin);
     setsize(revive_trigger, '-52 -52 -16', '52 52 -4');

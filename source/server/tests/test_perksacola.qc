@@ -45,10 +45,29 @@ void() Test_Perks_QuickRevive_ValidateFields =
 
     Test_Assert((self.model == PERK_QUICKREVIVE_DEFAULT_MODEL), "Perk has incorrect model!");
     Test_Assert((self.cost == 500), "Perk has incorrect Solo cost!");
-    Test_Assert((self.cost2 == 1500), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.cost2 == 1500), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.name == "Quick Revive"), "Quick Revive has incorrect name!");
 
     self = old_self;
     remove(machine);
+};
+
+void() Test_Perks_NameOverridePreserved =
+{
+	entity machine = spawn();
+	entity old_self = self;
+	float old_lock = useprint_registration_locked;
+	useprint_registration_locked = false;
+	self = machine;
+	self.name = "Custom Name";
+
+	perk_revive();
+
+	Test_Assert((self.name == "Custom Name"), "Perk spawn replaced a mapper-defined name!");
+
+	self = old_self;
+	useprint_registration_locked = old_lock;
+	remove(machine);
 };
 
 // MARK: Jugger-Nog
@@ -68,7 +87,8 @@ void() Test_Perks_JuggerNog_ValidateFields =
 
     Test_Assert((self.model == PERK_JUGGERNOG_DEFAULT_MODEL), "Perk has incorrect model!");
     Test_Assert((self.cost == 2500), "Perk has incorrect Solo cost!");
-    Test_Assert((self.cost2 == 2500), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.cost2 == 2500), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.name == "Jugger-Nog"), "Jugger-Nog has incorrect name!");
 
     self = old_self;
     remove(machine);
@@ -91,7 +111,8 @@ void() Test_Perks_SpeedCola_ValidateFields =
 
     Test_Assert((self.model == PERK_SPEEDCOLA_DEFAULT_MODEL), "Perk has incorrect model!");
     Test_Assert((self.cost == 3000), "Perk has incorrect Solo cost!");
-    Test_Assert((self.cost2 == 3000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.cost2 == 3000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.name == "Speed Cola"), "Speed Cola has incorrect name!");
 
     self = old_self;
     remove(machine);
@@ -114,7 +135,8 @@ void() Test_Perks_DoubleTap_ValidateFields =
 
     Test_Assert((self.model == PERK_DOUBLETAP_DEFAULT_MODEL), "Perk has incorrect model!");
     Test_Assert((self.cost == 2000), "Perk has incorrect Solo cost!");
-    Test_Assert((self.cost2 == 2000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.cost2 == 2000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.name == "Double Tap Root Beer"), "Double Tap has incorrect name!");
 
     self = old_self;
     remove(machine);
@@ -137,7 +159,8 @@ void() Test_Perks_StaminUp_ValidateFields =
 
     Test_Assert((self.model == PERK_STAMINUP_DEFAULT_MODEL), "Perk has incorrect model!");
     Test_Assert((self.cost == 2000), "Perk has incorrect Solo cost!");
-    Test_Assert((self.cost2 == 2000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.cost2 == 2000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.name == "Stamin-Up"), "Stamin-Up has incorrect name!");
 
     self = old_self;
     remove(machine);
@@ -160,7 +183,8 @@ void() Test_Perks_PhDFlopper_ValidateFields =
 
     Test_Assert((self.model == PERK_PHDFLOPPER_DEFAULT_MODEL), "Perk has incorrect model!");
     Test_Assert((self.cost == 2000), "Perk has incorrect Solo cost!");
-    Test_Assert((self.cost2 == 2000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.cost2 == 2000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.name == "PhD Flopper"), "PhD Flopper has incorrect name!");
 
     self = old_self;
     remove(machine);
@@ -183,7 +207,8 @@ void() Test_Perks_DeadshotDaiquiri_ValidateFields =
 
     Test_Assert((self.model == PERK_DEADSHOT_DEFAULT_MODEL), "Perk has incorrect model!");
     Test_Assert((self.cost == 1500), "Perk has incorrect Solo cost!");
-    Test_Assert((self.cost2 == 1500), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.cost2 == 1500), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.name == "Deadshot Daiquiri"), "Deadshot has incorrect name!");
 
     self = old_self;
     remove(machine);
@@ -206,7 +231,8 @@ void() Test_Perks_MuleKick_ValidateFields =
 
     Test_Assert((self.model == PERK_MULEKICK_DEFAULT_MODEL), "Perk has incorrect model!");
     Test_Assert((self.cost == 4000), "Perk has incorrect Solo cost!");
-    Test_Assert((self.cost2 == 4000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.cost2 == 4000), "Perk has incorrect Co-Op cost!");
+	Test_Assert((self.name == "Mule Kick"), "Mule Kick has incorrect name!");
 
     self = old_self;
     remove(machine);

@@ -1062,101 +1062,16 @@ void() HUD_Useprint =
 		}
 	}
 
-	switch (useprint_type) {
-		case 0://clear
-			usestring = "";
-			break;
-		case 1://door
-			usestring = strcat("Hold  ",usespace, " to open Door");
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 2://debris
-			usestring = strcat("Hold  ",usespace, " to remove Debris");
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 3://ammo
-			usestring = strcat("Hold  ",usespace, " to buy Ammo for ", getstats(STAT_WEAPONNAMETOUCH));
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 4://weapon
-			usestring = strcat("Hold  ",usespace, " to buy ", getstats(STAT_WEAPONNAMETOUCH));
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 5://window
-			usestring = strcat("Hold  ",usespace, " to Rebuild Barrier");
-			break;
-		case 6://box
-			usestring = strcat("Hold  ",usespace, " for Mystery Box");
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 7://box take
-			usestring = strcat("Hold  ",usespace, " for ", getstats(STAT_WEAPONNAMETOUCH));
-			break;
-		case 8://power
-			usestring = "The Power must be Activated first";
-			break;
-		case 9://perk
-			usestring = strcat("Hold  ",usespace, " to buy ", GetItemName(useprint_weapon));
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 10://turn on power
-			usestring = strcat("Hold  ",usespace, " to Turn On the Power");
-			break;
-		case 11://turn on trap
-			usestring = strcat("Hold  ",usespace, " to Activate the Trap");
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 12://packapunch
-			usestring = strcat("Hold  ",usespace, " to Pack-a-Punch");
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 13://revive
-			usestring = strcat("Hold  ",usespace, " to Revive Player");
-			break;
-		case 14://use teleporter (free)
-			usestring = strcat("Hold  ", usespace, " to use Teleporter");
-			break;
-		case 15://use teleporter (cost)
-			usestring = strcat("Hold  ", usespace, " to use Teleporter");
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 16://tp cooldown
-			usestring = "Teleporter is cooling down";
-			break;
-		case 17://link
-			usestring = strcat("Hold  ", usespace, " to initate link to pad");
-			break;
-		case 18://no link
-			usestring = "Link not active";
-			break;
-		case 19://finish link
-			usestring = strcat("Hold  ", usespace, " to link pad with core");
-			break;
-		case 20://buyable ending
-			usestring = strcat("Hold  ", usespace, " to End the Game");
-			usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
-			break;
-		case 21: // Magic disabled
-			usestring = "...";
-			break;
-		case 22: // Jugger-Nog (NIGHTMARE)
-			usestring = "It doesn't seem to be working..";
-			break;
-		case 23: // Tactical Nuke (Gun Game)
-			usestring = strcat("Hold ", usespace, " to Drop the Nuke");
-			break;
-		default:
-			usestring = "This should not happen you dum fuck"; //yikes
-			break;
-	}
+	usestring = useprint_strings[useprint_type];
+	usestring = strreplace("%s", getstats(STAT_USEPRINTTOUCH), usestring);
+	usestring = strreplace("%b", usespace, usestring);
+	if (useprint_cost > 0)
+		usecost = strcat("[Cost: ", ftos(useprint_cost), "]");
 
 	print_width = getTextWidth(usestring, 12);
 	x = (g_width - print_width)/2;
 
-	if (useprint_type == 22)
-		HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 0, 0], 1, 0);
-	else
-		HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], [1, 1, 1], 1, 0);
+	HUD_DrawStringWithBackdrop([x, g_height/2 + 65, 0], usestring, [12, 12, 0], useprint_colors[useprint_type], 1, 0);
 
 	// Draw "Cost" text.
 	if (usecost != "") {
@@ -1166,8 +1081,10 @@ void() HUD_Useprint =
 	}
 
 	// Draw highlighted usebutton
-	if (substring(usestring, 0, 4) == "Hold") {
-		button_width = x + getTextWidth("Hold ", 12);
+	if (strstrofs(useprint_strings[useprint_type], "%b") >= 0) {
+		string button_prefix = substring(useprint_strings[useprint_type], 0, strstrofs(useprint_strings[useprint_type], "%b"));
+		button_prefix = strreplace("%s", getstats(STAT_USEPRINTTOUCH), button_prefix);
+		button_width = x + getTextWidth(button_prefix, 12);
 
 		if (Key_IsControllerGlyph(usebutton))
 			Key_DrawControllerGlyph([button_width - 5, g_height/2 + 62], usebutton, [18, 18]);

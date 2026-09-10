@@ -236,14 +236,14 @@ void() zapper_touch =
 	}
 
 	if (self.requirespower == true && !isPowerOn) {
-		Player_UseprintWithWait (other, self, 8, 0, 0);
+		Player_UseprintWithWait (other, self, self.useprint_index_2, 0);
 		return;
 	}	
 
 	float trap_cost = floor(self.cost * game_modifier_cost_multiplier);
 
 	if (self.state == 0) {
-		Player_UseprintWithWait (other, self, 11, trap_cost, self.weapon);
+		Player_UseprintWithWait (other, self, self.useprint_index_1, trap_cost);
 
 		if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE)) {
 			return;
@@ -289,6 +289,16 @@ void() zapper_switch =
 	// Requires Power
 	if (self.spawnflags & TRAP_SPAWNFLAG_REQUIRESPOWER)
 		self.requirespower = true;
+
+	if (!self.useprint_string_1) 
+		self.useprint_string_1 = "Hold %b to Activate the Trap";
+
+	if (!self.useprint_string_2) 
+		self.useprint_string_2 = "The Power must be Activated first";
+
+
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
 
     self.solid = SOLID_TRIGGER;
 	precache_model(self.model);

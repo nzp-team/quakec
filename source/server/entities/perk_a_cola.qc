@@ -267,23 +267,23 @@ void() touch_perk =
 		return;
 
 	if (cvar("sv_magic") == 0) {
-		useprint(other, 21, 0, 0);
+		useprint(other, self.useprint_index_2, 0);
 		return;
 	}
 
 	if (self.classname == "perk_juggernog" && cvar("sv_difficulty") == 3) {
-		useprint(other, 22, 0, 0);
+		useprint(other, self.useprint_index_3, 0);
 		return;
 	}
 
 	if (self.classname == "perk_revive" && cvar("sv_difficulty") == 3 && player_count == 1) {
-		useprint(other, 22, 0, 0);
+		useprint(other, self.useprint_index_3, 0);
 		return;
 	}
 	  
 	// Power's off! Nothing to do here.
 	if (self.requirespower == true && !isPowerOn) {
-		useprint(other, 8, 0, 0);
+		useprint(other, self.useprint_index_4, 0);
 		return;
 	}
 
@@ -315,7 +315,8 @@ void() touch_perk =
 		price = Gamemode_GetPerkMachinePrice(other, price);
 
 		// sequence = perk ID in client
-		Player_UseprintWithWait(other, self, 9, price, self.sequence);
+		other.useprint_touch = self.name;
+		Player_UseprintWithWait(other, self, self.useprint_index_1, price);
 
 		if (other.points >= price && Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE)) {
 			Player_RemoveScore(other, price);
@@ -494,8 +495,8 @@ void() setup_perk =
 // Perk-A-Cola Spawn functions.
 //
 void(string perk_classname,
-string default_model, float cost_solo, 
-float cost_coop, float light_spawnflag,
+string perk_name, string default_model,
+float cost_solo, float cost_coop, float light_spawnflag,
 float purchase_limit_solo, float purchase_limit_coop,
 float require_power_solo, float require_power_coop,
 float drink_skin, float perk_id) Perk_InitMachine =
@@ -503,6 +504,10 @@ float drink_skin, float perk_id) Perk_InitMachine =
 	//
 	// Set Default Stats for Compatibility
 	//
+
+	// Name
+	if (!self.name)
+		self.name = perk_name;
 
 	// Model
 	if (!self.model)
@@ -552,6 +557,21 @@ float drink_skin, float perk_id) Perk_InitMachine =
 	if (!self.perk_requires_power_coop)
 		self.perk_requires_power_coop = require_power_coop;
 
+	if (!self.useprint_string_1) 
+		self.useprint_string_1 = "Hold %b to buy %s";
+
+	if (!self.useprint_string_2) 
+		self.useprint_string_2 = "...";
+
+	if (!self.useprint_string_3) 
+		self.useprint_string_3 = "It doesn't seem to be working..";
+
+	if (!self.useprint_string_4) 
+		self.useprint_string_4 = "The Power must be Activated first";
+
+	if (!self.useprint_color_3) 
+		self.useprint_color_3 = '1 0 0';
+
 	// Precache if spawned naturally by the world.
 	if (time < 2) {
 		precache_model(self.model);
@@ -576,54 +596,58 @@ float drink_skin, float perk_id) Perk_InitMachine =
 	self.nextthink = time + 0.1;
 	self.sequence = drink_skin;
 	self.style = perk_id;
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
+	self.useprint_index_3 = Useprint_Register(self.useprint_string_3, self.useprint_color_3);
+	self.useprint_index_4 = Useprint_Register(self.useprint_string_4, self.useprint_color_4);
 };
 
 // Quick Revive
 void() perk_revive =
 {
-	Perk_InitMachine("perk_revive", PERK_QUICKREVIVE_DEFAULT_MODEL, 500, 1500,
+	Perk_InitMachine("perk_revive", "Quick Revive", PERK_QUICKREVIVE_DEFAULT_MODEL, 500, 1500,
 	PERK_SPAWNFLAG_CYANLIGHT, 3, 1000, -1, true, 1, P_REVIVE);
 };
 
 // PhD Flopper
 void() perk_flopper =
 {
-	Perk_InitMachine("perk_flopper", PERK_PHDFLOPPER_DEFAULT_MODEL, 2000, 2000,
+	Perk_InitMachine("perk_flopper", "PhD Flopper", PERK_PHDFLOPPER_DEFAULT_MODEL, 2000, 2000,
 	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 6, P_FLOP);
 };
 
 // Jugger-Nog
 void() perk_juggernog =
 {
-	Perk_InitMachine("perk_juggernog", PERK_JUGGERNOG_DEFAULT_MODEL, 2500, 2500,
+	Perk_InitMachine("perk_juggernog", "Jugger-Nog", PERK_JUGGERNOG_DEFAULT_MODEL, 2500, 2500,
 	PERK_SPAWNFLAG_PINKLIGHT, 1000, 1000, true, true, 2, P_JUG);
 };
 
 // Stamin-Up
 void() perk_staminup =
 {
-	Perk_InitMachine("perk_staminup", PERK_STAMINUP_DEFAULT_MODEL, 2000, 2000,
+	Perk_InitMachine("perk_staminup", "Stamin-Up", PERK_STAMINUP_DEFAULT_MODEL, 2000, 2000,
 	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 5, P_STAMIN);
 };
 
 // Speed Cola
 void() perk_speed =
 {
-	Perk_InitMachine("perk_speed", PERK_SPEEDCOLA_DEFAULT_MODEL, 3000, 3000,
+	Perk_InitMachine("perk_speed", "Speed Cola", PERK_SPEEDCOLA_DEFAULT_MODEL, 3000, 3000,
 	PERK_SPAWNFLAG_LIMELIGHT, 1000, 1000, true, true, 3, P_SPEED);
 };
 
 // Double Tap Door Beer
 void() perk_double =
 {
-	Perk_InitMachine("perk_double", PERK_DOUBLETAP_DEFAULT_MODEL, 2000, 2000,
+	Perk_InitMachine("perk_double", "Double Tap Root Beer", PERK_DOUBLETAP_DEFAULT_MODEL, 2000, 2000,
 	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 4, P_DOUBLE);
 };
 
 // Deadshot Daiquiri
 void() perk_deadshot =
 {
-	Perk_InitMachine("perk_deadshot", PERK_DEADSHOT_DEFAULT_MODEL, 1500, 1500,
+	Perk_InitMachine("perk_deadshot", "Deadshot Daiquiri", PERK_DEADSHOT_DEFAULT_MODEL, 1500, 1500,
 	PERK_SPAWNFLAG_YELLOWLIGHT, 1000, 1000, true, true, 7, P_DEAD);
 };
 // naievil -- older maps compatability
@@ -632,7 +656,7 @@ void() perk_dead = { perk_deadshot();}
 // Mule Kick
 void() perk_mule =
 {
-	Perk_InitMachine("perk_mule", PERK_MULEKICK_DEFAULT_MODEL, 4000, 4000,
+	Perk_InitMachine("perk_mule", "Mule Kick", PERK_MULEKICK_DEFAULT_MODEL, 4000, 4000,
 	PERK_SPAWNFLAG_LIMELIGHT, 1000, 1000, true, true, 8, P_MULE);
 }
 

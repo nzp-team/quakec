@@ -508,3 +508,30 @@ void() info_changesky =
 	self.classname = "info_changesky";
 	self.use = info_changesky_use;
 };
+
+// MARK: game_random
+
+void() game_random_use =
+{
+	float random_chance = floor(random() * self.health) + 1;
+	string selected_targetname = strzone(strcat(strcat(self.name, "_"), ftos(random_chance)));
+
+	self.target = selected_targetname;
+	SUB_UseTargets();
+	self.target = "";
+	strunzone(selected_targetname);
+};
+
+//
+// game_random()
+// Trigger-random-entity helper.
+//
+void() game_random =
+{
+	if (!self.health)
+		objerror("[ERROR]: game_random entity with no \"health\" (max answer)!\n");
+
+	if (!self.name)
+		objerror("[ERROR]: game_random entity with no \"name\" (target entities)!\n");
+	self.use = game_random_use;
+};

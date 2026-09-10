@@ -59,7 +59,7 @@ void() print_need_power =
 {
 	if(other.classname == "player" && !other.downed)
 	{
-		Player_UseprintWithWait(other, self, 8, 0, 0);
+		Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 	}
 
 };
@@ -124,6 +124,10 @@ void() door_go_down =
 		self.isopen = 1;
 		return;//so we dont have to reopen doors
 	}
+
+	self.solid = SOLID_BSP;
+	setorigin(self, self.origin);
+
 	if (self.max_health)
 	{
 		self.takedamage = DAMAGE_YES;
@@ -185,7 +189,7 @@ void() door_fire =
 		{
 			if(other.classname == "player" && !other.downed)
 			{
-				Player_UseprintWithWait(other, self, 8, 0, 0);
+				Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 				return;
 			}
 		}
@@ -247,7 +251,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		{
 			if(other.classname == "player" && !other.downed)
 			{
-				Player_UseprintWithWait(other, self, 8, 0, 0);
+				Player_UseprintWithWait(other, self, self.useprint_index_3, 0);
 				return;
 			}
 		}
@@ -303,9 +307,9 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		if(other.classname == "player" && !other.downed)
 		{
 			if (self.spawnflags & DOOR_DEBRIS)
-				Player_UseprintWithWait(other, self, 2, door_cost, 0);
+				Player_UseprintWithWait(other, self, self.useprint_index_2, door_cost);
 			else
-				Player_UseprintWithWait(other, self, 1, door_cost, 0);
+				Player_UseprintWithWait(other, self, self.useprint_index_1, door_cost);
 			return;
 		}
 	}	
@@ -319,7 +323,8 @@ void() door_use =
 
 	// Target chains can point back to an already-opening door.  Stop there so
 	// reciprocal door links do not recursively fire forever.
-	if (self.state == STATE_TOP || self.state == STATE_UP) {
+	if (self.state == STATE_UP ||
+		(self.state == STATE_TOP && !(self.spawnflags & DOOR_TOGGLE))) {
 		self = oself;
 		return;
 	}
@@ -441,6 +446,34 @@ entity(vector fmins, vector fmaxs) spawn_field =
 	t2 = fmaxs;
 	setsize (trigger, t1/* - '15 15 8'*/, t2/* + '15 15 8'*/);
 	return (trigger);
+};
+
+void() Door_SetupMovePositions =
+{
+	if (self.spawnflags & 256) {
+		self.pos1 = self.angles;
+		self.pos2 = self.pos1;
+		self.pos2_y = self.pos1_y + self.distance;
+	} else {
+		self.pos1 = self.origin;
+		self.pos2 = self.pos1 + self.movedir*(fabs(self.movedir*self.size) - self.lip);
+	}
+
+// DOOR_START_OPEN is to allow an entity to be lighted in the closed position
+// but spawn in the open position.
+	if (self.spawnflags & DOOR_START_OPEN)
+	{
+		if (self.spawnflags & 256)
+			self.angles = self.pos2;
+		else
+			setorigin (self, self.pos2);
+
+		self.pos2 = self.pos1;
+		if (self.spawnflags & 256)
+			self.pos1 = self.angles;
+		else
+			self.pos1 = self.origin;
+	}
 };
 
 
@@ -565,6 +598,12 @@ void() func_door_model =
 void() func_door =
 
 {
+	if (!self.useprint_string_1) self.useprint_string_1 = "Hold %b to open Door";
+	if (!self.useprint_string_2) self.useprint_string_2 = "Hold %b to remove Debris";
+	if (!self.useprint_string_3) self.useprint_string_3 = "The Power must be Activated first";
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
+	self.useprint_index_3 = Useprint_Register(self.useprint_string_3, self.useprint_color_3);
 
 	SetMovedir ();
 
@@ -589,17 +628,7 @@ void() func_door =
 	if (!self.dmg)
 		self.dmg = 2;
 
-	self.pos1 = self.origin;
-	self.pos2 = self.pos1 + self.movedir*(fabs(self.movedir*self.size) - self.lip);
-
-// DOOR_START_OPEN is to allow an entity to be lighted in the closed position
-// but spawn in the open position
-	if (self.spawnflags & DOOR_START_OPEN)
-	{
-		setorigin (self, self.pos2);
-		self.pos2 = self.pos1;
-		self.pos1 = self.origin;
-	}
+	Door_SetupMovePositions();
 
 	self.state = STATE_BOTTOM;
 
@@ -626,6 +655,12 @@ void() func_door =
 
 void() func_door_nzp =
 {
+	if (!self.useprint_string_1) self.useprint_string_1 = "Hold %b to open Door";
+	if (!self.useprint_string_2) self.useprint_string_2 = "Hold %b to remove Debris";
+	if (!self.useprint_string_3) self.useprint_string_3 = "The Power must be Activated first";
+	self.useprint_index_1 = Useprint_Register(self.useprint_string_1, self.useprint_color_1);
+	self.useprint_index_2 = Useprint_Register(self.useprint_string_2, self.useprint_color_2);
+	self.useprint_index_3 = Useprint_Register(self.useprint_string_3, self.useprint_color_3);
 
 #ifndef FTE
 
@@ -684,24 +719,7 @@ void() func_door_nzp =
 	if (!self.dmg)
 		self.dmg = 2;
 
-	// only rotate on the Y axis.. potentially change?
-	if (self.spawnflags & 256) {
-		self.pos1 = self.angles;
-		self.pos2 = self.pos1;
-		self.pos2_y = self.pos1_y + self.distance;
-	} else {
-		self.pos1 = self.origin;
-		self.pos2 = self.pos1 + self.movedir*(fabs(self.movedir*self.size) - self.lip);
-	}
-
-// DOOR_START_OPEN is to allow an entity to be lighted in the closed position
-// but spawn in the open position
-	if (self.spawnflags & DOOR_START_OPEN)
-	{
-		setorigin (self, self.pos2);
-		self.pos2 = self.pos1;
-		self.pos1 = self.origin;
-	}
+	Door_SetupMovePositions();
 
 	self.state = STATE_BOTTOM;
 
