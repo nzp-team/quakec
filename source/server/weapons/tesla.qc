@@ -297,8 +297,8 @@ void() W_FireTesla =
     entity hit_ent = trace_ent;
 
     if (hit_ent.classname == "func_button"){
-        if (CanDamageFunc(FUNC_ALLOW_ELECTRIC, hit_ent, self.owner)){
-            DamageFunc(hit_ent, self.owner, hit_ent.max_health);
+        if (Damage_ElligibleWeaponForBrushDamage(FUNC_ALLOW_ELECTRIC, hit_ent, self.owner)){
+            Damage_HurtBrushEntity(hit_ent, self.owner, hit_ent.max_health);
         }
     }
 

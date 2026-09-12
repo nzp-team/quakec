@@ -57,11 +57,9 @@ void(entity victim) Blade_Damage =
 			}
 			break;
 		case "func_button":
-			if (CanDamageFunc(FUNC_ALLOW_MELEE, victim, self.owner)){
-				DamageFunc(victim, self.owner, victim.max_health);
+			if (Damage_ElligibleWeaponForBrushDamage(FUNC_ALLOW_MELEE, victim, self.owner)){
+				Damage_HurtBrushEntity(victim, self.owner, victim.max_health);
 			}
-
-			self.angles_y = 180;
 			return;
 		default:
             damage_region = LOWER_TORSO_X;

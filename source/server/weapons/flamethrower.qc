@@ -72,11 +72,11 @@ void() Flame_Touch =
 	} 
 	// Support for func_button
 	if (target.classname == "func_button") {
-		if (!CanDamageFunc(FUNC_ALLOW_FIRE, target, self.owner)){
+		if (!Damage_ElligibleWeaponForBrushDamage(FUNC_ALLOW_FIRE, target, self.owner)){
 			return;
 		}
 		
-		DamageFunc(target, self.owner, 50);
+		Damage_HurtBrushEntity(target, self.owner, 50);
 	}
 	// Some other entity
 	else {

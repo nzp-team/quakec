@@ -454,7 +454,7 @@ float(float min, float max, vector org1, vector org2, float radius) calculate_pr
 	return proximity_value;
 };
 
-float(float damage_type, entity hit_ent, entity attacker) CanDamageFunc = 
+float(float damage_type, entity hit_ent, entity attacker) Damage_ElligibleWeaponForBrushDamage = 
 {
 	if ((hit_ent.spawnflags & SPAWNFLAG_FUNCBUTTON_FIREDAMAGE) && attacker.weapons[0].weapon_id != W_M2 && attacker.weapons[0].weapon_id != W_FIW){
 		return false;
@@ -487,7 +487,7 @@ float(float damage_type, entity hit_ent, entity attacker) CanDamageFunc =
 	return true;
 }
 
-void(entity func, entity attacker, float damage) DamageFunc =
+void(entity func, entity attacker, float damage) Damage_HurtBrushEntity =
 {
 	entity oldself;
 	oldself = self;
@@ -666,7 +666,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 
 			switch(inflictor.classname){
 				case "projectile_raybeam":
-					if (!CanDamageFunc(FUNC_ALLOW_RAY, ent, attacker)){
+					if (!Damage_ElligibleWeaponForBrushDamage(FUNC_ALLOW_RAY, ent, attacker)){
 						do_not_attack = true;
 					}
 					break;
@@ -674,7 +674,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				case "grenade":
 				case "rocket":
 				case "projectile_grenade":
-					if (!CanDamageFunc(FUNC_ALLOW_EXPLOSIVE, ent, attacker)){
+					if (!Damage_ElligibleWeaponForBrushDamage(FUNC_ALLOW_EXPLOSIVE, ent, attacker)){
 						do_not_attack = true;
 					}
 					break;
