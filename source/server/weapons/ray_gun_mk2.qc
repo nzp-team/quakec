@@ -145,29 +145,9 @@ void() W_FireRay2 =
 
     // Prepare trail effects.
 	if (IsPapWeapon(porter.weapon)) {
-
-#ifdef FTE
-
-		Light_Custom(porter, false, 75, 2, 0.25, 0.25);
-
-#else
-	
-		porter.effects = EF_RAYRED;
-
-#endif // FTE
-
+		porter.effects = EF_RAYBEAMRED;
 	} else {
-
-#ifdef FTE
-
-		Light_Custom(porter, false, 75, 0.25, 2, 0.25);
-
-#else
-
-		porter.effects = EF_RAYGREEN;
-		
-#endif	// FTE
-
+		porter.effects = EF_RAYBEAMGREEN;
 	}
 
     // final setup!

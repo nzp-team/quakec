@@ -21,7 +21,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         working-directory: ./build
         run: |
-          zip -r -j fte-nzp-qc.zip fte/*
           zip -r -j standard-nzp-qc.zip standard/*
       - name: Generate Build Date
         if: github.ref == 'refs/heads/main'
@@ -61,16 +60,6 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/standard-nzp-qc.zip
           asset_name: standard-nzp-qc.zip
-          asset_content_type: application/zip
-      - name: Upload FTE QC
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/fte-nzp-qc.zip
-          asset_name: fte-nzp-qc.zip
           asset_content_type: application/zip
       - name: Publish Release
         if: github.ref == 'refs/heads/main'
