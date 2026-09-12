@@ -437,21 +437,24 @@ void    (entity client, float index, string value, vector color)                
 #define     UPDATE_TEMP                 3
 
 // entity effects
-#define	EF_BLUELIGHT			        1
-#define	EF_MUZZLEFLASH 			        2
-#define	EF_BRIGHTLIGHT 			        4
-#define	EF_REDLIGHT 			        8
-#define	EF_ORANGELIGHT			        16
-#define	EF_GREENLIGHT			        32
-#define	EF_PINKLIGHT			        64				// formerly EF_LIGHT
-#define	EF_NODRAW				        128
-#define EF_LIMELIGHT			        256				// formerly EF_BRIGHTFIELD
-#define EF_FULLBRIGHT			        512
-#define EF_CYANLIGHT			        1024			// formerly EF_DARKLIGHT
-#define EF_YELLOWLIGHT			        2048			// formerly EF_DARKFIELD
-#define EF_PURPLELIGHT    		        4096
-#define EF_RAYRED	 			        8196			// red trail for porter x2
-#define EF_RAYGREEN  			        16384			// green trail for ray gun
+#define EF_BLUELIGHT                    1
+#define EF_MUZZLEFLASH                  2
+#define EF_BRIGHTLIGHT                  4
+#define EF_REDLIGHT                     8
+#define EF_ORANGELIGHT                  16
+#define EF_GREENLIGHT                   32
+#define EF_PINKLIGHT                    64
+#define EF_NODRAW                       128
+#define EF_LIMELIGHT                    256
+#define EF_FULLBRIGHT                   512
+#define EF_CYANLIGHT                    1024
+#define EF_YELLOWLIGHT                  2048
+#define EF_PURPLELIGHT                  4096
+#define EF_RAYRED                       8196
+#define EF_RAYGREEN                     16384
+#define EF_RAYBEAM                      32768
+#define EF_RAYBEAMRED                   (EF_RAYBEAM | EF_RAYRED)
+#define EF_RAYBEAMGREEN                 (EF_RAYBEAM | EF_RAYGREEN)
 
 // messages
 #define     MSG_BROADCAST               0               // unreliable to all
