@@ -3065,6 +3065,9 @@ string(float weapon, float has_bowie_knife) GetWeapon2Model =
 		case W_RAYMK2:
 		case W_PORTERMK2:
 			return ("models/weapons/ray2/v_ray2_energy.mdl");
+		case W_RAY:
+		case W_PORTER:
+			return ("models/weapons/ray/v_ray_energy.mdl");
 		default:
 			return "";
     }
@@ -4020,6 +4023,7 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/raygun/close.wav");
 			precache_sound("sounds/weapons/raygun/shoot.wav");
 			precache_model("models/misc/raybeam.mdl");
+			precache_model ("models/weapons/ray/v_ray_energy.mdl");
 			break;
 		case W_RAYMK2:
 		case W_PORTERMK2:
@@ -5350,6 +5354,8 @@ float(float weapon) WepDef_WeaponSecondaryModelIsAttachment =
 		case W_KRAUS:
 		case W_RAYMK2:
 		case W_PORTERMK2:
+		case W_RAY:
+		case W_PORTER:
 			return true;
 		default:
 			return false;
@@ -5378,6 +5384,8 @@ float(float weapon) WepDef_Weapon2ModelIsUnlit =
 	switch(weapon) {
 		case W_RAYMK2:
 		case W_PORTERMK2:
+		case W_RAY:
+		case W_PORTER:
 			return true;
 	}
 
