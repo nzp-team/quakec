@@ -62,7 +62,7 @@ void() Power_HandleFlip =
 {
     self.boxweapon.avelocity = '185 0 0';
     self.boxweapon.think = Power_HandleStop;
-    self.boxweapon.nextthink = time + 0.50;
+    self.boxweapon.nextthink = time + 0.45;
 }
 
 //
