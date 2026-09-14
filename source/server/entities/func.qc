@@ -295,7 +295,6 @@ void() func_train =
 // func_button
 // =================================
 
-#define SPAWNFLAG_FUNCBUTTON_FIREDAMAGE		1
 
 void() button_wait;
 void() button_return;
