@@ -163,6 +163,7 @@ float 	map_compatibility_mode;
 #define PU_FREEPERK			5
 #define PU_UPGRADEWEAPON	6
 #define PU_BONUSPOINTS		7
+#define PU_RANDOMWEAPON		8
 
 // Weapon Firetype definitions
 #define FIRETYPE_FULLAUTO	0
@@ -365,6 +366,7 @@ float 	map_compatibility_mode;
 #define GAMEMODE_WILDWEST       4
 #define GAMEMODE_STICKSNSTONES  5
 #define GAMEMODE_FESTIVE 		6
+#define GAMEMODE_LOCKDOWN		7
 
 // Misc. player statistics
 .float playernum;
