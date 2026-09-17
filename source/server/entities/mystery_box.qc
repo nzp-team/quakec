@@ -332,7 +332,7 @@ void() MBOX_FindNewSpot =
 	// Spawn some sparkles so it doesn't just "appear"
 	SpawnSpark(new_box.origin, 0.75);
 	// "Woosh" Effect
-	Sound_PlaySound(new_box, "sounds/pu/drop.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(new_box, game_modifiers.gameplay.powerups.sounds.drop, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 }
 
 //
@@ -345,7 +345,7 @@ void() MBOX_StopFlying =
 	// Spark Effect
 	SpawnSpark(self.origin, 0.75);
 	// "Woosh" Effect
-	Sound_PlaySound(self, "sounds/pu/drop.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(self, game_modifiers.gameplay.powerups.sounds.drop, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 	// Disappear!
 	self.model = "models/props/teddy.mdl";
 	setmodel(self, self.model);
@@ -414,7 +414,7 @@ void() MBOX_Leave =
 	Sound_PlaySound(world, taunt, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 
 	// "Woosh" Effect
-	Sound_PlaySound(self, "sounds/pu/drop.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(self, game_modifiers.gameplay.powerups.sounds.drop, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 	// Spark Effect
 	SpawnSpark(self.origin, 0.75);
 	// Turn off Light & Glow
@@ -1054,7 +1054,7 @@ void() mystery_box =
     mystery_box_model = self.model;
     mystery_box_glow_model = self.weapon2model;
     mystery_box_close_sound = self.powerup_vo;
-    mystery_box_cost = floor(self.cost * game_modifier_cost_multiplier);
+    mystery_box_cost = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 
 	if (!mystery_box_open_sound)
 		mystery_box_open_sound = self.oldmodel;

@@ -54,7 +54,7 @@ float bettyprompt_time;
 
 float hud_toast_endtime;
 float hud_toast_starttime;
-float hud_toast_puid;
+string hud_toast_string;
 float hud_perk_orientation;
 vector hud_round_color;
 

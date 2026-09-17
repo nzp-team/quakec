@@ -240,7 +240,7 @@ void() zapper_touch =
 		return;
 	}	
 
-	float trap_cost = floor(self.cost * game_modifier_cost_multiplier);
+	float trap_cost = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 
 	if (self.state == 0) {
 		Player_UseprintWithWait (other, self, self.useprint_index_1, trap_cost);
