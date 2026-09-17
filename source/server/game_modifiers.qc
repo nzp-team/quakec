@@ -192,7 +192,7 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_carpenter.chance_to_allow_in_rotation", JNODE_NUMBER, 0, 1)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_carpenter.disabled_before_round", JNODE_NUMBER, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_carpenter.destroyed_barricade_requirement", JNODE_NUMBER, 0, 1000000)) return false;
-	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_carpenter.score_awarded", JNODE_NUMBER, 0, 1000000)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_carpenter.score_awarded", JNODE_NUMBER, -1000000, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_carpenter.toast", JNODE_STRING, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_carpenter.show_toast", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_carpenter.model", JNODE_STRING, 0, 1000000)) return false;
@@ -200,7 +200,7 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_nuke.enabled", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_nuke.chance_to_allow_in_rotation", JNODE_NUMBER, 0, 1)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_nuke.disabled_before_round", JNODE_NUMBER, 0, 1000000)) return false;
-	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_nuke.score_awarded", JNODE_NUMBER, 0, 1000000)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_nuke.score_awarded", JNODE_NUMBER, -1000000, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_nuke.toast", JNODE_STRING, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_nuke.show_toast", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_nuke.model", JNODE_STRING, 0, 1000000)) return false;
@@ -209,7 +209,7 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_free_perk.enabled", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_free_perk.chance_to_allow_in_rotation", JNODE_NUMBER, 0, 1)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_free_perk.disabled_before_round", JNODE_NUMBER, 0, 1000000)) return false;
-	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_free_perk.awarded_score_if_no_perk_obtained", JNODE_NUMBER, 0, 1000000)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_free_perk.awarded_score_if_no_perk_obtained", JNODE_NUMBER, -1000000, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_free_perk.toast", JNODE_STRING, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_free_perk.show_toast", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_free_perk.model", JNODE_STRING, 0, 1000000)) return false;
@@ -217,7 +217,7 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_bonus_points.enabled", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_bonus_points.chance_to_allow_in_rotation", JNODE_NUMBER, 0, 1)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_bonus_points.disabled_before_round", JNODE_NUMBER, 0, 1000000)) return false;
-	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_bonus_points.score_awarded", JNODE_NUMBER, 0, 1000000)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_bonus_points.score_awarded", JNODE_NUMBER, -1000000, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_bonus_points.toast", JNODE_STRING, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_bonus_points.show_toast", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_bonus_points.model", JNODE_STRING, 0, 1000000)) return false;
@@ -225,7 +225,7 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.enabled", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.chance_to_allow_in_rotation", JNODE_NUMBER, 0, 1)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.disabled_before_round", JNODE_NUMBER, 0, 1000000)) return false;
-	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.awarded_score_if_no_upgrade_received", JNODE_NUMBER, 0, 1000000)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.awarded_score_if_no_upgrade_received", JNODE_NUMBER, -1000000, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.toast", JNODE_STRING, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.show_toast", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.model", JNODE_STRING, 0, 1000000)) return false;

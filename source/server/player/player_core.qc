@@ -295,6 +295,11 @@ void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore =
 	if (who.downed && (value < 0 || !game_modifiers.gameplay.player.can_earn_points_in_last_stand))
 		return;
 
+	if (value < 0 && who.points < -value) {
+		who.points = 0;
+		return;
+	}
+
 	// Multiply the value if it is to be impacted by Double
 	// Points
 	if (impacted_by_2x_points && x2_finished > time)

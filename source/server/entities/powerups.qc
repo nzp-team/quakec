@@ -171,6 +171,26 @@ void() PU_PopulateArray =
 };
 
 //
+// PU_IsEnabled(id)
+// Returns whether a Power-Up is allowed in the random drop rotation.
+//
+float(float id) PU_IsEnabled =
+{
+	switch (id) {
+		case PU_NUKE: return game_modifiers.gameplay.powerups.powerup_nuke.enabled;
+		case PU_INSTAKILL: return game_modifiers.gameplay.powerups.powerup_instakill.enabled;
+		case PU_DOUBLEPTS: return game_modifiers.gameplay.powerups.powerup_double_points.enabled;
+		case PU_CARPENTER: return game_modifiers.gameplay.powerups.powerup_carpenter.enabled;
+		case PU_MAXAMMO: return game_modifiers.gameplay.powerups.powerup_max_ammo.enabled;
+		case PU_FREEPERK: return game_modifiers.gameplay.powerups.powerup_free_perk.enabled;
+		case PU_UPGRADEWEAPON: return game_modifiers.gameplay.powerups.powerup_weapon_upgrade.enabled;
+		case PU_BONUSPOINTS: return game_modifiers.gameplay.powerups.powerup_bonus_points.enabled;
+	}
+
+	return false;
+};
+
+//
 // PU_GetNextPowerUp()
 // Returns the next valid Power-Up, and refreshes array if needbe.
 //
@@ -190,14 +210,14 @@ float() PU_GetNextPowerUp =
 		}
 
 		// Grab a Power-Up
-		powerup_struct pu = powerup_array[powerup_index];
+		float current_index = powerup_index;
 		powerup_index++;
 
 		// Found a valid Power-Up
-		if (pu.occupied == true) {
+		if (powerup_array[current_index].occupied == true && PU_IsEnabled(powerup_array[current_index].id)) {
 			// Check if we meet the requirements
-			if (pu.requirement_function() == true) {
-				id = pu.id;
+			if (powerup_array[current_index].requirement_function() == true) {
+				id = powerup_array[current_index].id;
 				found = true;
 			}
 		}
@@ -904,6 +924,7 @@ void() PU_Init =
 {
 	// Start with 0 Power-Ups accessible
 	powerup_count = 0;
+	powerup_index = 0;
 
 	// Set the Power-Up array IDs to empty
 	for (float i = 0; i < MAX_POWERUPS; i++) {
