@@ -163,7 +163,7 @@ void() EndGameSetup =
 	}
 
 	if (in_endgame_sequence == false) {
-		Rounds_PlayTransition("sounds/music/end.wav");
+		Rounds_PlayTransition(game_modifiers.gameplay.rounds.sounds.game_over);
 		NotifyGameEnd();
 	}
 
@@ -266,7 +266,7 @@ void(entity attacker, float d_style) DieHandler =
 				points_earned = DMG_SCORE_GRENADE;
 
 				// override their death sound (FIXME: make a new sound..)
-				Sound_PlaySound(self, "sounds/pu/drop.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
+				Sound_PlaySound(self, game_modifiers.gameplay.powerups.sounds.drop, SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
 				break;
 			case DMG_TYPE_GRENADE:
 				points_earned = DMG_SCORE_GRENADE;
@@ -346,15 +346,18 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 
 		// Badly hurt = longer delay.
 		if (ratio <= 0.2) {
-			health_delay_s = 5;
+			health_delay_s = game_modifiers.gameplay.player.health_regeneration.regeneration_delay_heavy_damage;
 
 			// We're really low, so let's regen REALLY slow.
 			victim.health_was_very_low = true;
 		} else {
-			health_delay_s = 2.4;
+			health_delay_s = game_modifiers.gameplay.player.health_regeneration.regeneration_delay_light_damage;
 		}
 
 		health_delay_s = Gamemode_GetHealthRegenDelayForPlayer(health_delay_s, victim.perks);
+		if (victim.perks & P_REVIVE)
+			health_delay_s /= game_modifiers.gameplay.perksacola.perk_quickrevive_health_regeneration_multiplier;
+
 		victim.health_delay = time + health_delay_s;
 
 		// shake the camera on impact

@@ -50,265 +50,39 @@ float CRAWLER_BBOX = 9;
 
 void(float type) Zombie_PlaySoundType =
 {
-	// If we already have ambient groaning type sounds playing, don't allow another.
-	// We DO want to allow attacks, deaths, etc. though.
-	if (self.sound_time > time && type != ZOMBIE_SOUND_TYPE_MELEE && type != ZOMBIE_SOUND_TYPE_DEATH)
+	if (self.classname != "ai_zombie")
 		return;
 
-	if(self.classname == "ai_zombie")
-	{
-		float next_sound_time = 0;
-		float curr_sound_len = 0;
-		float rand = 0;
+	float ambient = type != ZOMBIE_SOUND_TYPE_MELEE && type != ZOMBIE_SOUND_TYPE_DEATH;
+	if (ambient && (self.sound_time > time || self.s_time > time))
+		return;
 
-		switch(type) {
-			// 8 options.
-			case ZOMBIE_SOUND_TYPE_MELEE:
-				rand = rint(random() * 7) + 1;
-
-				switch(rand) {
-					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/a0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						curr_sound_len = 1.1;
-						break;
-					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/a1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						curr_sound_len = 0.8;
-						break;
-					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/a2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						curr_sound_len = 0.9;
-						break;
-					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/a3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						curr_sound_len = 0.8;
-						break;
-					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/a4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						curr_sound_len = 1;
-						break;
-					case 6:
-						Sound_PlaySound(self.head, "sounds/zombie/a5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						curr_sound_len = 1;
-						break;
-					case 7:
-						Sound_PlaySound(self.head, "sounds/zombie/a6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						curr_sound_len = 1;
-						break;
-					case 8:
-						Sound_PlaySound(self.head, "sounds/zombie/a7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						curr_sound_len = 1;
-						break;
-					default:
-						break;
-				}
-				break;
-
-			// 15 options.
-			case ZOMBIE_SOUND_TYPE_WALK:
-				rand = rint(random() * 14) + 1;
-				next_sound_time = rint(random() * 4) + 1;
-
-				// Don't allow overriding current playing sounds.
-				if (self.s_time > time)
-					break;
-				
-				switch(rand) {
-					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/w0.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.3;
-						break;
-					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/w1.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.75;
-						break;
-					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/w2.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.95;
-						break;
-					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/w3.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.4;
-						break;
-					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/w4.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 2.7;
-						break;
-					case 6:
-						Sound_PlaySound(self.head, "sounds/zombie/w5.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.9;
-						break;
-					case 7:
-						Sound_PlaySound(self.head, "sounds/zombie/w6.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.6;
-						break;
-					case 8:
-						Sound_PlaySound(self.head, "sounds/zombie/w7.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.9;
-						break;
-					case 9:
-						Sound_PlaySound(self.head, "sounds/zombie/w8.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 2.4;
-						break;
-					case 10:
-						Sound_PlaySound(self.head, "sounds/zombie/w9.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.5;
-						break;
-					case 11:
-						Sound_PlaySound(self.head, "sounds/zombie/t0.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.5;
-						break;
-					case 12:
-						Sound_PlaySound(self.head, "sounds/zombie/t1.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.6;
-						break;
-					case 13:
-						Sound_PlaySound(self.head, "sounds/zombie/t2.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 2.3;
-						break;
-					case 14:
-						Sound_PlaySound(self.head, "sounds/zombie/t3.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.75;
-						break;
-					case 15:
-						Sound_PlaySound(self.head, "sounds/zombie/t4.wav", SOUND_TYPE_ZOMBIE_QUIET, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.7;
-						break;
-					default:
-						break;
-				}
-				break;
-			
-			// 5 options.
-			case ZOMBIE_SOUND_TYPE_CRAWL:
-				rand = rint(random() * 4) + 1;
-				next_sound_time = rint(random() * 4) + 1;
-
-				// Don't allow overriding current playing sounds.
-				if (self.s_time > time)
-					break;
-
-				switch(rand) {
-					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/t0.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.5;
-						break;
-					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/t1.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.6;
-						break;
-					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/t2.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 2.3;
-						break;
-					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/t3.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.75;
-						break;
-					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/t4.wav", SOUND_TYPE_ZOMBIE_CRAWLER, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 1.7;
-						break;
-					default:
-						break;
-				}
-				break;
-
-			// 10 options.
-			case ZOMBIE_SOUND_TYPE_SPRINT:
-				rand = rint(random() * 9) + 1;
-				next_sound_time = rint(random() * 4) + 1;
-
-				// Don't allow overriding current playing sounds.
-				if (self.s_time > time)
-					break;
-				
-				switch(rand) {
-					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/r0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 3.1;
-						break;
-					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/r1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 4.6;
-						break;
-					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/r2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 3.4;
-						break;
-					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/r3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 5.1;
-						break;
-					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/r4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 3.5;
-						break;
-					case 6:
-						Sound_PlaySound(self.head, "sounds/zombie/r5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 3.2;
-						break;
-					case 7:
-						Sound_PlaySound(self.head, "sounds/zombie/r6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 5.1;
-						break;
-					case 8:
-						Sound_PlaySound(self.head, "sounds/zombie/r7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 5.1;
-						break;
-					case 9:
-						Sound_PlaySound(self.head, "sounds/zombie/r8.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 3;
-						break;
-					case 10:
-						Sound_PlaySound(self.head, "sounds/zombie/r9.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_ALLOWSKIP);
-						curr_sound_len = 4.1;
-						break;
-					default:
-						break;
-				}
-				break;
-
-			// 8 options.
-			case ZOMBIE_SOUND_TYPE_DEATH:
-				rand = rint(random() * 7) + 1;
-				next_sound_time = 0.1;
-				curr_sound_len = 2;
-
-				switch(rand) {
-					case 1:
-						Sound_PlaySound(self.head, "sounds/zombie/d0.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						break;
-					case 2:
-						Sound_PlaySound(self.head, "sounds/zombie/d1.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						break;
-					case 3:
-						Sound_PlaySound(self.head, "sounds/zombie/d2.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						break;
-					case 4:
-						Sound_PlaySound(self.head, "sounds/zombie/d3.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						break;
-					case 5:
-						Sound_PlaySound(self.head, "sounds/zombie/d4.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						break;
-					case 6:
-						Sound_PlaySound(self.head, "sounds/zombie/d5.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						break;
-					case 7:
-						Sound_PlaySound(self.head, "sounds/zombie/d6.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						break;
-					case 8:
-						Sound_PlaySound(self.head, "sounds/zombie/d7.wav", SOUND_TYPE_ZOMBIE_LOUD, SOUND_PRIORITY_PLAYALWAYS);
-						break;
-					default:
-						break;
-				}
-				break;
-		}
-
-		self.sound_time = time + next_sound_time;
-		self.s_time = time + curr_sound_len;
+	float group = 0;
+	float channel = SOUND_TYPE_ZOMBIE_LOUD;
+	float priority = SOUND_PRIORITY_PLAYALWAYS;
+	if (type == ZOMBIE_SOUND_TYPE_DEATH)
+		group = 1;
+	else if (type == ZOMBIE_SOUND_TYPE_SPRINT)
+		group = 2;
+	else if (type == ZOMBIE_SOUND_TYPE_CRAWL) {
+		group = 3;
+		channel = SOUND_TYPE_ZOMBIE_CRAWLER;
+	} else if (type == ZOMBIE_SOUND_TYPE_WALK) {
+		float groans = Modifiers_ZombieSoundCount(4);
+		float taunts = Modifiers_ZombieSoundCount(3);
+		group = random() * (groans + taunts) < groans ? 4 : 3;
+		channel = SOUND_TYPE_ZOMBIE_QUIET;
 	}
+	if (ambient)
+		priority = SOUND_PRIORITY_ALLOWSKIP;
+
+	string sample = Modifiers_PickZombieSound(group);
+	if (sample == "")
+		return;
+	Sound_PlaySound(self.head, sample, channel, priority);
+	// Custom samples have no duration in the config. Space ambient calls apart.
+	self.sound_time = time + (ambient ? 3 + random() * 4 : 0);
+	self.s_time = time + 2;
 };
 
 void(__inout vector what, float howmuch) vector_scale_hack =
@@ -661,11 +435,27 @@ float() Zombie_RunAtEndOfRound =
 	return 4;
 };
 
+// Prefer a slower permitted style when the round has not unlocked running yet.
+float(float preferred) Zombie_AllowedWalkStyle =
+{
+	float walk = game_modifiers.gameplay.ai.zombie.walk_styles.can_walk;
+	float jog = game_modifiers.gameplay.ai.zombie.walk_styles.can_jog;
+	float sprint = game_modifiers.gameplay.ai.zombie.walk_styles.can_sprint;
+	float super_sprint = game_modifiers.gameplay.ai.zombie.walk_styles.can_super_sprint;
+	if (preferred >= 5 && super_sprint) return 6;
+	if (preferred >= 5 && sprint) return 5;
+	if (preferred >= 4 && jog) return 4;
+	if (walk) return clamp(preferred, 1, 3);
+	if (jog) return 4;
+	if (sprint) return 5;
+	return 6;
+};
+
 void() Zombie_Walk_Setup = 
 {
 	if(Remaining_Zombies == 1 && rounds >= Zombie_RunAtEndOfRound())
 	{
-		self.walktype = 5;
+		self.walktype = Zombie_AllowedWalkStyle(5);
 	}
 	
 	if(self.walktype == 1)
@@ -687,7 +477,7 @@ void() Zombie_Walk_Setup =
 	{
 		zombie_jog1();
 	}
-	else if(self.walktype == 5)
+	else if(self.walktype >= 5)
 	{
 		zombie_run1();
 	}
@@ -1311,13 +1101,13 @@ void(entity ent) Zombie_Death_Cleanup = {
 float() Zombie_PowerUpDropPercentage =
 {
 	switch(cvar("sv_difficulty")) {
-		case 0: return 0.02;
-		case 1: return 0.04;
+		case 0: return 0.02 * game_modifiers.gameplay.powerups.powerup_spawn_frequency_multiplier;
+		case 1: return 0.04 * game_modifiers.gameplay.powerups.powerup_spawn_frequency_multiplier;
 		case 2: return 0;
 		case 3: return 0;
 	}
 
-	return 0.02;
+	return 0.02 * game_modifiers.gameplay.powerups.powerup_spawn_frequency_multiplier;
 }
 
 void() Zombie_Death =
@@ -1332,7 +1122,7 @@ void() Zombie_Death =
 	
 	if(self.outside == false && self.electro_targeted == false)
 	{
-		if (totalpowerups < POWERUPS_PER_ROUND && cvar("sv_magic") != 0)
+		if (totalpowerups < game_modifiers.gameplay.powerups.max_powerups_per_round && cvar("sv_magic") != 0)
 		{
 			if (total_powerup_points >= powerup_score_threshold)
 			{
@@ -1805,6 +1595,7 @@ void(entity szombie) SetZombieWalk =
 	else {
 		szombie.walktype = 5;
 	}
+	szombie.walktype = Zombie_AllowedWalkStyle(szombie.walktype);
 };
 
 void() spawnAllZombEnts =

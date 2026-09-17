@@ -257,7 +257,7 @@ if (self.state == STATE_TOP || self.state == STATE_UP)
 		}
 	}
 
-	float door_cost = floor(self.cost * game_modifier_cost_multiplier);
+	float door_cost = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 
 	if (Player_UseButtonPressed(other, self) && !(other.semi_actions & SEMIACTION_USE))
 	{

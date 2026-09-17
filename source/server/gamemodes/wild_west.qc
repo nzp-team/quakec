@@ -52,7 +52,7 @@ void() Gamemode_WW_Init =
     precache_model(GetWeaponModel(W_SAWNOFF, false));
     precache_extra(W_SAWNOFF);
 
-    game_modifier_powerup_free_perk = true;
+    game_modifiers.gameplay.powerups.powerup_free_perk.enabled = true;
 };
 
 void() Gamemode_WW_NukeDrop =

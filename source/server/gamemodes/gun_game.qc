@@ -112,12 +112,12 @@ void() Gamemode_GunGame_Init =
     precache_sound("sounds/modes/gungame/penalty.wav");
     precache_model("models/pu/nuke!.mdl");
 
-    game_modifier_can_melee = false;
-    game_modifier_can_use_equipment = false;
-    game_modifier_can_earn_misc_score = false;
-    game_modifier_powerup_free_perk = true;
-    game_modifier_powerup_max_ammo = false;
-    game_modifier_powerup_weapon_upgrade = true;
+    game_modifiers.gameplay.player.can_use_melee = false;
+    game_modifiers.gameplay.player.can_use_equipment = false;
+    game_modifiers.gameplay.player.can_earn_score_from_sources_other_than_ai = false;
+    game_modifiers.gameplay.powerups.powerup_free_perk.enabled = true;
+    game_modifiers.gameplay.powerups.powerup_max_ammo.enabled = false;
+    game_modifiers.gameplay.powerups.powerup_weapon_upgrade.enabled = true;
     game_modifier_can_packapunch = false;
 };
 
@@ -188,7 +188,7 @@ void(entity who) Gamemode_GunGame_AdvertiseAdvancement =
     bprint(PRINT_HIGH, " reached a new tier!\n");
 #endif // FTE
 
-    Sound_PlaySound(world, "sounds/pu/pickup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+    Sound_PlaySound(world, game_modifiers.gameplay.powerups.sounds.pick_up, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 }
 
 void(entity advantagee, float status_update) Gamemode_GunGame_Announce =

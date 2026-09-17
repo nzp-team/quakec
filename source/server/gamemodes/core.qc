@@ -295,7 +295,6 @@ float(float current_cost, float weapon_cost, float weapon_id, float is_upgraded,
 float(float current_max_health, float current_perks) Gamemode_GetMaxHealthForPlayer =
 {
     switch(current_gamemode) {
-        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetMaxHealthForPlayer(current_max_health, current_perks);
         default: break;
     }
 
@@ -315,7 +314,6 @@ float(float current_dist, string ai_classname) Gamemode_GetAIWalkSpeed =
 float(float current_health_delay, float current_perks) Gamemode_GetHealthRegenDelayForPlayer =
 {
     switch(current_gamemode) {
-        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetHealthRegenDelayForPlayer(current_health_delay, current_perks);
         default: break;
     }
 

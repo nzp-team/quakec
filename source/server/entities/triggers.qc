@@ -231,7 +231,7 @@ void() trigger_interact_touch =
 	if (other.classname != "player" || other.downed || other.isBuying == true || !PlayerIsLooking(other, self))
 		return;
 
-	float interaction_cost = floor(self.cost * game_modifier_cost_multiplier);
+	float interaction_cost = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 	if (self.useprint_index_1) {
 		Player_UseprintWithWait(other, self, self.useprint_index_1, interaction_cost);
 	}
@@ -420,7 +420,7 @@ void() trigger_awardpoints_touch =
 	if (other.stance != PLAYER_STANCE_PRONE && (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_REQUIREPRONE))
 		return;
 
-	if (game_modifier_can_earn_misc_score == true)
+	if (game_modifiers.gameplay.player.can_earn_score_from_sources_other_than_ai == true)
 		Player_AddScore(other, self.points, (self.spawnflags & SPAWNFLAG_TRIGGERSCORE_APPLY2XPOINTS));
 
 	if (self.noise != "")

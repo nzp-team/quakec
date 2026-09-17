@@ -67,7 +67,7 @@
 											// <byte> broadcast_time
 											// <byte> player_number
 
-#define CSQC_EVENT_POWERUPTOAST			14	// NO DATA.
+#define CSQC_EVENT_POWERUPTOAST			14	// <string> powerup_toast
 
 #define CSQC_EVENT_MUSICSTREAM			15	// <string> track_name
 
@@ -394,3 +394,315 @@ float invertfloat(float input) {
     else
         return (1 - input);
 }
+
+//
+// Game Modifier Variables
+//
+
+float game_modifier_can_melee;
+float game_modifier_can_use_equipment;
+float game_modifier_can_earn_misc_score;
+float game_modifier_can_packapunch;
+float game_modifier_powerup_free_perk;
+float game_modifier_powerup_free_perk_is_rare;
+float game_modifier_powerup_max_ammo;
+float game_modifier_powerup_weapon_upgrade;
+float game_modifier_powerup_bonus_points;
+float game_modifier_powerup_toast_for_all;
+float game_modifier_grenades_explode_on_contact;
+float game_modifier_maxammo_fills_magazine;
+string game_modifier_hellhound_fog_color;
+string game_modifier_default_fog_color;
+
+struct game_modifier
+{
+	struct gm_gameplay
+	{
+		struct gm_gp_global
+		{
+			float all_items_cost_multiplier;
+		};
+		gm_gp_global global;
+
+		struct gm_gp_perksacola
+		{
+			float perk_purchase_limit;
+			float perk_quickrevive_health_regeneration_multiplier;
+			float perk_juggernog_player_health;
+			float perk_speedcola_accelerates_barricade_repair;
+			float perk_speedcola_reload_speed_multiplier;
+			float perk_doubletap_rate_of_fire_multiplier;
+			float perk_doubletap_rechamber_speed_multiplier;
+			float perk_staminup_movement_speed_multiplier;
+			float perk_staminup_stamina_recharge_multiplier;
+			float perk_deadshot_headshot_damage_multiplier;
+			float perk_deadshot_weapon_spread_reduction_multiplier;
+		};
+		gm_gp_perksacola perksacola;
+
+		struct gm_gp_packapunch
+		{
+			float packapunch_supports_upgrade_tiers;
+			float packapunch_upgrades_instantly;
+		};
+		gm_gp_packapunch packapunch;
+
+		struct gm_gp_powerups
+		{
+			float max_powerups_per_round;
+			float powerup_spawn_frequency_multiplier;
+
+			struct gm_gp_pu_sounds
+			{
+				string pick_up;
+				string idle;
+				string drop;
+			};
+			gm_gp_pu_sounds sounds;
+
+			struct gm_gp_pu_maxammo
+			{
+				float enabled;
+				float chance_to_allow_in_rotation;
+				float disabled_before_round;
+				float fills_magazine;
+				string toast;
+				float show_toast;
+				string model;
+				string voiceover;
+			};
+			gm_gp_pu_maxammo powerup_max_ammo;
+
+			struct gm_gp_pu_instakill
+			{
+				float enabled;
+				float chance_to_allow_in_rotation;
+				float disabled_before_round;
+				float duration;
+				string toast;
+				float show_toast;
+				string model;
+				string voiceover;
+			};
+			gm_gp_pu_instakill powerup_instakill;
+
+			struct gm_gp_pu_doublepoints
+			{
+				float enabled;
+				float chance_to_allow_in_rotation;
+				float disabled_before_round;
+				float duration;
+				float score_multiplier;
+				string toast;
+				float show_toast;
+				string model;
+				string voiceover;
+			};
+			gm_gp_pu_doublepoints powerup_double_points;
+
+			struct gm_gp_pu_carpenter
+			{
+				float enabled;
+				float chance_to_allow_in_rotation;
+				float disabled_before_round;
+				float destroyed_barricade_requirement;
+				float score_awarded;
+				string toast;
+				float show_toast;
+				string model;
+				string voiceover;
+			};
+			gm_gp_pu_carpenter powerup_carpenter;
+
+			struct gm_gp_pu_nuke
+			{
+				float enabled;
+				float chance_to_allow_in_rotation;
+				float disabled_before_round;
+				float score_awarded;
+				string toast;
+				float show_toast;
+				string model;
+				string voiceover;
+				string explosion_sfx;
+			};
+			gm_gp_pu_nuke powerup_nuke;
+
+			struct gm_gp_pu_freeperk
+			{
+				float enabled;
+				float chance_to_allow_in_rotation;
+				float disabled_before_round;
+				float awarded_score_if_no_perk_obtained;
+				string allowed_perksacola[8];
+				string toast;
+				float show_toast;
+				string model;
+				string voiceover;
+			};
+			gm_gp_pu_freeperk powerup_free_perk;
+
+			struct gm_gp_pu_bonuspoints
+			{
+				float enabled;
+				float chance_to_allow_in_rotation;
+				float disabled_before_round;
+				float score_awarded;
+				string toast;
+				float show_toast;
+				string model;
+				string voiceover;
+			};
+			gm_gp_pu_bonuspoints powerup_bonus_points;
+
+			struct gm_gp_pu_weaponupgrade
+			{
+				float enabled;
+				float chance_to_allow_in_rotation;
+				float disabled_before_round;
+				float awarded_score_if_no_upgrade_received;
+				string toast;
+				float show_toast;
+				string model;
+				string voiceover;
+			};
+			gm_gp_pu_weaponupgrade powerup_weapon_upgrade;
+		};
+		gm_gp_powerups powerups;
+
+		struct gm_gp_ai
+		{
+			struct gm_gp_ai_zombie
+			{
+				struct gm_gp_ai_zm_walkstyles
+				{
+					float can_walk;
+					float can_jog;
+					float can_sprint;
+					float can_super_sprint;
+				};
+				gm_gp_ai_zm_walkstyles walk_styles;
+
+				struct gm_gp_ai_zm_sounds
+				{
+					string attack[12];
+					string death[12];
+					string shout[12];
+					string taunt[12];
+					string groan[12];
+				};
+				gm_gp_ai_zm_sounds sounds;
+			};
+			gm_gp_ai_zombie zombie;
+		};
+		gm_gp_ai ai;
+
+		struct gm_gp_player
+		{
+			float start_health;
+			float can_earn_points_in_last_stand;
+			float can_use_melee;
+			float can_use_equipment;
+			float can_earn_score_from_sources_other_than_ai;
+
+			struct gm_gp_plr_healthregen
+			{
+				float regeneration_multiplier;
+				float regeneration_delay_light_damage;
+				float regeneration_delay_heavy_damage;
+			};
+			gm_gp_plr_healthregen health_regeneration;
+		};
+		gm_gp_player player;
+
+		struct gm_gp_rounds
+		{
+			float delay_between_rounds;
+			float ai_spawn_delay_reduction_multiplier;
+
+			struct gm_gp_rnds_sounds
+			{
+				string game_start;
+				string new_round[4];
+				string end_round[4];
+				string new_hound_round;
+				string end_hound_round;
+				string game_over;
+			};
+			gm_gp_rnds_sounds sounds;
+		};
+		gm_gp_rounds rounds;
+	};
+	gm_gameplay gameplay;
+
+	struct gm_interface
+	{
+		struct gm_in_perksacola
+		{
+			string position_style;
+
+			struct gm_in_perk_gfx
+			{
+				string quickrevive;
+				string juggernog;
+				string speedcola;
+				string doubletap;
+				string doubletap_2;
+				string staminup;
+				string flopper;
+				string deadshot;
+				string mulekick;
+			};
+			gm_in_perk_gfx graphics;
+		};
+		gm_in_perksacola perksacola;
+
+		struct gm_in_powerups
+		{
+			struct gm_in_pu_gfx
+			{
+				string insta_kill;
+				string double_points;
+			};
+			gm_in_pu_gfx graphics;
+		};
+		gm_in_powerups powerups;
+
+		struct gm_in_rounds
+		{
+			float use_tally_marks_until_round;
+
+			struct gm_in_rnds_gfx
+			{
+				string tally_marks[5];
+				string numeric[10];
+			};
+			gm_in_rnds_gfx graphics;
+		};
+		gm_in_rounds rounds;
+
+		struct gm_in_equipment
+		{
+			struct gm_in_eq_gfx
+			{
+				string grenade;
+				string bouncing_betty;
+			};
+			gm_in_eq_gfx graphics;
+		};
+		gm_in_equipment equipment;
+
+		struct gm_in_score
+		{
+			struct gm_in_score_gfx
+			{
+				string score_background_full;
+				string score_background_condensed;
+			};
+			gm_in_score_gfx graphics;
+		};
+		gm_in_score score;
+	};
+	gm_interface interface;
+};
+game_modifier game_modifiers;
