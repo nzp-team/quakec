@@ -268,6 +268,8 @@ float(float root) Modifiers_Validate =
     if (!Modifiers_CheckValue(root, "interface.perksacola.graphics.mulekick", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.powerups.graphics.insta_kill", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.powerups.graphics.double_points", JNODE_STRING, 0, 0)) return false;
+    if (!Modifiers_CheckValue(root, "interface.rounds.position_style", JNODE_STRING, 0, 0)) return false;
+    if (!Modifiers_CheckValue(root, "interface.rounds.skip_intro", JNODE_BOOL, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.rounds.use_tally_marks_until_round", JNODE_NUMBER, 0, 1000000)) return false;
     if (!Modifiers_CheckArray(root, "interface.rounds.graphics.tally_marks", 5)) return false;
     if (!Modifiers_CheckArray(root, "interface.rounds.graphics.numeric", 10)) return false;
@@ -275,9 +277,11 @@ float(float root) Modifiers_Validate =
     if (!Modifiers_CheckValue(root, "interface.equipment.graphics.bouncing_betty", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.score.graphics.score_background_full", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.score.graphics.score_background_condensed", JNODE_STRING, 0, 0)) return false;
-    string style = Json_GetStringPath(root, "interface.perksacola.position_style", "nzp");
-    if (style != "nzp" && style != "cw") {
-        Json_Fail("Perk position_style must be nzp or cw");
+    if (!Modifiers_CheckValue(root, "interface.perksacola.position_style", JNODE_STRING, 0, 0)) return false;
+    if (!Modifiers_CheckValue(root, "interface.score.position_style", JNODE_STRING, 0, 0)) return false;
+    string round_style = Json_GetStringPath(root, "interface.rounds.position_style", "bottom_left");
+    if (round_style != "bottom_left" && round_style != "top_right") {
+        Json_Fail("Round position_style must be bottom_left or top_right");
         return false;
     }
     if (!Json_GetBoolPath(root, "gameplay.ai.zombie.walk_styles.can_walk", game_modifiers.gameplay.ai.zombie.walk_styles.can_walk) &&
@@ -542,6 +546,8 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
     game_modifiers.interface.perksacola.graphics.mulekick = Modifiers_ReadString(config_root, "interface.perksacola.graphics.mulekick", game_modifiers.interface.perksacola.graphics.mulekick, initialize, "gfx/hud/mule");
     game_modifiers.interface.powerups.graphics.insta_kill = Modifiers_ReadString(config_root, "interface.powerups.graphics.insta_kill", game_modifiers.interface.powerups.graphics.insta_kill, initialize, "gfx/hud/in_kill");
     game_modifiers.interface.powerups.graphics.double_points = Modifiers_ReadString(config_root, "interface.powerups.graphics.double_points", game_modifiers.interface.powerups.graphics.double_points, initialize, "gfx/hud/2x");
+    game_modifiers.interface.rounds.position_style = Modifiers_ReadString(config_root, "interface.rounds.position_style", game_modifiers.interface.rounds.position_style, initialize, "bottom_left");
+    game_modifiers.interface.rounds.skip_intro = Json_GetBoolPath(config_root, "interface.rounds.skip_intro", initialize ? false : game_modifiers.interface.rounds.skip_intro);
     game_modifiers.interface.rounds.use_tally_marks_until_round = Json_GetFloatPath(config_root, "interface.rounds.use_tally_marks_until_round", initialize ? 11 : game_modifiers.interface.rounds.use_tally_marks_until_round);
     array_root = Json_GetPath(config_root, "interface.rounds.graphics.tally_marks");
     if (initialize || array_root) {
@@ -582,6 +588,7 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
     }
     game_modifiers.interface.equipment.graphics.grenade = Modifiers_ReadString(config_root, "interface.equipment.graphics.grenade", game_modifiers.interface.equipment.graphics.grenade, initialize, "gfx/hud/frag");
     game_modifiers.interface.equipment.graphics.bouncing_betty = Modifiers_ReadString(config_root, "interface.equipment.graphics.bouncing_betty", game_modifiers.interface.equipment.graphics.bouncing_betty, initialize, "gfx/hud/betty");
+    game_modifiers.interface.score.position_style = Modifiers_ReadString(config_root, "interface.score.position_style", game_modifiers.interface.score.position_style, initialize, "left");
     game_modifiers.interface.score.graphics.score_background_full = Modifiers_ReadString(config_root, "interface.score.graphics.score_background_full", game_modifiers.interface.score.graphics.score_background_full, initialize, "gfx/hud/moneyback");
     game_modifiers.interface.score.graphics.score_background_condensed = Modifiers_ReadString(config_root, "interface.score.graphics.score_background_condensed", game_modifiers.interface.score.graphics.score_background_condensed, initialize, "gfx/hud/moneyback_condensed");
 
@@ -763,4 +770,7 @@ void() Modifiers_RegisterHUD =
 	nzp_hudconfig(29, game_modifiers.interface.equipment.graphics.bouncing_betty);
 	nzp_hudconfig(30, game_modifiers.interface.score.graphics.score_background_full);
 	nzp_hudconfig(31, game_modifiers.interface.score.graphics.score_background_condensed);
+    nzp_hudconfig(32, game_modifiers.interface.score.position_style);
+	nzp_hudconfig(33, game_modifiers.interface.rounds.position_style);
+	nzp_hudconfig(34, ftos(game_modifiers.interface.rounds.skip_intro));
 };
