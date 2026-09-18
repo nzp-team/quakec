@@ -670,6 +670,8 @@ struct game_modifier
 
 		struct gm_in_rounds
 		{
+			string position_style;
+			float skip_intro;
 			float use_tally_marks_until_round;
 
 			struct gm_in_rnds_gfx
@@ -694,6 +696,8 @@ struct game_modifier
 
 		struct gm_in_score
 		{
+			string position_style;
+
 			struct gm_in_score_gfx
 			{
 				string score_background_full;
