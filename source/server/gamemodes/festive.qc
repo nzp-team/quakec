@@ -45,12 +45,40 @@ void() Gamemode_Festive_Init =
     precache_sound("sounds/modes/festive/halloween/mbox_open.wav");
 
     precache_model("models/props/derped/ammo_can.mdl");
-    game_modifier_powerup_free_perk = true;
+
+    game_modifiers.gameplay.perksacola.perk_quickrevive_health_regeneration_multiplier = 2;
+    game_modifiers.gameplay.perksacola.perk_juggernog_player_health = 250;
+    game_modifiers.gameplay.perksacola.perk_deadshot_headshot_damage_multiplier = 1.35;
+
+    game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers = true;
+    game_modifiers.gameplay.packapunch.packapunch_upgrades_instantly = true;
+	game_modifiers.gameplay.ai.score_system = SCORE_SYSTEM_CW;
+
+    game_modifiers.gameplay.rounds.delay_between_rounds = 4.5;
+    if (game_modifiers.gameplay.rounds.sounds.game_start != "") strunzone(game_modifiers.gameplay.rounds.sounds.game_start);
+    game_modifiers.gameplay.rounds.sounds.game_start = strzone("sounds/modes/festive/rnd_splash.wav");
+    if (game_modifiers.gameplay.rounds.sounds.new_hound_round != "") strunzone(game_modifiers.gameplay.rounds.sounds.new_hound_round);
+    game_modifiers.gameplay.rounds.sounds.new_hound_round = strzone("sounds/modes/festive/rnd_dog_start.wav");
+    if (game_modifiers.gameplay.rounds.sounds.end_hound_round != "") strunzone(game_modifiers.gameplay.rounds.sounds.end_hound_round);
+    game_modifiers.gameplay.rounds.sounds.end_hound_round = strzone("sounds/modes/festive/rnd_dog_end.wav");
+    if (game_modifiers.interface.perksacola.position_style != "") strunzone(game_modifiers.interface.perksacola.position_style);
+    game_modifiers.interface.perksacola.position_style = strzone("cw");
+    for (float i = 0; i < 4; i++) {
+        if (game_modifiers.gameplay.rounds.sounds.new_round[i] != "") strunzone(game_modifiers.gameplay.rounds.sounds.new_round[i]);
+        game_modifiers.gameplay.rounds.sounds.new_round[i] = "";
+    }
+    game_modifiers.gameplay.rounds.sounds.new_round[0] = strzone("sounds/modes/festive/rnd_start.wav");
+    for (float i = 0; i < 4; i++) {
+        if (game_modifiers.gameplay.rounds.sounds.end_round[i] != "") strunzone(game_modifiers.gameplay.rounds.sounds.end_round[i]);
+        game_modifiers.gameplay.rounds.sounds.end_round[i] = "";
+    }
+    game_modifiers.gameplay.rounds.sounds.end_round[0] = strzone("sounds/modes/festive/rnd_end.wav");
+    game_modifiers.gameplay.player.start_health = 150;
+
+    game_modifiers.gameplay.powerups.powerup_free_perk.enabled = true;
     game_modifier_powerup_free_perk_is_rare = true;
-    game_modifier_packapunch_uses_tiers = true;
-    game_modifier_packapunch_is_instant = true;
-    game_modifier_maxammo_fills_magazine = true;
-    game_modifier_powerup_bonus_points = true;
+    game_modifiers.gameplay.powerups.powerup_max_ammo.fills_magazine = true;
+    game_modifiers.gameplay.powerups.powerup_bonus_points.enabled = true;
     game_modifier_powerup_toast_for_all = true;
     game_modifier_hellhound_fog_color = "200 525 60 25 45";
     game_modifier_default_fog_color = "240 2000 60 45 45";
@@ -162,8 +190,8 @@ void() Gamemode_Festive_Frame =
         }
 
         // Enable weapon upgrade Power-Up if Pack-A-Punch isn't present..
-        if (find(world, classname, "perk_pap") == world) {
-            game_modifier_powerup_weapon_upgrade = true;
+        if (!modifier_weapon_upgrade_overridden && find(world, classname, "perk_pap") == world) {
+            game_modifiers.gameplay.powerups.powerup_weapon_upgrade.enabled = true;
         }
 
         if (festive_override_music != "") {
@@ -204,31 +232,7 @@ void() Gamemode_Festive_PlayerSpawn =
     Weapon_AssignWeapon(0, selected_weapon, 0, 0, 0);
 
     nzp_setroundcolor(stov(festive_round_color));
-    nzp_setperkorientation(HUD_PERK_ORI_CW);
-};
 
-float(float current_earned_score, float damage_style) Gamemode_Festive_ScoreForDamage =
-{
-    // No points for just damage.
-    if (current_earned_score == DMG_SCORE_STDDAMAGE)
-        return 0;
-
-    switch(damage_style) {
-        case DMG_TYPE_HEADSHOT:
-        case DMG_TYPE_MELEE:
-            return 115;
-        case DMG_TYPE_UPPERTORSO:
-        case DMG_TYPE_LOWERTORSO:
-        case DMG_TYPE_EXPLOSIVE:
-        case DMG_TYPE_FLAMETHROWER:
-        case DMG_TYPE_GRENADE:
-        case DMG_TYPE_TESLA:
-            return 90;
-        case DMG_TYPE_FLOPPER:
-            return 90;
-    }
-
-    return current_earned_score;
 };
 
 float(float current_melee_damage, float weapon, float has_bowie) Gamemode_Festive_CalculateMeleeDamage =
@@ -371,11 +375,6 @@ float(entity client, float current_price) Gamemode_Festive_GetPerkMachinePrice =
 
 float(float current_multiplier, float current_perks, float weapon, float location) Gamemode_Festive_GetWeaponLimbMultiplier =
 {
-    // If it's a Headshot and we have Deadshot Daiquiri..
-    if ((current_perks & P_DEAD) && location == HEAD_X) {
-        return current_multiplier * 1.35;
-    }
-
     // Dampen damage outside of headshots.
     if (location != HEAD_X) {
         return current_multiplier *= 0.75;
@@ -431,25 +430,9 @@ float(float weapon, float ammo) Gamemode_Festive_GetWeaponAmmo =
     return rint(ammo * 1.5);
 };
 
-float(float current_max_health, float current_perks) Gamemode_Festive_GetMaxHealthForPlayer =
-{
-    if (current_perks & P_JUG)
-        return 250;
-
-    return 150;
-}
-
 float(float current_dist, string ai_classname) Gamemode_Festive_GetAIWalkSpeed =
 {
     return current_dist * 1.25;
-}
-
-float(float current_health_delay, float current_perks) Gamemode_Festive_GetHealthRegenDelayForPlayer =
-{
-    if (current_perks & P_REVIVE)
-        return current_health_delay * 0.5;
-
-    return current_health_delay;
 }
 
 string(string current_tune) Gamemode_Festive_GetSplashTune =

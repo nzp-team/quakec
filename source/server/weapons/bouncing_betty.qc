@@ -160,7 +160,7 @@ void() Betty_CheckForRelease =
 //
 void() W_PrimeBetty = 
 {
-	if (game_modifier_can_use_equipment == false)
+	if (game_modifiers.gameplay.player.can_use_equipment == false)
 		return;
 
 	if (self.throw_delay > time || self.zoom || self.downed || self.secondary_grenades < 1 || self.isBuying)

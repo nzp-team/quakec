@@ -49,8 +49,8 @@ void() Gamemode_Sticks_Init =
 	precache_sound("sounds/modes/sticks/trap.wav");
 	precache_sound("sounds/modes/sticks/low_knives.wav");
 
-	game_modifier_powerup_max_ammo = false;
-	game_modifier_powerup_free_perk = true;
+	game_modifiers.gameplay.powerups.powerup_max_ammo.enabled = false;
+	game_modifiers.gameplay.powerups.powerup_free_perk.enabled = true;
 	game_modifier_grenades_explode_on_contact = true;
 };
 

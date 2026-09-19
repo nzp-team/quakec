@@ -1237,7 +1237,7 @@ noref void() CSQC_Parse_Event =
 			broadcast_num = readbyte();
 			break;
 		case CSQC_EVENT_POWERUPTOAST:
-			hud_toast_puid = readbyte();
+			hud_toast_string = readstring();
 			hud_toast_endtime = time + 2;
 			hud_toast_starttime = time;
 			break;

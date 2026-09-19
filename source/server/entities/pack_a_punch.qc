@@ -176,10 +176,10 @@ void(entity pap, entity buyer, float machine_cost) PAP_UpgradeWeapon =
 	Player_RemoveScore(self, machine_cost);
 
 	// Instant Pack-A-Punch -- just take their money and assign their weapon.
-	if (game_modifier_packapunch_is_instant) {
+	if (game_modifiers.gameplay.packapunch.packapunch_upgrades_instantly) {
 		float instant_weapon_tier = 0;
 
-		if (game_modifier_packapunch_uses_tiers) {
+		if (game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers) {
 			instant_weapon_tier = buyer.weapons[0].weapon_tier + 1;
 		}
 
@@ -247,7 +247,7 @@ void(entity pap, entity buyer, float machine_cost) PAP_UpgradeWeapon =
 
 	pap.weapon = self.weapon;
 
-	if (game_modifier_packapunch_uses_tiers)
+	if (game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers)
 		pap.boxstatus = buyer.weapons[0].weapon_tier + 1;
 
 	Weapon_RemoveWeapon(0);
@@ -287,9 +287,9 @@ void() PAP_Touch =
 		return;
 	}
 
-	float pap_cost = floor(self.cost * game_modifier_cost_multiplier);
+	float pap_cost = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 
-	if (game_modifier_packapunch_uses_tiers) {
+	if (game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers) {
 		if (other.weapons[0].weapon_tier == 1) {
 			pap_cost *= 3;
 		} else if (other.weapons[0].weapon_tier == 2) {
@@ -299,9 +299,9 @@ void() PAP_Touch =
   
 	// Purchasing Machine + putting Weapon in
 	if (!self.papState) {
-		if (IsPapWeapon(other.weapon) && game_modifier_packapunch_uses_tiers == false) {
+		if (IsPapWeapon(other.weapon) && game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers == false) {
 			return;
-		} else if (game_modifier_packapunch_uses_tiers == true && other.weapons[0].weapon_tier >= 3) {
+		} else if (game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers == true && other.weapons[0].weapon_tier >= 3) {
 			return;
 		}
 

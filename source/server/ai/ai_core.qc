@@ -802,6 +802,9 @@ void(float dist) Inside_Walk = {
 
 .float droptime;
 void(float dist) Zombie_Walk =  {
+	// Super sprinting hack!!!
+	if (self.classname == "ai_zombie" && self.walktype == 6 && !self.crawling)
+		dist *= 21 / 13;
 	dist = Gamemode_GetAIWalkSpeed(dist, self.classname);
 
 	//Resetting velocity from last frame (except for vertical)

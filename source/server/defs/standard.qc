@@ -250,6 +250,7 @@ void    (string s)                                                              
 void    (vector start, vector min, vector max, vector end, float nomonsters, entity forent)   	tracebox            = #90;
 entity  (entity start, .float field, float match)                                               findfloat           = #98;
 float   (vector start, vector min, vector max, vector end, float nomonsters, entity forent)     tracemove           = #99;
+string  (string name)                                                                           cvar_string         = #103;
 // 2001-09-20 QuakeC file access by FrikaC  start
 float   (string filename, float mode)                                                           fopen               = #110;
 void    (float fhandle)                                                                         fclose              = #111;
@@ -262,6 +263,8 @@ vector  (string s)                                                              
 string  (string s)                                                                              strzone             = #118;
 string  (string s)                                                                              strunzone           = #119;
 string  (string s)                                                                              strtrim             = #120;
+float   (string text, string match, float start)                                                strstrofs            = #221;
+void    (string s)                                                                              print               = #339;
 // 2001-09-20 QuakeC file access by FrikaC  end
 // 2001-11-15 DarkPlaces general builtin functions by Lord Havoc  start
 float(string s)                                                                                 tokenize            = #441;
@@ -271,7 +274,7 @@ string(float num)                                                               
 string  (string s)                                                                              strtolower          = #480;
 float   (float caseinsensitive, string s)                                                       crc16               = #494;
 void    (string trackname)                                                                    	songegg             = #500;
-void    (float powerup_id)                                                                      nzp_poweruptoast    = #501;
+void    (string text)                                                                           nzp_poweruptoast    = #501;
 void    (entity who)                                                                            grenade_pulse       = #502;
 float   ()                                                                                      nzp_maxai           = #503;
 void    (entity who)                                                                            nzp_bettyprompt     = #504;
@@ -283,8 +286,8 @@ void    (entity who, float low_frequency, float high_frequency, float duration) 
 void    (float gamemode)                                                                        nzp_setclientmode   = #510;
 void    (vector color)                                                                          nzp_setroundcolor   = #511;
 float   ()                                                                                      nzp_getmonthofyear  = #512;
-void    (float orientation)                                                                     nzp_setperkorientation = #513;
 void    (entity client, float index, string value, vector color)                                useprint_send       = #514;
+void    (float index, string value)                                                             nzp_hudconfig       = #515;
 
 //
 // constants
@@ -486,5 +489,3 @@ void    (entity client, float index, string value, vector color)                
 #define		FILE_READ 	 				0
 #define		FILE_APPEND 				1
 #define		FILE_WRITE 					2
-
-void (string out) print = {bprint(PRINT_HIGH, out);}

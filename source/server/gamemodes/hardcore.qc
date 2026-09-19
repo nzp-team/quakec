@@ -27,8 +27,8 @@
 
 void() Gamemode_Hardcore_Init =
 {
-    game_modifier_perk_purchase_limit = 2;
-    game_modifier_cost_multiplier = 1.5;
+	game_modifiers.gameplay.perksacola.perk_purchase_limit = 2;
+	game_modifiers.gameplay.global.all_items_cost_multiplier = 1.5;
 };
 
 void() Gamemode_Hardcore_Frame =

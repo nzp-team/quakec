@@ -155,8 +155,7 @@ void() StartFrame =
 			nzp_screenflash(world, SCREENFLASH_COLOR_BLACK, 1, SCREENFLASH_FADE_OUT);
 
 			if (cvar("sv_startround") == 0) {
-				string splash_tune = "sounds/rounds/splash.wav";
-				splash_tune = Gamemode_GetSplashTune(splash_tune);
+				string splash_tune = game_modifiers.gameplay.rounds.sounds.game_start;
 				Rounds_PlayTransition(splash_tune);
 			}
 
@@ -275,11 +274,8 @@ void() precaches =
 	precache_sound("sounds/weapons/knife/knife.wav");
 	precache_sound("sounds/weapons/knife/knife_hit.wav");
 
-	// tunes
-	precache_sound("sounds/rounds/eround.wav");
-	precache_sound("sounds/rounds/nround.wav");
-	precache_sound("sounds/rounds/splash.wav");
-	precache_sound("sounds/music/end.wav");
+	// JSON sounds must be resolved before entering the precache table.
+	Modifiers_PrecacheSounds();
 
 	// purchasing
 	precache_sound("sounds/misc/ching.wav");
@@ -287,61 +283,10 @@ void() precaches =
 	precache_sound("sounds/misc/denybuy.wav");
 
 	// power-ups
-	precache_sound("sounds/pu/pickup.wav");
-	precache_sound("sounds/pu/powerup.wav");
-	precache_sound("sounds/pu/drop.wav");
+	Modifiers_PrecacheSound(game_modifiers.gameplay.powerups.sounds.pick_up);
+	Modifiers_PrecacheSound(game_modifiers.gameplay.powerups.sounds.idle);
+	Modifiers_PrecacheSound(game_modifiers.gameplay.powerups.sounds.drop);
 	precache_sound("sounds/pu/byebye.wav");
-
-	// zombie walk
-	precache_sound("sounds/zombie/w0.wav");
-	precache_sound("sounds/zombie/w1.wav");
-	precache_sound("sounds/zombie/w2.wav");
-	precache_sound("sounds/zombie/w3.wav");
-	precache_sound("sounds/zombie/w4.wav");
-	precache_sound("sounds/zombie/w5.wav");
-	precache_sound("sounds/zombie/w6.wav");
-	precache_sound("sounds/zombie/w7.wav");
-	precache_sound("sounds/zombie/w8.wav");
-	precache_sound("sounds/zombie/w9.wav");
-
-	// zombie run
-	precache_sound("sounds/zombie/r0.wav");
-	precache_sound("sounds/zombie/r1.wav");
-	precache_sound("sounds/zombie/r2.wav");
-	precache_sound("sounds/zombie/r3.wav");
-	precache_sound("sounds/zombie/r4.wav");
-	precache_sound("sounds/zombie/r5.wav");
-	precache_sound("sounds/zombie/r6.wav");
-	precache_sound("sounds/zombie/r7.wav");
-	precache_sound("sounds/zombie/r8.wav");
-	precache_sound("sounds/zombie/r9.wav");
-
-	// zombie swipe
-	precache_sound("sounds/zombie/a0.wav");
-	precache_sound("sounds/zombie/a1.wav");
-	precache_sound("sounds/zombie/a2.wav");
-	precache_sound("sounds/zombie/a3.wav");
-	precache_sound("sounds/zombie/a4.wav");
-	precache_sound("sounds/zombie/a5.wav");
-	precache_sound("sounds/zombie/a6.wav");
-	precache_sound("sounds/zombie/a7.wav");
-
-	// zombie death
-	precache_sound("sounds/zombie/d0.wav");
-	precache_sound("sounds/zombie/d1.wav");
-	precache_sound("sounds/zombie/d2.wav");
-	precache_sound("sounds/zombie/d3.wav");
-	precache_sound("sounds/zombie/d4.wav");
-	precache_sound("sounds/zombie/d5.wav");
-	precache_sound("sounds/zombie/d6.wav");
-	precache_sound("sounds/zombie/d7.wav");
-
-	// zombie taunt
-	precache_sound("sounds/zombie/t0.wav");
-	precache_sound("sounds/zombie/t1.wav");
-	precache_sound("sounds/zombie/t2.wav");
-	precache_sound("sounds/zombie/t3.wav");
-	precache_sound("sounds/zombie/t4.wav");
 
 	// zombie footsteps
 	precache_sound("sounds/zombie/s0.wav");
@@ -358,7 +303,9 @@ float useprint_revive;
 //called when map loaded
 void() worldspawn =
 {
-	precaches();
+	// Load Game modifier values
+	Modifiers_LoadGameVariables();
+
 
 	// Index zero is reserved for clearing the current prompt.
 	useprint_count = 1;
@@ -368,8 +315,6 @@ void() worldspawn =
 	// Define all of our Light Styles
 	LS_Setup();
 
-	// Init Power-Ups
-	PU_Init();
 
 #ifdef FTE
 
@@ -416,6 +361,8 @@ void() worldspawn =
 	autocvar(sv_maxai, 24);
 	autocvar(sv_fastrounds, 0);
 
+	autocvar(sv_gameconfig, "");
+
 	autocvar(sv_spoofmonth, 0);
 
 #endif // FTE
@@ -429,32 +376,12 @@ void() worldspawn =
 	Zoning_LoadData();
 	Zoning_SpawnEnts();
 
-	//set game elements
-	G_PRONEPOINTS = 0;
-	G_STARTWEAPON[0] = W_COLT;
-	G_STARTWEAPON[1] = 8;
-	G_STARTWEAPON[2] = 32;
-	G_WORLDTEXT = 1;
-	G_PERKS = 0;
-	G_PERKPOWER = 0;
-
-	game_modifier_can_melee = true;
-    game_modifier_can_use_equipment = true;
-    game_modifier_can_earn_misc_score = true;
-	game_modifier_powerup_free_perk = false;
-	game_modifier_powerup_max_ammo = true;
-	game_modifier_powerup_weapon_upgrade = false;
-	game_modifier_powerup_bonus_points = false;
 	game_modifier_powerup_toast_for_all = false;
 	game_modifier_can_packapunch = true;
 	game_modifier_grenades_explode_on_contact = false;
-	game_modifier_packapunch_uses_tiers = false;
-	game_modifier_packapunch_is_instant = false;
-	game_modifier_maxammo_fills_magazine = false;
+
 	game_modifier_hellhound_fog_color = "200 525 54 55 60";
 	game_modifier_default_fog_color = world.fog;
-	game_modifier_perk_purchase_limit = 8;
-	game_modifier_cost_multiplier = 1;
 
 	sprint_max_time = 4.0;
 
@@ -496,6 +423,11 @@ void() worldspawn =
 #endif // FTE
 
 	Gamemode_Init();
+	Modifiers_LoadOverrides();
+	Modifiers_RegisterHUD();
+
+	precaches();
+	PU_Init();
 }
 
 void() SpectatorConnect =

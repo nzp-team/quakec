@@ -391,7 +391,7 @@ void() ContinueReload = //Special reloads
 
 	if (delay) {
 		if (self.perks & P_SPEED) {
-			delay *= 0.5;
+			delay /= game_modifiers.gameplay.perksacola.perk_speedcola_reload_speed_multiplier;
 		}
 		self.reload_delay = time + delay;
 		Set_W_Frame (startframe, endframe, delay, 0, RELOAD, endanimfunc, modelname, false, S_RIGHT, false);
@@ -408,7 +408,7 @@ void(float side) W_AdvanceAnim =
 	delay = getWeaponDelay(self.weapon, RELOAD);
 	reloadcancelframe = GetFrame(self.weapon, RELOAD_CANCEL);
 	
-	if (self.perks & P_SPEED) delay *= 0.5;
+	if (self.perks & P_SPEED) delay /= game_modifiers.gameplay.perksacola.perk_speedcola_reload_speed_multiplier;
 
 	modelname = GetWeaponModel(self.weapon, 0);
 
@@ -525,7 +525,7 @@ void(float side) W_Reload =
 		}
 
 		if (self.perks & P_SPEED)
-			delay = delay*0.5;
+			delay /= game_modifiers.gameplay.perksacola.perk_speedcola_reload_speed_multiplier;
 		
 		if (side == S_RIGHT) {
 			self.reload_delay = delay + time;
@@ -596,7 +596,7 @@ void () W_LoadAmmo =
 	if (delay) {
 
 		if (self.perks & P_DOUBLE)
-			delay *= 0.66;
+			delay /= game_modifiers.gameplay.perksacola.perk_doubletap_rechamber_speed_multiplier;
 			
 		Set_W_Frame (startframe, endframe, delay, reloadcancelframe, FIRE, W_LoadAmmoDone, modelname, false, S_RIGHT, false);
 		self.fire_delay = delay + time;
@@ -1101,7 +1101,7 @@ void(float side) W_Fire =
 	spread = WepDef_WeaponSpread(self.weapon, self.stance);
 
 	if (self.perks & P_DEAD) {
-		spread *= 0.65;
+		spread *= game_modifiers.gameplay.perksacola.perk_deadshot_weapon_spread_reduction_multiplier;
 	}
 
 	if (self.zoom == 1 && W_SpreadAffectedByADS(self.weapon)) {
@@ -1199,7 +1199,7 @@ void(float side) W_Fire =
 	// Double Tap), but technically this IS the correct-and
 	// -reproducible factor due to whatever went wrong there.
 	if (self.perks & P_DOUBLE) {
-		delay *= 0.77;
+		delay /= game_modifiers.gameplay.perksacola.perk_doubletap_rate_of_fire_multiplier;
 	}
 
 	// Players shouldn't be allowed to move while firing and prone.
@@ -1295,7 +1295,7 @@ void(float side) W_Fire =
 
 void() WeaponCore_Melee =
 {
-	if (game_modifier_can_melee == false && !WepDef_IsMeleeWeapon(self.weapon))
+	if (game_modifiers.gameplay.player.can_use_melee == false && !WepDef_IsMeleeWeapon(self.weapon))
 		return;
 
 	// Do not trigger if we're Aiming down the Sight, or
@@ -1581,7 +1581,7 @@ void() checkHold =
 
 void() W_Grenade =
 {
-	if (game_modifier_can_use_equipment == false)
+	if (game_modifiers.gameplay.player.can_use_equipment == false)
 		return;
 
 	if (self.throw_delay > time || self.zoom || self.downed || self.primary_grenades < 1 || self.isBuying)
