@@ -52,6 +52,7 @@ void() Gamemode_Festive_Init =
 
     game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers = true;
     game_modifiers.gameplay.packapunch.packapunch_upgrades_instantly = true;
+	game_modifiers.gameplay.ai.score_system = SCORE_SYSTEM_CW;
 
     game_modifiers.gameplay.rounds.delay_between_rounds = 4.5;
     if (game_modifiers.gameplay.rounds.sounds.game_start != "") strunzone(game_modifiers.gameplay.rounds.sounds.game_start);
@@ -232,30 +233,6 @@ void() Gamemode_Festive_PlayerSpawn =
 
     nzp_setroundcolor(stov(festive_round_color));
 
-};
-
-float(float current_earned_score, float damage_style) Gamemode_Festive_ScoreForDamage =
-{
-    // No points for just damage.
-    if (current_earned_score == DMG_SCORE_STDDAMAGE)
-        return 0;
-
-    switch(damage_style) {
-        case DMG_TYPE_HEADSHOT:
-        case DMG_TYPE_MELEE:
-            return 115;
-        case DMG_TYPE_UPPERTORSO:
-        case DMG_TYPE_LOWERTORSO:
-        case DMG_TYPE_EXPLOSIVE:
-        case DMG_TYPE_FLAMETHROWER:
-        case DMG_TYPE_GRENADE:
-        case DMG_TYPE_TESLA:
-            return 90;
-        case DMG_TYPE_FLOPPER:
-            return 90;
-    }
-
-    return current_earned_score;
 };
 
 float(float current_melee_damage, float weapon, float has_bowie) Gamemode_Festive_CalculateMeleeDamage =

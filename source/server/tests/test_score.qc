@@ -133,15 +133,56 @@ void() Test_AddScore_PhD_GunGame =
 };
 
 //
-// Test_AddScore_PhD_Festive()
+// Test_ScoreSystem_ColdWar()
 // Asserts we are giving correct amount
 // of score for PhD Flopper in Festive
 // Should return 90
 // (https://github.com/nzp-team/nzportable/issues/1363)
 //
-void() Test_AddScore_PhD_Festive =
+void() Test_ScoreSystem_ColdWar =
 {
-    float pointsEarned = Gamemode_Festive_ScoreForDamage(DMG_SCORE_FLOPPER, DMG_TYPE_FLOPPER);
+	float old_score_system = game_modifiers.gameplay.ai.score_system;
+	game_modifiers.gameplay.ai.score_system = SCORE_SYSTEM_CW;
 
-    Test_Assert((pointsEarned == 90), sprintf("Unexpected score earned, expected 90 but got [%d]!", pointsEarned));
+	Test_Assert(ScoreSystem_ScoreForDamage(DMG_SCORE_STDDAMAGE, DMG_TYPE_UPPERTORSO) == 0,
+		"Cold War scoring awarded points for a non-lethal hit!");
+	Test_Assert(ScoreSystem_ScoreForDamage(DMG_SCORE_HEADSHOT, DMG_TYPE_HEADSHOT) == 115,
+		"Cold War scoring awarded the wrong headshot kill score!");
+	Test_Assert(ScoreSystem_ScoreForDamage(DMG_SCORE_MELEE, DMG_TYPE_MELEE) == 115,
+		"Cold War scoring awarded the wrong melee kill score!");
+	Test_Assert(ScoreSystem_ScoreForDamage(DMG_SCORE_FLOPPER, DMG_TYPE_FLOPPER) == 90,
+		"Cold War scoring awarded the wrong regular kill score!");
+
+	game_modifiers.gameplay.ai.score_system = old_score_system;
+};
+
+//
+// Test_ScoreSystem_BlackOps4()
+// Checks the per-zombie score cap and final-blow bonuses.
+//
+void() Test_ScoreSystem_BlackOps4 =
+{
+	entity zombie = spawn();
+	zombie.max_health = 100;
+	zombie.health = 100;
+
+	float first_hit = ScoreSystem_BO4DamageScore(zombie, 10, false);
+	zombie.health -= 10;
+	float second_hit = ScoreSystem_BO4DamageScore(zombie, 40, false);
+	zombie.health -= 40;
+	float final_hit = ScoreSystem_BO4DamageScore(zombie, 50, true);
+	float headshot_bonus = ScoreSystem_BO4KillBonus(DMG_TYPE_HEADSHOT);
+
+	Test_Assert(first_hit == 10, "Black Ops 4 scoring did not apply its minimum hit award!");
+	Test_Assert(first_hit + second_hit + final_hit == 90,
+		"Black Ops 4 damage scoring exceeded its per-zombie cap!");
+	Test_Assert(first_hit + second_hit + final_hit + headshot_bonus == 120,
+		"Black Ops 4 headshot scoring exceeded its base cap or bonus!");
+
+	Test_Assert(SCORE_BO4_MAX_PER_ZOMBIE + ScoreSystem_BO4KillBonus(DMG_TYPE_MELEE) == 150,
+		"Black Ops 4 melee scoring did not total 150 points!");
+	Test_Assert(SCORE_BO4_MAX_PER_ZOMBIE + ScoreSystem_BO4KillBonus(DMG_TYPE_UPPERTORSO) == 90,
+		"Black Ops 4 regular scoring did not total 90 points!");
+
+	remove(zombie);
 };

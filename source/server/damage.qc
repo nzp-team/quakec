@@ -42,6 +42,69 @@ float(float current_health_delay, float current_perks) Gamemode_GetHealthRegenDe
 #define DMG_SCORE_FLOPPER		50		// Death by PhD Flopper
 #define DMG_SCORE_STDDAMAGE		10  	// Standard Damage reward.
 
+#define SCORE_CW_KILL				115
+#define SCORE_CW_REGULAR_KILL		90
+
+#define SCORE_BO4_HEALTH_THRESHOLD		10
+#define SCORE_BO4_MAX_PER_ZOMBIE		90
+#define SCORE_BO4_BONUS_HEADSHOT		30
+#define SCORE_BO4_BONUS_MELEE			60
+
+//
+// ScoreSystem_ScoreForDamage(current_earned_score, damage_style)
+// Applies score rules which do not need to track the damaged zombie.
+//
+float(float current_earned_score, float damage_style) ScoreSystem_ScoreForDamage =
+{
+	if (game_modifiers.gameplay.ai.score_system != SCORE_SYSTEM_CW)
+		return current_earned_score;
+
+	if (current_earned_score == DMG_SCORE_STDDAMAGE)
+		return 0;
+
+	if (damage_style == DMG_TYPE_HEADSHOT || damage_style == DMG_TYPE_MELEE)
+		return SCORE_CW_KILL;
+
+	return SCORE_CW_REGULAR_KILL;
+};
+
+//
+// ScoreSystem_BO4DamageScore(victim, damage)
+// Awards 10 points for each 10% health threshold 
+// crossed by incoming damage.
+//
+float(entity victim, float damage, float lethal) ScoreSystem_BO4DamageScore =
+{
+	if (damage <= 0 || victim.max_health <= 0)
+		return 0;
+
+	float old_threshold = floor(((victim.max_health - victim.health) * 10 / victim.max_health) + 0.0001);
+	float health_after = lethal ? 0 : victim.health - damage;
+	float new_threshold = floor(((victim.max_health - health_after) * 10 / victim.max_health) + 0.0001);
+	old_threshold = clamp(old_threshold, 0, SCORE_BO4_MAX_PER_ZOMBIE / SCORE_BO4_HEALTH_THRESHOLD);
+	new_threshold = clamp(new_threshold, 0, SCORE_BO4_MAX_PER_ZOMBIE / SCORE_BO4_HEALTH_THRESHOLD);
+	return (new_threshold - old_threshold) * SCORE_BO4_HEALTH_THRESHOLD;
+};
+
+//
+// ScoreSystem_BO4KillBonus(damage_style)
+// Awards a bonus when the corresponding damage 
+// type lands the final blow.
+//
+float(float damage_style) ScoreSystem_BO4KillBonus =
+{
+	switch (damage_style) {
+		case DMG_TYPE_HEADSHOT:
+			return SCORE_BO4_BONUS_HEADSHOT;
+		case DMG_TYPE_MELEE:
+			return SCORE_BO4_BONUS_MELEE;
+		default:
+			return 0;
+	}
+
+	return 0;
+};
+
 void() Barrel_Hit;
 void() teddy_react;
 
@@ -292,6 +355,11 @@ void(entity attacker, float d_style) DieHandler =
 		if (cvar("sv_difficulty") == 3)
 			points_earned = floor((points_earned/10) * 0.75) * 10;
 
+		if (game_modifiers.gameplay.ai.score_system == SCORE_SYSTEM_BO4)
+			points_earned = ScoreSystem_BO4KillBonus(d_style);
+		else
+			points_earned = ScoreSystem_ScoreForDamage(points_earned, d_style);
+
 		Player_AddScore(attacker, Gamemode_ScoreForDamage(points_earned, d_style), true);
 
 		Gamemode_DieHandler(attacker, d_style);
@@ -308,10 +376,22 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 
 	entity old_self;
 	if (victim.classname == "ai_zombie" || victim.classname == "ai_dog") {
+		if (victim.max_health <= 0)
+			victim.max_health = victim.health;
 
-		if (attacker.classname == "player" && (victim.health - damage) > 0 && d_style != DMG_TYPE_OTHER) {
-			Player_AddScore(attacker, Gamemode_ScoreForDamage(DMG_SCORE_STDDAMAGE, d_style), true);
-			nzp_hitmarker(attacker, false);
+		float lethal = (victim.health - damage) <= 0 || instakill_finished > time;
+		if (attacker.classname == "player" && d_style != DMG_TYPE_OTHER && game_modifiers.gameplay.ai.score_system == SCORE_SYSTEM_BO4 || !lethal) {
+			float points_earned;
+
+			if (game_modifiers.gameplay.ai.score_system == SCORE_SYSTEM_BO4)
+				points_earned = ScoreSystem_BO4DamageScore(victim, damage, lethal);
+			else
+				points_earned = ScoreSystem_ScoreForDamage(DMG_SCORE_STDDAMAGE, d_style);
+			
+				Player_AddScore(attacker, Gamemode_ScoreForDamage(points_earned, d_style), true);
+			
+			if (!lethal) 
+				nzp_hitmarker(attacker, false);
         }
 
 		victim.health = victim.health - damage;

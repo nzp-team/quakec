@@ -310,6 +310,10 @@ float 	map_compatibility_mode;
 #define DMG_TYPE_OTHER 			11 		// For use with misc. damage infliction
 #define DMG_TYPE_FLOPPER		12		// Player-inflicted: PhD Flopper explosion
 
+#define SCORE_SYSTEM_DEFAULT	0
+#define SCORE_SYSTEM_CW			1
+#define SCORE_SYSTEM_BO4		2
+
 //Perk types
 #define 	P_JUG		1
 #define 	P_DOUBLE	2
@@ -572,6 +576,8 @@ struct game_modifier
 
 		struct gm_gp_ai
 		{
+			float score_system;
+
 			struct gm_gp_ai_zombie
 			{
 				struct gm_gp_ai_zm_walkstyles
