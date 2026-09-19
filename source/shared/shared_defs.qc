@@ -577,6 +577,7 @@ struct game_modifier
 		struct gm_gp_ai
 		{
 			float score_system;
+			float round_health_cap;
 
 			struct gm_gp_ai_zombie
 			{

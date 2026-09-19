@@ -241,6 +241,7 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckArray(root, "gameplay.ai.zombie.sounds.taunt", 12)) return false;
 	if (!Modifiers_CheckArray(root, "gameplay.ai.zombie.sounds.groan", 12)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.ai.score_system", JNODE_STRING, 0, 0)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.ai.round_health_cap", JNODE_NUMBER, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.player.start_health", JNODE_NUMBER, 0.001, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.player.can_earn_points_in_last_stand", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.player.can_use_melee", JNODE_BOOL, 0, 1000000)) return false;
@@ -449,6 +450,8 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
         else
             game_modifiers.gameplay.ai.score_system = SCORE_SYSTEM_DEFAULT;
     }
+
+    game_modifiers.gameplay.ai.round_health_cap = Json_GetFloatPath(config_root, "gameplay.ai.round_health_cap", initialize ? 0 : game_modifiers.gameplay.ai.round_health_cap);
 
     // MARK: Zombie Walk Styles
     game_modifiers.gameplay.ai.zombie.walk_styles.can_walk = Json_GetBoolPath(config_root, "gameplay.ai.zombie.walk_styles.can_walk", initialize ? true : game_modifiers.gameplay.ai.zombie.walk_styles.can_walk);

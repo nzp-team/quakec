@@ -52,6 +52,8 @@ void() Gamemode_Festive_Init =
 
     game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers = true;
     game_modifiers.gameplay.packapunch.packapunch_upgrades_instantly = true;
+
+    game_modifiers.gameplay.ai.round_health_cap = 55;
 	game_modifiers.gameplay.ai.score_system = SCORE_SYSTEM_CW;
 
     game_modifiers.gameplay.rounds.delay_between_rounds = 4.5;
@@ -348,20 +350,20 @@ float(float current_health, float current_round) Gamemode_Festive_GetZombieHealt
 {
     float zombie_health = 150;
 
-    if (rounds > 2 && rounds < 13) {
-        zombie_health += rounds * 60;
-    } else if (rounds < 18) {
-        zombie_health += rounds * 100;
-    } else if (rounds < 23) {
-        zombie_health += rounds * 300;
-    } else if (rounds < 28) {
-        zombie_health += rounds * 750;
-    } else if (rounds < 33) {
-        zombie_health += rounds * 1400;
-    } else if (rounds < 37) {
-        zombie_health += rounds * 1750;
-    } else if (rounds < 56) {
-        zombie_health += rounds * 2000;
+    if (current_round > 2 && current_round < 13) {
+        zombie_health += current_round * 60;
+    } else if (current_round < 18) {
+        zombie_health += current_round * 100;
+    } else if (current_round < 23) {
+        zombie_health += current_round * 300;
+    } else if (current_round < 28) {
+        zombie_health += current_round * 750;
+    } else if (current_round < 33) {
+        zombie_health += current_round * 1400;
+    } else if (current_round < 37) {
+        zombie_health += current_round * 1750;
+    } else if (current_round < 56) {
+        zombie_health += current_round * 2000;
     } else {
         zombie_health = 60250;
     }

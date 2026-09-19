@@ -1355,14 +1355,20 @@ void() spawn_zombie =
 void(entity where) spawn_a_zombieB;
 void() set_z_health =
 {
-	if(rounds <= 10)
+	float round_for_health = rounds;
+
+	if (game_modifiers.gameplay.ai.round_health_cap > 0 && round_for_health > game_modifiers.gameplay.ai.round_health_cap) {
+		round_for_health = game_modifiers.gameplay.ai.round_health_cap;
+	}
+
+	if(round_for_health <= 10)
 	{
-		z_health = 50 + (rounds * 100);
+		z_health = 50 + (round_for_health * 100);
 	}
 	else
 	{	
 		local float i;
-		i = rounds - 10;
+		i = round_for_health - 10;
 		z_health = 1040;
 		while(i > 0)
 		{
@@ -1371,7 +1377,7 @@ void() set_z_health =
 		}
 	}
 
-	z_health = Gamemode_GetZombieHealthForRound(z_health, rounds);
+	z_health = Gamemode_GetZombieHealthForRound(z_health, round_for_health);
 };
 
 //
