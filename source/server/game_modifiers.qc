@@ -240,6 +240,7 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckArray(root, "gameplay.ai.zombie.sounds.shout", 12)) return false;
 	if (!Modifiers_CheckArray(root, "gameplay.ai.zombie.sounds.taunt", 12)) return false;
 	if (!Modifiers_CheckArray(root, "gameplay.ai.zombie.sounds.groan", 12)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.ai.score_system", JNODE_STRING, 0, 0)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.player.start_health", JNODE_NUMBER, 0.001, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.player.can_earn_points_in_last_stand", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.player.can_use_melee", JNODE_BOOL, 0, 1000000)) return false;
@@ -248,6 +249,11 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckValue(root, "gameplay.player.health_regeneration.regeneration_multiplier", JNODE_NUMBER, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.player.health_regeneration.regeneration_delay_light_damage", JNODE_NUMBER, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.player.health_regeneration.regeneration_delay_heavy_damage", JNODE_NUMBER, 0, 1000000)) return false;
+	string score_system = Json_GetStringPath(root, "gameplay.ai.score_system", "default");
+	if (score_system != "default" && score_system != "cw" && score_system != "bo4") {
+		Json_Fail("AI score_system must be default, cw, or bo4");
+		return false;
+	}
     if (!Modifiers_CheckValue(root, "gameplay.rounds.delay_between_rounds", JNODE_NUMBER, 0, 1000000)) return false;
     if (!Modifiers_CheckValue(root, "gameplay.rounds.ai_spawn_delay_reduction_multiplier", JNODE_NUMBER, 0, 1000000)) return false;
     if (!Modifiers_CheckValue(root, "gameplay.rounds.sounds.game_start", JNODE_STRING, 0, 0)) return false;
@@ -431,6 +437,18 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
     game_modifiers.gameplay.powerups.powerup_weapon_upgrade.show_toast = Json_GetBoolPath(config_root, "gameplay.powerups.powerup_weapon_upgrade.show_toast", initialize ? false : game_modifiers.gameplay.powerups.powerup_weapon_upgrade.show_toast);
     game_modifiers.gameplay.powerups.powerup_weapon_upgrade.model = Modifiers_ReadString(config_root, "gameplay.powerups.powerup_weapon_upgrade.model", game_modifiers.gameplay.powerups.powerup_weapon_upgrade.model, initialize, "models/pu/pack!.mdl");
     game_modifiers.gameplay.powerups.powerup_weapon_upgrade.voiceover = Modifiers_ReadString(config_root, "gameplay.powerups.powerup_weapon_upgrade.voiceover", game_modifiers.gameplay.powerups.powerup_weapon_upgrade.voiceover, initialize, "");
+
+    // MARK: AI scoring
+    float score_system_node = Json_GetPath(config_root, "gameplay.ai.score_system");
+    if (initialize || score_system_node) {
+        string score_system = Json_AsString(score_system_node, "default");
+        if (score_system == "cw")
+            game_modifiers.gameplay.ai.score_system = SCORE_SYSTEM_CW;
+        else if (score_system == "bo4")
+            game_modifiers.gameplay.ai.score_system = SCORE_SYSTEM_BO4;
+        else
+            game_modifiers.gameplay.ai.score_system = SCORE_SYSTEM_DEFAULT;
+    }
 
     // MARK: Zombie Walk Styles
     game_modifiers.gameplay.ai.zombie.walk_styles.can_walk = Json_GetBoolPath(config_root, "gameplay.ai.zombie.walk_styles.can_walk", initialize ? true : game_modifiers.gameplay.ai.zombie.walk_styles.can_walk);
