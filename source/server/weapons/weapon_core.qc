@@ -46,10 +46,14 @@ float() push_away_zombies;
 //
 void(entity person) W_HideCrosshair =
 {
+#ifdef QUAKEC_TEST
+	return;
+#else
 	if (person == world)
 		return;
 
 	stuffcmd(person, "crosshair 0\n");
+#endif
 }
 
 //
@@ -61,6 +65,9 @@ void(entity person) W_HideCrosshair =
 //
 void(entity person) W_ShowCrosshair =
 {
+#ifdef QUAKEC_TEST
+	return;
+#else
 	if (person == world)
 		return;
 
@@ -77,6 +84,7 @@ void(entity person) W_ShowCrosshair =
 	crosshair_string = strzone(strcat(crosshair_string, ftos(crosshair_type)));
 	stuffcmd(person, strcat(crosshair_string, "\n"));
 	strunzone(crosshair_string);
+#endif
 }
 
 void() ReturnWeaponModel =

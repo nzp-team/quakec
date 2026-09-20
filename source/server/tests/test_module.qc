@@ -24,7 +24,6 @@
 		Boston, MA  02111-1307, USA
 
 */
-#ifdef FTE
 #ifdef QUAKEC_TEST
 
 float total_tests_ran;
@@ -135,4 +134,3 @@ void() Test_RunAllTests =
 };
 
 #endif // QUAKEC_TEST
-#endif // FTE
