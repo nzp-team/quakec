@@ -68,6 +68,34 @@ float(float root, string path, float capacity) Modifiers_CheckArray =
     return true;
 };
 
+float(float root, string path) Modifiers_CheckColor =
+{
+    float node = Json_GetPath(root, path);
+    if (!node) return true;
+    if (j_type[node] != JNODE_ARRAY || Json_ArrayLen(node) != 3) {
+        Json_Fail(strcat("Invalid RGB color for ", path));
+        return false;
+    }
+    for (float child = j_first[node]; child; child = j_next[child]) {
+        if (j_type[child] != JNODE_NUMBER || j_f[child] < 0 || j_f[child] > 255) {
+            Json_Fail(strcat("Invalid RGB color for ", path));
+            return false;
+        }
+    }
+    return true;
+};
+
+vector(float root, string path, vector fallback) Modifiers_ReadColor =
+{
+    float node = Json_GetPath(root, path);
+    if (!node) return fallback;
+    return [
+        Json_AsFloat(Json_ArrayAt(node, 0), fallback[0]),
+        Json_AsFloat(Json_ArrayAt(node, 1), fallback[1]),
+        Json_AsFloat(Json_ArrayAt(node, 2), fallback[2])
+    ];
+};
+
 //
 // Modifiers_ReadString(root, path, current, initialize, fallback)
 // Parser strings are released after each file. Gameplay keeps its own copy.
@@ -278,6 +306,7 @@ float(float root) Modifiers_Validate =
     if (!Modifiers_CheckValue(root, "interface.rounds.position_style", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.rounds.skip_intro", JNODE_BOOL, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.rounds.use_tally_marks_until_round", JNODE_NUMBER, 0, 1000000)) return false;
+    if (!Modifiers_CheckColor(root, "interface.rounds.color")) return false;
     if (!Modifiers_CheckArray(root, "interface.rounds.graphics.tally_marks", 5)) return false;
     if (!Modifiers_CheckArray(root, "interface.rounds.graphics.numeric", 10)) return false;
     if (!Modifiers_CheckValue(root, "interface.equipment.graphics.grenade", JNODE_STRING, 0, 0)) return false;
@@ -570,6 +599,7 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
     game_modifiers.interface.rounds.position_style = Modifiers_ReadString(config_root, "interface.rounds.position_style", game_modifiers.interface.rounds.position_style, initialize, "bottom_left");
     game_modifiers.interface.rounds.skip_intro = Json_GetBoolPath(config_root, "interface.rounds.skip_intro", initialize ? false : game_modifiers.interface.rounds.skip_intro);
     game_modifiers.interface.rounds.use_tally_marks_until_round = Json_GetFloatPath(config_root, "interface.rounds.use_tally_marks_until_round", initialize ? 11 : game_modifiers.interface.rounds.use_tally_marks_until_round);
+    game_modifiers.interface.rounds.color = Modifiers_ReadColor(config_root, "interface.rounds.color", initialize ? '107 1 0' : game_modifiers.interface.rounds.color);
     array_root = Json_GetPath(config_root, "interface.rounds.graphics.tally_marks");
     if (initialize || array_root) {
         for (float i = 0; i < 5; i++) {
@@ -794,4 +824,5 @@ void() Modifiers_RegisterHUD =
     nzp_hudconfig(32, game_modifiers.interface.score.position_style);
 	nzp_hudconfig(33, game_modifiers.interface.rounds.position_style);
 	nzp_hudconfig(34, ftos(game_modifiers.interface.rounds.skip_intro));
+	nzp_setroundcolor(game_modifiers.interface.rounds.color);
 };

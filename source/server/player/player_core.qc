@@ -1110,6 +1110,7 @@ void() PlayerSpawn =
 		nzp_setplayername(self, self.name);
 
 	Gamemode_PlayerSpawn();
+	nzp_setroundcolor(game_modifiers.interface.rounds.color);
 };
 
 void() SpectatorSpawn =

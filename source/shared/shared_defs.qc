@@ -680,6 +680,7 @@ struct game_modifier
 			string position_style;
 			float skip_intro;
 			float use_tally_marks_until_round;
+			vector color;
 
 			struct gm_in_rnds_gfx
 			{

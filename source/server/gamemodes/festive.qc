@@ -27,7 +27,6 @@
 
 float festive_ran_post_init_logic;
 string festive_override_music;
-string festive_round_color;
 float festive_useprint_ammo;
 
 void() Gamemode_Festive_Init =
@@ -84,7 +83,7 @@ void() Gamemode_Festive_Init =
     game_modifier_powerup_toast_for_all = true;
     game_modifier_hellhound_fog_color = "200 525 60 25 45";
     game_modifier_default_fog_color = "240 2000 60 45 45";
-    festive_round_color = "20 10 0";
+    game_modifiers.interface.rounds.color = '80 40 0';
     sprint_max_time = 10000000;
 
     // Holiday settings
@@ -93,7 +92,7 @@ void() Gamemode_Festive_Init =
             mystery_box_open_sound = "sounds/modes/festive/halloween/mbox_open.wav";
             game_modifier_hellhound_fog_color = "200 525 60 45 25";
             game_modifier_default_fog_color = "240 2000 0 0 0";
-            festive_round_color = "50 15 0";
+            game_modifiers.interface.rounds.color = '200 60 0';
             festive_override_music = "festive/dtha";
             break;
     }
@@ -232,9 +231,6 @@ void() Gamemode_Festive_PlayerSpawn =
         selected_weapon = W_KAR;
 
     Weapon_AssignWeapon(0, selected_weapon, 0, 0, 0);
-
-    nzp_setroundcolor(stov(festive_round_color));
-
 };
 
 float(float current_melee_damage, float weapon, float has_bowie) Gamemode_Festive_CalculateMeleeDamage =
