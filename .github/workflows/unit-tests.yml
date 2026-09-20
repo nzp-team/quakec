@@ -1,5 +1,11 @@
 name: QuakeC Unit Tests
-on: [pull_request]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
 jobs:
   Unit-Tests:
     name: Run Unit Tests
@@ -7,12 +13,68 @@ jobs:
     container:
       image: ubuntu:24.04
       options: --shm-size=8192m
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Wait for GitHub to keep up..
-        run: sleep 2s
-        shell: bash
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Resolve dependency overrides
+        id: dependencies
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_HEAD_OWNER: ${{ github.event.pull_request.head.repo.owner.login }}
+        run: |
+          vril_ref=$(sed -nE 's/^[[:space:]]*vril_ref=([^[:space:]]+)[[:space:]]*$/\1/p' <<< "${PR_BODY}" | head -n 1)
+          assets_ref=$(sed -nE 's/^[[:space:]]*assets_ref=([^[:space:]]+)[[:space:]]*$/\1/p' <<< "${PR_BODY}" | head -n 1)
+          echo "vril_ref=${vril_ref}" >> "${GITHUB_OUTPUT}"
+          echo "assets_ref=${assets_ref}" >> "${GITHUB_OUTPUT}"
+          echo "vril_repository=${PR_HEAD_OWNER}/vril-engine" >> "${GITHUB_OUTPUT}"
+          echo "assets_repository=${PR_HEAD_OWNER}/assets" >> "${GITHUB_OUTPUT}"
+      - name: Checkout Vril
+        if: steps.dependencies.outputs.vril_ref != ''
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.dependencies.outputs.vril_repository }}
+          ref: ${{ steps.dependencies.outputs.vril_ref }}
+          path: test-dependencies/vril-engine
+          persist-credentials: false
+      - name: Checkout assets
+        if: steps.dependencies.outputs.assets_ref != ''
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.dependencies.outputs.assets_repository }}
+          ref: ${{ steps.dependencies.outputs.assets_ref }}
+          path: test-dependencies/assets
+          persist-credentials: false
+      - name: Log Repository Overrides
+        env:
+          VRIL_REF: ${{ steps.dependencies.outputs.vril_ref }}
+          VRIL_REPOSITORY: ${{ steps.dependencies.outputs.vril_repository }}
+          ASSETS_REF: ${{ steps.dependencies.outputs.assets_ref }}
+          ASSETS_REPOSITORY: ${{ steps.dependencies.outputs.assets_repository }}
+        run: |
+          {
+            echo "### QuakeC Unit Test Overrides"
+            echo
+            if [[ -n "${VRIL_REF}" ]]; then
+              echo "* Vril: \`${VRIL_REPOSITORY}@$(git -C test-dependencies/vril-engine rev-parse HEAD)\` (requested \`${VRIL_REF}\`)"
+            else
+              echo "* Vril: N/A"
+            fi
+            if [[ -n "${ASSETS_REF}" ]]; then
+              echo "* assets: \`${ASSETS_REPOSITORY}@$(git -C test-dependencies/assets rev-parse HEAD)\` (requested \`${ASSETS_REF}\`)"
+            else
+              echo "* Assets: N/A"
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
       - name: Run Unit Test Script
+        env:
+          VRIL_REF: ${{ steps.dependencies.outputs.vril_ref }}
+          VRIL_SOURCE_DIRECTORY: ${{ github.workspace }}/test-dependencies/vril-engine
+          ASSETS_REF: ${{ steps.dependencies.outputs.assets_ref }}
+          ASSETS_SOURCE_DIRECTORY: ${{ github.workspace }}/test-dependencies/assets
         run: |
           bash testing/run_unit_tests.sh

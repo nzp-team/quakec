@@ -50,7 +50,7 @@ void() Test_game_random_FiresOneValidTargetPerUse =
 
 	for (i = 0; i < 8; i++) {
 		targets[i] = spawn();
-		targets[i].targetname = sprintf("test_game_random_%d", i + 1);
+		targets[i].targetname = strzone(sprintf("test_game_random_%d", i + 1));
 		targets[i].use = test_game_random_count_use;
 	}
 
@@ -73,8 +73,10 @@ void() Test_game_random_FiresOneValidTargetPerUse =
 	Test_Assert(game_random_ent.target == "", "game_random did not clear its temporary target!");
 
 	self = old_self;
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < 8; i++) {
+		strunzone(targets[i].targetname);
 		remove(targets[i]);
+	}
 	remove(trigger);
 	remove(game_random_ent);
 };

@@ -93,7 +93,7 @@ function compile_progs()
 function main()
 {
 	setup;
-	compile_progs "ssqc" "Vril SSQC" "-O3 -Ono-compound_jumps -Wall"
+	compile_progs "ssqc" "Vril SSQC" "-O3 -Ono-compound_jumps ${TEST_FLAG} -Wall"
 	exit ${RC}
 }
 

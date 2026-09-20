@@ -1,16 +1,18 @@
-<!-- Note that before you open this Pull Request it should be titled to fit our standard, using prefixes specifying component relevancy:
-* `SERVER`: SSQC/Game code, for all supported platforms.
-* `CLIENT`: CSQC for FTE, in the "client" directory.
-* `MENU`: MenuQC
+<!-- Note that before you open this Pull Request it should be titled to fit our standard, e.g.:
+Fixed runaway loop when loading mbox file
+Adjusted round icon color on HUD
+Add new stat for revived player count
 
-If commits generally are common, use the `GLOBAL` prefix.
+(The jist is, don't just say "fixed thing")
 
-Examples:
-SERVER: Fixed runaway loop when loading mbox file
-CLIENT: Adjusted round icon color on HUD
-CLIENT/SERVER: Add new stat for revived player count
+Ideally you should also use this standard for your commit names too. They'll likely be squashed on merge if they do not conform. We would prefer to rebase on merge.
+-->
 
-Ideally you should also use this standard for your commit names too. They'll likely be squashed on merge if they do not conform.
+<!-- 
+Uncomment to run QuakeC tests on specific component branches (will
+use your own forks if you are an external contributor):
+# vril_ref=main
+# assets_ref=main
 -->
 
 ### Description of Changes

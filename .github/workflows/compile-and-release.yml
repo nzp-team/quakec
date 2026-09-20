@@ -47,7 +47,7 @@ jobs:
             This is a **bleeding edge** NZ:P QuakeC release, stability is not guarenteed and you may need to grab an updated asset release if this update depends on new models/textures/etc.
 
             To install:
-            - Grab the .ZIP archive for your desired platform below (fte-nzp-qc.zip for PC platforms/WebGL, standard-nzp-qc.zip for everything else..).
+            - Grab the .ZIP archive below.
             - Extract the contents of the .ZIP archive to your nzp folder (Example: copy `progs.dat` and `progs.lno` to `PSP/GAME/nzportable/nzp`).
           draft: true
           prerelease: false
