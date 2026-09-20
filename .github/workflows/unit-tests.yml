@@ -13,6 +13,9 @@ jobs:
     container:
       image: ubuntu:24.04
       options: --shm-size=8192m
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
