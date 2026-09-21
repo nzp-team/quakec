@@ -198,11 +198,16 @@ float() PU_GetNextPowerUp =
 {
 	float id;
 	float found;
+	float attempt_limit;
 	id = -1;
 	found = false;
 
+	attempt_limit = powerup_count;
+	if (powerup_index > 0)
+		attempt_limit += powerup_count - powerup_index;
+
 	// A configuration may leave no eligible drops. Try the deck once.
-	for (float attempt = 0; attempt < powerup_count && !found; attempt++) {
+	for (float attempt = 0; attempt < attempt_limit && !found; attempt++) {
 		// Refresh the Array if we're at the end
 		if (powerup_index >= powerup_count) {
 			PU_PopulateArray();
