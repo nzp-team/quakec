@@ -289,6 +289,20 @@ float   ()                                                                      
 void    (entity client, float index, string value, vector color)                                useprint_send       = #514;
 void    (float index, string value)                                                             nzp_hudconfig       = #515;
 float   (optional float timetype)                                                               gettime             = #519;
+float   (string text)                                                                           json_parse          = #600;
+float   (string path)                                                                           json_parse_file     = #601;
+void    (float root)                                                                            json_free           = #602;
+float   (float node)                                                                            json_get_value_type = #603;
+float   (float node)                                                                            json_get_integer    = #604;
+float   (float node)                                                                            json_get_float      = #605;
+string  (float node)                                                                            json_get_string     = #606;
+float   (float node, string name)                                                               json_find_object_child = #607;
+float   (float node)                                                                            json_get_length     = #608;
+float   (float node, float index)                                                               json_get_child_at_index = #609;
+string  (float node)                                                                            json_get_name       = #610;
+float   ()                                                                                      json_get_error_code = #611;
+string  ()                                                                                      json_get_error      = #612;
+float   ()                                                                                      json_get_error_position = #613;
 string  (string fmt, ...)                                                                       sprintf             = #627;
 
 //

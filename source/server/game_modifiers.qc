@@ -36,15 +36,16 @@ float(float root, string path, float type, float minimum, float maximum) Modifie
 {
     float node = Json_GetPath(root, path);
     if (!node) return true;
-    if (j_type[node] != type) {
+    if (!Json_IsType(node, type)) {
         Json_Fail(strcat("Wrong type for ", path));
         return false;
     }
-    if (type == JNODE_STRING && strstrofs(path, ".toast", 0) < 0 && strlen(j_s[node]) > 63) {
+    if (type == JNODE_STRING && strstrofs(path, ".toast", 0) < 0 && strlen(Json_AsString(node, "")) > 63) {
         Json_Fail(strcat("Asset path or setting exceeds 63 bytes: ", path));
         return false;
     }
-    if (type == JNODE_NUMBER && (!(j_f[node] >= minimum) || !(j_f[node] <= maximum))) {
+    float number = Json_AsFloat(node, 0);
+    if (type == JNODE_NUMBER && (!(number >= minimum) || !(number <= maximum))) {
         Json_Fail(strcat("Value out of range for ", path));
         return false;
     }
@@ -55,12 +56,14 @@ float(float root, string path, float capacity) Modifiers_CheckArray =
 {
     float node = Json_GetPath(root, path);
     if (!node) return true;
-    if (j_type[node] != JNODE_ARRAY || Json_ArrayLen(node) > capacity) {
+    if (Json_Type(node) != JNODE_ARRAY || Json_ArrayLen(node) > capacity) {
         Json_Fail(strcat("Invalid array size or type for ", path));
         return false;
     }
-    for (float child = j_first[node]; child; child = j_next[child]) {
-        if (j_type[child] != JNODE_STRING || (j_s[child] == "" && strstrofs(path, "interface.", 0) != 0) || strlen(j_s[child]) > 63) {
+    for (float i = 0; i < Json_ArrayLen(node); i++) {
+        float child = Json_ArrayAt(node, i);
+        string value = Json_AsString(child, "");
+        if (Json_Type(child) != JNODE_STRING || (value == "" && strstrofs(path, "interface.", 0) != 0) || strlen(value) > 63) {
             Json_Fail(strcat("Invalid string entry in ", path));
             return false;
         }
@@ -72,12 +75,14 @@ float(float root, string path) Modifiers_CheckColor =
 {
     float node = Json_GetPath(root, path);
     if (!node) return true;
-    if (j_type[node] != JNODE_ARRAY || Json_ArrayLen(node) != 3) {
+    if (Json_Type(node) != JNODE_ARRAY || Json_ArrayLen(node) != 3) {
         Json_Fail(strcat("Invalid RGB color for ", path));
         return false;
     }
-    for (float child = j_first[node]; child; child = j_next[child]) {
-        if (j_type[child] != JNODE_NUMBER || j_f[child] < 0 || j_f[child] > 255) {
+    for (float i = 0; i < Json_ArrayLen(node); i++) {
+        float child = Json_ArrayAt(node, i);
+        float value = Json_AsFloat(child, -1);
+        if (Json_Type(child) != JNODE_NUMBER || value < 0 || value > 255) {
             Json_Fail(strcat("Invalid RGB color for ", path));
             return false;
         }
@@ -116,15 +121,15 @@ float(float root, string path, float capacity) Modifiers_CheckSoundArray =
 {
     float node = Json_GetPath(root, path);
     if (!node) return true;
-    if (j_type[node] == JNODE_STRING)
+    if (Json_Type(node) == JNODE_STRING)
         return Modifiers_CheckValue(root, path, JNODE_STRING, 0, 0);
     return Modifiers_CheckArray(root, path, capacity);
 };
 
 string(float node, float index) Modifiers_ArrayString =
 {
-    if (node && j_type[node] == JNODE_STRING) {
-        if (index == 0) return j_s[node];
+    if (node && Json_Type(node) == JNODE_STRING) {
+        if (index == 0) return Json_AsString(node, "");
         return "";
     }
     return Json_ArrayStringAt(node, index, "");
@@ -132,7 +137,7 @@ string(float node, float index) Modifiers_ArrayString =
 
 float(float root) Modifiers_Validate =
 {
-    if (j_type[root] != JNODE_OBJECT) {
+    if (Json_Type(root) != JNODE_OBJECT) {
         Json_Fail("Configuration root must be an object");
         return false;
     }
@@ -646,14 +651,14 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
 };
 
 //
-// Modifiers_LoadFile(path, required)
+// Modifiers_LoadFile(path, required, report_missing)
 // A broken optional layer leaves the previous settings intact.
 // The default file is required so a bad install doesn't silently change play.
 //
-void(string path, float required) Modifiers_LoadFile =
+void(string path, float required, float report_missing) Modifiers_LoadFile =
 {
     float root = Json_ParseFile(path);
-    if (json_file_missing && !required) return;
+    if (json_file_missing && !required && !report_missing) return;
     float valid = root != 0;
     if (valid) valid = Modifiers_Validate(root);
     if (!valid) {
@@ -663,14 +668,14 @@ void(string path, float required) Modifiers_LoadFile =
         if (json_file_missing) print("file not found");
         else print(json_error_msg);
         print("\n");
-        Json_ResetNodes();
+        if (root) json_free(root);
         if (required) error("Could not load default gameplay configuration.\n");
         return;
     }
     if (!required && Json_GetPath(root, "gameplay.powerups.powerup_weapon_upgrade.enabled"))
         modifier_weapon_upgrade_overridden = true;
     Modifiers_ApplyValues(root, false);
-    Json_ResetNodes();
+    json_free(root);
 };
 
 float(string name) Modifiers_ValidName =
@@ -690,7 +695,7 @@ void() Modifiers_LoadGameVariables =
 {
     modifier_weapon_upgrade_overridden = false;
     Modifiers_ApplyValues(0, true);
-    Modifiers_LoadFile("data/configuration/default.json", true);
+    Modifiers_LoadFile("data/configuration/default.json", true, true);
 };
 
 //
@@ -703,17 +708,14 @@ void() Modifiers_LoadOverrides =
     string path;
     if (Modifiers_ValidName(mapname)) {
         path = strzone(strcat(strcat("data/configuration/maps/", mapname), ".json"));
-        Modifiers_LoadFile(path, false);
+        Modifiers_LoadFile(path, false, false);
         strunzone(path);
     }
     string overlay = strzone(cvar_string("sv_gameconfig"));
     if (overlay != "") {
         if (Modifiers_ValidName(overlay)) {
             path = strzone(strcat(strcat("data/configuration/overlays/", overlay), ".json"));
-            // An explicitly selected overlay should report a missing file.
-            float handle = fopen(path, JSON_FILE_READ);
-            if (handle < 0) { print("Configuration overlay not found: "); print(path); print("\n"); }
-            else { fclose(handle); Modifiers_LoadFile(path, false); }
+            Modifiers_LoadFile(path, false, true);
             strunzone(path);
         } else {
             print("sv_gameconfig must be a filename without a path or .json extension.\n");

@@ -72,8 +72,7 @@ shared_defs.qc
 defs/custom.qc
 useprints.qc
 fte_builtins.qc
-json/lexer.qc
-json/parser.qc
+json.qc
 map_rotation.qc
 utilities/sound_helper.qc
 weapon_stats.qc
@@ -149,6 +148,7 @@ tests/test_score.qc
 tests/test_ai.qc
 tests/test_power.qc
 tests/test_powerups.qc
+tests/test_json.qc
 tests/test_misc.qc
 tests/test_rounds.qc
 tests/test_game_counter.qc
