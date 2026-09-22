@@ -62,6 +62,12 @@ void() Gamemode_Festive_Init =
     game_modifiers.gameplay.rounds.sounds.new_hound_round = strzone("sounds/modes/festive/rnd_dog_start.wav");
     if (game_modifiers.gameplay.rounds.sounds.end_hound_round != "") strunzone(game_modifiers.gameplay.rounds.sounds.end_hound_round);
     game_modifiers.gameplay.rounds.sounds.end_hound_round = strzone("sounds/modes/festive/rnd_dog_end.wav");
+    for (float i = 0; i < 4; i++) {
+        if (game_modifiers.gameplay.rounds.sounds.hound_round_taunts[i] != "") strunzone(game_modifiers.gameplay.rounds.sounds.hound_round_taunts[i]);
+        game_modifiers.gameplay.rounds.sounds.hound_round_taunts[i] = "";
+    }
+    game_modifiers.gameplay.rounds.sounds.hound_round_taunts[0] = strzone("sounds/modes/festive/fetch.wav");
+    game_modifiers.gameplay.rounds.sounds.hound_round_taunts[1] = strzone("sounds/modes/festive/tear.wav");
     if (game_modifiers.interface.perksacola.position_style != "") strunzone(game_modifiers.interface.perksacola.position_style);
     game_modifiers.interface.perksacola.position_style = strzone("cw");
     for (float i = 0; i < 4; i++) {
@@ -456,17 +462,6 @@ string(string current_tune) Gamemode_Festive_GetStartSpecialRoundTune =
 string(string current_tune) Gamemode_Festive_GetEndSpecialRoundTune =
 {
     return "sounds/modes/festive/rnd_dog_end.wav";
-}
-
-string(string current_taunt) Gamemode_Festive_GetHellhoundTaunt =
-{
-    float chance = random();
-
-    if (chance < 0.5) {
-        return "sounds/modes/festive/fetch.wav";
-    } else {
-        return "sounds/modes/festive/tear.wav";
-    }
 }
 
 float(float current_delay) Gamemode_Festive_GetRoundDelay =

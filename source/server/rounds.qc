@@ -29,10 +29,10 @@ string(string current_tune) Gamemode_GetEndRoundTune;
 string(string current_tune) Gamemode_GetStartRoundTune;
 string(string current_tune) Gamemode_GetEndSpecialRoundTune;
 string(string current_tune) Gamemode_GetStartSpecialRoundTune;
-string(string current_taunt) Gamemode_GetHellhoundTaunt;
 float(float current_delay) Gamemode_GetRoundDelay;
 
 string(float ending) Modifiers_PickRoundSound;
+string() Modifiers_PickHellhoundTaunt;
 
 void() SUB_UseTargets;
 float() spawn_a_dogA;
@@ -230,8 +230,7 @@ void() NewRound =
 			dogWave = true;
 			dog_round_count++;
 
-			string hellhound_taunt = "";
-			hellhound_taunt = Gamemode_GetHellhoundTaunt(hellhound_taunt);
+			string hellhound_taunt = Modifiers_PickHellhoundTaunt();
 			if (hellhound_taunt != "") {
 				Sound_PlaySound(world, hellhound_taunt, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
 			}

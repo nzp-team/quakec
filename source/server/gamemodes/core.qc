@@ -359,16 +359,6 @@ string(string current_tune) Gamemode_GetStartSpecialRoundTune =
     return current_tune; 
 }
 
-string(string current_taunt) Gamemode_GetHellhoundTaunt =
-{
-    switch(current_gamemode) {
-        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetHellhoundTaunt(current_taunt);
-        default: break;
-    }
-
-    return current_taunt; 
-}
-
 string(string current_tune) Gamemode_GetEndRoundTune =
 {
     switch(current_gamemode) {

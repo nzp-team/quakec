@@ -634,6 +634,7 @@ struct game_modifier
 				string end_round[4];
 				string new_hound_round;
 				string end_hound_round;
+				string hound_round_taunts[4];
 				string game_over;
 			};
 			gm_gp_rnds_sounds sounds;

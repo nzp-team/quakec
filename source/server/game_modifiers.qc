@@ -295,6 +295,7 @@ float(float root) Modifiers_Validate =
     if (!Modifiers_CheckSoundArray(root, "gameplay.rounds.sounds.end_round", 4)) return false;
     if (!Modifiers_CheckValue(root, "gameplay.rounds.sounds.new_hound_round", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "gameplay.rounds.sounds.end_hound_round", JNODE_STRING, 0, 0)) return false;
+    if (!Modifiers_CheckSoundArray(root, "gameplay.rounds.sounds.hound_round_taunts", 4)) return false;
     if (!Modifiers_CheckValue(root, "gameplay.rounds.sounds.game_over", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.perksacola.position_style", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.perksacola.graphics.quickrevive", JNODE_STRING, 0, 0)) return false;
@@ -588,6 +589,18 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
     }
     game_modifiers.gameplay.rounds.sounds.new_hound_round = Modifiers_ReadString(config_root, "gameplay.rounds.sounds.new_hound_round", game_modifiers.gameplay.rounds.sounds.new_hound_round, initialize, "sounds/rounds/droundstart.wav");
     game_modifiers.gameplay.rounds.sounds.end_hound_round = Modifiers_ReadString(config_root, "gameplay.rounds.sounds.end_hound_round", game_modifiers.gameplay.rounds.sounds.end_hound_round, initialize, "sounds/rounds/droundend.wav");
+    array_root = Json_GetPath(config_root, "gameplay.rounds.sounds.hound_round_taunts");
+    if (initialize || array_root) {
+        for (float i = 0; i < 4; i++) {
+            if (game_modifiers.gameplay.rounds.sounds.hound_round_taunts[i] != "") strunzone(game_modifiers.gameplay.rounds.sounds.hound_round_taunts[i]);
+            game_modifiers.gameplay.rounds.sounds.hound_round_taunts[i] = "";
+            string value = Modifiers_ArrayString(array_root, i);
+            if (value != "") game_modifiers.gameplay.rounds.sounds.hound_round_taunts[i] = strzone(value);
+        }
+    }
+    if (initialize && !array_root) {
+        game_modifiers.gameplay.rounds.sounds.hound_round_taunts[0] = strzone("sounds/rounds/fetch.wav");
+    }
     game_modifiers.gameplay.rounds.sounds.game_over = Modifiers_ReadString(config_root, "gameplay.rounds.sounds.game_over", game_modifiers.gameplay.rounds.sounds.game_over, initialize, "sounds/music/end.wav");
     game_modifiers.interface.perksacola.position_style = Modifiers_ReadString(config_root, "interface.perksacola.position_style", game_modifiers.interface.perksacola.position_style, initialize, "nzp");
     game_modifiers.interface.perksacola.graphics.quickrevive = Modifiers_ReadString(config_root, "interface.perksacola.graphics.quickrevive", game_modifiers.interface.perksacola.graphics.quickrevive, initialize, "gfx/hud/revive");
@@ -768,6 +781,16 @@ string(float ending) Modifiers_PickRoundSound =
     return game_modifiers.gameplay.rounds.sounds.new_round[index];
 };
 
+string() Modifiers_PickHellhoundTaunt =
+{
+    float count;
+    for (count = 0; count < 4; count++) {
+        if (game_modifiers.gameplay.rounds.sounds.hound_round_taunts[count] == "") break;
+    }
+    if (!count) return "";
+    return game_modifiers.gameplay.rounds.sounds.hound_round_taunts[clamp(floor(random() * count), 0, count - 1)];
+};
+
 void(string path) Modifiers_PrecacheSound =
 {
     if (path != "") precache_sound(path);
@@ -785,6 +808,7 @@ void() Modifiers_PrecacheSounds =
     Modifiers_PrecacheSound(game_modifiers.gameplay.rounds.sounds.game_start);
     Modifiers_PrecacheSound(game_modifiers.gameplay.rounds.sounds.new_hound_round);
     Modifiers_PrecacheSound(game_modifiers.gameplay.rounds.sounds.end_hound_round);
+    for (float i = 0; i < 4; i++) Modifiers_PrecacheSound(game_modifiers.gameplay.rounds.sounds.hound_round_taunts[i]);
     Modifiers_PrecacheSound(game_modifiers.gameplay.rounds.sounds.game_over);
 };
 
