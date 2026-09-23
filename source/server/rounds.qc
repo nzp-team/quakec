@@ -34,6 +34,9 @@ float(float current_delay) Gamemode_GetRoundDelay;
 string(float ending) Modifiers_PickRoundSound;
 string() Modifiers_PickHellhoundTaunt;
 
+string hound_round_taunt;
+float hound_round_taunt_time;
+
 void() SUB_UseTargets;
 float() spawn_a_dogA;
 void() zapper_cooldown;
@@ -230,10 +233,8 @@ void() NewRound =
 			dogWave = true;
 			dog_round_count++;
 
-			string hellhound_taunt = Modifiers_PickHellhoundTaunt();
-			if (hellhound_taunt != "") {
-				Sound_PlaySound(world, hellhound_taunt, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
-			}
+			hound_round_taunt = Modifiers_PickHellhoundTaunt();
+			hound_round_taunt_time = hound_round_taunt != "" ? time + 5 : 0;
 		} else {
 			new_round_tune = Modifiers_PickRoundSound(false);
 
@@ -372,6 +373,12 @@ void() Round_Core =
 
 	if (Total_Zombies > Current_Zombies && spawn_time < time) {
 		Spawn_Enemy();
+	}
+
+	if (hound_round_taunt_time && hound_round_taunt_time <= time) {
+		Sound_PlaySound(world, hound_round_taunt, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+		hound_round_taunt = "";
+		hound_round_taunt_time = 0;
 	}
 
 	if (Remaining_Zombies < 1 && !Delay_Time) {
