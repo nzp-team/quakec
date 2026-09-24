@@ -431,11 +431,11 @@ void(entity person) FTE_UpdateDynamicFOV =
 // nzp_poweruptoast()
 // FTE equivalent of nzp_poweruptoast builtin.
 //
-void(float powerup_id) nzp_poweruptoast =
+void(string powerup_toast) nzp_poweruptoast =
 {
 	WriteByte(MSG_MULTICAST, SVC_CGAMEPACKET);
 	WriteByte(MSG_MULTICAST, CSQC_EVENT_POWERUPTOAST);
-	WriteByte(MSG_MULTICAST, powerup_id);
+	WriteString(MSG_MULTICAST, powerup_toast);
 	multicast('0 0 0', MULTICAST_ALL);
 };
 

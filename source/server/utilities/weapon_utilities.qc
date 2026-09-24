@@ -343,7 +343,7 @@ float Weapon_HasNoMulekickWeapon()
 //
 void Weapon_AssignWeapon(float weapon_slot, float weapon_id, float weapon_mag, float weapon_reserve, float weapon_tier)
 {
-	if (weapon_tier == 0 && game_modifier_packapunch_uses_tiers == false)
+	if (weapon_tier == 0 && game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers == false)
 		weapon_tier = -1;
 
 	// Fill the stats as necessary

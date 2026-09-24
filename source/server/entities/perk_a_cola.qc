@@ -57,10 +57,6 @@ string(string taunt) Gamemode_GetGoodByeTaunt;
 #define PERK_SPAWNFLAG_ALLOWPRONE		2048
 #define PERK_SPAWNFLAG_SILENTLEAVE		4096
 
-#define PERK_JUGGERNOG_HEALTH_EASY		200
-#define PERK_JUGGERNOG_HEALTH_NORMAL 	160
-#define PERK_JUGGERNOG_HEALTH_HARD		100
-
 //
 // GivePerk(p)
 // Restores View Model and tells the Client to draw the Perk.
@@ -90,10 +86,11 @@ void GivePerk(optional float p) {
 
 	// Instant re-gen, set health to Jugg health.
 	if (perk & P_JUG) {
+		float health_value = game_modifiers.gameplay.perksacola.perk_juggernog_player_health;
 		switch(cvar("sv_difficulty")) {
-			case 0: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_NORMAL; break;
-			case 1: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_EASY; break;
-			case 2: self.max_health = self.health = PERK_JUGGERNOG_HEALTH_HARD; break;
+			case 0: self.max_health = self.health = health_value; break;
+			case 1: self.max_health = self.health = health_value + 40; break;
+			case 2: self.max_health = self.health = health_value - 60; break;
 			default: break;
 		}
 	}
@@ -189,7 +186,7 @@ void() Perk_StopLeaveAnimation =
 	Light_None(self); // Remove light effect
 	SUB_UseTargets();
 
-	Sound_PlaySound(self, "sounds/pu/drop.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); // Play a fitting sound
+	Sound_PlaySound(self, game_modifiers.gameplay.powerups.sounds.drop, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS); // Play a fitting sound
 }
 
 void() Perk_MachineLeaveAnimation =
@@ -263,7 +260,7 @@ void() touch_perk =
 		return;
 
 	// Perk Purchase Limit met
-	if (Player_GetNumPerks(other) >= game_modifier_perk_purchase_limit)
+	if (Player_GetNumPerks(other) >= game_modifiers.gameplay.perksacola.perk_purchase_limit)
 		return;
 
 	if (cvar("sv_magic") == 0) {
@@ -307,10 +304,10 @@ void() touch_perk =
 
 		// Check if we're playing in Co-Op, adjust price if so.
 		if (player_count > 1)
-			price = floor(self.cost2 * game_modifier_cost_multiplier);
+			price = floor(self.cost2 * game_modifiers.gameplay.global.all_items_cost_multiplier);
 		// Nope, use normal/solo cost.
 		else
-			price = floor(self.cost * game_modifier_cost_multiplier);
+			price = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 
 		price = Gamemode_GetPerkMachinePrice(other, price);
 

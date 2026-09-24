@@ -289,18 +289,21 @@ float(float dir) checkMovement =
 //
 void(entity who, float value, float impacted_by_2x_points) Player_ChangeScore =
 {
-	if (who.classname != "player")
+	if (who.classname != "player" || value == 0)
 		return;
 	
-	// We shouldn't ever allow a player in Last Stand to have
-	// their score modified.
-	if (who.downed)
+	if (who.downed && (value < 0 || !game_modifiers.gameplay.player.can_earn_points_in_last_stand))
 		return;
+
+	if (value < 0 && who.points < -value) {
+		who.points = 0;
+		return;
+	}
 
 	// Multiply the value if it is to be impacted by Double
 	// Points
 	if (impacted_by_2x_points && x2_finished > time)
-		value *= 2;
+		value *= game_modifiers.gameplay.powerups.powerup_double_points.score_multiplier;
 
 	// The value was positive, so we should do two things:
 	// 1. add this to our point threshold check for Power-Up
@@ -762,11 +765,11 @@ void() PlayerPostThink =
 	{
 		// If we weren't super low on health, regen is instant.
 		if (self.health_was_very_low == true) {
-			self.health += 120 * frametime;
+			self.health += 120 * frametime * game_modifiers.gameplay.player.health_regeneration.regeneration_multiplier;
 		} else {
 			// Was 100% instant, but this delays it by only a few
 			// frames so the graphic doesn't just vanish when healed.
-			self.health += 300 * frametime;
+			self.health += 300 * frametime * game_modifiers.gameplay.player.health_regeneration.regeneration_multiplier;
 		}
 
 		// Make sure we mark that we weren't just super hurt anymore.
@@ -804,7 +807,7 @@ void() PlayerPostThink =
 #endif // FTE
 		
 		if (self.perks & P_STAMIN) {
-			if (self.sprint_timer > sprint_max_time * 2) {
+			if (self.sprint_timer > sprint_max_time * game_modifiers.gameplay.perksacola.perk_staminup_stamina_recharge_multiplier) {
 				W_SprintStop();
 			}
 		}
@@ -1001,6 +1004,7 @@ void() PlayerSpawn =
 		default: break;
 	}
 
+	self.max_health *= game_modifiers.gameplay.player.start_health / 100;
 	self.max_health = self.health = Gamemode_GetMaxHealthForPlayer(self.max_health, self.perks);
 	
 	// Pick an available slot from 1-8 inclusive.
@@ -1070,7 +1074,7 @@ void() PlayerSpawn =
 
 	self.stamina = 3;
 	self.reviving = 0;
-	self.perks = G_PERKS;
+	self.perks = 0;
 
 	// Make sure we send the gamemode to the Client
 	// before drawing introduction text.
@@ -1082,8 +1086,7 @@ void() PlayerSpawn =
 	self.SendEntity = Player_SendEntity;
 	self.weapon_animduration = getWeaponDelay(self.weapon, FIRE);
 
-	if (G_WORLDTEXT)
-		WorldText(world.chaptertitle, world.location, world.date, world.person, self);
+	WorldText(world.chaptertitle, world.location, world.date, world.person, self);
 
 	ReportMapMode(map_compatibility_mode, self);
 	
@@ -1107,6 +1110,7 @@ void() PlayerSpawn =
 		nzp_setplayername(self, self.name);
 
 	Gamemode_PlayerSpawn();
+	nzp_setroundcolor(game_modifiers.interface.rounds.color);
 };
 
 void() SpectatorSpawn =

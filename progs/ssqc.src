@@ -72,6 +72,7 @@ shared_defs.qc
 defs/custom.qc
 useprints.qc
 fte_builtins.qc
+json.qc
 map_rotation.qc
 utilities/sound_helper.qc
 weapon_stats.qc
@@ -81,6 +82,7 @@ hash_table.qc
 dummies.qc
 rounds.qc
 ai/zoning_core.qc
+game_modifiers.qc
 main.qc
 plugins/plugin_mapvote.qc
 plugins/plugin_core.qc
@@ -145,6 +147,8 @@ tests/test_misc_model.qc
 tests/test_score.qc
 tests/test_ai.qc
 tests/test_power.qc
+tests/test_powerups.qc
+tests/test_json.qc
 tests/test_misc.qc
 tests/test_rounds.qc
 tests/test_game_counter.qc

@@ -165,7 +165,10 @@ void () WallWeapon_TouchTrigger =
 			// Set the ammo cost for the useprint.
 			wcost = (is_pap) ? self.pap_cost : self.cost2;
 			wcost = Gamemode_GetCostForWeaponAmmo(wcost, self.cost, other.weapons[slot].weapon_id, is_pap, other.weapons[slot - 1].weapon_tier);
-			wcost *= game_modifier_cost_multiplier;
+
+			wcost *= game_modifiers.gameplay.global.all_items_cost_multiplier;
+			float wep = (is_pap) ? EqualPapWeapon(self.weapon) : self.weapon;
+
 			Player_UseprintWithWait(other, self, self.useprint_index_2, wcost);
 
 			if (!Player_UseButtonPressed(other, self) || (other.semi_actions & SEMIACTION_USE) || other.isBuying) {
@@ -217,7 +220,7 @@ void () WallWeapon_TouchTrigger =
 
 			// Set the cost and weapon value (for useprint).
 			wcost = (IsPapWeapon(other.weapon)) ? self.pap_cost : self.cost2;
-			wcost *= game_modifier_cost_multiplier;
+			wcost *= game_modifiers.gameplay.global.all_items_cost_multiplier;
 
 			Player_UseprintWithWait(other, self, self.useprint_index_2, wcost);
 
@@ -253,7 +256,7 @@ void () WallWeapon_TouchTrigger =
 		if (other.grenades & 2)
 			return;
 
-		wcost = floor(self.cost * game_modifier_cost_multiplier);
+		wcost = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 
 		Player_UseprintWithWait(other, self, self.useprint_index_1, wcost);
 
@@ -286,7 +289,7 @@ void () WallWeapon_TouchTrigger =
 	}
 	else if (self.weapon == W_GRENADE)
 	{
-		wcost = floor(self.cost2 * game_modifier_cost_multiplier);
+		wcost = floor(self.cost2 * game_modifiers.gameplay.global.all_items_cost_multiplier);
 		if (other.primary_grenades < 4)
 			Player_UseprintWithWait(other, self, self.useprint_index_2, wcost);
 		else
@@ -318,7 +321,7 @@ void () WallWeapon_TouchTrigger =
 	}
 	else if (self.weapon == W_BOWIE)
 	{
-		wcost = floor(self.cost2 * game_modifier_cost_multiplier);
+		wcost = floor(self.cost2 * game_modifiers.gameplay.global.all_items_cost_multiplier);
 		if (!other.has_bowie_knife) {
 			Player_UseprintWithWait(other, self, self.useprint_index_1, wcost);
 			if (Player_UseButtonPressed(other, self))
@@ -350,7 +353,7 @@ void () WallWeapon_TouchTrigger =
 	else if (self.weapon != 99)
 	{
 		entity tempe;
-		wcost = floor(self.cost * game_modifier_cost_multiplier);
+		wcost = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 
 		//centerprint(other, self.message);
 		Player_UseprintWithWait(other, self, self.useprint_index_1, wcost);

@@ -59,7 +59,7 @@ void() screen_shake =
 
 void() Window_repaired =
 {
-	if (barricade_reward_maximum > self.enemy.barricade_reward && game_modifier_can_earn_misc_score == true)
+	if (barricade_reward_maximum > self.enemy.barricade_reward && game_modifiers.gameplay.player.can_earn_score_from_sources_other_than_ai == true)
 	{
 		Sound_PlaySound(self.enemy, "sounds/misc/ching.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 		Player_AddScore(self.enemy, 10, true);
@@ -76,10 +76,8 @@ void() Barricade_hit_window =
 }
 
 void(void() next) checkForSpeed = {
-	if (!(other.perks & P_SPEED))
-		return;
-	
-	next();
+	if ((other.perks & P_SPEED) && game_modifiers.gameplay.perksacola.perk_speedcola_accelerates_barricade_repair == true)
+		next();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////  ANIMATIONS

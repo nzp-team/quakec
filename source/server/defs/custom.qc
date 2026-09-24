@@ -499,25 +499,6 @@ float activated_power_switches;
 .float perk_requires_power_solo;
 .float perk_requires_power_coop;
 
-float game_modifier_can_melee;
-float game_modifier_can_use_equipment;
-float game_modifier_can_earn_misc_score;
-float game_modifier_can_packapunch;
-float game_modifier_powerup_free_perk;
-float game_modifier_powerup_free_perk_is_rare;
-float game_modifier_powerup_max_ammo;
-float game_modifier_powerup_weapon_upgrade;
-float game_modifier_powerup_bonus_points;
-float game_modifier_powerup_toast_for_all;
-float game_modifier_perk_purchase_limit;
-float game_modifier_cost_multiplier;
-float game_modifier_grenades_explode_on_contact;
-float game_modifier_packapunch_uses_tiers;
-float game_modifier_packapunch_is_instant;
-float game_modifier_maxammo_fills_magazine;
-string game_modifier_hellhound_fog_color;
-string game_modifier_default_fog_color;
-
 // Mystery Box
 #define MAX_BOX_WEAPONS 		28
 
@@ -675,13 +656,6 @@ waypoint_ai waypoints[MAX_WAYPOINTS];
 .string date;
 .string person;
 .string song;
-
-//altered game elements
-float G_PRONEPOINTS;
-float G_STARTWEAPON[3];
-float G_WORLDTEXT;
-float G_PERKS;
-float G_PERKPOWER;
 
 .float activated;
 

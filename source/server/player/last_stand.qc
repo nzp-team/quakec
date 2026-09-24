@@ -94,6 +94,7 @@ void(entity client) LastStand_Penalize =
 		default: break;
 	}
 
+	client.max_health *= game_modifiers.gameplay.player.start_health / 100;
 	client.max_health = client.health = Gamemode_GetMaxHealthForPlayer(client.max_health, client.perks);
 
     // Get rid of Mule Kick Weapon

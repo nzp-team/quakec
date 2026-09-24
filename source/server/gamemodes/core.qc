@@ -152,7 +152,6 @@ float(float current_earned_score, float damage_style) Gamemode_ScoreForDamage =
 {
     switch(current_gamemode) {
         case GAMEMODE_GUNGAME: return Gamemode_GunGame_ScoreForDamage(current_earned_score, damage_style);
-        case GAMEMODE_FESTIVE: return Gamemode_Festive_ScoreForDamage(current_earned_score, damage_style);
         default: break;
     }
 
@@ -295,7 +294,6 @@ float(float current_cost, float weapon_cost, float weapon_id, float is_upgraded,
 float(float current_max_health, float current_perks) Gamemode_GetMaxHealthForPlayer =
 {
     switch(current_gamemode) {
-        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetMaxHealthForPlayer(current_max_health, current_perks);
         default: break;
     }
 
@@ -315,7 +313,6 @@ float(float current_dist, string ai_classname) Gamemode_GetAIWalkSpeed =
 float(float current_health_delay, float current_perks) Gamemode_GetHealthRegenDelayForPlayer =
 {
     switch(current_gamemode) {
-        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetHealthRegenDelayForPlayer(current_health_delay, current_perks);
         default: break;
     }
 
@@ -360,16 +357,6 @@ string(string current_tune) Gamemode_GetStartSpecialRoundTune =
     }
 
     return current_tune; 
-}
-
-string(string current_taunt) Gamemode_GetHellhoundTaunt =
-{
-    switch(current_gamemode) {
-        case GAMEMODE_FESTIVE: return Gamemode_Festive_GetHellhoundTaunt(current_taunt);
-        default: break;
-    }
-
-    return current_taunt; 
 }
 
 string(string current_tune) Gamemode_GetEndRoundTune =

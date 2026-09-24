@@ -26,7 +26,6 @@
 */
 
 #define MAX_POWERUPS		12
-#define POWERUPS_PER_ROUND	4
 
 #define PU_OFFSET_QK		'0 0 12'
 #define PU_OFFSET_HL		'0 0 14'
@@ -95,6 +94,8 @@ entity() PU_GetFreeEnt =
 //
 string(string file) PU_ResolveVOPath =
 {
+	// JSON paths are already complete. Older callers can still supply a basename.
+	if (file == "" || substring(file, 0, 7) == "sounds/") return file;
 	string path = "";
 
 	switch(cvar("sv_gamemode")) {
@@ -122,8 +123,8 @@ PU_AddToStruct =
 	string voiceover_path_full = PU_ResolveVOPath(voiceover_path);
 
 	// Precache Model and VO
-	precache_model(model_path);
-	precache_sound(voiceover_path_full);
+	if (model_path != "") precache_model(model_path);
+	if (voiceover_path_full != "") precache_sound(voiceover_path_full);
 
 	// Populate the Struct at Index
 	powerup_array[powerup_count].id = id;
@@ -170,6 +171,26 @@ void() PU_PopulateArray =
 };
 
 //
+// PU_IsEnabled(id)
+// Returns whether a Power-Up is allowed in the random drop rotation.
+//
+float(float id) PU_IsEnabled =
+{
+	switch (id) {
+		case PU_NUKE: return game_modifiers.gameplay.powerups.powerup_nuke.enabled;
+		case PU_INSTAKILL: return game_modifiers.gameplay.powerups.powerup_instakill.enabled;
+		case PU_DOUBLEPTS: return game_modifiers.gameplay.powerups.powerup_double_points.enabled;
+		case PU_CARPENTER: return game_modifiers.gameplay.powerups.powerup_carpenter.enabled;
+		case PU_MAXAMMO: return game_modifiers.gameplay.powerups.powerup_max_ammo.enabled;
+		case PU_FREEPERK: return game_modifiers.gameplay.powerups.powerup_free_perk.enabled;
+		case PU_UPGRADEWEAPON: return game_modifiers.gameplay.powerups.powerup_weapon_upgrade.enabled;
+		case PU_BONUSPOINTS: return game_modifiers.gameplay.powerups.powerup_bonus_points.enabled;
+	}
+
+	return false;
+};
+
+//
 // PU_GetNextPowerUp()
 // Returns the next valid Power-Up, and refreshes array if needbe.
 //
@@ -177,25 +198,31 @@ float() PU_GetNextPowerUp =
 {
 	float id;
 	float found;
+	float attempt_limit;
 	id = -1;
 	found = false;
 
-	while(found == false) {
+	attempt_limit = powerup_count;
+	if (powerup_index > 0)
+		attempt_limit += powerup_count - powerup_index;
+
+	// A configuration may leave no eligible drops. Try the deck once.
+	for (float attempt = 0; attempt < attempt_limit && !found; attempt++) {
 		// Refresh the Array if we're at the end
-		if (powerup_index >= MAX_POWERUPS - 1) {
+		if (powerup_index >= powerup_count) {
 			PU_PopulateArray();
 			powerup_index = 0;
 		}
 
 		// Grab a Power-Up
-		powerup_struct pu = powerup_array[powerup_index];
+		float current_index = powerup_index;
 		powerup_index++;
 
 		// Found a valid Power-Up
-		if (pu.occupied == true) {
+		if (powerup_array[current_index].occupied == true && PU_IsEnabled(powerup_array[current_index].id)) {
 			// Check if we meet the requirements
-			if (pu.requirement_function() == true) {
-				id = pu.id;
+			if (powerup_array[current_index].requirement_function() == true) {
+				id = powerup_array[current_index].id;
 				found = true;
 			}
 		}
@@ -264,11 +291,11 @@ void() PU_NukeFinalize =
 	}
 	
 	// award points
-	if (game_modifier_can_earn_misc_score == true) {
+	if (game_modifiers.gameplay.player.can_earn_score_from_sources_other_than_ai == true) {
 		players = find(world,classname,"player");
 		while(players)
 		{
-			Player_AddScore(players, 400 * nuke_powerups_activated, true);
+			Player_AddScore(players, game_modifiers.gameplay.powerups.powerup_nuke.score_awarded * nuke_powerups_activated, true);
 			players = find(players,classname,"player");
 		}
 	}
@@ -333,7 +360,7 @@ void() PU_NukeKill =
 	self.th_die();
 
 	// override their death sound
-	Sound_PlaySound(self, "sounds/pu/nuke.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(self, game_modifiers.gameplay.powerups.powerup_nuke.explosion_sfx, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 	// restore self
 	self = oldself;
@@ -384,7 +411,7 @@ void() PU_Nuke =
 //
 void() PU_InstaKill =
 {
-	instakill_finished = time + 30;
+	instakill_finished = time + game_modifiers.gameplay.powerups.powerup_instakill.duration;
 	other.insta_icon = true;
 };
 
@@ -394,7 +421,7 @@ void() PU_InstaKill =
 //
 void() PU_DoublePoints =
 {
-	x2_finished = time + 30;
+	x2_finished = time + game_modifiers.gameplay.powerups.powerup_double_points.duration;
 	other.x2_icon = true;
 };
 
@@ -408,9 +435,9 @@ void() PU_CarpenterFinalize =
 	entity players = find(world, classname, "player");
 
 	// Reward Players with Points
-	if (game_modifier_can_earn_misc_score) {
+	if (game_modifiers.gameplay.player.can_earn_score_from_sources_other_than_ai) {
 		while(players) {
-			Player_AddScore(players, 200, true);
+			Player_AddScore(players, game_modifiers.gameplay.powerups.powerup_carpenter.score_awarded, true);
 
 			players = find(players, classname, "player");
 		}
@@ -531,14 +558,78 @@ void() PU_Carpenter =
 };
 
 //
+// PU_NukeRequirement()
+// Requirements for Nuke Power-Up.
+//
+float() PU_NukeRequirement =
+{
+	if (game_modifiers.gameplay.powerups.powerup_nuke.enabled == false)
+		return false;
+
+	if (rounds < game_modifiers.gameplay.powerups.powerup_nuke.disabled_before_round)
+		return false;
+
+	if (random() >= game_modifiers.gameplay.powerups.powerup_nuke.chance_to_allow_in_rotation)
+		return false;
+
+	return true;
+};
+
+//
+// PU_InstaKillRequirement()
+// Requirements for Insta-Kill Power-Up.
+//
+float() PU_InstaKillRequirement =
+{
+	if (game_modifiers.gameplay.powerups.powerup_instakill.enabled == false)
+		return false;
+
+	if (rounds < game_modifiers.gameplay.powerups.powerup_instakill.disabled_before_round)
+		return false;
+
+	if (random() >= game_modifiers.gameplay.powerups.powerup_instakill.chance_to_allow_in_rotation)
+		return false;
+
+	return true;
+};
+
+//
+// PU_DoublePointsRequirement()
+// Requirements for Double Points Power-Up.
+//
+float() PU_DoublePointsRequirement =
+{
+	if (game_modifiers.gameplay.powerups.powerup_double_points.enabled == false)
+		return false;
+
+	if (rounds < game_modifiers.gameplay.powerups.powerup_double_points.disabled_before_round)
+		return false;
+
+	if (random() >= game_modifiers.gameplay.powerups.powerup_double_points.chance_to_allow_in_rotation)
+		return false;
+
+	return true;
+};
+
+//
 // PU_CarpenterRequirement()
 // Requirements for Carpenter Power-Up.
 //
 float() PU_CarpenterRequirement =
 {
-	if (total_windows_down >= 5)
-		return true;
-	return false;
+	if (game_modifiers.gameplay.powerups.powerup_carpenter.enabled == false)
+		return false;
+
+	if (rounds < game_modifiers.gameplay.powerups.powerup_carpenter.disabled_before_round)
+		return false;
+
+	if (random() >= game_modifiers.gameplay.powerups.powerup_carpenter.chance_to_allow_in_rotation)
+		return false;
+
+	if (total_windows_down < game_modifiers.gameplay.powerups.powerup_carpenter.destroyed_barricade_requirement)
+		return false;
+
+	return true;
 }
 
 //
@@ -547,7 +638,16 @@ float() PU_CarpenterRequirement =
 //
 float() PU_MaxAmmoRequirement =
 {
-	return game_modifier_powerup_max_ammo;
+	if (game_modifiers.gameplay.powerups.powerup_max_ammo.enabled == false)
+		return false;
+
+	if (rounds < game_modifiers.gameplay.powerups.powerup_max_ammo.disabled_before_round)
+		return false;
+
+	if (random() >= game_modifiers.gameplay.powerups.powerup_max_ammo.chance_to_allow_in_rotation)
+		return false;
+
+	return true;
 }
 
 //
@@ -556,17 +656,15 @@ float() PU_MaxAmmoRequirement =
 //
 float() PU_FreePerkRequirement =
 {
-	if (game_modifier_powerup_free_perk == false)
+	if (game_modifiers.gameplay.powerups.powerup_free_perk.enabled == false)
 		return false;
 
-	if (game_modifier_powerup_free_perk_is_rare) {
-		if (rounds < 15)
-			return false;
+	if (rounds < game_modifiers.gameplay.powerups.powerup_free_perk.disabled_before_round)
+		return false;
 
-		if (random() < 0.25)
-			return false;
-	}
-	
+	if (random() >= game_modifiers.gameplay.powerups.powerup_free_perk.chance_to_allow_in_rotation)
+		return false;
+
 	return true;
 }
 
@@ -576,7 +674,16 @@ float() PU_FreePerkRequirement =
 //
 float() PU_UpgradeWeaponRequirement =
 {
-	return game_modifier_powerup_weapon_upgrade;
+	if (game_modifiers.gameplay.powerups.powerup_weapon_upgrade.enabled == false)
+		return false;
+
+	if (rounds < game_modifiers.gameplay.powerups.powerup_weapon_upgrade.disabled_before_round)
+		return false;
+
+	if (random() >= game_modifiers.gameplay.powerups.powerup_weapon_upgrade.chance_to_allow_in_rotation)
+		return false;
+
+	return true;
 }
 
 //
@@ -585,7 +692,16 @@ float() PU_UpgradeWeaponRequirement =
 //
 float() PU_BonusPointsRequirement =
 {
-	return game_modifier_powerup_bonus_points;
+	if (game_modifiers.gameplay.powerups.powerup_bonus_points.enabled == false)
+		return false;
+
+	if (rounds < game_modifiers.gameplay.powerups.powerup_bonus_points.disabled_before_round)
+		return false;
+
+	if (random() >= game_modifiers.gameplay.powerups.powerup_bonus_points.chance_to_allow_in_rotation)
+		return false;
+
+	return true;
 }
 
 //
@@ -607,7 +723,7 @@ void() PU_MaxAmmo =
 				players.weapons[i].weapon_reserve = getWeaponAmmo(players.weapons[i].weapon_id);
 
 				// Some game configurations support also filling the magazine..
-				if (game_modifier_maxammo_fills_magazine) {
+				if (game_modifiers.gameplay.powerups.powerup_max_ammo.fills_magazine) {
 					players.weapons[i].weapon_magazine = getWeaponMag(players.weapons[i].weapon_id);
 
 					if (IsDualWeapon(players.weapons[i].weapon_id)) {
@@ -664,20 +780,74 @@ void() PU_FreePerk =
 			continue;
 		}
 
+		// Determine list of Perk-A-Colas we're allowed to give to this
+		// player.
+		float perks_can_give = 0;
+
+		for(float i = 0; i < 8; i++) {
+			if (game_modifiers.gameplay.powerups.powerup_free_perk.allowed_perksacola[i] == "")
+				break;
+
+			switch(game_modifiers.gameplay.powerups.powerup_free_perk.allowed_perksacola[i])
+			{
+				case "quickrevive":
+					if (!(players.perks & P_REVIVE))
+						perks_can_give |= P_REVIVE;
+					break;
+				case "juggernog":
+					if (!(players.perks & P_JUG))
+						perks_can_give |= P_JUG;
+					break;
+				case "speedcola":
+					if (!(players.perks & P_SPEED))
+						perks_can_give |= P_SPEED;
+					break;
+				case "doubletap":
+					if (!(players.perks & P_DOUBLE))
+						perks_can_give |= P_DOUBLE;
+					break;
+				case "phdflopper":
+					if (!(players.perks & P_FLOP))
+						perks_can_give |= P_FLOP;
+					break;
+				case "staminup":
+					if (!(players.perks & P_STAMIN))
+						perks_can_give |= P_STAMIN;
+					break;
+				case "deadshot":
+					if (!(players.perks & P_DEAD))
+						perks_can_give |= P_DEAD;
+					break;
+				case "mulekick":
+					if (!(players.perks & P_MULE))
+						perks_can_give |= P_MULE;
+					break;
+			}
+		}
+
+		// Potentially award points if the player cannot
+		// earn anything.
+		if (perks_can_give <= 0) {
+			Player_AddScore(players, game_modifiers.gameplay.powerups.powerup_free_perk.awarded_score_if_no_perk_obtained, true);
+			players = find(players, classname, "player");
+			continue;
+		}
+
+
 		float perk_to_give = 0;
 		float found_perk_for_player = false;
 
 		while(!found_perk_for_player) {
 			float perk_rand = random();
 
-			if (perk_rand < (1/8) && !(players.perks & P_REVIVE)) { self.sequence = 1; perk_to_give = P_REVIVE; }
-			else if (perk_rand < (2/8) && !(players.perks & P_JUG)) { self.sequence = 2; perk_to_give = P_JUG; }
-			else if (perk_rand < (3/8) && !(players.perks & P_SPEED)) { self.sequence = 3; perk_to_give = P_SPEED; }
-			else if (perk_rand < (4/8) && !(players.perks & P_DOUBLE)) { self.sequence = 4; perk_to_give = P_DOUBLE; }
-			else if (perk_rand < (5/8) && !(players.perks & P_STAMIN)) { self.sequence = 5; perk_to_give = P_STAMIN; }
-			else if (perk_rand < (6/8) && !(players.perks & P_FLOP)) { self.sequence = 6; perk_to_give = P_FLOP; }
-			else if (perk_rand < (7/8) && !(players.perks & P_DEAD)) { self.sequence = 7; perk_to_give = P_DEAD; }
-			else if (!(players.perks & P_MULE) && cvar("sv_gamemode") != GAMEMODE_GUNGAME) { self.sequence = 8; perk_to_give = P_MULE; }
+			if (perk_rand < (1/8) && (perks_can_give & P_REVIVE)) { self.sequence = 1; perk_to_give = P_REVIVE; }
+			else if (perk_rand < (2/8) && (perks_can_give & P_JUG)) { self.sequence = 2; perk_to_give = P_JUG; }
+			else if (perk_rand < (3/8) && (perks_can_give & P_SPEED)) { self.sequence = 3; perk_to_give = P_SPEED; }
+			else if (perk_rand < (4/8) && (perks_can_give & P_DOUBLE)) { self.has_doubletap_damage_buff = true; self.sequence = 4; perk_to_give = P_DOUBLE; }
+			else if (perk_rand < (5/8) && (perks_can_give & P_STAMIN)) { self.sequence = 5; perk_to_give = P_STAMIN; }
+			else if (perk_rand < (6/8) && (perks_can_give & P_FLOP)) { self.sequence = 6; perk_to_give = P_FLOP; }
+			else if (perk_rand < (7/8) && (perks_can_give & P_DEAD)) { self.sequence = 7; perk_to_give = P_DEAD; }
+			else if ((perks_can_give & P_MULE)) { self.sequence = 8; perk_to_give = P_MULE; }
 
 			if (perk_to_give != 0)
 				found_perk_for_player = true;
@@ -709,7 +879,8 @@ void() PU_WeaponUpgrade =
 
 		// Already upgraded, don't bother.
 		if (EqualPapWeapon(current_weapon) == current_weapon) {
-			if (!(game_modifier_packapunch_uses_tiers == true && current_weapon_tier < 3)) {
+			if (!(game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers == true && current_weapon_tier < 3)) {
+				Player_AddScore(players, game_modifiers.gameplay.powerups.powerup_weapon_upgrade.awarded_score_if_no_upgrade_received, true);
 				players = find(players, classname, "player");
 				continue;
 			}
@@ -735,7 +906,7 @@ void() PU_BonusPoints =
 {
 	entity players = find(world, classname, "player");
 	while(players != world) {
-		Player_AddScore(players, 500, true);
+		Player_AddScore(players, game_modifiers.gameplay.powerups.powerup_bonus_points.score_awarded, true);
 		players = find(players, classname, "player");
 	}
 };
@@ -758,6 +929,7 @@ void() PU_Init =
 {
 	// Start with 0 Power-Ups accessible
 	powerup_count = 0;
+	powerup_index = 0;
 
 	// Set the Power-Up array IDs to empty
 	for (float i = 0; i < MAX_POWERUPS; i++) {
@@ -765,32 +937,64 @@ void() PU_Init =
 	}
 
 	// Just add all of them for now
-	PU_AddToStruct(PU_NUKE, 		"models/pu/nuke!.mdl",			"kaboom.wav",			PU_Nuke,			
-					PU_NullRequirement			);
-	PU_AddToStruct(PU_INSTAKILL, 	"models/pu/instakill!.mdl",		"insta_kill.wav", 		PU_InstaKill,	
-					PU_NullRequirement			);
-	PU_AddToStruct(PU_DOUBLEPTS, 	"models/pu/x2!.mdl",			"double_points.wav",	PU_DoublePoints,	
-					PU_NullRequirement			);
-	PU_AddToStruct(PU_CARPENTER,	"models/pu/carpenter!.mdl",		"carpenter.wav",		PU_Carpenter,	
-					PU_CarpenterRequirement		);
-	PU_AddToStruct(PU_MAXAMMO,		"models/pu/maxammo!.mdl",		"maxammo.wav", 			PU_MaxAmmo,		
-					PU_MaxAmmoRequirement		);
-	PU_AddToStruct(PU_FREEPERK, 	"models/pu/perkbottle!.mdl",	"free_perk.wav", 		PU_FreePerk,
-					PU_FreePerkRequirement		);
-	PU_AddToStruct(PU_UPGRADEWEAPON,"models/pu/pack!.mdl",			"upgrade.wav",			PU_WeaponUpgrade,
-					PU_UpgradeWeaponRequirement	);
-	PU_AddToStruct(PU_BONUSPOINTS,  "models/pu/points!.mdl",		"bonus_points.wav",		PU_BonusPoints,
-					PU_BonusPointsRequirement );
+	PU_AddToStruct(PU_NUKE,
+					game_modifiers.gameplay.powerups.powerup_nuke.model,
+					game_modifiers.gameplay.powerups.powerup_nuke.voiceover,
+					PU_Nuke,
+					PU_NukeRequirement);
+
+	PU_AddToStruct(PU_INSTAKILL,
+					game_modifiers.gameplay.powerups.powerup_instakill.model,
+					game_modifiers.gameplay.powerups.powerup_instakill.voiceover,
+					PU_InstaKill,
+					PU_InstaKillRequirement);
+
+	PU_AddToStruct(PU_DOUBLEPTS,
+					game_modifiers.gameplay.powerups.powerup_double_points.model,
+					game_modifiers.gameplay.powerups.powerup_double_points.voiceover,
+					PU_DoublePoints,
+					PU_DoublePointsRequirement);
+
+	PU_AddToStruct(PU_CARPENTER,
+					game_modifiers.gameplay.powerups.powerup_carpenter.model,
+					game_modifiers.gameplay.powerups.powerup_carpenter.voiceover,
+					PU_Carpenter,
+					PU_CarpenterRequirement);
+
+	PU_AddToStruct(PU_MAXAMMO,
+					game_modifiers.gameplay.powerups.powerup_max_ammo.model,
+					game_modifiers.gameplay.powerups.powerup_max_ammo.voiceover,
+					PU_MaxAmmo,
+					PU_MaxAmmoRequirement);
+
+	PU_AddToStruct(PU_FREEPERK,
+					game_modifiers.gameplay.powerups.powerup_free_perk.model,
+					game_modifiers.gameplay.powerups.powerup_free_perk.voiceover,
+					PU_FreePerk,
+					PU_FreePerkRequirement);
+
+	PU_AddToStruct(PU_UPGRADEWEAPON,
+					game_modifiers.gameplay.powerups.powerup_weapon_upgrade.model,
+					game_modifiers.gameplay.powerups.powerup_weapon_upgrade.voiceover,
+					PU_WeaponUpgrade,
+					PU_UpgradeWeaponRequirement);
+
+	PU_AddToStruct(PU_BONUSPOINTS,
+					game_modifiers.gameplay.powerups.powerup_bonus_points.model,
+					game_modifiers.gameplay.powerups.powerup_bonus_points.voiceover,
+					PU_BonusPoints,
+					PU_BonusPointsRequirement);
 
 	// Nuke requires an extra Precache
-	precache_sound("sounds/pu/nuke.wav");
+	Modifiers_PrecacheSound(game_modifiers.gameplay.powerups.powerup_nuke.explosion_sfx);
 
 	// Fill the array
 	PU_PopulateArray();
 
 	// Spawn all of our Power-Up spawn entities
-	// We multiply by 4 to account for Power-Up operations like the Nuke.
-	for (float i = 0; i < (POWERUPS_PER_ROUND * 4); i++) {
+	// Keep room for forced drops even when random drops are disabled.
+	// Multiply by 4 for Power-Up operations like the Nuke.
+	for (float i = 0; i < (clamp(game_modifiers.gameplay.powerups.max_powerups_per_round, 1, 64) * 4); i++) {
 		entity tempe = spawn();
 		tempe.classname = "freePowerUpEntity";
 	}
@@ -847,7 +1051,8 @@ void() PU_Flash =
 void() PU_PlayVO =
 {
 	string sound_path = PU_ResolveVOPath(self.powerup_vo);
-	Sound_PlaySound(world, sound_path, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_ALLOWSKIP);
+	if (sound_path != "")
+		Sound_PlaySound(world, sound_path, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_ALLOWSKIP);
 	PU_FreeEnt(self);
 };
 
@@ -876,6 +1081,33 @@ void() PU_SparkleShrink =
 };
 
 //
+// PU_GetToast(powerup_id)
+// Returns the Power-Up toast for a given
+// Power-Up.
+//
+string(float powerup_id) PU_GetToast =
+{
+	if (powerup_id == PU_NUKE && game_modifiers.gameplay.powerups.powerup_nuke.show_toast)
+		return game_modifiers.gameplay.powerups.powerup_nuke.toast;
+	if (powerup_id == PU_INSTAKILL && game_modifiers.gameplay.powerups.powerup_instakill.show_toast)
+		return game_modifiers.gameplay.powerups.powerup_instakill.toast;
+	if (powerup_id == PU_DOUBLEPTS && game_modifiers.gameplay.powerups.powerup_double_points.show_toast)
+		return game_modifiers.gameplay.powerups.powerup_double_points.toast;
+	if (powerup_id == PU_CARPENTER && game_modifiers.gameplay.powerups.powerup_carpenter.show_toast)
+		return game_modifiers.gameplay.powerups.powerup_carpenter.toast;
+	if (powerup_id == PU_MAXAMMO && game_modifiers.gameplay.powerups.powerup_max_ammo.show_toast)
+		return game_modifiers.gameplay.powerups.powerup_max_ammo.toast;
+	if (powerup_id == PU_FREEPERK && game_modifiers.gameplay.powerups.powerup_free_perk.show_toast)
+		return game_modifiers.gameplay.powerups.powerup_free_perk.toast;
+	if (powerup_id == PU_UPGRADEWEAPON && game_modifiers.gameplay.powerups.powerup_weapon_upgrade.show_toast)
+		return game_modifiers.gameplay.powerups.powerup_weapon_upgrade.toast;
+	if (powerup_id == PU_BONUSPOINTS && game_modifiers.gameplay.powerups.powerup_bonus_points.show_toast)
+		return game_modifiers.gameplay.powerups.powerup_bonus_points.toast;
+
+	return "";
+};
+
+//
 // PU_Touch()
 // Run assigned functions and prep for Deletion
 //
@@ -884,7 +1116,7 @@ void() PU_Touch =
 	if (other.classname == "player")
 	{
 		// Acquire sound
-		Sound_PlaySound(self.owner, "sounds/pu/pickup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+		Sound_PlaySound(self.owner, game_modifiers.gameplay.powerups.sounds.pick_up, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 
 		// Prepare for VO and destruction
 		self.think = PU_PlayVO;
@@ -911,8 +1143,10 @@ void() PU_Touch =
 		// Run Power-Up function
 		PU_LogicFunction(self.walktype);
 
-		if (game_modifier_powerup_toast_for_all == true || self.walktype == PU_MAXAMMO)
-			nzp_poweruptoast(self.walktype);
+		string toast = PU_GetToast(self.walktype);
+		if (toast != "") {
+			nzp_poweruptoast(toast);
+		}
 	}
 };
 
@@ -936,7 +1170,7 @@ void() PU_SparkleThink =
 	
 	if(self.calc_time <= time)
 	{
-		Sound_PlaySound(self, "sounds/pu/powerup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+		Sound_PlaySound(self, game_modifiers.gameplay.powerups.sounds.idle, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
 		self.calc_time = time + 2.998;
 	}
 };
@@ -966,6 +1200,11 @@ void(vector where, float type) Spawn_Powerup =
 {
 	entity 	powerup;
 	entity	sparkle;
+
+	if (type == -1)
+		type = PU_GetNextPowerUp();
+	if (type == -1)
+		return;
 
 	// Move the Power-Up up a little to be near the player's
 	// mid torso.
@@ -1015,17 +1254,10 @@ void(vector where, float type) Spawn_Powerup =
 	sparkle.nextthink = time + 0.1;
 
 	// Drop Sounds
-	Sound_PlaySound(sparkle, "sounds/pu/powerup.wav", SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
-	Sound_PlaySound(powerup, "sounds/pu/drop.wav", SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(sparkle, game_modifiers.gameplay.powerups.sounds.idle, SOUND_TYPE_ENV_OBJECT, SOUND_PRIORITY_PLAYALWAYS);
+	Sound_PlaySound(powerup, game_modifiers.gameplay.powerups.sounds.drop, SOUND_TYPE_ENV_CHING, SOUND_PRIORITY_PLAYALWAYS);
 
-	// Check if we were forcefully assigned an ID
-	if (type != -1) {
-		powerup.walktype = type;
-	}
-	// No, so let's grab one from the array.
-	else {
-		powerup.walktype = PU_GetNextPowerUp();
-	}
+	powerup.walktype = type;
 
 	// Assign the Power-Up model and sound
 	powerup.effects = EF_FULLBRIGHT;

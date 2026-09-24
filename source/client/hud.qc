@@ -1953,7 +1953,7 @@ void() HUD_PowerUpToast =
 	if (hud_toast_endtime <= time)
 		return;
 
-	string toast_string = HUD_GetToastForPowerUp(hud_toast_puid);
+	string toast_string = hud_toast_string;
 
 	float start_y = 70;
 	float end_y = 55;

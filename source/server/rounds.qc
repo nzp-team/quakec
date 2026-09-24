@@ -29,8 +29,13 @@ string(string current_tune) Gamemode_GetEndRoundTune;
 string(string current_tune) Gamemode_GetStartRoundTune;
 string(string current_tune) Gamemode_GetEndSpecialRoundTune;
 string(string current_tune) Gamemode_GetStartSpecialRoundTune;
-string(string current_taunt) Gamemode_GetHellhoundTaunt;
 float(float current_delay) Gamemode_GetRoundDelay;
+
+string(float ending) Modifiers_PickRoundSound;
+string() Modifiers_PickHellhoundTaunt;
+
+string hound_round_taunt;
+float hound_round_taunt_time;
 
 void() SUB_UseTargets;
 float() spawn_a_dogA;
@@ -119,7 +124,7 @@ float() getZombieTotal = {
 void(string sound_path) Rounds_PlayTransition =
 {
 	// Don't play any round stuff while there's a song egg happening.
-	if (music_override > time)
+	if (music_override > time || sound_path == "")
 		return;
 
 	Sound_PlaySound(world, sound_path, SOUND_TYPE_MUSIC_ROUND, SOUND_PRIORITY_PLAYALWAYS);
@@ -159,23 +164,22 @@ void() EndRound =
 	SetUpdate(self, UT_ROUNDS_CHANGE, rounds_change, 0, 0);
 
 	if (map_has_hellhounds && rounds == dogRound) {
-		end_round_tune = "sounds/rounds/droundend.wav";
-		end_round_tune = Gamemode_GetEndSpecialRoundTune(end_round_tune);
+		end_round_tune = game_modifiers.gameplay.rounds.sounds.end_hound_round;
+
 		dogWave = false;
 	} else {
-		end_round_tune = "sounds/rounds/eround.wav";
-		end_round_tune = Gamemode_GetEndRoundTune(end_round_tune);
+		end_round_tune = Modifiers_PickRoundSound(true);
+
 	}
 
 	if (cvar("sv_fastrounds") == 0)
 		Rounds_PlayTransition(end_round_tune);
 
 	if (cvar("sv_fastrounds") == 0)
-		round_changetime = time + 10;
+		round_changetime = time + game_modifiers.gameplay.rounds.delay_between_rounds;
 	else
 		round_changetime = time + 0.2;
 
-	round_changetime = Gamemode_GetRoundDelay(round_changetime);
 
 	// No Perks? No Problem & Abstinence Program
 	if (rounds >= 10) {
@@ -215,28 +219,25 @@ void() NewRound =
 	entity tempe;
 	round_changetime = 0;
 	spawn_time = time + 5;
-	if (delay_at_round > 0.08)
+	if (rounds > 0 && delay_at_round > 0.08)
 	{
-		delay_at_round = delay_at_round*0.95;
+		delay_at_round *= clamp(1 - 0.05 * game_modifiers.gameplay.rounds.ai_spawn_delay_reduction_multiplier, 0, 1);
 		if (delay_at_round < 0.08)
 			delay_at_round = 0.08;
 	}
 	if (rounds != 0)
 	{
 		if (map_has_hellhounds && rounds == (dogRound - 1)) {
-			new_round_tune = "sounds/rounds/droundstart.wav";
-			new_round_tune = Gamemode_GetStartSpecialRoundTune(new_round_tune);
+			new_round_tune = game_modifiers.gameplay.rounds.sounds.new_hound_round;
+
 			dogWave = true;
 			dog_round_count++;
 
-			string hellhound_taunt = "";
-			hellhound_taunt = Gamemode_GetHellhoundTaunt(hellhound_taunt);
-			if (hellhound_taunt != "") {
-				Sound_PlaySound(world, hellhound_taunt, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
-			}
+			hound_round_taunt = Modifiers_PickHellhoundTaunt();
+			hound_round_taunt_time = hound_round_taunt != "" ? time + 5 : 0;
 		} else {
-			new_round_tune = "sounds/rounds/nround.wav";
-			new_round_tune = Gamemode_GetStartRoundTune(new_round_tune);
+			new_round_tune = Modifiers_PickRoundSound(false);
+
 		}
 
 		Rounds_PlayTransition(new_round_tune);
@@ -313,7 +314,8 @@ void() NewRound =
 	spawndelay = zombie_spawn_delay;
 
 	if (spawndelay > 0.08) {
-		zombie_spawn_delay *= 0.95;
+		zombie_spawn_delay *= clamp(1 - 0.05 * game_modifiers.gameplay.rounds.ai_spawn_delay_reduction_multiplier, 0, 1);
+		if (zombie_spawn_delay < 0.08) zombie_spawn_delay = 0.08;
 	} else {
 		zombie_spawn_delay = 0.08;
 	}
@@ -373,6 +375,12 @@ void() Round_Core =
 		Spawn_Enemy();
 	}
 
+	if (hound_round_taunt_time && hound_round_taunt_time <= time) {
+		Sound_PlaySound(world, hound_round_taunt, SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
+		hound_round_taunt = "";
+		hound_round_taunt_time = 0;
+	}
+
 	if (Remaining_Zombies < 1 && !Delay_Time) {
 		Delay_Time = time + 1;
 		rounds_change = 3;
@@ -387,7 +395,7 @@ void() Round_Core =
 void() InitRounds =
 {
 	roundtype = 1;
-	delay_at_round = 2/0.95;
+	delay_at_round = 2;
 	totalpowerups = 0;
 	powerup_activate = 2000;
 

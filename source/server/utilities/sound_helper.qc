@@ -132,6 +132,7 @@ void(float priority, float index) Sound_SetZombieGroan =
 
 void(entity source_ent, string path, float type, float priority) Sound_PlaySound =
 {
+    if (path == "") return;
     switch(type) {
         case SOUND_TYPE_ZOMBIE_QUIET:
             float zombie_quiet_groan = Sound_GetZombieGroan();

@@ -200,8 +200,8 @@ void() Test_TriggerInteract_RequiresReactivation =
 	entity old_self = self;
 	entity old_other = other;
 	entity old_activator = activator;
-	float old_cost_multiplier = game_modifier_cost_multiplier;
-	game_modifier_cost_multiplier = 1;
+	float old_cost_multiplier = game_modifiers.gameplay.global.all_items_cost_multiplier;
+	game_modifiers.gameplay.global.all_items_cost_multiplier = 1;
 
     trigger.touch = trigger_interact_touch;
     trigger.use = trigger_interact_activate;
@@ -236,7 +236,7 @@ void() Test_TriggerInteract_RequiresReactivation =
     self = old_self;
     other = old_other;
 	activator = old_activator;
-	game_modifier_cost_multiplier = old_cost_multiplier;
+	game_modifiers.gameplay.global.all_items_cost_multiplier = old_cost_multiplier;
     remove(player);
 	remove(target_ent);
     remove(trigger);
@@ -248,8 +248,8 @@ void() Test_TriggerInteract_RejectsInsufficientFunds =
 	entity player = spawn();
 	entity old_self = self;
 	entity old_other = other;
-	float old_cost_multiplier = game_modifier_cost_multiplier;
-	game_modifier_cost_multiplier = 1;
+	float old_cost_multiplier = game_modifiers.gameplay.global.all_items_cost_multiplier;
+	game_modifiers.gameplay.global.all_items_cost_multiplier = 1;
 
 	trigger.touch = trigger_interact_touch;
 	trigger.cost = 500;
@@ -268,7 +268,7 @@ void() Test_TriggerInteract_RejectsInsufficientFunds =
 
 	self = old_self;
 	other = old_other;
-	game_modifier_cost_multiplier = old_cost_multiplier;
+	game_modifiers.gameplay.global.all_items_cost_multiplier = old_cost_multiplier;
 	remove(player);
 	remove(trigger);
 };

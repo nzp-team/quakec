@@ -436,7 +436,7 @@ void() touch_ending =
 	if (other.classname != "player" || self.activated)
 		return;
 
-	float ending_cost = floor(self.cost * game_modifier_cost_multiplier);
+	float ending_cost = floor(self.cost * game_modifiers.gameplay.global.all_items_cost_multiplier);
 	
 	Player_UseprintWithWait(other, self, self.useprint_index_1, ending_cost);
 

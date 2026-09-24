@@ -220,7 +220,7 @@ string(float wep, float weapon_tier) GetWeaponName =
 			break;
 	}
 
-	if (game_modifier_packapunch_uses_tiers == true && weapon_tier > 0) {
+	if (game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers == true && weapon_tier > 0) {
 		// Append the Pack-A-Punch tier to the name if tiers are enabled.
 		if (EqualPapWeapon(wep) == wep) {
 			string tier_numeral = "";
@@ -659,6 +659,10 @@ float(float wep, float current_perks, float type) getWeaponMultiplier =
 				case LIMBS_X: 		multiplier = 1; break;
 			}
 			break;
+	}
+
+	if ((current_perks & P_DEAD) && type == HEAD_X) {
+		multiplier *= game_modifiers.gameplay.perksacola.perk_deadshot_headshot_damage_multiplier;
 	}
 
 	multiplier = Gamemode_GetWeaponLimbMultiplier(multiplier, current_perks, wep, type);
@@ -1759,7 +1763,7 @@ float GetWeaponWalkSpeed(float perks, float weapon)
 	}
 
 	if (perks & P_STAMIN)
-		speed_multiplier *= 1.07;
+		speed_multiplier *= game_modifiers.gameplay.perksacola.perk_staminup_movement_speed_multiplier;
 
 	return speed_multiplier;
 }
