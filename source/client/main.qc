@@ -414,6 +414,12 @@ noref void(float isnew) CSQC_Ent_Update =
 		self.modelindex = readshort();
 		self.frame = readbyte();
 		self.movetype = readshort();
+		// Don't let the engine's physics move the local player between updates: Player_PreDraw
+		// predicts from the networked origin and only sets MOVETYPE_WALK while doing so.
+		// Otherwise the start position drifts with the velocity and the prediction is
+		// corrected backwards on almost every packet (rubber-banding while walking).
+		if (self.entnum == player_localentnum)
+			self.movetype = MOVETYPE_NONE;
 		self.flags = readshort();
 		self.stance = readbyte();
 		self.points = readfloat();	// FIXME: this should be made a short, but I know we use price of 1 for some test maps, so I can't do /10 *10 shenanigans.
