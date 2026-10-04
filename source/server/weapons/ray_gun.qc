@@ -39,7 +39,7 @@ void(float direct_impact) Ray_BeamExplode =
 {
 	float raybeam_damage_min;
 	float raybeam_damage_max;
-	float raybeam_damage_radius = 64;
+	float raybeam_damage_radius = 110;
 
 	// Direct shots to the Zombie always deals the same
 	// amount of damage, regardless of PaP status.

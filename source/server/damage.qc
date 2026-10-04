@@ -563,7 +563,12 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				final_damage = 0;
 			else
 			{
-				final_damage = (radius - vlen(inflictor.origin - ent.origin))*1.5;
+				// Keep Ray Gun self-damage at its original 64qu radius.
+				float self_damage_radius = radius;
+				if (inflictor.classname == "projectile_raybeam")
+					self_damage_radius = 64;
+
+				final_damage = (self_damage_radius - vlen(inflictor.origin - ent.origin))*1.5;
 
 				if(final_damage < 0) 
 				{
@@ -571,7 +576,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 					continue;
 				}
 			
-				if (final_damage > radius * 0.75)
+				if (final_damage > self_damage_radius * 0.75)
 					final_damage = 100;
 			
 				if (final_damage < other.health)
