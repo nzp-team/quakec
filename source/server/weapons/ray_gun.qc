@@ -118,6 +118,12 @@ void() Ray_Impact =
 
 	float direct_impact;
 
+	// Pull the impact point back along the Beam's path, so
+	// the explosion's line-of-sight checks don't start
+	// inside the floor or wall that was hit.
+	if (self.velocity != '0 0 0')
+		setorigin(self, self.origin - normalize(self.velocity) * 4);
+
 	if (other.flags & FL_MONSTER)
 		direct_impact = true;
 	else

@@ -544,7 +544,12 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 	entity	ent;
 
 	float 	multi, r;
-	ent = findradius(inflictor.origin, radius);
+	// The Ray Gun measures distance to the edge of the target's
+	// hitbox (see below), so search a bit wider than the radius.
+	if (inflictor.classname == "projectile_raybeam")
+		ent = findradius(inflictor.origin, radius + 48);
+	else
+		ent = findradius(inflictor.origin, radius);
 	
 	while (ent != world)
 	{
@@ -667,7 +672,19 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			} else if (inflictor.classname == "projectile_raybeam") {
 				//final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
 				//bprint(PRINT_HIGH, strcat("damage: ", ftos(final_damage), "\n"));
-				final_damage = damage2;
+				// Measure to the nearest point of the hitbox instead of its
+				// center, so shooting the floor in front of a Zombie works
+				// (its center sits 32qu above its feet, leaving only ~55qu
+				// of reach on the ground with a 64qu radius).
+				vector raybeam_dist = inflictor.origin - ent.origin;
+				raybeam_dist_x -= clamp(raybeam_dist_x, ent.mins_x, ent.maxs_x);
+				raybeam_dist_y -= clamp(raybeam_dist_y, ent.mins_y, ent.maxs_y);
+				raybeam_dist_z -= clamp(raybeam_dist_z, ent.mins_z, ent.maxs_z);
+
+				if (vlen(raybeam_dist) > radius)
+					final_damage = 0;
+				else
+					final_damage = damage2;
 				damage_style = DMG_TYPE_GRENADE;
 			} else if (inflictor.classname == "player") {
 				// phd flopper.
