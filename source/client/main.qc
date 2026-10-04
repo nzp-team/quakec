@@ -318,6 +318,28 @@ float() PU_PreDraw =
 	return PREDRAW_NEXT;
 };
 
+// Local player view smoothing.
+// Input frames are generated at the network rate (cl_netfps), not once per video frame, so
+// drawing the newest predicted origin makes the view advance in whole input-frame steps
+// (visible judder whenever the two rates differ, also in single player). Instead, remember
+// the predicted origin and the input timeline position of every completed input frame and
+// draw the view slightly behind the newest one, interpolating between neighbouring frames.
+#define PRED_HISTORY		64
+#define PRED_VIEW_DELAY		0.016	// seconds behind the newest completed input frame
+vector	pred_origin[PRED_HISTORY];
+float	pred_origin_frame[PRED_HISTORY];
+float	pred_time[PRED_HISTORY];
+float	pred_time_frame[PRED_HISTORY];
+float	pred_last_timed_frame;
+float	pred_clock;
+float	pred_last_draw;
+vector	pred_view_origin;
+
+float(float frame) Pred_Slot =
+{
+	return frame - PRED_HISTORY * floor(frame / PRED_HISTORY);
+};
+
 float Player_PreDraw() =
 {
 	self.lerpfrac -= frametime*10;
@@ -332,6 +354,26 @@ float Player_PreDraw() =
 		vector vOldOrigin = self.origin;
 		vector vOldVelocity = self.velocity;
 		float fOldPMoveFlags = self.pmove_flags;
+		float new_draw = (cltime != pred_last_draw);
+		float slot;
+
+		// Timestamp every completed input frame on the input timeline
+		if (new_draw) {
+			float tf = max(pred_last_timed_frame + 1, clientcommandframe - (PRED_HISTORY - 4));
+			while (tf < clientcommandframe) {
+				if (getinputstate(tf)) {
+					slot = Pred_Slot(tf);
+					float prev_slot = Pred_Slot(tf - 1);
+					if (pred_time_frame[prev_slot] == tf - 1)
+						pred_time[slot] = pred_time[prev_slot] + input_timelength;
+					else
+						pred_time[slot] = cltime;
+					pred_time_frame[slot] = tf;
+				}
+				tf += 1;
+			}
+			pred_last_timed_frame = clientcommandframe - 1;
+		}
 
 		// Apply physics for every single input-frame that has not yet been
 		// acknowledged by the server (servercommandframe = last acknowledged frame)
@@ -347,7 +389,62 @@ float Player_PreDraw() =
 				break;
 			}
 			runstandardplayerphysics(self);
+
+			if (i < clientcommandframe) {
+				slot = Pred_Slot(i);
+				pred_origin[slot] = self.origin;
+				pred_origin_frame[slot] = i;
+			}
 		}
+
+		if (new_draw) {
+			// The networked origin is the result of the acknowledged frame
+			slot = Pred_Slot(servercommandframe);
+			pred_origin[slot] = vOldOrigin;
+			pred_origin_frame[slot] = servercommandframe;
+
+			pred_view_origin = self.origin;
+			float last = clientcommandframe - 1;
+			slot = Pred_Slot(last);
+			if (pred_time_frame[slot] == last && pred_origin_frame[slot] == last) {
+				// View clock advances with video time, gently locked to the input timeline
+				float newest = pred_time[slot];
+				float target = newest - PRED_VIEW_DELAY;
+				pred_clock += frametime;
+				if (fabs(pred_clock - target) > 0.1)
+					pred_clock = target;
+				else
+					pred_clock += (target - pred_clock) * min(1, frametime * 4);
+				if (pred_clock > newest)
+					pred_clock = newest;
+
+				// Find the known frames around the view clock and interpolate
+				float f = last;
+				float newer = -1;
+				while (f > last - (PRED_HISTORY - 4)) {
+					slot = Pred_Slot(f);
+					if (pred_time_frame[slot] == f && pred_origin_frame[slot] == f) {
+						if (pred_time[slot] <= pred_clock) {
+							if (newer < 0) {
+								pred_view_origin = pred_origin[slot];
+							} else {
+								float newer_slot = Pred_Slot(newer);
+								float span = pred_time[newer_slot] - pred_time[slot];
+								float frac = 1;
+								if (span > 0)
+									frac = bound(0, (pred_clock - pred_time[slot]) / span, 1);
+								pred_view_origin = pred_origin[slot] + (pred_origin[newer_slot] - pred_origin[slot]) * frac;
+							}
+							break;
+						}
+						newer = f;
+					}
+					f -= 1;
+				}
+			}
+			pred_last_draw = cltime;
+		}
+		self.origin = pred_view_origin;	// only for the view/stair smoothing, rolled back below
 				
 		// Smooth stair stepping, this has to be done manually!
 		playerOriginOld = playerOrigin;
