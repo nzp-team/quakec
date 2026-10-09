@@ -1,4 +1,4 @@
-name: QuakeC Unit Tests
+name: QuakeC Pull Request
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
@@ -7,74 +7,121 @@ permissions:
   contents: read
 
 jobs:
-  Unit-Tests:
-    name: Run Unit Tests
+  resolve-toolbox:
+    name: Pull Toolbox
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - name: Resolve Toolbox Image
+        id: image
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+          toolbox_image=$(sed -nE 's/^[[:space:]]*toolbox_image=([^[:space:]]+)[[:space:]]*$/\1/p' <<< "$PR_BODY" | head -n 1)
+          if [ -n "$toolbox_image" ]; then
+            if [[ ! "$toolbox_image" =~ ^ghcr\.io/[A-Za-z0-9-]+/toolbox(:[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}|@sha256:[0-9a-f]{64})$ ]]; then
+              echo "Invalid Toolbox image: $toolbox_image" >&2
+              exit 1
+            fi
+            image="$toolbox_image"
+          else
+            image='ghcr.io/nzp-team/toolbox:main'
+          fi
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+          echo "Toolbox Image: \`$image\`" >> "$GITHUB_STEP_SUMMARY"
+
+  compile:
+    name: Compile QuakeC
+    needs: resolve-toolbox
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:24.04
+      image: ${{ needs.resolve-toolbox.outputs.image }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Toolbox Fetch
+        env:
+          TOOLBOX_HOST_OS: Linux
+          TOOLBOX_HOST_ARCH: x86_64
+        run: /entrypoint.sh fetch
+      - name: Select QuakeC PR merge commit
+        env:
+          PR_MERGE_REF: ${{ github.ref }}
+          PR_MERGE_SHA: ${{ github.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git -C /workspace/repos/quakec fetch origin "$PR_MERGE_REF"
+          git -C /workspace/repos/quakec checkout --detach FETCH_HEAD
+          test "$(git -C /workspace/repos/quakec rev-parse HEAD)" = "$PR_MERGE_SHA"
+          test "$(git -C /workspace/repos/quakec rev-parse 'HEAD^2')" = "$PR_HEAD_SHA"
+          {
+            echo "QuakeC PR head: \`$PR_HEAD_SHA\`"
+            echo "Tested merge commit: \`$PR_MERGE_SHA\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Compile
+        run: /entrypoint.sh build-quakec
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quakec-pr
+          path: /workspace/repos/quakec/build/standard/*
+          if-no-files-found: error
+
+  unit-tests:
+    name: Run Unit Tests
+    needs: resolve-toolbox
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.resolve-toolbox.outputs.image }}
       options: --shm-size=8192m
     defaults:
       run:
         shell: bash
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Resolve dependency overrides
-        id: dependencies
+      - name: Toolbox Fetch
+        env:
+          TOOLBOX_HOST_OS: Linux
+          TOOLBOX_HOST_ARCH: x86_64
+        run: /entrypoint.sh fetch
+      - name: Select QuakeC PR merge commit
+        env:
+          PR_MERGE_REF: ${{ github.ref }}
+          PR_MERGE_SHA: ${{ github.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git -C /workspace/repos/quakec fetch origin "$PR_MERGE_REF"
+          git -C /workspace/repos/quakec checkout --detach FETCH_HEAD
+          test "$(git -C /workspace/repos/quakec rev-parse HEAD)" = "$PR_MERGE_SHA"
+          test "$(git -C /workspace/repos/quakec rev-parse 'HEAD^2')" = "$PR_HEAD_SHA"
+          {
+            echo "QuakeC PR head: \`$PR_HEAD_SHA\`"
+            echo "Tested merge commit: \`$PR_MERGE_SHA\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Select dependency overrides
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_HEAD_OWNER: ${{ github.event.pull_request.head.repo.owner.login }}
         run: |
-          vril_ref=$(sed -nE 's/^[[:space:]]*vril_ref=([^[:space:]]+)[[:space:]]*$/\1/p' <<< "${PR_BODY}" | head -n 1)
-          assets_ref=$(sed -nE 's/^[[:space:]]*assets_ref=([^[:space:]]+)[[:space:]]*$/\1/p' <<< "${PR_BODY}" | head -n 1)
-          echo "vril_ref=${vril_ref}" >> "${GITHUB_OUTPUT}"
-          echo "assets_ref=${assets_ref}" >> "${GITHUB_OUTPUT}"
-          echo "vril_repository=${PR_HEAD_OWNER}/vril-engine" >> "${GITHUB_OUTPUT}"
-          echo "assets_repository=${PR_HEAD_OWNER}/assets" >> "${GITHUB_OUTPUT}"
-      - name: Checkout Vril
-        if: steps.dependencies.outputs.vril_ref != ''
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ steps.dependencies.outputs.vril_repository }}
-          ref: ${{ steps.dependencies.outputs.vril_ref }}
-          path: test-dependencies/vril-engine
-          persist-credentials: false
-      - name: Checkout assets
-        if: steps.dependencies.outputs.assets_ref != ''
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ steps.dependencies.outputs.assets_repository }}
-          ref: ${{ steps.dependencies.outputs.assets_ref }}
-          path: test-dependencies/assets
-          persist-credentials: false
-      - name: Log Repository Overrides
-        env:
-          VRIL_REF: ${{ steps.dependencies.outputs.vril_ref }}
-          VRIL_REPOSITORY: ${{ steps.dependencies.outputs.vril_repository }}
-          ASSETS_REF: ${{ steps.dependencies.outputs.assets_ref }}
-          ASSETS_REPOSITORY: ${{ steps.dependencies.outputs.assets_repository }}
-        run: |
-          {
-            echo "### QuakeC Unit Test Overrides"
-            echo
-            if [[ -n "${VRIL_REF}" ]]; then
-              echo "* Vril: \`${VRIL_REPOSITORY}@$(git -C test-dependencies/vril-engine rev-parse HEAD)\` (requested \`${VRIL_REF}\`)"
+          set -euo pipefail
+          for dependency in vril assets; do
+            ref=$(sed -nE "s/^[[:space:]]*${dependency}_ref=([^[:space:]]+)[[:space:]]*$/\1/p" <<< "$PR_BODY" | head -n 1)
+            [ -n "$ref" ] || continue
+            case "$dependency" in
+              vril) repository=vril-engine ;;
+              assets) repository=assets ;;
+            esac
+            directory="/workspace/repos/$repository"
+            git -C "$directory" fetch "https://github.com/${PR_HEAD_OWNER}/${repository}.git" "$ref"
+            git -C "$directory" checkout --detach FETCH_HEAD
+            echo "${repository} override: \`${PR_HEAD_OWNER}/${repository}@$(git -C "$directory" rev-parse HEAD)\` (requested \`$ref\`)" >> "$GITHUB_STEP_SUMMARY"
+            if [ "$dependency" = vril ]; then
+              echo 'VRIL_OVERRIDE=1' >> "$GITHUB_ENV"
             else
-              echo "* Vril: N/A"
+              echo 'ASSETS_OVERRIDE=1' >> "$GITHUB_ENV"
             fi
-            if [[ -n "${ASSETS_REF}" ]]; then
-              echo "* assets: \`${ASSETS_REPOSITORY}@$(git -C test-dependencies/assets rev-parse HEAD)\` (requested \`${ASSETS_REF}\`)"
-            else
-              echo "* Assets: N/A"
-            fi
-          } >> "${GITHUB_STEP_SUMMARY}"
-      - name: Run Unit Test Script
-        env:
-          VRIL_REF: ${{ steps.dependencies.outputs.vril_ref }}
-          VRIL_SOURCE_DIRECTORY: ${{ github.workspace }}/test-dependencies/vril-engine
-          ASSETS_REF: ${{ steps.dependencies.outputs.assets_ref }}
-          ASSETS_SOURCE_DIRECTORY: ${{ github.workspace }}/test-dependencies/assets
-        run: |
-          bash testing/run_unit_tests.sh
+          done
+      - name: Run unit tests
+        run: /entrypoint.sh test-quakec
