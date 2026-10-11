@@ -1,33 +1,60 @@
 name: Compile QuakeC and Publish Release
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
 jobs:
   Compile-QC:
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'pull_request' }}
+    container:
+      image: ghcr.io/nzp-team/toolbox:main
+    defaults:
+      run:
+        shell: bash
     steps:
-      - name: Install Python and Libraries
+      - name: Toolbox Fetch
+        env:
+          TOOLBOX_HOST_OS: Linux
+          TOOLBOX_HOST_ARCH: x86_64
+        run: /entrypoint.sh fetch
+      - name: Select Commit
+        env:
+          QUAKEC_SHA: ${{ github.sha }}
         run: |
-          sudo -i
-          apt update && apt install python3 python3-pip wget
-          wget https://raw.githubusercontent.com/nzp-team/QCHashTableGenerator/main/requirements.txt
-          pip install -r requirements.txt
-      - uses: actions/checkout@v3
-      - name: Clone Repository
-        working-directory: ./tools
-        run: |
-          sudo -i
-          ./qc-compiler-gnu.sh
+          git -C /workspace/repos/quakec fetch origin main
+          git -C /workspace/repos/quakec checkout --detach "$QUAKEC_SHA"
+          echo "QuakeC commit: $(git -C /workspace/repos/quakec rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Compile
+        run: /entrypoint.sh build-quakec
       - name: Zip Progs
-        if: github.ref == 'refs/heads/main'
-        working-directory: ./build
         run: |
+          cd /workspace/repos/quakec/build
           zip -r -j standard-nzp-qc.zip standard/*
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: standard-nzp-qc
+          path: /workspace/repos/quakec/build/standard-nzp-qc.zip
+          if-no-files-found: error
+
+  Release:
+    needs: Compile-QC
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: standard-nzp-qc
+          path: ./build
       - name: Generate Build Date
-        if: github.ref == 'refs/heads/main'
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d-%H-%M-%S')"
+        run: echo "date=$(date +'%Y-%m-%d-%H-%M-%S')" >> "$GITHUB_OUTPUT"
       - name: Delete Old Release
-        if: github.ref == 'refs/heads/main'
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
           delete_release: true
@@ -35,9 +62,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
-        if: github.ref == 'refs/heads/main'
-        id: create_release
         uses: actions/create-release@v1
+        id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -52,7 +78,6 @@ jobs:
           draft: true
           prerelease: false
       - name: Upload STANDARD QC
-        if: github.ref == 'refs/heads/main'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,7 +87,6 @@ jobs:
           asset_name: standard-nzp-qc.zip
           asset_content_type: application/zip
       - name: Publish Release
-        if: github.ref == 'refs/heads/main'
         uses: StuYarrow/publish-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

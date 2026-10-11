@@ -13,6 +13,7 @@ Uncomment to run QuakeC tests on specific component branches (will
 use your own forks if you are an external contributor):
 # vril_ref=main
 # assets_ref=main
+# toolbox_image=
 -->
 
 ### Description of Changes
