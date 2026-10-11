@@ -27,6 +27,7 @@
 
 string(float wep, float gorvmodel) GetWeaponModel;
 void() ReturnWeaponModel;
+float(entity recipient, float perk) Perk_Apply;
 
 void() flame_update = 
 {	
@@ -429,6 +430,161 @@ void() game_counter =
 	// Every time its triggered, increment.
 	self.use = game_counter_increment;
 }
+
+//
+// game_perk()
+// Gives either one random perk or all selected perks to the activator/all players.
+//
+#define GAME_PERK_MODE_RANDOM			0
+#define GAME_PERK_MODE_ALL				1
+#define GAME_PERK_PLAYERS_ACTIVATOR		0
+#define GAME_PERK_PLAYERS_ALL			1
+#define GAME_PERK_INTERVAL				0.25
+
+float(entity player, float perk_mask) game_perk_random =
+{
+	float available_perks;
+	float num_perks;
+	float selected_perk;
+	float i;
+
+	available_perks = perk_mask - (perk_mask & player.perks);
+	num_perks = 0;
+
+	for (i = P_JUG; i <= P_MULE; i *= 2) {
+		if (available_perks & i)
+			num_perks++;
+	}
+
+	if (!num_perks)
+		return 0;
+
+	selected_perk = floor(random() * num_perks);
+	for (i = P_JUG; i <= P_MULE; i *= 2) {
+		if (!(available_perks & i))
+			continue;
+
+		if (!selected_perk)
+			return i;
+
+		selected_perk--;
+	}
+
+	return 0;
+};
+
+void(entity player, float perk) game_perk_give =
+{
+	if (player == world || player.classname != "player" || player.downed)
+		return;
+
+	Perk_Apply(player, perk);
+};
+
+void(entity controller, float perk) game_perk_give_to_players =
+{
+	entity player;
+
+	if (controller.player_mode == GAME_PERK_PLAYERS_ALL) {
+		player = find(world, classname, "player");
+		while (player != world) {
+			game_perk_give(player, perk);
+			player = find(player, classname, "player");
+		}
+	} else {
+		game_perk_give(controller.enemy, perk);
+	}
+};
+
+void() game_perk_finish =
+{
+	entity controller = self;
+	entity old_activator = activator;
+
+	if (controller.owner != world) {
+		self = controller.owner;
+		activator = controller.enemy;
+		SUB_UseTargets();
+		self = controller;
+	}
+
+	activator = old_activator;
+	remove(controller);
+};
+
+void() game_perk_think =
+{
+	float perk;
+
+	for (perk = P_JUG; perk <= P_MULE; perk *= 2) {
+		if (self.perk_mask & perk)
+			break;
+	}
+
+	if (perk > P_MULE) {
+		game_perk_finish();
+		return;
+	}
+
+	self.perk_mask -= perk;
+	game_perk_give_to_players(self, perk);
+
+	if (self.perk_mask) {
+		self.nextthink = time + GAME_PERK_INTERVAL;
+	} else {
+		game_perk_finish();
+	}
+};
+
+void() game_perk_use =
+{
+	entity controller;
+	entity player;
+
+	controller = spawn();
+	controller.classname = "game_perk_controller";
+	controller.owner = self;
+	controller.enemy = activator;
+	controller.player_mode = self.player_mode;
+	controller.perk_mask = self.spawnflags & P_ALL;
+
+	if (self.mode == GAME_PERK_MODE_ALL) {
+		controller.think = game_perk_think;
+		self = controller;
+		game_perk_think();
+		return;
+	}
+
+	if (controller.player_mode == GAME_PERK_PLAYERS_ALL) {
+		player = find(world, classname, "player");
+		while (player != world) {
+			game_perk_give(player, game_perk_random(player, controller.perk_mask));
+			player = find(player, classname, "player");
+		}
+	} else if (activator != world && activator.classname == "player") {
+		game_perk_give(activator, game_perk_random(activator, controller.perk_mask));
+	} else if (cvar("developer")) {
+		dprint("[WARNING]: game_perk used without a valid player activator!\n");
+	}
+
+	self = controller;
+	game_perk_finish();
+};
+
+void() game_perk =
+{
+	if (!(self.spawnflags & P_ALL))
+		objerror("[ERROR]: game_perk entity with no eligible perks!\n");
+
+	if (self.mode != GAME_PERK_MODE_RANDOM && self.mode != GAME_PERK_MODE_ALL)
+		objerror("[ERROR]: game_perk entity with invalid mode!\n");
+
+	if (self.player_mode != GAME_PERK_PLAYERS_ACTIVATOR && self.player_mode != GAME_PERK_PLAYERS_ALL)
+		objerror("[ERROR]: game_perk entity with invalid player_mode!\n");
+
+	self.classname = "game_perk";
+	self.use = game_perk_use;
+};
 
 #define SCREENFLASH_SPAWNFLAG_ENDROUND	1
 
