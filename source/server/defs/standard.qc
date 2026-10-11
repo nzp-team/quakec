@@ -169,7 +169,7 @@ void    (entity e, vector min, vector max)                                      
 void    ()                                                                                      break               = #6;
 float   ()                                                                                      random              = #7;	// returns 0 - 1
 void    (entity e, float chan, string samp, float vol, float atten, optional float speedpct, 
-         optional float flags)                                                                 sound                = #8;
+         optional float flags)                                                                  sound               = #8;
 vector  (vector v)                                                                              normalize           = #9;
 void    (string e)                                                                              error               = #10;
 void    (string e)                                                                              objerror            = #11;
@@ -506,3 +506,5 @@ string  (string fmt, ...)                                                       
 #define		FILE_READ 	 				0
 #define		FILE_APPEND 				1
 #define		FILE_WRITE 					2
+
+#define     SOUNDFLAG_FOLLOW            64
