@@ -263,6 +263,8 @@ float(float root) Modifiers_Validate =
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.show_toast", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.model", JNODE_STRING, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.powerups.powerup_weapon_upgrade.voiceover", JNODE_STRING, 0, 1000000)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.ai.zombie.despawn_distance", JNODE_NUMBER, 0, 1000000)) return false;
+	if (!Modifiers_CheckValue(root, "gameplay.ai.zombie.despawn_height", JNODE_NUMBER, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.ai.zombie.walk_styles.can_walk", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.ai.zombie.walk_styles.can_jog", JNODE_BOOL, 0, 1000000)) return false;
 	if (!Modifiers_CheckValue(root, "gameplay.ai.zombie.walk_styles.can_sprint", JNODE_BOOL, 0, 1000000)) return false;
@@ -489,6 +491,8 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
     game_modifiers.gameplay.ai.round_health_cap = Json_GetFloatPath(config_root, "gameplay.ai.round_health_cap", initialize ? 0 : game_modifiers.gameplay.ai.round_health_cap);
 
     // MARK: Zombie Walk Styles
+    game_modifiers.gameplay.ai.zombie.despawn_distance = Json_GetFloatPath(config_root, "gameplay.ai.zombie.despawn_distance", initialize ? 0 : game_modifiers.gameplay.ai.zombie.despawn_distance);
+    game_modifiers.gameplay.ai.zombie.despawn_height = Json_GetFloatPath(config_root, "gameplay.ai.zombie.despawn_height", initialize ? 0 : game_modifiers.gameplay.ai.zombie.despawn_height);
     game_modifiers.gameplay.ai.zombie.walk_styles.can_walk = Json_GetBoolPath(config_root, "gameplay.ai.zombie.walk_styles.can_walk", initialize ? true : game_modifiers.gameplay.ai.zombie.walk_styles.can_walk);
     game_modifiers.gameplay.ai.zombie.walk_styles.can_jog = Json_GetBoolPath(config_root, "gameplay.ai.zombie.walk_styles.can_jog", initialize ? true : game_modifiers.gameplay.ai.zombie.walk_styles.can_jog);
     game_modifiers.gameplay.ai.zombie.walk_styles.can_sprint = Json_GetBoolPath(config_root, "gameplay.ai.zombie.walk_styles.can_sprint", initialize ? true : game_modifiers.gameplay.ai.zombie.walk_styles.can_sprint);

@@ -458,6 +458,9 @@ float z_health;
 .float bleedingtime;
 .float time_to_die;
 
+.float distance_cleanup_time;
+.float distance_respawn_health;
+.float distance_respawn_round;
 .float respawn_timer;
 .float respawn_iterator;
 
