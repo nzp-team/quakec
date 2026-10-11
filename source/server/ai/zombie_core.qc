@@ -276,9 +276,82 @@ void() Zombie_ProcessRespawn =
 	}
 }
 
+float(entity zombie, entity player) Zombie_PlayerLookingTowards =
+{
+	vector saved_forward = v_forward;
+	vector saved_right = v_right;
+	vector saved_up = v_up;
+	makevectors(player.v_angle);
+	float looking = (normalize(zombie.origin - player.origin) * v_forward) >= 0;
+	v_forward = saved_forward;
+	v_right = saved_right;
+	v_up = saved_up;
+	return looking;
+};
+
+float(entity zombie) Zombie_CanDistanceDespawn =
+{
+	float distance = game_modifiers.gameplay.ai.zombie.despawn_distance;
+	float height = game_modifiers.gameplay.ai.zombie.despawn_height;
+	if (distance <= 0 || zombie.classname != "ai_zombie" || zombie.health <= 0 ||
+		zombie.aistatus == "0" || zombie.outside || zombie.crawling ||
+		zombie.electro_targeted || zombie.death_timer_activated)
+		return false;
+
+	float found_player = false;
+	entity player = find(world, classname, "player");
+	while (player != world) {
+		if (!player.is_spectator && player.health > 0) {
+			found_player = true;
+			if ((vlen(zombie.origin - player.origin) <= distance &&
+				(height <= 0 || fabs(zombie.origin_z - player.origin_z) <= height)) ||
+				Zombie_PlayerLookingTowards(zombie, player))
+				return false;
+		}
+		player = find(player, classname, "player");
+	}
+	return found_player;
+};
+
+void(entity ent, optional float recycling) Zombie_Death_Cleanup;
+void() removeZombie;
+
+float() Zombie_ProcessDistanceDespawn =
+{
+	if (game_modifiers.gameplay.ai.zombie.despawn_distance <= 0 ||
+		self.distance_cleanup_time > time)
+		return false;
+	self.distance_cleanup_time = time + 10;
+	if (!Zombie_CanDistanceDespawn(self))
+		return false;
+
+	self.distance_respawn_health = self.health;
+	self.distance_respawn_round = rounds;
+	Zombie_Death_Cleanup(self, true);
+	Remaining_Zombies++;
+	Current_Zombies--;
+	removeZombie();
+	return true;
+};
+
+float(entity zombie, float spawn_health) Zombie_DistanceRespawnHealth =
+{
+	float health = spawn_health;
+
+	// despawned zombies should keep their health, since theyre kinda teleporting
+	if (zombie.distance_respawn_health > 0 && zombie.distance_respawn_round == rounds)
+		health = zombie.distance_respawn_health < spawn_health ? zombie.distance_respawn_health : spawn_health;
+
+	zombie.distance_respawn_health = 0;
+	return health;
+};
+
 void() zombie_decide;
 void() Zombie_Think = //called every frame for zombies
 {
+	if (Zombie_ProcessDistanceDespawn())
+		return;
+
 	if (self.onfire) {
 		Effect_Fire(self.origin);
 
@@ -1033,14 +1106,14 @@ void()	zombie_deathC10		=[	$deathC10,		SUB_Null		] 	{if (self.onfire) {Effect_Fi
 
 
 
-void(entity ent) Zombie_Death_Cleanup = {
+void(entity ent, optional float recycling) Zombie_Death_Cleanup = {
 	// Already dead
 	if(ent.aistatus == "0") {
 		return;
 	}
 
 	// Insta-Kill should always cause the head to gib on Zombie death.
-	if (ent.head && instakill_finished > time) {
+	if (!recycling && ent.head && instakill_finished > time) {
 		makevectors(ent.head.owner.angles);
  		vector where = ent.origin + (ent.head.view_ofs_x * v_right) + (ent.head.view_ofs_y * v_forward) + (ent.head.view_ofs_z * v_up);
  		spawn_gibs(where);
@@ -1415,12 +1488,17 @@ void() Zombie_ReassignSpawnIDs =
 	}
 }
 
-inline entity() getFreeZombieEnt =
+entity() getFreeZombieEnt =
 {
-	entity who;
-	who = find(world,classname,"freeZombieEntity");
-	
-	return who;
+	entity who = find(world, classname, "freeZombieEntity");
+	entity first_free = who;
+
+	while (who != world) {
+		if (who.distance_respawn_health > 0 && who.distance_respawn_round == rounds)
+			return who;
+		who = find(who, classname, "freeZombieEntity");
+	}
+	return first_free;
 };
 
 float() spawn_a_zombieA =
@@ -1745,13 +1823,14 @@ void(entity where) spawn_a_zombieB =
 	
 	szombie.ideal_yaw = szombie.angles_y;
 	szombie.yaw_speed = 20;
+	szombie.distance_cleanup_time = time + 10;
 	szombie.iszomb = 1;
 	szombie.death_timer = 0;
 	szombie.death_timer_activated = false;
 	szombie.electro_targeted = false;
 	
 	// We used to set different limb health, too, but we now handle any limb damage differences in weapon stats.
-	szombie.health = szombie.head.health = szombie.larm.health = szombie.rarm.health = z_health;
+	szombie.health = szombie.head.health = szombie.larm.health = szombie.rarm.health = Zombie_DistanceRespawnHealth(szombie, z_health);
 
 	szombie.th_die = Zombie_Death;
 	szombie.th_walk = Zombie_Walk_Setup;

@@ -581,6 +581,9 @@ struct game_modifier
 
 			struct gm_gp_ai_zombie
 			{
+				float despawn_distance;
+				float despawn_height;
+
 				struct gm_gp_ai_zm_walkstyles
 				{
 					float can_walk;
