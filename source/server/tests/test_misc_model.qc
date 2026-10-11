@@ -54,3 +54,101 @@ void() Test_misc_model_ModelNotHiddenByDefault =
     self = old_self;
     remove(miscmodel);
 };
+
+//
+// Test_misc_model_ModelNotHiddenByDefault()
+// Verifies custom bounding boxes on misc_model do not
+// get reset.
+// (https://github.com/nzp-team/nzportable/issues/1651)
+//
+void() Test_misc_model_CustomBounds =
+{
+    entity miscmodel = spawn();
+    entity old_self = self;
+    self = miscmodel;
+
+    self.classname = "misc_model";
+    self.model = "models/ai/zfull.mdl";
+    self.spawnflags = MISC_MODEL_SOLID;
+    self.mdlsz = '256 128 64';
+    self.centeroffset = '8 -16 24';
+    misc_model();
+
+    Test_Assert(self.mins == '-120 -80 -8', "Custom mins were overwritten during spawn!");
+    Test_Assert(self.maxs == '136 48 56', "Custom maxs were overwritten during spawn!");
+    Test_Assert(self.size == '256 128 64', "Custom size was overwritten during spawn!");
+
+    setorigin(self, '64 32 16');
+    Test_Assert(self.absmin == '-57 -49 7', "Relinking did not use custom mins!");
+    Test_Assert(self.absmax == '201 81 73', "Relinking did not use custom maxs!");
+
+    misc_model_use();
+    misc_model_use();
+    Test_Assert(self.mins == '-120 -80 -8', "Toggling visibility overwrote custom mins!");
+    Test_Assert(self.maxs == '136 48 56', "Toggling visibility overwrote custom maxs!");
+    Test_Assert(self.solid == SOLID_BBOX, "Toggling visibility did not restore solidity!");
+
+    self = old_self;
+    remove(miscmodel);
+};
+
+void() Test_misc_model_CustomBoundsPreventStatic =
+{
+    entity miscmodel = spawn();
+    entity old_self = self;
+    self = miscmodel;
+
+    self.classname = "test_misc_model_custom_bounds";
+    self.model = "models/ai/zfull.mdl";
+    self.mdlsz = '256 256 256';
+    self.centeroffset = '1 1 1';
+    misc_model();
+
+    Test_Assert(find(world, classname, "test_misc_model_custom_bounds") == miscmodel,
+        "Custom bounds were lost by converting the prop to a static entity!");
+    Test_Assert(self.mins == '-127 -127 -127', "Stationary prop did not retain custom mins!");
+    Test_Assert(self.maxs == '129 129 129', "Stationary prop did not retain custom maxs!");
+
+    self = old_self;
+    if (find(world, classname, "test_misc_model_custom_bounds") == miscmodel)
+        remove(miscmodel);
+};
+
+void() Test_misc_model_CenterOffsetPreventStatic =
+{
+    entity miscmodel = spawn();
+    entity old_self = self;
+    self = miscmodel;
+
+    self.classname = "test_misc_model_center_offset";
+    self.model = "models/ai/zfull.mdl";
+    self.centeroffset = '32 -16 8';
+    misc_model();
+
+    Test_Assert(find(world, classname, "test_misc_model_center_offset") == miscmodel,
+        "Custom center offset was lost by converting the prop to a static entity!");
+    Test_Assert(self.mins == '16 -32 -8', "Center offset did not apply to default mins!");
+    Test_Assert(self.maxs == '48 0 24', "Center offset did not apply to default maxs!");
+
+    self = old_self;
+    if (find(world, classname, "test_misc_model_center_offset") == miscmodel)
+        remove(miscmodel);
+};
+
+void() Test_misc_model_DefaultBoundsRemainStatic =
+{
+    entity miscmodel = spawn();
+    entity old_self = self;
+    self = miscmodel;
+
+    self.classname = "test_misc_model_default_bounds";
+    self.model = "models/ai/zfull.mdl";
+    misc_model();
+
+    Test_Assert(find(world, classname, "test_misc_model_default_bounds") == world,
+        "Stationary prop without custom bounds was not converted to a static entity!");
+
+    self = old_self;
+    if (find(world, classname, "test_misc_model_default_bounds") == miscmodel)
+        remove(miscmodel);
+};
