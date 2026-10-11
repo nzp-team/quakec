@@ -33,47 +33,34 @@
 #define AMBIENT_SOUND_START_SILENT		16
 #define AMBIENT_SOUND_NOT_LOOPING		32
 
+.float ambient_endtime;
+
 void() ambient_use =
 {
-	// volume can only be between 0 - 1 in quake (maybe FTE supports higher.. not sure)
+	// volume can only be between 0 - 1 in quake
 	if (self.health > 1)
 		self.health = 1;
-	
-	if (self.team == 1) {
-		if (self.spawnflags & AMBIENT_SOUND_NOT_LOOPING) {
-			sound(self, CHAN_VOICE, self.message, self.health, self.stance);
-			
-		}
-		else {
-			sound(self, CHAN_VOICE, self.message, self.health, self.stance);
-			ambientsound(self.origin, self.message, self.health, self.stance);
-		}
 
-		if (self.spawnflags & AMBIENT_SOUND_START_SILENT) {
-			return;
-		}
-		
-		self.team = 0;
-	}
-	else
-	{
-		if (self.spawnflags & AMBIENT_SOUND_NOT_LOOPING) {
-			sound (self, CHAN_VOICE, self.message, 0, self.stance);
-		}
-
-#ifdef FTE
-
-		else {
-			sound (self, CHAN_VOICE, self.message, 0, self.stance);
-			ambientsound (self.origin, self.message, 0, self.stance);
-		}
-
-#endif // FTE
-
+	if ((self.spawnflags & AMBIENT_SOUND_NOT_LOOPING) &&
+		self.ambient_endtime > 0 && time >= self.ambient_endtime)
 		self.team = 1;
-	}
 
-    self.use = SUB_Null;
+	if (self.team == 1) {
+		sound(self, CHAN_VOICE, self.message, self.health, self.stance);
+		self.team = 0;
+		self.ambient_endtime = 0;
+
+		if (self.spawnflags & AMBIENT_SOUND_NOT_LOOPING) {
+			float duration = GetSoundLen(self.message);
+			if (duration > 0)
+				self.ambient_endtime = time + duration;
+		}
+	}
+	else {
+		sound(self, CHAN_VOICE, "sounds/null.wav", 1, ATTN_NONE);
+		self.team = 1;
+		self.ambient_endtime = 0;
+	}
 };
 
 void () ambient_generic =
