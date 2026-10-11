@@ -49,19 +49,7 @@
 #define SOUND_MAX_WEAPON_EXPLODE    8
 #define SOUND_MAX_ENV_VOICE         1
 
-// On FTE, we should always be using SOUNDFLAG_FOLLOW because we want
-// sounds like the longer zombie groans to not feel desynconized from
-// the actual action, other engines don't support this though, so wrap
-// it.
-#ifdef FTE
-
-#define PLAYSOUND(ent, channel, path, volume, attenuation) sound(ent, channel, path, volume, attenuation, 0, SOUNDFLAG_FOLLOW)
-
-#else
-
-#define PLAYSOUND(ent, channel, path, volume, attenuation) sound(ent, channel, path, volume, attenuation)
-
-#endif // FTE
+#define PLAYSOUND(ent, channel, path, volume, attenuation, speedpct) sound(ent, channel, path, volume, attenuation, speedpct, SOUNDFLAG_FOLLOW)
 
 float zombie_groan_times[SOUND_MAX_ZOMBIE_GROANS];
 float weapon_explode_times[SOUND_MAX_WEAPON_EXPLODE];
@@ -130,74 +118,74 @@ void(float priority, float index) Sound_SetZombieGroan =
     zombie_groan_times[index] = time + 4.5;
 };
 
-void(entity source_ent, string path, float type, float priority) Sound_PlaySound =
+void(entity source_ent, string path, float type, float priority, optional float speedpct) Sound_PlaySound =
 {
     if (path == "") return;
     switch(type) {
         case SOUND_TYPE_ZOMBIE_QUIET:
             float zombie_quiet_groan = Sound_GetZombieGroan();
             if (priority == SOUND_PRIORITY_PLAYALWAYS || zombie_quiet_groan != -1) {
-                PLAYSOUND(source_ent, CHAN_VOICE, path, 0.50, 2);
+                PLAYSOUND(source_ent, CHAN_VOICE, path, 0.50, 2, speedpct);
                 Sound_SetZombieGroan(priority, zombie_quiet_groan);
             }
             break;
         case SOUND_TYPE_ZOMBIE_LOUD:
             float zombie_loud_groan = Sound_GetZombieGroan();
             if (priority == SOUND_PRIORITY_PLAYALWAYS || zombie_loud_groan != -1) {
-                PLAYSOUND(source_ent, CHAN_WEAPON, path, 0.70, 1);
+                PLAYSOUND(source_ent, CHAN_WEAPON, path, 0.70, 1, speedpct);
                 Sound_SetZombieGroan(priority, zombie_loud_groan);
             }
             break;
         case SOUND_TYPE_ZOMBIE_CRAWLER:
             float zombie_crawler_groan = Sound_GetZombieGroan();
             if (priority == SOUND_PRIORITY_PLAYALWAYS || zombie_crawler_groan != -1) {
-                PLAYSOUND(source_ent, CHAN_ITEM, path, 0.60, 1);
+                PLAYSOUND(source_ent, CHAN_ITEM, path, 0.60, 1, speedpct);
                 Sound_SetZombieGroan(priority, zombie_crawler_groan);
             }
             break;
         case SOUND_TYPE_MUSIC_ROUND:
-            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.65, 0);
+            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.65, 0, speedpct);
             break;
         case SOUND_TYPE_WEAPON_FIRE:
-            PLAYSOUND(source_ent, CHAN_AUTO, path, 0.80, 2);
+            PLAYSOUND(source_ent, CHAN_AUTO, path, 0.80, 2, speedpct);
             break;
         case SOUND_TYPE_WEAPON_OTHER:
-            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.60, 2);
+            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.60, 2, speedpct);
             break;
         case SOUND_TYPE_WEAPON_PACK:
-            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.95, 2);
+            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.95, 2, speedpct);
             break;
         case SOUND_TYPE_WEAPON_EXPLODE:
             float weapon_explosion_index = Sound_GetWeaponExplosion();
             if (priority == SOUND_PRIORITY_PLAYALWAYS || weapon_explosion_index != -1) {
-                PLAYSOUND(source_ent, 0, path, 0.70, 1);
+                PLAYSOUND(source_ent, 0, path, 0.70, 1, speedpct);
                 Sound_SetWeaponExplosion(priority, weapon_explosion_index);
             }
             break;
         case SOUND_TYPE_PLAYER_VOICE:
-            PLAYSOUND(source_ent, CHAN_VOICE, path, 0.90, 2);
+            PLAYSOUND(source_ent, CHAN_VOICE, path, 0.90, 2, speedpct);
             break;
         case SOUND_TYPE_PLAYER_FOOTSTEP:
-            PLAYSOUND(source_ent, 0, path, 0.40, 3);
+            PLAYSOUND(source_ent, 0, path, 0.40, 3, speedpct);
             break;
         case SOUND_TYPE_ENV_OBJECT:
-            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.50, 2);
+            PLAYSOUND(source_ent, CHAN_ITEM, path, 0.50, 2, speedpct);
             break;
         case SOUND_TYPE_ENV_CHING:
-            PLAYSOUND(source_ent, CHAN_AUTO, path, 0.75, 3);
+            PLAYSOUND(source_ent, CHAN_AUTO, path, 0.75, 3, speedpct);
             break;
         case SOUND_TYPE_ENV_VOICE:
             float environment_voice_index = Sound_GetEnvironmentVoice();
             if (priority == SOUND_PRIORITY_PLAYALWAYS || environment_voice_index != -1) {
-                PLAYSOUND(source_ent, CHAN_VOICE, path, 0.80, 0);
+                PLAYSOUND(source_ent, CHAN_VOICE, path, 0.80, 0, speedpct);
                 Sound_SetEnvironmentVoice(priority, environment_voice_index);
             }
             break;
         case SOUND_TYPE_ENV_MUSIC:
-            PLAYSOUND(source_ent, CHAN_WEAPON, path, 0.75, 3);
+            PLAYSOUND(source_ent, CHAN_WEAPON, path, 0.75, 3, speedpct);
             break;
         case SOUND_TYPE_ENV_IMPORTANT:
-            PLAYSOUND(source_ent, CHAN_ITEM, path, 1, 2);
+            PLAYSOUND(source_ent, CHAN_ITEM, path, 1, 2, speedpct);
             break;
         default:
             break;
