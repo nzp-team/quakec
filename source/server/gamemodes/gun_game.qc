@@ -121,6 +121,23 @@ void() Gamemode_GunGame_Init =
     game_modifier_can_packapunch = false;
 };
 
+void() Gamemode_GunGame_RemoveMysteryBoxes =
+{
+    entity box = find(world, classname, "mystery");
+    while (box != world) {
+        entity next_box = find(box, classname, "mystery");
+        remove(box);
+        box = next_box;
+    }
+
+    entity spot = find(world, classname, "mystery_box_tp_spot");
+    while (spot != world) {
+        entity next_spot = find(spot, classname, "mystery_box_tp_spot");
+        remove(spot);
+        spot = next_spot;
+    }
+};
+
 void() Gamemode_GunGame_Frame =
 {
     if (gungame_ran_post_init_logic == false) {
@@ -131,12 +148,7 @@ void() Gamemode_GunGame_Frame =
             buy_weapon = find(buy_weapon, classname, "buy_weapon");
         }
 
-        // Disable Mystery Box
-        entity mystery_box = find(world, classname, "mystery");
-        while(mystery_box != world) {
-            mystery_box.solid = SOLID_NOT;
-            mystery_box = find(mystery_box, classname, "mystery");
-        }
+        Gamemode_GunGame_RemoveMysteryBoxes();
 
         Sound_PlaySound(world, "sounds/modes/gungame/intro.wav", SOUND_TYPE_ENV_VOICE, SOUND_PRIORITY_PLAYALWAYS);
         gungame_ran_post_init_logic = true;
