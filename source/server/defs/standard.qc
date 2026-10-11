@@ -168,7 +168,8 @@ void    (entity e, string m)                                                    
 void    (entity e, vector min, vector max)                                                      setsize             = #4;
 void    ()                                                                                      break               = #6;
 float   ()                                                                                      random              = #7;	// returns 0 - 1
-void    (entity e, float chan, string samp, float vol, float atten)                             sound               = #8;
+void    (entity e, float chan, string samp, float vol, float atten, optional float speedpct, 
+         optional float flags)                                                                 sound                = #8;
 vector  (vector v)                                                                              normalize           = #9;
 void    (string e)                                                                              error               = #10;
 void    (string e)                                                                              objerror            = #11;

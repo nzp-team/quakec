@@ -79,7 +79,9 @@ void(float type) Zombie_PlaySoundType =
 	string sample = Modifiers_PickZombieSound(group);
 	if (sample == "")
 		return;
-	Sound_PlaySound(self.head, sample, channel, priority);
+
+	float speedpct = 70 + random() * 60;
+	Sound_PlaySound(self.head, sample, channel, priority, speedpct);
 	// Custom samples have no duration in the config. Space ambient calls apart.
 	self.sound_time = time + (ambient ? 3 + random() * 4 : 0);
 	self.s_time = time + 2;
