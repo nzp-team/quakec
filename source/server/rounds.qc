@@ -38,6 +38,7 @@ string hound_round_taunt;
 float hound_round_taunt_time;
 
 void() SUB_UseTargets;
+void() RoundDelayEndTargets;
 float() spawn_a_dogA;
 void() zapper_cooldown;
 
@@ -199,7 +200,9 @@ void() EndRound =
 		}
 	}
 
-	// Fire off all trigger_atroundent ents
+	RoundDelayEndTargets();
+
+	// Fire off all trigger_atroundend ents
 	entity triggers = find(world, classname, "trigger_atroundend");
 	while(triggers != world) {
 		if (triggers.health == rounds) {

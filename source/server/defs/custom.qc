@@ -65,6 +65,7 @@ float 	framecount;
 float music_override;
 
 .float 	round_delay;
+.float	round_delay_end;
 .float	recoil_delay;
 .float 	cur_spread;
 

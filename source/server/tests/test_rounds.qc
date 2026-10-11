@@ -43,3 +43,78 @@ void() Test_Rounds_NewClientsDontCauseReset =
     Test_Assert((rounds == 100), "PlayerSpawn function reset Round!");
     rounds = old_rounds;
 };
+
+void(float end_mode, float delay_rounds) Test_Rounds_DelayTiming =
+{
+    entity oldself = self;
+    entity oldactivator = activator;
+    float oldrounds = rounds;
+    entity counter = spawn();
+    counter.targetname = "test_round_delay_counter";
+    counter.frags = 2;
+    counter.health = 10;
+    self = counter;
+    game_counter();
+
+    entity trigger = spawn();
+    trigger.target = counter.targetname;
+    trigger.target2 = counter.targetname;
+    trigger.triggerstate = TRIGGERSTATE_OFF;
+    trigger.round_delay = delay_rounds;
+    trigger.round_delay_end = end_mode;
+    rounds = 2;
+    self = trigger;
+    activator = oldself;
+    SUB_UseTargets();
+
+    string delay_class = end_mode ? "RoundEndDelayedUse" : "DelayedUse";
+    entity pending = find(world, classname, delay_class);
+    Test_Assert(pending != world, "Round delay was not queued!");
+    if (pending != world) {
+        Test_Assert(pending.enemy == oldself, "Round delay lost its activator!");
+        rounds = 2 + delay_rounds - 2;
+        RoundDelayEndTargets();
+        if (!end_mode) {
+            self = pending;
+            RoundDelayThink();
+        }
+        Test_Assert(counter.frags == 2, "Round delay fired before its selected round!");
+
+        rounds = 2 + delay_rounds - 1;
+        RoundDelayEndTargets();
+        if (end_mode) {
+            Test_Assert(counter.frags == 0, "End delay did not fire both targets with the Off state!");
+            Test_Assert(find(world, classname, delay_class) == world, "End delay was not removed!");
+            RoundDelayEndTargets();
+            Test_Assert(counter.frags == 0, "End delay fired more than once!");
+        } else {
+            self = pending;
+            RoundDelayThink();
+            Test_Assert(counter.frags == 2, "Default delay fired at the end of the previous round!");
+            rounds += 1;
+            RoundDelayThink();
+            Test_Assert(counter.frags == 0, "Default delay did not fire at the start of its target round!");
+        }
+    }
+
+    self = oldself;
+    activator = oldactivator;
+    rounds = oldrounds;
+    remove(trigger);
+    remove(counter);
+};
+
+void() Test_Rounds_DelayDefaultsToRoundStart =
+{
+    Test_Rounds_DelayTiming(false, 3);
+};
+
+void() Test_Rounds_DelayCanFireAtPreviousRoundEnd =
+{
+    Test_Rounds_DelayTiming(true, 3);
+};
+
+void() Test_Rounds_OneRoundDelayCanFireAtCurrentRoundEnd =
+{
+    Test_Rounds_DelayTiming(true, 1);
+};

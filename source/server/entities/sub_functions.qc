@@ -65,6 +65,27 @@ void() RoundDelayThink =
 	}
 };
 
+void() RoundDelayEndTargets =
+{
+	entity pending = find(world, classname, "RoundEndDelayedUse");
+	while (pending != world) {
+		if (pending.weapon <= rounds)
+			pending.classname = "ReadyRoundEndDelayedUse";
+		pending = find(pending, classname, "RoundEndDelayedUse");
+	}
+
+	entity oldself = self;
+	entity oldactivator = activator;
+	pending = find(world, classname, "ReadyRoundEndDelayedUse");
+	while (pending != world) {
+		self = pending;
+		DelayThink();
+		pending = find(world, classname, "ReadyRoundEndDelayedUse");
+	}
+	self = oldself;
+	activator = oldactivator;
+};
+
 float global_triggerstate;
 
 void() SUB_UseTargets =
@@ -180,8 +201,13 @@ void() SUB_UseTargets =
 			t = spawn();
 			t.classname = "DelayedUse";
 			t.weapon = self.round_delay + rounds;
-			t.nextthink = time + 2;
-			t.think = RoundDelayThink;
+			if (self.round_delay_end) {
+				t.classname = "RoundEndDelayedUse";
+				t.weapon -= 1;
+			} else {
+				t.nextthink = time + 2;
+				t.think = RoundDelayThink;
+			}
 			t.enemy = activator;
 			t.message = self.message;
 			t.killtarget = self.killtarget;
