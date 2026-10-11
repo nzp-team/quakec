@@ -258,6 +258,8 @@ void() findboxspot =
 	newspot.solid=SOLID_TRIGGER;
 	newspot.classname = "mystery";
 	newspot.spawnflags = self.owner.spawnflags;
+	newspot.useprint_index_1 = self.owner.useprint_index_1;
+	newspot.useprint_index_2 = self.owner.useprint_index_2;
 	setorigin(newspot, newspot.origin);
 	setmodel (newspot, mystery_box_model);
 	newspot.frame = 0;
@@ -296,6 +298,8 @@ void() MBOX_FindNewSpot =
 
 	// Convert the spawn to a Mystery Box
 	new_box.spawnflags = self.spawnflags;
+	new_box.useprint_index_1 = self.useprint_index_1;
+	new_box.useprint_index_2 = self.useprint_index_2;
 	new_box.spins = new_box.boxstatus = 0;
 	new_box.think = MBOX_MakeActive;
 	new_box.nextthink = time + 2;
