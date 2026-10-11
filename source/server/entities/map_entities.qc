@@ -297,6 +297,8 @@ void() misc_model =
 	// Set default stats.
 	//
 
+	float sets_custom_bounds = self.mdlsz != '0 0 0' || self.centeroffset != '0 0 0';
+
 	// Center offset.
 	if(!self.centeroffset)
 		self.centeroffset = '0 0 0';
@@ -314,11 +316,11 @@ void() misc_model =
 	vmax_x = self.centeroffset_x + (self.mdlsz_x / 2);
 	vmax_y = self.centeroffset_y + (self.mdlsz_y / 2);
 	vmax_z = self.centeroffset_z + (self.mdlsz_z / 2);
-	setsize (self, vmin, vmax);
 
 	// Set our model
     precache_model(self.model);
     setmodel(self, self.model);
+	setsize (self, vmin, vmax);
 	
 	// Model has collision box
 	if (self.spawnflags & MISC_MODEL_SOLID)
@@ -343,8 +345,8 @@ void() misc_model =
         self.frame = self.first_frame;
 
     // Make static (not animate) if not given a frame range, and not affected by gravity
-    // also remains active if it has a targetname (so it can be killtargeted/toggled)
-    if (!self.last_frame && !(self.spawnflags & 1) && !(self.spawnflags & MISC_MODEL_SOLID) && !self.targetname && self.classname != "place_model")
+    // also remains active with custom bounds or a targetname (so it can be killtargeted/toggled)
+    if (!self.last_frame && !(self.spawnflags & 1) && !(self.spawnflags & MISC_MODEL_SOLID) && !self.targetname && !sets_custom_bounds && self.classname != "place_model")
 		makestatic(self);
 
 	// if it as a custom animation range
