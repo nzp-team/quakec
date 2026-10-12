@@ -33,6 +33,7 @@
 #define AMBIENT_SOUND_START_SILENT		16
 #define AMBIENT_SOUND_NOT_LOOPING		32
 #define AMBIENT_SOUND_TOGGLE			64
+#define AMBIENT_SOUND_RESPECT_TRIGGERSTATE	128
 
 .float ambient_endtime;
 
@@ -45,6 +46,20 @@ void() ambient_use =
 	if ((self.spawnflags & AMBIENT_SOUND_NOT_LOOPING) &&
 		self.ambient_endtime > 0 && time >= self.ambient_endtime)
 		self.team = 1;
+
+	// Off must never start a silent (or naturally finished) sound.
+	if ((self.spawnflags & AMBIENT_SOUND_RESPECT_TRIGGERSTATE) &&
+		global_triggerstate == TRIGGERSTATE_OFF) {
+		sound(self, CHAN_VOICE, "sounds/null.wav", 1, ATTN_NONE);
+		self.team = 1;
+		self.ambient_endtime = 0;
+		return;
+	}
+
+	// Repeated On uses leave a playing sound and its end time alone.
+	if ((self.spawnflags & AMBIENT_SOUND_RESPECT_TRIGGERSTATE) &&
+		global_triggerstate == TRIGGERSTATE_ON && self.team == 0)
+		return;
 
 	if (self.team == 1) {
 		sound(self, CHAN_VOICE, self.message, self.health, self.stance);
@@ -64,33 +79,9 @@ void() ambient_use =
 	}
 };
 
-.float ambient_endtime;
-
 void() ambient_toggle_use =
 {
-	if (self.health > 1)
-		self.health = 1;
-
-	if ((self.spawnflags & AMBIENT_SOUND_NOT_LOOPING) &&
-		self.ambient_endtime > 0 && time >= self.ambient_endtime)
-		self.team = 1;
-
-	if (self.team == 1) {
-		sound(self, CHAN_VOICE, self.message, self.health, self.stance);
-		self.team = 0;
-		self.ambient_endtime = 0;
-
-		if (self.spawnflags & AMBIENT_SOUND_NOT_LOOPING) {
-			float duration = GetSoundLen(self.message);
-			if (duration > 0)
-				self.ambient_endtime = time + duration;
-		}
-	}
-	else {
-		sound(self, CHAN_VOICE, "sounds/null.wav", 1, ATTN_NONE);
-		self.team = 1;
-		self.ambient_endtime = 0;
-	}
+	ambient_use();
 };
 
 void () ambient_generic =
