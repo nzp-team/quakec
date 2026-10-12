@@ -39,6 +39,31 @@ float player_spawns[9];
 entity spawn_points[9];
 string spawn_names[8];
 
+void() Spawns_PrecacheWeapon =
+{
+    float starting_weapon = self.weapon;
+    if (!starting_weapon)
+        starting_weapon = SPAWN_START_WEAPON;
+
+    precache_model(GetWeaponModel(starting_weapon, 0));
+    precache_model(GetWeaponModel(starting_weapon, 1));
+    precache_extra(starting_weapon);
+};
+
+void() info_player_start = { Spawns_PrecacheWeapon(); };
+void() info_player_tank = { Spawns_PrecacheWeapon(); };
+void() info_player_nikolai = { Spawns_PrecacheWeapon(); };
+void() info_player_doctor = { Spawns_PrecacheWeapon(); };
+void() info_player_takeo = { Spawns_PrecacheWeapon(); };
+void() info_player_1_spawn = { Spawns_PrecacheWeapon(); };
+void() info_player_2_spawn = { Spawns_PrecacheWeapon(); };
+void() info_player_3_spawn = { Spawns_PrecacheWeapon(); };
+void() info_player_4_spawn = { Spawns_PrecacheWeapon(); };
+void() info_player_5_spawn = { Spawns_PrecacheWeapon(); };
+void() info_player_6_spawn = { Spawns_PrecacheWeapon(); };
+void() info_player_7_spawn = { Spawns_PrecacheWeapon(); };
+void() info_player_8_spawn = { Spawns_PrecacheWeapon(); };
+
 //
 // Spawns_ConvertOldClassnames()
 // Renames old/legacy spawns to their

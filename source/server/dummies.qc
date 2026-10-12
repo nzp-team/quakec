@@ -34,22 +34,9 @@ void() trigger_monsterjump      = {remove(self);};
 void() trigger_onlyregistered   = {remove(self);};
 void() trigger_push             = {remove(self);};
 // Player Starts
-void() info_player_start        = {};
 void() info_player_start2       = {};
 void() info_player_deathmatch   = {};
 void() info_player_coop         = {};
-void() info_player_tank         = {};
-void() info_player_nikolai		= {};
-void() info_player_doctor		= {};
-void() info_player_takeo		= {};
-void() info_player_1_spawn 		= {};
-void() info_player_2_spawn 		= {};
-void() info_player_3_spawn 		= {};
-void() info_player_4_spawn 		= {};
-void() info_player_5_spawn 		= {};
-void() info_player_6_spawn 		= {};
-void() info_player_7_spawn 		= {};
-void() info_player_8_spawn 		= {};
 void() info_null = {remove(self);};
 void() info_texlights = {remove(self);};
 
