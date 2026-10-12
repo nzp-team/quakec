@@ -1429,11 +1429,11 @@ void() GrenadeExplode =
 	Sound_PlaySound(self, "sounds/weapons/grenade/explode.wav", SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_ALLOWSKIP);
 
 	if (self.classname == "grenade")
-		DamgageExplode (self, self.owner, 200, 50, 200);
+		Damage_ExplodeHandler (self, self.owner, 200, 50, 200);
 	else if (self.classname == "betty")
-		DamgageExplode (self, self.owner, 12000, 11000, 128);
+		Damage_ExplodeHandler (self, self.owner, 12000, 11000, 128);
 	else
-		DamgageExplode (self, self.owner, 1200, 1000, 75);
+		Damage_ExplodeHandler (self, self.owner, 1200, 1000, 75);
 
 #ifdef FTE
 
@@ -1805,7 +1805,7 @@ void() CheckPlayer =
 	self.insta_icon = WeaponCore_PowerUpBlink(insta_blink, instakill_finished);
 	self.x2_icon = WeaponCore_PowerUpBlink(x2_blink, x2_finished);
 
-	CheckRevive(self);
+	Damage_CheckRevive(self);
 
 	if (self.sprinting) {
 		makevectors(self.angles);
@@ -1862,7 +1862,7 @@ void() CheckPlayer =
 		if (self.dive) {
 			if (self.perks & P_FLOP && dist >= 64) {
 				Sound_PlaySound(self, "sounds/weapons/grenade/explode.wav", SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_PLAYALWAYS);
-				DamgageExplode (self, self, 5000, 1000, 300);
+				Damage_ExplodeHandler (self, self, 5000, 1000, 300);
 
 #ifdef FTE
 

@@ -45,13 +45,13 @@ float(float current_health_delay, float current_perks) Gamemode_GetHealthRegenDe
 void() Barrel_Hit;
 void() teddy_react;
 
-void() Do_Restart =
+void() Damage_RestartGame =
 {
 	localcmd("restart\n");
 };
 
 // Fade to black function, creates another think for restart
-void() EndGame_FadePrompt =
+void() Damage_EndGameAndFadeToRestart =
 {
 	entity players = find(world, classname, "player");
 	while(players != world) {
@@ -65,7 +65,7 @@ void() EndGame_FadePrompt =
 
 #else
 
-	self.think = Do_Restart;
+	self.think = Damage_RestartGame;
 
 #endif // FTE
 
@@ -73,7 +73,7 @@ void() EndGame_FadePrompt =
 }
 
 //Actual endgame function, all zombies die, music plays
-void() EndGame =
+void() Damage_EndGame =
 {
 	entity old_self;
 	entity who = find(world,classname,"ai_zombie");
@@ -90,19 +90,19 @@ void() EndGame =
 		who = find(who,classname,"ai_zombie");
 	}
 	
-	self.think = EndGame_FadePrompt;
+	self.think = Damage_EndGameAndFadeToRestart;
 	self.nextthink = time + 28;
 }
 
 // when dead and other players exist and are alive, throw user into spectate mode
-void() startspectate =
+void() Damage_BeginSpectating =
 {
 	if (!self.downed)
 		return;
 		
 	if (self.beingrevived)
 	{
-		self.think = startspectate;
+		self.think = Damage_BeginSpectating;
 		self.nextthink = time + 0.1;
 		return;
 	}
@@ -121,7 +121,7 @@ void() startspectate =
 
 // searches for players that are alive given which clients have which playernumbers
 //      Returns 1 if there IS someone in the world that's not downed
-float() PollPlayersAlive = 
+float() Damage_PollPlayersAlive = 
 {
 	entity players = find(world, classname, "player");
 
@@ -136,10 +136,10 @@ float() PollPlayersAlive =
 }
 
 // Endgamesetup -- think function for setting up the death of everyone
-void() EndGameSetup =
+void() Damage_EndGameSetup =
 {
 	entity gameover_watcher = spawn();
-	gameover_watcher.think = EndGame;
+	gameover_watcher.think = Damage_EndGame;
 	gameover_watcher.nextthink = time + 4;
 	gameover_watcher.classname = "gameover_watcher";
 
@@ -179,7 +179,7 @@ void() EndGameSetup =
 
 float() push_away_zombies;
 
-void () GetUp =
+void () Damage_GetUpAfterRevive =
 {	
 	// Play Getting Up Animation
 	PAnim_GetUp();
@@ -223,10 +223,10 @@ void () GetUp =
 };
 
 // poll checking whether to see if our revive invoke is active
-void(entity ent) CheckRevive =
+void(entity ent) Damage_CheckRevive =
 {
 	if (self.invoke_revive) {
-		GetUp();
+		Damage_GetUpAfterRevive();
 		DisableReviveIcon(self.playernum);
 		self.invoke_revive = 0;
 		self.firer = world;
@@ -399,13 +399,13 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 
 /*
 ============
-CanDamage
+Damage_CanDamageEntity
 
 Returns true if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
 ============
 */
-float(entity targ, entity inflictor) CanDamage =
+float(entity targ, entity inflictor) Damage_CanDamageEntity =
 {
 	if (targ.flags == FL_GODMODE)
     return FALSE;
@@ -439,7 +439,7 @@ float(entity targ, entity inflictor) CanDamage =
 	return FALSE;
 };
 
-float(float min, float max, vector org1, vector org2, float radius) calculate_proximity_value =
+float(float min, float max, vector org1, vector org2, float radius) Damage_CalculateProximity =
 {
 	float proximity_value;
 	float distance = fabs(vlen(org1 - org2));
@@ -454,7 +454,7 @@ float(float min, float max, vector org1, vector org2, float radius) calculate_pr
 	return proximity_value;
 };
 
-void(entity inflictor, entity attacker, float damage2, float mindamage, float radius) DamgageExplode =
+void(entity inflictor, entity attacker, float damage2, float mindamage, float radius) Damage_ExplodeHandler =
 {
 	float 	final_damage = 0;
 	float 	damage_style = 0;
@@ -466,44 +466,36 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 	while (ent != world)
 	{
 		if(ent.classname == "player")
-		{
-			if (ent.perks & P_FLOP)	// PhD Flopper makes us immune to any explosive damage
+		{	
+			if (ent.perks & P_FLOP || inflictor.classname == "betty" || inflictor.owner != ent){
 				final_damage = 0;
-			else if (inflictor.classname == "betty") // Self-inflicted betties don't do damage either.
-				final_damage = 0;
-			else if (inflictor.owner != ent) // we don't want OUR explosives to harm other players..
-				final_damage = 0;
+				continue;
+			}
+			
+			final_damage = (radius - vlen(inflictor.origin - ent.origin))*1.5;
+
+			if(final_damage < 0) 
+			{
+				ent = ent.chain;
+				continue;
+			}
+			
+			if (final_damage > radius * 0.75)
+				final_damage = 100;
+			
+			if (final_damage < other.health || final_damage > other.health)
+			{
+				Player_AddScore(self, Gamemode_ScoreForDamage(DMG_SCORE_STDDAMAGE, 0), false);
+			}
 			else
 			{
-				final_damage = (radius - vlen(inflictor.origin - ent.origin))*1.5;
-
-				if(final_damage < 0) 
-				{
-					ent = ent.chain;
-					continue;
-				}
-			
-				if (final_damage > radius * 0.75)
-					final_damage = 100;
-			
-				if (final_damage < other.health)
-				{
-					Player_AddScore(self, Gamemode_ScoreForDamage(DMG_SCORE_STDDAMAGE, 0), false);
-				}
-				else if (final_damage > other.health)
-				{
-					Player_AddScore(self, Gamemode_ScoreForDamage(DMG_SCORE_STDDAMAGE, 0), false);
-				}
-				else
-				{
-					final_damage /= radius;
-					final_damage *= 60;
-				}
-
-				// inflicting damage from an explosive introduces a delay before
-				// player can sprint again.
-				ent.sprint_delay = time + 3;
+				final_damage /= radius;
+				final_damage *= 60;
 			}
+			// inflicting damage from an explosive introduces a delay before
+			// player can sprint again.
+			ent.sprint_delay = time + 3;
+
 			// shake the camera on impact
 			vector distance;
 			distance = inflictor.angles - ent.angles;
@@ -582,13 +574,13 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				final_damage = (rounds * rint(random() * 100)) * damage2/500;
 				damage_style = DMG_TYPE_EXPLOSIVE;
 			} else if (inflictor.classname == "projectile_raybeam") {
-				//final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
+				//final_damage = Damage_CalculateProximity(mindamage, damage2, inflictor.origin, ent.origin, radius);
 				//bprint(PRINT_HIGH, strcat("damage: ", ftos(final_damage), "\n"));
 				final_damage = damage2;
 				damage_style = DMG_TYPE_GRENADE;
 			} else if (inflictor.classname == "player") {
 				// phd flopper.
-				final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
+				final_damage = Damage_CalculateProximity(mindamage, damage2, inflictor.origin, ent.origin, radius);
 				damage_style = DMG_TYPE_FLOPPER;
 			} else {
 				r = rounds;
@@ -616,7 +608,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 		}
 
 		if (final_damage > 0) {
-			if (CanDamage (ent, inflictor))
+			if (Damage_CanDamageEntity (ent, inflictor))
 				DamageHandler (ent, attacker, final_damage, damage_style);
 		}
 		ent = ent.chain;

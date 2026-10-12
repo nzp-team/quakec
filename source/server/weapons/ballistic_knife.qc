@@ -80,7 +80,7 @@ void(entity client) Blade_Revive =
 
     entity old_self = self;
 	self = other;
-	GetUp();
+	Damage_GetUpAfterRevive();
 	self = old_self;
 
 	LastStand_RemoveReviveTriggers(other);

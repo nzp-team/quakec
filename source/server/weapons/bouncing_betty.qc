@@ -57,7 +57,7 @@ void() Betty_Touch =
   	if (other == self.owner || other.solid == SOLID_TRIGGER)
     	return;
 	// Don't activate if our center point can't even reach the enemy
-	if (!CanDamage(other, self))
+	if (!Damage_CanDamageEntity(other, self))
 		return;
 
     // Next step is to rise!

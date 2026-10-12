@@ -163,7 +163,7 @@ void() W_SprintStop;
 .float hunt_count; // How many Hellhounds are hunting a client
 
 //Weaponsystem defines
-void GetUp();
+void Damage_GetUpAfterRevive();
 void WeaponCore_ClientLogic();
 void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float downed;

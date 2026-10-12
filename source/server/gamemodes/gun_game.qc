@@ -246,7 +246,7 @@ void() Gamemode_GunGame_Restart =
 
 void() Gamemode_GunGame_EndGame =
 {
-    EndGameSetup();
+    Damage_EndGameSetup();
     self.think = Gamemode_GunGame_Restart;
     self.nextthink = time + 10;
 }

@@ -32,7 +32,7 @@
 void() Barrel_Explode =
 {
     Sound_PlaySound(self, self.oldmodel, SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_PLAYALWAYS);
-	DamgageExplode (self, self.enemy, 1, 250, 250);
+	Damage_ExplodeHandler (self, self.enemy, 1, 250, 250);
 	
 #ifdef FTE
 

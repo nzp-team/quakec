@@ -40,7 +40,7 @@ void() LastStand_SoloRevive =
 {
     entity old_self = self;
     self = self.owner;
-    GetUp();
+    Damage_GetUpAfterRevive();
     self = old_self;
 
     // Give the player their score back.
@@ -227,7 +227,7 @@ void(entity client) LastStand_KillPlayer =
 	// sequence, we should not allow a bleed
 	// out to override it.
 	if (in_endgame_sequence == false)
-		startspectate();
+		Damage_BeginSpectating();
 
     self = old_self;
 };
@@ -425,7 +425,7 @@ void() LastStand_TouchReviveTrigger =
 
 		entity old_self = self;
 		self = self.owner;
-		GetUp();
+		Damage_GetUpAfterRevive();
 		self = old_self;
 
 		// Unlink the revivee, no need to stay connected.
@@ -504,9 +504,9 @@ void(entity client) LastStand_Begin =
 	self.dive_delay = 0;
 
     // End the game if no one else is alive.
-	float players_still_alive = PollPlayersAlive();
+	float players_still_alive = Damage_PollPlayersAlive();
 	if ((player_count > 1&& !players_still_alive) || (player_count == 1 && !(self.perks & P_REVIVE))) {
-		EndGameSetup();
+		Damage_EndGameSetup();
 		return;
 	}
 
@@ -522,7 +522,7 @@ void(entity client) LastStand_Begin =
 	// Initiate Self-Revive on Solo
 	if ((self.perks & P_REVIVE) && player_count == 1) {	
 		if (cvar("sv_difficulty") == 3) {
-			EndGameSetup();
+			Damage_EndGameSetup();
 			return;
 		}
         LastStand_InitiateSoloRevive(self);

@@ -67,7 +67,7 @@ void() Rocket_Impact =
 	}
 
 	// Apply the Damage.
-	DamgageExplode(self, self.owner, rocket_damage_max,
+	Damage_ExplodeHandler(self, self.owner, rocket_damage_max,
                    rocket_damage_min, rocket_damage_radius);
 
 	// Spawn Effects

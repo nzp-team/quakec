@@ -453,7 +453,7 @@ void() touch_ending =
 			tempe = self;
 			self = players;
 			self.downed = true;
-			EndGameSetup();
+			Damage_EndGameSetup();
 			self = tempe;
 			players = find(players, classname, "player");
 		}

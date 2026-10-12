@@ -58,7 +58,7 @@ void(float direct_impact) Ray_BeamExplode =
 	raybeam_damage_max = Gamemode_GetWeaponDamage(raybeam_damage_max, self.weapon, self.boxstatus);
 
 	// Apply the Damage.
-	DamgageExplode(self, self.owner, raybeam_damage_max,
+	Damage_ExplodeHandler(self, self.owner, raybeam_damage_max,
                    raybeam_damage_min, raybeam_damage_radius);
 
 	// Spawn Effects
