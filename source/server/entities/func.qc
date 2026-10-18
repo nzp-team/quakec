@@ -193,7 +193,7 @@ void() train_wait =
 {
 	if (self.wait) {
 		self.nextthink = self.ltime + self.wait;
-		sound(self, CHAN_VOICE, self.noise, 1, ATTN_NORM);
+		sound(self, CHAN_VOICE, self.noise, 0.30, ATTN_NORM);
 	} else {
         self.nextthink = self.ltime + 0.1;
     }
@@ -223,7 +223,7 @@ void() train_next =
 	else
 		self.wait = 0;
 
-	sound(self, CHAN_VOICE, self.noise1, 1, ATTN_NORM);
+	sound(self, CHAN_VOICE, self.noise1, 0.30, ATTN_NORM);
 	SUB_CalcMove (targ.origin - self.mins, self.speed, train_wait);
 };
 

@@ -101,49 +101,31 @@ void() crawler_idle9		=[	8,		crawler_idle10	] 	{Zombie_Walk(0); self.frame = 12;
 void() crawler_idle10		=[	9,		crawler_idle1	] 	{Zombie_Walk(0); self.frame = 13;Zombie_Think();};
 //===================== Crawler Attack ===========================
 //29-36
-void() crawler_atk1		=[	0,		crawler_atk2] 	{SetZombieHitBox(CRAWLER_BBOX);self.frame = 29;Zombie_Think();};
-void() crawler_atk2		=[	1,		crawler_atk3] 	{self.frame = 30;Zombie_Think();};
-void() crawler_atk3		=[	2,		crawler_atk4] 	{self.frame = 31;Zombie_Think();};
-void() crawler_atk4		=[	3,		crawler_atk5] 	{self.frame = 32;zombie_attack2();Zombie_Think();};
-void() crawler_atk5		=[	4,		crawler_atk6] 	{self.frame = 33;Zombie_Think();};
-void() crawler_atk6		=[	5,		crawler_atk7] 	{self.frame = 34;Zombie_Think();};
-void() crawler_atk7		=[	6,		crawler_atk8] 	{self.frame = 35;Zombie_Think();};
-void() crawler_atk8		=[	7,		zombie_decide] 	{self.frame = 36;Zombie_Think();};
+void() crawler_atk1		=[	0,		crawler_atk2] 	{self.is_attacking = true; SetZombieHitBox(CRAWLER_BBOX);self.frame = 29;Zombie_SwipeDelay(3);Zombie_Think();};
+void() crawler_atk2		=[	1,		crawler_atk3] 	{self.frame = 30;Zombie_SwipeDelay(2);Zombie_Think();};
+void() crawler_atk3		=[	2,		crawler_atk4] 	{self.frame = 31;Zombie_SwipeDelay(1);Zombie_Think();};
+void() crawler_atk4		=[	3,		crawler_atk5] 	{self.frame = 32;Zombie_SwipeDamage();Zombie_SwipeDelay(self.swipe_times_x ? 8 : 5);Zombie_Think();};
+void() crawler_atk5		=[	4,		crawler_atk6] 	{self.frame = 33;Zombie_SwipeDelay(self.swipe_times_x ? 7 : 4);Zombie_Think();};
+void() crawler_atk6		=[	5,		crawler_atk7] 	{self.frame = 34;Zombie_SwipeDelay(self.swipe_times_x ? 6 : 3);Zombie_Think();};
+void() crawler_atk7		=[	6,		crawler_atk8] 	{self.frame = 35;Zombie_SwipeDelay(self.swipe_times_x ? 5 : 2);Zombie_Think();};
+void() crawler_atk8		=[	7,		zombie_decide] 	{self.frame = 36;if (self.swipe_times_x) self.think = crawler_atk1; Zombie_SwipeDelay(self.swipe_times_x ? 4 : 1);Zombie_Think();};
+
 
 //====================== Crawler Delay Attack ==============================
 //4-13
 
-void(float which) crawler_attack_choose =
+void() crawler_attack_choose =
 {
 	self.angles_y = vectoyaw(self.enemy.origin - self.origin);
-	if(which != 1)
-	{
-		if(random() > 0.2)
-		{
-			return;
-		}
-	}
-	if(vlen(self.enemy.origin - self.origin) > 60)//too far, cancel attack
-	{
+	if (vlen(self.enemy.origin - self.origin) > 60) {
 		zombie_decide();
 		return;
 	}
+
+	Zombie_SwipeSetup(13 + floor(random() * 2));
 	Zombie_PlaySoundType(ZOMBIE_SOUND_TYPE_MELEE);
-	
-	crawler_atk1();
+	Zombie_SwipeStart(crawler_atk1, 3);
 };
-
-
-void() crawler_da1		=[	0,		crawler_da2	] 	{SetZombieHitBox(CRAWLER_BBOX);crawler_attack_choose(0); self.frame = 4;Zombie_Think();};
-void() crawler_da2		=[	1,		crawler_da3	] 	{crawler_attack_choose(0); self.frame = 5;Zombie_Think();};
-void() crawler_da3		=[	2,		crawler_da4	] 	{crawler_attack_choose(0); self.frame = 6;Zombie_Think();};
-void() crawler_da4		=[	3,		crawler_da5	] 	{crawler_attack_choose(0); self.frame = 7;Zombie_Think();};
-void() crawler_da5		=[	4,		crawler_da6	] 	{crawler_attack_choose(0); self.frame = 8;Zombie_Think();};
-void() crawler_da6		=[	5,		crawler_da7	] 	{crawler_attack_choose(0); self.frame = 9;Zombie_Think();};
-void() crawler_da7		=[	6,		crawler_da8	] 	{crawler_attack_choose(0); self.frame = 10;Zombie_Think();};
-void() crawler_da8		=[	7,		crawler_da9	] 	{crawler_attack_choose(0); self.frame = 11;Zombie_Think();};
-void() crawler_da9		=[	8,		crawler_da10	] 	{crawler_attack_choose(0); self.frame = 12;Zombie_Think();};
-void() crawler_da10		=[	9,		crawler_da1	] 	{crawler_attack_choose(0); self.frame = 13;Zombie_Think();};
 
 
 //====================== Crawler Death ============================
@@ -251,12 +233,16 @@ void() crawler_rip_board23		=[	22,		crawler_rip_board24] 	{self.frame=125;Zombie
 void() crawler_rip_board24		=[	23,		zombie_decide] 	{self.frame=126;Zombie_Think();};
 
 void(entity who) makeCrawler =
-{         
+{
+	if (who.classname != "ai_zombie" || who.health <= 0 || who.crawling == true)
+		return;
+
 	if(who.state == 1)
 	{
 		who.crawling = 2;
 		return;
 	}
+	sound(who, CHAN_ITEM, "sounds/zombie/gib.wav", 0.90, 1, 96 + random() * 8, SOUNDFLAG_FOLLOW);
 	who.crawling = 2;//this means we haven't technically initiated it, but we're going to...
 	
 	who.th_die = Zombie_Death;
@@ -318,6 +304,13 @@ void(entity who) makeCrawler =
 
 	}
 	who.crawling = 1;
+	who.is_attacking = false;
+	who.swipe_times = '0 0 0';
+	who.swipe_extra_times = '0 0 0';
+	who.swipe_end_time = 0;
+	who.swipe_resume_time = 0;
+	who.velocity_x = 0;
+	who.velocity_y = 0;
 	
 	setsize(who,'-9 -9 -32','9 9 -10');
 	

@@ -183,7 +183,7 @@ entity  (entity start, .string fld, string match)                               
 string  (string s)                                                                              precache_sound      = #19;
 string  (string s)                                                                              precache_model      = #20;
 void    (entity client, string s)                                                               stuffcmd            = #21;
-entity  (vector org, float rad)                                                                 findradius          = #22;
+entity  (vector org, float rad, optional string classfilter)                                  findradius          = #22;
 void	(float level, string s)																	bprint				= #23;
 void	(entity client, float level, string s)													sprint				= #24;
 void    (string s)                                                                              dprint              = #25;
@@ -219,6 +219,7 @@ void    (float to, float f)                                                     
 void    (float to, float f)                                                                     WriteAngle          = #57;
 void    (float to, string s)                                                                    WriteString         = #58;
 void    (float to, entity s)                                                                    WriteEntity         = #59;
+float   (float value)                                                                           sqrt                = #62;
 string  (entity s)                                                                            	etos                = #65;
 void    (float step)                                                                            movetogoal          = #67;
 string  (string s)                                                                              precache_file       = #68;  // no effect except for -copy
@@ -242,7 +243,7 @@ void    (entity client, float achievement_id)                                   
 float   (string s)                                                                              stof                = #81;  // 2001-09-20 QuakeC string manipulation by FrikaC
 //void	(vector where, float set)																multicast			= #82;
 vector  (entity what)                                                                           Get_Waypoint_Near   = #83;
-float   (entity zombie, entity target)                                                          Do_Pathfind_psp     = #84;
+float   (entity zombie, entity target, optional float keep_route)                             Do_Pathfind_psp     = #84;
 void    (string s)                                                                              Open_Waypoint       = #85;
 vector  (entity zombie,vector start,vector min, vector max)                                     Get_Next_Waypoint   = #86;
 void    (entity client, float type, float cost)                                                 useprint            = #87;
@@ -289,6 +290,15 @@ void    (vector color)                                                          
 float   ()                                                                                      nzp_getmonthofyear  = #512;
 void    (entity client, float index, string value, vector color)                                useprint_send       = #514;
 void    (float index, string value)                                                             nzp_hudconfig       = #515;
+float   (float operation, optional float from, optional float to, optional 
+        float outcome, optional vector position, optional vector goal, 
+        optional entity actor, optional string reason)                                          nzp_pathfind_test   = #516;
+vector  (float index, optional entity actor)                                                    nzp_pathfind_origin = #517;
+void    (entity zombie)                                                                         nzp_pathfind_clear  = #518;
+float   (entity zombie)                                                                         nzp_can_walk_to_enemy = #520;
+vector  (entity zombie, vector anchor, float distance)                                          nzp_pathfind_follow = #521;
+vector  (entity zombie, vector position)                                                        nzp_ai_land         = #522;
+vector  (entity target)                                                                         nzp_pathfind_target_origin = #523;
 float   (optional float timetype)                                                               gettime             = #519;
 float   (string text)                                                                           json_parse          = #600;
 float   (string path)                                                                           json_parse_file     = #601;
@@ -508,3 +518,4 @@ string  (string fmt, ...)                                                       
 #define		FILE_WRITE 					2
 
 #define     SOUNDFLAG_FOLLOW            64
+#define     SOUNDFLAG_NODISTANCE        128

@@ -48,6 +48,10 @@
 float cheats_have_been_activated;
 float current_month_of_year;
 
+float pathfind_test_running;
+void() Pathfind_TestFrame;
+float(string params) Pathfind_TestBegin;
+
 // cypress - NOTE
 // on/off are inverted compared to goldsrc for
 // compatibility with existing nzp content.
@@ -305,6 +309,11 @@ void Z_ElectroShock();
 .float death_timer; 								// A timer that will kill a Zombie when it expires.
 .float death_timer_activated; 						// To prevent Zombies just dying because of this..
 .float is_attacking; 								// Returns true if Zombie is in the middle of an attack.
+.vector swipe_times;
+.vector swipe_extra_times;
+.float swipe_end_time;
+.void() swipe_resume;
+.float swipe_resume_time;
 
 #ifndef FTE
 
@@ -689,7 +698,43 @@ waypoint_ai waypoints[MAX_WAYPOINTS];
 .float renderamt;
 .vector rendercolor;
 
-#ifdef FTE
-.float last_solid;
-.float had_solid_modified;
-#endif // FTE
+
+// MARK: AI Horde Control
+.vector path_progress_origin;
+.float path_progress_time;
+.float path_retry_time;
+.float path_direct_retry_time;
+.vector path_goal_origin;
+.float path_status;
+
+.entity crowd_neighbors[4];
+.float crowd_update_time;
+.entity crowd_blocker;
+.float crowd_avoid_side;
+
+.vector crowd_wish_factors;
+.vector crowd_wish_heading;
+.vector crowd_wish_origin;
+.float crowd_wish_time;
+.entity crowd_wish_enemy;
+.float path_update_pending;
+
+.vector path_lookahead_point;
+.vector path_lookahead_anchor;
+.float path_lookahead_time;
+.vector path_move_direction;
+.float path_move_time;
+
+.vector crowd_progress_origin;
+.float crowd_progress_time;
+
+.vector path_lookahead_origin;
+
+.entity path_goal_enemy;
+.float path_target_update_time;
+
+.vector path_move_origin;
+
+.float path_wait_ground;
+
+.float dog_run_check_time;

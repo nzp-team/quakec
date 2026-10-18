@@ -41,17 +41,14 @@ void(float direct_impact) Ray_BeamExplode =
 	float raybeam_damage_max;
 	float raybeam_damage_radius = 64;
 
-	// Direct shots to the Zombie always deals the same
-	// amount of damage, regardless of PaP status.
-	if (direct_impact == true) {
-		raybeam_damage_min = 1000;
-		raybeam_damage_max = 1000;
-	} else if (IsPapWeapon(self.weapon)) {
+	self.enemy = direct_impact ? other : world;
+
+	if (IsPapWeapon(self.weapon)) {
 		raybeam_damage_min = 300;
 		raybeam_damage_max = 2000;
 	} else {
 		raybeam_damage_min = 300;
-		raybeam_damage_max = 1800;
+		raybeam_damage_max = 1500;
 	}
 
 	raybeam_damage_min = Gamemode_GetWeaponDamage(raybeam_damage_min, self.weapon, self.boxstatus);

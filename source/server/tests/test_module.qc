@@ -32,6 +32,7 @@ float total_tests_failed;
 float total_tests_skipped;
 float tests_starttime;
 float tests_endtime;
+int next_test;
 
 float test_skipped_notify;
 string skipped_message_buffer;
@@ -118,18 +119,25 @@ void() Test_PrintSummary =
 
 void() Test_RunAllTests =
 {
-	if (tests_starttime != 0)
+	if (tests_endtime != 0)
 		return;
 
-	total_tests_ran = 0;
-	total_tests_passed = 0;
-	total_tests_failed = 0;
-
-	tests_starttime = gettime();
-	for(int i = 0; i < qc_unit_tests.length; i++) {
-		Test_Run(qc_unit_tests[i].test_func, qc_unit_tests[i].test_name);
+	if (tests_starttime == 0) {
+		total_tests_ran = 0;
+		total_tests_passed = 0;
+		total_tests_failed = 0;
+		total_tests_skipped = 0;
+		next_test = 0;
+		tests_starttime = gettime();
 	}
-	tests_endtime = gettime();
+
+	if (next_test < qc_unit_tests.length) {
+		Test_Run(qc_unit_tests[next_test].test_func, qc_unit_tests[next_test].test_name);
+		next_test++;
+		return;
+	}
+
+	tests_endtime = gettime() - tests_starttime;
 	Test_PrintSummary();
 };
 

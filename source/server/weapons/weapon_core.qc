@@ -34,7 +34,6 @@ void() W_SprintStart;
 #ifdef FTE
 void() AI_SetAllEnemiesBBOX;
 void() AI_RevertEnemySolidState
-float() push_away_zombies;
 #endif // FTE
 
 //
@@ -705,6 +704,7 @@ void Parse_Damage () = // DO NOT TOUCH
 				body_ent = ent;
 
 			total_dmg = body_ent.hitamount;
+			string hit_sound = random() < 0.5 ? "sounds/zombie/splat_0.wav" : "sounds/zombie/splat_1.wav";
 
 			if (body_ent.head.washit) {					
 				total_dmg += body_ent.head.hitamount;
@@ -719,6 +719,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					makevectors(body_ent.head.owner.angles);
  					vector where = body_ent.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
  					spawn_gibs(where);
+					hit_sound = "sounds/zombie/headshot.wav";
 
 					body_ent.head.deadflag = false;
 					body_ent.head.solid = SOLID_NOT;
@@ -748,6 +749,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					makevectors(body_ent.larm.owner.angles);
 					where = body_ent.larm.owner.origin + (body_ent.larm.view_ofs_x * v_right) + (body_ent.larm.view_ofs_y * v_forward) + (body_ent.larm.view_ofs_z * v_up);
 					spawn_gibs(where);
+					if (hit_sound != "sounds/zombie/headshot.wav") hit_sound = "sounds/zombie/gib.wav";
 					
 					body_ent.larm.deadflag = false;
 					body_ent.larm.solid = SOLID_NOT;
@@ -774,6 +776,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					makevectors(body_ent.rarm.owner.angles);
 					where = body_ent.rarm.owner.origin + (body_ent.rarm.view_ofs_x * v_right) + (body_ent.rarm.view_ofs_y * v_forward) + (body_ent.rarm.view_ofs_z * v_up);
 					spawn_gibs(where);
+					if (hit_sound != "sounds/zombie/headshot.wav") hit_sound = "sounds/zombie/gib.wav";
 					
 					body_ent.rarm.deadflag = false;
 					body_ent.rarm.solid = SOLID_NOT;
@@ -797,6 +800,7 @@ void Parse_Damage () = // DO NOT TOUCH
 					makevectors(body_ent.head.owner.angles);
  					where = body_ent.origin + (body_ent.head.view_ofs_x * v_right) + (body_ent.head.view_ofs_y * v_forward) + (body_ent.head.view_ofs_z * v_up);
  					spawn_gibs(where);
+					hit_sound = "sounds/zombie/headshot.wav";
 
 					body_ent.head.deadflag = false;
 					body_ent.head.solid = SOLID_NOT;
@@ -822,6 +826,8 @@ void Parse_Damage () = // DO NOT TOUCH
 			}
 			
 			if (body_ent != world) {
+				float hit_volume = hit_sound == "sounds/zombie/headshot.wav" || hit_sound == "sounds/zombie/gib.wav" ? 0.90 : 0.50;
+				sound(body_ent, CHAN_ITEM, hit_sound, hit_volume, 1, 96 + random() * 8, SOUNDFLAG_FOLLOW);
 				body_ent.washit = 0;
 				body_ent.hitamount = 0;
 				body_ent.hit_region = 0;
@@ -1441,12 +1447,16 @@ void() GrenadeExplode =
 {
 	Sound_PlaySound(self, "sounds/weapons/grenade/explode.wav", SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_ALLOWSKIP);
 
+	self.enemy = world;
+	if (self.classname == "projectile_grenade" && (other.flags & FL_MONSTER))
+		self.enemy = other;
+
 	if (self.classname == "grenade")
-		DamgageExplode (self, self.owner, 200, 50, 200);
+		DamgageExplode (self, self.owner, 300, 75, 256);
 	else if (self.classname == "betty")
 		DamgageExplode (self, self.owner, 12000, 11000, 128);
 	else
-		DamgageExplode (self, self.owner, 1200, 1000, 75);
+		DamgageExplode (self, self.owner, 1200, 75, 200);
 
 #ifdef FTE
 

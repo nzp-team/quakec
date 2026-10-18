@@ -240,8 +240,6 @@ void() EndGameSetup =
   return;
 }
 
-float() push_away_zombies;
-
 void () GetUp =
 {	
 	// Play Getting Up Animation
@@ -281,7 +279,7 @@ void () GetUp =
 	
 	self.teslacount = 0;
 
-	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk, self.tierbk);
+	Weapon_AssignWeapon(0, self.weaponbk, self.currentmagbk, self.currentammobk, self.tierbk, true);
 	Gamemode_GetUp();
 };
 
@@ -380,7 +378,7 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 			victim.max_health = victim.health;
 
 		float lethal = (victim.health - damage) <= 0 || instakill_finished > time;
-		if (attacker.classname == "player" && d_style != DMG_TYPE_OTHER && game_modifiers.gameplay.ai.score_system == SCORE_SYSTEM_BO4 || !lethal) {
+		if (attacker.classname == "player" && (d_style != DMG_TYPE_OTHER && game_modifiers.gameplay.ai.score_system == SCORE_SYSTEM_BO4 || !lethal)) {
 			float points_earned;
 
 			if (game_modifiers.gameplay.ai.score_system == SCORE_SYSTEM_BO4)
@@ -396,8 +394,8 @@ void(entity victim, entity attacker, float damage, float d_style) DamageHandler 
 
 		victim.health = victim.health - damage;
 
-		if (d_style == DMG_TYPE_EXPLOSIVE && damage != 0) {
-			if (victim.health > 0 && victim.crawling == 2) {
+		if ((d_style == DMG_TYPE_EXPLOSIVE || d_style == DMG_TYPE_GRENADE) && damage > 0) {
+			if (!lethal && victim.crawling == 2) {
 				makeCrawler(victim);
 				GiveAchievement(3, attacker);
 			}
@@ -584,17 +582,48 @@ void(entity func, entity attacker, float damage) Damage_HurtBrushEntity =
 	self = oldself;
 }
 
+float(entity inflictor, entity victim, float damage_max, float damage_min, float radius) Damage_ExplosiveDamage =
+{
+	float damage = calculate_proximity_value(damage_min, damage_max, inflictor.origin, victim.origin, radius);
+
+	if (inflictor.enemy == victim) {
+		if (inflictor.classname == "projectile_raybeam")
+			damage = Gamemode_GetWeaponDamage(1000, inflictor.weapon, inflictor.boxstatus);
+		else if (inflictor.classname == "projectile_grenade")
+			damage = 1000;
+	}
+
+	if (victim.classname != "ai_zombie" && victim.classname != "ai_dog")
+		return damage;
+
+	if (inflictor.classname == "grenade")
+		damage += rounds + 100 + floor(random() * 100);
+	else if (inflictor.classname == "betty")
+		damage += rounds * (100 + floor(random() * 100));
+	else if (inflictor.classname == "projectile_grenade" || inflictor.classname == "rocket" || inflictor.classname == "projectile_raybeam")
+		damage += rounds * floor(random() * 100);
+
+	return damage;
+};
+
+float(entity victim, float damage, vector hit_origin) Damage_CanMakeCrawler =
+{
+	return victim.classname == "ai_zombie" && !victim.crawling && victim.health > damage && damage >= victim.health * 0.1 && hit_origin_z < victim.origin_z;
+};
+
 void(entity inflictor, entity attacker, float damage2, float mindamage, float radius) DamgageExplode =
 {
 	float 	final_damage = 0;
 	float 	damage_style = 0;
 	entity	ent;
 
-	float 	multi, r;
 	ent = findradius(inflictor.origin, radius);
 	
 	while (ent != world)
 	{
+		final_damage = 0;
+		damage_style = DMG_TYPE_EXPLOSIVE;
+
 		if(ent.classname == "player")
 		{
 			if (ent.perks & P_FLOP)	// PhD Flopper makes us immune to any explosive damage
@@ -691,58 +720,13 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 				}
 			}
 
-			// cypress -- accurate explosive damage
-			// cod likes to override the damage to ai with
-			// explosives (yay!).
-			if (inflictor.classname == "grenade") {
-				// grenades follow the logic of (rounds + (rand 150-500))
-				// rounds is basically meaningless though.. wtf?
-				final_damage = rounds + rint(random() * 350) + 150;
-				damage_style = DMG_TYPE_GRENADE;
-			} else if (inflictor.classname == "projectile_grenade") {
-				// projectile-based grenades (mustang & sally) seem to do
-				// more damage than standard grenades.
-				// (rounds + (rand 1200-5000))
-				final_damage = rounds + rint(random() * 3800) + 1200;
-				damage_style = DMG_TYPE_EXPLOSIVE;
-			} else if (inflictor.classname == "rocket") {
-				// rockets were kinda tricky to figure out, this is as close
-				// as i can get and i'm not super confident..
-				// (rounds * (rand 0-100) * weapon_damage/500).
-				final_damage = (rounds * rint(random() * 100)) * damage2/500;
-				damage_style = DMG_TYPE_EXPLOSIVE;
-			} else if (inflictor.classname == "projectile_raybeam") {
-				//final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
-				//bprint(PRINT_HIGH, strcat("damage: ", ftos(final_damage), "\n"));
-				final_damage = damage2;
-				damage_style = DMG_TYPE_GRENADE;
-			} else if (inflictor.classname == "player") {
-				// phd flopper.
-				final_damage = calculate_proximity_value(mindamage, damage2, inflictor.origin, ent.origin, radius);
-				damage_style = DMG_TYPE_FLOPPER;
-			} else {
-				r = rounds;
-				multi = 1.07;
-				while(r > 0)
-				{
-					multi *= 1.05;
-					r --;
-				}
-				
-				if (mindamage == 75) 
-				{
-					final_damage = (200 * multi) + 185;
-				}
-				else 
-				{
-					final_damage = (mindamage + damage2)/2;
-				}
-			}
+			final_damage = Damage_ExplosiveDamage(inflictor, ent, damage2, mindamage, radius);
+			damage_style = DMG_TYPE_EXPLOSIVE;
 
-			// to decide if this should make a crawler, check if we've done 10% or more damage
-			if (final_damage / ent.health > 0.10 && ent.crawling != true && ent.classname != "ai_dog") {
-				ent.crawling = 2;
-			}	
+			if (inflictor.classname == "grenade" || inflictor.classname == "projectile_raybeam")
+				damage_style = DMG_TYPE_GRENADE;
+			else if (inflictor.classname == "player")
+				damage_style = DMG_TYPE_FLOPPER;
 		}
 		else if (ent.classname == "func_button"){
 			float do_not_attack = false;
@@ -786,8 +770,12 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 		} 
 
 		if (final_damage > 0) {
-			if (CanDamage (ent, inflictor))
+			if (CanDamage (ent, inflictor)) {
+				if ((damage_style == DMG_TYPE_EXPLOSIVE || damage_style == DMG_TYPE_GRENADE) && Damage_CanMakeCrawler(ent, final_damage, inflictor.origin))
+					ent.crawling = 2;
+
 				DamageHandler (ent, attacker, final_damage, damage_style);
+			}
 		}		
 		ent = ent.chain;
 	}
