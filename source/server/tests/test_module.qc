@@ -117,28 +117,41 @@ void() Test_PrintSummary =
 	localcmd("quit\n");
 };
 
+void() Test_RunScheduled =
+{
+	entity runner = self;
+	self = runner.owner;
+	Test_Run(qc_unit_tests[runner.count].test_func, qc_unit_tests[runner.count].test_name);
+	self = runner;
+	remove(runner);
+	next_test++;
+
+	if (next_test == qc_unit_tests.length) {
+		tests_endtime = gettime() - tests_starttime;
+		Test_PrintSummary();
+	}
+};
+
 void() Test_RunAllTests =
 {
-	if (tests_endtime != 0)
+	if (tests_starttime != 0)
 		return;
 
-	if (tests_starttime == 0) {
-		total_tests_ran = 0;
-		total_tests_passed = 0;
-		total_tests_failed = 0;
-		total_tests_skipped = 0;
-		next_test = 0;
-		tests_starttime = gettime();
-	}
+	total_tests_ran = 0;
+	total_tests_passed = 0;
+	total_tests_failed = 0;
+	total_tests_skipped = 0;
+	next_test = 0;
+	tests_starttime = gettime();
 
-	if (next_test < qc_unit_tests.length) {
-		Test_Run(qc_unit_tests[next_test].test_func, qc_unit_tests[next_test].test_name);
-		next_test++;
-		return;
+	for (int i = 0; i < qc_unit_tests.length; i++) {
+		entity runner = spawn();
+		runner.classname = "qc_unit_test";
+		runner.owner = self;
+		runner.count = i;
+		runner.think = Test_RunScheduled;
+		runner.nextthink = time;
 	}
-
-	tests_endtime = gettime() - tests_starttime;
-	Test_PrintSummary();
 };
 
 #endif // QUAKEC_TEST
