@@ -1,7 +1,3 @@
-#ifdef FTE
-#pragma progs_dat "../build/fte/qwprogs.dat"
-#pragma target fte_5768
-#else
 #pragma progs_dat "../build/standard/progs.dat"
 #pragma flag disable fastarrays
 #pragma opcode enable STOREF_F
@@ -54,7 +50,6 @@
 #pragma opcode enable GSTOREP_I
 #pragma opcode enable ADD_I
 #pragma opcode enable MUL_I
-#endif
 
 #pragma warning disable Q208
 #pragma noref 1
@@ -63,15 +58,10 @@
 #pragma includedir "../source/shared/"
 
 #includelist
-#ifdef FTE
-defs/fte.qc
-#else
 defs/standard.qc
-#endif
 shared_defs.qc
 defs/custom.qc
 useprints.qc
-fte_builtins.qc
 json.qc
 map_rotation.qc
 utilities/sound_helper.qc
@@ -119,16 +109,9 @@ weapons/grenade_launcher.qc
 weapons/bouncing_betty.qc
 weapons/weapon_core.qc
 entities/powerups.qc
-#ifdef FTE
-ai/pathfind_code.qc
-#endif
 ai/ai_core.qc
-#ifdef FTE
-ai/fte/waypoints_core.qc
-#else
-ai/standard/waypoints_func.qc
-ai/standard/waypoints_core.qc
-#endif
+ai/waypoints_func.qc
+ai/waypoints_core.qc
 ai/zombie_core.qc
 ai/crawler_core.qc
 ai/dog_core.qc
@@ -139,6 +122,7 @@ gamemodes/wild_west.qc
 gamemodes/sticks_and_stones.qc
 gamemodes/festive.qc
 gamemodes/core.qc
+tests/test_pathfind.qc
 #ifdef QUAKEC_TEST
 tests/test_math.qc
 tests/test_perksacola.qc

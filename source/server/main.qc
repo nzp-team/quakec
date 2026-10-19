@@ -47,6 +47,7 @@ void() main =
 }
 
 float ai_delay_time;
+float ai_movement_updates;
 float time_before_gamestart;
 
 //
@@ -70,7 +71,11 @@ void(string ent_name) Way_SetBrushEntNonSolid =
 float zombie_cleaned_w;
 void() StartFrame =
 {
+	ai_movement_updates = 0;
 	framecount = framecount + 1;
+
+	if (pathfind_test_running)
+		return;
 
 	if (waypoint_mode) {
 		if (!zombie_cleaned_w) {
@@ -263,6 +268,7 @@ void() precaches =
 	precache_sound("sounds/weapons/colt/shoot.wav");
 	precache_sound("sounds/weapons/colt/slide.wav");
 	precache_sound("sounds/weapons/papfire.wav");
+	precache_sound("sounds/weapons/wonder_weapon.wav");
 
 	// grenade
 	precache_sound("sounds/weapons/grenade/prime.wav");
@@ -291,6 +297,11 @@ void() precaches =
 	// zombie footsteps
 	precache_sound("sounds/zombie/s0.wav");
 	precache_sound("sounds/zombie/s1.wav");
+	precache_sound("sounds/zombie/gib.wav");
+	precache_sound("sounds/zombie/headshot.wav");
+	precache_sound("sounds/zombie/rise.wav");
+	precache_sound("sounds/zombie/splat_0.wav");
+	precache_sound("sounds/zombie/splat_1.wav");
 	precache_sound("sounds/zombie/sc0.wav");
 	precache_sound("sounds/zombie/sc1.wav");
 
@@ -440,7 +451,7 @@ void() RelinkZombies =
 {
 	entity ent,ent2;
 	local float i;
-	local vector min, max;
+	local vector min, max, offset;
 
 
 	//warn
@@ -511,7 +522,7 @@ void() RelinkZombies =
 			if (ent2)
 			{
 				//setorigin (ent.head, ent.origin + v_right * ent.head.view_ofs_x + v_forward * ent.head.view_ofs_y + v_up * ent.head.view_ofs_z);
-				setorigin (ent2, ent.origin);
+				ent2.origin = ent.origin;
 				//fixme, move angles set and frame set to below the continue, we only want to update origin (maybe angles too?)
 				ent2.angles = ent.angles;
 
@@ -522,8 +533,9 @@ void() RelinkZombies =
 				//	continue;
 				
 				
-				min = ent2.bbmins + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
-				max = ent2.bbmaxs + (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
+				offset = (v_right * ent2.view_ofs_x) + (v_forward * ent2.view_ofs_y) + (v_up * ent2.view_ofs_z);
+				min = ent2.bbmins + offset;
+				max = ent2.bbmaxs + offset;
 
 				if(min_x > max_x) { min_x += max_x; max_x = min_x - max_x; min_x -= max_x; }
 				if(min_y > max_y) { min_y += max_y; max_y = min_y - max_y; min_y -= max_y; }
@@ -592,6 +604,7 @@ void() LinkZombiesHitbox =
 
 void() EndFrame =
 {
+	Pathfind_TestFrame();
 	RelinkZombies();
 
 	if (cheats_have_been_activated == false && cvar("sv_cheats") == 1) {

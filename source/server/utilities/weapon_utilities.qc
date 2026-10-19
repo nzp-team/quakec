@@ -341,8 +341,11 @@ float Weapon_HasNoMulekickWeapon()
 // Weapon_AssignWeapon(weapon_slot, weapon_id, weapon_mag, weapon_reserve, weapon_tier)
 // Fills in weapon data for provided slot.
 //
-void Weapon_AssignWeapon(float weapon_slot, float weapon_id, float weapon_mag, float weapon_reserve, float weapon_tier)
+void Weapon_AssignWeapon(float weapon_slot, float weapon_id, float weapon_mag, float weapon_reserve, float weapon_tier, optional float restoring)
 {
+	if (!restoring && weapon_id != self.weapons[weapon_slot].weapon_id && WepDef_IsRayGun(weapon_id))
+		sound(world, CHAN_AUTO, "sounds/weapons/wonder_weapon.wav", 1, ATTN_NONE, 100);
+
 	if (weapon_tier == 0 && game_modifiers.gameplay.packapunch.packapunch_supports_upgrade_tiers == false)
 		weapon_tier = -1;
 

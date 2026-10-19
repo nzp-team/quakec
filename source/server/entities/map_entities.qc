@@ -54,7 +54,7 @@ void() radioPlay =
 	self.health = 1;
 
 	if (self.radioState == 1) {
-		Sound_PlaySound(self, self.tune, SOUND_TYPE_ENV_IMPORTANT, SOUND_PRIORITY_PLAYALWAYS);
+		sound(self, CHAN_ITEM, self.tune, 1, ATTN_NORM, 0, SOUNDFLAG_FOLLOW);
 
 
 		if (!(self.spawnflags & SPAWNFLAG_RADIO_PLAYONCE))

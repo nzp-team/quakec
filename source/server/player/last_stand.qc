@@ -487,9 +487,6 @@ void(entity client) LastStand_Begin =
 
 #endif // FTE
 
-	// Make any zombies inside of the player's bounding box leave
-	push_away_zombies();
-
 	// Force the player to prone.
 	Player_SetStance(self, PLAYER_STANCE_PRONE, false);
 

@@ -222,6 +222,15 @@ float(string params) Command_say =
 //                        with the command.
 // command_description  : Called when no params (when applicable) are given.
 //
+float(string params) Command_pathfind_test =
+{
+	if (cvar("sv_cheats") != 1) {
+		sprint(self, 1, "pathfind_test requires sv_cheats to be enabled.\n");
+		return COMMAND_FAILURE;
+	}
+	return Pathfind_TestBegin(params);
+}
+
 var struct {
     string                  command_name;
     float(string params)    command_function;
@@ -234,6 +243,7 @@ var struct {
 	{"noclip", Command_noclip, false, "Toggles No Clip.\n"},
 	{"sv_tracedmgmultiplier", Command_tracedmgmultiplier, true, "Multiplies damage output with weapons that fire Traces.\n"},
 	{"spawn_pu", Command_powerup, true, "Usage: spawn_pu <powerup>\n  Spawns a Power-Up of a given ID in front of you. -1 for random.\n"},
+	{"pathfind_test", Command_pathfind_test, false, "Tests waypoint routes and zombie walking.\n"},
 	{"say", Command_say, true, "Usage: say <message>\n  Sends a chat message to CSQC for other clients.\n"}
 };
 
