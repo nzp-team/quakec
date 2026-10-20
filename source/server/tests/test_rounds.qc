@@ -44,7 +44,7 @@ void() Test_Rounds_NewClientsDontCauseReset =
     rounds = old_rounds;
 };
 
-void(float end_mode, float delay_rounds) Test_Rounds_DelayTiming =
+void(float end_delay_rounds, float start_delay_rounds) Test_Rounds_DelayTiming =
 {
     entity oldself = self;
     entity oldactivator = activator;
@@ -60,13 +60,16 @@ void(float end_mode, float delay_rounds) Test_Rounds_DelayTiming =
     trigger.target = counter.targetname;
     trigger.target2 = counter.targetname;
     trigger.triggerstate = TRIGGERSTATE_OFF;
-    trigger.round_delay = delay_rounds;
-    trigger.round_delay_end = end_mode;
+    trigger.round_delay = start_delay_rounds;
+    trigger.round_delay_end = end_delay_rounds;
+    float end_mode = end_delay_rounds != 0;
+    float delay_rounds = end_mode ? end_delay_rounds : start_delay_rounds;
     rounds = 2;
     self = trigger;
     activator = oldself;
     SUB_UseTargets();
 
+    Test_Assert(counter.frags == 2, "Round delay fired immediately instead of being queued!");
     string delay_class = end_mode ? "RoundEndDelayedUse" : "DelayedUse";
     entity pending = find(world, classname, delay_class);
     Test_Assert(pending != world, "Round delay was not queued!");
@@ -106,15 +109,20 @@ void(float end_mode, float delay_rounds) Test_Rounds_DelayTiming =
 
 void() Test_Rounds_DelayDefaultsToRoundStart =
 {
-    Test_Rounds_DelayTiming(false, 3);
+    Test_Rounds_DelayTiming(0, 3);
 };
 
 void() Test_Rounds_DelayCanFireAtPreviousRoundEnd =
 {
-    Test_Rounds_DelayTiming(true, 3);
+    Test_Rounds_DelayTiming(3, 0);
 };
 
 void() Test_Rounds_OneRoundDelayCanFireAtCurrentRoundEnd =
 {
-    Test_Rounds_DelayTiming(true, 1);
+    Test_Rounds_DelayTiming(1, 0);
+};
+
+void() Test_Rounds_EndDelayUsesItsOwnCount =
+{
+    Test_Rounds_DelayTiming(3, 7);
 };

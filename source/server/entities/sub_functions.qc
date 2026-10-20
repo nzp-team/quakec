@@ -196,7 +196,7 @@ void() SUB_UseTargets =
 	//
 	// delay for X rounds
 	//
-		if (self.round_delay)
+		if (self.round_delay || self.round_delay_end)
 		{
 			// create a temp object to fire at a later time
 			t = spawn();
@@ -204,7 +204,8 @@ void() SUB_UseTargets =
 			t.weapon = self.round_delay + rounds;
 			if (self.round_delay_end) {
 				t.classname = "RoundEndDelayedUse";
-				t.weapon -= 1;
+				// End delay has its own count and fires at the end of round n - 1.
+				t.weapon = self.round_delay_end + rounds - 1;
 			} else {
 				t.nextthink = time + 2;
 				t.think = RoundDelayThink;
