@@ -48,6 +48,12 @@
 float cheats_have_been_activated;
 float current_month_of_year;
 
+// Map entity spawn restrictions. Nonzero masks override legacy selectors.
+.float gamemode_limiter;
+.float month_limiter;
+.float gamemode_mask;
+.float month_mask;
+
 float pathfind_test_running;
 void() Pathfind_TestFrame;
 float(string params) Pathfind_TestBegin;
@@ -165,6 +171,14 @@ void() W_SprintStop;
 .float dive_delay;
 .vector movement;
 
+#define PLAYER_CONTROL_FROZEN		1
+#define PLAYER_CONTROL_LOCKLOOK		2
+#define PLAYER_CONTROL_HIDEHUD		4
+
+.float map_control_flags;
+.float map_saved_movetype;				// Movetype + 1 while input is suppressed, otherwise 0.
+.vector map_lockangles;
+
 .float hunt_count; // How many Hellhounds are hunting a client
 
 //Weaponsystem defines
@@ -189,7 +203,6 @@ void (float shotcount, float sprd, float Damage, float side) FireTrace;
 .float currentmagbk;
 .float currentmagbk2;
 .float currentammobk;
-.float NeedLoad;
 .string weapon2model;
 .float weapon2frame;
 .float reloadinterupted;
@@ -229,6 +242,7 @@ var struct guninventory_struct
 	float 	weapon_reserve;
 	float 	weapon_skin;
 	float 	weapon_tier;
+	float 	weapon_need_load;
 	float 	is_mulekick_weapon;
 };
 
@@ -298,6 +312,7 @@ vector	trace_plane_normal;
 
 .float dmg;
 .float fire_timeout;
+.float velocity_retention;
 
 //
 // AI definitions

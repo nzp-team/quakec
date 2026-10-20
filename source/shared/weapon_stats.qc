@@ -3123,6 +3123,7 @@ string(float wep) GetWeaponSound =
     	case W_WIDDER:
 			return "sounds/weapons/m1carbine/shoot.wav";
 		case W_M2:
+		case W_FIW:
 			return "sounds/weapons/m2flame/flamethrower.wav";
 		case W_MP40:
     	case W_AFTERBURNER:
@@ -3971,6 +3972,7 @@ void(float weptype) precache_extra =
 			precache_sound("sounds/weapons/m1carbine/bolt.wav");
 			break;
 		case W_M2:
+		case W_FIW:
 			precache_sound("sounds/weapons/m2flame/flamethrower.wav");
 			precache_model("models/sprites/flamer.spr");
 			break;

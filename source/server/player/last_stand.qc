@@ -219,6 +219,7 @@ void(entity client) LastStand_AssignWeapon =
 //
 void(entity client) LastStand_KillPlayer =
 {
+	Player_ClearMapControls(client);
     entity old_self = self;
     self = client;
 
@@ -467,6 +468,7 @@ void(entity client) LastStand_SpawnReviveTrigger =
 //
 void(entity client) LastStand_Begin =
 {
+	Player_ClearMapControls(client);
     entity old_self = self;
     self = client;
 
@@ -506,6 +508,7 @@ void(entity client) LastStand_Begin =
 	float players_still_alive = PollPlayersAlive();
 	if ((player_count > 1&& !players_still_alive) || (player_count == 1 && !(self.perks & P_REVIVE))) {
 		EndGameSetup();
+		self = old_self;
 		return;
 	}
 
@@ -522,6 +525,7 @@ void(entity client) LastStand_Begin =
 	if ((self.perks & P_REVIVE) && player_count == 1) {	
 		if (cvar("sv_difficulty") == 3) {
 			EndGameSetup();
+			self = old_self;
 			return;
 		}
         LastStand_InitiateSoloRevive(self);

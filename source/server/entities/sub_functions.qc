@@ -45,6 +45,7 @@ match (string)self.target and call their .use function
 ==============================
 */
 void() SUB_UseTargets;
+void() Zombie_ReassignSpawnIDs;
 void(vector tdest, float tspeed, void() func) SUB_CalcMove;
 void()  SUB_CalcMoveDone;
 void() DelayThink =
@@ -241,7 +242,18 @@ void() SUB_UseTargets =
 				otemp = other;
 				self = t;
 				other = stemp;
-				if (t.classname == "spawn_zombie_in")
+				// Keep relay-disabled spawns separate from zoning's disabled spawns.
+				if (other.triggerstate == TRIGGERSTATE_OFF)
+				{
+					if (t.classname == "spawn_zombie" || t.classname == "spawn_zombie_disabled")
+					{
+						t.classname = "spawn_zombie_in";
+						Zombie_ReassignSpawnIDs();
+					}
+					if (t.classname == "spawn_dog" || t.classname == "spawn_dog_disabled")
+						t.classname = "spawn_dog_in";
+				}
+				if (t.classname == "spawn_zombie_in" && other.triggerstate != TRIGGERSTATE_OFF)
 				{
 					t.classname = "spawn_zombie";
 					t.spawn_id = zombie_spawn_points;
@@ -251,7 +263,7 @@ void() SUB_UseTargets =
 				{
 					t.classname = "waypoint_s";
 				}
-				if (t.classname == "spawn_dog_in")
+				if (t.classname == "spawn_dog_in" && other.triggerstate != TRIGGERSTATE_OFF)
 					t.classname = "spawn_dog";
 				if (self.use != SUB_Null)
 				{

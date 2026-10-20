@@ -36,6 +36,8 @@ void(float score_earned) Gamemode_PlayerAddScore;
 float(float current_max_health, float current_perks) Gamemode_GetMaxHealthForPlayer;
 void(entity client) LastStand_UnlinkRevivee;
 void() Perk_ResetPerkaColas;
+void() Player_ApplyPushVelocity;
+void(entity trigger, entity client) EachPlayer_ClearContacts;
 
 #ifdef QUAKEC_TEST
 
@@ -521,9 +523,154 @@ float(entity who) Player_GetNumPerks =
 	return num_perks;
 };
 
+//
+// Player_CanUseMapControls(client)
+// Limits map controls to living players.
+//
+float(entity client) Player_CanUseMapControls =
+{
+	return client != world && client.classname == "player"
+		&& !client.is_spectator && !client.downed && client.health > 0;
+};
+
+//
+// Player_RestoreMapMovement(client)
+// Restores the movetype before physics or when a movement lock ends.
+//
+void(entity client) Player_RestoreMapMovement =
+{
+	if (!client.map_saved_movetype)
+		return;
+
+	if (client.movetype == MOVETYPE_NONE)
+		client.movetype = client.map_saved_movetype - 1;
+	client.map_saved_movetype = 0;
+};
+
+//
+// Player_SetMapHUD(client, hidden)
+// Updates cinematic HUD mode on the specified client.
+//
+void(entity client, float hidden) Player_SetMapHUD =
+{
+	if (hidden)
+		client.map_control_flags |= PLAYER_CONTROL_HIDEHUD;
+	else
+		client.map_control_flags &= ~PLAYER_CONTROL_HIDEHUD;
+
+	if (client.flags & FL_CLIENT) {
+		if (hidden)
+			stuffcmd(client, "cl_cinematic 1\n");
+		else
+			stuffcmd(client, "cl_cinematic 0\n");
+	}
+};
+
+//
+// Player_ClearMapControls(client)
+// Clears map controls and contact cooldowns on death, spawn or disconnect.
+//
+void(entity client) Player_ClearMapControls =
+{
+	Player_RestoreMapMovement(client);
+	if (client.map_control_flags & PLAYER_CONTROL_HIDEHUD)
+		Player_SetMapHUD(client, false);
+	client.map_control_flags = 0;
+	client.map_lockangles = '0 0 0';
+
+	entity trigger = find(world, classname, "trigger_eachplayer");
+	while (trigger != world) {
+		EachPlayer_ClearContacts(trigger, client);
+		trigger = find(trigger, classname, "trigger_eachplayer");
+	}
+};
+
+//
+// Player_MapControlsStartFrame()
+// Vril processes movement input before StartFrame. Restore normal movement
+// here so game logic, pushers and player physics see the original movetype.
+//
+void() Player_MapControlsStartFrame =
+{
+	entity client = find(world, classname, "player");
+	while (client != world) {
+		Player_RestoreMapMovement(client);
+		if (client.map_control_flags && !Player_CanUseMapControls(client))
+			Player_ClearMapControls(client);
+		client = find(client, classname, "player");
+	}
+};
+
+//
+// Player_MapControlsEndFrame()
+// Suppresses movement input until StartFrame restores player physics.
+//
+void() Player_MapControlsEndFrame =
+{
+	entity client = find(world, classname, "player");
+	while (client != world) {
+		if (client.map_control_flags & PLAYER_CONTROL_FROZEN) {
+			// Teleporters can set a new view direction after PlayerPreThink.
+			if ((client.map_control_flags & PLAYER_CONTROL_LOCKLOOK) && client.fixangle)
+				client.map_lockangles = client.angles;
+
+			if (Player_CanUseMapControls(client) && !client.map_saved_movetype) {
+				client.map_saved_movetype = client.movetype + 1;
+				client.movetype = MOVETYPE_NONE;
+			}
+		}
+		client = find(client, classname, "player");
+	}
+};
+
+//
+// Player_ApplyMapControls()
+// Applies the player's view lock and passive drag while input is suppressed.
+//
+void() Player_ApplyMapControls =
+{
+	if (!(self.map_control_flags & PLAYER_CONTROL_FROZEN))
+		return;
+
+	self.maxspeed = 0;
+	self.button2 = 0;
+	if (self.map_control_flags & PLAYER_CONTROL_LOCKLOOK) {
+		if (self.fixangle)
+			self.map_lockangles = self.angles;
+		self.v_angle = self.map_lockangles;
+		self.angles = self.map_lockangles;
+		self.fixangle = true;
+	} else if (!self.fixangle) {
+		self.angles_x = -self.v_angle_x / 3;
+		self.angles_y = self.v_angle_y;
+	}
+
+	// SV_ClientThink normally applies friction along with input acceleration.
+	if (self.waterlevel >= 2 && self.movetype != MOVETYPE_NOCLIP) {
+		self.velocity *= clamp(1 - frametime * cvar("sv_friction"), 0, 1);
+	} else if (self.flags & FL_ONGROUND) {
+		vector horizontal = self.velocity;
+		horizontal_z = 0;
+		float speed = vlen(horizontal);
+		if (!speed)
+			return;
+
+		vector start = self.origin + horizontal / speed * 16;
+		start_z = self.origin_z + self.mins_z;
+		traceline(start, start - '0 0 34', true, self);
+		float friction = cvar("sv_friction");
+		if (trace_fraction == 1)
+			friction *= cvar("edgefriction");
+		float control = speed;
+		if (control < cvar("sv_stopspeed"))
+			control = cvar("sv_stopspeed");
+		self.velocity *= clamp(speed - frametime * control * friction, 0, speed) / speed;
+	}
+};
+
 void() PlayerJump =
 {
-	if (!(self.flags & FL_ONGROUND) 
+	if ((self.map_control_flags & PLAYER_CONTROL_FROZEN) || !(self.flags & FL_ONGROUND)
 	    || !(self.flags & FL_JUMPRELEASED)
 		|| self.downed 
 		|| self.dive ) {
@@ -542,6 +689,8 @@ void() PlayerJump =
 
 void(float override) JumpCheck =
 {
+	if (self.map_control_flags & PLAYER_CONTROL_FROZEN)
+		return;
 
 #ifndef FTE
 
@@ -634,6 +783,7 @@ void() PlayerPreThink =
 		self.movetype = MOVETYPE_NOCLIP;
 		return;
 	}
+	Player_ApplyMapControls();
 	
 	if (cvar("waypoint_mode")) {
 		Waypoint_Logic();
@@ -642,6 +792,7 @@ void() PlayerPreThink =
 	}
 
 	JumpCheck(0);
+	Player_ApplyPushVelocity();
 
 	// Fire effect
 	if (self.onfire) {
@@ -973,6 +1124,7 @@ void() Player_PickSpawnPoint =
 void() SpectatorSpawn;
 void() PlayerSpawn =
 {	
+	Player_ClearMapControls(self);
 	entity spawnpoint = world;
 	local_client = self;
 
@@ -1115,6 +1267,7 @@ void() PlayerSpawn =
 
 void() SpectatorSpawn =
 {
+	Player_ClearMapControls(self);
 	entity spawnpoint = find(world, classname, "info_player_1_spawn");
 	local_client = self;
 
@@ -1155,6 +1308,9 @@ void() SpectatorSpawn =
 float spawns_initialized;
 void() PutClientInServer =
 {
+	// cl_cinematic is archived by the client; do not carry map-owned HUD
+	// state into a new map or a new connection.
+	stuffcmd(self, "cl_cinematic 0\n");
 	for (float i = 1; i < useprint_count; i++)
 		useprint_send(self, i, useprint_strings[i], useprint_colors[i]);
 	useprint_registration_locked = true;
@@ -1173,8 +1329,15 @@ void() PutClientInServer =
 		bprint(PRINT_HIGH, " has joined the game.\n");
 	}
 	
-	if (spawn_time > time || !rounds)
+	if (spawn_time > time || !rounds) {
 		PlayerSpawn();
+
+		// BO2 starts players with 500 points per selected round.
+		// Apply this only on joining, leaving respawn points unchanged.
+		float starting_points = PLAYER_STARTPOINTS_NORMAL * clamp(cvar("sv_startround"), 1, 50);
+		if (self.points < starting_points)
+			Player_AddScore(self, starting_points - self.points, false);
+	}
 
 #ifdef FTE
 
@@ -1222,6 +1385,7 @@ void() ClientDisconnect =
 	player_count--;
 	UpdatePlayerCount(player_count);
 	Player_CleanupReviveOnDisconnect(self);
+	Player_ClearMapControls(self);
 	
 	self.classname = "disconnected";
 	self.solid = SOLID_NOT;

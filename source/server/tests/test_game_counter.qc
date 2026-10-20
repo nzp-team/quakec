@@ -1,7 +1,7 @@
 /*
 	server/tests/test_game_counter.qc
 
-	Unit tests for game_counter entity
+	Unit tests for game_counter and game_counter_set entities
 
 	Copyright (C) 2021-2026 NZ:P Team
 
@@ -117,4 +117,133 @@ void() Test_game_counter_IncrementsOnTriggerRelayStateOff =
     self = old_self;
     remove(gamecounter);
     remove(triggertest);
+};
+
+//
+// Test_game_counter_set_SetsMatchingCounters()
+// Sets all matching counters without incrementing them or changing other entities.
+//
+void() Test_game_counter_set_SetsMatchingCounters =
+{
+    entity old_self = self;
+    entity counters[2];
+    float i;
+
+    for (i = 0; i < 2; i++) {
+        counters[i] = spawn();
+        self = counters[i];
+        self.classname = "game_counter";
+        self.targetname = "test_counter_set_target";
+        self.frags = i + 1;
+        self.health = 10;
+        game_counter();
+    }
+
+    entity unrelated = spawn();
+    unrelated.targetname = "test_counter_set_target";
+    unrelated.frags = 9;
+
+    entity setter = spawn();
+    self = setter;
+    self.targetname = "test_counter_set";
+    self.target = "test_counter_set_target";
+    game_counter_set();
+
+    entity trigger = spawn();
+    self = trigger;
+    self.target = "test_counter_set";
+    setter.frags = 5;
+    SUB_UseTargets();
+    for (i = 0; i < 2; i++)
+        Test_Assert(counters[i].frags == 5, "game_counter_set did not set every matching counter!");
+
+    setter.frags = 0;
+    SUB_UseTargets();
+    for (i = 0; i < 2; i++)
+        Test_Assert(counters[i].frags == 0, "game_counter_set could not set a counter to zero!");
+
+    setter.frags = -2;
+    SUB_UseTargets();
+    for (i = 0; i < 2; i++)
+        Test_Assert(counters[i].frags == -2, "game_counter_set could not set a negative value!");
+    Test_Assert(unrelated.frags == 9, "game_counter_set changed a non-counter entity!");
+
+    self = old_self;
+    for (i = 0; i < 2; i++)
+        remove(counters[i]);
+    remove(unrelated);
+    remove(setter);
+    remove(trigger);
+};
+
+//
+// Test_game_counter_set_FiresAndResetsAtLimit()
+// Setting the limit fires the counter's targets and restores its initial value.
+//
+void() Test_game_counter_set_FiresAndResetsAtLimit =
+{
+    entity old_self = self;
+    entity output = spawn();
+    self = output;
+    self.targetname = "test_counter_set_output";
+    self.health = 100;
+    game_counter();
+
+    entity counter = spawn();
+    self = counter;
+    self.classname = "game_counter";
+    self.targetname = "test_counter_set_target";
+    self.target = "test_counter_set_output";
+    self.frags = 2;
+    self.health = 10;
+    self.spawnflags = SPAWNFLAG_COUNTER_RESETONFIRE;
+    game_counter();
+
+    entity setter = spawn();
+    self = setter;
+    self.target = "test_counter_set_target";
+    self.frags = 9;
+    game_counter_set();
+    self.use();
+    Test_Assert(output.frags == 0, "game_counter_set fired a counter below its limit!");
+
+    self.frags = 10;
+    self.use();
+    Test_Assert(output.frags == 1, "game_counter_set did not fire the counter's targets at its limit!");
+    Test_Assert(counter.frags == 2, "game_counter_set did not reset the counter to its initial value!");
+
+    self = old_self;
+    remove(output);
+    remove(counter);
+    remove(setter);
+};
+
+//
+// Test_game_counter_set_RemoveOnFire()
+// Both the setter and the counter honor their remove-on-fire flags.
+//
+void() Test_game_counter_set_RemoveOnFire =
+{
+    entity old_self = self;
+    entity counter = spawn();
+    self = counter;
+    self.classname = "game_counter";
+    self.targetname = "test_counter_set_target";
+    self.health = 10;
+    self.spawnflags = SPAWNFLAG_COUNTER_REMOVEONFIRE;
+    game_counter();
+
+    entity setter = spawn();
+    self = setter;
+    self.targetname = "test_counter_set";
+    self.target = "test_counter_set_target";
+    self.frags = 10;
+    self.spawnflags = SPAWNFLAG_COUNTERSET_REMOVEONFIRE;
+    game_counter_set();
+    self.use();
+
+    Test_Assert(find(world, targetname, "test_counter_set_target") == world, "Counter was not removed at its limit!");
+    Test_Assert(find(world, targetname, "test_counter_set") == world, "game_counter_set was not removed after use!");
+
+    self = old_self;
 };

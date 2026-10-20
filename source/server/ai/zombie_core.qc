@@ -1797,6 +1797,18 @@ void(entity where) spawn_a_zombieB =
 	szombie.frame = 0;
 	
 	szombie.target = where.target;
+	// Pick one of the spawn point's non-empty paths for each Zombie.
+	string targets[8] = {where.target, where.target2, where.target3, where.target4,
+		where.target5, where.target6, where.target7, where.target8};
+	float target_count = 0;
+	for (float i = 0; i < 8; i++) {
+		if (targets[i] == "")
+			continue;
+
+		target_count++;
+		if (target_count == 1 || random() < 1 / target_count)
+			szombie.target = targets[i];
+	}
 	//blubsvel
 	//szombie.movetype = MOVETYPE_STEP;
 

@@ -177,6 +177,59 @@ float(string params) Command_tracedmgmultiplier =
 }
 
 //
+// Command_set_player_pos(params)
+// Usage: set_player_pos <x> <y> <z>
+//
+float(string params) Command_set_player_pos =
+{
+	// Anti-Cheat in Co-Op.
+	if (player_count > 1 && cheats_have_been_activated == false) {
+		bprint(PRINT_HIGH, "Someone tried to issue set_player_pos in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
+	if (argv(2) == "" || argv(3) == "" || argv(4) != "") {
+		sprint(self, 1, "Usage: set_player_pos <x> <y> <z>\n");
+		return COMMAND_FAILURE;
+	}
+
+	vector position;
+	position_x = stof(argv(1));
+	position_y = stof(argv(2));
+	position_z = stof(argv(3));
+	setorigin(self, position);
+
+	return COMMAND_SUCCESS;
+}
+
+//
+// Command_set_player_angle(params)
+// Usage: set_player_angle <pitch> <yaw> <roll>
+//
+float(string params) Command_set_player_angle =
+{
+	// Anti-Cheat in Co-Op.
+	if (player_count > 1 && cheats_have_been_activated == false) {
+		bprint(PRINT_HIGH, "Someone tried to issue set_player_angle in a Co-Op match. Nice try!\n");
+		return COMMAND_FAILURE;
+	}
+
+	if (argv(2) == "" || argv(3) == "" || argv(4) != "") {
+		sprint(self, 1, "Usage: set_player_angle <pitch> <yaw> <roll>\n");
+		return COMMAND_FAILURE;
+	}
+
+	vector view_angles;
+	view_angles_x = stof(argv(1));
+	view_angles_y = stof(argv(2));
+	view_angles_z = stof(argv(3));
+	self.angles = self.v_angle = view_angles;
+	self.fixangle = true;
+
+	return COMMAND_SUCCESS;
+}
+
+//
 // Command_say()
 // Sends message via CSQC to other clients (FTE-only)
 //
@@ -243,6 +296,8 @@ var struct {
 	{"noclip", Command_noclip, false, "Toggles No Clip.\n"},
 	{"sv_tracedmgmultiplier", Command_tracedmgmultiplier, true, "Multiplies damage output with weapons that fire Traces.\n"},
 	{"spawn_pu", Command_powerup, true, "Usage: spawn_pu <powerup>\n  Spawns a Power-Up of a given ID in front of you. -1 for random.\n"},
+	{"set_player_pos", Command_set_player_pos, true, "Usage: set_player_pos <x> <y> <z>\n  Sets your position.\n"},
+	{"set_player_angle", Command_set_player_angle, true, "Usage: set_player_angle <pitch> <yaw> <roll>\n  Sets your view angles.\n"},
 	{"pathfind_test", Command_pathfind_test, false, "Tests waypoint routes and zombie walking.\n"},
 	{"say", Command_say, true, "Usage: say <message>\n  Sends a chat message to CSQC for other clients.\n"}
 };
