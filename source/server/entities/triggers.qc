@@ -348,6 +348,108 @@ void() trigger_multiple =
 	}
 };
 
+#define SPAWNFLAG_EACHPLAYER_STARTOFF	1
+
+.entity eachplayer_contacts;
+
+//
+// EachPlayer_ClearContacts(trigger, client)
+// Removes cooldown records for one player, or every player when client is world.
+// Contact records use owner for the player, enemy for the next record, and
+// ltime for the next allowed activation.
+//
+void(entity trigger, entity client) EachPlayer_ClearContacts =
+{
+	entity previous = world;
+	entity contact = trigger.eachplayer_contacts;
+	while (contact != world) {
+		entity next = contact.enemy;
+		if (client == world || contact.owner == client) {
+			if (previous == world)
+				trigger.eachplayer_contacts = next;
+			else
+				previous.enemy = next;
+			remove(contact);
+		} else {
+			previous = contact;
+		}
+		contact = next;
+	}
+};
+
+void() eachplayer_touch =
+{
+	if (self.entity_removed || self.touch != eachplayer_touch || !Player_CanUseMapControls(other))
+		return;
+
+	if (self.movedir != '0 0 0') {
+		makevectors(other.angles);
+		if (v_forward * self.movedir < 0)
+			return;
+	}
+
+	entity contact = self.eachplayer_contacts;
+	while (contact != world && contact.owner != other)
+		contact = contact.enemy;
+	if (contact != world) {
+		if (self.wait < 0 || contact.ltime > time)
+			return;
+	} else {
+		contact = spawn();
+		contact.classname = "eachplayer_contact";
+		contact.owner = other;
+		contact.enemy = self.eachplayer_contacts;
+		self.eachplayer_contacts = contact;
+	}
+
+	// Commit before dispatch: targets may re-enter, disable or remove us.
+	contact.ltime = time + self.wait;
+	entity old_activator = activator;
+	activator = other;
+	SUB_UseTargets();
+	activator = old_activator;
+};
+
+void() eachplayer_use =
+{
+	if (self.entity_removed)
+		return;
+	float enabled = self.touch == eachplayer_touch;
+	if (global_triggerstate == TRIGGERSTATE_ON)
+		enabled = true;
+	else if (global_triggerstate == TRIGGERSTATE_OFF)
+		enabled = false;
+	else
+		enabled = !enabled;
+
+	if (enabled == (self.touch == eachplayer_touch))
+		return;
+	EachPlayer_ClearContacts(self, world);
+	self.touch = SUB_Null;
+	if (enabled) {
+		self.touch = eachplayer_touch;
+		// Include stationary occupants on the next physics frame.
+		force_retouch = 2;
+	}
+};
+
+//
+// trigger_eachplayer()
+// Repeatable player trigger with independent cooldowns. A negative wait fires
+// once per player until the trigger is disabled and enabled again.
+//
+void() trigger_eachplayer =
+{
+	EachPlayer_ClearContacts(self, world);
+	if (!self.wait)
+		self.wait = 0.2;
+	InitTrigger();
+	self.use = eachplayer_use;
+	self.touch = eachplayer_touch;
+	if (self.spawnflags & SPAWNFLAG_EACHPLAYER_STARTOFF)
+		self.touch = SUB_Null;
+};
+
 /*
 	Variable sized trigger. Triggers once, then removes itself.  You must set the key "target" to the name of another object in the level that has a matching
 	"targetname".  If "health" is set, the trigger must be killed to activate.
@@ -443,10 +545,160 @@ void() trigger_awardpoints =
 // Quake Triggers
 //
 
+#define PUSH_SPAWNFLAG_ONCE			1
+#define PUSH_SPAWNFLAG_PLAYER			2
+#define PUSH_SPAWNFLAG_NONPLAYER		4
+#define PUSH_SPAWNFLAG_STARTOFF		8
+
+void() push_touch;
+
+float(entity ent) push_affects =
+{
+	if (ent.entity_removed || ent.solid == SOLID_NOT || ent.solid == SOLID_BSP)
+		return false;
+
+	if (ent.movetype == MOVETYPE_NONE || ent.movetype == MOVETYPE_PUSH ||
+		ent.movetype == MOVETYPE_NOCLIP || ent.movetype == MOVETYPE_FOLLOW)
+		return false;
+
+	if (ent.classname == "player")
+		return (self.spawnflags & PUSH_SPAWNFLAG_PLAYER) != 0;
+
+	return (self.spawnflags & PUSH_SPAWNFLAG_NONPLAYER) != 0;
+};
+
+float(entity ent) push_contains =
+{
+	vector lower = self.origin + self.mins;
+	vector upper = self.origin + self.maxs;
+	vector ent_lower = ent.origin + ent.mins;
+	vector ent_upper = ent.origin + ent.maxs;
+	return ent_lower_x < upper_x && ent_upper_x > lower_x &&
+		ent_lower_y < upper_y && ent_upper_y > lower_y &&
+		ent_lower_z < upper_z && ent_upper_z > lower_z;
+};
+
+void() Player_ApplyPushVelocity =
+{
+	entity player = self;
+	entity field = find(world, classname, "trigger_push");
+	while (field != world) {
+		self = field;
+		if (!self.entity_removed && self.touch == push_touch &&
+			!(self.spawnflags & PUSH_SPAWNFLAG_ONCE) && push_affects(player) && push_contains(player))
+			player.velocity *= self.velocity_retention / 100;
+		field = find(field, classname, "trigger_push");
+	}
+	self = player;
+};
+
+void() push_touch =
+{
+	if (!(self.spawnflags & PUSH_SPAWNFLAG_ONCE) || !push_affects(other))
+		return;
+
+	other.velocity = other.velocity * (self.velocity_retention / 100) + self.movedir * self.speed;
+	if (other.velocity_z > 0)
+		other.flags &= ~FL_ONGROUND;
+
+	Ent_FakeRemove(self);
+};
+
+void(entity ent, vector displacement) push_move =
+{
+	vector start = ent.origin;
+	vector remaining = displacement;
+	vector first_normal = '0 0 0';
+
+	for (int bump = 0; bump < 4; bump++) {
+		tracebox(ent.origin, ent.mins, ent.maxs, ent.origin + remaining, false, ent);
+		if (trace_allsolid || trace_startsolid)
+			break;
+
+		setorigin(ent, trace_endpos);
+		if (trace_fraction == 1)
+			break;
+
+		remaining *= 1 - trace_fraction;
+		vector normal = trace_plane_normal;
+		remaining -= normal * (remaining * normal);
+
+		// At a corner, slide along the intersection of both planes.
+		if (bump > 0 && remaining * first_normal < 0) {
+			vector crease;
+			crease_x = first_normal_y * normal_z - first_normal_z * normal_y;
+			crease_y = first_normal_z * normal_x - first_normal_x * normal_z;
+			crease_z = first_normal_x * normal_y - first_normal_y * normal_x;
+			crease = normalize(crease);
+			remaining = crease * (remaining * crease);
+		}
+		if (remaining * displacement <= 0)
+			break;
+		first_normal = normal;
+	}
+
+	if (ent.origin != start) {
+		if (ent.origin_z > start_z) {
+			ent.flags &= ~FL_ONGROUND;
+		} else if (ent.flags & FL_ONGROUND) {
+			tracebox(ent.origin, ent.mins, ent.maxs, ent.origin - '0 0 2', false, ent);
+			if (trace_fraction == 1 || trace_plane_normal_z < 0.7)
+				ent.flags &= ~FL_ONGROUND;
+		}
+	}
+};
+
+void() push_think =
+{
+	if (self.entity_removed || self.touch != push_touch)
+		return;
+
+	entity ent = nextent(world);
+	while (ent != world) {
+		if (push_affects(ent) && push_contains(ent)) {
+			if (ent.classname != "player")
+				ent.velocity *= self.velocity_retention / 100;
+			push_move(ent, self.movedir * self.speed * frametime);
+		}
+		ent = nextent(ent);
+	}
+	self.nextthink = time + 0.001;
+};
+
+void() push_use =
+{
+	if (global_triggerstate == TRIGGERSTATE_OFF ||
+		(global_triggerstate == TRIGGERSTATE_TOGGLE && self.touch == push_touch)) {
+		self.touch = SUB_Null;
+		self.nextthink = -1;
+	} else {
+		self.touch = push_touch;
+		if (!(self.spawnflags & PUSH_SPAWNFLAG_ONCE))
+			self.nextthink = time + 0.001;
+	}
+};
+
+void() trigger_push =
+{
+	SetMovedir();
+	InitTrigger();
+	if (!self.speed)
+		self.speed = 100;
+	self.velocity_retention = clamp(self.velocity_retention, 0, 100);
+	self.touch = push_touch;
+	self.use = push_use;
+	self.think = push_think;
+	if (self.spawnflags & PUSH_SPAWNFLAG_STARTOFF)
+		self.touch = SUB_Null;
+	else if (!(self.spawnflags & PUSH_SPAWNFLAG_ONCE))
+		self.nextthink = time + 0.001;
+};
+
 // NZ:P START -- Spawnflags for not hurting clients and not hurting AI
 #define HURT_SPAWNFLAG_NOAI			1		// Does not affect AI
 #define HURT_SPAWNFLAG_NOCLIENT		2		// Does not affect clients (players)
 #define HURT_SPAWNFLAG_DIEINSTANTLY	4		// Player will instantly die and spectate, regardless of other conditions
+#define HURT_SPAWNFLAG_STARTOFF		8		// Starts disabled until triggered
 // NZ:P END
 
 void() hurt_on =
@@ -477,10 +729,25 @@ void() hurt_touch =
 	return;
 };
 
+void() hurt_use =
+{
+	if (global_triggerstate == TRIGGERSTATE_OFF)
+		self.touch = SUB_Null;
+	else if (global_triggerstate == TRIGGERSTATE_ON)
+		self.touch = hurt_touch;
+	else if (self.touch == hurt_touch)
+		self.touch = SUB_Null;
+	else
+		self.touch = hurt_touch;
+};
+
 void() trigger_hurt =
 {
 	InitTrigger ();
 	self.touch = hurt_touch;
+	self.use = hurt_use;
+	if (self.spawnflags & HURT_SPAWNFLAG_STARTOFF)
+		self.touch = SUB_Null;
 	if (!self.dmg)
 		self.dmg = 5;
 };

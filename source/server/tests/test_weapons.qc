@@ -212,6 +212,92 @@ void() Test_Weapons_BurstCannotBeInterruptedBySwap =
 };
 
 //
+// Test_Weapons_BurstTriggerAndCrosshair()
+// Ensures a weapon swap cannot replace the animation callback responsible for
+// completing a burst and leave the player permanently action-locked.
+// (https://github.com/nzp-team/nzportable/issues/1604)
+//
+void() Test_Weapons_BurstTriggerAndCrosshair =
+{
+	entity old_self = self;
+	float weapon_list[] = { W_RAYMK2, W_PORTERMK2 };
+
+	for (float i = 0; i < weapon_list.length; i++) {
+		self = spawn();
+		self.weapon = self.weapons[0].weapon_id = weapon_list[i];
+		self.weapons[0].weapon_magazine = 6;
+		self.origin = old_self.origin;
+		self.view_ofs = old_self.view_ofs;
+		self.stance = PLAYER_STANCE_STAND;
+
+		W_Fire(S_RIGHT);
+		Test_Assert((self.weapons[0].weapon_magazine == 5 && self.weapon_burst_count == 2), "Trigger pull did not start a burst!");
+		Test_Assert(!self.grenade_delay, "Burst selected the grenade crosshair!");
+		Test_Assert((self.throw_delay > time), "Burst did not block equipment use!");
+
+		// Animation callbacks must finish the burst despite the trigger lock.
+		W_Fire_Burst(S_RIGHT);
+		W_Fire_Burst(S_RIGHT);
+		Test_Assert((self.weapons[0].weapon_magazine == 3 && !self.weapon_burst_count), "Trigger lock prevented the burst from finishing!");
+		Test_Assert(!self.grenade_delay, "Completed burst left the grenade crosshair selected!");
+
+		self.fire_delay = self.reload_delay = 0;
+		W_Fire(S_RIGHT);
+		Test_Assert((self.weapons[0].weapon_magazine == 3 && !self.weapon_burst_count), "Holding the trigger started another burst!");
+		WeaponCore_FireButtonReleased();
+		W_Fire(S_RIGHT);
+		Test_Assert((self.weapons[0].weapon_magazine == 2 && self.weapon_burst_count == 2), "Releasing the trigger did not allow another burst!");
+
+		entity projectile = find(world, classname, "projectile_raylaser");
+		while (projectile != world) {
+			entity next_projectile = find(projectile, classname, "projectile_raylaser");
+			if (projectile.owner == self)
+				remove(projectile);
+			projectile = next_projectile;
+		}
+		remove(self);
+	}
+
+	self = old_self;
+};
+
+//
+// Test_Weapons_StationarySprintPreservesReload()
+// Ensures pressing sprint without horizontal movement leaves the reload intact.
+// (https://github.com/nzp-team/nzportable/issues/1607)
+//
+void() Test_Weapons_StationarySprintPreservesReload =
+{
+	entity old_self = self;
+	self = spawn();
+	self.weapon = W_COLT;
+	self.flags = FL_ONGROUND;
+	self.sprintflag = true;
+	self.reload_delay = time + 2;
+	self.reload_delay2 = time + 3;
+	self.weaponframe = 10;
+	self.animend = ReturnWeaponModel;
+
+	W_SprintStart();
+	Test_Assert(!self.sprinting, "Stationary player started sprinting!");
+	Test_Assert((self.reload_delay == time + 2 && self.reload_delay2 == time + 3), "Stationary sprint cancelled reload delays!");
+	Test_Assert((self.weaponframe == 10 && self.animend == ReturnWeaponModel), "Stationary sprint replaced the reload animation!");
+
+	self.velocity = '0 0 100';
+	W_SprintStart();
+	Test_Assert(!self.sprinting, "Vertical movement alone allowed sprinting!");
+	Test_Assert((self.reload_delay == time + 2 && self.reload_delay2 == time + 3), "Vertical movement allowed sprint to cancel a reload!");
+
+	self.velocity = '190 0 0';
+	W_SprintStart();
+	Test_Assert(self.sprinting, "Moving player could not start sprinting!");
+	Test_Assert((self.reload_delay == 0 && self.reload_delay2 == 0), "Moving sprint did not cancel the reload!");
+
+	remove(self);
+	self = old_self;
+};
+
+//
 // Test_MysteryBox_RayGunsAreMutuallyExclusive()
 // Ensures a player carrying either Ray Gun variant cannot receive another.
 //
@@ -393,4 +479,74 @@ void() Test_WallWeapons_ActivatesAllTargets =
 
     self = old_self;
     remove(weapon);
+};
+
+//
+// Test_Weapons_ReplacementClearsPendingReload()
+// An empty weapon must not queue a reload on its replacement in Gun Game.
+// (https://github.com/nzp-team/nzportable/issues/1421)
+//
+void() Test_Weapons_ReplacementClearsPendingReload =
+{
+	entity old_self = self;
+	self = spawn();
+	Weapon_GiveWeapon(W_BIATCH, 0, 0, 0);
+	self.weapons[0].weapon_magazine = 0;
+	self.weapons[0].weapon_magazine_left = 0;
+	WeaponCore_CheckForReload();
+	Test_Assert((self.weapon_autoreload_pending && self.weapon2_autoreload_pending), "Empty magazines did not queue reloads!");
+
+	Weapon_GiveWeapon(W_KAR, 0, 0, 0);
+	Weapon_RemoveWeapon(1);
+	Test_Assert((self.weapon == W_KAR), "Replacement weapon was not equipped!");
+	Test_Assert((!self.weapon_autoreload_pending && !self.weapon2_autoreload_pending), "Replacement inherited pending reloads!");
+
+	// Also cover replacing the current weapon when all slots are occupied.
+	Weapon_GiveWeapon(W_TRENCH, 0, 0, 0);
+	self.weapon_autoreload_pending = self.weapon2_autoreload_pending = true;
+	Weapon_GiveWeapon(W_COLT, 0, 0, 0);
+	Test_Assert((!self.weapon_autoreload_pending && !self.weapon2_autoreload_pending), "Full inventory replacement inherited pending reloads!");
+
+	remove(self);
+	self = old_self;
+};
+
+//
+// Test_Weapons_CyclingStaysWithWeapon()
+// Switching weapons must preserve each weapon's pending bolt or pump action.
+// (https://github.com/nzp-team/nzportable/issues/1070)
+//
+void() Test_Weapons_CyclingStaysWithWeapon =
+{
+	entity old_self = self;
+	self = spawn();
+	Weapon_GiveWeapon(W_KAR, 0, 0, 0);
+	Weapon_GiveWeapon(W_TRENCH, 0, 0, 0);
+	// Begin just after firing, before the pump animation has completed.
+	self.weapons[0].weapon_magazine--;
+	self.weapons[0].weapon_need_load = true;
+	float magazine = self.weapons[0].weapon_magazine;
+
+	Weapon_SwapWeapons(true);
+	float frame = self.weaponframe;
+	W_LoadAmmo();
+	Test_Assert((self.weapon == W_KAR && !self.weapons[0].weapon_need_load), "Unfired rifle inherited the shotgun's pump action!");
+	Test_Assert((self.weaponframe == frame), "Unfired rifle started cycling!");
+
+	Weapon_SwapWeapons(true);
+	Test_Assert((self.weapon == W_TRENCH && self.weapons[0].weapon_need_load), "Shotgun lost its pending pump action!");
+	self.new_anim_stop = self.fire_delay = self.reload_delay = 0;
+	W_Fire(S_RIGHT);
+	Test_Assert((self.weapons[0].weapon_magazine == magazine), "Shotgun fired before pumping!");
+	W_LoadAmmoDone();
+	Test_Assert(!self.weapons[0].weapon_need_load, "Completed pump did not clear cycling state!");
+
+	self.weapons[1].weapon_need_load = true;
+	Weapon_RemoveWeapon(0);
+	Test_Assert((self.weapons[0].weapon_id == W_KAR && self.weapons[0].weapon_need_load), "Inventory compaction lost cycling state!");
+	Weapon_GiveWeapon(W_TRENCH, 0, 0, 0);
+	Test_Assert(!self.weapons[0].weapon_need_load, "New weapon inherited cycling state!");
+
+	remove(self);
+	self = old_self;
 };

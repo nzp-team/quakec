@@ -31,6 +31,8 @@ void() PU_Init;
 void() Compat_Init;
 void() Gamemode_Init;
 void() Gamemode_Frame;
+void() Player_MapControlsStartFrame;
+void() Player_MapControlsEndFrame;
 void() SUB_Remove = {remove(self);}
 string(string current_tune) Gamemode_GetSplashTune;
 
@@ -71,6 +73,7 @@ void(string ent_name) Way_SetBrushEntNonSolid =
 float zombie_cleaned_w;
 void() StartFrame =
 {
+	Player_MapControlsStartFrame();
 	ai_movement_updates = 0;
 	framecount = framecount + 1;
 
@@ -610,10 +613,50 @@ void() EndFrame =
 	if (cheats_have_been_activated == false && cvar("sv_cheats") == 1) {
 		cheats_have_been_activated = true;
 	}
+	Player_MapControlsEndFrame();
+};
+
+// Match alternatives within each mask, then require both mode and month.
+float(entity ent, float gamemode, float month) Spawn_Allowed =
+{
+	if (ent == world)
+		return true;
+
+	if (ent.gamemode_mask != 0) {
+		// Entity masks are stored as floats, with 24 bits of integer precision.
+		if (gamemode < 0 || gamemode > 23 || gamemode != floor(gamemode))
+			return false;
+		float mode_bit = 1;
+		for (float mode_index = 0; mode_index < gamemode; mode_index++)
+			mode_bit *= 2;
+		if (!(ent.gamemode_mask & mode_bit))
+			return false;
+	} else if (ent.gamemode_limiter != 0 && ent.gamemode_limiter != gamemode) {
+		return false;
+	}
+
+	if (ent.month_mask != 0) {
+		if (month < 1 || month > 12 || month != floor(month))
+			return false;
+		float month_bit = 1;
+		for (float month_index = 1; month_index < month; month_index++)
+			month_bit *= 2;
+		if (!(ent.month_mask & month_bit))
+			return false;
+	} else if (ent.month_limiter != 0 && ent.month_limiter != month) {
+		return false;
+	}
+
+	return true;
 };
 
 void(void() spawnfunc) CheckSpawn =
 {
+	if (self != world && !Spawn_Allowed(self, cvar("sv_gamemode"), nzp_getmonthofyear())) {
+		remove(self);
+		return;
+	}
+
 	if (spawnfunc) {
 		if (cvar("developer")) {
 			dprint("CheckSpawn: running spawnfunc for ");

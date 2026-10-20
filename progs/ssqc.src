@@ -129,6 +129,7 @@ tests/test_perksacola.qc
 tests/test_game_perk.qc
 tests/test_weapons.qc
 tests/test_misc_model.qc
+tests/test_spawn_limits.qc
 tests/test_score.qc
 tests/test_ai.qc
 tests/test_power.qc
@@ -138,9 +139,13 @@ tests/test_misc.qc
 tests/test_rounds.qc
 tests/test_game_counter.qc
 tests/test_game_random.qc
+tests/test_func_button.qc
 tests/test_player.qc
+tests/test_nofalldamage.qc
 tests/test_teleporter.qc
 tests/test_useprints.qc
+tests/test_trigger_push.qc
+tests/test_player_controls.qc
 tests/test_list.qc
 tests/test_module.qc
 #endif

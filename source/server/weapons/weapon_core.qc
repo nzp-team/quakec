@@ -218,7 +218,15 @@ void() W_SprintStop =
 
 
 void W_SprintStart () {	
+	if (self.map_control_flags & PLAYER_CONTROL_FROZEN)
+		return;
 	if (self.speed_penalty_time > time || self.zoom != 0)
+		return;
+	// Require horizontal movement before sprinting can interrupt a reload.
+	if (!self.velocity_x && !self.velocity_y)
+		return;
+	makevectors(self.angles);
+	if (self.velocity * v_forward <= 0)
 		return;
 	
 	self.sprint_start_time = time;
@@ -521,7 +529,7 @@ void(float side) W_Reload =
 			// pump after reload regardless of context, so i removed a reference
 			// that would only do it if the mag was empty. tradeoff: now we're
 			// pumping 2 shells away instead of 1 if not empty. oh well.
-			self.NeedLoad = true;
+			self.weapons[0].weapon_need_load = true;
 			startframe = 14;
 			endframe = 17;
 			reloadcancelframe = 0;
@@ -555,17 +563,17 @@ void(float side) W_Reload =
 	}
 	
 	if (self.weapon != W_TRENCH) {
-		self.NeedLoad = false;
+		self.weapons[0].weapon_need_load = false;
 	}
 };
 
 void () W_LoadAmmoDone =
 {
-	self.NeedLoad = false;
+	self.weapons[0].weapon_need_load = false;
 }
 void () W_LoadAmmo =
 {
-	if (!self.NeedLoad)
+	if (!self.weapons[0].weapon_need_load)
 		return;
 	if (!self.weapons[0].weapon_magazine)
 	{
@@ -1075,7 +1083,7 @@ void(float side) W_Fire =
 	}
 
 	//Dont fire if the gun has to cycle
-	if (self.NeedLoad && (self.weapon == W_TRENCH || self.weapon == W_GUT || self.weapon == W_KAR_SCOPE || self.weapon == W_KAR || self.weapon == W_ARMAGEDDON || self.weapon == W_HEADCRACKER || self.weapon == W_SPRING || self.weapon == W_PULVERIZER))
+	if (self.weapons[0].weapon_need_load && (self.weapon == W_TRENCH || self.weapon == W_GUT || self.weapon == W_KAR_SCOPE || self.weapon == W_KAR || self.weapon == W_ARMAGEDDON || self.weapon == W_HEADCRACKER || self.weapon == W_SPRING || self.weapon == W_PULVERIZER))
 	{
 		W_LoadAmmo();
 		return;
@@ -1226,7 +1234,7 @@ void(float side) W_Fire =
 	if (self.weapon == W_GUT || self.weapon == W_KAR_SCOPE || self.weapon == W_TRENCH || self.weapon == W_KAR || self.weapon == W_ARMAGEDDON || self.weapon == W_HEADCRACKER || self.weapon == W_SPRING || self.weapon == W_PULVERIZER)
 	{
 		Set_W_Frame (startframe, endframe, delay, 0, FIRE, W_LoadAmmo, modelname, FALSE, side, false);
-		self.NeedLoad = true;
+		self.weapons[0].weapon_need_load = true;
 	} else {
 		// Set up for burst-firing 
 		float burst_count = WepDef_GetWeaponBurstCount(self.weapon);
@@ -1242,12 +1250,12 @@ void(float side) W_Fire =
 				// More burst shots remain
 				Set_W_Frame(startframe, endframe, delay, 0, FIRE, W_Fire_Burst, modelname, FALSE, side, false);
 				do_check_reload = false; // don’t auto-reload mid-burst
-				self.switch_delay = self.knife_delay = self.sprint_delay = self.grenade_delay = delay + time;
+				self.switch_delay = self.knife_delay = self.sprint_delay = self.throw_delay = delay + time;
 			} else {
 				// Final shot
 				self.weapon_burst_count = 0;
 				Set_W_Frame(startframe, endframe, delay, 0, FIRE, SUB_Null, modelname, FALSE, side, false);
-				self.switch_delay = self.knife_delay = self.sprint_delay = self.grenade_delay = delay + time;
+				self.switch_delay = self.knife_delay = self.sprint_delay = self.throw_delay = delay + time;
 			}
 		} else {
 			Set_W_Frame(startframe, endframe, delay, 0, FIRE, SUB_Null, modelname, FALSE, side, false);
@@ -1679,6 +1687,8 @@ void() Change_StanceToggle =
 
 void() dolphin_dive =		//naievil
 {    
+	if (self.map_control_flags & PLAYER_CONTROL_FROZEN)
+		return;
 	if (self.stance != 2)
 		return;
 	if ((map_compatibility_mode == MAP_COMPAT_BETA && self.view_ofs_z != VIEW_OFS_QK[2]) ||
@@ -1741,6 +1751,11 @@ void () Impulse_Functions =
 {
 	if (!self.impulse)
 		return;
+	if ((self.map_control_flags & PLAYER_CONTROL_FROZEN) && (self.impulse == 10 || self.impulse == 23
+		|| self.impulse == 30 || self.impulse == 31 || self.impulse == 32)) {
+		self.impulse = 0;
+		return;
+	}
 		
 	switch (self.impulse)
 	{		
@@ -1853,6 +1868,46 @@ float(__inout float blink_delay, float powerup_endtime) WeaponCore_PowerUpBlink 
 	return false;
 };
 
+// Handle a completed landing without changing sounds or PhD Flopper behavior.
+// Fall tracking must reset even when a landing volume suppresses damage.
+void() Player_Land =
+{
+	float dist = fabs(self.oldz - self.origin_z);
+
+	if (self.dive) {
+		if (self.perks & P_FLOP && dist >= 64) {
+			Sound_PlaySound(self, "sounds/weapons/grenade/explode.wav", SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_PLAYALWAYS);
+			DamgageExplode (self, self, 5000, 1000, 300);
+
+#ifdef FTE
+
+			te_customflash(self.origin, 300, 300, '1 0.6 0.1');
+
+#endif // FTE
+
+			CallExplosion(self.origin);
+			CallExplosion(self.origin);
+			CallExplosion(self.origin);
+		}
+		PAnim_Flop();
+		self.dive = 0;
+	}
+
+	float height = dist + 64;
+	if (height > 176 && !(self.perks & P_FLOP) && !Player_InNoFallDamageZone(self)) {
+		float over = height - 176;
+		float damage = over * 0.68;
+		if (damage > 98) damage = 98;
+
+		DamageHandler (self, other, damage, DMG_TYPE_FLOPPER);
+
+		if (self.health <= 5)
+			GiveAchievement(7, self);
+	}
+
+	self.oldz = self.origin_z;
+};
+
 void() CheckPlayer = 
 {
 	// Update Power-Up blinking
@@ -1879,7 +1934,7 @@ void() CheckPlayer =
 		// Another sprinting caveat -- if we are moving a considerabe distance
 		// horizontally, much more than reasonable, it is very obviously impossible
 		// to actually sprint.
-		else if (fabs(self.velocity * v_right) >= fabs(self.velocity * v_forward) * 0.75)
+		else if (fabs(self.velocity * v_right) >= (self.velocity * v_forward) * 0.75)
 			W_SprintStop();
 	}
 
@@ -1910,42 +1965,8 @@ void() CheckPlayer =
 		}
 	}
 	
-	if (!self.button2 && self.flags & FL_ONGROUND) {
-		float dist = fabs(self.oldz - self.origin_z);
-
-		if (self.dive) {
-			if (self.perks & P_FLOP && dist >= 64) {
-				Sound_PlaySound(self, "sounds/weapons/grenade/explode.wav", SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_PLAYALWAYS);
-				DamgageExplode (self, self, 5000, 1000, 300);
-
-#ifdef FTE
-
-				te_customflash(self.origin, 300, 300, '1 0.6 0.1');
-
-#endif // FTE
-
-				CallExplosion(self.origin);
-				CallExplosion(self.origin);
-				CallExplosion(self.origin);
-			}
-			PAnim_Flop();
-			self.dive = 0;
-		}
-
-        float height = dist + 64;
-		if (height > 176 && !(self.perks & P_FLOP)) {
-			float over = height - 176;
-            float damage = over * 0.68;
-			if (damage > 98) damage = 98;
-			
-			DamageHandler (self, other, damage, DMG_TYPE_FLOPPER); 
-
-			if (self.health <= 5)
-				GiveAchievement(7, self);	
-		}
-		
-		self.oldz = self.origin_z;		
-	}
+	if (!self.button2 && self.flags & FL_ONGROUND)
+		Player_Land();
 }
 
 //
@@ -2316,7 +2337,8 @@ void() WeaponCore_ClientLogic =
 
 	// Switch Button Pressed
 	if (self.button4) {
-		W_PutOut();
+		if (!(self.semi_actions & SEMIACTION_WEAPONSWAP))
+			W_PutOut();
 	} else {
 		// Allow Switch to be pressed again.
 		self.semi_actions &= ~SEMIACTION_WEAPONSWAP;

@@ -162,6 +162,11 @@ void() Gamemode_WW_SpawnTools =
     entity upgr_sparkle = spawn();
     entity perk_sparkle = spawn();
 
+    nuke_drop.solid = SOLID_TRIGGER;
+    ammo_drop.solid = SOLID_TRIGGER;
+    upgr_drop.solid = SOLID_TRIGGER;
+    perk_drop.solid = SOLID_TRIGGER;
+
     setorigin(nuke_drop, player_5_spawn.origin + '0 0 22');
     setmodel(nuke_drop, "models/pu/nuke!.mdl");
     nuke_sparkle.effects = EF_FULLBRIGHT;
@@ -203,13 +208,9 @@ void() Gamemode_WW_SpawnTools =
     perk_sparkle.nextthink = time + 0.15;
 
     nuke_drop.effects = EF_FULLBRIGHT;
-    nuke_drop.solid = SOLID_TRIGGER;
     ammo_drop.effects = EF_FULLBRIGHT;
-    ammo_drop.solid = SOLID_TRIGGER;
     upgr_drop.effects = EF_FULLBRIGHT;
-    upgr_drop.solid = SOLID_TRIGGER;
     perk_drop.effects = EF_FULLBRIGHT;
-    perk_drop.solid = SOLID_TRIGGER;
 
     nuke_drop.touch = Gamemode_WW_NukeDrop;
     ammo_drop.touch = Gamemode_WW_AmmoDrop;

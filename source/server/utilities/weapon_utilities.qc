@@ -139,7 +139,7 @@ float(float weapon) Weapon_IsSemiAutomatic =
 	float firetype = GetFiretype(weapon);
 
 	// Valid firetypes
-	if (firetype == FIRETYPE_SEMIAUTO || firetype == FIRETYPE_GRENADE ||
+	if (WepDef_GetWeaponBurstCount(weapon) > 1 || firetype == FIRETYPE_SEMIAUTO || firetype == FIRETYPE_GRENADE ||
 	firetype == FIRETYPE_TESLA)
 		return true;
 
@@ -203,7 +203,7 @@ void (float animation_type, void(optional float t) end_function, float playback_
             break;
     }
 
-	self.switch_delay = self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + (duration - 0.1);
+	self.switch_delay = self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = self.knife_delay = time + duration;
 	self.weapon2model = GetWeapon2Model(self.weapon, self.has_bowie_knife);
 
     W_AimOut();
@@ -224,6 +224,9 @@ void Weapon_SwapWeapons(float play_animation)
  	// Un-zoom camera
  	self.zoom = false;
 
+	self.weapon_autoreload_pending = false;
+	self.weapon2_autoreload_pending = false;
+
 	// Fix fire rate exploit
 	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = true;
 
@@ -240,6 +243,7 @@ void Weapon_SwapWeapons(float play_animation)
 			weapon_swap_storage[i].weapon_reserve = self.weapons[i].weapon_reserve;
 			weapon_swap_storage[i].weapon_skin = self.weapons[i].weapon_skin;
 			weapon_swap_storage[i].weapon_tier = self.weapons[i].weapon_tier;
+			weapon_swap_storage[i].weapon_need_load = self.weapons[i].weapon_need_load;
 			weapon_swap_storage[i].is_mulekick_weapon = self.weapons[i].is_mulekick_weapon;
 		}
 	}
@@ -253,6 +257,7 @@ void Weapon_SwapWeapons(float play_animation)
 				self.weapons[j + 1].weapon_reserve = weapon_swap_storage[j].weapon_reserve;
 				self.weapons[j + 1].weapon_skin = weapon_swap_storage[j].weapon_skin;
 				self.weapons[j + 1].weapon_tier = weapon_swap_storage[j].weapon_tier;
+				self.weapons[j + 1].weapon_need_load = weapon_swap_storage[j].weapon_need_load;
 				self.weapons[j + 1].is_mulekick_weapon = weapon_swap_storage[j].is_mulekick_weapon;
 			} else {
 				self.weapons[0].weapon_id = weapon_swap_storage[j].weapon_id;
@@ -261,6 +266,7 @@ void Weapon_SwapWeapons(float play_animation)
 				self.weapons[0].weapon_reserve = weapon_swap_storage[j].weapon_reserve;
 				self.weapons[0].weapon_skin = weapon_swap_storage[j].weapon_skin;
 				self.weapons[0].weapon_tier = weapon_swap_storage[j].weapon_tier;
+				self.weapons[0].weapon_need_load = weapon_swap_storage[j].weapon_need_load;
 				self.weapons[0].is_mulekick_weapon = weapon_swap_storage[j].is_mulekick_weapon;
 		}
 	}
@@ -301,6 +307,8 @@ void Weapon_SetActiveInSlot(float slot, float play_first_raise)
 
 	// Properly update the weapon ID
 	self.weapon = self.weapons[0].weapon_id;
+	self.weapon_autoreload_pending = false;
+	self.weapon2_autoreload_pending = false;
 
 	if (GetFrame(self.weapon, FIRST_TAKE_START) != 0 && play_first_raise == true)
 		Weapon_PlayViewModelAnimation(ANIM_FIRST_TAKE, ReturnWeaponModel, 0);
@@ -351,6 +359,7 @@ void Weapon_AssignWeapon(float weapon_slot, float weapon_id, float weapon_mag, f
 
 	// Fill the stats as necessary
 	self.weapons[weapon_slot].weapon_id = weapon_id;
+	self.weapons[weapon_slot].weapon_need_load = false;
 			
 	if (weapon_mag > 0) {
 		self.weapons[weapon_slot].weapon_magazine = weapon_mag;
@@ -438,6 +447,7 @@ void Weapon_FixUpList()
 			weapon_fixup_storage[i].weapon_reserve = self.weapons[i].weapon_reserve;
 			weapon_fixup_storage[i].weapon_skin = self.weapons[i].weapon_skin;
 			weapon_fixup_storage[i].weapon_tier = self.weapons[i].weapon_tier;
+			weapon_fixup_storage[i].weapon_need_load = self.weapons[i].weapon_need_load;
 			weapon_fixup_storage[i].is_mulekick_weapon = self.weapons[i].is_mulekick_weapon;
 		}
 	}
@@ -450,6 +460,7 @@ void Weapon_FixUpList()
 		self.weapons[i].weapon_reserve = 0;
 		self.weapons[i].weapon_skin = 0;
 		self.weapons[i].weapon_tier = -1;
+		self.weapons[i].weapon_need_load = false;
 		self.weapons[i].is_mulekick_weapon = false;
 	}
 
@@ -462,6 +473,7 @@ void Weapon_FixUpList()
 			self.weapons[weapon_index].weapon_reserve = weapon_fixup_storage[i].weapon_reserve;
 			self.weapons[weapon_index].weapon_skin = weapon_fixup_storage[i].weapon_skin;
 			self.weapons[weapon_index].weapon_tier = weapon_fixup_storage[i].weapon_tier;
+			self.weapons[weapon_index].weapon_need_load = weapon_fixup_storage[i].weapon_need_load;
 			self.weapons[weapon_index].is_mulekick_weapon = weapon_fixup_storage[i].is_mulekick_weapon;
 			weapon_index++;
 		}

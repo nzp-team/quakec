@@ -64,6 +64,52 @@ void() func_illusionary =
 };
 
 // =================================
+// func_nofalldamage
+// Passive, axis-aligned landing volumes. Keep a dedicated list so ordinary
+// landings do not search every map entity. No touch callbacks are needed.
+// =================================
+
+entity nofall_volumes;
+.entity nofall_next;
+.vector nofall_mins;
+.vector nofall_maxs;
+
+float(entity player) Player_InNoFallDamageZone =
+{
+	vector feet = player.origin;
+	feet_z += player.mins_z;
+
+	for (entity volume = nofall_volumes; volume != world; volume = volume.nofall_next) {
+		if (volume.entity_removed)
+			continue;
+
+		if (feet_x >= volume.nofall_mins_x && feet_x <= volume.nofall_maxs_x
+		&& feet_y >= volume.nofall_mins_y && feet_y <= volume.nofall_maxs_y
+		&& feet_z >= volume.nofall_mins_z && feet_z <= volume.nofall_maxs_z)
+			return true;
+	}
+
+	return false;
+};
+
+void() func_nofalldamage =
+{
+	self.angles = '0 0 0';
+	self.movetype = MOVETYPE_NONE;
+	self.solid = SOLID_NOT;
+	setmodel(self, self.model);
+
+	// Store unpadded bounds before hiding the brush model.
+	self.nofall_mins = self.origin + self.mins;
+	self.nofall_maxs = self.origin + self.maxs;
+	self.modelindex = 0;
+	self.model = "";
+
+	self.nofall_next = nofall_volumes;
+	nofall_volumes = self;
+};
+
+// =================================
 // func_detail
 // =================================
 

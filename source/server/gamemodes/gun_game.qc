@@ -54,6 +54,10 @@ float(float weapon_id, float current_index) Gamemode_GunGame_WeaponIDIsValid =
     if (weapon_id == W_M2)
         return false;
 
+    // Only allow bullet weapons when headshots are required.
+    if (cvar("sv_headshotonly") == 1 && !Weapon_FiresTraceshot(weapon_id))
+        return false;
+
     // Prevent duplicates if the weapon appeared in the previous 2 slots
     float prev1 = current_index - 1;
     float prev2 = current_index - 2;
@@ -228,8 +232,8 @@ void(entity advantagee, float status_update) Gamemode_GunGame_Announce =
 
 void() Gamemode_GunGame_GetUp =
 {
-    // No need to penalize on the first weapon.
-    if (self.gungame_weapon_idx == 0)
+    // No need to penalize on the first weapon or after winning.
+    if (self.gungame_weapon_idx == 0 || self.gungame_weapon_idx >= GUNGAME_MAX_WEAPONS)
         return;
 
     self.gungame_weapon_idx--;
@@ -287,16 +291,17 @@ void() Gamemode_GunGame_SpawnNuke =
     entity player_1_spawn = find(world, classname, "info_player_1_spawn");
     entity gungame_nukespot = find(world, classname, "info_gungame_nukespot");
 
+    nuke.solid = SOLID_TRIGGER;
+
     if (gungame_nukespot == world)
         setorigin(nuke, player_1_spawn.origin + '0 0 22');
     else
         setorigin(nuke, gungame_nukespot.origin + '0 0 22');
     
     setorigin(nuke_sparkle, nuke.origin);
-    setsize(nuke, VEC_HULL_MIN, VEC_HULL_MAX);
     setmodel(nuke, "models/pu/nuke!.mdl");
+    setsize(nuke, VEC_HULL_MIN, VEC_HULL_MAX);
     setmodel(nuke_sparkle, "models/sprites/lightning.spr");
-    nuke.solid = SOLID_TRIGGER;
     nuke.effects = EF_FULLBRIGHT;
 	nuke.owner = self;
 	nuke.useprint_index_1 = gungame_useprint_nuke;

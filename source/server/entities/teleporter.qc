@@ -113,7 +113,7 @@ void() teleport_entities_back =
             player.zoom = 0;
             player.movetype = MOVETYPE_WALK;
 			player.oldz = player.origin_z;
-			player.flags = player.flags & FL_ONGROUND;
+			player.flags = player.flags & ~FL_ONGROUND;
 			player.velocity = '0 0 0';
 
             if (self.mode == 0)
@@ -154,7 +154,7 @@ void(entity who) teleport_entity =
 	who.speed_penalty_time = time + 2;
     who.zoom = 0;
 	who.movetype = MOVETYPE_WALK;
-    who.flags = who.flags & FL_ONGROUND;
+    who.flags = who.flags & ~FL_ONGROUND;
 	who.velocity = '0 0 0';
 }
 

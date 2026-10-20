@@ -728,7 +728,7 @@ void(entity inflictor, entity attacker, float damage2, float mindamage, float ra
 			else if (inflictor.classname == "player")
 				damage_style = DMG_TYPE_FLOPPER;
 		}
-		else if (ent.classname == "func_button"){
+		else if (ent.classname == "func_button" && ent.health > 0){
 			float do_not_attack = false;
 
 			switch(inflictor.classname){

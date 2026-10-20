@@ -198,8 +198,6 @@ void() trigger_song = { remove(self); }
 .vector	centeroffset;
 .float	count;						// for counting triggers
 .float	cnt; 						// misc flag
-.float 	gamemode_limiter;
-.float 	month_limiter;
 
 void() misc_model_use = 
 {
@@ -263,21 +261,6 @@ void() misc_model_think =
 
 void() misc_model = 
 {
-	// NZ:P Edit -- Allow only spawning for specific modes or
-	// months of the year.
-	if (self.gamemode_limiter != 0) {
-		if (self.gamemode_limiter != cvar("sv_gamemode")) {
-			return;
-		}
-	}
-
-	if (self.month_limiter != 0) {
-#ifdef FTE
-		if (nzp_getmonthofyear() != self.month_limiter)
-#endif // FTE
-		return;
-	}
-
 	// NZ:P Edit -- We use .model instead of .mdl, but keep
 	// compatibility with progs_dump's .mdl
 	if (self.mdl != "")
@@ -398,19 +381,74 @@ void() place_model =
 };
 
 //
+// game_freezeplayer()
+// Freezes the activating player. Spawnflag 1 also locks their view.
+//
+#define SPAWNFLAG_FREEZEPLAYER_LOCKLOOK	1
+void() game_freezeplayer_use =
+{
+	if (!Player_CanUseMapControls(activator))
+		return;
+
+	float frozen = true;
+	if (global_triggerstate == TRIGGERSTATE_OFF)
+		frozen = false;
+	else if (global_triggerstate == TRIGGERSTATE_TOGGLE)
+		frozen = !(activator.map_control_flags & PLAYER_CONTROL_FROZEN);
+
+	if (frozen) {
+		if (self.spawnflags & SPAWNFLAG_FREEZEPLAYER_LOCKLOOK) {
+			if (!(activator.map_control_flags & PLAYER_CONTROL_LOCKLOOK))
+				activator.map_lockangles = activator.v_angle;
+			activator.map_control_flags |= PLAYER_CONTROL_LOCKLOOK;
+		} else {
+			activator.map_control_flags &= ~PLAYER_CONTROL_LOCKLOOK;
+		}
+		activator.map_control_flags |= PLAYER_CONTROL_FROZEN;
+	} else {
+		Player_RestoreMapMovement(activator);
+		activator.map_control_flags &= ~(PLAYER_CONTROL_FROZEN | PLAYER_CONTROL_LOCKLOOK);
+		activator.map_lockangles = '0 0 0';
+	}
+};
+
+void() game_freezeplayer =
+{
+	self.use = game_freezeplayer_use;
+};
+
+//
+// game_togglehud()
+// Sets cinematic HUD mode for the activating player.
+//
+void() game_togglehud_use =
+{
+	if (!Player_CanUseMapControls(activator))
+		return;
+
+	float hidden = true;
+	if (global_triggerstate == TRIGGERSTATE_OFF)
+		hidden = false;
+	else if (global_triggerstate == TRIGGERSTATE_TOGGLE)
+		hidden = !(activator.map_control_flags & PLAYER_CONTROL_HIDEHUD);
+
+	Player_SetMapHUD(activator, hidden);
+};
+
+void() game_togglehud =
+{
+	self.use = game_togglehud_use;
+};
+
+//
 // game_counter()
 // Quick and dirty game_counter implementation, referenced
 // from TWHL docs (https://twhl.info/index.php/wiki/page/game_counter)
 //
 #define SPAWNFLAG_COUNTER_REMOVEONFIRE 		1
 #define SPAWNFLAG_COUNTER_RESETONFIRE 		2
-void() game_counter_increment =
+void() game_counter_check =
 {
-	if (global_triggerstate == TRIGGERSTATE_OFF)
-		self.frags--;
-	else
-		self.frags++;
-
 	if (self.frags == self.health) {
 		SUB_UseTargets();
 
@@ -422,6 +460,16 @@ void() game_counter_increment =
 	}
 }
 
+void() game_counter_increment =
+{
+	if (global_triggerstate == TRIGGERSTATE_OFF)
+		self.frags--;
+	else
+		self.frags++;
+
+	game_counter_check();
+}
+
 void() game_counter =
 {
 	// TODO: master checking..
@@ -431,6 +479,37 @@ void() game_counter =
 
 	// Every time its triggered, increment.
 	self.use = game_counter_increment;
+}
+
+//
+// game_counter_set()
+// Sets targeted game_counter entities to the value in frags.
+//
+#define SPAWNFLAG_COUNTERSET_REMOVEONFIRE	1
+void() game_counter_set_use =
+{
+	entity counter = world;
+	entity old_self = self;
+
+	if (self.target != "") {
+		while ((counter = find(counter, targetname, old_self.target))) {
+			if (counter.classname != "game_counter")
+				continue;
+
+			self = counter;
+			self.frags = old_self.frags;
+			game_counter_check();
+			self = old_self;
+		}
+	}
+
+	if (self.spawnflags & SPAWNFLAG_COUNTERSET_REMOVEONFIRE)
+		remove(self);
+}
+
+void() game_counter_set =
+{
+	self.use = game_counter_set_use;
 }
 
 //

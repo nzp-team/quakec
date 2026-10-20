@@ -32,7 +32,6 @@ void() trigger_secret           = {remove(self);};
 void() trigger_setskill         = {remove(self);};
 void() trigger_monsterjump      = {remove(self);};
 void() trigger_onlyregistered   = {remove(self);};
-void() trigger_push             = {remove(self);};
 // Player Starts
 void() info_player_start2       = {};
 void() info_player_deathmatch   = {};
