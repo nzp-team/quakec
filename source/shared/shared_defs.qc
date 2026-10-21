@@ -394,6 +394,8 @@ float 	map_compatibility_mode;
 
 float in_endgame_sequence;
 
+.float is_using_mouse;
+
 #ifdef FTE
 .float is_in_menu;
 .float is_using_gamepad;
