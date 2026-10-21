@@ -2100,8 +2100,8 @@ void() WeaponCore_FireButtonPressed =
 
 #else
 
-	// Always fire right-side elsewhere.
-	W_Fire(S_RIGHT);
+	// PC mouse clicks fire the matching side for akimbo weapons.
+	(self.is_using_mouse && IsDualWeapon(self.weapon)) ? W_Fire(S_LEFT) : W_Fire(S_RIGHT);
 
 #endif // FTE
 };
@@ -2120,8 +2120,7 @@ void() WeaponCore_FireButtonReleased =
 
 #else
 
-	// Always allow right-side elsewhere.
-	self.semi_actions &= ~SEMIACTION_FIRE_RIGHT;
+	(self.is_using_mouse && IsDualWeapon(self.weapon)) ? self.semi_actions &= ~SEMIACTION_FIRE_LEFT : self.semi_actions &= ~SEMIACTION_FIRE_RIGHT;
 
 #endif // FTE
 
@@ -2155,7 +2154,7 @@ void() WeaponCore_AimButtonPressed =
 
 #else
 
-		W_Fire(S_LEFT);
+		(self.is_using_mouse) ? W_Fire(S_RIGHT) : W_Fire(S_LEFT);
 
 #endif // FTE
 
@@ -2188,7 +2187,7 @@ void() WeaponCore_AimButtonReleased =
 
 #else
 
-		self.semi_actions &= ~SEMIACTION_FIRE_LEFT;
+		(self.is_using_mouse) ? self.semi_actions &= ~SEMIACTION_FIRE_RIGHT : self.semi_actions &= ~SEMIACTION_FIRE_LEFT;
 
 #endif // FTE
 	}
