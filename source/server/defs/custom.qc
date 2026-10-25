@@ -633,7 +633,7 @@ entity active_way;
 
 
 //pathfinds
-#define MAX_WAYPOINTS 256 //max waypoints
+#define MAX_WAYPOINTS 512 //max waypoints
 void LoadWaypointData();
 typedef struct
 {
