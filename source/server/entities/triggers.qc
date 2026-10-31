@@ -550,7 +550,11 @@ void() trigger_awardpoints =
 #define PUSH_SPAWNFLAG_NONPLAYER		4
 #define PUSH_SPAWNFLAG_STARTOFF		8
 
+.entity push_contacts;
+.entity push_contact_next;
+
 void() push_touch;
+void() push_contact_think;
 
 float(entity ent) push_affects =
 {
@@ -578,30 +582,67 @@ float(entity ent) push_contains =
 		ent_lower_z < upper_z && ent_upper_z > lower_z;
 };
 
+void(entity contact) push_contact_remove =
+{
+	entity ent = contact.enemy;
+	entity previous = world;
+	entity current = ent.push_contacts;
+	while (current != world) {
+		if (current == contact) {
+			if (previous == world)
+				ent.push_contacts = current.push_contact_next;
+			else
+				previous.push_contact_next = current.push_contact_next;
+			break;
+		}
+		previous = current;
+		current = current.push_contact_next;
+	}
+	remove(contact);
+};
+
 void() Player_ApplyPushVelocity =
 {
 	entity player = self;
-	entity field = find(world, classname, "trigger_push");
-	while (field != world) {
-		self = field;
+	entity contact = player.push_contacts;
+	while (contact != world) {
+		entity next = contact.push_contact_next;
+		self = contact.owner;
 		if (!self.entity_removed && self.touch == push_touch &&
 			!(self.spawnflags & PUSH_SPAWNFLAG_ONCE) && push_affects(player) && push_contains(player))
 			player.velocity *= self.velocity_retention / 100;
-		field = find(field, classname, "trigger_push");
+		contact = next;
 	}
 	self = player;
 };
 
 void() push_touch =
 {
-	if (!(self.spawnflags & PUSH_SPAWNFLAG_ONCE) || !push_affects(other))
+	if (self.entity_removed || self.touch != push_touch || !push_affects(other))
 		return;
 
-	other.velocity = other.velocity * (self.velocity_retention / 100) + self.movedir * self.speed;
-	if (other.velocity_z > 0)
-		other.flags &= ~FL_ONGROUND;
+	if (self.spawnflags & PUSH_SPAWNFLAG_ONCE) {
+		other.velocity = other.velocity * (self.velocity_retention / 100) + self.movedir * self.speed;
+		if (other.velocity_z > 0)
+			other.flags &= ~FL_ONGROUND;
+		Ent_FakeRemove(self);
+		return;
+	}
 
-	Ent_FakeRemove(self);
+	entity contact = other.push_contacts;
+	while (contact != world) {
+		if (contact.owner == self)
+			return;
+		contact = contact.push_contact_next;
+	}
+	contact = spawn();
+	contact.classname = "push_contact";
+	contact.owner = self;
+	contact.enemy = other;
+	contact.push_contact_next = other.push_contacts;
+	other.push_contacts = contact;
+	contact.think = push_contact_think;
+	contact.nextthink = time + 0.001;
 };
 
 void(entity ent, vector displacement) push_move =
@@ -648,33 +689,38 @@ void(entity ent, vector displacement) push_move =
 	}
 };
 
-void() push_think =
+void() push_contact_think =
 {
-	if (self.entity_removed || self.touch != push_touch)
+	entity contact = self;
+	entity ent = contact.enemy;
+	self = contact.owner;
+	if (self.entity_removed || self.touch != push_touch || (self.spawnflags & PUSH_SPAWNFLAG_ONCE) ||
+		!push_affects(ent) || !push_contains(ent)) {
+		push_contact_remove(contact);
+		self = contact;
 		return;
-
-	entity ent = nextent(world);
-	while (ent != world) {
-		if (push_affects(ent) && push_contains(ent)) {
-			if (ent.classname != "player")
-				ent.velocity *= self.velocity_retention / 100;
-			push_move(ent, self.movedir * self.speed * frametime);
-		}
-		ent = nextent(ent);
 	}
-	self.nextthink = time + 0.001;
+
+	if (ent.classname != "player")
+		ent.velocity *= self.velocity_retention / 100;
+	vector displacement = self.movedir * self.speed * frametime;
+	if (displacement != '0 0 0')
+		push_move(ent, displacement);
+	contact.nextthink = time + 0.001;
+	self = contact;
 };
 
 void() push_use =
 {
+	float enabled = self.touch == push_touch;
 	if (global_triggerstate == TRIGGERSTATE_OFF ||
 		(global_triggerstate == TRIGGERSTATE_TOGGLE && self.touch == push_touch)) {
 		self.touch = SUB_Null;
 		self.nextthink = -1;
 	} else {
 		self.touch = push_touch;
-		if (!(self.spawnflags & PUSH_SPAWNFLAG_ONCE))
-			self.nextthink = time + 0.001;
+		if (!enabled && !(self.spawnflags & PUSH_SPAWNFLAG_ONCE))
+			force_retouch = 2;
 	}
 };
 
@@ -684,14 +730,17 @@ void() trigger_push =
 	InitTrigger();
 	if (!self.speed)
 		self.speed = 100;
+	if (!self.velocity_retention)
+		self.velocity_retention = 100;
 	self.velocity_retention = clamp(self.velocity_retention, 0, 100);
 	self.touch = push_touch;
 	self.use = push_use;
-	self.think = push_think;
+	self.think = SUB_Null;
+	self.nextthink = -1;
 	if (self.spawnflags & PUSH_SPAWNFLAG_STARTOFF)
 		self.touch = SUB_Null;
 	else if (!(self.spawnflags & PUSH_SPAWNFLAG_ONCE))
-		self.nextthink = time + 0.001;
+		force_retouch = 2;
 };
 
 // NZ:P START -- Spawnflags for not hurting clients and not hurting AI
