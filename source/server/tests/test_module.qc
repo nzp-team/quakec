@@ -84,7 +84,10 @@ void(void() test_func, string test_name) Test_Run =
 	print(sprintf("[INFO]: Running test [%s]..", test_name));
 	test_func();
 
-	if (test_skipped_notify == true) {
+	if (test_deferred) {
+		print("DEFERRED!\n");
+		test_deferred = false;
+	} else if (test_skipped_notify == true) {
 		print("SKIP!\n");
 		total_tests_skipped++;
 		print(sprintf("%s", skipped_message_buffer));
@@ -109,12 +112,24 @@ void(void() test_func, string test_name) Test_Run =
 
 void() Test_PrintSummary =
 {
+	if (test_pending) return;
 	print("====================== TEST SUMMARY ======================\n");
 	print(sprintf("* Passed: %d\n* Failed: %d\n* Skipped: %d\n* Total Ran: %d\n", total_tests_passed, total_tests_failed, total_tests_skipped, total_tests_ran));
 	print(sprintf("* %d%% Passing Grade\n", (total_tests_passed/total_tests_ran) * 100));
 	print(sprintf("* %fs Total Runtime\n", tests_endtime));
 	print("==================== END TEST SUMMARY ====================\n");
 	localcmd("quit\n");
+};
+
+void() AttachmentTest_CompleteDeferred =
+{
+	print(sprintf("[INFO]: Completing test [%s]..", self.message));
+	if (test_failed_an_assert) { total_tests_failed++; print(sprintf("FAIL!\n%s", failed_message_buffer)); }
+	else { total_tests_passed++; print("PASS!\n"); }
+	test_failed_an_assert = false; failed_message_buffer = ""; test_pending--;
+	if (!test_pending && next_test == qc_unit_tests.length) {
+		tests_endtime = gettime() - tests_starttime; Test_PrintSummary();
+	}
 };
 
 void() Test_RunScheduled =
