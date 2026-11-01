@@ -299,6 +299,10 @@ float   (entity zombie)                                                         
 vector  (entity zombie, vector anchor, float distance)                                          nzp_pathfind_follow = #521;
 vector  (entity zombie, vector position)                                                        nzp_ai_land         = #522;
 vector  (entity target)                                                                         nzp_pathfind_target_origin = #523;
+float   (entity child, entity parent, vector offset, vector min, vector max, 
+        float flags, float order)                                                               collision_attach    = #524;
+void    (entity child)                                                                          collision_detach    = #525;
+void    ()                                                                                      collision_update    = #526;
 float   (optional float timetype)                                                               gettime             = #519;
 float   (string text)                                                                           json_parse          = #600;
 float   (string path)                                                                           json_parse_file     = #601;
@@ -519,3 +523,6 @@ string  (string fmt, ...)                                                       
 
 #define     SOUNDFLAG_FOLLOW            64
 #define     SOUNDFLAG_NODISTANCE        128
+
+#define         COLLISION_ATTACH_FRAME_IF_DEAD          1
+#define         COLLISION_ATTACH_PASSIVE                2

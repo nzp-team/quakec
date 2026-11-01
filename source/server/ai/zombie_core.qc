@@ -97,13 +97,31 @@ void(__inout vector what, float howmuch) vector_scale_hack =
 	what_z *= howmuch;
 }
 
+void(entity zombie) Zombie_UpdateCollisionAttachments =
+{
+	if (!zombie.currentHitBoxSetup) {
+		if (zombie.head) collision_detach(zombie.head);
+		if (zombie.larm) collision_detach(zombie.larm);
+		if (zombie.rarm) collision_detach(zombie.rarm);
+		return;
+	}
+	if (zombie.head)
+		collision_attach(zombie.head, zombie, zombie.head.view_ofs, zombie.head.bbmins, zombie.head.bbmaxs, COLLISION_ATTACH_FRAME_IF_DEAD | COLLISION_ATTACH_PASSIVE, 0);
+	if (zombie.larm)
+		collision_attach(zombie.larm, zombie, zombie.larm.view_ofs, zombie.larm.bbmins, zombie.larm.bbmaxs, COLLISION_ATTACH_FRAME_IF_DEAD | COLLISION_ATTACH_PASSIVE, 1);
+	if (zombie.rarm)
+		collision_attach(zombie.rarm, zombie, zombie.rarm.view_ofs, zombie.rarm.bbmins, zombie.rarm.bbmaxs, COLLISION_ATTACH_FRAME_IF_DEAD | COLLISION_ATTACH_PASSIVE, 2);
+};
+
 void(float which) SetZombieHitBox =
 {
 
 	//Zombie's bbox is constant across all hitbox setups, so we don't update it.
 	
-	if(self.currentHitBoxSetup == which)
+	if(self.currentHitBoxSetup == which) {
+		if (which == EMPTY_BBOX) Zombie_UpdateCollisionAttachments(self);
 		return;
+	}
 
 	//which = IDLE_BBOX;
 	
@@ -235,6 +253,7 @@ void(float which) SetZombieHitBox =
 		vector_scale_hack(self.rarm.bbmaxs, self.rarm.scale);
 		vector_scale_hack(self.rarm.view_ofs, self.rarm.scale);
 	}
+	Zombie_UpdateCollisionAttachments(self);
 };
 
 //
@@ -1630,7 +1649,7 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.head.classname = "in_ai_zombie_head";
 	zSpawn.head.owner = zSpawn;
 	zSpawn.head.solid = SOLID_NOT;
-	zSpawn.head.movetype = MOVETYPE_STEP;
+	zSpawn.head.movetype = MOVETYPE_NONE;
 	zSpawn.head.takedamage = DAMAGE_NO;
 
 #ifndef FTE
@@ -1643,7 +1662,7 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.larm.classname = "in_ai_zombie_larm";
 	zSpawn.larm.owner = zSpawn;
 	zSpawn.larm.solid = SOLID_NOT;
-	zSpawn.larm.movetype = MOVETYPE_STEP;
+	zSpawn.larm.movetype = MOVETYPE_NONE;
 	zSpawn.larm.takedamage = DAMAGE_NO;
 
 #ifndef FTE
@@ -1656,7 +1675,7 @@ void(float i) spawnSingleZombEnt =
 	zSpawn.rarm.classname = "in_ai_zombie_rarm";
 	zSpawn.rarm.owner = zSpawn;
 	zSpawn.rarm.solid = SOLID_NOT;
-	zSpawn.rarm.movetype = MOVETYPE_STEP;
+	zSpawn.rarm.movetype = MOVETYPE_NONE;
 	zSpawn.rarm.takedamage = DAMAGE_NO;
 
 #ifndef FTE
@@ -1694,6 +1713,7 @@ void(entity szombie)  SetUpHitBoxes =
 	self = szombie;
 	SetZombieHitBox(BASE_BBOX);
 	self = oldself;
+	Zombie_UpdateCollisionAttachments(szombie);
 };
 
 float() Zombie_BasicWalkChance =
