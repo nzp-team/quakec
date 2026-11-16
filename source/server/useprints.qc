@@ -28,6 +28,7 @@
 string useprint_strings[256];
 vector useprint_colors[256];
 float useprint_count;
+float useprint_grenade_tossback;
 float useprint_registration_locked;
 
 float(string value, vector color) Useprint_Register =

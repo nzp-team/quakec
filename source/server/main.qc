@@ -325,6 +325,7 @@ void() worldspawn =
 	useprint_count = 1;
 	useprint_registration_locked = false;
 	useprint_revive = Useprint_Register("Hold %b to Revive Player", '1 1 1');
+	useprint_grenade_tossback = Useprint_Register("Hold %g to Throw Back", '1 1 1');
 
 	// Define all of our Light Styles
 	LS_Setup();

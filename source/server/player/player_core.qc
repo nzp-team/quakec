@@ -780,6 +780,8 @@ void() PlayerPreThink =
 	}
 	if (self.is_spectator)
 	{
+		self.betty_state = 0;
+		self.equipment_state = 16 + self.pri_grenade_state;
 		self.movetype = MOVETYPE_NOCLIP;
 		return;
 	}
@@ -1206,6 +1208,10 @@ void() PlayerSpawn =
 	else
 		self.primary_grenades = 0; 		// start off without grenades
 		
+	self.betty_state = 0;
+	self.tossback_grenade = world;
+	self.grenade_returning = false;
+	self.equipment_attack_latched = 0;
 	self.pri_grenade_state = 0; 		// defines that frag grenades are for player first, not betty
 	self.secondary_grenades = -1;		// shows that we both don't have betties AND shouldn't draw the image onscreen
 

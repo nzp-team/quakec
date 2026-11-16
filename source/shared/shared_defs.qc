@@ -713,6 +713,7 @@ struct game_modifier
 		{
 			struct gm_in_eq_gfx
 			{
+				string dpad;
 				string grenade;
 				string bouncing_betty;
 			};

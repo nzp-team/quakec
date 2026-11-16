@@ -24,158 +24,174 @@
 		Boston, MA  02111-1307, USA
 */
 void() W_PlayTakeOut;
+void() W_SprintStop;
+void() W_AimOut;
+void() Betty_Ready;
 
-//
-// Betty_Rise()
-// Rise from the ground and explode.
-//
+#define BETTY_PIN_PULL_START 4
+#define BETTY_DROP_START 13
+#define BETTY_DROP_END 18
+#define BETTY_DROP_DURATION 0.3
+
+void() Betty_Explode =
+{
+	Sound_PlaySound(self, "sounds/weapons/grenade/explode.wav", SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_ALLOWSKIP);
+	DamgageExplode(self, self.owner, 12000, 11000, 128);
+	CallExplosion(self.origin);
+	SUB_Remove();
+};
+
 void() Betty_Rise =
 {
-	if (self.ltime < time) {
-		self.velocity = '0 0 0';
-		self.movetype = MOVETYPE_NONE;
-		self.think = SUB_Null;
-		GrenadeExplode();
+	if (self.ltime <= time) {
+		Betty_Explode();
+		return;
 	}
-
+	self.velocity = '0 0 100';
 	self.nextthink = time + 0.05;
-	makevectors(self.angles);
-	self.velocity = v_up*100;
-}
+};
 
-//
-// Betty_Touch()
-// Check if contact is with an enemy,
-// trigger if so.
-//
-void() Betty_Touch = 
+void() Betty_Touch =
 {
-	// Only trigger if an enemy is making contact.
 	if (other.classname != "ai_zombie" && other.classname != "ai_dog")
 		return;
-    // Additional sanity check -- don't activate because of us.
-  	if (other == self.owner || other.solid == SOLID_TRIGGER)
-    	return;
-	// Don't activate if our center point can't even reach the enemy
-	if (!CanDamage(other, self))
+	if (other == self.owner || other.solid == SOLID_TRIGGER || !CanDamage(other, self))
 		return;
-
-    // Next step is to rise!
 	self.think = Betty_Rise;
 	self.touch = SUB_Null;
 	self.nextthink = time + 0.1;
-
-    // Set a timer for when to explode.
 	self.ltime = time + 0.28;
-}
+};
 
-//
-// Betty_Drop()
-// Spawns the Betty grenade and puts it
-// on the ground.
-//
+void() Betty_Stow =
+{
+	if (!self.betty_state)
+		return;
+	W_SprintStop();
+	self.betty_state = 0;
+	self.equipment_attack_latched = self.button0 + self.button8 * 2;
+	self.grenade_delay = 0;
+	self.new_anim_stop = false;
+	self.semi_actions |= SEMIACTION_FIRE_RIGHT | SEMIACTION_FIRE_LEFT;
+	self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.3;
+	W_PlayTakeOut();
+};
+
+void() Betty_Ready =
+{
+	if (!self.betty_state)
+		return;
+	if (self.secondary_grenades < 1) {
+		Betty_Stow();
+		return;
+	}
+	self.betty_state = BETTY_READY;
+	Set_W_Frame(BETTY_DROP_START, BETTY_DROP_START, 0, 0, GRENADE, SUB_Null, self.weaponmodel, false, S_RIGHT, false);
+	W_HideCrosshair(self);
+};
+
 void() Betty_Drop =
 {
-    // Spawn it and set its attributes.
-	entity betty;
-	betty = spawn ();
+	if (self.betty_state != BETTY_PLACING || self.secondary_grenades < 1)
+		return;
+
+	// Trace from the player's centre, rather than subtracting stance-dependent eye height.
+	traceline(self.origin, self.origin - '0 0 256', true, self);
+	if (trace_fraction == 1 || trace_allsolid || trace_plane_normal_z < 0.5) {
+		Betty_Ready();
+		return;
+	}
+	entity betty = spawn();
 	betty.owner = self;
-	betty.grenade_delay = betty.owner.grenade_delay;
-	betty.owner.grenade_delay = 0;
 	betty.movetype = MOVETYPE_NOCLIP;
 	betty.solid = SOLID_TRIGGER;
 	betty.classname = "betty";
-
-	betty.velocity = v_forward*0;
 	betty.touch = Betty_Touch;
+	vector placement = trace_endpos;
 
-	setmodel (betty, "models/weapons/grenade/g_betty.mdl");
-	setsize (betty, '-64 -64 -4', '64 64 32');
+	setmodel(betty, "models/weapons/grenade/g_betty.mdl");
+	setsize(betty, '-64 -64 -4', '64 64 32');
+	setorigin(betty, placement);
 
-	betty.origin = betty.owner.origin - self.view_ofs + '0 0 1';
-
-	// If we're in the air, just drop the betty to the ground
-    // cypress -- This felt a little whack so I checked World at War..
-    // ..and it does this too, so..
-	if (!(self.flags & FL_ONGROUND)) {
-		entity oldself;
-		oldself = self;
-		self = betty;
-		
-#ifdef FTE
-
-		droptofloor();
-
-#else
-
-		droptofloor(0, 0);
-
-#endif // FTE
-
-		self = oldself;
-    }
-
-    // Sink into the ground a bit
-    betty.origin += v_forward * 0;
-    betty.origin += v_up * -1;
-	setorigin (betty, betty.origin);
-
-    // Return the player's weapon to them
-	self.animend = W_PlayTakeOut;
-	self.callfuncat = 0;
-	self.isBuying = false;  
+	self.secondary_grenades -= 1;
+	self.betty_attack_released = false;
 
 	nzp_rumble(self, 1000, 1200, 75);
-}
+	Betty_Ready();
+};
 
-//
-// Betty_CheckForRelease()
-// Holds the Bouncing Betty until the
-// action button is released, then kicks
-// off spawning the entity.
-//
 void() Betty_CheckForRelease =
 {
-    // Release the Betty
-	if (!self.button3) {
-		if(self.grenade_delay < time)
-			self.grenade_delay = time + 0.05;
-		self.isBuying = true;
-		Set_W_Frame (13, 19, 0.3, 5, GRENADE, Betty_Drop, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT, true);
+	if (!self.betty_state)
+		return;
+	self.betty_state = BETTY_HOLDING;
+	if (!self.button0) {
+		self.betty_state = BETTY_PLACING;
+		Set_W_Frame(BETTY_DROP_START, BETTY_DROP_END, BETTY_DROP_DURATION, 0, GRENADE, Betty_Drop,
+			"models/weapons/grenade/v_betty.mdl", true, S_RIGHT, false);
 		Sound_PlaySound(self, "sounds/weapons/grenade/throw.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
-		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
-		self.throw_delay = time + 0.9;
+	} else {
+		Set_W_Frame(BETTY_DROP_START, BETTY_DROP_START, 0, 0, GRENADE, Betty_CheckForRelease,
+			"models/weapons/grenade/v_betty.mdl", true, S_RIGHT, false);
 	}
-    // Keep holding it
-	else {    
-		self.isBuying = true;
-		Set_W_Frame (13, 13, 0, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT, true);
-	}	
-}
+};
 
-//
-// W_PrimeBetty()
-// Priming/Init state for the Bouncing Betty,
-// called inside of weapon_core.
-//
-void() W_PrimeBetty = 
+void() Betty_Toggle =
 {
-	if (game_modifiers.gameplay.player.can_use_equipment == false)
+	if (self.betty_state) {
+		if (self.betty_state != BETTY_PLACING)
+			Betty_Stow();
+		return;
+	}
+
+	if (!game_modifiers.gameplay.player.can_use_equipment || self.health <= 0 ||
+		self.downed || self.is_spectator || (self.map_control_flags & PLAYER_CONTROL_FROZEN) ||
+		self.secondary_grenades < 1 || self.isBuying || self.throw_delay > time ||
+		self.reload_delay > time || self.fire_delay > time || self.new_anim_stop ||
+		self.reload_delay2 > time || self.fire_delay2 > time || self.new_anim2_stop)
 		return;
 
-	if (self.throw_delay > time || self.zoom || self.downed || self.secondary_grenades < 1 || self.isBuying)
-		return;
-
-	// Prevent the Player from Sprinting and also avoid issues with
-	// the equipment being completely cancelled..
+	W_AimOut();
 	W_SprintStop();
-
+	self.ads_release = self.has_ads_toggle = false;
+	self.betty_state = BETTY_DRAWING;
+	self.betty_attack_released = !self.button0;
+	self.semi_actions |= SEMIACTION_GRENADE;
+	self.weaponmodel = "models/weapons/grenade/v_betty.mdl";
+	self.weapon2model = "";
+	self.animend2 = SUB_Null;
+	self.callfuncat2 = 0;
+	self.new_anim2_stop = false;
+	self.viewmodel_effects = self.viewmodel2_effects = 0;
+	Set_W_Frame(BETTY_DROP_END, BETTY_DROP_START, BETTY_DROP_DURATION, 0, GRENADE, Betty_Ready,
+		self.weaponmodel, true, S_RIGHT, false);
+	self.anim_weapon_time = time + self.weapon_animduration;
 	W_HideCrosshair(self);
+};
 
-    // Play the "prime" animation for the betty viewmodel.
-	Set_W_Frame (0, 13, 1, 0, GRENADE, Betty_CheckForRelease, "models/weapons/grenade/v_betty.mdl", true, S_RIGHT, true);
+float() Betty_Input =
+{
+	if (!self.betty_state)
+		return false;
+	if (self.map_control_flags & PLAYER_CONTROL_FROZEN)
+		return true;
+	if (!self.button7)
+		self.semi_actions &= ~SEMIACTION_USE;
+	if (!self.button3)
+		self.semi_actions &= ~SEMIACTION_GRENADE;
+	if (!self.button0)
+		self.betty_attack_released = true;
+	if ((self.button3 && !(self.semi_actions & SEMIACTION_GRENADE)) || self.button4) {
+		self.semi_actions |= SEMIACTION_GRENADE | SEMIACTION_WEAPONSWAP;
+		Betty_Toggle();
+		return true;
+	}
+	if (self.betty_state == BETTY_READY && self.button0 && self.betty_attack_released) {
+		W_SprintStop();
+		self.betty_attack_released = false;
+		self.betty_state = BETTY_PRIMING;
 
-    // Subtract a betty from our inventory, set up delays, prevent use spam.
-	self.secondary_grenades -= 1;
-	self.grenade_delay = self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-}
+		Set_W_Frame(BETTY_PIN_PULL_START, BETTY_DROP_START, 0.7, 0, GRENADE, Betty_CheckForRelease, self.weaponmodel, true, S_RIGHT, false);
+	}
+	return true;
+};

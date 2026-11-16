@@ -754,3 +754,21 @@ waypoint_ai waypoints[MAX_WAYPOINTS];
 .float path_wait_ground;
 
 .float dog_run_check_time;
+
+// MARK: Equipment
+
+#define BETTY_READY 1
+#define BETTY_PRIMING 2
+#define BETTY_HOLDING 3
+#define BETTY_PLACING 4
+#define BETTY_DRAWING 5
+
+.float betty_state;
+.float betty_attack_released;
+
+.entity tossback_grenade;
+.entity grenade_pickup_trigger;
+
+.float equipment_state;
+.float grenade_returning;
+.float equipment_attack_latched;

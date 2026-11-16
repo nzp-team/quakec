@@ -317,6 +317,7 @@ float(float root) Modifiers_Validate =
     if (!Modifiers_CheckColor(root, "interface.rounds.color")) return false;
     if (!Modifiers_CheckArray(root, "interface.rounds.graphics.tally_marks", 5)) return false;
     if (!Modifiers_CheckArray(root, "interface.rounds.graphics.numeric", 10)) return false;
+    if (!Modifiers_CheckValue(root, "interface.equipment.graphics.dpad", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.equipment.graphics.grenade", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.equipment.graphics.bouncing_betty", JNODE_STRING, 0, 0)) return false;
     if (!Modifiers_CheckValue(root, "interface.score.graphics.score_background_full", JNODE_STRING, 0, 0)) return false;
@@ -659,8 +660,9 @@ void(float config_root, float initialize) Modifiers_ApplyValues =
         game_modifiers.interface.rounds.graphics.numeric[8] = strzone("gfx/hud/r_num8");
         game_modifiers.interface.rounds.graphics.numeric[9] = strzone("gfx/hud/r_num9");
     }
-    game_modifiers.interface.equipment.graphics.grenade = Modifiers_ReadString(config_root, "interface.equipment.graphics.grenade", game_modifiers.interface.equipment.graphics.grenade, initialize, "gfx/hud/frag");
-    game_modifiers.interface.equipment.graphics.bouncing_betty = Modifiers_ReadString(config_root, "interface.equipment.graphics.bouncing_betty", game_modifiers.interface.equipment.graphics.bouncing_betty, initialize, "gfx/hud/betty");
+    game_modifiers.interface.equipment.graphics.dpad = Modifiers_ReadString(config_root, "interface.equipment.graphics.dpad", game_modifiers.interface.equipment.graphics.dpad, initialize, "gfx/hud/default/equipment/dpad");
+    game_modifiers.interface.equipment.graphics.grenade = Modifiers_ReadString(config_root, "interface.equipment.graphics.grenade", game_modifiers.interface.equipment.graphics.grenade, initialize, "gfx/hud/default/equipment/frag");
+    game_modifiers.interface.equipment.graphics.bouncing_betty = Modifiers_ReadString(config_root, "interface.equipment.graphics.bouncing_betty", game_modifiers.interface.equipment.graphics.bouncing_betty, initialize, "gfx/hud/default/equipment/betty");
     game_modifiers.interface.score.position_style = Modifiers_ReadString(config_root, "interface.score.position_style", game_modifiers.interface.score.position_style, initialize, "left");
     game_modifiers.interface.score.graphics.score_background_full = Modifiers_ReadString(config_root, "interface.score.graphics.score_background_full", game_modifiers.interface.score.graphics.score_background_full, initialize, "gfx/hud/moneyback");
     game_modifiers.interface.score.graphics.score_background_condensed = Modifiers_ReadString(config_root, "interface.score.graphics.score_background_condensed", game_modifiers.interface.score.graphics.score_background_condensed, initialize, "gfx/hud/moneyback_condensed");
@@ -854,5 +856,6 @@ void() Modifiers_RegisterHUD =
     nzp_hudconfig(32, game_modifiers.interface.score.position_style);
 	nzp_hudconfig(33, game_modifiers.interface.rounds.position_style);
 	nzp_hudconfig(34, ftos(game_modifiers.interface.rounds.skip_intro));
+    nzp_hudconfig(35, game_modifiers.interface.equipment.graphics.dpad);
 	nzp_setroundcolor(game_modifiers.interface.rounds.color);
 };
