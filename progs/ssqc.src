@@ -106,7 +106,9 @@ weapons/ballistic_knife.qc
 weapons/tesla.qc
 weapons/flamethrower.qc
 weapons/grenade_launcher.qc
+weapons/grenade.qc
 weapons/bouncing_betty.qc
+weapons/equipment.qc
 weapons/weapon_core.qc
 entities/powerups.qc
 ai/ai_core.qc
@@ -147,6 +149,7 @@ tests/test_teleporter.qc
 tests/test_useprints.qc
 tests/test_trigger_push.qc
 tests/test_player_controls.qc
+tests/test_equipment.qc
 tests/test_list.qc
 tests/test_module.qc
 #endif

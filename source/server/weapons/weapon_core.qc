@@ -29,7 +29,6 @@
 void() W_PutOut;
 float(entity who, float weapon) Zombie_HeadCanGib;
 void(float side) W_Reload;
-void() GrenadeExplode;
 void() W_SprintStart;
 #ifdef FTE
 void() AI_SetAllEnemiesBBOX;
@@ -69,6 +68,11 @@ void(entity person) W_ShowCrosshair =
 #else
 	if (person == world)
 		return;
+
+	if (person.betty_state) {
+		W_HideCrosshair(person);
+		return;
+	}
 
 	// Grab the type of crosshair
 	float crosshair_type;
@@ -202,7 +206,8 @@ void() W_SprintStop =
 	if (self.isBuying || !self.sprinting)
 		return;
 
-	Weapon_PlayViewModelAnimation(ANIM_SPRINT_STOP, ReturnWeaponModel, 0);
+	if (!self.betty_state)
+		Weapon_PlayViewModelAnimation(ANIM_SPRINT_STOP, ReturnWeaponModel, 0);
 
 	// Run Walk for a few frames to simulate an ease in velocity
 	PAnim_Walk6();
@@ -251,7 +256,8 @@ void W_SprintStart () {
 		return;
 	}
 
-	Weapon_PlayViewModelAnimation(ANIM_SPRINT_START, ContinueRun, 0);
+	if (!self.betty_state)
+		Weapon_PlayViewModelAnimation(ANIM_SPRINT_START, ContinueRun, 0);
 
 	self.zoom = 3;
 	self.sprint_delay = time + 1;
@@ -287,6 +293,7 @@ void() W_PutOut =
 
 void() W_TakeOut =
 {
+	self.betty_state = 0;
 	self.isBuying = false;
 
 	float duration = getWeaponDelay(self.weapon, TAKEOUT);
@@ -1427,211 +1434,6 @@ void() WeaponCore_Melee =
 		self.velocity = applied_velocity;
 }
 
-/******************************
-* W_Grenade                   *
-******************************/
-
-void() switch_nade = 
-{ 
-	if (self.downed || self.isBuying || !(self.grenades & 2) || self.grenade_delay > time)
-      return;
-
-	if (self.pri_grenade_state == 0)
-	{
-		centerprint (self, "Bouncing Betties Selected");
-		self.bk_nade = 1;
-    }
-    if (self.pri_grenade_state == 1)
-    {
-		centerprint (self, "Frag Grenades Selected");
-		self.bk_nade = 0;
-    }  	
-	
-	self.pri_grenade_state = self.bk_nade;
-
-};
-
-void() GrenadeExplode =
-{
-	Sound_PlaySound(self, "sounds/weapons/grenade/explode.wav", SOUND_TYPE_WEAPON_EXPLODE, SOUND_PRIORITY_ALLOWSKIP);
-
-	self.enemy = world;
-	if (self.classname == "projectile_grenade" && (other.flags & FL_MONSTER))
-		self.enemy = other;
-
-	if (self.classname == "grenade")
-		DamgageExplode (self, self.owner, 300, 75, 256);
-	else if (self.classname == "betty")
-		DamgageExplode (self, self.owner, 12000, 11000, 128);
-	else
-		DamgageExplode (self, self.owner, 1200, 75, 200);
-
-#ifdef FTE
-
-    te_customflash(self.origin, 200, 300, '1 1 1');
-
-#endif // FTE
-
-	// Really stupid hack: For betties, let's dramatically increase
-	// the explosion effect.
-	if (self.classname == "betty") {
-		CallExplosion(self.origin);	
-		CallExplosion(self.origin);	
-		CallExplosion(self.origin);	
-		CallExplosion(self.origin);	
-	} else {
-    	CallExplosion(self.origin);		
-	}
-
-	if (self.classname != "player")
-		SUB_Remove();
-};
-
-void() NadeStraighten =
-{
-	self.angles_x = (self.angles_x > 0) ? 90 : -90;	
-	
-	if (self.pri_grenade_state == 1)
-    return;
-};
-void() Velocity_reduce =
-{
-	// If explode-on-contact is on, just explode here..
-	if (game_modifier_grenades_explode_on_contact) {
-		GrenadeExplode();
-		return;
-	}
-
-	// Do one (1) damage on monster contact, to kill when Insta-Kill is active.
-	if (other.flags & FL_MONSTER)
-		DamageHandler(other, self.owner, 1, DMG_TYPE_OTHER);
-
-	if (!other.solid || other.solid == SOLID_TRIGGER)
-		if (other != world)
-			return;
-
-	self.velocity = self.velocity*0.5;
-	
-	NadeStraighten();
-};
-
-void() W_ThrowGrenade =
-{
-	string modelname;
-	float startframe;
-	float endframe;
-	local	entity nade;
-
-	W_HideCrosshair(self);
-
-	if (self.pri_grenade_state == 0) {
-		nade = spawn ();
-		nade.owner = self;
-		nade.grenade_delay = nade.owner.grenade_delay;
-		nade.owner.grenade_delay = 0;
-		nade.movetype = MOVETYPE_BOUNCE;
-		nade.solid = SOLID_BBOX;
-		nade.classname = "grenade";
-
-		// set nade speed	
-
-		makevectors (self.v_angle);
-
-		nade.velocity = v_forward*1400;
-		
-		nade.avelocity = '400 -400 400';
-
-		//nade.angles = vectoangles(nade.velocity);
-		//nade.angles_z += (nade.angles_z + 180 < 360)? 180 : -180;
-		nade.angles = vectoangles(v_forward);
-		nade.angles_z -= 15;
-		// set nade duration
-		nade.nextthink = nade.grenade_delay;
-		nade.think = GrenadeExplode;
-
-		nade.touch = Velocity_reduce;
-		setmodel (nade, "models/weapons/grenade/g_grenade.mdl");
-		setsize (nade, '0 0 0', '0 0 0');
-		nade.origin = self.origin + self.view_ofs;
-		nade.origin += v_forward * 12;
-		setorigin (nade, nade.origin);
-
-		self.animend = ReturnWeaponModel;
-		self.callfuncat = 0;
-		self.isBuying = false;
-	} else if (self.pri_grenade_state == 1) {
-		Betty_Drop();
-	} else  {
-		centerprint (other, "No grenadetype defined...\n");
-	}
-
-	startframe = GetFrame(self.weapon,TAKE_OUT_START);
-	endframe = GetFrame(self.weapon,TAKE_OUT_END);
-	modelname = GetWeaponModel(self.weapon, 0);
-	Set_W_Frame (startframe, endframe, 0, 0, 0, ReturnWeaponModel, modelname, false, S_BOTH, false);
-
-	SetUpdate(self, UT_HUD, 7, 0, 0);
-}
-
-void() checkHold =
-{
-	if (self.pri_grenade_state == 1) {
-		Betty_CheckForRelease();
-		return;
-	}
-
-	if (!self.button3 || self.grenade_delay < time)
-	{
-		if(self.grenade_delay < time)
-			self.grenade_delay = time + 0.05;
-			
-		self.isBuying = true;  
-		Set_W_Frame (3, 6, 0, 5, GRENADE, W_ThrowGrenade, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT, true);
-		Sound_PlaySound(self, "sounds/weapons/grenade/throw.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
-		self.reload_delay2 = self.fire_delay2 = self.reload_delay = self.fire_delay = time + 0.4;
-		self.throw_delay = time + 0.9;
-		nzp_rumble(self, 1000, 1200, 75);
-	}
-	else
-	{
-		if (self.isBuying == false) {
-			W_ShowCrosshair(self);
-			self.isBuying = true;
-		}
-
-		// Pulse the grenade crosshair every 1 second
-		float difference = rint(self.grenade_delay - time);
-		if (difference != self.beingrevived) {
-			self.beingrevived = difference;
-			grenade_pulse(self);
-		}
-
-		Set_W_Frame (2, 2, 0, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT, true);
-	}
-}
-
-void() W_Grenade =
-{
-	if (game_modifiers.gameplay.player.can_use_equipment == false)
-		return;
-
-	if (self.throw_delay > time || self.zoom || self.downed || self.primary_grenades < 1 || self.isBuying)
-		return;
-
-	// Prevent the Player from Sprinting and also avoid issues with
-	// the equipment being completely cancelled..
-	W_SprintStop();
-
-	W_HideCrosshair(self);
-	Set_W_Frame (0, 2, 0.6, 0, GRENADE, checkHold, "models/weapons/grenade/v_grenade.mdl", true, S_RIGHT, true);
-	Sound_PlaySound(self, "sounds/weapons/grenade/prime.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
-	self.primary_grenades -= 1;
-	self.reload_delay2 = self.fire_delay2 = self.throw_delay = self.reload_delay = self.fire_delay = time + 6;
-	self.grenade_delay = time + 5;
-
-	nzp_rumble(self, 1000, 1200, 75);
-} 
-
 void(float wepnum) CheckButton = {
 	W_PutOut();
 }
@@ -1795,14 +1597,20 @@ void () Impulse_Functions =
 			W_SprintStop();
 			break;
 		case 25:
-			switch_nade();
+			Equipment_Select(1 - self.pri_grenade_state);
 			break;
 		case 26:
 			self.ads_release = !self.ads_release;
 			self.has_ads_toggle = true;
 			break;
+		case 34:
+			Equipment_Select(0);
+			break;
+		case 35:
+			Equipment_Select(1);
+			break;
 		case 33:
-			W_PrimeBetty();
+			Betty_Toggle();
 			break;
 		case 26:
 		case 30:
@@ -2008,6 +1816,8 @@ void() WeaponCore_UpdateRecoilAndSpread =
 //
 void() WeaponCore_UpdateViewModels =
 {
+	if (self.betty_state == BETTY_READY)
+		return;
 	// If the weapon has a "Hold Fire" frame (e.g., M2 Flamethrower)
 	// And it's actively firing, we shouldn't force an update.
 	float hold_fire_frame = GetFrame(self.weapon, FIRE_HOLD); // Avoid iterating through long switch twice.
@@ -2079,6 +1889,8 @@ inline void() WeaponCore_UpdateWeaponStats =
 //
 void() WeaponCore_FireButtonPressed =
 {
+	if (self.equipment_attack_latched & 1)
+		return;
 	// With keyboard/mouse input, we want akimbo weapons to actually correspond
 	// to which click of the mouse you've provided, which is different behavior
 	// to single-hand weapons, where left click fires its right-side. (Hooray
@@ -2136,6 +1948,8 @@ void() WeaponCore_FireButtonReleased =
 //
 void() WeaponCore_AimButtonPressed =
 {
+	if (self.equipment_attack_latched & 2)
+		return;
 	// If we're holding an akimbo weapon, we actually want to
 	// fire our secondary as opposed to Aiming down the Sight.
 	if (IsDualWeapon(self.weapon)) {
@@ -2205,10 +2019,13 @@ void() WeaponCore_GrenadeButtonPressed =
 	if (self.grenade_delay > time || (self.semi_actions & SEMIACTION_GRENADE))
 		return;
 
-	if (self.pri_grenade_state == 0)
+	entity grenade = Grenade_TossbackTarget();
+	if (grenade != world)
+		Grenade_Tossback(grenade);
+	else if (self.pri_grenade_state == 0)
 		W_Grenade();
-    else
-        W_PrimeBetty();
+	else
+		Betty_Toggle();
 
 	self.semi_actions |= SEMIACTION_GRENADE;
 };
@@ -2260,6 +2077,12 @@ void() WeaponCore_ClientLogic =
 	// are being networked to the client.
 	WeaponCore_UpdateWeaponStats();
 
+	// Cancel equipment before callbacks can restore it after death/downing.
+	Equipment_Update();
+
+	// A returned grenade can expire before the release callback.
+	Grenade_CheckReturnedFuse();
+
 	// Viewmodel animation playback.
 	WeaponCore_UpdateViewModels();
 
@@ -2291,6 +2114,10 @@ void() WeaponCore_ClientLogic =
 	if (self.stance == PLAYER_STANCE_PRONE && self.velocity && self.zoom) {
 		W_AimOut();
 	}
+
+	// Equipped Betties own combat input, but leave movement and interaction intact.
+	if (Betty_Input())
+		return;
 
 	// Fire Button Pressed
 	if (self.button0) {

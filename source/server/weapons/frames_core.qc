@@ -121,7 +121,7 @@ void () W_Frame_Update =
 	
 	self.anim_weapon_time = time + self.weapon_animduration;
 
-	if (self.weaponframe != self.weaponframe_end && !self.anim_reversed)
+	if (self.weaponframe != self.weaponframe_end)
 	{   // continue an animation
 
         if (self.anim_reversed) {
@@ -159,8 +159,7 @@ void () W_Frame_Update =
 			nzp_rumble(self, 1000, 1200, 75);
 		}
 
-		// FIXME: We need a way to play sounds at specific frames for any viewmodel, not just weapons
-		if (self.weaponmodel == "models/weapons/grenade/v_betty.mdl" && self.weaponframe == 9) {
+		if (self.betty_state == BETTY_PRIMING && self.weaponframe == 9) {
 			Sound_PlaySound(self, "sounds/weapons/grenade/prime.wav", SOUND_TYPE_WEAPON_OTHER, SOUND_PRIORITY_PLAYALWAYS);
 			nzp_rumble(self, 1000, 1200, 75);
 		}
